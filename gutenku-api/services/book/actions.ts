@@ -1,6 +1,6 @@
-import Book from '../models/book';
+import Book from '../../models/book';
 
-export default {
+export const haiku = {
     async generate() {
         const books = await Book.find().populate('chapters').exec();
 

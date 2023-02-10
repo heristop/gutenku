@@ -4,9 +4,11 @@ import BookService from '../services/BookService';
 import HighlightText from './HighLightText.vue';
 import { HaikuValue } from '../types';
 
-const blackMarker = ref(true);
-const loading = ref(false);
+const blackMarker = ref<Boolean>(false);
+const loading = ref<Boolean>(false);
 
+let networkError = ref<Boolean>(false);
+let displaySnackbar = ref<Boolean>(false);
 let haiku = ref<HaikuValue>();
 
 async function fetchText() {
@@ -24,9 +26,13 @@ async function fetchText() {
     };
 
     loading.value = true;
+    networkError.value = false;
 
     try {
         haiku.value = await BookService.fetch();
+    } catch (error) {
+        networkError.value = true;
+        displaySnackbar.value = true;
     } finally {
         loading.value = false;
     }
@@ -42,8 +48,12 @@ onMounted(fetchText);
 <template>
     <v-container>
         <v-row>
-            <v-col cols="12" sm="8">
-                <v-card v-if="haiku" :loading="loading" class="paragraphes pa-10 align-center justify-center">
+            <v-col cols="12" sm="8" class="h-100">
+                <v-card v-if="haiku" :loading="loading" class="paragraphes pa-10 align-center justify-center"
+                    min-height="600px">
+                    <iframe v-show="networkError" src='https://gfycat.com/ifr/FirmObeseDuckbillcat' frameborder='0'
+                        scrolling='no' width='640' height='396'></iframe>
+
                     <h3 class="text-h5 text-center mb-4">
                         {{ haiku.book.title }}
                     </h3>
@@ -66,31 +76,38 @@ onMounted(fetchText);
             </v-col>
 
             <v-col cols="12" sm="4">
-                <v-card :loading="loading" class="pa-10 align-center justify-center mb-6">
-                    <v-row class="d-flex align-center justify-center ma-6">
-                        <v-col align="center">
-                            <v-btn size="small" color="primary" prepend-icon="mdi-reload" @click="fetchText()">
-                                Fetch
-                            </v-btn>
-                        </v-col>
+                <v-card :loading="loading" class="actions pa-10 align-center justify-center mb-6">
+                    <v-row class="d-flex align-center justify-center ma-6 pa-10">
+                        <div class="w-100">
+                            <v-col align="center">
+                                <v-btn size="small" color="primary" :disabled="loading"
+                                    :prepend-icon="loading ? 'mdi-loading mdi-spin' : 'mdi-reload'"
+                                    @click="fetchText()">
+                                    Fetch
+                                </v-btn>
+                            </v-col>
 
-                        <v-col align="center">
-                            <v-btn size="small" color="primary" prepend-icon="mdi-flip-horizontal" @click="toggle()">
-                                Toggle
-                            </v-btn>
-                        </v-col>
+                            <v-col align="center">
+                                <v-btn size="small" color="primary" :disabled="loading"
+                                    :prepend-icon="blackMarker ? 'mdi-lightbulb-on' : 'mdi-lightbulb-off'"
+                                    @click="toggle()">
+                                    Toggle
+                                </v-btn>
+                            </v-col>
+                        </div>
                     </v-row>
                 </v-card>
 
-                <v-card v-if="haiku" :loading="loading" class="pa-10 justify-center align-center">
+                <v-card v-if="haiku && haiku.verses.length > 0" :loading="loading"
+                    class="pa-10 justify-center align-center" min-height="150px">
                     <v-row>
-                        <div>
-                            <b>Haiku generated</b>
+                        <div class="w-100">
+                            <h3><v-icon>mdi-notification-clear-all</v-icon> Haiku generated</h3>
 
                             <v-divider />
 
-                            <div class="justify-left align-left pa-2">
-                                <p class="paragraphes" v-for="sentence in haiku.verses" :key="sentence">{{
+                            <div class="justify-left align-left pa-4">
+                                <p class="paragraphes pa-2" v-for="sentence in haiku.verses" :key="sentence">{{
                                     sentence
                                 }}<br /></p>
                             </div>
@@ -100,9 +117,25 @@ onMounted(fetchText);
             </v-col>
         </v-row>
     </v-container>
+
+    <v-snackbar v-model="displaySnackbar" multi-line>
+        Network Error
+
+        <template v-slot:actions>
+            <v-btn color="red" variant="text" @click="displaySnackbar = false">
+                Close
+            </v-btn>
+        </template>
+    </v-snackbar>
 </template>
 
 <style lang="scss">
+.actions {
+    .v-btn {
+        width: 120px;
+    }
+}
+
 .paragraphes {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -117,6 +150,7 @@ onMounted(fetchText);
     p {
         mark {
             padding-inline: 3px;
+            background: rgb(248, 174, 62);
         }
 
         &.dark-theme {

@@ -4,8 +4,8 @@ import dotenv from 'dotenv';
 import express from 'express'
 import http from 'http'
 import mongoose, { ConnectOptions } from 'mongoose';
-import resolvers from '../services/resolvers';
-import typeDefs from '../services/typeDefs';
+import resolvers from '../services/book/resolvers';
+import typeDefs from '../services/book/typeDefs';
 
 dotenv.config();
 
