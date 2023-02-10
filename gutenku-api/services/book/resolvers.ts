@@ -1,6 +1,6 @@
-import Book from '../models/book';
-import Chapter from '../models/chapter';
-import HaikuService from './HaikuService';
+import Book from '../../models/book';
+import Chapter from '../../models/chapter';
+import { haiku } from './actions';
 
 const resolvers = {
     Query: {
@@ -14,7 +14,7 @@ const resolvers = {
             return Chapter.find().exec();
         },
         haiku: async () => {
-            return await HaikuService.generate();
+            return await haiku.generate();
         },
     }
 };

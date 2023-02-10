@@ -1,5 +1,5 @@
 <template>
-    <span v-html="lines" />
+    <span v-html="formattedText" />
 </template>
 
 <script lang="ts">
@@ -17,20 +17,24 @@ export default {
         },
     },
     setup(props) {
-        const lines = computed(() => {
+        const formattedText = computed(() => {
             let rawText = props.text.trim().replace(/"/g, ' ');
 
-            props.lines.forEach((line) => {
-                rawText = rawText.replace(new RegExp(line.toString(), 'g'), (match) => {
-                    return `<mark>${match}</mark>`;
+            try {
+                props.lines.forEach((line) => {
+                    rawText = rawText.replace(new RegExp(line.toString(), 'g'), (match) => {
+                        return `<mark>${match}</mark>`;
+                    });
                 });
-            });
+            } catch (error) {
+                //
+            }
 
             return rawText.replace(/\n\n/g, '<br /><br />');
         });
 
         return {
-            lines,
+            formattedText,
         };
     },
 };
