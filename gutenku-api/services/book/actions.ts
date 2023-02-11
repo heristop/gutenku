@@ -15,7 +15,8 @@ export const haiku = {
         }
 
         const randomChapter = randomBook.chapters[Math.floor(Math.random() * randomBook.chapters.length)];
-        const verses = this.extract(randomChapter.content);
+        // eslint-disable-next-line
+        const verses = this.extract(randomChapter['content']);
 
         return {
             'book': {
