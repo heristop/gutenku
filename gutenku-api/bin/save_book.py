@@ -50,6 +50,7 @@ else:
     new_book_id = result.inserted_id
 
     # Split the chapters using a regular expression
+    #chapters = re.split(r'CHAPTER\s+(\d+|[IVXLCDM]+)\.', text)
     chapters = re.split(r'CHAPTER \d+\.', text)
     # Remove the table of contents by removing the first element of the list
     chapters_without_toc = chapters[1:]

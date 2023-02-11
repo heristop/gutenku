@@ -5,8 +5,17 @@ export const haiku = {
         const books = await Book.find().populate('chapters').exec();
 
         const randomBook = books[Math.floor(Math.random() * books.length)];
+
+        if (!randomBook) {
+            throw 'No book found'
+        }
+
+        if (0 === randomBook.chapters.length) {
+            throw `No chapter found for book "${randomBook.title}"`
+        }
+
         const randomChapter = randomBook.chapters[Math.floor(Math.random() * randomBook.chapters.length)];
-        const verses = this.extract(randomChapter["content"]);
+        const verses = this.extract(randomChapter.content);
 
         return {
             'book': {
@@ -34,6 +43,10 @@ export const haiku = {
             if (verses.length < 3) {
                 maxLength += 1;
             }
+
+            if (maxLength > 25) {
+                break;
+            }
         }
 
         return verses.slice(0, 3);
@@ -47,7 +60,7 @@ export const haiku = {
         });
     },
 
-    countSyllables(text) {
+    countSyllables(text: string) {
         // Remove punctuation and convert to lowercase
         const cleanText = text.replace(/[^a-zA-Z ]/g, "").toLowerCase();
 

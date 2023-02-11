@@ -1,5 +1,5 @@
 <template>
-    <span v-html="formattedText" />
+  <span v-html="formattedText" />
 </template>
 
 <script lang="ts">

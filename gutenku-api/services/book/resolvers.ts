@@ -7,7 +7,7 @@ const resolvers = {
         books() {
             return Book.find().populate('chapters').exec();
         },
-        book: (_, inputs) => {
+        book: (_: unknown, inputs: { id: string; }) => {
             return Book.findById(inputs.id).populate('chapters').exec();
         },
         chapters: () => {

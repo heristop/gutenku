@@ -42,6 +42,9 @@ def extract_haiku(chapter):
         if len(sentences) < 3:
             max_length = max_length + 1
 
+        if max_length > 25:
+            break;
+
     # Select three random sentences
     haiku_sentences = random.sample(sentences, 3)
     haiku_sentences = [s.strip() for s in haiku_sentences]
