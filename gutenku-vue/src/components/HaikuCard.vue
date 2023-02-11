@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import HighlightText from './HighLightText.vue';
 import { useHaikuStore } from '../store/haiku'
 import { storeToRefs } from 'pinia'
-import { computed } from 'vue';
 
 const blackMarker = ref(false);
 
