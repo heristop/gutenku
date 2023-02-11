@@ -1,8 +1,12 @@
 <template>
-    <v-app-bar color="primary">
-        <v-img class="mr-4 logo" lazy-src="@/assets/img/logo.png/gutenku.png" src="@/assets/img/logo.png/gutenku.png"
-            alt="GutenKu" />
-    </v-app-bar>
+  <v-app-bar color="primary">
+    <v-img
+      class="mr-4 logo"
+      lazy-src="@/assets/img/logo.png/gutenku.png"
+      src="@/assets/img/logo.png/gutenku.png"
+      alt="GutenKu"
+    />
+  </v-app-bar>
 </template>
 
 <script lang="ts" setup>

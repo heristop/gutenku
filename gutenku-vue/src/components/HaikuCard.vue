@@ -1,42 +1,18 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-import BookService from '../services/BookService';
 import HighlightText from './HighLightText.vue';
-import { HaikuValue } from '../types';
+import { useHaikuStore } from '../store/haiku'
+import { storeToRefs } from 'pinia'
+import { computed } from 'vue';
 
-const blackMarker = ref<Boolean>(false);
-const loading = ref<Boolean>(false);
+const blackMarker = ref(false);
 
-let networkError = ref<Boolean>(false);
-let displaySnackbar = ref<Boolean>(false);
-let haiku = ref<HaikuValue>();
+const { fetchText } = useHaikuStore();
+const { haiku, loading, error } = storeToRefs(useHaikuStore())
 
-async function fetchText() {
-    haiku.value = {
-        'book': {
-            'title': '',
-            'author': '',
-        },
-        'chapter': {
-            'title': '',
-            'content': ''
-        },
-        'verses': [],
-        'raw_verses': []
-    };
-
-    loading.value = true;
-    networkError.value = false;
-
-    try {
-        haiku.value = await BookService.fetch();
-    } catch (error) {
-        networkError.value = true;
-        displaySnackbar.value = true;
-    } finally {
-        loading.value = false;
-    }
-}
+const networkError = computed(() => {
+    return '' !== error.value;
+});
 
 function toggle(): void {
     blackMarker.value = !blackMarker.value;
@@ -46,96 +22,144 @@ onMounted(fetchText);
 </script>
 
 <template>
-    <v-container>
-        <v-row>
-            <v-col cols="12" sm="8" class="h-100">
-                <v-card v-if="haiku" :loading="loading" class="paragraphes pa-10 align-center justify-center"
-                    min-height="600px">
-                    <iframe v-show="networkError" src='https://gfycat.com/ifr/FirmObeseDuckbillcat' frameborder='0'
-                        scrolling='no' width='640' height='396'></iframe>
+  <v-container>
+    <v-row>
+      <v-col
+        cols="12"
+        sm="8"
+        class="h-100"
+      >
+        <v-card
+          v-if="!haiku"
+          :loading="loading"
+          class="paragraphes pa-10 align-center justify-center"
+        >
+          <video
+            v-show="networkError"
+            width="640"
+            height="396"
+            autoplay
+            loop
+            muted
+          >
+            <source
+              src="@/assets/img/writing.mp4"
+              type="video/mp4"
+            >
+          </video>
+        </v-card>
 
-                    <h3 class="text-h5 text-center mb-4">
-                        {{ haiku.book.title }}
-                    </h3>
+        <v-card
+          v-if="haiku"
+          :loading="loading"
+          class="paragraphes pa-10 align-center justify-center"
+          min-height="600px"
+        >
+          <h3 class="text-h5 text-center mb-4">
+            {{ haiku.book.title }}
+          </h3>
 
-                    <div class="text-center mb-6">
-                        {{ haiku.book.author }}
-                    </div>
+          <div class="text-center mb-6">
+            {{ haiku.book.author }}
+          </div>
 
-                    <v-row class="d-flex align-center justify-center">
-                        <v-col cols="auto">
-                            <p :class="{
-                                'dark-theme': blackMarker,
-                                'light-theme': !blackMarker
-                            }">
-                                <highlight-text :text="haiku.chapter.content" :lines="haiku.raw_verses" />
-                            </p>
-                        </v-col>
-                    </v-row>
-                </v-card>
+          <v-row class="d-flex align-center justify-center">
+            <v-col cols="auto">
+              <p
+                :class="{
+                  'dark-theme': blackMarker,
+                  'light-theme': !blackMarker
+                }"
+              >
+                <highlight-text
+                  :text="haiku.chapter.content"
+                  :lines="haiku.raw_verses"
+                />
+              </p>
             </v-col>
+          </v-row>
+        </v-card>
+      </v-col>
 
-            <v-col cols="12" sm="4">
-                <v-card :loading="loading" class="actions pa-10 align-center justify-center mb-6">
-                    <v-row class="d-flex align-center justify-center ma-6 pa-10">
-                        <div class="w-100">
-                            <v-col align="center">
-                                <v-btn size="small" color="primary" :disabled="loading"
-                                    :prepend-icon="loading ? 'mdi-loading mdi-spin' : 'mdi-reload'"
-                                    @click="fetchText()">
-                                    Fetch
-                                </v-btn>
-                            </v-col>
+      <v-col
+        cols="12"
+        sm="4"
+      >
+        <v-card
+          :loading="loading"
+          class="actions pa-10 align-center justify-center mb-6"
+        >
+          <v-row class="d-flex align-center justify-center">
+            <div class="w-100 pa-10">
+              <v-col align="center">
+                <v-btn
+                  size="small"
+                  color="primary"
+                  :disabled="loading"
+                  :prepend-icon="loading ? 'mdi-loading mdi-spin' : 'mdi-reload'"
+                  @click="fetchText()"
+                >
+                  Fetch
+                </v-btn>
+              </v-col>
 
-                            <v-col align="center">
-                                <v-btn size="small" color="primary" :disabled="loading"
-                                    :prepend-icon="blackMarker ? 'mdi-lightbulb-on' : 'mdi-lightbulb-off'"
-                                    @click="toggle()">
-                                    Toggle
-                                </v-btn>
-                            </v-col>
-                        </div>
-                    </v-row>
-                </v-card>
+              <v-col align="center">
+                <v-btn
+                  size="small"
+                  color="primary"
+                  :disabled="loading"
+                  :prepend-icon="blackMarker ? 'mdi-lightbulb-on' : 'mdi-lightbulb-off'"
+                  @click="toggle()"
+                >
+                  Toggle
+                </v-btn>
+              </v-col>
+            </div>
+          </v-row>
+        </v-card>
 
-                <v-card v-if="haiku && haiku.verses.length > 0" :loading="loading"
-                    class="pa-10 justify-center align-center" min-height="150px">
-                    <v-row>
-                        <div class="w-100">
-                            <h3><v-icon>mdi-notification-clear-all</v-icon> Haiku generated</h3>
+        <v-card
+          v-if="haiku && haiku.verses.length > 0"
+          :loading="loading"
+          class="pa-10 justify-center align-center"
+          min-height="150px"
+        >
+          <v-row>
+            <div class="w-100">
+              <h3><v-icon>mdi-notification-clear-all</v-icon> Haiku generated</h3>
 
-                            <v-divider />
+              <v-divider />
 
-                            <div class="justify-left align-left pa-4">
-                                <p class="paragraphes pa-2" v-for="sentence in haiku.verses" :key="sentence">{{
-                                    sentence
-                                }}<br /></p>
-                            </div>
-                        </div>
-                    </v-row>
-                </v-card>
-            </v-col>
-        </v-row>
-    </v-container>
+              <div class="justify-left align-left pa-4">
+                <p
+                  class="paragraphes pa-2 ma-2"
+                  v-for="sentence in haiku.verses"
+                  :key="sentence"
+                >
+                  {{ sentence }}
+                </p>
+              </div>
+            </div>
+          </v-row>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 
-    <v-snackbar v-model="displaySnackbar" multi-line>
-        Network Error
-
-        <template v-slot:actions>
-            <v-btn color="red" variant="text" @click="displaySnackbar = false">
-                Close
-            </v-btn>
-        </template>
-    </v-snackbar>
+  <v-snackbar v-model="networkError">
+    <v-icon>mdi-alert</v-icon> {{ error }}
+  </v-snackbar>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .actions {
     .v-btn {
         width: 120px;
     }
 }
+</style>
 
+<style lang="scss">
 .paragraphes {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
