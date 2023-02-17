@@ -2,8 +2,8 @@
   <v-app-bar color="primary">
     <v-img
       class="mr-4 logo"
-      lazy-src="@/assets/img/logo.png/gutenku.png"
-      src="@/assets/img/logo.png/gutenku.png"
+      lazy-src="@/assets/img/logo.png/gutenku_white.png"
+      src="@/assets/img/logo.png/gutenku_white.png"
       alt="GutenKu"
     />
   </v-app-bar>
