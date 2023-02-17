@@ -11,6 +11,7 @@ const query = `
             }
             verses
             raw_verses
+            image
             chapter {
                 content
                 title
@@ -30,14 +31,19 @@ export const useHaikuStore = defineStore({
         async fetchText() {
             try {
                 this.loading = true;
-                const response = await axios.post('http://localhost:4000/graphql', {
+                this.error = '';
+                const response = await axios.post(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
                     query,
                     timeout: 300
                 });
 
                 this.haiku = response.data.data.haiku;
+
+                if (null === this.haiku) {
+                    this.error = response.data.errors[0].message;
+                }
             } catch (error) {
-                this.error = 'Network error';
+                this.error = error as string;
             } finally {
                 this.loading = false;
             }

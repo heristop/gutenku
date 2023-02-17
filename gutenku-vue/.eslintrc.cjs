@@ -13,5 +13,6 @@ module.exports = {
     rules: {
         'vue/multi-word-component-names': 'off',
         'indent': ["error", 4],
-    }
+    },
+    ignorePatterns: ['cypress'],
 }

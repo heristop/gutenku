@@ -1,13 +1,14 @@
 import os
 import pymongo
 import random
+import sys
 import re
 import requests
 from dotenv import load_dotenv
 
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
-book_id = os.environ.get('BOOK_ID')
+book_id = int(sys.argv[1])
 
 # Connect to the MongoDB database
 client = pymongo.MongoClient(os.environ.get('MONGODB_URI'))
@@ -16,9 +17,6 @@ book_collection = db["books"]
 chapter_collection = db["chapters"]
 
 cache_directory = "../.cache"
-
-if not os.path.exists(cache_directory):
-    os.makedirs(cache_directory)
 
 # Define the path to the text file containing the ebook
 file_path = f"{cache_directory}/book_{book_id}.txt"
@@ -50,21 +48,28 @@ else:
     new_book_id = result.inserted_id
 
     # Split the chapters using a regular expression
-    #chapters = re.split(r'CHAPTER\s+(\d+|[IVXLCDM]+)\.', text)
-    chapters = re.split(r'CHAPTER \d+\.', text)
-    # Remove the table of contents by removing the first element of the list
-    chapters_without_toc = chapters[1:]
+    chapters = re.split(r'(CHAPTER|BOOK|VOLUME|Chapter) (\d|[IVXLCDMivxlcdmi]+)\.', text)
+    chapters_count = len(chapters)
 
-    # Store each chapter in database with a reference to the book
-    for i, chapter in enumerate(chapters_without_toc):
-        chapter_obj = {
-            "title": "Chapter {}".format(i + 1),
-            "content": chapter
-        }
-        result = chapter_collection.insert_one(chapter_obj)
-        chapter_id = result.inserted_id
-        
-        # Add the chapter to the book
-        book_collection.update_one({"_id": new_book_id}, {"$push": {"chapters": chapter_id}})
+    if int(chapters_count) <= 1:
+        print(f"The book \033[1;32m{book_id}\033[0m has no chapter found")
+   
+    else:
+        print(f"The book \033[1;32m{book_id}\033[0m has \033[1;32m{chapters_count}\033[0m chapters found")
 
-    print(f"The book {book_id} has been successfully saved")
+        # Remove the table of contents by removing the first element of the list
+        chapters_without_toc = chapters[1:]
+
+        # Store each chapter in database with a reference to the book
+        for i, chapter in enumerate(chapters_without_toc):
+            chapter_obj = {
+                "title": "Chapter {}".format(i + 1),
+                "content": chapter
+            }
+            result = chapter_collection.insert_one(chapter_obj)
+            chapter_id = result.inserted_id
+            
+            # Add the chapter to the book
+            book_collection.update_one({"_id": new_book_id}, {"$push": {"chapters": chapter_id}})
+
+        print(f"The book \033[1;32m{book_id}\033[0m has been successfully saved")

@@ -4,8 +4,8 @@ import dotenv from 'dotenv';
 import express from 'express'
 import http from 'http'
 import mongoose, { ConnectOptions } from 'mongoose';
-import resolvers from '../services/book/resolvers';
-import typeDefs from '../services/book/typeDefs';
+import resolvers from '../services/resolvers';
+import typeDefs from '../services/typeDefs';
 
 dotenv.config();
 
@@ -24,7 +24,7 @@ async function listen(port: number) {
     mongoose.set('strictQuery', true);
 
     const uri = process.env.MONGODB_URI || 'mongodb://root:root@localhost:27017'
-    const database = process.env.MONGODB_DB || 'library'
+    const database = process.env.MONGODB_DB || 'admin'
 
     mongoose.connect(`${uri}/${database}`, {
         useNewUrlParser: true,
