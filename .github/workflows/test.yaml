@@ -11,9 +11,11 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - uses: cypress-io/github-action@v4
+      - name: Configure environment
         run: |
-          cd gutenku-api
+          cd gutenku-vue
+          cp .env.dist .env
+      - uses: cypress-io/github-action@v4
         with:
           # env: PORT=3000
           build: yarn build
