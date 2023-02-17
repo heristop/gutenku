@@ -18,6 +18,7 @@ const typeDefs = `#graphql
     chapter: Chapter!
     raw_verses: [String!]
     verses: [String!]
+    image: String
   }
 
   type Query {

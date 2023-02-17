@@ -9,4 +9,5 @@ export interface HaikuValue {
     };
     verses: Array<string>;
     raw_verses: Array<string>;
+    image: string;
 }
