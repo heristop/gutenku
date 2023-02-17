@@ -12,7 +12,9 @@ jobs:
         with:
           node-version: 16
       - uses: cypress-io/github-action@v4
+        run: |
+          cd gutenku-api
         with:
           # env: PORT=3000
-          build: yarn run build
-          start: yarn run start
+          build: yarn build
+          start: yarn start
