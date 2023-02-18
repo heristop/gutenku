@@ -16,5 +16,6 @@ module.exports = {
     rules: {
         '@typescript-eslint/dot-notation': 'error',
         'indent': ["error", 4],
+        'eol-last': "error"
     }
 };

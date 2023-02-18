@@ -1,17 +1,18 @@
 import axios from 'axios';
 import { defineStore } from 'pinia';
-import { HaikuValue } from '@/types';
+import { HaikuValue } from '../types';
 
 const query = `
-    query {
-        haiku {
+    query Query($useAi: Boolean) {
+        haiku(useAI: $useAi) {
             book {
                 title
                 author
             }
             verses
-            raw_verses
+            rawVerses
             image
+            meaning
             chapter {
                 content
                 title
@@ -25,6 +26,7 @@ export const useHaikuStore = defineStore({
     state: () => ({
         haiku: null as unknown as HaikuValue,
         loading: false as boolean,
+        useAI: false as boolean,
         error: '' as string
     }),
     actions: {
@@ -32,10 +34,18 @@ export const useHaikuStore = defineStore({
             try {
                 this.loading = true;
                 this.error = '';
-                const response = await axios.post(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
-                    query,
-                    timeout: 300
-                });
+
+                const variables = {
+                    useAi: this.useAI
+                };
+
+                const body = {
+                    query: query,
+                    variables: variables,
+                    timeout: 300,
+                };
+
+                const response = await axios.post(process.env.SERVER_URI || 'http://localhost:4000/graphql', body);
 
                 this.haiku = response.data.data.haiku;
 
