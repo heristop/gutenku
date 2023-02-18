@@ -15,19 +15,33 @@ export default {
             verses = this.extract(randomChapter['content']);
         }
 
-        await Canvas.createPng(this.clean(verses));
-
-        const image = await Canvas.readPng();
-
         return {
             'book': {
                 'title': randomBook.title,
                 'author': randomBook.author
             },
             'chapter': randomChapter,
-            'raw_verses': verses,
+            'rawVerses': verses,
             'verses': this.clean(verses),
-            'image': image.data.toString('base64')
+            'image': null,
+            'meaning': null
+        }
+    },
+
+    async generateWithImage() {
+        return this.addImage(await this.generate());
+    },
+
+    async addImage(haiku: { verses: string[]; }) {
+        await Canvas.createPng(haiku.verses);
+
+        await new Promise(r => setTimeout(r, 500));
+
+        const image = await Canvas.readPng();
+
+        return {
+            ...haiku,
+            'image': image.data.toString('base64'),
         }
     },
 
@@ -54,6 +68,10 @@ export default {
     extract(chapter: string): string[] {
         const sentences = chapter.replace(/([.?!,])\s*(?=[A-Za-z])/g, "$1|").split("|");
         const filteredSentences = sentences.filter((sentence) => {
+            if (/^[A-Z]+$/.test(sentence)) {
+                return false;
+            }
+
             const words = sentence.match(/\b\w+\b/g);
 
             if (!words) {
@@ -87,7 +105,8 @@ export default {
 
     clean(verses: string[]): string[] {
         return verses.map(verse => {
-            verse = verse.trim().replace(/[\n”“‘"]/g, ' ');
+            verse = verse.trim().replace(/[\n”“"]/g, ' ');
+            verse = verse.replace('  ', ' ');
 
             return verse.charAt(0).toUpperCase() + verse.slice(1);
         });
