@@ -1,13 +1,25 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
-import { useHaikuStore } from '../store/haiku'
-import { storeToRefs } from 'pinia'
+import { computed, ref } from 'vue';
+import { useHaikuStore } from '../store/haiku';
+import { storeToRefs } from 'pinia';
 
-const { haiku, loading, error } = storeToRefs(useHaikuStore())
+const { fetchText } = useHaikuStore();
+const { haiku, loading, error, useAI } = storeToRefs(useHaikuStore());
 
 const networkError = computed(() => {
     return '' !== error.value;
 });
+
+const copied = ref(false);
+
+async function copy() {
+    try {
+        await navigator.clipboard.writeText(haiku.value.verses.join("\n"));
+        copied.value = true;
+    } catch (err) {
+        error.value = err as string;
+    }
+}
 </script>
 
 <template>
@@ -16,12 +28,9 @@ const networkError = computed(() => {
     class="pa-10 mb-6"
     color="primary"
   >
-    <div
-      class="pa-4"
-      v-if="haiku"
-    >
+    <div v-if="haiku">
       <p
-        class="pa-2 ma-2"
+        class="pa-4"
         v-for="sentence in haiku.verses"
         :key="sentence"
       >
@@ -43,19 +52,63 @@ const networkError = computed(() => {
       >
     </video>
 
-    <v-card-actions class="justify-end">
+    <v-card-actions
+      v-if="haiku"
+      class="justify-end"
+    >
+      <v-tooltip
+        :text="$t('tooltipAISwitch')"
+        location="bottom"
+      >
+        <template #activator="{ props }">
+          <v-switch
+            v-bind="props"
+            v-model="useAI"
+            color="secondary"
+            hide-details
+            :label="$t('switchAi')"
+          />
+        </template>
+      </v-tooltip>
+
       <v-btn
+        data-cy="fetch-btn"
         class="ms-2"
-        icon="mdi-thumb-up"
-        variant="text"
-        disabled
-      />
+        :prepend-icon="loading ? 'mdi-loading mdi-spin' : 'mdi-reload'"
+        @click="fetchText()"
+      >
+        {{
+          $t('btnGenerate')
+        }}
+      </v-btn>
+
       <v-btn
+        data-cy="copy-btn"
         class="ms-2"
-        icon="mdi-thumb-down"
+        prepend-icon="mdi-content-copy"
         variant="text"
-        disabled
-      />
+        @click="copy()"
+      >
+        {{
+          $t('btnCopy')
+        }}
+      </v-btn>
     </v-card-actions>
   </v-card>
+
+  <v-snackbar
+    v-model="copied"
+    :timeout="2000"
+  >
+    <v-icon>mdi-check-circle</v-icon> {{ $t('copiedMessage') }}
+
+    <template #actions>
+      <v-btn
+        variant="text"
+        @click="copied = false"
+      >
+        {{ $t('closeModal') }}
+      </v-btn>
+    </template>
+  </v-snackbar>
 </template>

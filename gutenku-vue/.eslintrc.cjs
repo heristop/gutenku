@@ -13,6 +13,7 @@ module.exports = {
     rules: {
         'vue/multi-word-component-names': 'off',
         'indent': ["error", 4],
+        'eol-last': "error"
     },
     ignorePatterns: ['cypress'],
 }

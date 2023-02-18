@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { onMounted, computed } from 'vue';
+import HaikuAi from '@/components/HaikuAi.vue';
 import HaikuCanvas from '@/components/HaikuCanvas.vue';
 import HaikuCard from '@/components/HaikuCard.vue';
 import HaikuChapter from '@/components/HaikuChapter.vue';
@@ -28,7 +29,7 @@ onMounted(fetchText);
           >
             <v-card
               class="mx-auto pa-4 mb-6"
-              :title="$t('titlePresentationBlock')"
+              :title="$t('titlePresentationCard')"
             >
               <p>
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
@@ -53,7 +54,11 @@ onMounted(fetchText);
               </v-card-actions>
             </v-card>
 
-            <haiku-canvas />
+            <v-card>
+              <v-footer class="justify-right">
+                <small>{{ new Date().getFullYear() }} — <strong>heristop</strong></small>
+              </v-footer>
+            </v-card>
           </v-col>
 
           <v-col
@@ -63,12 +68,19 @@ onMounted(fetchText);
           >
             <haiku-card />
 
+            <haiku-canvas />
+
+            <haiku-ai />
+
             <haiku-chapter />
           </v-col>
         </v-row>
       </v-container>
 
-      <v-snackbar v-model="networkError">
+      <v-snackbar
+        v-model="networkError"
+        :timeout="2000"
+      >
         <v-icon>mdi-alert</v-icon> {{ error }}
       </v-snackbar>
     </v-responsive>
@@ -77,18 +89,16 @@ onMounted(fetchText);
 
 <style lang="scss">
 body {
-    font-family: Garamond, Georgia, serif;
-    font-size: 18px;
-}
-
-.v-card-title {
-    font-weight: 600;
+    p {
+        font-family: Garamond, Georgia, serif;
+        font-size: 18px;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        line-height: 1.6;
+    }
 }
 
 .paragraphes {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    line-height: 1.6;
     color: #2c3e50;
     text-align: justify;
     background: rgba(255, 255, 255, 1);

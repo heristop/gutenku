@@ -1,7 +1,7 @@
 const typeDefs = `#graphql
   type Book {
     id: ID!
-    reference: String
+    reference: ID
     title: String
     author: String
     chapters: [Chapter]
@@ -16,16 +16,17 @@ const typeDefs = `#graphql
   type Haiku {
     book: Book
     chapter: Chapter!
-    raw_verses: [String!]
+    rawVerses: [String!]
     verses: [String!]
     image: String
+    meaning: String
   }
 
   type Query {
     books: [Book]
     book(id: ID!): Book!
     chapters: [Chapter]
-    haiku: Haiku
+    haiku(useAI: Boolean): Haiku
   }
 `;
 

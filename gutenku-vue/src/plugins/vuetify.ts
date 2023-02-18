@@ -18,6 +18,7 @@ const theme = {
         background: '#FFFFFF',
         surface: '#FFFFFF',
         primary: '#35465c',
+        secondary: '#487eb0',
     }
 }
 

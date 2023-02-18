@@ -1,8 +1,15 @@
 export default {
     en: {
-        titlePresentationBlock: 'GutenKu',
-        titleCanvasBlock: 'Canvas',
+        titlePresentationCard: 'GutenKu',
+        titleCanvasCard: 'Canvas',
+        titleMeaningCard: '🤖',
+        titleChapterCard: 'From which book does this come?',
         btnGenerate: 'Generate',
-        btnSend: 'Send',
+        btnSendInstagram: 'Send a post',
+        btnCopy: 'Copy',
+        switchAi: 'Activate AI',
+        tooltipAISwitch: 'Use OpenAI to improve the revelant of generated Haiku',
+        copiedMessage: 'Haiku copied!',
+        closeModal: 'Close',
     },
 }
