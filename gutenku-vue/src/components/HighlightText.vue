@@ -26,7 +26,7 @@ export default {
                         return `<mark>${match}</mark>`;
                     });
                 });
-            } catch (error) {
+            } catch (err) {
                 //
             }
 

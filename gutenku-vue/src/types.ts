@@ -8,6 +8,7 @@ export interface HaikuValue {
         content: string;
     };
     verses: Array<string>;
-    raw_verses: Array<string>;
+    rawVerses: Array<string>;
     image: string;
+    meaning: string;
 }

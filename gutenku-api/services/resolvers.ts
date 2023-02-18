@@ -1,6 +1,7 @@
 import Book from '../models/book';
 import Chapter from '../models/chapter';
 import Haiku from './haiku';
+import OpenAI from './openai';
 
 const resolvers = {
     Query: {
@@ -13,8 +14,12 @@ const resolvers = {
         chapters: () => {
             return Chapter.find().exec();
         },
-        haiku: async () => {
-            return await Haiku.generate();
+        haiku: async (_: unknown, inputs: { useAI: boolean; }) => {
+            if (true === inputs.useAI && '' !== process.env.OPENAI_API_KEY) {
+                return await OpenAI.generate();
+            }
+
+            return await Haiku.generateWithImage();
         },
     }
 };
