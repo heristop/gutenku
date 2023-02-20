@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import HighlightText from '@/components/HighlightText.vue';
-import { useHaikuStore } from '../store/haiku'
-import { storeToRefs } from 'pinia'
+import { useHaikuStore } from '../store/haiku';
+import { storeToRefs } from 'pinia';
 
 const { haiku, loading } = storeToRefs(useHaikuStore());
 

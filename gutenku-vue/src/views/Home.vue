@@ -24,18 +24,36 @@ onMounted(fetchText);
         <v-row>
           <v-col
             cols="12"
+            sm="8"
+            class="mx-auto h-100 align-center justify-center"
+          >
+            <haiku-card />
+
+            <haiku-canvas />
+
+            <haiku-ai />
+
+            <haiku-chapter />
+          </v-col>
+
+          <v-col
+            cols="12"
             sm="4"
             class="mx-auto h-100 align-center justify-center"
           >
             <v-card
               class="mx-auto pa-4 mb-6"
-              :title="$t('titlePresentationCard')"
+              title=" "
             >
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-                incididunt ut
-                labore
-                et dolore magna aliqua.
+                <strong>GutenKu</strong> is a Haiku generator based on a database of books from <v-btn
+                  href="https://gutenberg.org"
+                  variant="plain"
+                  class="pa-0"
+                  target="_blank"
+                >
+                  Project Gutenberg
+                </v-btn> 🗻🌸
               </p>
 
               <v-card-actions class="justify-center">
@@ -55,24 +73,12 @@ onMounted(fetchText);
             </v-card>
 
             <v-card>
+              <v-img src="@/assets/img/robot.png" />
+
               <v-footer class="justify-right">
                 <small>{{ new Date().getFullYear() }} — <strong>heristop</strong></small>
               </v-footer>
             </v-card>
-          </v-col>
-
-          <v-col
-            cols="12"
-            sm="8"
-            class="mx-auto h-100 align-center justify-center"
-          >
-            <haiku-card />
-
-            <haiku-canvas />
-
-            <haiku-ai />
-
-            <haiku-chapter />
           </v-col>
         </v-row>
       </v-container>
@@ -108,7 +114,7 @@ body {
     .author {
         &.dark-theme {
             color: transparent;
-            text-shadow: 0 0 8px #000;
+            text-shadow: 0 0 10px #000;
         }
     }
 
