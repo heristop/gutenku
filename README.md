@@ -4,7 +4,7 @@
 
 ## About
 
-A Haiku generator based on a database of books from Project Gutenberg (https://gutenberg.org), and optionally using AI ✌️
+A Haiku generator based on a database of books from Project Gutenberg (https://gutenberg.org), and optionally using AI to improve selection 🗻🌸
 
 ## Features
 
@@ -16,15 +16,9 @@ A Haiku generator based on a database of books from Project Gutenberg (https://g
 
 <img src="/gutenku-vue/src/assets/img/canvas_card.png" />
 
-### Understand
-
-<img src="/gutenku-vue/src/assets/img/ai_card.png" />
-
 ### Guess
 
 <img src="/gutenku-vue/src/assets/img/chapter_card.png" />
-
-<img src="/gutenku-vue/src/assets/img/chapter_lignt_on_card.png" />
 
 ## Installation
 
