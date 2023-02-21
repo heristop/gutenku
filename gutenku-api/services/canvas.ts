@@ -1,7 +1,7 @@
 import Canvas from 'canvas';
 import fs from 'fs';
-import { promisify } from 'util';
 import { join } from 'path';
+import { promisify } from 'util';
 import { readdir } from 'fs/promises';
 
 const PATH = './.cache/haiku_generated.png';
@@ -45,7 +45,7 @@ export default {
         // Draw the text
         ctx.globalAlpha = 0.8;
 
-        const x = 120;
+        const x = 122;
         let y = canvas.height / 3.5;
         verses.map(verse => {
             ctx.fillText(verse, x, y);

@@ -79,7 +79,7 @@ export default {
 
     filterSentences(sentences: string[]): string[] {
         return sentences.filter((sentence) => {
-            if (/^[A-Z .,;-_?!:]+$/.test(sentence)) {
+            if (/^[A-Z .,;-_?!:]+$/.test(sentence) || /\[Illustration: \]/.test(sentence)) {
                 return false;
             }
 

@@ -17,8 +17,10 @@
         "express": "^4.18.2",
         "global": "^4.4.0",
         "graphql": "^16.6.0",
+        "instagram-publisher": "^2.1.1",
         "mongoose": "^6.9.0",
         "openai": "^3.1.0",
+        "request": "^2.88.2",
         "syllable": "^5.0.1"
     },
     "devDependencies": {
