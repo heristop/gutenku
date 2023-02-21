@@ -15,7 +15,7 @@ const resolvers = {
             return Chapter.find().exec();
         },
         haiku: async (_: unknown, inputs: { useAI: boolean; }) => {
-            if (true === inputs.useAI && '' !== process.env.OPENAI_API_KEY) {
+            if (true === inputs.useAI && undefined !== process.env.OPENAI_API_KEY) {
                 return await OpenAI.generate();
             }
 

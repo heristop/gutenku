@@ -25,7 +25,8 @@ export default {
             'rawVerses': verses,
             'verses': this.clean(verses),
             'image': null,
-            'meaning': null
+            'title': null,
+            'description': null
         }
     },
 
@@ -35,7 +36,7 @@ export default {
 
     async addImage(haiku: { verses: string[]; }) {
         await Canvas.createPng(haiku.verses);
-        await new Promise(r => setTimeout(r, 1000));
+        await new Promise(r => setTimeout(r, 1200));
 
         const image = await Canvas.readPng();
 
@@ -51,11 +52,11 @@ export default {
         const randomBook = books[Math.floor(Math.random() * books.length)];
 
         if (!randomBook) {
-            throw 'No book found'
+            throw new Error('No book found');
         }
 
         if (0 === randomBook.chapters.length) {
-            throw `No chapter found for book "${randomBook.title}"`
+            throw new Error(`No chapter found for book "${randomBook.title}"`);
         }
 
         return randomBook;

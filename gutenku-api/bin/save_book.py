@@ -16,7 +16,7 @@ db = client[os.environ.get('MONGODB_DB')]
 book_collection = db["books"]
 chapter_collection = db["chapters"]
 
-cache_directory = "../.cache"
+cache_directory = ".cache"
 
 # Define the path to the text file containing the ebook
 file_path = f"{cache_directory}/book_{book_id}.txt"
@@ -48,14 +48,16 @@ else:
     new_book_id = result.inserted_id
 
     # Split the chapters using a regular expression
-    chapters = re.split(r'(CHAPTER|BOOK|VOLUME|Chapter) (\d|[IVXLCDMivxlcdmi]+)\.', text)
+    chapters = re.split(
+        r'(CHAPTER|BOOK|VOLUME|Chapter) (\d|[IVXLCDMivxlcdmi]+)\.', text)
     chapters_count = len(chapters)
 
     if int(chapters_count) <= 1:
         print(f"The book \033[1;32m{book_id}\033[0m has no chapter found")
-   
+
     else:
-        print(f"The book \033[1;32m{book_id}\033[0m has \033[1;32m{chapters_count}\033[0m chapters found")
+        print(
+            f"The book \033[1;32m{book_id}\033[0m has \033[1;32m{chapters_count}\033[0m chapters found")
 
         # Remove the table of contents by removing the first element of the list
         chapters_without_toc = chapters[1:]
@@ -68,8 +70,10 @@ else:
             }
             result = chapter_collection.insert_one(chapter_obj)
             chapter_id = result.inserted_id
-            
-            # Add the chapter to the book
-            book_collection.update_one({"_id": new_book_id}, {"$push": {"chapters": chapter_id}})
 
-        print(f"The book \033[1;32m{book_id}\033[0m has been successfully saved")
+            # Add the chapter to the book
+            book_collection.update_one({"_id": new_book_id}, {
+                                       "$push": {"chapters": chapter_id}})
+
+        print(
+            f"The book \033[1;32m{book_id}\033[0m has been successfully saved")

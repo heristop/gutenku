@@ -26,6 +26,6 @@ ids = [
 ]
 
 for id in ids:
-    subprocess.run(["python3", "delete_book.py", str(id)])
-    subprocess.run(["python3", "fetch_book.py", str(id)])
-    subprocess.run(["python3", "save_book.py", str(id)])
+    subprocess.run(["python3", "bin/delete_book.py", str(id)])
+    subprocess.run(["python3", "bin/fetch_book.py", str(id)])
+    subprocess.run(["python3", "bin/save_book.py", str(id)])

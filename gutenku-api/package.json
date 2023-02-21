@@ -6,7 +6,9 @@
     "scripts": {
         "start": "ts-node-esm src/index.ts",
         "dev": "nodemon --watch './**/*.ts' --exec 'node --experimental-specifier-resolution=node --loader ts-node/esm' src/index.ts",
-        "lint": "eslint . --fix --ignore-path .gitignore"
+        "lint": "eslint . --fix --ignore-path .gitignore",
+        "fetch": "python3 bin/fetch_books.py",
+        "post": "node --loader ts-node/esm --experimental-repl-await --unhandled-rejections=strict --trace-warnings bin/post_instagram.ts"
     },
     "type": "module",
     "dependencies": {
@@ -36,7 +38,7 @@
         "nodemon": "^2.0.20",
         "ts-node": "^10.9.1",
         "tsc-watch": "^6.0.0",
-        "typescript": "*"
+        "typescript": "^4.9.5"
     },
     "lint-staged": {
         "*": "yarn lint"

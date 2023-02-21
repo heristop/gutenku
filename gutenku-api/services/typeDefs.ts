@@ -19,7 +19,8 @@ const typeDefs = `#graphql
     rawVerses: [String!]
     verses: [String!]
     image: String
-    meaning: String
+    title: String
+    description: String
   }
 
   type Query {
