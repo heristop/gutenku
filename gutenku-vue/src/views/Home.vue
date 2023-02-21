@@ -46,7 +46,7 @@ onMounted(fetchText);
               title=" "
             >
               <p>
-                <strong>GutenKu</strong> is a Haiku generator based on a database of books from <v-btn
+                <strong>GutenKu</strong> is a Haiku generator based on a selection of books from <v-btn
                   href="https://gutenberg.org"
                   variant="plain"
                   class="pa-0"

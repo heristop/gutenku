@@ -4,7 +4,7 @@
 
 ## About
 
-A Haiku generator based on a database of books from Project Gutenberg (https://gutenberg.org), and optionally using AI to improve selection 🗻🌸
+A Haiku generator based on a selection of books from Project Gutenberg (https://gutenberg.org) 🗻🌸
 
 ## Features
 
@@ -20,11 +20,32 @@ A Haiku generator based on a database of books from Project Gutenberg (https://g
 
 <img src="/gutenku-vue/src/assets/img/chapter_card.png" />
 
-## Installation
+## Ecosystem
 
-- [Api](/gutenku-api/README.md#installation)
-- [Front](/gutenku-api/README.md#installation)
+<table>
+  <thead>
+    <tr>
+      <th>Application</th>
+      <th>Env</th>
+    </tr>
+  </thead>
 
-## Env
-
-TypeScript, NodeJS, MongoDB, GraphQL, Vue 3 / Vuetify 3 / Pinia, Python, OpenAI
+  <tbody>
+    <tr>
+      <td>
+        <a href=/gutenku-api/README.md#installation">Api</a>
+      </td>
+      <td>
+        TypeScript, NodeJS, MongoDB, GraphQL, Python, OpenAI
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href=/gutenku-vue/README.md#installation">Front</a>
+      </td>
+      <td>
+        TypeScript, Vue 3 / Vuetify 3 / Pinia
+      </td>
+    </tr>
+  </tbody>
+</table>

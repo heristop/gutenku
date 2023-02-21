@@ -7,14 +7,14 @@ const { haiku, loading } = storeToRefs(useHaikuStore());
 
 <template>
   <v-card
-    v-if="haiku && haiku.meaning"
-    class="mx-auto pa-10 mb-6 justify-center meaning-card"
+    v-if="haiku && haiku.description"
+    class="mx-auto pa-10 mb-6 justify-center"
     :title="$t('titleAICard')"
     :loading="loading"
     color="primary"
   >
     <p>
-      {{ haiku.meaning }}
+      {{ haiku.description }}
     </p>
   </v-card>
 </template>

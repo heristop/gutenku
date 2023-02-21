@@ -12,7 +12,8 @@ const query = `
             verses
             rawVerses
             image
-            meaning
+            title
+            description
             chapter {
                 content
                 title
@@ -45,7 +46,7 @@ export const useHaikuStore = defineStore({
                     timeout: 300,
                 };
 
-                const response = await axios.post(process.env.SERVER_URI || 'http://localhost:4000/graphql', body);
+                const response = await axios.post(process.env.SERVER_URI || 'https://localhost:4000/graphql', body);
 
                 this.haiku = response.data.data.haiku;
 
