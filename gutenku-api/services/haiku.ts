@@ -36,7 +36,6 @@ export default {
 
     async addImage(haiku: { verses: string[]; }) {
         await Canvas.createPng(haiku.verses);
-        await new Promise(r => setTimeout(r, 1200));
 
         const image = await Canvas.readPng();
 
@@ -79,8 +78,15 @@ export default {
     },
 
     filterSentences(sentences: string[]): string[] {
+        const isSentenceInvalid = (sentence: string) => {
+            const upperCaseCharsRegex = /^[A-Z .,;-_?!:]+$/;
+            const illustrationRegex = /\[Illustration: \]/;
+
+            return upperCaseCharsRegex.test(sentence) || illustrationRegex.test(sentence);
+        };
+
         return sentences.filter((sentence) => {
-            if (/^[A-Z .,;-_?!:]+$/.test(sentence) || /\[Illustration: \]/.test(sentence)) {
+            if (true === isSentenceInvalid(sentence)) {
                 return false;
             }
 

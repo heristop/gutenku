@@ -14,6 +14,12 @@ const { haiku, loading } = storeToRefs(useHaikuStore());
     color="primary"
   >
     <p>
+      “{{ haiku.title }}”
+    </p>
+
+    <p>~~~</p>
+
+    <p>
       {{ haiku.description }}
     </p>
   </v-card>

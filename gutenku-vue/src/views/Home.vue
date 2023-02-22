@@ -46,14 +46,20 @@ onMounted(fetchText);
               title=" "
             >
               <p>
-                <strong>GutenKu</strong> is a Haiku generator based on a selection of books from <v-btn
+                🌸 🗻
+
+                <v-spacer />
+
+                <strong>GutenKu</strong> is a Haiku generator based on a selection of books from
+
+                <v-btn
                   href="https://gutenberg.org"
                   variant="plain"
                   class="pa-0"
                   target="_blank"
                 >
                   Project Gutenberg
-                </v-btn> 🗻🌸
+                </v-btn>
               </p>
 
               <v-card-actions class="justify-center">
@@ -73,9 +79,10 @@ onMounted(fetchText);
             </v-card>
 
             <v-card>
-              <v-img src="@/assets/img/robot.png" />
-
-              <v-footer class="justify-right">
+              <v-footer
+                class="justify-right"
+                color="third"
+              >
                 <small>{{ new Date().getFullYear() }} — <strong>heristop</strong></small>
               </v-footer>
             </v-card>

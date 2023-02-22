@@ -6,20 +6,6 @@
 
 A Haiku generator based on a selection of books from Project Gutenberg (https://gutenberg.org) 🗻🌸
 
-## Features
-
-### Generate
-
-<img src="/gutenku-vue/src/assets/img/haiku_card.png" />
-
-### Visualize
-
-<img src="/gutenku-vue/src/assets/img/canvas_card.png" />
-
-### Guess
-
-<img src="/gutenku-vue/src/assets/img/chapter_card.png" />
-
 ## Ecosystem
 
 <table>
@@ -49,3 +35,17 @@ A Haiku generator based on a selection of books from Project Gutenberg (https://
     </tr>
   </tbody>
 </table>
+
+## Features
+
+### Generate
+
+<img src="/gutenku-vue/src/assets/img/haiku_card.png" style="max-width: 500px" />
+
+### Download
+
+<img src="/gutenku-vue/src/assets/img/canvas_card.png" style="max-width: 500px" />
+
+### Guess
+
+<img src="/gutenku-vue/src/assets/img/chapter_card.png" style="max-width: 500px" />

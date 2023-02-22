@@ -53,13 +53,7 @@ export default {
         });
 
         // Save the image
-        const stream = canvas.createPNGStream();
-        const out = fs.createWriteStream(PATH);
-
-        stream.pipe(out);
-        out.on('finish', async () => {
-            // Image generated
-        });
+        await savePng(canvas);
     },
 
     async readPng() {
@@ -72,3 +66,14 @@ export default {
         };
     }
 }
+
+function savePng(canvas: Canvas.Canvas) {
+    return new Promise<void>(resolve => {
+        const stream = canvas.createPNGStream();
+        const out = fs.createWriteStream(PATH);
+
+        stream.pipe(out);
+        out.on('finish', resolve);
+    });
+}
+

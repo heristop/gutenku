@@ -41,7 +41,7 @@ async function listen(port: number) {
 
     return new Promise((resolve, reject) => {
         httpServer.listen(port).once('listening', resolve).once('error', reject);
-    })
+    });
 }
 
 async function main() {
