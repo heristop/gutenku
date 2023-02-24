@@ -2,21 +2,19 @@
 
 describe('Landing page test', () => {
     beforeEach(() => {
-        cy.visit('/');
+        cy.visit('http://localhost:3000');
     });
 
     it('works', () => {
-        //cy.intercept('POST', '*/graphql', (req) => {
-        //    req.reply({
-        //        statusCode: 200, // default
-        //        fixture: 'haiku.json'
-        //    })
-        //});
+        cy.intercept('POST', /\/graphsql$/, (req) => {
+            req.reply({
+                statusCode: 200, // default
+                fixture: 'haiku.json'
+            })
+        }).as('api');
 
-        //cy.wait('@api').then(() => {
-        //cy.contains('h3', 'Haiku generated');
-        //cy.get('[data-cy=fetch-btn').click();
-        //cy.get('[data-cy=toggle-btn').click();
-        //});
+        cy.wait('@api').then(() => {
+            cy.get('[data-cy=fetch-btn').should('be.visible').click();
+        });
     });
 });

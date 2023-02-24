@@ -40,16 +40,16 @@ A Haiku generator based on a selection of books from Project Gutenberg (https://
 
 ### Generate
 
-<img src="/gutenku-vue/src/assets/img/haiku_card.png" style="max-width: 500px" />
+<img src="/gutenku-vue/src/assets/img/haiku_card.png" style="max-width: 75%" />
 
 ### Download
 
-<img src="/gutenku-vue/src/assets/img/canvas_card.png" style="max-width: 500px" />
+<img src="/gutenku-vue/src/assets/img/canvas_card.png" style="max-width: 75%" />
 
 ### Explain
 
-<img src="/gutenku-vue/src/assets/img/ai_card.png" style="max-width: 500px" />
+<img src="/gutenku-vue/src/assets/img/ai_card.png" style="max-width: 75%" />
 
 ### Guess
 
-<img src="/gutenku-vue/src/assets/img/chapter_card.png" style="max-width: 500px" />
+<img src="/gutenku-vue/src/assets/img/chapter_card.png" style="max-width: 75%" />
