@@ -1,17 +1,18 @@
+# pylint: disable=missing-module-docstring
 import os
 import sys
 import requests
 
-book_id = int(sys.argv[1])
-url = f"https://www.gutenberg.org/cache/epub/{book_id}/pg{book_id}.txt"
+BOOK_ID = int(sys.argv[1])
+url = f"https://www.gutenberg.org/cache/epub/{BOOK_ID}/pg{BOOK_ID}.txt"
 
-cache_directory = "../.cache"
+CACHE_DIRECTORY = ".cache"
 
-if not os.path.exists(cache_directory):
-    os.makedirs(cache_directory)
+if not os.path.exists(CACHE_DIRECTORY):
+    os.makedirs(CACHE_DIRECTORY)
 
 # Define the path to the text file containing the ebook
-file_path = f"{cache_directory}/book_{book_id}.txt"
+file_path = f"{CACHE_DIRECTORY}/book_{BOOK_ID}.txt"
 
 if not os.path.exists(file_path):
     # Make the request to the URL and get the response
@@ -19,12 +20,10 @@ if not os.path.exists(file_path):
 
     # Check that the response is OK
     if response.status_code == 200:
-        cache_directory = "../.cache"
-
-        with open(f"{cache_directory}/book_{book_id}.txt", "w", encoding="utf-8") as f:
+        with open(f"{CACHE_DIRECTORY}/book_{BOOK_ID}.txt", "w", encoding="utf-8") as f:
             f.write(response.text)
-            
-        print(f"The book \033[1;32m{book_id}\033[0m has been successfully fetched")
+
+        print(
+            f"The book \033[1;32m{BOOK_ID}\033[0m has been successfully fetched")
     else:
         print("The request failed with status code {}".format(response.status_code))
-

@@ -2,14 +2,14 @@
 
 ## Installation
 
-``` bash
+```bash
 cp .env.dist .env
 yarn install
 ```
 
 Batch:
 
-``` bash
+```bash
 mkdir .cache
 pip install python-dotenv
 pip install pymongo
@@ -17,19 +17,28 @@ pip install pymongo
 
 MongoDB:
 
-``` bash
-docker-compose up
+```bash
+docker-compose up -d
 ```
 
 ## Usage
 
-``` bash
-cd bin
-python3 fetch_books.py
+Fetch and store books
+
+```bash
+yarn fetch
 ```
 
 ## Run
 
-``` bash
+```bash
 yarn dev
+```
+
+## Batch
+
+Send Instagram Post:
+
+```bash
+yarn post
 ```

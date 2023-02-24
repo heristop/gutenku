@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
-import HighlightText from '@/components/HighlightText.vue';
+import HighLightText from '@/components/HighLightText.vue';
 import { useHaikuStore } from '../store/haiku';
 import { storeToRefs } from 'pinia';
 
@@ -18,6 +18,7 @@ function toggle(): void {
     :title="$t('titleChapterCard')"
     v-if="haiku"
     :loading="loading"
+    color="secondary"
     class=" pa-10 align-center justify-centert"
   >
     <v-row>
@@ -31,7 +32,7 @@ function toggle(): void {
       </v-col>
     </v-row>
 
-    <v-row class="paragraphes">
+    <v-row class="paragraphes pa-4">
       <v-col>
         <h3
           :class="{
@@ -61,7 +62,7 @@ function toggle(): void {
                 'light-theme': !blackMarker
               }"
             >
-              <highlight-text
+              <high-light-text
                 :text="haiku.chapter.content"
                 :lines="haiku.rawVerses"
               />

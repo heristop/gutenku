@@ -17,8 +17,10 @@ const theme = {
     colors: {
         background: '#FFFFFF',
         surface: '#FFFFFF',
-        primary: '#35465c',
-        secondary: '#487eb0',
+        // https://colorhunt.co/palette/2f5d625e8b7ea7c4bcdfeeea
+        primary: '#2F5D62',
+        secondary: '#5E8B7E',
+        third: "#A7C4BC"
     }
 }
 

@@ -29,18 +29,21 @@ export default {
                 const output = JSON.parse(completion.data.choices[0].text);
                 index = output.id;
 
-                // Add meaning
-                haikuSelection[index].meaning = output.meaning;
+                // Add title
+                haikuSelection[index].title = output.title;
+
+                // Add description
+                haikuSelection[index].description = output.description;
             }
         } catch (error) {
             console.log(error);
         }
 
         if (!haikuSelection[index]) {
-            return await Haiku.generateWithImage();
+            return await Haiku.generate();
         }
 
-        return await Haiku.addImage(haikuSelection[index]);
+        return haikuSelection[index];
     },
 
     async generatePrompt() {
@@ -55,7 +58,7 @@ export default {
 
         const prompt = 'What is the most revelant haiku from the list below?';
 
-        return `${prompt} (output JSON format: {"id":ID,"meaning":"Describe and explain the meaning of this Haiku"})
+        return `${prompt} (output JSON format: {"id":ID,"title":"Give a short title for this Haiku","description":"Describe and explain the meaning of this Haiku"})
 
             ${verses.join("\n")}
 
