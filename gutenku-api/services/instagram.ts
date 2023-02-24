@@ -6,7 +6,7 @@ export default {
     post(haiku: HaikuValue) {
         const caption = `
 🌸 “${haiku.title}” 
-🗻 Can you guess from which book the text was extracted?
+🗻 From which book are these quotes taken?
 ~~~
 #gutenku #gutenberg #projectgutenberg #haiku #poetry #poem #haikupoetry #haikulover #haikusofinstagram #haikumoments #haikucommunity #japanesepoetry #naturepoetry #micropoetry #minimalistpoetry #zenpoetry #buddhistpoetry #meditativepoetry
 `;
