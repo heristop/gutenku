@@ -1,7 +1,7 @@
 export default {
     en: {
         titleAICard: '🤖',
-        titleChapterCard: 'From which book does this come?',
+        titleChapterCard: 'Can you guess from which book the text was extracted?',
         btnGenerate: 'Generate',
         btnDownload: 'Download',
         btnCopy: 'Copy',

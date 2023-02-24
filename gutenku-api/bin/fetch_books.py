@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring
 import subprocess
 
 ids = [
@@ -5,24 +6,24 @@ ids = [
     11,     # Alice’s Adventures in Wonderland
     6130,   # The Iliad of Homer
     76,     # Adventures of Huckleberry Finn
-    #98,    # A Tale of Two Cities @fixme
+    # 98,    # A Tale of Two Cities @fixme
     1259,   # Twenty Years After
     1342,   # Pride and prejudice
-    #67979, # The Blue Castle @fixme
+    # 67979, # The Blue Castle @fixme
     244,    # A Study In Scarlet
-    #74,    # The Adventures of Tom Sawyer @fixme
-    #2852,  # The Hound of the Baskervilles @fixme
-    #16,    # Peter Pan @fixme
+    # 74,    # The Adventures of Tom Sawyer @fixme
+    # 2852,  # The Hound of the Baskervilles @fixme
+    # 16,    # Peter Pan @fixme
     6593,   # The History of Tom Jones, a Foundling
     1232,   # The Prince
-    #1184,   # The Count of Monte Cristo @fixme VOLUME
+    # 1184,   # The Count of Monte Cristo @fixme VOLUME
     1497,   # Republic
-    #768,   # Wuthering Heights @fixme
-    #55,    # The Wonderful Wizard of Oz @fixme
+    # 768,   # Wuthering Heights @fixme
+    # 55,    # The Wonderful Wizard of Oz @fixme
     145,    # Middlemarch
     174,    # The Picture of Dorian Gray
-    #1400,  # Great Expectations @fixme
-    #23,    # Narrative of the Life of Frederick Douglass @fixme
+    # 1400,  # Great Expectations @fixme
+    # 23,    # Narrative of the Life of Frederick Douglass @fixme
 ]
 
 for id in ids:

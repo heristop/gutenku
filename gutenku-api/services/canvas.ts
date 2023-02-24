@@ -4,10 +4,10 @@ import { join } from 'path';
 import { promisify } from 'util';
 import { readdir } from 'fs/promises';
 
-const PATH = './.cache/haiku_generated.png';
+const CACHE_DIRECTORY = './.cache';
 
 export default {
-    async createPng(verses: string[]) {
+    async createPng(verses: string[]): Promise<string> {
         const canvas = Canvas.createCanvas(1200, 1200);
         const ctx = canvas.getContext('2d');
 
@@ -53,12 +53,26 @@ export default {
         });
 
         // Save the image
-        await savePng(canvas);
+        return await this.savePng(canvas);
     },
 
-    async readPng() {
+    savePng(canvas: Canvas.Canvas) {
+        return new Promise<string>(resolve => {
+            const imagePath = `${CACHE_DIRECTORY}/haiku_${(Math.random() + 1).toString(36).substring(7)}.png`;
+
+            const stream = canvas.createPNGStream();
+            const out = fs.createWriteStream(imagePath);
+    
+            stream.pipe(out);
+            out.on('finish', () => {
+                resolve(imagePath);
+            });
+        });
+    },
+
+    async readPng(imagePath: string) {
         const readFile = promisify(fs.readFile);
-        const data = await readFile(PATH);
+        const data = await readFile(imagePath);
 
         return {
             data: data,
@@ -67,13 +81,4 @@ export default {
     }
 }
 
-function savePng(canvas: Canvas.Canvas) {
-    return new Promise<void>(resolve => {
-        const stream = canvas.createPNGStream();
-        const out = fs.createWriteStream(PATH);
-
-        stream.pipe(out);
-        out.on('finish', resolve);
-    });
-}
 

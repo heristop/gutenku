@@ -1,6 +1,9 @@
 import axios from 'axios';
+import dotenv from 'dotenv';
 import { defineStore } from 'pinia';
 import { HaikuValue } from '../types';
+
+dotenv.config();
 
 const query = `
     query Query($useAi: Boolean) {

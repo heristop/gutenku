@@ -40,10 +40,10 @@ export default {
         }
 
         if (!haikuSelection[index]) {
-            return await Haiku.generateWithImage();
+            return await Haiku.generate();
         }
 
-        return await Haiku.addImage(haikuSelection[index]);
+        return haikuSelection[index];
     },
 
     async generatePrompt() {

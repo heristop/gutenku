@@ -1,5 +1,6 @@
 export interface HaikuValue {
     book: {
+        reference: string;
         title: string;
         author: string;
     };

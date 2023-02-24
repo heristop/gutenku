@@ -1,9 +1,10 @@
 import Book from '../models/book';
 import Canvas from './canvas';
 import { syllable } from 'syllable';
+import { BookValue, HaikuLogValue, HaikuValue } from '../src/types';
 
 export default {
-    async generate() {
+    async generate(): Promise<HaikuValue> {
         const randomBook = await this.selectRandomBook();
         let randomChapter = null;
         let verses = [];
@@ -12,7 +13,7 @@ export default {
             randomChapter = this.selectRandomChapter(randomBook);
 
             // eslint-disable-next-line
-            verses = this.extract(randomChapter['content']);
+            verses = this.getVerses(randomChapter['content']);
         }
 
         return {
@@ -24,28 +25,39 @@ export default {
             'chapter': randomChapter,
             'rawVerses': verses,
             'verses': this.clean(verses),
-            'image': null,
-            'title': null,
-            'description': null
         }
     },
 
-    async generateWithImage() {
-        return this.addImage(await this.generate());
-    },
+    async addImage(haiku: HaikuValue): Promise<HaikuValue> {
+        const imagePath = await Canvas.createPng(haiku.verses);
 
-    async addImage(haiku: { verses: string[]; }) {
-        await Canvas.createPng(haiku.verses);
-
-        const image = await Canvas.readPng();
+        const image = await Canvas.readPng(imagePath);
 
         return {
             ...haiku,
             'image': image.data.toString('base64'),
+            'image_path': imagePath,
         }
     },
 
-    async selectRandomBook() {
+    async insertLog(db, haiku: HaikuValue) {
+        const logsCollection = db.collection('logs');
+
+        const logData: HaikuLogValue = {
+            book_reference: haiku.book.reference,
+            book_title: haiku.book.title,
+            book_author: haiku.book.author,
+            haiku_title: haiku.title,
+            haiku_description: haiku.description,
+            haiku_verses: haiku.verses,
+            haiku_image: haiku.image_path,
+            created_at: new Date(Date.now()).toISOString(),
+        };
+
+        await logsCollection.insertOne(logData);
+    },
+
+    async selectRandomBook(): Promise<BookValue> {
         const books = await Book.find().populate('chapters').exec();
 
         const randomBook = books[Math.floor(Math.random() * books.length)];
@@ -65,7 +77,7 @@ export default {
         return book.chapters[Math.floor(Math.random() * book.chapters.length)];
     },
 
-    extract(chapter: string): string[] {
+    getVerses(chapter: string): string[] {
         const sentences = this.splitSentences(chapter);
         const filteredSentences = this.filterSentences(sentences);
         const lines = this.selectHaikuLines(filteredSentences);
@@ -78,8 +90,8 @@ export default {
     },
 
     filterSentences(sentences: string[]): string[] {
-        const isSentenceInvalid = (sentence: string) => {
-            const upperCaseCharsRegex = /^[A-Z .,;-_?!:]+$/;
+        const isSentenceInvalid = (sentence: string): boolean => {
+            const upperCaseCharsRegex = /^[A-Z\s!:.?]+$/;
             const illustrationRegex = /\[Illustration: \]/;
 
             return upperCaseCharsRegex.test(sentence) || illustrationRegex.test(sentence);
@@ -142,7 +154,8 @@ export default {
         return verses.map(verse => {
             verse = verse
                 .trim()
-                .replace(/[\n”“"()[]]/g, ' ')
+                .replace(/[\n\r]/g, ' ')
+                .replace(/["“”()]/g, '')
                 .replace(/\s+/g, ' ');
 
             return verse.charAt(0).toUpperCase() + verse.slice(1);

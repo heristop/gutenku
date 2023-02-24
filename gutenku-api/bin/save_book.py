@@ -1,14 +1,13 @@
+# pylint: disable=missing-module-docstring
 import os
-import pymongo
-import random
 import sys
 import re
-import requests
+import pymongo
 from dotenv import load_dotenv
 
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
-book_id = int(sys.argv[1])
+BOOK_ID = int(sys.argv[1])
 
 # Connect to the MongoDB database
 client = pymongo.MongoClient(os.environ.get('MONGODB_URI'))
@@ -16,19 +15,19 @@ db = client[os.environ.get('MONGODB_DB')]
 book_collection = db["books"]
 chapter_collection = db["chapters"]
 
-cache_directory = ".cache"
+CACHE_DIRECTORY = ".cache"
 
 # Define the path to the text file containing the ebook
-file_path = f"{cache_directory}/book_{book_id}.txt"
+file_path = f"{CACHE_DIRECTORY}/book_{BOOK_ID}.txt"
 
 # Read the contents of the text file
 with open(file_path, 'r') as file:
     text = file.read()
 
-book = book_collection.find_one({"reference": book_id})
+book = book_collection.find_one({"reference": BOOK_ID})
 
 if book:
-    print(f"The book {book_id} had already been saved")
+    print(f"The book {BOOK_ID} had already been saved")
 else:
     # Extract the title and author
     title_pattern = re.compile(r"Title: (.*?)\n")
@@ -39,7 +38,7 @@ else:
 
     # Save the book in the MongoDB database
     book_data = {
-        "reference": book_id,
+        "reference": BOOK_ID,
         "title": title,
         "author": author,
         "chapters": []
@@ -49,15 +48,19 @@ else:
 
     # Split the chapters using a regular expression
     chapters = re.split(
-        r'(CHAPTER|BOOK|VOLUME|Chapter) (\d|[IVXLCDMivxlcdmi]+)\.', text)
+        r'(CHAPTER|BOOK|Chapter) (\d|[IVXLCDMivxlcdmi]+)\.', text)
     chapters_count = len(chapters)
 
-    if int(chapters_count) <= 1:
-        print(f"The book \033[1;32m{book_id}\033[0m has no chapter found")
+    if int(chapters_count) == 0:
+        print(f"The book \033[1;32m{BOOK_ID}\033[0m has no chapter found")
+
+    elif int(chapters_count) <= 20:
+        print(
+            f"The book \033[1;32m{BOOK_ID}\033[0m has not enough chapters splitted")
 
     else:
         print(
-            f"The book \033[1;32m{book_id}\033[0m has \033[1;32m{chapters_count}\033[0m chapters found")
+            f"The book \033[1;32m{BOOK_ID}\033[0m has \033[1;32m{chapters_count}\033[0m chapters found")
 
         # Remove the table of contents by removing the first element of the list
         chapters_without_toc = chapters[1:]
@@ -72,8 +75,10 @@ else:
             chapter_id = result.inserted_id
 
             # Add the chapter to the book
-            book_collection.update_one({"_id": new_book_id}, {
-                                       "$push": {"chapters": chapter_id}})
+            book_collection.update_one({
+                "_id": new_book_id}, {
+                "$push": {"chapters": chapter_id}
+            })
 
         print(
-            f"The book \033[1;32m{book_id}\033[0m has been successfully saved")
+            f"The book \033[1;32m{BOOK_ID}\033[0m has been successfully saved")
