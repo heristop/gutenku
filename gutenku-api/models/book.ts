@@ -3,6 +3,10 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const BookSchema = new Schema({
+    reference: {
+        type: String,
+        required: true
+    },
     title: {
         type: String,
         required: true

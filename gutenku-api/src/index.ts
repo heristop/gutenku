@@ -18,6 +18,9 @@ async function listen(port: number) {
         resolvers,
         introspection: true,
         plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+        context: async () => ({
+            db: db,
+        })
     });
     await server.start();
 
@@ -41,13 +44,13 @@ async function listen(port: number) {
 
     return new Promise((resolve, reject) => {
         httpServer.listen(port).once('listening', resolve).once('error', reject);
-    })
+    });
 }
 
 async function main() {
     try {
         await listen(parseInt(process.env.SERVER_PORT) || 4000);
-        console.log(`🚀 Server is ready at http://localhost:${process.env.SERVER_PORT || 4000}/graphql`);
+        console.log(`🚀 Server is ready at http://localhost:${process.env.SERVER_PORT}/graphql`);
     } catch (err) {
         console.error('💀 Error starting the node server', err);
     }

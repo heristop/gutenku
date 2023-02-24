@@ -47,6 +47,7 @@ const downloadImage = () => {
         @click="downloadImage"
         data-cy="download-btn"
         class="ms-2"
+        color="secondary"
         prepend-icon="mdi-download"
       >
         {{ $t('btnDownload') }}

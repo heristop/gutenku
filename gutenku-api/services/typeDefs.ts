@@ -14,19 +14,38 @@ const typeDefs = `#graphql
   }
 
   type Haiku {
-    book: Book
+    book: Book!
     chapter: Chapter!
     rawVerses: [String!]
     verses: [String!]
     image: String
-    meaning: String
+    image_path: String
+    title: String
+    description: String
+  }
+
+  type Log {
+    id: ID!
+    book_reference: String
+    book_title: String
+    book_author: String
+    haiku_title: String
+    haiku_description: String
+    haiku_verses: [String!]
+    haiku_image: String
+    created_at: String
   }
 
   type Query {
     books: [Book]
     book(id: ID!): Book!
     chapters: [Chapter]
-    haiku(useAI: Boolean): Haiku
+    haiku(useAI: Boolean, keepImage: Boolean): Haiku
+    logs: [Log]
+  }
+
+  type Mutation {
+    cleanLogs: Int
   }
 `;
 
