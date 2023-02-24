@@ -58,7 +58,7 @@ async function copy() {
     >
       <v-tooltip
         :text="$t('tooltipAISwitch')"
-        location="right"
+        location="bottom right"
       >
         <template #activator="{ props }">
           <v-switch

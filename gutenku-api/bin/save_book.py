@@ -47,20 +47,20 @@ else:
     new_book_id = result.inserted_id
 
     # Split the chapters using a regular expression
-    chapters = re.split(
-        r'(CHAPTER|BOOK|Chapter) (\d|[IVXLCDMivxlcdmi]+)\.', text)
+    chapter_patterns = r'(CHAPTER|BOOK|Chapter) (\d+|[IVXLCDMivxlcdm]+)'
+    chapters = re.split(chapter_patterns, text)
     chapters_count = len(chapters)
 
-    if int(chapters_count) == 0:
-        print(f"The book \033[1;32m{BOOK_ID}\033[0m has no chapter found")
+    if chapters_count <= 1:
+        # Try a different pattern if the first one doesn't work
+        chapter_patterns = r'(\d+|[IVXLCDMivxlcdm]+)\.'
+        chapters = re.split(chapter_patterns, text)
+        chapters_count = len(chapters)
 
-    elif int(chapters_count) <= 20:
-        print(
-            f"The book \033[1;32m{BOOK_ID}\033[0m has not enough chapters splitted")
-
+    if chapters_count <= 20:
+        print(f"\033[1;33mThe book {BOOK_ID} has too few chapters ({chapters_count} found)\033[0m")
     else:
-        print(
-            f"The book \033[1;32m{BOOK_ID}\033[0m has \033[1;32m{chapters_count}\033[0m chapters found")
+        print(f"The book \033[1;32m{BOOK_ID}\033[0m has \033[1;32m{chapters_count}\033[0m chapters")
 
         # Remove the table of contents by removing the first element of the list
         chapters_without_toc = chapters[1:]

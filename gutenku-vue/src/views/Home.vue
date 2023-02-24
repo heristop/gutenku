@@ -31,8 +31,6 @@ onMounted(fetchText);
 
             <haiku-canvas />
 
-            <haiku-ai />
-
             <haiku-chapter />
           </v-col>
 
@@ -79,7 +77,15 @@ onMounted(fetchText);
               </v-card-actions>
             </v-card>
 
-            <v-card>
+            <haiku-ai />
+
+            <v-card class="mx-auto">
+              <v-img
+                lazy-src="@/assets/img/duel.jpg"
+                src="@/assets/img/duel.jpg"
+                cover
+              />
+
               <v-footer
                 class="justify-right"
                 color="third"
