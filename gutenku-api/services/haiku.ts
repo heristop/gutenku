@@ -151,8 +151,12 @@ export default {
     isSentenceInvalid(sentence: string): boolean {
         const upperCaseCharsRegex = /^[A-Z\s!:.?]+$/;
         const illustrationRegex = /\[Illustration/;
+        const genderEndRegex = /[Mr|Mrs]$/;
 
-        return upperCaseCharsRegex.test(sentence) || illustrationRegex.test(sentence) || sentence.length >= 36;
+        return upperCaseCharsRegex.test(sentence) ||
+            illustrationRegex.test(sentence) ||
+            genderEndRegex.test(sentence) ||
+            sentence.length >= 36;
     },
 
     countSyllables(sentence: string): number {
@@ -172,7 +176,7 @@ export default {
             verse = verse
                 .trim()
                 .replace(/[\n\r]/g, ' ')
-                .replace(/[--]/g, ' ')
+                .replace(/[--]|['_']/g, ' ')
                 .replace(/["“”()]/g, '')
                 .replace(/\s+/g, ' ');
 
