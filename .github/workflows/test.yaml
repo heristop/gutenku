@@ -16,11 +16,13 @@ jobs:
           cd gutenku-vue
           cp .env.dist .env
           yarn install
+          yarn lint
       - name: front
         run: |
           cd gutenku-vue
           cp .env.dist .env
           yarn install
+          yarn lint
       #- uses: cypress-io/github-action@v4
       #  with:
       #    build: yarn build
