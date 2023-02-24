@@ -7,7 +7,7 @@ import { readdir } from 'fs/promises';
 const CACHE_DIRECTORY = './.cache';
 
 export default {
-    async createPng(verses: string[]): Promise<string> {
+    async create(verses: string[]): Promise<string> {
         const canvas = Canvas.createCanvas(1200, 1200);
         const ctx = canvas.getContext('2d');
 
@@ -53,30 +53,32 @@ export default {
         });
 
         // Save the image
-        return await this.savePng(canvas);
+        return await this.save(canvas);
     },
 
-    savePng(canvas: Canvas.Canvas) {
+    save(canvas: Canvas.Canvas) {
         return new Promise<string>(resolve => {
-            const imagePath = `${CACHE_DIRECTORY}/haiku_${(Math.random() + 1).toString(36).substring(7)}.png`;
+            const imagePath = `${CACHE_DIRECTORY}/haiku_${(Math.random() + 1).toString(36).substring(7)}.jpg`;
 
-            const stream = canvas.createPNGStream();
+            const stream = canvas.createJPEGStream();
             const out = fs.createWriteStream(imagePath);
-    
+
             stream.pipe(out);
             out.on('finish', () => {
+                console.log(`Image ${imagePath} created!`);
+
                 resolve(imagePath);
             });
         });
     },
 
-    async readPng(imagePath: string) {
+    async read(imagePath: string) {
         const readFile = promisify(fs.readFile);
         const data = await readFile(imagePath);
 
         return {
             data: data,
-            contentType: 'image/png',
+            contentType: 'image/jpeg',
         };
     }
 }

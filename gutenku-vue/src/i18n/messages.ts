@@ -6,7 +6,7 @@ export default {
         btnDownload: 'Download',
         btnCopy: 'Copy',
         switchAi: 'Activate AI',
-        tooltipAISwitch: 'Use OpenAI to improve the revelant of generated Haiku',
+        tooltipAISwitch: 'Use AI to improve the revelant of generated Haiku',
         copiedMessage: 'Haiku copied!',
         closeModal: 'Close',
     },

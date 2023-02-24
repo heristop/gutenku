@@ -32,10 +32,10 @@ const LogSchema = new Schema({
         required: false
     },
     created_at: {
-        type: String,
+        type: Date,
         required: false
     },
-});
+}, { strictQuery: false });
 
 export default mongoose.model('Log', LogSchema);
 

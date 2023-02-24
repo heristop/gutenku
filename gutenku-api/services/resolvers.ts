@@ -16,7 +16,7 @@ const resolvers = {
         chapters: () => {
             return Chapter.find().exec();
         },
-        haiku: async (_, args: { useAI: boolean; }, context): Promise<HaikuValue> => {
+        haiku: async (_, args: { useAI: boolean, keepImage: boolean }, context): Promise<HaikuValue> => {
             const db = context.db;
             let haiku: HaikuValue = null;
 
@@ -26,7 +26,7 @@ const resolvers = {
                 haiku = await Haiku.generate();
             }
 
-            haiku = await Haiku.addImage(haiku);
+            haiku = await Haiku.addImage(haiku, args.keepImage);
 
             await Haiku.insertLog(db, haiku);
 
@@ -34,10 +34,19 @@ const resolvers = {
         },
         logs() {
             return Log.find()
-                .sort({'created_at': 'desc'})
+                .sort({ 'created_at': 'desc' })
+                .limit(10)
                 .exec();
         },
     },
+
+    Mutation: {
+        cleanLogs: async (): Promise<number> => {
+            const result = await Log.deleteMany().exec();
+
+            return result.deletedCount;
+        }
+    }
 };
 
 export default resolvers;

@@ -1,9 +1,6 @@
 import axios from 'axios';
-import dotenv from 'dotenv';
 import { defineStore } from 'pinia';
 import { HaikuValue } from '../types';
-
-dotenv.config();
 
 const query = `
     query Query($useAi: Boolean) {
@@ -49,7 +46,8 @@ export const useHaikuStore = defineStore({
                     timeout: 300,
                 };
 
-                const response = await axios.post(process.env.SERVER_URI || 'http://localhost:4000/graphql', body);
+                const envServerUri = import.meta.env.VITE_SERVER_URI || 'http://localhost:4000/graphql';
+                const response = await axios.post(envServerUri, body);
 
                 this.haiku = response.data.data.haiku;
 

@@ -1,7 +1,9 @@
+import { unlink } from 'fs';
+import { syllable } from 'syllable';
 import Book from '../models/book';
 import Canvas from './canvas';
-import { syllable } from 'syllable';
 import { BookValue, HaikuLogValue, HaikuValue } from '../src/types';
+import Log from '../models/log';
 
 export default {
     async generate(): Promise<HaikuValue> {
@@ -14,6 +16,13 @@ export default {
 
             // eslint-disable-next-line
             verses = this.getVerses(randomChapter['content']);
+
+            // Detect if Haiku had already been generated
+            const logExists = await Log.findOne().where('haiku_verses').in(verses).exec();
+
+            if (logExists) {
+                verses = [];
+            }
         }
 
         return {
@@ -28,10 +37,18 @@ export default {
         }
     },
 
-    async addImage(haiku: HaikuValue): Promise<HaikuValue> {
-        const imagePath = await Canvas.createPng(haiku.verses);
+    async addImage(haiku: HaikuValue, keepImage: boolean): Promise<HaikuValue> {
+        const imagePath = await Canvas.create(haiku.verses);
 
-        const image = await Canvas.readPng(imagePath);
+        const image = await Canvas.read(imagePath);
+
+        if (true !== keepImage) {
+            unlink(imagePath, (err: NodeJS.ErrnoException | null) => {
+                if (err) {
+                    throw err;
+                }
+            });
+        }
 
         return {
             ...haiku,
@@ -40,7 +57,7 @@ export default {
         }
     },
 
-    async insertLog(db, haiku: HaikuValue) {
+    async insertLog(db, haiku: HaikuValue): Promise<void> {
         const logsCollection = db.collection('logs');
 
         const logData: HaikuLogValue = {
@@ -73,7 +90,7 @@ export default {
         return randomBook;
     },
 
-    selectRandomChapter(book: { chapters: string | []; }) {
+    selectRandomChapter(book: { chapters: string | []; }): string {
         return book.chapters[Math.floor(Math.random() * book.chapters.length)];
     },
 
@@ -90,18 +107,7 @@ export default {
     },
 
     filterSentences(sentences: string[]): string[] {
-        const isSentenceInvalid = (sentence: string): boolean => {
-            const upperCaseCharsRegex = /^[A-Z\s!:.?]+$/;
-            const illustrationRegex = /\[Illustration: \]/;
-
-            return upperCaseCharsRegex.test(sentence) || illustrationRegex.test(sentence);
-        };
-
         return sentences.filter((sentence) => {
-            if (true === isSentenceInvalid(sentence)) {
-                return false;
-            }
-
             const words = sentence.match(/\b\w+\b/g);
 
             if (!words) {
@@ -124,6 +130,10 @@ export default {
 
         for (const count of syllableCounts) {
             const index = sentences.findIndex((sentence) => {
+                if (this.isSentenceInvalid(sentence)) {
+                    return false;
+                }
+
                 return this.countSyllables(sentence) === count;
             });
 
@@ -136,6 +146,13 @@ export default {
         }
 
         return lines;
+    },
+
+    isSentenceInvalid(sentence: string): boolean {
+        const upperCaseCharsRegex = /^[A-Z\s!:.?]+$/;
+        const illustrationRegex = /\[Illustration/;
+
+        return upperCaseCharsRegex.test(sentence) || illustrationRegex.test(sentence) || sentence.length >= 36;
     },
 
     countSyllables(sentence: string): number {
@@ -155,10 +172,11 @@ export default {
             verse = verse
                 .trim()
                 .replace(/[\n\r]/g, ' ')
+                .replace(/[--]/g, ' ')
                 .replace(/["“”()]/g, '')
                 .replace(/\s+/g, ' ');
 
             return verse.charAt(0).toUpperCase() + verse.slice(1);
         });
-    }
+    },
 }

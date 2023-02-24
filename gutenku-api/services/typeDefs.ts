@@ -19,6 +19,7 @@ const typeDefs = `#graphql
     rawVerses: [String!]
     verses: [String!]
     image: String
+    image_path: String
     title: String
     description: String
   }
@@ -39,8 +40,12 @@ const typeDefs = `#graphql
     books: [Book]
     book(id: ID!): Book!
     chapters: [Chapter]
-    haiku(useAI: Boolean): Haiku
+    haiku(useAI: Boolean, keepImage: Boolean): Haiku
     logs: [Log]
+  }
+
+  type Mutation {
+    cleanLogs: Int
   }
 `;
 

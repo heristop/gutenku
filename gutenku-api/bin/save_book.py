@@ -80,5 +80,4 @@ else:
                 "$push": {"chapters": chapter_id}
             })
 
-        print(
-            f"The book \033[1;32m{BOOK_ID}\033[0m has been successfully saved")
+        print(f"The book \033[1;32m{BOOK_ID}\033[0m has been successfully saved")

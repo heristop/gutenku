@@ -1,14 +1,23 @@
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
-import readline from 'readline';
-import InstagramPublisher from 'instagram-publisher';
+import { program } from 'commander';
+import { createInterface } from 'readline';
 import { HaikuResponseData } from '../src/types';
+import Instagram from '../services/instagram';
 
 dotenv.config();
 
+program
+    .option('--no-interaction')
+    .option('--no-openai');
+
+program.parse();
+
+const options = program.opts();
+
 const query = `
-    query Query($useAi: Boolean) {
-        haiku(useAI: $useAi) {
+    query Query($useAi: Boolean, $keepImage: Boolean) {
+        haiku(useAI: $useAi, keepImage: $keepImage) {
             book {
                 title
                 author
@@ -16,6 +25,7 @@ const query = `
             verses
             title
             description
+            image_path
             chapter {
                 title
             }
@@ -24,7 +34,8 @@ const query = `
 `;
 
 const variables = {
-    useAi: true
+    useAi: options.openai,
+    keepImage: true,
 };
 
 const body = {
@@ -37,47 +48,28 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
-}).then(response => response.json()).then((response: { 
-      data: HaikuResponseData 
-    }) => {
+}).then(response => response.json()).then((response: {
+    data: HaikuResponseData
+}) => {
     const haiku = response.data.haiku;
 
     console.log(haiku);
 
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-      
-    rl.question('Post on Instagram? (y/n) ', (answer: string) => {
-        if ('y' === answer) {
-            const caption = `
-🌸 “${haiku.title}” 
-🗻 Can you guess from which book the text was extracted?
-~~~
-#gutenku #haiku #poetry #poem #haikupoetry #haikulover #haikusofinstagram #haikumoments #haikucommunity #japanesepoetry #naturepoetry #micropoetry #minimalistpoetry #zenpoetry #buddhistpoetry #meditativepoetry
-`;
+    if (false === options.interaction) {
+        Instagram.post(haiku);
+    } else {
+        const rl = createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
 
-            console.log(caption);
-            
-            if (process.env.INSTAGRAM_API_USER) {
-                const client = new InstagramPublisher({
-                    email: process.env.INSTAGRAM_API_USER,
-                    password: process.env.INSTAGRAM_API_PASSWORD,
-                    verbose: true,
-                });
-            
-                const imageData = {
-                    image_path: haiku.image_path,
-                    caption: caption,
-                };
-            
-                client.createSingleImage(imageData).then(() => {
-                    console.log('Image sent!');
-                });
+        rl.question('Post on Instagram? (y/n) ', (answer: string) => {
+            if ('y' === answer || 'yes' === answer) {
+                Instagram.post(haiku);
             }
-        }
 
-        rl.close();
-    });
+            rl.close();
+        });
+    }
 });
+

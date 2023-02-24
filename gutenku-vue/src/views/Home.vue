@@ -73,7 +73,8 @@ onMounted(fetchText);
                   class="ms-2"
                   icon="mdi-instagram"
                   variant="text"
-                  disabled
+                  href="https://www.instagram.com/gutenku.poem"
+                  target="_blank"
                 />
               </v-card-actions>
             </v-card>
@@ -133,7 +134,7 @@ body {
 
         &.dark-theme {
             display: inline;
-            background: rgba(0, 0, 0, 0.7);
+            background: #2F5D62;
             padding: 0px;
             border-bottom: 1px solid #bbbbbb;
         }
