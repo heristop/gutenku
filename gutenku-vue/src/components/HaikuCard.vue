@@ -52,10 +52,7 @@ async function copy() {
       >
     </video>
 
-    <v-card-actions
-      v-if="haiku"
-      class="justify-end"
-    >
+    <v-card-actions class="justify-end">
       <v-tooltip
         :text="$t('tooltipAISwitch')"
         location="bottom right"

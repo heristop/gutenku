@@ -4,9 +4,11 @@ import InstagramPublisher from 'instagram-publisher';
 
 export default {
     post(haiku: HaikuValue) {
+        const bookTitle = haiku.book.title.charAt(0) + haiku.book.title.slice(1).replace(/[a-zA-Z]/g, "*");
+
         const caption = `
-🌸 “${haiku.title}” 
-🗻 From which book are these quotes taken?
+🌸🗻 “${haiku.title}” 
+📖 Book Title: ${bookTitle}
 ~~~
 #gutenku #gutenberg #projectgutenberg #haiku #poetry #poem #haikupoetry #haikulover #haikusofinstagram #haikumoments #haikucommunity #japanesepoetry #naturepoetry #micropoetry #minimalistpoetry #zenpoetry #buddhistpoetry #meditativepoetry
 `;
