@@ -29,7 +29,7 @@ export default {
 ~~~
 #gutenku #gutenberg #projectgutenberg #haiku #poetry #poem #haikupoetry #haikulover #haikusofinstagram #haikumoments #haikucommunity #japanesepoetry #naturepoetry #micropoetry #minimalistpoetry #zenpoetry #buddhistpoetry #meditativepoetry
 `;
-        console.log(process.env.INSTAGRAM_API_USER, process.env.INSTAGRAM_API_PASSWORD);
+
         console.log(caption);
 
         if (process.env.INSTAGRAM_API_USER) {
