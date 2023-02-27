@@ -4,11 +4,22 @@ import InstagramPublisher from 'instagram-publisher';
 
 export default {
     post(haiku: HaikuValue) {
-        const bookTitle = haiku.book.title.charAt(0) + haiku.book.title.slice(1).replace(/[a-zA-Z]/g, "*");
+        const bookTitle = haiku.book.title;
+        const vowels = "aeiouyAEIOUY";
+
+        let nonMaskedVowel: string;
+
+        // Find a random vowel in the title
+        do {
+            nonMaskedVowel = bookTitle.charAt(Math.floor(Math.random() * bookTitle.length));
+        } while (!vowels.includes(nonMaskedVowel));
+
+        // Mask all letters except the random vowel
+        const maskedTitle = bookTitle.replace(new RegExp(`[^ ${nonMaskedVowel}]`, "gi"), "*");
 
         const caption = `
 🌸🗻 “${haiku.title}” 
-📖 Book Title: ${bookTitle}
+📖 Reference Book: ${maskedTitle}
 ~~~
 #gutenku #gutenberg #projectgutenberg #haiku #poetry #poem #haikupoetry #haikulover #haikusofinstagram #haikumoments #haikucommunity #japanesepoetry #naturepoetry #micropoetry #minimalistpoetry #zenpoetry #buddhistpoetry #meditativepoetry
 `;

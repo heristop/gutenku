@@ -15,11 +15,11 @@ function toggle(): void {
 
 <template>
   <v-card
-    :title="$t('titleChapterCard')"
+    title="Guess from which book the text was extracted:"
     v-if="haiku"
     :loading="loading"
     color="secondary"
-    class=" pa-10 align-center justify-centert"
+    class="pa-10 align-center justify-center"
   >
     <v-row>
       <v-col>
