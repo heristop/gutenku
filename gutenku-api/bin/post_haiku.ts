@@ -4,6 +4,7 @@ import { program } from 'commander';
 import { createInterface } from 'readline';
 import { HaikuResponseData } from '../src/types';
 import Instagram from '../services/instagram';
+import terminalImage from 'terminal-image';
 
 dotenv.config();
 
@@ -48,11 +49,12 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
-}).then(response => response.json()).then((response: {
+}).then(response => response.json()).then(async (response: {
     data: HaikuResponseData
 }) => {
     const haiku = response.data.haiku;
 
+    console.log(await terminalImage.file(haiku.image_path, { width: 40 }));
     console.log(haiku);
 
     if (false === options.interaction) {

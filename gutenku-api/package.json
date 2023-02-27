@@ -23,7 +23,8 @@
         "mongoose": "^6.9.0",
         "openai": "^3.1.0",
         "request": "^2.88.2",
-        "syllable": "^5.0.1"
+        "syllable": "^5.0.1",
+        "terminal-image": "^2.0.0"
     },
     "devDependencies": {
         "@types/express": "^4.17.17",

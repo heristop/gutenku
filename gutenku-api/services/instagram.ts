@@ -17,13 +17,19 @@ export default {
         // Mask all letters except the random vowel
         const maskedTitle = bookTitle.replace(new RegExp(`[^ ${nonMaskedVowel}]`, "gi"), "*");
 
+        let postTitle = haiku.title;
+
+        if (null === postTitle) {
+            postTitle = 'Daily Haiku';
+        }
+
         const caption = `
-🌸🗻 “${haiku.title}” 
+🌸🗻 “${postTitle}” 
 📖 Reference Book: ${maskedTitle}
 ~~~
 #gutenku #gutenberg #projectgutenberg #haiku #poetry #poem #haikupoetry #haikulover #haikusofinstagram #haikumoments #haikucommunity #japanesepoetry #naturepoetry #micropoetry #minimalistpoetry #zenpoetry #buddhistpoetry #meditativepoetry
 `;
-
+        console.log(process.env.INSTAGRAM_API_USER, process.env.INSTAGRAM_API_PASSWORD);
         console.log(caption);
 
         if (process.env.INSTAGRAM_API_USER) {
