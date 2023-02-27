@@ -8,6 +8,8 @@ const CACHE_DIRECTORY = './.cache';
 
 export default {
     async create(verses: string[]): Promise<string> {
+        Canvas.registerFont('./src/assets/fonts/JMH Typewriter.ttf', { family: 'Typewriter' });
+
         const canvas = Canvas.createCanvas(1200, 1200);
         const ctx = canvas.getContext('2d');
 
@@ -39,7 +41,7 @@ export default {
         ctx.globalAlpha = 1;
 
         // Set the font and background color
-        ctx.font = '56px Garamond, Georgia, serif';
+        ctx.font = '56px Typewriter';
         ctx.fillStyle = '#fff';
 
         // Draw the text

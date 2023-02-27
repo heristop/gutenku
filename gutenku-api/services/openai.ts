@@ -17,8 +17,8 @@ export default {
             const completion = await openai.createCompletion({
                 model: "text-davinci-003",
                 prompt: await this.generatePrompt(),
-                temperature: 0.7,
-                max_tokens: 256,
+                temperature: 0.6,
+                max_tokens: 1024,
                 top_p: 1,
                 frequency_penalty: 0,
                 presence_penalty: 0,
@@ -49,7 +49,7 @@ export default {
     async generatePrompt() {
         const verses = [];
 
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 6; ++i) {
             const haiku = await Haiku.generate();
 
             haikuSelection.push(haiku);
