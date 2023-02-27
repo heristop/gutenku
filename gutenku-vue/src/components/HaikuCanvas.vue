@@ -31,27 +31,37 @@ const downloadImage = () => {
 <template>
   <v-card
     v-if="haiku"
-    class="mx-auto pa-10 mb-6 justify-center order-last"
+    class="mx-auto pa-10 mb-6 align-center justify-center"
+    color="third"
     :loading="loading"
   >
-    <img
-      @contextmenu.prevent
-      alt="Haiku Generated"
-      :src="haikuImage"
-      height="300"
-      aspectRatio="1"
-    >
-
-    <v-card-actions class="justify-end">
-      <v-btn
-        @click="downloadImage"
-        data-cy="download-btn"
-        class="ms-2"
-        color="secondary"
-        prepend-icon="mdi-download"
+    <v-row>
+      <v-card
+        elevation="6"
+        width="300"
+        height="300"
+        class="align-center justify-center"
       >
-        {{ $t('btnDownload') }}
-      </v-btn>
-    </v-card-actions>
+        <img
+          width="300"
+          @contextmenu.prevent
+          alt="Haiku Generated"
+          aspectRatio="1"
+          :src="haikuImage"
+        >
+      </v-card>
+
+      <v-card-actions class="justify-end">
+        <v-btn
+          @click="downloadImage"
+          data-cy="download-btn"
+          class="ms-2"
+          color="primary"
+          prepend-icon="mdi-download"
+        >
+          Download
+        </v-btn>
+      </v-card-actions>
+    </v-row>
   </v-card>
 </template>
