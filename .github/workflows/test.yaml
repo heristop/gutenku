@@ -23,6 +23,7 @@ jobs:
           cp .env.dist .env
           yarn install
           yarn lint
+          yarn build
       #- uses: cypress-io/github-action@v4
       #  with:
       #    build: yarn build

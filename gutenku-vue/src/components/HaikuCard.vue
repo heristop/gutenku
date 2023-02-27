@@ -52,12 +52,9 @@ async function copy() {
       >
     </video>
 
-    <v-card-actions
-      v-if="haiku"
-      class="justify-end"
-    >
+    <v-card-actions class="justify-end">
       <v-tooltip
-        :text="$t('tooltipAISwitch')"
+        text="Use AI to improve the revelant of generated Haiku"
         location="bottom right"
       >
         <template #activator="{ props }">
@@ -66,7 +63,7 @@ async function copy() {
             v-model="useAI"
             color="secondary"
             hide-details
-            :label="$t('switchAi')"
+            label="🤖"
           />
         </template>
       </v-tooltip>
@@ -77,9 +74,7 @@ async function copy() {
         :prepend-icon="loading ? 'mdi-loading mdi-spin' : 'mdi-reload'"
         @click="fetchText()"
       >
-        {{
-          $t('btnGenerate')
-        }}
+        Generate
       </v-btn>
 
       <v-btn
@@ -89,9 +84,7 @@ async function copy() {
         variant="text"
         @click="copy()"
       >
-        {{
-          $t('btnCopy')
-        }}
+        Copy
       </v-btn>
     </v-card-actions>
   </v-card>
@@ -100,14 +93,14 @@ async function copy() {
     v-model="copied"
     :timeout="2000"
   >
-    <v-icon>mdi-check-circle</v-icon> {{ $t('copiedMessage') }}
+    <v-icon>mdi-check-circle</v-icon> Haiku copied!
 
     <template #actions>
       <v-btn
         variant="text"
         @click="copied = false"
       >
-        {{ $t('closeModal') }}
+        Close
       </v-btn>
     </template>
   </v-snackbar>

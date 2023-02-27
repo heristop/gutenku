@@ -9,7 +9,7 @@ const { haiku, loading } = storeToRefs(useHaikuStore());
   <v-card
     v-if="haiku && haiku.description"
     class="mx-auto pa-10 mb-6 justify-center"
-    :title="$t('titleAICard')"
+    title="🤖"
     :loading="loading"
     color="primary"
   >

@@ -156,7 +156,7 @@ export default {
         return upperCaseCharsRegex.test(sentence) ||
             illustrationRegex.test(sentence) ||
             genderEndRegex.test(sentence) ||
-            sentence.length >= 36;
+            sentence.length >= 30;
     },
 
     countSyllables(sentence: string): number {
