@@ -54,7 +54,7 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
 }) => {
     const haiku = response.data.haiku;
 
-    console.log(await terminalImage.file(haiku.image_path, { width: 40 }));
+    console.log(await terminalImage.file(haiku.image_path, { width: 20 }));
     console.log(haiku);
 
     if (false === options.interaction) {
