@@ -1,12 +1,11 @@
 import Haiku from './haiku';
 import { Configuration, OpenAIApi } from 'openai';
+import { HaikuValue } from '../src/types';
 
-const haikuSelection = [];
+let haikuSelection: HaikuValue[] = [];
 
 export default {
-    async generate() {
-        let index = 0;
-
+    async generate(): Promise<HaikuValue> {
         try {
             const configuration = new Configuration({
                 apiKey: process.env.OPENAI_API_KEY,
@@ -14,10 +13,11 @@ export default {
 
             const openai = new OpenAIApi(configuration);
 
+            const prompt = await this.generatePrompt();
             const completion = await openai.createCompletion({
                 model: "text-davinci-003",
-                prompt: await this.generatePrompt(),
-                temperature: 0.6,
+                prompt,
+                temperature: 0.7,
                 max_tokens: 1024,
                 top_p: 1,
                 frequency_penalty: 0,
@@ -27,42 +27,39 @@ export default {
 
             if (200 === completion.status) {
                 const output = JSON.parse(completion.data.choices[0].text);
-                index = output.id;
+                const index = output.id;
 
-                // Add title
-                haikuSelection[index].title = output.title;
+                const haiku = haikuSelection[index];
+                haikuSelection = [];
 
-                // Add description
-                haikuSelection[index].description = output.description;
+                haiku.title = output.title;
+                haiku.description = output.description;
+
+                return haiku;
             }
         } catch (error) {
             console.log(error);
         }
 
-        if (!haikuSelection[index]) {
-            return await Haiku.generate();
-        }
-
-        return haikuSelection[index];
+        return await Haiku.generate();
     },
 
-    async generatePrompt() {
-        const verses = [];
+    async generatePrompt(): Promise<string> {
+        const verses: string[] = [];
 
-        for (let i = 0; i < 6; ++i) {
+        for (const [i,] of Array(7).entries()) {
             const haiku = await Haiku.generate();
+            const verse = `${i}:\n${haiku.verses.join("\n")}\n`;
 
             haikuSelection.push(haiku);
-            verses.push(i + ":\n" + haiku.verses.join("\n") + "\n");
+
+            verses.push(verse);
+            console.log(verse + "\n");
         }
 
-        const prompt = 'What is the most revelant haiku from the list below?';
+        const prompt = 'What is the most revelant and beautiful haiku from the list below?';
+        const outputFormat = '{"id":ID,"title":"Give a short title for this Haiku","description":"Describe and explain the meaning of this Haiku"}';
 
-        return `${prompt} (output JSON format: {"id":ID,"title":"Give a short title for this Haiku","description":"Describe and explain the meaning of this Haiku"})
-
-            ${verses.join("\n")}
-
-        STOP
-        `;
+        return `${prompt} (output JSON format: ${outputFormat})\n${verses.join("\n")}\nSTOP\n`;
     }
 }
