@@ -7,6 +7,7 @@ ids = [
     23,     # Narrative of the Life of Frederick Douglass
     35,     # The Time Machine
     36,     # The War of the Worlds
+    45,     # Anne of Green Gables
     55,     # The Wonderful Wizard of Oz
     74,     # The Adventures of Tom Sawyer
     76,     # Adventures of Huckleberry Finn
