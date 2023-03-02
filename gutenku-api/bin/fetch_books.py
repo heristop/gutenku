@@ -11,7 +11,6 @@ ids = [
     74,     # The Adventures of Tom Sawyer
     76,     # Adventures of Huckleberry Finn
     84,     # Frankenstein
-    98,     # A Tale of Two Cities
     105,    # Persuasion
     158,    # Emma
     174,    # The Picture of Dorian Gray

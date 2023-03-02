@@ -7,9 +7,10 @@ import Log from '../models/log';
 
 export default {
     async generate(): Promise<HaikuValue> {
-        const randomBook = await this.selectRandomBook();
+        let randomBook = await this.selectRandomBook();
         let randomChapter = null;
         let verses = [];
+        let i = 0;
 
         while (verses.length < 3) {
             randomChapter = this.selectRandomChapter(randomBook);
@@ -23,6 +24,12 @@ export default {
             if (logExists) {
                 verses = [];
             }
+
+            if (0 === i % 100) {
+                randomBook = await this.selectRandomBook();
+            }
+
+            ++i;
         }
 
         return {
@@ -97,6 +104,12 @@ export default {
     getVerses(chapter: string): string[] {
         const sentences = this.splitSentences(chapter);
         const filteredSentences = this.filterSentences(sentences);
+
+        // Exclude lists with less than 20 sentences
+        if (filteredSentences.length < 20) {
+            return [];
+        }
+
         const lines = this.selectHaikuLines(filteredSentences);
 
         return lines;
@@ -129,17 +142,23 @@ export default {
         const syllableCounts = [5, 7, 5];
 
         for (const count of syllableCounts) {
-            const index = sentences.findIndex((sentence) => {
-                if (this.isSentenceInvalid(sentence)) {
-                    return false;
+            const indexes = [];
+
+            for (let i = 0; i < sentences.length; i++) {
+                if (this.isSentenceInvalid(sentences[i])) {
+                    continue;
                 }
 
-                return this.countSyllables(sentence) === count;
-            });
+                if (this.countSyllables(sentences[i]) === count) {
+                    indexes.push(i);
+                }
+            }
 
-            if (index === -1) {
+            if (0 === indexes.length) {
                 return [];
             }
+
+            const index = indexes[Math.floor(Math.random() * indexes.length)];
 
             lines.push(sentences[index]);
             sentences.splice(index, 1);

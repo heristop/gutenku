@@ -65,7 +65,7 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
             output: process.stdout
         });
 
-        rl.question('Post on Instagram? (y/n) ', (answer: string) => {
+        rl.question('\nPost on Instagram? (y/n) \x1b[33m[n]\x1b[0m ', (answer: string) => {
             if ('y' === answer || 'yes' === answer) {
                 Instagram.post(haiku);
             }
