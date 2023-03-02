@@ -19,7 +19,7 @@ A Haiku generator based on a selection of books from Project Gutenberg (https://
   <tbody>
     <tr>
       <td>
-        <a href=/gutenku-api/README.md#installation">Api</a>
+        <a href="/gutenku-api/README.md#installation">Api</a>
       </td>
       <td>
         TypeScript, NodeJS, MongoDB, GraphQL, Python, OpenAI
@@ -27,7 +27,7 @@ A Haiku generator based on a selection of books from Project Gutenberg (https://
     </tr>
     <tr>
       <td>
-        <a href=/gutenku-vue/README.md#installation">Front</a>
+        <a href="/gutenku-vue/README.md#installation">Front</a>
       </td>
       <td>
         TypeScript, Vue 3 / Vuetify 3 / Pinia
@@ -40,16 +40,16 @@ A Haiku generator based on a selection of books from Project Gutenberg (https://
 
 ### Generate
 
-<img src="/gutenku-vue/src/assets/img/haiku_card.png" style="max-width: 75%" />
+<img src="/gutenku-vue/src/assets/img/haiku_card.png" />
 
 ### Download
 
-<img src="/gutenku-vue/src/assets/img/canvas_card.png" style="max-width: 75%" />
+<img src="/gutenku-vue/src/assets/img/canvas_card.png" />
 
 ### Explain
 
-<img src="/gutenku-vue/src/assets/img/ai_card.png" style="max-width: 75%" />
+<img src="/gutenku-vue/src/assets/img/ai_card.png" />
 
 ### Guess
 
-<img src="/gutenku-vue/src/assets/img/chapter_card.png" style="max-width: 75%" />
+<img src="/gutenku-vue/src/assets/img/chapter_card.png" />

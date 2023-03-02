@@ -102,11 +102,12 @@ export default {
     },
 
     getVerses(chapter: string): string[] {
+        const minSentencesCount = process.env.MIN_SENTENCES_COUNT;
         const sentences = this.splitSentences(chapter);
         const filteredSentences = this.filterSentences(sentences);
 
-        // Exclude lists with less than 20 sentences
-        if (filteredSentences.length < 20) {
+        // Exclude lists with less than MIN_SENTENCES_COUNT sentences
+        if (minSentencesCount && filteredSentences.length < minSentencesCount) {
             return [];
         }
 
@@ -139,7 +140,7 @@ export default {
 
     selectHaikuLines(sentences: string[]): string[] {
         const lines = [];
-        const syllableCounts = [5, 7, 5];
+        const syllableCounts = process.env.SYLLABLE_COUNTS.split(',').map((str) => Number(str));
 
         for (const count of syllableCounts) {
             const indexes = [];
@@ -175,7 +176,7 @@ export default {
         return upperCaseCharsRegex.test(sentence) ||
             illustrationRegex.test(sentence) ||
             genderEndRegex.test(sentence) ||
-            sentence.length >= 30;
+            sentence.length >= parseInt(process.env.VERSE_MAX_LENGTH);
     },
 
     countSyllables(sentence: string): number {
