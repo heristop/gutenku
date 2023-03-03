@@ -47,7 +47,7 @@ export default {
     async generatePrompt(): Promise<string> {
         const verses: string[] = [];
 
-        for (const [i,] of Array(process.env.OPENAI_SELECTION_COUNT).entries()) {
+        for (const [i,] of Array(parseInt(process.env.OPENAI_SELECTION_COUNT)).entries()) {
             const haiku = await Haiku.generate();
             const verse = `${i}:\n${haiku.verses.join("\n")}\n`;
 
