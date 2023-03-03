@@ -10,7 +10,7 @@ load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 BOOK_ID = int(sys.argv[1])
 
 # Connect to the MongoDB database
-client = pymongo.MongoClient(os.environ.get('MONGODB_URI'))
+client = pymongo.MongoClient(os.environ.get('MONGODB_URI')+'/'+os.environ.get('MONGODB_DB'))
 db = client[os.environ.get('MONGODB_DB')]
 book_collection = db["books"]
 chapter_collection = db["chapters"]
