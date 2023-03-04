@@ -1,9 +1,12 @@
+import { promisify } from 'util';
 import { unlink } from 'fs';
 import { syllable } from 'syllable';
 import Book from '../models/book';
 import Canvas from './canvas';
 import { BookValue, HaikuLogValue, HaikuValue } from '../src/types';
 import Log from '../models/log';
+
+const unlinkAsync = promisify(unlink);
 
 export default {
     async generate(): Promise<HaikuValue> {
@@ -50,11 +53,7 @@ export default {
         const image = await Canvas.read(imagePath);
 
         if (true !== keepImage) {
-            unlink(imagePath, (err: NodeJS.ErrnoException | null) => {
-                if (err) {
-                    throw err;
-                }
-            });
+            await unlinkAsync(imagePath);
         }
 
         return {

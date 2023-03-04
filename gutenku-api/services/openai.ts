@@ -39,6 +39,8 @@ export default {
             }
         } catch (error) {
             console.log(error);
+        } finally {
+            haikuSelection = [];
         }
 
         return await Haiku.generate();
