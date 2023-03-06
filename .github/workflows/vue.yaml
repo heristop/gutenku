@@ -1,4 +1,4 @@
-name: Test
+name: Vue
 
 on: [push]
 
@@ -11,12 +11,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - name: api
-        run: |
-          cd gutenku-vue
-          cp .env.dist .env
-          yarn install
-          yarn lint
       - name: front
         run: |
           cd gutenku-vue
@@ -27,4 +21,4 @@ jobs:
         with:
           working-directory: gutenku-vue
           build: yarn build
-          start: yarn start
+          start: yarn preview
