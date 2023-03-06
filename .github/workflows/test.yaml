@@ -25,8 +25,7 @@ jobs:
           yarn lint
           yarn build
       - uses: cypress-io/github-action@v5
-        run: |
-          cd gutenku-vue
         with:
+          project: ./gutenku-vue
           build: yarn build
           start: yarn start
