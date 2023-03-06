@@ -23,9 +23,8 @@ jobs:
           cp .env.dist .env
           yarn install
           yarn lint
-          yarn build
       - uses: cypress-io/github-action@v5
         with:
-          project: ./gutenku-vue
+          working-directory: gutenku-vue
           build: yarn build
           start: yarn start
