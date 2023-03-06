@@ -61,6 +61,7 @@ async function copy() {
           <v-switch
             v-bind="props"
             v-model="useAI"
+            data-cy="switch-api-btn"
             color="secondary"
             hide-details
             label="🤖"
@@ -93,7 +94,9 @@ async function copy() {
     v-model="copied"
     :timeout="2000"
   >
-    <v-icon>mdi-check-circle</v-icon> Haiku copied!
+    <v-icon data-cy="copy-success-icon">
+      mdi-check-circle
+    </v-icon> Haiku copied!
 
     <template #actions>
       <v-btn

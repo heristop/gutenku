@@ -26,6 +26,7 @@ function toggle(): void {
         <v-btn
           color="primary"
           :icon="blackMarker ? 'mdi-lightbulb-on' : 'mdi-lightbulb-off'"
+          data-cy="light-toggle-btn"
           size="small"
           @click="toggle()"
         />
