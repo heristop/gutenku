@@ -21,4 +21,4 @@ jobs:
         with:
           working-directory: gutenku-vue
           build: yarn build
-          start: yarn preview
+          start: yarn start
