@@ -1,4 +1,4 @@
-name: test
+name: Test
 
 on: [push]
 
@@ -24,7 +24,9 @@ jobs:
           yarn install
           yarn lint
           yarn build
-      - uses: cypress-io/github-action@v4
+      - uses: cypress-io/github-action@v5
+        run: |
+          cd gutenku-vue
         with:
           build: yarn build
           start: yarn start
