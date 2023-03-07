@@ -8,6 +8,8 @@ A Haiku generator based on a selection of books from Project Gutenberg (https://
 
 ## Ecosystem
 
+[![Api](https://github.com/heristop/gutenku/actions/workflows/api.yaml/badge.svg)](https://github.com/heristop/gutenku/actions/workflows/api.yaml) [![Vue](https://github.com/heristop/gutenku/actions/workflows/vue.yaml/badge.svg)](https://github.com/heristop/gutenku/actions/workflows/vue.yaml)
+
 <table>
   <thead>
     <tr>
@@ -30,7 +32,7 @@ A Haiku generator based on a selection of books from Project Gutenberg (https://
         <a href="/gutenku-vue/README.md#installation">Front</a>
       </td>
       <td>
-        TypeScript, Vue 3 / Vuetify 3 / Pinia
+        TypeScript, Vue 3 / Vuetify 3 / Pinia, Cypress.io
       </td>
     </tr>
   </tbody>
