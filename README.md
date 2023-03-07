@@ -8,12 +8,13 @@ A Haiku generator based on a selection of books from Project Gutenberg (https://
 
 ## Ecosystem
 
+[![Api](https://github.com/heristop/gutenku/actions/workflows/api.yaml/badge.svg)](https://github.com/heristop/gutenku/actions/workflows/api.yaml) [![Vue](https://github.com/heristop/gutenku/actions/workflows/vue.yaml/badge.svg)](https://github.com/heristop/gutenku/actions/workflows/vue.yaml)
+
 <table>
   <thead>
     <tr>
       <th>Application</th>
       <th>Env</th>
-      <th>Tests</th>
     </tr>
   </thead>
 
@@ -25,19 +26,13 @@ A Haiku generator based on a selection of books from Project Gutenberg (https://
       <td>
         TypeScript, NodeJS, MongoDB, GraphQL, Python, OpenAI
       </td>
-      <td>
-        [![Test](https://github.com/heristop/gutenku/actions/workflows/api.yaml/badge.svg)](https://github.com/heristop/gutenku/actions/workflows/api.yaml)
-      </td>
     </tr>
     <tr>
       <td>
         <a href="/gutenku-vue/README.md#installation">Front</a>
       </td>
       <td>
-        TypeScript, Vue 3 / Vuetify 3 / Pinia, Cypress
-      </td>
-      <td>
-        [![Test](https://github.com/heristop/gutenku/actions/workflows/vue.yaml/badge.svg)](https://github.com/heristop/gutenku/actions/workflows/vue.yaml)
+        TypeScript, Vue 3 / Vuetify 3 / Pinia, Cypress.io
       </td>
     </tr>
   </tbody>

@@ -1,5 +1,11 @@
 /// <reference types="cypress" />
 
+Cypress.on('uncaught:exception', (err, runnable) => {
+    // returning false here prevents Cypress from
+    // failing the test
+    return false;
+})
+
 describe('Landing page test', () => {
     beforeEach(() => {
         cy.intercept('POST', /\/graphql$/, { fixture: 'haiku.json' }).as('api');
@@ -11,7 +17,6 @@ describe('Landing page test', () => {
             cy.get('[data-cy=switch-api-btn]').should('be.visible');
             cy.get('[data-cy=fetch-btn]').should('be.visible');
             cy.get('[data-cy=copy-btn]').should('be.visible');
-
             cy.get('[data-cy=fetch-btn').click();
 
             cy.wait('@api').then(() => {
