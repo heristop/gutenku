@@ -171,10 +171,12 @@ export default {
         const upperCaseCharsRegex = /^[A-Z\s!:.?]+$/;
         const illustrationRegex = /\[Illustration/;
         const genderEndRegex = /[Mr|Mrs]$/;
+        const emailRegex = /@$/;
 
         return upperCaseCharsRegex.test(sentence) ||
             illustrationRegex.test(sentence) ||
             genderEndRegex.test(sentence) ||
+            emailRegex.test(sentence) ||
             sentence.length >= parseInt(process.env.VERSE_MAX_LENGTH);
     },
 
@@ -191,13 +193,17 @@ export default {
     },
 
     clean(verses: string[]): string[] {
+        const newLineRegex = /[\n\r]/g;
+        const dashUnderscoreRegex = /[--]|[_]/g;
+        const quotesParenthesesRegex = /["“”()]/g;
+        const whitespaceRegex = /\s+/g;
+
         return verses.map(verse => {
-            verse = verse
-                .trim()
-                .replace(/[\n\r]/g, ' ')
-                .replace(/[--]|['_']/g, ' ')
-                .replace(/["“”()]/g, '')
-                .replace(/\s+/g, ' ');
+            verse = verse.trim()
+                .replace(newLineRegex, ' ')
+                .replace(dashUnderscoreRegex, ' ')
+                .replace(quotesParenthesesRegex, '')
+                .replace(whitespaceRegex, ' ');
 
             return verse.charAt(0).toUpperCase() + verse.slice(1);
         });

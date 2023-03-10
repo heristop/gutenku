@@ -28,7 +28,10 @@ async function copy() {
     class="pa-10 mb-6"
     color="primary"
   >
-    <div v-if="haiku">
+    <v-sheet
+      v-if="haiku"
+      color="primary"
+    >
       <p
         class="pa-4"
         v-for="sentence in haiku.verses"
@@ -36,21 +39,15 @@ async function copy() {
       >
         {{ sentence }}
       </p>
-    </div>
+    </v-sheet>
 
-    <video
+    <v-icon
       v-show="networkError"
-      width="640"
-      height="396"
-      autoplay
-      loop
-      muted
+      color="third"
+      class="text-error py-10"
     >
-      <source
-        src="@/assets/img/writing.mp4"
-        type="video/mp4"
-      >
-    </video>
+      mdi-robot-dead-outline
+    </v-icon>
 
     <v-card-actions class="justify-end">
       <v-tooltip
@@ -108,3 +105,9 @@ async function copy() {
     </template>
   </v-snackbar>
 </template>
+
+<style scoped>
+.text-error {
+    font-size: 48px;
+}
+</style>

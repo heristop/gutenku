@@ -22,6 +22,7 @@ async function listen(port: number) {
             db: db,
         })
     });
+
     await server.start();
 
     mongoose.set('strictQuery', true);

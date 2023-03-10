@@ -15,7 +15,7 @@ function toggle(): void {
 
 <template>
   <v-card
-    title="Guess from which book the text was extracted:"
+    title="Disclose chapter where quotes were extracted:"
     v-if="haiku"
     :loading="loading"
     color="secondary"

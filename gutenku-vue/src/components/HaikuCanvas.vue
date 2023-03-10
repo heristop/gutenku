@@ -35,33 +35,30 @@ const downloadImage = () => {
     color="third"
     :loading="loading"
   >
-    <v-row>
-      <v-card
-        elevation="6"
+    <v-sheet
+      elevation="4"
+      width="300"
+      height="300"
+    >
+      <img
         width="300"
-        height="300"
-        class="align-center justify-center"
+        @contextmenu.prevent
+        alt="Haiku Generated"
+        aspectRatio="1"
+        :src="haikuImage"
       >
-        <img
-          width="300"
-          @contextmenu.prevent
-          alt="Haiku Generated"
-          aspectRatio="1"
-          :src="haikuImage"
-        >
-      </v-card>
+    </v-sheet>
 
-      <v-card-actions class="justify-end">
-        <v-btn
-          @click="downloadImage"
-          data-cy="download-btn"
-          class="ms-2"
-          color="primary"
-          prepend-icon="mdi-download"
-        >
-          Download
-        </v-btn>
-      </v-card-actions>
-    </v-row>
+    <v-card-actions class="justify-end">
+      <v-btn
+        @click="downloadImage"
+        data-cy="download-btn"
+        class="ms-2"
+        color="primary"
+        prepend-icon="mdi-download"
+      >
+        Download
+      </v-btn>
+    </v-card-actions>
   </v-card>
 </template>

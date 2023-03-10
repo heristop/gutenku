@@ -27,6 +27,7 @@ export const useHaikuStore = defineStore({
     state: () => ({
         haiku: null as unknown as HaikuValue,
         loading: false as boolean,
+        firstLoaded: false as boolean,
         useAI: false as boolean,
         error: '' as string
     }),
@@ -57,6 +58,7 @@ export const useHaikuStore = defineStore({
             } catch (error) {
                 this.error = error as string;
             } finally {
+                this.firstLoaded = true;
                 this.loading = false;
             }
         }

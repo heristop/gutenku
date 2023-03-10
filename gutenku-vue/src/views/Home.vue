@@ -4,11 +4,12 @@ import HaikuAi from '@/components/HaikuAi.vue';
 import HaikuCanvas from '@/components/HaikuCanvas.vue';
 import HaikuCard from '@/components/HaikuCard.vue';
 import HaikuChapter from '@/components/HaikuChapter.vue';
-import { useHaikuStore } from '../store/haiku'
-import { storeToRefs } from 'pinia'
+import Loading from '@/components/Loading.vue';
+import { useHaikuStore } from '../store/haiku';
+import { storeToRefs } from 'pinia';
 
 const { fetchText } = useHaikuStore();
-const { error } = storeToRefs(useHaikuStore())
+const { error, firstLoaded } = storeToRefs(useHaikuStore())
 
 const networkError = computed(() => {
     return '' !== error.value;
@@ -20,7 +21,9 @@ onMounted(fetchText);
 <template>
   <v-container class="fill-height">
     <v-responsive class="d-flex text-center fill-height">
-      <v-container>
+      <loading v-if="false === firstLoaded" />
+
+      <v-container v-if="firstLoaded">
         <v-row>
           <v-col
             cols="12"
@@ -48,32 +51,56 @@ onMounted(fetchText);
 
                 <v-spacer />
 
-                <strong>GutenKu</strong> is a Haiku generator based on a selection of books from
-
-                <v-btn
-                  href="https://gutenberg.org"
-                  variant="plain"
-                  class="pa-0"
-                  target="_blank"
-                >
-                  Project Gutenberg
-                </v-btn>
+                <strong>GutenKu</strong> is a Haiku generator based on a selection of books from Project
+                Gutenberg
               </p>
 
               <v-card-actions class="justify-center">
-                <v-btn
-                  class="ms-2"
-                  icon="mdi-github"
-                  href="https://github.com/heristop/gutenku"
-                  target="_blank"
-                />
-                <v-btn
-                  class="ms-2"
-                  icon="mdi-instagram"
-                  variant="text"
-                  href="https://www.instagram.com/gutenku.poem"
-                  target="_blank"
-                />
+                <v-tooltip
+                  text="Project Gutenberg"
+                  location="bottom"
+                >
+                  <template #activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      class="ms-2"
+                      icon="mdi-book-open"
+                      href="https://gutenberg.org"
+                      target="_blank"
+                    />
+                  </template>
+                </v-tooltip>
+
+                <v-tooltip
+                  text="Instagram"
+                  location="bottom"
+                >
+                  <template #activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      class="ms-2"
+                      icon="mdi-instagram"
+                      variant="text"
+                      href="https://www.instagram.com/gutenku.poem"
+                      target="_blank"
+                    />
+                  </template>
+                </v-tooltip>
+
+                <v-tooltip
+                  text="GitHub"
+                  location="bottom"
+                >
+                  <template #activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      class="ms-2"
+                      icon="mdi-github"
+                      href="https://github.com/heristop/gutenku"
+                      target="_blank"
+                    />
+                  </template>
+                </v-tooltip>
               </v-card-actions>
             </v-card>
 

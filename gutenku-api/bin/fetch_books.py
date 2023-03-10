@@ -19,6 +19,7 @@ ids = [
     215,    # The Call of the Wild
     244,    # A Study In Scarlet
     345,    # Dracula
+    394,    # Cranford
     730,    # Oliver Twist
     768,    # Wuthering Heights
     996,    # The History of Don Quixote
@@ -26,6 +27,7 @@ ids = [
     1232,   # The Prince
     1259,   # Twenty Years After
     1342,   # Pride and prejudice
+    1399,   # Anna Karenina
     1400,   # Great Expectations
     1497,   # Republic
     1661,   # The Adventures of Sherlock Holmes
@@ -43,6 +45,9 @@ ids = [
     67098,  # Winnie-the-,Pooh
     67979,  # The Blue Castle
     70114,  # The big four
+    70225,  # The Fortunate Calamity
+    70234,  # Hugh Worthington,
+    70236,  # The secret of the old mill
 ]
 
 for id in ids:
