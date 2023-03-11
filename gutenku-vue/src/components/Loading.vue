@@ -26,25 +26,17 @@ onMounted(startAnimation);
 </script>
 
 <template>
-  <div class="loading">
-    <v-icon
-      v-for="(icon, index) in icons"
-      :key="index"
-      :class="['icon']"
-      color="primary"
-    >
-      {{ icon }}
-    </v-icon>
+    <div class="loading">
+        <v-icon v-for="(icon, index) in icons" :key="index" :class="['icon']" color="primary">
+            {{ icon }}
+        </v-icon>
 
-    <v-spacer class="pa-10" />
+        <v-spacer class="pa-10" />
 
-    <v-sheet
-      class="loading-text px-6 py-2"
-      color="primary"
-    >
-      Generating Haiku...
-    </v-sheet>
-  </div>
+        <v-sheet class="loading-text px-6 py-2" color="primary">
+            Generating Haiku...
+        </v-sheet>
+    </div>
 </template>
   
 <style scoped>
@@ -70,7 +62,6 @@ onMounted(startAnimation);
 }
 
 .loading-text {
-    font-family: Garamond, Georgia, serif;
     font-size: 20px;
 }
 </style>
