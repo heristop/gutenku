@@ -57,17 +57,24 @@ function toggle(): void {
 
         <v-row class="d-flex align-center justify-center">
           <v-col cols="auto">
-            <p
-              :class="{
-                'dark-theme': blackMarker,
-                'light-theme': !blackMarker
-              }"
+            <v-sheet
+              class="overflow-y-auto"
+              max-height="450"
             >
-              <high-light-text
-                :text="haiku.chapter.content"
-                :lines="haiku.rawVerses"
-              />
-            </p>
+              <v-card-text>
+                <p
+                  :class="{
+                    'dark-theme': blackMarker,
+                    'light-theme': !blackMarker
+                  }"
+                >
+                  <high-light-text
+                    :text="haiku.chapter.content"
+                    :lines="haiku.rawVerses"
+                  />
+                </p>
+              </v-card-text>
+            </v-sheet>
           </v-col>
         </v-row>
       </v-col>

@@ -4,7 +4,7 @@ import { useHaikuStore } from '../store/haiku';
 import { storeToRefs } from 'pinia';
 
 const { fetchText } = useHaikuStore();
-const { haiku, loading, error, useAI } = storeToRefs(useHaikuStore());
+const { haiku, loading, error } = storeToRefs(useHaikuStore());
 
 const networkError = computed(() => {
     return '' !== error.value;
@@ -51,39 +51,41 @@ async function copy() {
 
     <v-card-actions class="justify-end">
       <v-tooltip
-        text="Use AI to improve the revelant of generated Haiku"
-        location="bottom right"
+        text="Generate a new Haiku"
+        location="bottom"
       >
         <template #activator="{ props }">
-          <v-switch
+          <v-btn
             v-bind="props"
-            v-model="useAI"
-            data-cy="switch-api-btn"
-            color="secondary"
-            hide-details
-            label="🤖"
-          />
+            color="third"
+            data-cy="fetch-btn"
+            class="ms-2"
+            :prepend-icon="loading ? 'mdi-loading mdi-spin' : 'mdi-reload'"
+            @click="fetchText()"
+          >
+            Generate
+          </v-btn>
         </template>
       </v-tooltip>
 
-      <v-btn
-        data-cy="fetch-btn"
-        class="ms-2"
-        :prepend-icon="loading ? 'mdi-loading mdi-spin' : 'mdi-reload'"
-        @click="fetchText()"
+      <v-tooltip
+        text="Copy the Haiku"
+        location="bottom"
       >
-        Generate
-      </v-btn>
-
-      <v-btn
-        data-cy="copy-btn"
-        class="ms-2"
-        prepend-icon="mdi-content-copy"
-        variant="text"
-        @click="copy()"
-      >
-        Copy
-      </v-btn>
+        <template #activator="{ props }">
+          <v-btn
+            v-bind="props"
+            color="third"
+            data-cy="copy-btn"
+            class="ms-2"
+            prepend-icon="mdi-content-copy"
+            variant="text"
+            @click="copy()"
+          >
+            Copy
+          </v-btn>
+        </template>
+      </v-tooltip>
     </v-card-actions>
   </v-card>
 
