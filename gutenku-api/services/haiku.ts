@@ -189,7 +189,7 @@ export default {
 
     isFirstQuoteInvalid(quote: string): boolean {
         // First verse may not start with coordinating conjunction
-        const conjunctionStartRegex = /^[Or|And]/;
+        const conjunctionStartRegex = /^Or|And/;
 
         return conjunctionStartRegex.test(quote);
     },
