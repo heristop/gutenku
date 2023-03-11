@@ -63,7 +63,7 @@ async function copy() {
             :prepend-icon="loading ? 'mdi-loading mdi-spin' : 'mdi-reload'"
             @click="fetchText()"
           >
-            Generate
+            {{ loading ? 'Generating' : 'Generate' }}
           </v-btn>
         </template>
       </v-tooltip>
@@ -92,6 +92,7 @@ async function copy() {
   <v-snackbar
     v-model="copied"
     :timeout="2000"
+    color="primary"
   >
     <v-icon data-cy="copy-success-icon">
       mdi-check-circle
@@ -105,6 +106,15 @@ async function copy() {
         Close
       </v-btn>
     </template>
+  </v-snackbar>
+
+  <v-snackbar
+    v-model="loading"
+    color="primary"
+  >
+    <v-icon>
+      mdi-robot-outline
+    </v-icon> I'm generating a Haiku...
   </v-snackbar>
 </template>
 

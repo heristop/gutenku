@@ -58,8 +58,9 @@ onMounted(fetchText);
       <v-snackbar
         v-model="networkError"
         :timeout="2000"
+        color="primary"
       >
-        <v-icon>mdi-alert</v-icon> {{ error }}
+        <v-icon>mdi-robot-dead-outline</v-icon> I cannot connect to the server :( Come back later...
       </v-snackbar>
     </v-responsive>
   </v-container>
