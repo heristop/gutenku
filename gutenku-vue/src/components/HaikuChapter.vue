@@ -33,7 +33,7 @@ onMounted(() => {
         Disclose chapter where quotes were extracted
       </v-expansion-panel-title>
       <v-expansion-panel-text eager>
-        <v-sheet
+        <v-card
           v-if="haiku"
           :loading="loading"
           color="secondary"
@@ -99,7 +99,7 @@ onMounted(() => {
               </v-row>
             </v-col>
           </v-row>
-        </v-sheet>
+        </v-card>
       </v-expansion-panel-text>
     </v-expansion-panel>
   </v-expansion-panels>
