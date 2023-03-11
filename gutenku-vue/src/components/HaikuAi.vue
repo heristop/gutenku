@@ -1,9 +1,14 @@
 <script lang="ts" setup>
+import { computed } from 'vue';
 import { useHaikuStore } from '../store/haiku';
 import { storeToRefs } from 'pinia';
 import AppLoading from '@/components/AppLoading.vue';
 
 const { haiku, loading, useAI } = storeToRefs(useHaikuStore());
+
+const hasDescription = computed(() => {
+    return haiku.value?.description && useAI.value;
+});
 </script>
 
 <template>
@@ -12,8 +17,6 @@ const { haiku, loading, useAI } = storeToRefs(useHaikuStore());
     class="mx-auto pa-4 mb-6"
     color="third"
   >
-    <app-loading v-if="loading" />
-
     <v-sheet
       class="pa-4"
       color="third"
@@ -27,11 +30,17 @@ const { haiku, loading, useAI } = storeToRefs(useHaikuStore());
       />
     </v-sheet>
 
+    <app-loading
+      v-if="loading"
+      :color="hasDescription ? 'white' : 'primary'"
+    />
+
     <v-sheet
-      v-if="haiku && haiku.description && useAI"
+      v-if="hasDescription"
+      transition="fade-transition"
       data-cy="🤖-description"
       class="pa-4"
-      color="secondary"
+      color="primary"
       elevation="3"
     >
       <b>
