@@ -19,126 +19,79 @@ onMounted(fetchText);
 </script>
 
 <template>
-  <v-container class="fill-height">
-    <v-responsive class="d-flex text-center fill-height">
-      <loading v-if="false === firstLoaded" />
+    <v-container class="fill-height">
+        <v-responsive class="d-flex text-center fill-height">
+            <loading v-if="false === firstLoaded" />
 
-      <v-container v-if="firstLoaded">
-        <v-row>
-          <v-col
-            cols="12"
-            sm="8"
-            class="mx-auto h-100 align-center justify-center"
-          >
-            <haiku-card />
+            <v-container v-if="firstLoaded">
+                <v-row>
+                    <v-col cols="12" sm="8" class="mx-auto h-100 align-center justify-center">
+                        <haiku-card />
 
-            <haiku-canvas />
+                        <haiku-canvas />
 
-            <haiku-chapter />
-          </v-col>
+                        <haiku-chapter />
+                    </v-col>
 
-          <v-col
-            cols="12"
-            sm="4"
-            class="mx-auto h-100 align-center justify-center"
-          >
-            <v-card
-              class="mx-auto pa-4 mb-6"
-              title=" "
-            >
-              <p>
-                🌸 🗻
+                    <v-col cols="12" sm="4" class="mx-auto h-100 align-center justify-center">
+                        <v-card class="mx-auto pa-4 mb-6" title="🌸 🗻">
+                            <p>
+                                <strong>GutenKu</strong> is a Haiku generator based on a selection of books from <br />
+                                Project Gutenberg
+                            </p>
 
-                <v-spacer />
+                            <v-card-actions class="justify-center">
+                                <v-tooltip text="Project Gutenberg" location="bottom">
+                                    <template #activator="{ props }">
+                                        <v-btn v-bind="props" class="ms-2" icon="mdi-book-open" href="https://gutenberg.org"
+                                            target="_blank" />
+                                    </template>
+                                </v-tooltip>
 
-                <strong>GutenKu</strong> is a Haiku generator based on a selection of books from Project
-                Gutenberg
-              </p>
+                                <v-tooltip text="Instagram" location="bottom">
+                                    <template #activator="{ props }">
+                                        <v-btn v-bind="props" class="ms-2" icon="mdi-instagram" variant="text"
+                                            href="https://www.instagram.com/gutenku.poem" target="_blank" />
+                                    </template>
+                                </v-tooltip>
 
-              <v-card-actions class="justify-center">
-                <v-tooltip
-                  text="Project Gutenberg"
-                  location="bottom"
-                >
-                  <template #activator="{ props }">
-                    <v-btn
-                      v-bind="props"
-                      class="ms-2"
-                      icon="mdi-book-open"
-                      href="https://gutenberg.org"
-                      target="_blank"
-                    />
-                  </template>
-                </v-tooltip>
+                                <v-tooltip text="GitHub" location="bottom">
+                                    <template #activator="{ props }">
+                                        <v-btn v-bind="props" class="ms-2" icon="mdi-github"
+                                            href="https://github.com/heristop/gutenku" target="_blank" />
+                                    </template>
+                                </v-tooltip>
+                            </v-card-actions>
+                        </v-card>
 
-                <v-tooltip
-                  text="Instagram"
-                  location="bottom"
-                >
-                  <template #activator="{ props }">
-                    <v-btn
-                      v-bind="props"
-                      class="ms-2"
-                      icon="mdi-instagram"
-                      variant="text"
-                      href="https://www.instagram.com/gutenku.poem"
-                      target="_blank"
-                    />
-                  </template>
-                </v-tooltip>
+                        <haiku-ai />
 
-                <v-tooltip
-                  text="GitHub"
-                  location="bottom"
-                >
-                  <template #activator="{ props }">
-                    <v-btn
-                      v-bind="props"
-                      class="ms-2"
-                      icon="mdi-github"
-                      href="https://github.com/heristop/gutenku"
-                      target="_blank"
-                    />
-                  </template>
-                </v-tooltip>
-              </v-card-actions>
-            </v-card>
+                        <v-card class="mx-auto">
+                            <v-img lazy-src="@/assets/img/duel.jpg" src="@/assets/img/duel.jpg" cover />
 
-            <haiku-ai />
+                            <v-footer class="justify-right" color="third">
+                                <small>{{ new Date().getFullYear() }} — <strong>heristop</strong></small>
+                            </v-footer>
+                        </v-card>
+                    </v-col>
+                </v-row>
+            </v-container>
 
-            <v-card class="mx-auto">
-              <v-img
-                lazy-src="@/assets/img/duel.jpg"
-                src="@/assets/img/duel.jpg"
-                cover
-              />
-
-              <v-footer
-                class="justify-right"
-                color="third"
-              >
-                <small>{{ new Date().getFullYear() }} — <strong>heristop</strong></small>
-              </v-footer>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
-
-      <v-snackbar
-        v-model="networkError"
-        :timeout="2000"
-      >
-        <v-icon>mdi-alert</v-icon> {{ error }}
-      </v-snackbar>
-    </v-responsive>
-  </v-container>
+            <v-snackbar v-model="networkError" :timeout="2000">
+                <v-icon>mdi-alert</v-icon> {{ error }}
+            </v-snackbar>
+        </v-responsive>
+    </v-container>
 </template>
 
 <style lang="scss">
+@import '@/assets/css/fonts.css';
+
 body {
+    font-family: 'Typewriter', serif;
+
     p {
-        font-family: Garamond, Georgia, serif;
-        font-size: 18px;
+        font-size: 16px;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         line-height: 1.6;
