@@ -9,11 +9,9 @@ const GITHUB_URL = 'https://github.com/heristop/gutenku';
     class="mx-auto pa-4 mb-6"
     title="🌸 🗻"
   >
-    <p>
-      <strong>GutenKu</strong> is a Haiku generator based on a selection of books from
-      <br>
-      Project Gutenberg
-    </p>
+    <p><strong>GutenKu</strong> is a Haiku generator based on a selection of books from</p>
+
+    <p>Project Gutenberg</p>
 
     <v-card-actions class="justify-center">
       <v-tooltip
