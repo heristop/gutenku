@@ -57,7 +57,7 @@ export default {
       <v-spacer class="pa-10" />
 
       <v-sheet
-        class="loading-text px-6 py-2"
+        class="loading-text px-4 py-1"
         color="primary"
       >
         {{ text }}
@@ -78,7 +78,7 @@ export default {
 }
 
 .loading .icon.active {
-    opacity: 1;
+    opacity: 0.75;
 }
 
 .loading .icon {
@@ -92,6 +92,7 @@ export default {
 
 .loading-text {
     font-family: Garamond, Georgia, serif;
-    font-size: 20px;
+    font-size: 18px;
+    opacity: 0.9;
 }
 </style>
