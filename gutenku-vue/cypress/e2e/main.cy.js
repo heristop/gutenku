@@ -26,7 +26,7 @@ describe('Landing page test', () => {
                 cy.get('[data-cy=copy-success-icon]').should('not.exist');
                 cy.get('[data-cy=light-toggle-btn]').should('be.visible').click();
                 cy.get('[data-cy=download-btn]').should('be.visible').click();
-                cy.get('[data-cy=🤖-card]').should('not.exist');
+                cy.get('[data-cy=🤖-description]').should('not.exist');
             });
         });
     });
@@ -36,7 +36,7 @@ describe('Landing page test', () => {
         cy.get('[data-cy=fetch-btn]').should('be.visible');
 
         cy.wait('@api').then(() => {
-            cy.get('[data-cy=🤖-card]').should('be.visible');
+            cy.get('[data-cy=🤖-description]').should('be.visible');
         });
     });
 });

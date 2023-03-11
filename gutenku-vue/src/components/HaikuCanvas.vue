@@ -31,12 +31,11 @@ const downloadImage = () => {
 <template>
   <v-card
     v-if="haiku"
-    class="mx-auto pa-10 mb-6 align-center justify-center"
-    color="third"
+    class="pa-4 mb-6 align-center justify-center"
     :loading="loading"
   >
     <v-sheet
-      elevation="4"
+      elevation="3"
       width="300"
       height="300"
     >
