@@ -101,27 +101,29 @@ export default {
     },
 
     getVerses(chapter: string): string[] {
-        const minSentencesCount = process.env.MIN_SENTENCES_COUNT;
-        const sentences = this.splitSentences(chapter);
-        const filteredSentences = this.filterSentences(sentences);
+        const minQuotesCount = process.env.MIN_QUOTES_COUNT || 8;
+        const quotes = this.splitQuotes(chapter);
+        const filteredQuotes = this.filterQuotes(quotes);
 
-        // Exclude lists with less than MIN_SENTENCES_COUNT sentences
-        if (minSentencesCount && filteredSentences.length < minSentencesCount) {
+        // Exclude lists with less than MIN_QUOTES_COUNT quotes
+        if (minQuotesCount && filteredQuotes.length < minQuotesCount) {
             return [];
         }
 
-        const lines = this.selectHaikuLines(filteredSentences);
+        const lines = this.selectHaikuLines(filteredQuotes);
 
         return lines;
     },
 
-    splitSentences(chapter: string): string[] {
-        return chapter.replace(/([.?!,])\s*(?=[A-Za-z])/g, "$1|").split("|");
+    splitQuotes(chapter: string): string[] {
+        return chapter
+            .replace(/([.?!,])\s*(?=[A-Za-z])/g, "$1|")
+            .split("|");
     },
 
-    filterSentences(sentences: string[]): string[] {
-        return sentences.filter((sentence) => {
-            const words = sentence.match(/\b\w+\b/g);
+    filterQuotes(quotes: string[]): string[] {
+        return quotes.filter((quote) => {
+            const words = quote.match(/\b\w+\b/g);
 
             if (!words) {
                 return false;
@@ -132,24 +134,26 @@ export default {
             }, 0);
 
             return syllableCount === 5 || syllableCount === 7;
-        }).map((sentence) => {
-            return sentence.replace(/!$/, "").replace(/\.$|,$/, "");
+        }).map((quote) => {
+            return quote.replace(/\.$|,$|!$/, "");
         });
     },
 
-    selectHaikuLines(sentences: string[]): string[] {
+    selectHaikuLines(quotes: string[]): string[] {
         const lines = [];
-        const syllableCounts = process.env.SYLLABLE_COUNTS.split(',').map((str) => Number(str));
+        const syllableCounts = process.env.SYLLABLE_COUNTS
+            .split(',')
+            .map((str) => Number(str));
 
         for (const count of syllableCounts) {
             const indexes = [];
 
-            for (let i = 0; i < sentences.length; i++) {
-                if (this.isSentenceInvalid(sentences[i])) {
+            for (let i = 0; i < quotes.length; i++) {
+                if (this.isQuoteInvalid(i, quotes[i])) {
                     continue;
                 }
 
-                if (this.countSyllables(sentences[i]) === count) {
+                if (this.countSyllables(quotes[i]) === count) {
                     indexes.push(i);
                 }
             }
@@ -160,28 +164,50 @@ export default {
 
             const index = indexes[Math.floor(Math.random() * indexes.length)];
 
-            lines.push(sentences[index]);
-            sentences.splice(index, 1);
+            lines.push(quotes[index]);
+            quotes.splice(index, 1);
         }
 
         return lines;
     },
 
-    isSentenceInvalid(sentence: string): boolean {
-        const upperCaseCharsRegex = /^[A-Z\s!:.?]+$/;
-        const illustrationRegex = /\[Illustration/;
-        const genderEndRegex = /[Mr|Mrs]$/;
-        const emailRegex = /@$/;
+    isQuoteInvalid(linePosition: number, quote: string): boolean {
+        if (0 === linePosition && this.isFirstQuoteInvalid(quote)) {
+            return true;
+        }
 
-        return upperCaseCharsRegex.test(sentence) ||
-            illustrationRegex.test(sentence) ||
-            genderEndRegex.test(sentence) ||
-            emailRegex.test(sentence) ||
-            sentence.length >= parseInt(process.env.VERSE_MAX_LENGTH);
+        if (this.hasUnexpectedCharsInQuote(quote)) {
+            return true;
+        }
+
+        if (quote.length >= parseInt(process.env.VERSE_MAX_LENGTH)) {
+            return true;
+        }
+
+        return false;
     },
 
-    countSyllables(sentence: string): number {
-        const words = sentence.match(/\b\w+\b/g);
+    isFirstQuoteInvalid(quote: string): boolean {
+        // First verse may not start with coordinating conjunction
+        const conjunctionStartRegex = /^[Or|And]/;
+
+        return conjunctionStartRegex.test(quote);
+    },
+
+    hasUnexpectedCharsInQuote(quote: string): boolean {
+        const upperCaseCharsRegex = /^[A-Z\s!:.?]+$/;
+        const lastWordsRegex = /Mr|Mrs|Or|And$/;
+        const specialCharsRegex = /@|[0-9]|#|\[|\|+|\(|\)|"|“|”|--|_|\+|=|{|}|\]|\*%|\$|%|\n|;|~|&/;
+        const lostLetter = /\b[A-Z]|[A-Z.]\b$/;
+
+        return upperCaseCharsRegex.test(quote) ||
+            lastWordsRegex.test(quote) ||
+            specialCharsRegex.test(quote) ||
+            lostLetter.test(quote);
+    },
+
+    countSyllables(quote: string): number {
+        const words = quote.match(/\b\w+\b/g);
 
         if (!words) {
             return 0;
@@ -194,15 +220,11 @@ export default {
 
     clean(verses: string[]): string[] {
         const newLineRegex = /[\n\r]/g;
-        const dashUnderscoreRegex = /[--]|[_]/g;
-        const quotesParenthesesRegex = /["“”()]/g;
         const whitespaceRegex = /\s+/g;
 
         return verses.map(verse => {
             verse = verse.trim()
                 .replace(newLineRegex, ' ')
-                .replace(dashUnderscoreRegex, ' ')
-                .replace(quotesParenthesesRegex, '')
                 .replace(whitespaceRegex, ' ');
 
             return verse.charAt(0).toUpperCase() + verse.slice(1);
