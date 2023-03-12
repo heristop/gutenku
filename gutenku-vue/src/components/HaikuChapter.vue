@@ -18,8 +18,6 @@ function toggle(): void {
 }
 
 onMounted(() => {
-    console.log(name.value);
-
     if (false === ['xs'].includes(name.value)) {
         panel.value = ['chapter'];
     }

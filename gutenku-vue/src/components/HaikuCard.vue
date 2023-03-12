@@ -15,6 +15,7 @@ const copied = ref(false);
 async function copy() {
     try {
         await navigator.clipboard.writeText(haiku.value.verses.join("\n"));
+
         copied.value = true;
     } catch (err) {
         error.value = err as string;
@@ -114,7 +115,7 @@ async function copy() {
   >
     <v-icon>
       mdi-robot-outline
-    </v-icon> I'm generating a Haiku...
+    </v-icon> I'm generating quotes...
   </v-snackbar>
 </template>
 
