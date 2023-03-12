@@ -3,8 +3,7 @@ import { unlink } from 'fs';
 import { syllable } from 'syllable';
 import Book from '../models/book';
 import Canvas from './canvas';
-import { BookValue, HaikuLogValue, HaikuValue } from '../src/types';
-import Log from '../models/log';
+import { BookValue, HaikuValue } from '../src/types';
 
 const unlinkAsync = promisify(unlink);
 
@@ -20,13 +19,6 @@ export default {
 
             // eslint-disable-next-line
             verses = this.getVerses(randomChapter['content']);
-
-            // Detect if Haiku had already been generated
-            const logExists = await Log.findOne().where('haiku_verses').in(verses).exec();
-
-            if (logExists) {
-                verses = [];
-            }
 
             if (0 === i % 100) {
                 randomBook = await this.selectRandomBook();
@@ -61,23 +53,6 @@ export default {
             'image': image.data.toString('base64'),
             'image_path': imagePath,
         }
-    },
-
-    async insertLog(db, haiku: HaikuValue): Promise<void> {
-        const logsCollection = db.collection('logs');
-
-        const logData: HaikuLogValue = {
-            book_reference: haiku.book.reference,
-            book_title: haiku.book.title,
-            book_author: haiku.book.author,
-            haiku_title: haiku.title,
-            haiku_description: haiku.description,
-            haiku_verses: haiku.verses,
-            haiku_image: haiku.image_path,
-            created_at: new Date(Date.now()).toISOString(),
-        };
-
-        await logsCollection.insertOne(logData);
     },
 
     async selectRandomBook(): Promise<BookValue> {
@@ -176,6 +151,10 @@ export default {
             return true;
         }
 
+        if (this.hasUpperCaseChars(quote)) {
+            return true;
+        }
+
         if (this.hasUnexpectedCharsInQuote(quote)) {
             return true;
         }
@@ -194,16 +173,15 @@ export default {
         return conjunctionStartRegex.test(quote);
     },
 
-    hasUnexpectedCharsInQuote(quote: string): boolean {
-        const upperCaseCharsRegex = /^[A-Z\s!:.?]+$/;
-        const lastWordsRegex = /Mr|Mrs|Or|And$/;
-        const specialCharsRegex = /@|[0-9]|#|\[|\|+|\(|\)|"|“|”|--|_|\+|=|{|}|\]|\*%|\$|%|\n|;|~|&/;
-        const lostLetter = /\b[A-Z]|[A-Z.]\b$/;
+    hasUpperCaseChars(quote: string): boolean {
+        return /^[A-Z\s!:.?]+$/g.test(quote);
+    },
 
-        return upperCaseCharsRegex.test(quote) ||
-            lastWordsRegex.test(quote) ||
-            specialCharsRegex.test(quote) ||
-            lostLetter.test(quote);
+    hasUnexpectedCharsInQuote(quote: string): boolean {
+        const lastWordsRegex = /Mr|Mrs|Or|And$/g;
+        const specialCharsRegex = /@|[0-9]|#|\[|\|+|\(|\)|"|“|”|--|_|\+|=|{|}|\]|\*|\$|%|\r|\n|;|~|&/g;
+
+        return lastWordsRegex.test(quote) || specialCharsRegex.test(quote)
     },
 
     countSyllables(quote: string): number {
