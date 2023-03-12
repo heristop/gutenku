@@ -52,6 +52,6 @@ A Haiku generator based on a selection of books from Project Gutenberg (https://
 
 <img src="/gutenku-vue/src/assets/img/ai_card.png" />
 
-### Guess
+### Disclose
 
 <img src="/gutenku-vue/src/assets/img/chapter_card.png" />

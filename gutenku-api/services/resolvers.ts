@@ -1,6 +1,5 @@
 import Book from '../models/book';
 import Chapter from '../models/chapter';
-import Log from '../models/log';
 import Haiku from './haiku';
 import OpenAI from './openai';
 import { HaikuValue } from '../src/types';
@@ -16,8 +15,7 @@ const resolvers = {
         chapters: () => {
             return Chapter.find().exec();
         },
-        haiku: async (_, args: { useAI: boolean, keepImage: boolean }, context): Promise<HaikuValue> => {
-            const db = context.db;
+        haiku: async (_, args: { useAI: boolean, keepImage: boolean }): Promise<HaikuValue> => {
             let haiku: HaikuValue = null;
 
             if (true === args.useAI && undefined !== process.env.OPENAI_API_KEY) {
@@ -26,25 +24,7 @@ const resolvers = {
                 haiku = await Haiku.generate();
             }
 
-            haiku = await Haiku.addImage(haiku, args.keepImage);
-
-            await Haiku.insertLog(db, haiku);
-
-            return haiku;
-        },
-        logs() {
-            return Log.find()
-                .sort({ 'created_at': 'desc' })
-                .limit(10)
-                .exec();
-        },
-    },
-
-    Mutation: {
-        cleanLogs: async (): Promise<number> => {
-            const result = await Log.deleteMany().exec();
-
-            return result.deletedCount;
+            return await Haiku.addImage(haiku, args.keepImage);
         }
     }
 };

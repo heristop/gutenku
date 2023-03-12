@@ -1,3 +1,5 @@
+<script lang="ts" setup />
+
 <template>
   <v-app-bar color="primary">
     <v-img
@@ -8,10 +10,6 @@
     />
   </v-app-bar>
 </template>
-
-<script lang="ts" setup>
-//
-</script>
 
 <style scoped>
 .logo {
