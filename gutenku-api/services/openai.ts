@@ -59,7 +59,7 @@ export default {
             console.log(verse + "\n");
         }
 
-        const prompt = 'What is the most revelant and beautiful haiku from the list below?';
+        const prompt = 'What is the most revelant, with the best grammar and the most beautiful haiku from the list below?';
         const outputFormat = '{"id":ID,"title":"Give a short title for this Haiku","description":"Describe and explain the meaning of this Haiku"}';
 
         return `${prompt} (output JSON format: ${outputFormat})\n${verses.join("\n")}\nSTOP\n`;
