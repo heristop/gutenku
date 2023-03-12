@@ -108,15 +108,6 @@ async function copy() {
       </v-btn>
     </template>
   </v-snackbar>
-
-  <v-snackbar
-    v-model="loading"
-    color="primary"
-  >
-    <v-icon>
-      mdi-robot-outline
-    </v-icon> I'm generating quotes...
-  </v-snackbar>
 </template>
 
 <style scoped>

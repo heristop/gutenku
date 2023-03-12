@@ -151,6 +151,10 @@ export default {
             return true;
         }
 
+        if (this.hasUpperCaseChars(quote)) {
+            return true;
+        }
+
         if (this.hasUnexpectedCharsInQuote(quote)) {
             return true;
         }
@@ -169,16 +173,15 @@ export default {
         return conjunctionStartRegex.test(quote);
     },
 
-    hasUnexpectedCharsInQuote(quote: string): boolean {
-        const upperCaseCharsRegex = /^[A-Z\s!:.?]+$/;
-        const lastWordsRegex = /Mr|Mrs|Or|And$/;
-        const specialCharsRegex = /@|[0-9]|#|\[|\|+|\(|\)|"|“|”|--|_|\+|=|{|}|\]|\*%|\$|%|\n|;|~|&/;
-        const lostLetter = /\b[A-Z]|[A-Z.]\b$/;
+    hasUpperCaseChars(quote: string): boolean {
+        return /^[A-Z\s!:.?]+$/g.test(quote);
+    },
 
-        return upperCaseCharsRegex.test(quote) ||
-            lastWordsRegex.test(quote) ||
-            specialCharsRegex.test(quote) ||
-            lostLetter.test(quote);
+    hasUnexpectedCharsInQuote(quote: string): boolean {
+        const lastWordsRegex = /Mr|Mrs|Or|And$/g;
+        const specialCharsRegex = /@|[0-9]|#|\[|\|+|\(|\)|"|“|”|--|_|\+|=|{|}|\]|\*|\$|%|\r|\n|;|~|&/g;
+
+        return lastWordsRegex.test(quote) || specialCharsRegex.test(quote)
     },
 
     countSyllables(quote: string): number {
