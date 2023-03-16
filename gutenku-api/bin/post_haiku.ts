@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
+import fs from 'fs/promises';
 import { program } from 'commander';
 import { createInterface } from 'readline';
 import { HaikuResponseData } from '../src/types';
@@ -17,8 +18,8 @@ program.parse();
 const options = program.opts();
 
 const query = `
-    query Query($useAi: Boolean, $keepImage: Boolean) {
-        haiku(useAI: $useAi, keepImage: $keepImage) {
+    query Query($useAi: Boolean) {
+        haiku(useAI: $useAi) {
             book {
                 title
                 author
@@ -26,7 +27,7 @@ const query = `
             verses
             title
             description
-            image_path
+            image
             chapter {
                 title
             }
@@ -36,7 +37,6 @@ const query = `
 
 const variables = {
     useAi: options.openai,
-    keepImage: true,
 };
 
 const body = {
@@ -53,9 +53,19 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
     data: HaikuResponseData
 }) => {
     const haiku = response.data.haiku;
+    const imageData = Buffer.from(haiku.image, 'base64');
+
+    haiku.image_path = '.cache/preview_instagram_post.jpg'
+
+    await fs.writeFile(haiku.image_path, imageData);
 
     console.log(await terminalImage.file(haiku.image_path, { width: 20 }));
-    console.log(haiku);
+    console.log({
+        'book': haiku.book,
+        'verses': haiku.verses,
+        'title': haiku.title,
+        'description': haiku.description,
+    });
 
     if (false === options.interaction) {
         Instagram.post(haiku);

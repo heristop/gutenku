@@ -38,7 +38,7 @@ export const useHaikuStore = defineStore({
                 this.error = '';
 
                 const variables = {
-                    useAi: this.useAI
+                    useAi: this.useAI,
                 };
 
                 const body = {

@@ -1,4 +1,4 @@
-import { ApolloServer } from "apollo-server-express";
+import { ApolloServer } from 'apollo-server-express';
 import { expect, it } from '@jest/globals';
 import typeDefs from '../services/typeDefs';
 
