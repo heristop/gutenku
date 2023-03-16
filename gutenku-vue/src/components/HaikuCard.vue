@@ -61,6 +61,7 @@ async function copy() {
             color="third"
             data-cy="fetch-btn"
             class="ms-2"
+            :disabled="loading"
             :prepend-icon="loading ? 'mdi-loading mdi-spin' : 'mdi-reload'"
             @click="fetchText()"
           >
