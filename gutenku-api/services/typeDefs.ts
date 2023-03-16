@@ -28,7 +28,7 @@ const typeDefs = `#graphql
     books: [Book]
     book(id: ID!): Book!
     chapters: [Chapter]
-    haiku(useAI: Boolean, keepImage: Boolean): Haiku
+    haiku(useAI: Boolean): Haiku
   }
 `;
 

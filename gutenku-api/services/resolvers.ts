@@ -15,7 +15,7 @@ const resolvers = {
         chapters: () => {
             return Chapter.find().exec();
         },
-        haiku: async (_, args: { useAI: boolean, keepImage: boolean }): Promise<HaikuValue> => {
+        haiku: async (_, args: { useAI: boolean }): Promise<HaikuValue> => {
             let haiku: HaikuValue = null;
 
             if (true === args.useAI && undefined !== process.env.OPENAI_API_KEY) {
@@ -24,7 +24,7 @@ const resolvers = {
                 haiku = await Haiku.generate();
             }
 
-            return await Haiku.addImage(haiku, args.keepImage);
+            return await Haiku.addImage(haiku);
         }
     }
 };
