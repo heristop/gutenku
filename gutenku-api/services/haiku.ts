@@ -5,8 +5,6 @@ import Book from '../models/book';
 import Canvas from './canvas';
 import { BookValue, HaikuValue } from '../src/types';
 
-const unlinkAsync = promisify(unlink);
-
 export default {
     async generate(): Promise<HaikuValue> {
         let randomBook = await this.selectRandomBook();
@@ -20,7 +18,7 @@ export default {
             // eslint-disable-next-line
             verses = this.getVerses(randomChapter['content']);
 
-            if (0 === i % 100) {
+            if (0 === i % 50) {
                 randomBook = await this.selectRandomBook();
             }
 
@@ -39,19 +37,16 @@ export default {
         }
     },
 
-    async addImage(haiku: HaikuValue, keepImage: boolean): Promise<HaikuValue> {
+    async addImage(haiku: HaikuValue): Promise<HaikuValue> {
         const imagePath = await Canvas.create(haiku.verses);
 
         const image = await Canvas.read(imagePath);
 
-        if (true !== keepImage) {
-            await unlinkAsync(imagePath);
-        }
+        await promisify(unlink)(imagePath);
 
         return {
             ...haiku,
             'image': image.data.toString('base64'),
-            'image_path': imagePath,
         }
     },
 
@@ -85,9 +80,7 @@ export default {
             return [];
         }
 
-        const lines = this.selectHaikuLines(filteredQuotes);
-
-        return lines;
+        return this.selectHaikuLines(filteredQuotes);
     },
 
     splitQuotes(chapter: string): string[] {
