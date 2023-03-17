@@ -2,6 +2,7 @@
     "name": "gentuku-api",
     "version": "1.0.0",
     "private": true,
+    "licence": "UNLICENSED",
     "main": "src/index.ts",
     "scripts": {
         "start": "node --loader ts-node/esm --max-old-space-size=54000 src/index.ts",

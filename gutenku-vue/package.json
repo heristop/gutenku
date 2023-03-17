@@ -2,6 +2,7 @@
     "name": "gentuku-vue",
     "version": "1.0.0",
     "private": true,
+    "licence": "UNLICENSED",
     "scripts": {
         "dev": "vite",
         "build": "vue-tsc --noEmit && vite build",

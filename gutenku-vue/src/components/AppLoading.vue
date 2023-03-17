@@ -43,27 +43,19 @@ export default {
 </script>
 
 <template>
-  <div class="loading">
-    <v-icon
-      v-for="(icon, index) in icons"
-      :key="index"
-      :class="['icon']"
-      :color="color"
-    >
-      {{ icon }}
-    </v-icon>
+    <div class="loading">
+        <v-icon v-for="(icon, index) in icons" :key="index" :class="['icon']" :color="color">
+            {{ icon }}
+        </v-icon>
 
-    <div v-if="text">
-      <v-spacer class="pa-10" />
+        <div v-if="text">
+            <v-spacer class="pa-10" />
 
-      <v-sheet
-        class="loading-text px-4 py-1"
-        color="primary"
-      >
-        {{ text }}
-      </v-sheet>
+            <v-sheet class="loading-text px-4 py-1" color="primary">
+                {{ text }}
+            </v-sheet>
+        </div>
     </div>
-  </div>
 </template>
   
 <style scoped>
@@ -91,7 +83,7 @@ export default {
 }
 
 .loading-text {
-    font-family: Garamond, Georgia, serif;
+    font-family: 'Typewriter', serif;
     font-size: 18px;
     opacity: 0.9;
 }
