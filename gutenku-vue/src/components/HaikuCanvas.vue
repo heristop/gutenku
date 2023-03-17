@@ -29,35 +29,13 @@ const downloadImage = () => {
 </script>
 
 <template>
-  <v-card
-    v-if="haiku"
-    class="pa-4 mb-6 align-center justify-center"
-    :loading="loading"
-  >
-    <v-sheet
-      elevation="3"
-      width="300"
-      height="300"
-    >
-      <img
-        width="300"
-        @contextmenu.prevent
-        alt="Haiku Generated"
-        aspectRatio="1"
-        :src="haikuImage"
-      >
-    </v-sheet>
+    <v-card v-if="haiku" :loading="loading" class="pa-4 mb-6 align-center justify-center" color="white">
+        <img width="300" :src="haikuImage" alt="Haiku Generated" aspectRatio="1" elevation="3" @contextmenu.prevent>
 
-    <v-card-actions class="justify-end">
-      <v-btn
-        @click="downloadImage"
-        data-cy="download-btn"
-        class="ms-2"
-        color="primary"
-        prepend-icon="mdi-download"
-      >
-        Download
-      </v-btn>
-    </v-card-actions>
-  </v-card>
+        <v-card-actions class="justify-end">
+            <v-btn @click="downloadImage" data-cy="download-btn" class="ms-2" color="primary" prepend-icon="mdi-download">
+                Download
+            </v-btn>
+        </v-card-actions>
+    </v-card>
 </template>
