@@ -3,15 +3,10 @@ import { ref } from 'vue';
 import HighLightText from '@/components/HighLightText.vue';
 import { useHaikuStore } from '../store/haiku';
 import { storeToRefs } from 'pinia';
-import { useDisplay } from 'vuetify';
 
 const { haiku, loading } = storeToRefs(useHaikuStore());
 
 const blackMarker = ref(true);
-
-const { name } = useDisplay();
-
-const panel = ref();
 
 function toggle(): void {
     blackMarker.value = !blackMarker.value;
@@ -19,46 +14,70 @@ function toggle(): void {
 </script>
 
 <template>
-    <v-card v-if="haiku" :loading="loading" color="secondary" class="pa-4 mb-6 align-center justify-center">
-        Disclose chapter where quotes were extracted
-        <v-row>
-            <v-col>
-                <v-btn color="primary" :icon="blackMarker ? 'mdi-lightbulb-on' : 'mdi-lightbulb-off'"
-                    data-cy="light-toggle-btn" size="small" @click="toggle()" />
-            </v-col>
-        </v-row>
+  <v-card
+    v-if="haiku"
+    :loading="loading"
+    color="secondary"
+    class="pa-4 mb-6 align-center justify-center"
+  >
+    Disclose chapter where quotes were extracted
+    <v-row>
+      <v-col>
+        <v-btn
+          color="primary"
+          :icon="blackMarker ? 'mdi-lightbulb-on' : 'mdi-lightbulb-off'"
+          data-cy="light-toggle-btn"
+          size="small"
+          @click="toggle()"
+        />
+      </v-col>
+    </v-row>
 
-        <v-row class="paragraphes">
-            <v-col>
-                <h3 :class="{
+    <v-row class="paragraphes">
+      <v-col>
+        <h3
+          :class="{
+            'dark-theme': blackMarker,
+            'light-theme': !blackMarker
+          }"
+          class="ma-4 text-h5 text-center mb-4"
+        >
+          {{ haiku.book.title }}
+        </h3>
+
+        <div
+          :class="{
+            'dark-theme': blackMarker,
+            'light-theme': !blackMarker
+          }"
+          class="text-center mb-6 author"
+        >
+          {{ haiku.book.author }}
+        </div>
+
+        <v-row class="d-flex align-center justify-center">
+          <v-col cols="auto">
+            <v-sheet
+              class="overflow-y-auto"
+              max-height="400"
+            >
+              <v-card-text>
+                <p
+                  :class="{
                     'dark-theme': blackMarker,
                     'light-theme': !blackMarker
-                }" class="ma-4 text-h5 text-center mb-4">
-                    {{ haiku.book.title }}
-                </h3>
-
-                <div :class="{
-                    'dark-theme': blackMarker,
-                    'light-theme': !blackMarker
-                }" class="text-center mb-6 author">
-                    {{ haiku.book.author }}
-                </div>
-
-                <v-row class="d-flex align-center justify-center">
-                    <v-col cols="auto">
-                        <v-sheet class="overflow-y-auto" max-height="400">
-                            <v-card-text>
-                                <p :class="{
-                                    'dark-theme': blackMarker,
-                                    'light-theme': !blackMarker
-                                }">
-                                    <high-light-text :text="haiku.chapter.content" :lines="haiku.rawVerses" />
-                                </p>
-                            </v-card-text>
-                        </v-sheet>
-                    </v-col>
-                </v-row>
-            </v-col>
+                  }"
+                >
+                  <high-light-text
+                    :text="haiku.chapter.content"
+                    :lines="haiku.rawVerses"
+                  />
+                </p>
+              </v-card-text>
+            </v-sheet>
+          </v-col>
         </v-row>
-    </v-card>
+      </v-col>
+    </v-row>
+  </v-card>
 </template>
