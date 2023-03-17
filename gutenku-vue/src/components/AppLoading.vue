@@ -43,19 +43,27 @@ export default {
 </script>
 
 <template>
-    <div class="loading">
-        <v-icon v-for="(icon, index) in icons" :key="index" :class="['icon']" :color="color">
-            {{ icon }}
-        </v-icon>
+  <div class="loading">
+    <v-icon
+      v-for="(icon, index) in icons"
+      :key="index"
+      :class="['icon']"
+      :color="color"
+    >
+      {{ icon }}
+    </v-icon>
 
-        <div v-if="text">
-            <v-spacer class="pa-10" />
+    <div v-if="text">
+      <v-spacer class="pa-10" />
 
-            <v-sheet class="loading-text px-4 py-1" color="primary">
-                {{ text }}
-            </v-sheet>
-        </div>
+      <v-sheet
+        class="loading-text px-4 py-1"
+        color="primary"
+      >
+        {{ text }}
+      </v-sheet>
     </div>
+  </div>
 </template>
   
 <style scoped>
