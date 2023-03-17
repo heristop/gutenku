@@ -12,27 +12,48 @@ const hasDescription = computed(() => {
 </script>
 
 <template>
-    <v-card :loading="loading" class="mx-auto pa-4 mb-6" color="third">
-        <v-sheet class="pa-4" color="third">
-            <v-switch v-model="useAI" data-cy="switch-api-btn" color="primary" hide-details
-                label="Boost the relevance of Haiku generated with AI" />
-        </v-sheet>
+  <v-card
+    :loading="loading"
+    class="mx-auto pa-4 mb-6"
+    color="third"
+  >
+    <v-sheet
+      class="pa-4"
+      color="third"
+    >
+      <v-switch
+        v-model="useAI"
+        data-cy="switch-api-btn"
+        color="primary"
+        hide-details
+        label="Boost the relevance of Haiku generated with AI"
+      />
+    </v-sheet>
 
-        <app-loading v-if="loading" :color="hasDescription ? 'white' : 'primary'" />
+    <app-loading
+      v-if="loading"
+      :color="hasDescription ? 'white' : 'primary'"
+    />
 
-        <v-sheet v-if="hasDescription" transition="fade-transition" data-cy="🤖-description" class="pa-4" color="primary"
-            elevation="3">
-            <b>
-                “{{ haiku.title }}”
-            </b>
+    <v-sheet
+      v-if="hasDescription"
+      transition="fade-transition"
+      data-cy="🤖-description"
+      class="pa-4"
+      color="primary"
+      elevation="3"
+    >
+      <b>
+        “{{ haiku.title }}”
+      </b>
 
-            <p class="text-body-1">
-                ~~~
-            </p>
+      <p class="text-body-1">
+        ~~~
+      </p>
 
-            <p>
-                {{ haiku.description }}
-            </p>
-        </v-sheet>
-    </v-card>
+      <p>
+        {{ haiku.description }}
+      </p>
+    </v-sheet>
+  </v-card>
 </template>
