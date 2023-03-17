@@ -24,7 +24,7 @@ describe('Landing page test', () => {
                 cy.get('[data-cy=copy-success-icon]').should('be.visible');
                 cy.wait(2000);
                 cy.get('[data-cy=copy-success-icon]').should('not.exist');
-                cy.get('[data-cy=light-toggle-btn]').should('be.visible').click();
+                cy.get('[data-cy=light-toggle-btn]').should('be.visible').first().click();
                 cy.get('[data-cy=download-btn]').should('be.visible').click();
                 cy.get('[data-cy=🤖-description]').should('not.exist');
             });

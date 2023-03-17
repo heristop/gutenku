@@ -5,8 +5,8 @@
     "licence": "UNLICENSED",
     "main": "src/index.ts",
     "scripts": {
-        "start": "node --loader ts-node/esm --max-old-space-size=54000 src/index.ts",
-        "dev": "nodemon --watch './**/*.ts' --exec 'node --max-old-space-size=54000 --experimental-specifier-resolution=node --loader ts-node/esm' src/index.ts",
+        "start": "node --loader ts-node/esm src/index.ts",
+        "dev": "nodemon --watch './**/*.ts' --exec 'node --experimental-specifier-resolution=node --loader ts-node/esm' src/index.ts",
         "lint": "eslint . --fix --ignore-path .gitignore",
         "fetch": "python3 bin/fetch_books.py",
         "post": "ts-node-esm bin/post_haiku.ts",
