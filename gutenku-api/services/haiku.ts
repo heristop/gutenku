@@ -2,10 +2,14 @@ import { promisify } from 'util';
 import { unlink } from 'fs';
 import { syllable } from 'syllable';
 import Book from '../models/book';
-import Canvas from './canvas';
+import CanvasService from './canvas';
 import { BookValue, HaikuValue } from '../src/types';
 
-export default {
+export interface GeneratorInterface {
+    generate(): Promise<HaikuValue>;
+}
+
+export default class HaikuService implements GeneratorInterface {
     async generate(): Promise<HaikuValue> {
         let randomBook = await this.selectRandomBook();
         let randomChapter = null;
@@ -18,7 +22,7 @@ export default {
             // eslint-disable-next-line
             verses = this.getVerses(randomChapter['content']);
 
-            if (0 === i % 50) {
+            if (0 === i % 30) {
                 randomBook = await this.selectRandomBook();
             }
 
@@ -35,12 +39,12 @@ export default {
             'rawVerses': verses,
             'verses': this.clean(verses),
         }
-    },
+    }
 
     async addImage(haiku: HaikuValue): Promise<HaikuValue> {
-        const imagePath = await Canvas.create(haiku.verses);
+        const imagePath = await CanvasService.create(haiku.verses);
 
-        const image = await Canvas.read(imagePath);
+        const image = await CanvasService.read(imagePath);
 
         await promisify(unlink)(imagePath);
 
@@ -48,7 +52,7 @@ export default {
             ...haiku,
             'image': image.data.toString('base64'),
         }
-    },
+    }
 
     async selectRandomBook(): Promise<BookValue> {
         const books = await Book.find().populate('chapters').exec();
@@ -64,11 +68,13 @@ export default {
         }
 
         return randomBook;
-    },
+    }
 
-    selectRandomChapter(book: { chapters: string | []; }): string {
-        return book.chapters[Math.floor(Math.random() * book.chapters.length)];
-    },
+    selectRandomChapter(book: BookValue): string {
+        const index = Math.floor(Math.random() * book.chapters.length);
+
+        return book.chapters[index.toString()];
+    }
 
     getVerses(chapter: string): string[] {
         const minQuotesCount = process.env.MIN_QUOTES_COUNT || 8;
@@ -81,13 +87,13 @@ export default {
         }
 
         return this.selectHaikuLines(filteredQuotes);
-    },
+    }
 
     splitQuotes(chapter: string): string[] {
         return chapter
             .replace(/([.?!,])\s*(?=[A-Za-z])/g, "$1|")
             .split("|");
-    },
+    }
 
     filterQuotes(quotes: string[]): string[] {
         return quotes.filter((quote) => {
@@ -105,7 +111,7 @@ export default {
         }).map((quote) => {
             return quote.replace(/\.$|,$|!$/, "");
         });
-    },
+    }
 
     selectHaikuLines(quotes: string[]): string[] {
         const lines = [];
@@ -117,7 +123,7 @@ export default {
             const indexes = [];
 
             for (let i = 0; i < quotes.length; i++) {
-                if (this.isQuoteInvalid(i, quotes[i])) {
+                if (this.isQuoteInvalid(quotes[i])) {
                     continue;
                 }
 
@@ -137,13 +143,9 @@ export default {
         }
 
         return lines;
-    },
+    }
 
-    isQuoteInvalid(linePosition: number, quote: string): boolean {
-        if (0 === linePosition && this.isFirstQuoteInvalid(quote)) {
-            return true;
-        }
-
+    isQuoteInvalid(quote: string): boolean {
         if (this.hasUpperCaseChars(quote)) {
             return true;
         }
@@ -157,25 +159,19 @@ export default {
         }
 
         return false;
-    },
-
-    isFirstQuoteInvalid(quote: string): boolean {
-        // First verse may not start with coordinating conjunction
-        const conjunctionStartRegex = /^Or|And/;
-
-        return conjunctionStartRegex.test(quote);
-    },
+    }
 
     hasUpperCaseChars(quote: string): boolean {
         return /^[A-Z\s!:.?]+$/g.test(quote);
-    },
+    }
 
     hasUnexpectedCharsInQuote(quote: string): boolean {
-        const lastWordsRegex = /Mr|Mrs|Or|And$/g;
-        const specialCharsRegex = /@|[0-9]|#|\[|\|+|\(|\)|"|“|”|--|_|\+|=|{|}|\]|\*|\$|%|\r|\n|;|~|&/g;
+        const startWordsRegex = /^[Or|And]/i;
+        const lastWordsRegex = /Mr|Mrs|Or|And$/i;
+        const specialCharsRegex = /@|[0-9]|#|\[|\|+|\(|\)|"|“|”|--|_|—|\+|=|{|}|\]|\*|\$|%|\r|\n|;|~|&/;
 
-        return lastWordsRegex.test(quote) || specialCharsRegex.test(quote)
-    },
+        return startWordsRegex.test(quote) || lastWordsRegex.test(quote) || specialCharsRegex.test(quote)
+    }
 
     countSyllables(quote: string): number {
         const words = quote.match(/\b\w+\b/g);
@@ -187,7 +183,7 @@ export default {
         return words.reduce((count, word) => {
             return count + syllable(word);
         }, 0);
-    },
+    }
 
     clean(verses: string[]): string[] {
         const newLineRegex = /[\n\r]/g;
@@ -200,5 +196,5 @@ export default {
 
             return verse.charAt(0).toUpperCase() + verse.slice(1);
         });
-    },
+    }
 }
