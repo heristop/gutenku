@@ -166,11 +166,25 @@ export default class HaikuService implements GeneratorInterface {
     }
 
     hasUnexpectedCharsInQuote(quote: string): boolean {
-        const startWordsRegex = /^[Or|And]/i;
-        const lastWordsRegex = /Mr|Mrs|Or|And$/i;
-        const specialCharsRegex = /@|[0-9]|#|\[|\|+|\(|\)|"|“|”|--|_|—|\+|=|{|}|\]|\*|\$|%|\r|\n|;|~|&/;
+        const startWordsRegex = /^(Or|And)/i;
+        const lastWordsRegex = /(Mr|Mrs|Or|And)$/i;
+        const specialCharsRegex = /[@0-9#\[\]|()+\",“”\-\-_+=\{\}\]*\$%\r\n;~&]/g;
+        const gutenbergWordsRegex = /(Translated|Illustration)/i;
 
-        return startWordsRegex.test(quote) || lastWordsRegex.test(quote) || specialCharsRegex.test(quote)
+        const regexList = [
+            startWordsRegex,
+            lastWordsRegex,
+            specialCharsRegex,
+            gutenbergWordsRegex,
+        ];
+
+        for (const regex of regexList) {
+            if (regex.test(quote)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     countSyllables(quote: string): number {
