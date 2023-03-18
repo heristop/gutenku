@@ -10,6 +10,7 @@ import terminalImage from 'terminal-image';
 dotenv.config();
 
 program
+    .option('-c, --selection-count <type>', 'number of haiku selection', process.env.OPENAI_SELECTION_COUNT)
     .option('--no-interaction')
     .option('--no-openai');
 
@@ -18,8 +19,16 @@ program.parse();
 const options = program.opts();
 
 const query = `
-    query Query($useAi: Boolean) {
-        haiku(useAI: $useAi) {
+    query Query(
+        $useAi: Boolean, 
+        $withImg: Boolean,
+        $selectionCount: Int
+    ) {
+        haiku(
+            useAI: $useAi, 
+            withImg: $withImg,
+            selectionCount: $selectionCount
+        ) {
             book {
                 title
                 author
@@ -28,15 +37,14 @@ const query = `
             title
             description
             image
-            chapter {
-                title
-            }
         }
     }
 `;
 
 const variables = {
     useAi: options.openai,
+    withImg: true,
+    selectionCount: parseInt(options.selectionCount)
 };
 
 const body = {

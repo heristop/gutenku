@@ -39,6 +39,7 @@ export const useHaikuStore = defineStore({
 
                 const variables = {
                     useAi: this.useAI,
+                    withImg: true,
                 };
 
                 const body = {

@@ -1,12 +1,18 @@
-import Canvas from 'canvas';
 import fs from 'fs';
+import { readdir } from 'fs/promises';
 import { join } from 'path';
 import { promisify } from 'util';
-import { readdir } from 'fs/promises';
+import Canvas from 'canvas';
 
-const CACHE_DIRECTORY = './.cache';
+interface CanvasServiceInterface {
+    create(verses: string[]): Promise<string>;
+    save(canvas: Canvas.Canvas): Promise<string>;
+    read(imagePath: string): Promise<{ data: Buffer; contentType: string }>;
+}
 
-export default {
+class CanvasService implements CanvasServiceInterface {
+    private readonly CACHE_DIRECTORY = './.cache';
+
     async create(verses: string[]): Promise<string> {
         Canvas.registerFont('./src/assets/fonts/JMH Typewriter.ttf', { family: 'Typewriter' });
 
@@ -56,11 +62,14 @@ export default {
 
         // Save the image
         return await this.save(canvas);
-    },
+    }
 
-    save(canvas: Canvas.Canvas) {
+    async save(canvas: Canvas.Canvas): Promise<string> {
         return new Promise<string>(resolve => {
-            const imagePath = `${CACHE_DIRECTORY}/haiku_${(Math.random() + 1).toString(36).substring(7)}.jpg`;
+            const imagePath = `${this.CACHE_DIRECTORY}/haiku_${(Math.random() + 1)
+                .toString(36)
+                .substring(7)
+            }.jpg`;
 
             const stream = canvas.createJPEGStream();
             const out = fs.createWriteStream(imagePath);
@@ -72,9 +81,9 @@ export default {
                 resolve(imagePath);
             });
         });
-    },
+    }
 
-    async read(imagePath: string) {
+    async read(imagePath: string): Promise<{ data: Buffer; contentType: string }> {
         const readFile = promisify(fs.readFile);
         const data = await readFile(imagePath);
 
@@ -84,3 +93,5 @@ export default {
         };
     }
 }
+
+export default new CanvasService();

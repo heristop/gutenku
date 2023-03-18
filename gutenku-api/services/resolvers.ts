@@ -1,8 +1,8 @@
 import Book from '../models/book';
 import Chapter from '../models/chapter';
-import Haiku from './haiku';
-import OpenAI from './openai';
 import { HaikuValue } from '../src/types';
+import HaikuService from './haiku';
+import OpenAIService from './openai';
 
 const resolvers = {
     Query: {
@@ -15,16 +15,30 @@ const resolvers = {
         chapters: () => {
             return Chapter.find().exec();
         },
-        haiku: async (_, args: { useAI: boolean }): Promise<HaikuValue> => {
+        haiku: async (_, args: {
+            useAI: boolean,
+            withImg: boolean,
+            selectionCount: number,
+        }): Promise<HaikuValue> => {
             let haiku: HaikuValue = null;
+            const haikuService = new HaikuService();
 
             if (true === args.useAI && undefined !== process.env.OPENAI_API_KEY) {
-                haiku = await OpenAI.generate();
+                const openAIService = new OpenAIService(haikuService, {
+                    'apiKey': process.env.OPENAI_API_KEY,
+                    'selectionCount': args.selectionCount,
+                });
+
+                haiku = await openAIService.generate();
             } else {
-                haiku = await Haiku.generate();
+                haiku = await haikuService.generate();
             }
 
-            return await Haiku.addImage(haiku);
+            if (false === args.withImg) {
+                return haiku;
+            }
+
+            return await haikuService.addImage(haiku);
         }
     }
 };

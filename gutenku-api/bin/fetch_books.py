@@ -48,6 +48,8 @@ ids = [
     70225,  # The Fortunate Calamity
     70234,  # Hugh Worthington,
     70236,  # The secret of the old mill
+    70301,  # My leper friends
+    70307,  # Torwood's trust (Vol. 3 of 3)
 ]
 
 for id in ids:

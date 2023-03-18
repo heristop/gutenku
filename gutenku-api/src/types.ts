@@ -1,7 +1,10 @@
+import { Types } from "mongoose";
+
 export interface BookValue {
     reference: string;
     title: string;
     author: string;
+    chapters?: string[] | Types.ObjectId[];
 }
 
 export interface HaikuValue {
@@ -20,4 +23,9 @@ export interface HaikuValue {
 
 export interface HaikuResponseData {
     haiku: HaikuValue;
+}
+
+export interface OpenAIOptions {
+    apiKey: string;
+    selectionCount?: number;
 }

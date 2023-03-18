@@ -35,14 +35,18 @@ const downloadImage = () => {
     class="pa-4 mb-6 align-center justify-center"
     color="white"
   >
-    <img
-      :width="300"
-      :src="haikuImage"
-      alt="Haiku Generated"
-      aspectRatio="1/1"
-      cover
-      @contextmenu.prevent
+    <v-sheet
+      class="canvas"
+      elevation="3"
     >
+      <v-img
+        :src="haikuImage"
+        alt="Haiku Generated"
+        aspect-ratio="1/1"
+        cover
+        @contextmenu.prevent
+      />
+    </v-sheet>
 
     <v-card-actions class="justify-end">
       <v-btn
@@ -57,3 +61,11 @@ const downloadImage = () => {
     </v-card-actions>
   </v-card>
 </template>
+
+<style lang="scss" scoped>
+.canvas {
+    img {
+        width: 100%;
+    }
+}
+</style>
