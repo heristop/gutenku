@@ -12,7 +12,10 @@
       class="justify-right"
       color="third"
     >
-      <small>{{ new Date().getFullYear() }} — <strong>heristop</strong></small>
+      <small>
+        {{ new Date().getFullYear() }} —
+        <strong>heristop</strong>
+      </small>
     </v-footer>
   </v-card>
 </template>

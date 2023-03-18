@@ -10,12 +10,12 @@ const resolvers = {
     },
 };
 
-it('returns books', async () => {
-    const testServer = new ApolloServer({
-        typeDefs,
-        resolvers,
-    });
+const testServer = new ApolloServer({
+    typeDefs,
+    resolvers,
+});
 
+it('returns books', async () => {
     const response = await testServer.executeOperation({
         query: `
             query Query() {

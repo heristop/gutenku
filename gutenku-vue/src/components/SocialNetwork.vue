@@ -1,6 +1,7 @@
 <script lang="ts" setup>
+const INSTAGRAM_URL = 'https://instagram.com/gutenku.poem';
+const TWITTER_URL = 'https://twitter.com/heristop';
 const GUTENBERG_URL = 'https://gutenberg.org';
-const INSTAGRAM_URL = 'https://www.instagram.com/gutenku.poem';
 </script>
 
 <template>
@@ -14,22 +15,6 @@ const INSTAGRAM_URL = 'https://www.instagram.com/gutenku.poem';
 
     <v-card-actions class="justify-center">
       <v-tooltip
-        text="Project Gutenberg"
-        location="bottom"
-      >
-        <template #activator="{ props }">
-          <v-btn
-            v-bind="props"
-            color="primary"
-            class="ms-2"
-            icon="mdi-book-open"
-            :href="GUTENBERG_URL"
-            target="_blank"
-          />
-        </template>
-      </v-tooltip>
-
-      <v-tooltip
         text="Instagram"
         location="bottom"
       >
@@ -41,6 +26,39 @@ const INSTAGRAM_URL = 'https://www.instagram.com/gutenku.poem';
             icon="mdi-instagram"
             variant="text"
             :href="INSTAGRAM_URL"
+            target="_blank"
+          />
+        </template>
+      </v-tooltip>
+
+      <v-tooltip
+        text="Twitter"
+        location="bottom"
+      >
+        <template #activator="{ props }">
+          <v-btn
+            v-bind="props"
+            color="primary"
+            class="ms-2"
+            icon="mdi-twitter"
+            variant="text"
+            :href="TWITTER_URL"
+            target="_blank"
+          />
+        </template>
+      </v-tooltip>
+
+      <v-tooltip
+        text="Project Gutenberg"
+        location="bottom"
+      >
+        <template #activator="{ props }">
+          <v-btn
+            v-bind="props"
+            color="primary"
+            class="ms-2"
+            icon="mdi-book-open"
+            :href="GUTENBERG_URL"
             target="_blank"
           />
         </template>

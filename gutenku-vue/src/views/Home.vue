@@ -17,6 +17,8 @@ const networkError = computed(() => {
     return '' !== error.value;
 });
 
+const adClientId = import.meta.env.VITE_AD_CLIENT_ID;
+
 onMounted(fetchText);
 </script>
 
@@ -55,6 +57,20 @@ onMounted(fetchText);
             <social-netwok class="d-none d-sm-block" />
 
             <haiku-ai />
+
+            <v-card class="align-center justify-center">
+              <amp-ad
+                width="100vw"
+                height="320"
+                type="adsense"
+                :data-ad-client="adClientId"
+                data-ad-slot="6375195251"
+                data-auto-format="rspv"
+                data-full-width=""
+              >
+                <div overflow="" />
+              </amp-ad>
+            </v-card>
 
             <haiku-canvas />
 
