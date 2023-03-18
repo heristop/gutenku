@@ -13,6 +13,9 @@ it('detect valid quote', async () => {
     expect(haikuService.hasUnexpectedCharsInQuote('I want to be Mr')).toStrictEqual(true);
     expect(haikuService.hasUnexpectedCharsInQuote('I want to be Mrs')).toStrictEqual(true);
     expect(haikuService.hasUnexpectedCharsInQuote('I want to be Mister')).toStrictEqual(false);
+    expect(haikuService.hasUnexpectedCharsInQuote('I want to be, yo')).toStrictEqual(true);
+    expect(haikuService.hasUnexpectedCharsInQuote('I want to be" yo')).toStrictEqual(true);
+    expect(haikuService.hasUnexpectedCharsInQuote('[Illustration: ] I want to be')).toStrictEqual(true);
 });
 
 it('count syllabes', async () => {
