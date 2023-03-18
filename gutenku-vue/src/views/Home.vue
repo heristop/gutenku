@@ -58,17 +58,19 @@ onMounted(fetchText);
 
             <haiku-ai />
 
-            <amp-ad
-              width="100vw"
-              height="320"
-              type="adsense"
-              :data-ad-client="adClientId"
-              data-ad-slot="6375195251"
-              data-auto-format="rspv"
-              data-full-width=""
-            >
-              <div overflow="" />
-            </amp-ad>
+            <v-card class="align-center justify-center">
+              <amp-ad
+                width="100vw"
+                height="320"
+                type="adsense"
+                :data-ad-client="adClientId"
+                data-ad-slot="6375195251"
+                data-auto-format="rspv"
+                data-full-width=""
+              >
+                <div overflow="" />
+              </amp-ad>
+            </v-card>
 
             <haiku-canvas />
 
