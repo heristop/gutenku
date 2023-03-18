@@ -28,7 +28,11 @@ const typeDefs = `#graphql
     books: [Book]
     book(id: ID!): Book!
     chapters: [Chapter]
-    haiku(useAI: Boolean): Haiku
+    haiku(
+        useAI: Boolean, 
+        withImg: Boolean,
+        selectionCount: Int
+    ): Haiku
   }
 `;
 
