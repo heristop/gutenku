@@ -33,7 +33,10 @@ function toggle(): void {
       </v-col>
     </v-row>
 
-    <v-row class="paragraphes">
+    <v-row
+      class="paragraphes"
+      @click="toggle()"
+    >
       <v-col>
         <h3
           :class="{
