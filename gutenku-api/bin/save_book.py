@@ -27,7 +27,7 @@ with open(file_path, 'r') as file:
 book = book_collection.find_one({"reference": BOOK_ID})
 
 if book:
-    print(f"The book {BOOK_ID} had already been saved")
+    print(f"The book \033[1;33m{BOOK_ID}\033[0m had already been saved")
 else:
     # Extract the title and author
     title_pattern = re.compile(r"Title: (.*?)\n")
@@ -47,7 +47,7 @@ else:
     new_book_id = result.inserted_id
 
     # Split the chapters using a regular expression
-    chapter_patterns = r'(CHAPTER|BOOK|Chapter) (\d+|[IVXLCDMivxlcdm]+)'
+    chapter_patterns = r'(CHAPTER|BOOK|Chapter|CANTO) (\d+|[IVXLCDMivxlcdm]+)'
     chapters = re.split(chapter_patterns, text)
     chapters_count = len(chapters)
 

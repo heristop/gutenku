@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { load } from '@fingerprintjs/botd'
 import HighLightText from '@/components/HighLightText.vue';
 import { useHaikuStore } from '../store/haiku';
 import { storeToRefs } from 'pinia';
@@ -11,6 +12,16 @@ const blackMarker = ref(true);
 function toggle(): void {
     blackMarker.value = !blackMarker.value;
 }
+
+onMounted(() => {
+    const botdPromise = load();
+
+    botdPromise.then((botd) => {
+        if (true === botd.detect().bot) {
+            blackMarker.value = false;
+        }
+    });
+})
 </script>
 
 <template>
@@ -23,13 +34,26 @@ function toggle(): void {
     Disclose chapter where quotes were extracted
     <v-row>
       <v-col>
-        <v-btn
-          color="primary"
-          :icon="blackMarker ? 'mdi-lightbulb-on' : 'mdi-lightbulb-off'"
-          data-cy="light-toggle-btn"
-          size="small"
-          @click="toggle()"
-        />
+        <v-tooltip
+          :disabled="loading"
+          text="Disclose / Hide"
+          location="bottom"
+          aria-label="Disclose / Hide"
+        >
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              :icon="blackMarker ? 'mdi-lightbulb-on' : 'mdi-lightbulb-off'"
+              @click="toggle()"
+              color="primary"
+              alt="Disclose / Hide"
+              aria-label="Disclose / Hide"
+              title="Disclose / Hide"
+              data-cy="light-toggle-btn"
+              size="small"
+            />
+          </template>
+        </v-tooltip>
       </v-col>
     </v-row>
 

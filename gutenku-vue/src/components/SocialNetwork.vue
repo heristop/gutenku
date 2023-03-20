@@ -17,16 +17,18 @@ const GUTENBERG_URL = 'https://gutenberg.org';
       <v-tooltip
         text="Instagram"
         location="bottom"
+        aria-label="Instagram"
       >
         <template #activator="{ props }">
           <v-btn
             v-bind="props"
+            :href="INSTAGRAM_URL"
             color="primary"
             class="ms-2"
             icon="mdi-instagram"
             variant="text"
-            :href="INSTAGRAM_URL"
             target="_blank"
+            aria-label="See published haikus"
           />
         </template>
       </v-tooltip>
@@ -34,16 +36,18 @@ const GUTENBERG_URL = 'https://gutenberg.org';
       <v-tooltip
         text="Twitter"
         location="bottom"
+        aria-label="Twitter"
       >
         <template #activator="{ props }">
           <v-btn
             v-bind="props"
+            :href="TWITTER_URL"
             color="primary"
             class="ms-2"
             icon="mdi-twitter"
             variant="text"
-            :href="TWITTER_URL"
             target="_blank"
+            aria-label="See creator Twitter account"
           />
         </template>
       </v-tooltip>
@@ -51,15 +55,17 @@ const GUTENBERG_URL = 'https://gutenberg.org';
       <v-tooltip
         text="Project Gutenberg"
         location="bottom"
+        aria-label="Project Gutenberg"
       >
         <template #activator="{ props }">
           <v-btn
             v-bind="props"
+            :href="GUTENBERG_URL"
             color="primary"
             class="ms-2"
             icon="mdi-book-open"
-            :href="GUTENBERG_URL"
             target="_blank"
+            aria-label="See Project Gutenberg website"
           />
         </template>
       </v-tooltip>

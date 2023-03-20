@@ -16,6 +16,10 @@ it('detect valid quote', async () => {
     expect(haikuService.hasUnexpectedCharsInQuote('I want to be, yo')).toStrictEqual(true);
     expect(haikuService.hasUnexpectedCharsInQuote('I want to be" yo')).toStrictEqual(true);
     expect(haikuService.hasUnexpectedCharsInQuote('[Illustration: ] I want to be')).toStrictEqual(true);
+    expect(haikuService.hasUnexpectedCharsInQuote('On the other hand')).toStrictEqual(true);
+    expect(haikuService.hasUnexpectedCharsInQuote('On the contrary')).toStrictEqual(true);
+    expect(haikuService.hasUnexpectedCharsInQuote('I lost a Letter C')).toStrictEqual(true);
+    expect(haikuService.hasUnexpectedCharsInQuote('I lost a Letter CC')).toStrictEqual(false);
 });
 
 it('count syllabes', async () => {
