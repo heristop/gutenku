@@ -16,7 +16,7 @@ const resolvers = {
         chapters: () => {
             return Chapter.find().exec();
         },
-        haiku: async (_: any, args: {
+        haiku: async (_, args: {
             useAI: boolean,
             skipCache: boolean,
             appendImg: boolean,
