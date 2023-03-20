@@ -16,15 +16,15 @@ export default class HaikuService implements GeneratorInterface {
     private ttl: number;
     private skipCache: boolean;
 
-    constructor(db: Connection, cache: {
-        minCachedDocs: number,
-        ttl: number,
-        skip: boolean,
+    constructor(db?: Connection, cache?: {
+        minCachedDocs?: number,
+        ttl?: number,
+        skip?: boolean,
     }) {
         this.db = db;
-        this.minCachedDocs = cache.minCachedDocs;
-        this.skipCache = cache.skip;
-        this.ttl = cache.ttl;
+        this.minCachedDocs = cache?.minCachedDocs;
+        this.skipCache = cache?.skip;
+        this.ttl = cache?.ttl;
     }
 
     async generate(): Promise<HaikuValue> {
