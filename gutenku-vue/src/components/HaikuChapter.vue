@@ -34,6 +34,7 @@ function toggle(): void {
               v-bind="props"
               :icon="blackMarker ? 'mdi-lightbulb-on' : 'mdi-lightbulb-off'"
               @click="toggle()"
+              aria-label="Disclose / Hide"
               color="primary"
               alt="Disclose"
               data-cy="light-toggle-btn"
