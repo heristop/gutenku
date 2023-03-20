@@ -52,9 +52,10 @@ async function copy() {
 
     <v-card-actions class="justify-end">
       <v-tooltip
-        text="Generate a new Haiku"
-        location="bottom"
         :disabled="loading"
+        text="Generate a new Haiku"
+        aria-label="Generate a new Haiku"
+        location="bottom"
       >
         <template #activator="{ props }">
           <v-btn
@@ -75,6 +76,7 @@ async function copy() {
       <v-tooltip
         text="Copy the Haiku"
         location="bottom"
+        aria-label="Copy the Haiku"
       >
         <template #activator="{ props }">
           <v-btn

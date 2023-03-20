@@ -23,14 +23,24 @@ function toggle(): void {
     Disclose chapter where quotes were extracted
     <v-row>
       <v-col>
-        <v-btn
-          color="primary"
-          :icon="blackMarker ? 'mdi-lightbulb-on' : 'mdi-lightbulb-off'"
-          @click="toggle()"
-          alt="Disclose"
-          data-cy="light-toggle-btn"
-          size="small"
-        />
+        <v-tooltip
+          :disabled="loading"
+          text="Disclose / Hide"
+          location="bottom"
+          aria-label="Disclose / Hide"
+        >
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              :icon="blackMarker ? 'mdi-lightbulb-on' : 'mdi-lightbulb-off'"
+              @click="toggle()"
+              color="primary"
+              alt="Disclose"
+              data-cy="light-toggle-btn"
+              size="small"
+            />
+          </template>
+        </v-tooltip>
       </v-col>
     </v-row>
 
