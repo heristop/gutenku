@@ -13,8 +13,10 @@
         "lint": "eslint . --fix --ignore-path .gitignore"
     },
     "dependencies": {
+        "@fingerprintjs/botd": "^1.3.2",
         "@mdi/font": "7.0.96",
         "axios": "^1.3.0",
+        "canvas": "^2.11.0",
         "core-js": "^3.8.3",
         "pinia": "^2.0.23",
         "roboto-fontface": "*",
