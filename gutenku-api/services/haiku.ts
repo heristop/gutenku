@@ -4,13 +4,32 @@ import { syllable } from 'syllable';
 import Book from '../models/book';
 import CanvasService from './canvas';
 import { BookValue, HaikuValue } from '../src/types';
+import { Connection } from 'mongoose';
 
 export interface GeneratorInterface {
     generate(): Promise<HaikuValue>;
 }
 
 export default class HaikuService implements GeneratorInterface {
+    private db: Connection;
+    private minCachedDocs: number;
+    private ttl: number;
+
+    constructor(db: Connection, cache: {
+        minCachedDocs: number,
+        ttl: number
+    }) {
+        this.db = db;
+        this.minCachedDocs = cache.minCachedDocs;
+    }
+
     async generate(): Promise<HaikuValue> {
+        let haiku = await this.getFromCache();
+
+        if (null !== haiku) {
+            return haiku;
+        }
+
         let randomBook = await this.selectRandomBook();
         let randomChapter = null;
         let verses = [];
@@ -29,7 +48,7 @@ export default class HaikuService implements GeneratorInterface {
             ++i;
         }
 
-        return {
+        haiku = {
             'book': {
                 'reference': randomBook.reference,
                 'title': randomBook.title,
@@ -38,10 +57,14 @@ export default class HaikuService implements GeneratorInterface {
             'chapter': randomChapter,
             'rawVerses': verses,
             'verses': this.clean(verses),
-        }
+        };
+
+        await this.createCacheWithTTL(haiku);
+
+        return haiku;
     }
 
-    async addImage(haiku: HaikuValue): Promise<HaikuValue> {
+    async appendImage(haiku: HaikuValue): Promise<HaikuValue> {
         const imagePath = await CanvasService.create(haiku.verses);
 
         const image = await CanvasService.read(imagePath);
@@ -68,6 +91,37 @@ export default class HaikuService implements GeneratorInterface {
         }
 
         return randomBook;
+    }
+
+    async getFromCache(size = 1): Promise<HaikuValue | null> {
+        const haikusCollection = this.db.collection('haiku');
+
+        if (await haikusCollection.count() < this.minCachedDocs) {
+            return null;
+        }
+
+        const randomHaiku = await haikusCollection
+            .aggregate([{ $sample: { size } }])
+            .next();
+
+        return {
+            'book': randomHaiku.book,
+            'chapter': randomHaiku.chapter,
+            'verses': randomHaiku.verses,
+            'rawVerses': randomHaiku.rawVerses,
+        };
+    }
+
+    async createCacheWithTTL(haiku: HaikuValue): Promise<void> {
+        const haikusCollection = this.db.collection('haiku');
+
+        const haikuData = {
+            ...haiku,
+            created_at: new Date(Date.now()).toISOString(),
+            expireAt: new Date(Date.now() + this.ttl),
+        };
+
+        await haikusCollection.insertOne(haikuData);
     }
 
     selectRandomChapter(book: BookValue): string {
@@ -168,14 +222,16 @@ export default class HaikuService implements GeneratorInterface {
     hasUnexpectedCharsInQuote(quote: string): boolean {
         const startWordsRegex = /^(Or|And)/i;
         const lastWordsRegex = /(Mr|Mrs|Or|And)$/i;
-        const specialCharsRegex = /@|[0-9]|#|\[|\|+|\(|\)|"|“|”|--|:|,|_|—|\+|=|{|}|\]|\*|\$|%|\r|\n|;|~|&/g;
-        const gutenbergWordsRegex = /(Translated|Illustration)/i;
+        const specialCharsRegex = /@|[0-9]|#|\[|\|\(|\)|"|“|”|--|:|,|_|—|\+|=|{|}|\]|\*|\$|%|\r|\n|;|~|&/g;
+        const forbiddenWordsRegex = /(Translated|Illustration|On the other hand|On the contrary)/i;
+        const lostLetter = /\b[A-Z]\b$/;
 
         const regexList = [
             startWordsRegex,
             lastWordsRegex,
             specialCharsRegex,
-            gutenbergWordsRegex,
+            forbiddenWordsRegex,
+            lostLetter,
         ];
 
         for (const regex of regexList) {

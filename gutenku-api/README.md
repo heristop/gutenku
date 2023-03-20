@@ -27,7 +27,7 @@ docker-compose up -d
 Fetch and store books
 
 ```bash
-yarn fetch
+yarn setup
 ```
 
 ## Run

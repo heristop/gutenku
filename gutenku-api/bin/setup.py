@@ -1,5 +1,24 @@
 # pylint: disable=missing-module-docstring
+import argparse
 import subprocess
+import os
+import pymongo
+from dotenv import load_dotenv
+
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
+
+parser = argparse.ArgumentParser(description='Fetch and save book data')
+parser.add_argument('--delete', dest='delete', action='store_true', help='delete the book(s) before fetching and saving')
+
+args = parser.parse_args()
+
+# Connect to the MongoDB database
+client = pymongo.MongoClient(os.environ.get('MONGODB_URI')+'/'+os.environ.get('MONGODB_DB'))
+db = client[os.environ.get('MONGODB_DB')]
+haiku_collection = db["haikus"]
+
+# Added expiration index on haiku collection
+db.haiku_collection.create_index("expireAt", expireAfterSeconds=0)
 
 ids = [
     11,     # Alice’s Adventures in Wonderland
@@ -14,6 +33,7 @@ ids = [
     84,     # Frankenstein
     105,    # Persuasion
     158,    # Emma
+    161,    # Sense and Sensibility
     174,    # The Picture of Dorian Gray
     203,    # Uncle Tom’s Cabin
     215,    # The Call of the Wild
@@ -35,9 +55,11 @@ ids = [
     2701,   # Moby Dick; or The Whale
     2852,   # The Hound of the Baskervilles
     3207,   # Leviathan
+    4085,   # The Adventures of Roderick Random
     5827,   # The Problems of Philosophy
     6130,   # The Iliad of Homer
     6593,   # The History of Tom Jones, a Foundling
+    8800,   # The Divine Comedy
     25344,  # The Scarlet Letter
     27827,  # The Kama Sutra of Vatsyayana
     28054,  # The Brothers Karamazov
@@ -49,10 +71,19 @@ ids = [
     70234,  # Hugh Worthington,
     70236,  # The secret of the old mill
     70301,  # My leper friends
+    70302,  # Education and the good life
+    70304,  # The Inquisition
+    70305,  # Torwood's trust (Vol. 1 of 3)
+    70306,  # Torwood's trust (Vol. 2 of 3)
     70307,  # Torwood's trust (Vol. 3 of 3)
+    70308,  # On the mechanism of the physiological action of the cathartics
 ]
 
+delete_books = args.delete
+
 for id in ids:
-    subprocess.run(["python3", "bin/delete_book.py", str(id)])
+    if delete_books:
+        subprocess.run(["python3", "bin/delete_book.py", str(id)])
     subprocess.run(["python3", "bin/fetch_book.py", str(id)])
     subprocess.run(["python3", "bin/save_book.py", str(id)])
+

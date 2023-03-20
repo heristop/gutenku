@@ -30,7 +30,7 @@ const typeDefs = `#graphql
     chapters: [Chapter]
     haiku(
         useAI: Boolean, 
-        withImg: Boolean,
+        appendImage: Boolean,
         selectionCount: Int
     ): Haiku
   }

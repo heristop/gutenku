@@ -26,7 +26,7 @@ const hasDescription = computed(() => {
         data-cy="switch-api-btn"
         color="primary"
         hide-details
-        label="Use AI to select a better moment of insight"
+        label="Use AI to have a better insight"
       />
     </v-sheet>
 
