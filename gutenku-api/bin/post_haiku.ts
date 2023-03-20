@@ -21,12 +21,12 @@ const options = program.opts();
 const query = `
     query Query(
         $useAi: Boolean, 
-        $appendImage: Boolean,
+        $appendImg: Boolean,
         $selectionCount: Int
     ) {
         haiku(
             useAI: $useAi, 
-            appendImage: $appendImage,
+            appendImg: $appendImg,
             selectionCount: $selectionCount
         ) {
             book {
@@ -43,7 +43,7 @@ const query = `
 
 const variables = {
     useAi: options.openai,
-    appendImage: true,
+    appendImg: true,
     selectionCount: parseInt(options.selectionCount)
 };
 
@@ -67,7 +67,7 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
     haiku.image_path = `${CACHE_DIRECTORY}/preview_haiku_${(Math.random() + 1)
         .toString(36)
         .substring(7)
-    }.jpg`;
+        }.jpg`;
 
     await fs.writeFile(haiku.image_path, imageData);
 

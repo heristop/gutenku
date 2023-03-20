@@ -29,8 +29,9 @@ const typeDefs = `#graphql
     book(id: ID!): Book!
     chapters: [Chapter]
     haiku(
-        useAI: Boolean, 
-        appendImage: Boolean,
+        useAI: Boolean,
+        skipCache: Boolean,
+        appendImg: Boolean,
         selectionCount: Int
     ): Haiku
   }

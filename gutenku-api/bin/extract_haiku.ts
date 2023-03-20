@@ -6,12 +6,14 @@ dotenv.config();
 
 const query = `
     query Query(
-        $useAi: Boolean, 
-        $appendImage: Boolean, 
+        $useAi: Boolean,
+        $skipCache: Boolean,
+        $appendImg: Boolean, 
     ) {
         haiku(
             useAI: $useAi,
-            appendImage: $appendImage, 
+            skipCache: $skipCache,
+            appendImg: $appendImg, 
         ) {
             book {
                 title
@@ -29,7 +31,8 @@ const query = `
 
 const variables = {
     useAi: false,
-    appendImage: false,
+    skipCache: true,
+    appendImg: false,
 };
 
 const body = {

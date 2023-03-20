@@ -14,13 +14,17 @@ export default class HaikuService implements GeneratorInterface {
     private db: Connection;
     private minCachedDocs: number;
     private ttl: number;
+    private skipCache: boolean;
 
     constructor(db: Connection, cache: {
         minCachedDocs: number,
-        ttl: number
+        ttl: number,
+        skip: boolean,
     }) {
         this.db = db;
         this.minCachedDocs = cache.minCachedDocs;
+        this.skipCache = cache.skip;
+        this.ttl = cache.ttl;
     }
 
     async generate(): Promise<HaikuValue> {
@@ -64,7 +68,7 @@ export default class HaikuService implements GeneratorInterface {
         return haiku;
     }
 
-    async appendImage(haiku: HaikuValue): Promise<HaikuValue> {
+    async appendImg(haiku: HaikuValue): Promise<HaikuValue> {
         const imagePath = await CanvasService.create(haiku.verses);
 
         const image = await CanvasService.read(imagePath);
@@ -96,7 +100,7 @@ export default class HaikuService implements GeneratorInterface {
     async getFromCache(size = 1): Promise<HaikuValue | null> {
         const haikusCollection = this.db.collection('haikus');
 
-        if (await haikusCollection.countDocuments() < this.minCachedDocs) {
+        if (await haikusCollection.countDocuments() < this.minCachedDocs || this.skipCache) {
             return null;
         }
 
