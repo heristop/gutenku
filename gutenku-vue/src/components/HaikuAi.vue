@@ -26,7 +26,7 @@ const hasDescription = computed(() => {
         data-cy="switch-api-btn"
         color="primary"
         hide-details
-        label="Boost the relevance of Haiku generated with AI"
+        label="Use AI to have a better insight"
       />
     </v-sheet>
 

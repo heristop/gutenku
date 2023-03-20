@@ -4,6 +4,10 @@
 
 <script lang="ts">
 import { computed } from 'vue';
+import { useHaikuStore } from '../store/haiku';
+import { storeToRefs } from 'pinia';
+
+const { error } = storeToRefs(useHaikuStore());
 
 export default {
     props: {
@@ -27,7 +31,7 @@ export default {
                     });
                 });
             } catch (err) {
-                //
+                error.value = err as string;
             }
 
             return rawText.replace(/\n\n/g, '<br /><br />');

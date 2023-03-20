@@ -1,4 +1,3 @@
-import { fork } from 'child_process';
 import { Configuration, OpenAIApi } from 'openai';
 import { HaikuValue, OpenAIOptions } from '../src/types';
 import HaikuService, { GeneratorInterface } from './haiku';
@@ -70,7 +69,7 @@ export default class OpenAIService implements GeneratorInterface {
     private async generatePrompt(): Promise<string> {
         const verses = await this.fetchVerses();
 
-        const prompt = 'What is the most revelant, with the best grammar and the most beautiful haiku from the list below?';
+        const prompt = 'What is the most revelant haiku, with the best grammar, and the best moment of insight from the list below?';
         const outputFormat = '{"id":ID,"title":"Give a short title for this Haiku","description":"Describe and explain the meaning of this Haiku"}';
 
         return `${prompt} (output JSON format: ${outputFormat})\n${verses.join('\n')}\nSTOP\n`;
@@ -80,23 +79,13 @@ export default class OpenAIService implements GeneratorInterface {
         const verses: string[] = [];
 
         for (const [i,] of Array(this.selectionCount).entries()) {
-            const verse = await (new Promise<string>(resolve => {
-                // fork another process
-                const process = fork('./bin/extract_haiku.ts');
+            const haiku = await this.haikuService.generate();
 
-                process.send({ i });
+            this.haikuSelection.push(haiku);
 
-                // listen for messages from forked process
-                process.on('message', async (haiku: HaikuValue) => {
-                    this.haikuSelection.push(haiku);
+            console.log(i, haiku.verses, haiku.book.title);
 
-                    console.log(i, haiku.verses, haiku.book.title);
-
-                    const verse = `${i}:\n${haiku.verses.join('\n')}\n`;
-
-                    resolve(verse);
-                });
-            }));
+            const verse = `${i}:\n${haiku.verses.join('\n')}\n`;
 
             verses.push(verse);
         }
