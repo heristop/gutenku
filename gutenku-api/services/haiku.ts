@@ -113,7 +113,7 @@ export default class HaikuService implements GeneratorInterface {
     }
 
     async createCacheWithTTL(haiku: HaikuValue): Promise<void> {
-        const haikusCollection = this.db.collection('haiku');
+        const haikusCollection = this.db.collection('haikus');
 
         const haikuData = {
             ...haiku,
