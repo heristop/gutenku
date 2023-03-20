@@ -96,7 +96,7 @@ export default class HaikuService implements GeneratorInterface {
     async getFromCache(size = 1): Promise<HaikuValue | null> {
         const haikusCollection = this.db.collection('haikus');
 
-        if (await haikusCollection.count() < this.minCachedDocs) {
+        if (await haikusCollection.countDocuments() < this.minCachedDocs) {
             return null;
         }
 
