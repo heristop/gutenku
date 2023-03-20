@@ -1,3 +1,4 @@
+import { Connection } from 'mongoose';
 import Book from '../models/book';
 import Chapter from '../models/chapter';
 import { HaikuValue } from '../src/types';
@@ -17,11 +18,16 @@ const resolvers = {
         },
         haiku: async (_, args: {
             useAI: boolean,
-            withImg: boolean,
+            skipCache: boolean,
+            appendImg: boolean,
             selectionCount: number,
-        }): Promise<HaikuValue> => {
+        }, context: { db: Connection; }): Promise<HaikuValue> => {
             let haiku: HaikuValue = null;
-            const haikuService = new HaikuService();
+            const haikuService = new HaikuService(context.db, {
+                'minCachedDocs': parseInt(process.env.MIN_CACHED_DOCS),
+                'ttl': 24 * 60 * 60 * 1000, // 24 hours,
+                'skip': !!args.skipCache,
+            });
 
             if (true === args.useAI && undefined !== process.env.OPENAI_API_KEY) {
                 const openAIService = new OpenAIService(haikuService, {
@@ -34,11 +40,11 @@ const resolvers = {
                 haiku = await haikuService.generate();
             }
 
-            if (false === args.withImg) {
-                return haiku;
+            if (false !== args.appendImg) {
+                haiku = await haikuService.appendImg(haiku);
             }
 
-            return await haikuService.addImage(haiku);
+            return haiku;
         }
     }
 };

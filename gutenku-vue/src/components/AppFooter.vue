@@ -5,6 +5,7 @@
     <v-img
       lazy-src="@/assets/img/duel.jpg"
       src="@/assets/img/duel.jpg"
+      alt="Footer image Zazen"
       cover
     />
 
