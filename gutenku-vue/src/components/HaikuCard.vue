@@ -62,6 +62,7 @@ async function copy() {
             :disabled="loading"
             :prepend-icon="loading ? 'mdi-loading mdi-spin' : 'mdi-reload'"
             @click="fetchText()"
+            alt="Generate a new Haiku"
             color="third"
             data-cy="fetch-btn"
             class="ms-2"
@@ -78,12 +79,13 @@ async function copy() {
         <template #activator="{ props }">
           <v-btn
             v-bind="props"
+            @click="copy()"
             color="third"
             data-cy="copy-btn"
             class="ms-2"
             prepend-icon="mdi-content-copy"
             variant="text"
-            @click="copy()"
+            alt="Copy the Haiku"
           >
             Copy
           </v-btn>
@@ -103,8 +105,9 @@ async function copy() {
 
     <template #actions>
       <v-btn
-        variant="text"
         @click="copied = false"
+        variant="text"
+        alt="Close"
       >
         Close
       </v-btn>
