@@ -225,9 +225,19 @@ export default class HaikuService implements GeneratorInterface {
 
     hasUnexpectedCharsInQuote(quote: string): boolean {
         const startWordsRegex = /^(Or|And)/i;
-        const lastWordsRegex = /(Mr|Mrs|Or|And)$/i;
+        const lastWordsRegex = /(Mr|Mrs|Or|And|St)$/i;
         const specialCharsRegex = /@|[0-9]|#|\[|\|\(|\)|"|“|”|--|:|,|_|—|\+|=|{|}|\]|\*|\$|%|\r|\n|;|~|&/g;
-        const forbiddenWordsRegex = /(Translated|Illustration|On the other hand|On the contrary)/i;
+
+        const forbiddenWords = [
+            'Translated',
+            'Illustration',
+            'On the other hand',
+            'On the contrary',
+            'copyright',
+            'provide a copy',
+        ];
+
+        const forbiddenWordsRegex = new RegExp(`(${forbiddenWords.join('|')})`, 'i');
         const lostLetter = /\b[A-Z]\b$/;
 
         const regexList = [
