@@ -1,5 +1,6 @@
-import { ApolloServer } from 'apollo-server-express';
+import { ApolloServer } from '@apollo/server';
 import { expect, it } from '@jest/globals';
+import { Connection } from 'mongoose';
 import typeDefs from '../services/typeDefs';
 
 const resolvers = {
@@ -10,7 +11,11 @@ const resolvers = {
     },
 };
 
-const testServer = new ApolloServer({
+interface MyContext {
+    db?: Connection;
+}
+
+const testServer = new ApolloServer<MyContext>({
     typeDefs,
     resolvers,
 });
@@ -18,11 +23,11 @@ const testServer = new ApolloServer({
 it('returns books', async () => {
     const response = await testServer.executeOperation({
         query: `
-            query Query() {
-                books() {
-                    book {
-                        title
-                        author
+            query Query {
+                books {
+                    id
+                    chapters {
+                        id
                     }
                 }
             }
@@ -31,5 +36,10 @@ it('returns books', async () => {
     });
 
     expect(response).toBeTruthy();
-    expect(response).toHaveProperty('data');
+    expect(response).toHaveProperty('body');
+    expect(response.body).toHaveProperty('singleResult');
+    // eslint-disable-next-line
+    expect(response.body['singleResult']).toHaveProperty('data');
+    // eslint-disable-next-line
+    expect(response.body['singleResult'].data).toHaveProperty('books');
 });
