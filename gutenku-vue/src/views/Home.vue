@@ -23,50 +23,73 @@ onMounted(fetchText);
 </script>
 
 <template>
-    <v-container class="fill-height">
-        <v-responsive class="d-flex text-center fill-height">
-            <v-sheet v-if="false === firstLoaded">
-                <app-loading text="Generating Haiku..." />
-            </v-sheet>
+  <v-container class="fill-height">
+    <v-responsive class="d-flex text-center fill-height">
+      <v-sheet v-if="false === firstLoaded">
+        <app-loading text="Generating Haiku..." />
+      </v-sheet>
 
-            <v-container v-if="firstLoaded">
-                <v-row class="d-flex">
-                    <v-col cols="12" sm="12" class="d-sm-none mx-auto h-100 align-center justify-center order-0">
-                        <social-netwok />
-                    </v-col>
+      <v-container v-if="firstLoaded">
+        <v-row class="d-flex">
+          <v-col
+            cols="12"
+            sm="12"
+            class="d-sm-none mx-auto h-100 align-center justify-center order-0"
+          >
+            <social-netwok />
+          </v-col>
 
-                    <v-col cols="12" sm="8" class="mx-auto h-100 align-center justify-center order-1">
-                        <haiku-card />
+          <v-col
+            cols="12"
+            sm="8"
+            class="mx-auto h-100 align-center justify-center order-1"
+          >
+            <haiku-card />
 
-                        <haiku-chapter class="d-none d-sm-flex" />
-                    </v-col>
+            <haiku-chapter class="d-none d-sm-flex" />
+          </v-col>
 
-                    <v-col cols="12" sm="4" class="mx-auto h-100 align-center justify-center order-2">
-                        <social-netwok class="d-none d-sm-block" />
+          <v-col
+            cols="12"
+            sm="4"
+            class="mx-auto h-100 align-center justify-center order-2"
+          >
+            <social-netwok class="d-none d-sm-block" />
 
-                        <haiku-ai />
+            <haiku-ai />
 
-                        <v-card class="align-center justify-center">
-                            <amp-ad width="100vw" height="320" type="adsense" :data-ad-client="adClientId"
-                                data-ad-slot="6375195251" data-auto-format="rspv" data-full-width="">
-                                <div overflow="" />
-                            </amp-ad>
-                        </v-card>
+            <v-card class="align-center justify-center">
+              <amp-ad
+                width="100vw"
+                height="320"
+                type="adsense"
+                :data-ad-client="adClientId"
+                data-ad-slot="6375195251"
+                data-auto-format="rspv"
+                data-full-width=""
+              >
+                <div overflow="" />
+              </amp-ad>
+            </v-card>
 
-                        <haiku-canvas />
+            <haiku-canvas />
 
-                        <haiku-chapter class="d-sm-none" />
+            <haiku-chapter class="d-sm-none" />
 
-                        <app-footer />
-                    </v-col>
-                </v-row>
-            </v-container>
+            <app-footer />
+          </v-col>
+        </v-row>
+      </v-container>
 
-            <v-snackbar v-model="networkError" :timeout="2000" color="primary">
-                <v-icon>mdi-robot-dead-outline</v-icon> I cannot connect to the server :( Come back later...
-            </v-snackbar>
-        </v-responsive>
-    </v-container>
+      <v-snackbar
+        v-model="networkError"
+        :timeout="2000"
+        color="primary"
+      >
+        <v-icon>mdi-robot-dead-outline</v-icon> I cannot connect to the server :( Come back later...
+      </v-snackbar>
+    </v-responsive>
+  </v-container>
 </template>
 
 <style lang="scss">

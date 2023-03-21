@@ -70,29 +70,29 @@ export default {
 @import '@/assets/css/fonts.css';
 
 .loading {
-    position: absolute;
-    top: 40%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
 }
 
 .loading .icon.active {
-    opacity: 0.75;
+  opacity: 0.75;
 }
 
 .loading .icon {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    font-size: 48px;
-    margin: 0 auto;
-    animation: slide-in 1s ease-out infinite;
-    opacity: 0;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 48px;
+  margin: 0 auto;
+  animation: slide-in 1s ease-out infinite;
+  opacity: 0;
 }
 
 .loading-text {
-    font-family: 'Typewriter', serif;
-    font-size: 18px;
-    opacity: 0.9;
+  font-family: 'Typewriter', serif;
+  font-size: 18px;
+  opacity: 0.9;
 }
 </style>

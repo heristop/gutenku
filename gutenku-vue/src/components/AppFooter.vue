@@ -3,8 +3,8 @@
 <template>
   <v-card class="mx-auto order-4">
     <v-img
-      lazy-src="@/assets/img/duel.jpg"
-      src="@/assets/img/duel.jpg"
+      lazy-src="@/assets/img/zazen.jpg"
+      src="@/assets/img/zazen.jpg"
       alt="Footer image Zazen"
       cover
     />

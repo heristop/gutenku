@@ -98,6 +98,10 @@ export default class HaikuService implements GeneratorInterface {
     }
 
     async getFromCache(size = 1): Promise<HaikuValue | null> {
+        if (false === !!this.db) {
+            return null;
+        }
+
         const haikusCollection = this.db.collection('haikus');
 
         if (await haikusCollection.countDocuments() < this.minCachedDocs || this.skipCache) {
@@ -108,6 +112,8 @@ export default class HaikuService implements GeneratorInterface {
             .aggregate([{ $sample: { size } }])
             .next();
 
+        console.log('Get from cache');
+
         return {
             'book': randomHaiku.book,
             'chapter': randomHaiku.chapter,
@@ -117,11 +123,15 @@ export default class HaikuService implements GeneratorInterface {
     }
 
     async createCacheWithTTL(haiku: HaikuValue): Promise<void> {
+        if (false === !!this.db) {
+            return;
+        }
+
         const haikusCollection = this.db.collection('haikus');
 
         const haikuData = {
             ...haiku,
-            created_at: new Date(Date.now()).toISOString(),
+            createdAt: new Date(Date.now()).toISOString(),
             expireAt: new Date(Date.now() + this.ttl),
         };
 
@@ -135,7 +145,7 @@ export default class HaikuService implements GeneratorInterface {
     }
 
     getVerses(chapter: string): string[] {
-        const minQuotesCount = process.env.MIN_QUOTES_COUNT || 8;
+        const minQuotesCount = parseInt(process.env.MIN_QUOTES_COUNT) || 8;
         const quotes = this.splitQuotes(chapter);
         const filteredQuotes = this.filterQuotes(quotes);
 
@@ -228,7 +238,7 @@ export default class HaikuService implements GeneratorInterface {
         const lastWordsRegex = /(Mr|Mrs|Or|And|St)$/i;
         const specialCharsRegex = /@|[0-9]|#|\[|\|\(|\)|"|“|”|--|:|,|_|—|\+|=|{|}|\]|\*|\$|%|\r|\n|;|~|&/g;
 
-        const forbiddenWords = [
+        const forbiddenExpressions = [
             'Translated',
             'Illustration',
             'On the other hand',
@@ -237,7 +247,7 @@ export default class HaikuService implements GeneratorInterface {
             'provide a copy',
         ];
 
-        const forbiddenWordsRegex = new RegExp(`(${forbiddenWords.join('|')})`, 'i');
+        const forbiddenWordsRegex = new RegExp(`(${forbiddenExpressions.join('|')})`, 'i');
         const lostLetter = /\b[A-Z]\b$/;
 
         const regexList = [
