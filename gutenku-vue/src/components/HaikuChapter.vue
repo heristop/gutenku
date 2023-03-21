@@ -25,7 +25,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-card
+  <v-card 
     v-if="haiku"
     :loading="loading"
     color="secondary"
@@ -35,7 +35,7 @@ onMounted(() => {
     <v-row>
       <v-col>
         <v-tooltip
-          :disabled="loading"
+          :disabled="!blackMarker"
           text="Disclose / Hide"
           location="bottom"
           aria-label="Disclose / Hide"
