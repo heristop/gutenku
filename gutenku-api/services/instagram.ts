@@ -1,6 +1,9 @@
+import dotenv from 'dotenv';
 import { unlink } from 'fs';
 import { HaikuValue } from '../src/types';
 import InstagramPublisher from 'instagram-publisher';
+
+dotenv.config();
 
 export default {
     post(haiku: HaikuValue) {
@@ -23,11 +26,13 @@ export default {
             postTitle = 'Daily Haiku';
         }
 
+        const hashtagAuthor = haiku.book.author.toLowerCase().replace(' ', '');
+
         const caption = `
 🌸🗻 “${postTitle}” 
 📖 Reference Book: ${maskedTitle}
 ~~~
-#gutenku #gutenberg #projectgutenberg #haiku #poetry #poem #haikupoetry #haikulover #haikusofinstagram #haikumoments #haikucommunity #japanesepoetry #naturepoetry #micropoetry #minimalistpoetry #zenpoetry #buddhistpoetry #meditativepoetry
+${process.env.INSTAGRAM_HASHTAGS} #${hashtagAuthor}
 `;
 
         console.log(caption);

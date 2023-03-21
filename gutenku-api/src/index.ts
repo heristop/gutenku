@@ -1,27 +1,30 @@
-import { ApolloServer } from 'apollo-server-express';
-import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
+import { ApolloServer } from '@apollo/server';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { expressMiddleware } from '@apollo/server/express4';
 import dotenv from 'dotenv';
-import express from 'express';
+import express, { json } from 'express';
 import http from 'http';
-import mongoose, { ConnectOptions } from 'mongoose';
+import mongoose, { Connection, ConnectOptions } from 'mongoose';
 import resolvers from '../services/resolvers';
 import typeDefs from '../services/typeDefs';
+import cors from 'cors';
 
 dotenv.config();
+
+interface MyContext {
+    db?: Connection;
+}
 
 async function listen(port: number) {
     const app = express();
     const httpServer = http.createServer(app);
 
-    const server = new ApolloServer({
+    const server = new ApolloServer<MyContext>({
         typeDefs,
         resolvers,
         introspection: true,
         persistedQueries: false,
         plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-        context: async () => ({
-            db: db,
-        })
     });
 
     await server.start();
@@ -42,9 +45,16 @@ async function listen(port: number) {
         console.log('Connected to MongoDB!');
     });
 
-    server.applyMiddleware({ app });
+    app.use(
+        '/graphql',
+        cors<cors.CorsRequest>({ origin: process.env.CORS_WHITELIST.split(',') }),
+        json(),
+        expressMiddleware(server, {
+            context: async () => ({ db: db }),
+        }),
+    );
 
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
         httpServer.listen(port).once('listening', resolve).once('error', reject);
     });
 }
@@ -56,7 +66,7 @@ async function main() {
         await listen(port);
         console.log(`🚀 Server is ready at http://localhost:${port}/graphql`);
     } catch (err) {
-        console.error('💀 Error starting the node server', err);
+        console.error('🤖 Error starting the node server', err);
     }
 }
 

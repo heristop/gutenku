@@ -49,5 +49,5 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
 }) => {
     const haiku = response.data.haiku;
 
-    console.log(haiku.verses, haiku.book.title);
+    console.log(haiku.book.title, haiku.verses);
 });

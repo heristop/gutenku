@@ -23,11 +23,11 @@ const HaikuSchema = new Schema({
         type: String,
         required: false
     },
-    created_at: {
+    createdAt: {
         type: Date,
         required: true
     },
-    expired_at: {
+    expireAt: {
         type: Date,
         required: true
     },
