@@ -38,6 +38,8 @@ it('returns books', async () => {
     expect(response).toBeTruthy();
     expect(response).toHaveProperty('body');
     expect(response.body).toHaveProperty('singleResult');
-    expect(response.body.singleResult).toHaveProperty('data');
-    expect(response.body.singleResult.data).toHaveProperty('books');
+    // eslint-disable-next-line
+    expect(response.body['singleResult']).toHaveProperty('data');
+    // eslint-disable-next-line
+    expect(response.body['singleResult'].data).toHaveProperty('books');
 });
