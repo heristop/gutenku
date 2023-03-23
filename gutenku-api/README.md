@@ -10,7 +10,6 @@ yarn install
 Batch:
 
 ```bash
-mkdir .cache
 pip3 install requests
 pip3 install python-dotenv
 pip3 install pymongo
@@ -36,7 +35,15 @@ yarn setup
 yarn dev
 ```
 
-## Batch
+## Generate
+
+Generate Haiku:
+
+```bash
+yarn extract
+```
+
+## Post
 
 Send Instagram Post:
 

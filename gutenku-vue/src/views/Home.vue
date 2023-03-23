@@ -17,8 +17,6 @@ const networkError = computed(() => {
     return '' !== error.value;
 });
 
-const adClientId = import.meta.env.VITE_AD_CLIENT_ID;
-
 onMounted(fetchText);
 </script>
 
@@ -58,20 +56,6 @@ onMounted(fetchText);
 
             <haiku-ai />
 
-            <v-card class="align-center justify-center">
-              <amp-ad
-                width="100vw"
-                height="320"
-                type="adsense"
-                :data-ad-client="adClientId"
-                data-ad-slot="6375195251"
-                data-auto-format="rspv"
-                data-full-width=""
-              >
-                <div overflow="" />
-              </amp-ad>
-            </v-card>
-
             <haiku-canvas />
 
             <haiku-chapter class="d-sm-none" />
@@ -96,46 +80,46 @@ onMounted(fetchText);
 @import '@/assets/css/fonts.css';
 
 body {
-    font-family: 'Typewriter', serif;
+  font-family: 'Typewriter', serif;
 
-    p {
-        font-size: 1em;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        line-height: 1.6;
-    }
+  p {
+    font-size: 1em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.6;
+  }
 
-    .text-h5 {
-        font-family: 'Typewriter', serif !important;
-    }
+  .text-h5 {
+    font-family: 'Typewriter', serif !important;
+  }
 }
 
 .paragraphes {
-    color: #2c3e50;
-    text-align: justify;
-    background: rgba(255, 255, 255, 1);
-    padding: 0px;
+  color: #2c3e50;
+  text-align: justify;
+  background: rgba(255, 255, 255, 1);
+  padding: 0px;
 
-    h3,
-    .author {
-        &.dark-theme {
-            color: transparent;
-            text-shadow: 0 0 10px #000;
-        }
+  h3,
+  .author {
+    &.dark-theme {
+      color: transparent;
+      text-shadow: 0 0 10px #000;
+    }
+  }
+
+  p {
+    mark {
+      padding-inline: 3px;
+      background: rgb(248, 174, 62);
     }
 
-    p {
-        mark {
-            padding-inline: 3px;
-            background: rgb(248, 174, 62);
-        }
-
-        &.dark-theme {
-            display: inline;
-            background: #2F5D62;
-            padding: 0px;
-            border-bottom: 1px solid #bbbbbb;
-        }
+    &.dark-theme {
+      display: inline;
+      background: #2F5D62;
+      padding: 0px;
+      border-bottom: 1px solid #bbbbbb;
     }
+  }
 }
 </style>
