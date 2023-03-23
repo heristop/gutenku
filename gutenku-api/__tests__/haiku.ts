@@ -1,7 +1,10 @@
+import dotenv from 'dotenv';
 import { expect, it } from '@jest/globals';
 import HaikuService from '../services/haiku';
 
-const haikuService = new HaikuService()
+dotenv.config();
+
+const haikuService = new HaikuService();
 
 it('detect valid quote', async () => {
     expect(haikuService.hasUnexpectedCharsInQuote('And I want to be')).toStrictEqual(true);

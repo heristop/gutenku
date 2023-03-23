@@ -238,16 +238,7 @@ export default class HaikuService implements GeneratorInterface {
         const lastWordsRegex = /(Mr|Mrs|Or|And|St)$/i;
         const specialCharsRegex = /@|[0-9]|#|\[|\|\(|\)|"|“|”|--|:|,|_|—|\+|=|{|}|\]|\*|\$|%|\r|\n|;|~|&/g;
 
-        const forbiddenExpressions = [
-            'Translated',
-            'Illustration',
-            'On the other hand',
-            'On the contrary',
-            'copyright',
-            'provide a copy',
-        ];
-
-        const forbiddenWordsRegex = new RegExp(`(${forbiddenExpressions.join('|')})`, 'i');
+        const forbiddenWordsRegex = new RegExp(`(${process.env.FORBIDDEN_EXPRESSIONS})`, 'i');
         const lostLetter = /\b[A-Z]\b$/;
 
         const regexList = [
