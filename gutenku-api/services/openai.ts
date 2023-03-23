@@ -37,9 +37,9 @@ export default class OpenAIService implements GeneratorInterface {
             const completion = await this.openAIApi.createCompletion({
                 model: 'text-davinci-003',
                 prompt,
-                temperature: 0.5,
-                max_tokens: 1024,
-                top_p: 1,
+                temperature: 0.4,
+                max_tokens: 256,
+                top_p: 0.1,
                 frequency_penalty: 0,
                 presence_penalty: 0,
                 stop: ['STOP'],
@@ -69,7 +69,7 @@ export default class OpenAIService implements GeneratorInterface {
     private async generatePrompt(): Promise<string> {
         const verses = await this.fetchVerses();
 
-        const prompt = 'What is the most revelant haiku, with the best grammar, and the best moment of insight from the list below?';
+        const prompt = 'What is the most revelant haiku, with a correct grammatical construction, with a good consistency between verses, without first and last name mentioned, and finally with a good moment of insight from the list below?';
         const outputFormat = '{"id":ID,"title":"Give a short title for this Haiku","description":"Describe and explain the meaning of this Haiku"}';
 
         return `${prompt} (output JSON format: ${outputFormat})\n${verses.join('\n')}\nSTOP\n`;
