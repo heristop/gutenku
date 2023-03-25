@@ -23,7 +23,7 @@ export default {
         let postTitle = haiku.title;
 
         if (null === postTitle) {
-            postTitle = 'Daily Haiku';
+            throw new Error('Missing Title');
         }
 
         const hashtagAuthor = haiku.book.author
