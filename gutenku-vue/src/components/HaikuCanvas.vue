@@ -3,7 +3,8 @@ import { computed } from 'vue';
 import { useHaikuStore } from '../store/haiku';
 import { storeToRefs } from 'pinia';
 
-const { haiku, loading } = storeToRefs(useHaikuStore())
+const { fetchText } = useHaikuStore();
+const { haiku, loading, theme } = storeToRefs(useHaikuStore());
 
 const haikuImage = computed(() => {
     if (!haiku.value) {
@@ -41,7 +42,8 @@ const downloadImage = () => {
     >
       <v-img
         :src="haikuImage"
-        alt="Haiku Generated"
+        :lazy-src="haikuImage"
+        :alt="haiku.verses.join(', ')"
         aspect-ratio="1/1"
         cover
         @contextmenu.prevent
@@ -49,6 +51,14 @@ const downloadImage = () => {
     </v-sheet>
 
     <v-card-actions class="justify-end">
+      <v-select
+        v-model="theme"
+        @update:model-value="fetchText()"
+        label="Theme"
+        :items="['paper', 'greentea']"
+        variant="underlined"
+      />
+
       <v-btn
         @click="downloadImage"
         data-cy="download-btn"
@@ -64,8 +74,8 @@ const downloadImage = () => {
 
 <style lang="scss" scoped>
 .canvas {
-    img {
-        width: 100%;
-    }
+  img {
+    width: 100%;
+  }
 }
 </style>

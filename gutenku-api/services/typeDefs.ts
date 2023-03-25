@@ -32,7 +32,8 @@ const typeDefs = `#graphql
         useAI: Boolean,
         skipCache: Boolean,
         appendImg: Boolean,
-        selectionCount: Int
+        selectionCount: Int,
+        theme: String
     ): Haiku
   }
 `;
