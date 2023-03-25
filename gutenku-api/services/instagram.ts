@@ -20,7 +20,7 @@ export default {
         // Mask all letters except the random vowel
         const maskedTitle = bookTitle.replace(new RegExp(`[^ ${nonMaskedVowel}]`, "gi"), "*");
 
-        let postTitle = haiku.title;
+        const postTitle = haiku.title;
 
         if (null === postTitle) {
             throw new Error('Missing Title');
@@ -33,6 +33,8 @@ export default {
         const caption = `
 🌸🗻 “${postTitle}” 
 📖 Reference Book: ${maskedTitle}
+~~~
+${haiku.description}
 ~~~
 ${process.env.INSTAGRAM_HASHTAGS} #${hashtagAuthor}
 `;

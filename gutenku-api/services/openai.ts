@@ -71,7 +71,7 @@ export default class OpenAIService implements GeneratorInterface {
         const verses = await this.fetchVerses();
 
         const prompt = 'What is the most revelant haiku, with a correct grammatical construction, with a good consistency between verses, without first and last name mentioned, and finally with a good moment of insight from the list below?';
-        const outputFormat = '{"id":ID,"title":"Give a short title for this Haiku","description":"Describe and explain the meaning of this Haiku"}';
+        const outputFormat = '{"id":ID,"title":"<Give a short title for this Haiku>","description":"<Describe and explain the meaning of this Haiku>"}';
 
         return `${prompt} (Use the following format: ${outputFormat})\n${verses.join('\n')}\nSTOP\n`;
     }
