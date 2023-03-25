@@ -26,7 +26,9 @@ export default {
             postTitle = 'Daily Haiku';
         }
 
-        const hashtagAuthor = haiku.book.author.toLowerCase().replace(' ', '');
+        const hashtagAuthor = haiku.book.author
+            .toLowerCase()
+            .replaceAll(/\s|,/g, '');
 
         const caption = `
 🌸🗻 “${postTitle}” 

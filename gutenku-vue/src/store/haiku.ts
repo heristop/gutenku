@@ -3,8 +3,8 @@ import { defineStore } from 'pinia';
 import { HaikuValue } from '../types';
 
 const query = `
-    query Query($useAi: Boolean) {
-        haiku(useAI: $useAi) {
+    query Query($useAi: Boolean, $theme: String) {
+        haiku(useAI: $useAi, theme: $theme) {
             book {
                 title
                 author
@@ -29,6 +29,7 @@ export const useHaikuStore = defineStore({
         loading: false as boolean,
         firstLoaded: false as boolean,
         useAI: false as boolean,
+        theme: 'greentea' as string,
         error: '' as string
     }),
     actions: {
@@ -40,6 +41,7 @@ export const useHaikuStore = defineStore({
                 const variables = {
                     useAi: this.useAI,
                     appendImg: true,
+                    theme: this.theme
                 };
 
                 const body = {
