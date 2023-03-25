@@ -10,7 +10,7 @@ export default class OpenAIService implements GeneratorInterface {
     private haikuService: HaikuService;
     private selectionCount: number;
 
-    private readonly MAX_SELECTION_COUNT: number = 20;
+    private readonly MAX_SELECTION_COUNT: number = 100;
 
     constructor(haikuService: HaikuService, options: OpenAIOptions) {
         const { apiKey, selectionCount } = options;
@@ -38,7 +38,7 @@ export default class OpenAIService implements GeneratorInterface {
                 model: 'text-davinci-003',
                 prompt,
                 temperature: 0.4,
-                max_tokens: 256,
+                max_tokens: 600,
                 top_p: 0.1,
                 frequency_penalty: 0,
                 presence_penalty: 0,
@@ -46,7 +46,8 @@ export default class OpenAIService implements GeneratorInterface {
             });
 
             if (200 === completion.status) {
-                const output = JSON.parse(completion.data.choices[0].text);
+                const answer = completion.data.choices[0].text;
+                const output = JSON.parse(answer);
                 const index = output.id;
 
                 const haiku = this.haikuSelection[index];
@@ -72,7 +73,7 @@ export default class OpenAIService implements GeneratorInterface {
         const prompt = 'What is the most revelant haiku, with a correct grammatical construction, with a good consistency between verses, without first and last name mentioned, and finally with a good moment of insight from the list below?';
         const outputFormat = '{"id":ID,"title":"Give a short title for this Haiku","description":"Describe and explain the meaning of this Haiku"}';
 
-        return `${prompt} (output JSON format: ${outputFormat})\n${verses.join('\n')}\nSTOP\n`;
+        return `${prompt} (Use the following format: ${outputFormat})\n${verses.join('\n')}\nSTOP\n`;
     }
 
     private async fetchVerses(): Promise<string[]> {
