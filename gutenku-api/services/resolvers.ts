@@ -21,12 +21,16 @@ const resolvers = {
             skipCache: boolean,
             appendImg: boolean,
             selectionCount: number,
+            theme: string,
         }, context: { db: Connection; }): Promise<HaikuValue> => {
             let haiku: HaikuValue = null;
             const haikuService = new HaikuService(context.db, {
-                'minCachedDocs': parseInt(process.env.MIN_CACHED_DOCS),
-                'ttl': 24 * 60 * 60 * 1000, // 24 hours,
-                'skip': !!args.skipCache,
+                cache: {
+                    'minCachedDocs': parseInt(process.env.MIN_CACHED_DOCS),
+                    'ttl': 24 * 60 * 60 * 1000, // 24 hours,
+                    'skip': !!args.skipCache,
+                },
+                theme: args.theme,
             });
 
             if (true === args.useAI && undefined !== process.env.OPENAI_API_KEY) {

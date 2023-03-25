@@ -1,64 +1,31 @@
 import fs from 'fs';
-import { readdir } from 'fs/promises';
-import { join } from 'path';
 import { promisify } from 'util';
 import Canvas from 'canvas';
+import greentea from './themes/greentea';
+import paper from './themes/paper';
 
-interface CanvasServiceInterface {
-    create(verses: string[]): Promise<string>;
-    save(canvas: Canvas.Canvas): Promise<string>;
-    read(imagePath: string): Promise<{ data: Buffer; contentType: string }>;
-}
-
-class CanvasService implements CanvasServiceInterface {
+export default class CanvasService {
     private readonly CACHE_DIRECTORY = './.cache';
+    private theme: string;
+
+    constructor(theme: string) {
+        this.theme = theme;
+    }
 
     async create(verses: string[]): Promise<string> {
-        Canvas.registerFont('./src/assets/fonts/JMH Typewriter.ttf', { family: 'Typewriter' });
+        let canvas: Canvas.Canvas;
 
-        const canvas = Canvas.createCanvas(1200, 1200);
-        const ctx = canvas.getContext('2d');
+        try {
+            if ('paper' === this.theme) {
+                canvas = await paper.create(verses);
+            }
 
-        const folderPath = './src/assets/img/background';
-        const files = await readdir(folderPath);
-
-        const randomIndex = Math.floor(Math.random() * files.length);
-        const randomFile = files[randomIndex];
-        const imagePath = join(folderPath, randomFile);
-
-        const background = new Canvas.Image();
-        background.src = imagePath;
-
-        ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-
-        // Load the logo
-        const logo = new Canvas.Image();
-        logo.src = './src/assets/img/logo.png/gutenku_white.png';
-
-        // Draw the logo
-        ctx.globalAlpha = 0.25;
-        ctx.drawImage(
-            logo,
-            canvas.width - logo.width - 10,
-            canvas.height - logo.height - 10,
-            logo.width,
-            logo.height
-        );
-        ctx.globalAlpha = 1;
-
-        // Set the font and background color
-        ctx.font = '56px Typewriter';
-        ctx.fillStyle = '#fff';
-
-        // Draw the text
-        ctx.globalAlpha = 0.8;
-
-        const x = 122;
-        let y = canvas.height / 3.5;
-        verses.map(verse => {
-            ctx.fillText(verse, x, y);
-            y = y + 220;
-        });
+            if ('greentea' === this.theme) {
+                canvas = await greentea.create(verses);
+            }
+        } catch (err) {
+            console.log(err);
+        }
 
         // Save the image
         return await this.save(canvas);
@@ -94,4 +61,3 @@ class CanvasService implements CanvasServiceInterface {
     }
 }
 
-export default new CanvasService();
