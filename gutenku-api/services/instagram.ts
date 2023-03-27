@@ -28,15 +28,19 @@ export default {
 
         const hashtagAuthor = haiku.book.author
             .toLowerCase()
-            .replaceAll(/\s|,/g, '');
+            .replaceAll(/\s|,|\.|\(|\)/g, '');
 
         const caption = `
 🌸🗻 “${postTitle}” 
 📖 Reference Book: ${maskedTitle}
 ~~~
-${haiku.description}
+🇫🇷
+${haiku.fr}
+
+🇪🇸
+${haiku.es}
 ~~~
-${process.env.INSTAGRAM_HASHTAGS} #${hashtagAuthor}
+${haiku.hashtags} #${hashtagAuthor} ${process.env.INSTAGRAM_HASHTAGS}
 `;
 
         console.log(caption);
@@ -49,7 +53,7 @@ ${process.env.INSTAGRAM_HASHTAGS} #${hashtagAuthor}
             });
 
             const imageData = {
-                image_path: haiku.image_path,
+                image_path: haiku.imagePath,
                 caption: caption,
             };
 
