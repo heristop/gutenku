@@ -16,9 +16,12 @@ export interface HaikuValue {
     verses: Array<string>;
     rawVerses: Array<string>;
     image?: string;
-    image_path?: string;
+    imagePath?: string;
     title?: string;
     description?: string;
+    hashtags?: string;
+    fr?: string;
+    es?: string;
 }
 
 export interface HaikuResponseData {

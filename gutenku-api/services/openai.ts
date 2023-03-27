@@ -38,7 +38,7 @@ export default class OpenAIService implements GeneratorInterface {
                 model: 'text-davinci-003',
                 prompt,
                 temperature: 0.4,
-                max_tokens: 600,
+                max_tokens: 1200,
                 top_p: 0.1,
                 frequency_penalty: 0,
                 presence_penalty: 0,
@@ -55,6 +55,9 @@ export default class OpenAIService implements GeneratorInterface {
 
                 haiku.title = output.title;
                 haiku.description = output.description;
+                haiku.hashtags = output.hashtags;
+                haiku.fr = output.fr;
+                haiku.es = output.es;
 
                 return haiku;
             }
@@ -71,7 +74,7 @@ export default class OpenAIService implements GeneratorInterface {
         const verses = await this.fetchVerses();
 
         const prompt = 'What is the most revelant haiku, with a correct grammatical construction, with a good consistency between verses, without first and last name mentioned, and finally with a good moment of insight from the list below?';
-        const outputFormat = '{"id":ID,"title":"<Give a short title for this Haiku>","description":"<Describe and explain the meaning of this Haiku>"}';
+        const outputFormat = '{"id":ID,"title":"<Give a short title for this Haiku>","description":"<Describe and explain the meaning of this Haiku>","fr":"<Translate Haiku in french>,"es":"<Translate Haiku in spanish>","hashtags":"<Give 6 lowercase hashtags>"}';
 
         return `${prompt} (Use the following format: ${outputFormat})\n${verses.join('\n')}\nSTOP\n`;
     }
