@@ -23,6 +23,18 @@ const HaikuSchema = new Schema({
         type: String,
         required: false
     },
+    hashtags: {
+        type: String,
+        required: false
+    },
+    fr: {
+        type: String,
+        required: false
+    },
+    es: {
+        type: String,
+        required: false
+    },
     createdAt: {
         type: Date,
         required: true

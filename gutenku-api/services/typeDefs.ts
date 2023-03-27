@@ -1,40 +1,43 @@
 const typeDefs = `#graphql
   type Book {
-    id: ID!
-    reference: ID
-    title: String
-    author: String
-    chapters: [Chapter]
+      id: ID!
+      reference: ID
+      title: String
+      author: String
+      chapters: [Chapter]
   }
 
   type Chapter {
-    id: ID!
-    title: String!
-    content: String!
+      id: ID!
+      title: String!
+      content: String!
   }
 
   type Haiku {
-    book: Book!
-    chapter: Chapter!
-    rawVerses: [String!]
-    verses: [String!]
-    image: String
-    image_path: String
-    title: String
-    description: String
+      book: Book!
+      chapter: Chapter!
+      rawVerses: [String!]
+      verses: [String!]
+      image: String
+      imagePath: String
+      title: String
+      description: String
+      hashtags: String
+      fr: String
+      es: String
   }
 
   type Query {
-    books: [Book]
-    book(id: ID!): Book!
-    chapters: [Chapter]
-    haiku(
-        useAI: Boolean,
-        skipCache: Boolean,
-        appendImg: Boolean,
-        selectionCount: Int,
-        theme: String
-    ): Haiku
+      books: [Book]
+      book(id: ID!): Book!
+      chapters: [Chapter]
+      haiku(
+          useAI: Boolean,
+          skipCache: Boolean,
+          appendImg: Boolean,
+          selectionCount: Int,
+          theme: String
+      ): Haiku
   }
 `;
 

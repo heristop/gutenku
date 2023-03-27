@@ -9,6 +9,8 @@ import terminalImage from 'terminal-image';
 
 dotenv.config();
 
+const CACHE_DIRECTORY = '.cache';
+
 program
     .option('-c, --selection-count <type>', 'number of haiku selection', process.env.OPENAI_SELECTION_COUNT)
     .option('--no-interaction')
@@ -37,6 +39,9 @@ const query = `
             title
             description
             image
+            hashtags
+            fr
+            es
         }
     }
 `;
@@ -62,21 +67,23 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
 }) => {
     const haiku = response.data.haiku;
     const imageData = Buffer.from(haiku.image, 'base64');
-    const CACHE_DIRECTORY = '.cache';
 
-    haiku.image_path = `${CACHE_DIRECTORY}/preview_haiku_${(Math.random() + 1)
+    haiku.imagePath = `${CACHE_DIRECTORY}/preview_haiku_${(Math.random() + 1)
         .toString(36)
         .substring(7)
     }.jpg`;
 
-    await fs.writeFile(haiku.image_path, imageData);
+    await fs.writeFile(haiku.imagePath, imageData);
 
-    console.log(await terminalImage.file(haiku.image_path, { width: 20 }));
+    console.log(await terminalImage.file(haiku.imagePath, { width: 20 }));
     console.log({
         'book': haiku.book,
         'verses': haiku.verses,
         'title': haiku.title,
         'description': haiku.description,
+        'hashtags': haiku.hashtags,
+        'fr': haiku.fr,
+        'es': haiku.es,
     });
 
     if (false === options.interaction) {
