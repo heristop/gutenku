@@ -17,5 +17,10 @@ Want more? Visit [gutenku.xyz](https://gutenku.xyz)
 | [Api](/gutenku-api/README.md#installation) | TypeScript, NodeJS, MongoDB, GraphQL, Python, OpenAI |
 | [Front](/gutenku-vue/README.md#installation) | TypeScript, Vue 3 / Vuetify 3 / Pinia, Cypress.io |
 
+---
 ![GutenKu Logo](/doc/logo/gutenku.png)
 
+<footer>
+  <p>© 2023 heristop. All rights reserved.</p>
+  <a href="https://gutenku.xyz">gutenku.xyz</a>
+</footer>
