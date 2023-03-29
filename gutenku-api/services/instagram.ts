@@ -1,5 +1,4 @@
 import dotenv from 'dotenv';
-import { unlink } from 'fs';
 import { HaikuValue } from '../src/types';
 import InstagramPublisher from 'instagram-publisher';
 
@@ -58,12 +57,6 @@ ${haiku.hashtags} #${hashtagAuthor} ${process.env.INSTAGRAM_HASHTAGS}
             };
 
             client.createSingleImage(imageData).then(() => {
-                unlink(imageData.image_path, (err: NodeJS.ErrnoException | null) => {
-                    if (err) {
-                        throw err;
-                    }
-                });
-
                 console.log('Image sent!');
             });
         }

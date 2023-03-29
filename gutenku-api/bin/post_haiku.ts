@@ -68,10 +68,7 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
     const haiku = response.data.haiku;
     const imageData = Buffer.from(haiku.image, 'base64');
 
-    haiku.imagePath = `${CACHE_DIRECTORY}/preview_haiku_${(Math.random() + 1)
-        .toString(36)
-        .substring(7)
-    }.jpg`;
+    haiku.imagePath = `${CACHE_DIRECTORY}/preview_haiku.jpg`;
 
     await fs.writeFile(haiku.imagePath, imageData);
 
