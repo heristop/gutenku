@@ -9,13 +9,13 @@ yarn install
 
 Batch:
 
-```bash
-pip3 install requests
-pip3 install python-dotenv
-pip3 install pymongo
+```bash 
+pip3 install -r requirements.txt
 ```
 
 MongoDB:
+
+Using Docker:
 
 ```bash
 docker-compose up -d
@@ -23,7 +23,7 @@ docker-compose up -d
 
 ## Usage
 
-Fetch and store books
+Fetch and store books:
 
 ```bash
 yarn setup
