@@ -6,7 +6,7 @@ A Haiku generator based on a selection of books from [Project Gutenberg](https:/
 
 <img src="/doc/img/daily_haiku_card.jpg" width="300" alt="Daily Haiku Card">
 
-Last Run: Wed, 29 Mar 2023 23:34:17 +0000
+Last Run: 
 
 Want more? Visit [gutenku.xyz](https://gutenku.xyz)
 
