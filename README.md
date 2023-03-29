@@ -1,6 +1,6 @@
 # GutenKu
 
-![GutenKu Logo](/doc/img/logo/gutenku.png)
+![GutenKu Logo](/doc/logo/gutenku.png)
 
 ## About
 
