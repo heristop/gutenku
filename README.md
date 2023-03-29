@@ -8,7 +8,7 @@ A Haiku generator based on a selection of books from [Project Gutenberg](https:/
 
 ## Daily Haiku Card
 
-![Daily Haiku Card](/doc/img/daily_haiku_card.jpg)
+<img src="/doc/img/daily_haiku_card.jpg" width="400" alt="Daily Haiku Card">
 
 Want more? Visit [gutenku.xyz](https://gutenku.xyz)
 
