@@ -4,7 +4,7 @@ A Haiku generator based on a selection of books from [Project Gutenberg](https:/
 
 ## Daily Haiku Card
 
-<img src="/doc/img/daily_haiku_card.jpg" width="300" alt="Daily Haiku Card">
+<img src="/doc/img/daily_haiku_card.jpg?t=1680199166" width="300" alt="Daily Haiku Card">
 
 Last Snapshot: `Thu, 30 Mar 2023 00:03:27 +0000`
 
