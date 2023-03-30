@@ -22,7 +22,7 @@
         "global": "^4.4.0",
         "graphql": "^16.6.0",
         "instagram-publisher": "^2.1.1",
-        "mongoose": "^6.9.0",
+        "mongoose": "^7.0.3",
         "openai": "^3.1.0",
         "request": "^2.88.0",
         "syllable": "^5.0.1",
