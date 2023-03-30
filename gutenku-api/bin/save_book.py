@@ -3,6 +3,8 @@ import os
 import sys
 import re
 import pymongo
+
+# from bson.objectid import ObjectId
 from dotenv import load_dotenv
 
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
@@ -10,7 +12,9 @@ load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 BOOK_ID = int(sys.argv[1])
 
 # Connect to the MongoDB database
-client = pymongo.MongoClient(os.environ.get('MONGODB_URI')+'/'+os.environ.get('MONGODB_DB'))
+client = pymongo.MongoClient(
+    os.environ.get('MONGODB_URI')+'/'+os.environ.get('MONGODB_DB')
+)
 db = client[os.environ.get('MONGODB_DB')]
 book_collection = db["books"]
 chapter_collection = db["chapters"]
@@ -58,26 +62,34 @@ else:
         chapters_count = len(chapters)
 
     if chapters_count <= 20:
-        print(f"\033[1;33mThe book {BOOK_ID} has too few chapters ({chapters_count} found)\033[0m")
+        print(
+            f"\033[1;33mThe book {BOOK_ID} has too few chapters ({chapters_count} found)\033[0m")
     else:
-        print(f"The book \033[1;32m{BOOK_ID}\033[0m has \033[1;32m{chapters_count}\033[0m chapters")
+        print(
+            f"The book \033[1;32m{BOOK_ID}\033[0m has \033[1;32m{chapters_count}\033[0m chapters")
 
         # Remove the table of contents by removing the first element of the list
         chapters_without_toc = chapters[1:]
 
         # Store each chapter in database with a reference to the book
         for i, chapter in enumerate(chapters_without_toc):
+            if (len(chapter) < 500):
+                continue
+
             chapter_obj = {
                 "title": "Chapter {}".format(i + 1),
-                "content": chapter
+                "content": chapter,
+                "book": {"$ref": "books", "$id": new_book_id}
             }
             result = chapter_collection.insert_one(chapter_obj)
             chapter_id = result.inserted_id
 
             # Add the chapter to the book
             book_collection.update_one({
-                "_id": new_book_id}, {
+                "_id": new_book_id
+            }, {
                 "$push": {"chapters": chapter_id}
             })
 
-        print(f"The book \033[1;32m{BOOK_ID}\033[0m has been successfully saved")
+        print(
+            f"The book \033[1;32m{BOOK_ID}\033[0m has been successfully saved")
