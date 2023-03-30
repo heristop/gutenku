@@ -37,12 +37,12 @@ const HaikuSchema = new Schema({
     },
     createdAt: {
         type: Date,
-        required: true
+        default: Date.now
     },
     expireAt: {
         type: Date,
         required: true
     },
-}, { strictQuery: false });
+});
 
 export default mongoose.model('Haiku', HaikuSchema);

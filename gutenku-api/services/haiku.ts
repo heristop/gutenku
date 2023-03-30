@@ -21,12 +21,12 @@ export default class HaikuService implements GeneratorInterface {
         cache: {
             minCachedDocs: number,
             ttl: number,
-            skip: boolean,
+            disable: boolean,
         }, theme: string
     }) {
         this.db = db;
         this.minCachedDocs = options?.cache.minCachedDocs ?? 100;
-        this.skipCache = options?.cache.skip ?? true;
+        this.skipCache = options?.cache.disable ?? true;
         this.ttl = options?.cache.ttl ?? 0;
         this.theme = options?.theme ?? 'greentea';
     }
@@ -49,7 +49,7 @@ export default class HaikuService implements GeneratorInterface {
             // eslint-disable-next-line
             verses = this.getVerses(randomChapter['content']);
 
-            if (0 === i % 30) {
+            if (0 === i % 100) {
                 randomBook = await this.selectRandomBook();
             }
 

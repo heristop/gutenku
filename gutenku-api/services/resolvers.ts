@@ -7,14 +7,17 @@ import OpenAIService from './openai';
 
 const resolvers = {
     Query: {
-        books() {
-            return Book.find().populate('chapters').exec();
+        books: (_, { content }: { content?: string }) => {
+            const query = {};
+
+            if (content) {
+                query['chapters.content'] = { $regex: content, $options: 'i' };
+            }
+
+            return Book.find(query).populate('chapters').exec();
         },
-        book: (_, args: { id: string; }) => {
-            return Book.findById(args.id).populate('chapters').exec();
-        },
-        chapters: () => {
-            return Chapter.find().exec();
+        book: (_, { id }: { id: string; }) => {
+            return Book.findById(id).populate('chapters').exec();
         },
         haiku: async (_, args: {
             useAI: boolean,
@@ -28,19 +31,23 @@ const resolvers = {
                 cache: {
                     'minCachedDocs': parseInt(process.env.MIN_CACHED_DOCS),
                     'ttl': 24 * 60 * 60 * 1000, // 24 hours,
-                    'skip': !!args.skipCache,
+                    'disable': !!args.skipCache || 'true' === process.env.DISABLE_CACHE,
                 },
                 theme: args.theme,
             });
 
-            if (true === args.useAI && undefined !== process.env.OPENAI_API_KEY) {
+            const MODE_AI = args.useAI && undefined !== process.env.OPENAI_API_KEY;
+
+            if (true === MODE_AI) {
                 const openAIService = new OpenAIService(haikuService, {
                     'apiKey': process.env.OPENAI_API_KEY,
                     'selectionCount': args.selectionCount,
                 });
 
                 haiku = await openAIService.generate();
-            } else {
+            }
+
+            if (false === MODE_AI) {
                 haiku = await haikuService.generate();
             }
 
