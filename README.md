@@ -8,7 +8,7 @@ A Haiku generator based on a selection of books from [Project Gutenberg](https:/
 
 Last Snapshot: `Thu, 30 Mar 2023 00:03:27 +0000`
 
-Want more? Visit [gutenku.xyz](https://gutenku.xyz)
+Want more? Visit [🔗gutenku.xyz](https://gutenku.xyz)
 
 ## Ecosystem
 
@@ -23,6 +23,5 @@ Want more? Visit [gutenku.xyz](https://gutenku.xyz)
 ![GutenKu Logo](/doc/logo/gutenku.png)
 
 <footer>
-  <p>© 2023 heristop. All rights reserved.</p>
-  <a href="https://gutenku.xyz">gutenku.xyz</a>
+    <p>© 2023 heristop / <a href="https://instagram.com/gutenku.poem" target="_blank">@gutenku.poem</a>. All rights reserved.</p>
 </footer>
