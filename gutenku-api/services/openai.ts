@@ -73,8 +73,8 @@ export default class OpenAIService implements GeneratorInterface {
     private async generatePrompt(): Promise<string> {
         const verses = await this.fetchVerses();
 
-        const prompt = 'Please help me choose the best haiku from this list. I\'m looking for a haiku that captures the beauty of nature and evokes a sense of tranquility and peace. Which haiku from this list would you choose for this prompt?';
-        const outputFormat = '{"id":ID,"title":"<Give a short title to describe this haiku>","description":"<Describe and explain the meaning of this Haiku>","fr":"<Translate haiku verses in french>,"es":"<Translate haiku verses in spanish>","hashtags":"<Give 6 lowercase hashtags>"}';
+        const prompt = 'Choose the most revelant haiku from the list below. The haiku must have a correct grammatical construction and a good consistency between verses, and may capture the beauty of nature and evokes a sense of tranquility and peace, and finally may have a good moment of insight:'
+        const outputFormat = '{"id":ID,"title":"<Give a creative short title to describe the haiku>","description":"<Describe and explain the haiku as an English literature teacher>","fr":"<Translate haiku\'s verses in french>,"es":"<Translate haiku\'s verses in spanish>","hashtags":"<Give 6 lowercase hashtags>"}';
 
         return `${prompt} (Use the following format: ${outputFormat})\n${verses.join('\n')}\nSTOP\n`;
     }
