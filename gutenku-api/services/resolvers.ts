@@ -19,6 +19,15 @@ const resolvers = {
         book: (_, { id }: { id: string; }) => {
             return Book.findById(id).populate('chapters').exec();
         },
+        chapters: (_, { content }: { content?: string }) => {
+            const query = {};
+
+            if (content) {
+                query['content'] = { $regex: content, $options: 'i' };
+            }
+
+            return Chapter.findOne(query).populate('book').exec();
+        },
         haiku: async (_, args: {
             useAI: boolean,
             skipCache: boolean,
