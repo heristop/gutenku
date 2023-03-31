@@ -2,12 +2,14 @@
 
 ## Installation
 
+NodeJS:
+
 ```bash
 cp .env.dist .env
 yarn install
 ```
 
-Batch:
+Python:
 
 ```bash 
 pip3 install -r requirements.txt
@@ -15,7 +17,7 @@ pip3 install -r requirements.txt
 
 MongoDB:
 
-Using Docker:
+_Using Docker:_
 
 ```bash
 docker-compose up -d
@@ -26,7 +28,7 @@ docker-compose up -d
 Fetch and store books:
 
 ```bash
-yarn setup
+yarn setup [--delete]
 ```
 
 ## Run
@@ -48,5 +50,5 @@ yarn extract
 Send Instagram Post:
 
 ```bash
-yarn post
+yarn post [--selection-count=50] [--no-interaction] [--no-openai]
 ```
