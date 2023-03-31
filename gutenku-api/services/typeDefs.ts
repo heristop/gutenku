@@ -31,6 +31,7 @@ const typeDefs = `#graphql
     type Query {
         books(content: String): [Book]
         book(id: ID!): Book!
+        chapters(content: String): [Chapter]
         haiku(
             useAI: Boolean,
             skipCache: Boolean,
