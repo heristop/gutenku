@@ -43,14 +43,22 @@ const body = {
     variables: variables,
 };
 
-fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-}).then(response => response.json()).then(async (response: {
-    data: HaikuResponseData
-}) => {
-    const haiku = response.data.haiku;
+try {
+    fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+    }).then(response => response.json()).then(async (response: {
+        data: HaikuResponseData
+    }) => {
+        const haiku = response.data.haiku;
 
-    console.log(haiku.verses, haiku.book.title);
-});
+        if (null === haiku) {
+            throw new Error('Haiku fetch error');
+        }
+
+        console.log(haiku.verses, haiku.book.title);
+    });
+} catch (err) {
+    console.log(err);
+}
