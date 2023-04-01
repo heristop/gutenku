@@ -62,6 +62,12 @@ export default {
       >
         {{ text }}
       </v-sheet>
+
+      <v-progress-linear
+        indeterminate
+        color="primary"
+        class="mb-0"
+      />
     </div>
   </div>
 </template>

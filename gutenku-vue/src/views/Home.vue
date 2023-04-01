@@ -94,6 +94,10 @@ body {
   }
 }
 
+.v-btn {
+  text-transform: none;
+}
+
 .paragraphes {
   color: #2c3e50;
   text-align: justify;
