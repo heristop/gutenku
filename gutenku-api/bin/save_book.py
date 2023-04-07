@@ -73,7 +73,7 @@ else:
 
         # Store each chapter in database with a reference to the book
         for i, chapter in enumerate(chapters_without_toc):
-            if (len(chapter) < 500):
+            if (len(chapter) < 10):
                 continue
 
             chapter_obj = {

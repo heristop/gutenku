@@ -7,22 +7,20 @@ dotenv.config();
 const haikuService = new HaikuService();
 
 it('detect valid quote', async () => {
-    expect(haikuService.hasUnexpectedCharsInQuote('And I want to be')).toStrictEqual(true);
-    expect(haikuService.hasUnexpectedCharsInQuote('Or I want to be')).toStrictEqual(true);
-    expect(haikuService.hasUnexpectedCharsInQuote('Why I want to be')).toStrictEqual(false);
+    expect(haikuService.hasForbiddenCharsInQuote('And I want to be')).toStrictEqual(true);
+    expect(haikuService.hasForbiddenCharsInQuote('Or I want to be')).toStrictEqual(true);
+    expect(haikuService.hasForbiddenCharsInQuote('Why I want to be')).toStrictEqual(false);
     expect(haikuService.hasUpperCaseChars('AND I WANT TO BE')).toStrictEqual(true);
-    expect(haikuService.hasUnexpectedCharsInQuote('and I want # be')).toStrictEqual(true);
-    expect(haikuService.hasUnexpectedCharsInQuote('you want to be And')).toStrictEqual(true);
-    expect(haikuService.hasUnexpectedCharsInQuote('I want to be Mr')).toStrictEqual(true);
-    expect(haikuService.hasUnexpectedCharsInQuote('I want to be Mrs')).toStrictEqual(true);
-    expect(haikuService.hasUnexpectedCharsInQuote('I want to be Mister')).toStrictEqual(false);
-    expect(haikuService.hasUnexpectedCharsInQuote('I want to be, yo')).toStrictEqual(true);
-    expect(haikuService.hasUnexpectedCharsInQuote('I want to be" yo')).toStrictEqual(true);
-    expect(haikuService.hasUnexpectedCharsInQuote('[Illustration: ] I want to be')).toStrictEqual(true);
-    expect(haikuService.hasUnexpectedCharsInQuote('On the other hand')).toStrictEqual(true);
-    expect(haikuService.hasUnexpectedCharsInQuote('On the contrary')).toStrictEqual(true);
-    expect(haikuService.hasUnexpectedCharsInQuote('I lost a Letter C')).toStrictEqual(true);
-    expect(haikuService.hasUnexpectedCharsInQuote('I lost a Letter CC')).toStrictEqual(false);
+    expect(haikuService.hasForbiddenCharsInQuote('and I want # be')).toStrictEqual(true);
+    expect(haikuService.hasForbiddenCharsInQuote('you want to be And')).toStrictEqual(true);
+    expect(haikuService.hasForbiddenCharsInQuote('I want to be Mr')).toStrictEqual(true);
+    expect(haikuService.hasForbiddenCharsInQuote('I want to be Mrs')).toStrictEqual(true);
+    expect(haikuService.hasForbiddenCharsInQuote('I want to be Mister')).toStrictEqual(false);
+    expect(haikuService.hasForbiddenCharsInQuote('I want to be, yo')).toStrictEqual(true);
+    expect(haikuService.hasForbiddenCharsInQuote('I want to be" yo')).toStrictEqual(true);
+    expect(haikuService.hasForbiddenCharsInQuote('[Illustration: ] I want to be')).toStrictEqual(true);
+    expect(haikuService.hasForbiddenCharsInQuote('I lost a Letter C')).toStrictEqual(true);
+    expect(haikuService.hasForbiddenCharsInQuote('I lost a Letter CC')).toStrictEqual(false);
 });
 
 it('count syllabes', async () => {

@@ -8,12 +8,14 @@ from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
 parser = argparse.ArgumentParser(description='Fetch and save book data')
-parser.add_argument('--delete', dest='delete', action='store_true', help='delete the book(s) before fetching and saving')
+parser.add_argument('--delete', dest='delete', action='store_true',
+                    help='delete the book(s) before fetching and saving')
 
 args = parser.parse_args()
 
 # Connect to the MongoDB database
-client = pymongo.MongoClient(os.environ.get('MONGODB_URI')+'/'+os.environ.get('MONGODB_DB'))
+client = pymongo.MongoClient(os.environ.get(
+    'MONGODB_URI')+'/'+os.environ.get('MONGODB_DB'))
 db = client[os.environ.get('MONGODB_DB')]
 haiku_collection = db["haikus"]
 
@@ -77,6 +79,9 @@ ids = [
     70306,  # Torwood's trust (Vol. 2 of 3)
     70307,  # Torwood's trust (Vol. 3 of 3)
     70308,  # On the mechanism of the physiological action of the cathartics
+    70471,  # Kabuki
+    70473,  # Forrest house
+    70478,  # The silver key
 ]
 
 delete_books = args.delete
@@ -86,4 +91,3 @@ for id in ids:
         subprocess.run(["python3", "bin/delete_book.py", str(id)])
     subprocess.run(["python3", "bin/fetch_book.py", str(id)])
     subprocess.run(["python3", "bin/save_book.py", str(id)])
-
