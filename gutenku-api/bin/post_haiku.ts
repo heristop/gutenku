@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
 import fs from 'fs/promises';
+import sharp from 'sharp';
 import { program } from 'commander';
 import { createInterface } from 'readline';
 import { HaikuResponseData } from '../src/types';
@@ -84,6 +85,15 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
     });
 
     if (false === options.interaction) {
+        const imageBuffer = await fs.readFile(haiku.imagePath);
+
+        // Resize generated image for Readme Daily Haiku Card section
+        const resizedImageBuffer = await sharp(imageBuffer)
+            .resize(300, 300)
+            .toBuffer();
+
+        await fs.writeFile(`${CACHE_DIRECTORY}/daily_haiku_card.jpg`, resizedImageBuffer);
+
         Instagram.post(haiku);
     } else {
         const rl = createInterface({
