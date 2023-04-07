@@ -8,14 +8,19 @@ from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
 parser = argparse.ArgumentParser(description='Fetch and save book data')
-parser.add_argument('--delete', dest='delete', action='store_true',
-                    help='delete the book(s) before fetching and saving')
+parser.add_argument(
+    '--delete',
+    dest='delete',
+    action='store_true',
+    help='delete the book(s) before fetching and saving'
+)
 
 args = parser.parse_args()
 
 # Connect to the MongoDB database
 client = pymongo.MongoClient(os.environ.get(
-    'MONGODB_URI')+'/'+os.environ.get('MONGODB_DB'))
+    'MONGODB_URI')+'/'+os.environ.get('MONGODB_DB')
+)
 db = client[os.environ.get('MONGODB_DB')]
 haiku_collection = db["haikus"]
 
