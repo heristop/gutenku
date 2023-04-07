@@ -4,7 +4,7 @@ A Haiku generator based on a selection of books from [Project Gutenberg](https:/
 
 ## Daily Haiku Card
 
-<img src="/doc/img/daily_haiku_card.jpg?t=1680739201" width="300" alt="Daily Haiku Card">
+![Daily Haiku Card](/docs/img/daily_haiku_card.jpg?t=1680739201)
 
 Last Snapshot: `Thu, 06 Apr 2023 00:00:01 +0000`
 
@@ -20,7 +20,7 @@ Want more? Visit [🔗gutenku.xyz](https://gutenku.xyz)
 | [Front](/gutenku-vue/README.md#installation) | TypeScript, Vue 3 / Vuetify 3 / Pinia, Cypress.io |
 
 ---
-![GutenKu Logo](/doc/logo/gutenku.png)
+![GutenKu Logo](/docs/logo/gutenku.png)
 
 <footer>
     <p>© 2023 heristop / <a href="https://instagram.com/gutenku.poem" target="_blank">@gutenku.poem</a>. All rights reserved.</p>
