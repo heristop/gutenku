@@ -28,14 +28,14 @@ export default {
             .replaceAll(/\s|,|\.|\(|\)/g, '');
 
         const caption = `
-${haiku.titleEmoticons} “${haiku.title}” 
-📖 Bookmojis: ${haiku.bookEmoticons} (${maskedTitle})
+🌸🗻 “${haiku.title}” 
+📖 Bookmojis: ${haiku.book.emoticons} (${maskedTitle})
 ~~~
 🇫🇷
-${haiku.fr}
+${haiku.translations.fr}
 
 🇪🇸
-${haiku.es}
+${haiku.translations.es}
 ~~~
 ${haiku.hashtags} #${hashtagAuthor} ${process.env.INSTAGRAM_HASHTAGS}
 `;

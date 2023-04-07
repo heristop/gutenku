@@ -35,16 +35,17 @@ const query = `
             book {
                 title
                 author
+                emoticons
             }
             verses
             title
             description
             image
             hashtags
-            titleEmoticons
-            bookEmoticons
-            fr
-            es
+            translations {
+                fr
+                es
+            }
         }
     }
 `;
@@ -82,10 +83,7 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
         'title': haiku.title,
         'description': haiku.description,
         'hashtags': haiku.hashtags,
-        'titleEmoticons': haiku.titleEmoticons,
-        'bookEmoticons': haiku.bookEmoticons,
-        'fr': haiku.fr,
-        'es': haiku.es,
+        'translations': haiku.translations,
     });
 
     if (false === options.interaction) {
@@ -93,7 +91,7 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
 
         // Resize generated image for Readme Daily Haiku Card section
         const resizedImageBuffer = await sharp(imageBuffer)
-            .resize(300, 300)
+            .resize(1000, 1000)
             .toBuffer();
 
         await fs.writeFile(`${CACHE_DIRECTORY}/daily_haiku_card.jpg`, resizedImageBuffer);

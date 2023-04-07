@@ -5,6 +5,7 @@ const typeDefs = `#graphql
         title: String
         author: String
         chapters: [Chapter!]!
+        emoticons: String
     }
 
     type Chapter {
@@ -12,6 +13,11 @@ const typeDefs = `#graphql
         title: String!
         content: String!
         book: Book
+    }
+
+    type Translations {
+        fr: String
+        es: String
     }
 
     type Haiku {
@@ -24,10 +30,7 @@ const typeDefs = `#graphql
         title: String
         description: String
         hashtags: String
-        titleEmoticons: String
-        bookEmoticons: String
-        fr: String
-        es: String
+        translations: Translations
     }
 
     type Query {

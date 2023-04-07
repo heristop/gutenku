@@ -5,6 +5,12 @@ export interface BookValue {
     title: string;
     author: string;
     chapters?: string[] | Types.ObjectId[];
+    emoticons?: string;
+}
+
+export interface Translations {
+    fr?: string;
+    es?: string;
 }
 
 export interface HaikuValue {
@@ -20,10 +26,7 @@ export interface HaikuValue {
     title?: string;
     description?: string;
     hashtags?: string;
-    titleEmoticons?: string;
-    bookEmoticons?: string;
-    fr?: string;
-    es?: string;
+    translations?: Translations
 }
 
 export interface HaikuResponseData {
