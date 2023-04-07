@@ -56,10 +56,11 @@ export default class OpenAIService implements GeneratorInterface {
                 haiku.title = output.title;
                 haiku.description = output.description;
                 haiku.hashtags = output.hashtags;
-                haiku.titleEmoticons = output.title_emoticons;
-                haiku.bookEmoticons = output.book_emoticons;
-                haiku.fr = output.fr;
-                haiku.es = output.es;
+                haiku.book.emoticons = output.book_emoticons;
+                haiku.translations = {
+                    'fr': output.fr,
+                    'es': output.es,
+                };
 
                 return haiku;
             }
@@ -75,9 +76,8 @@ export default class OpenAIService implements GeneratorInterface {
     private async generatePrompt(): Promise<string> {
         const haikus = await this.fetchHaikus();
 
-        //const prompt = 'Choose the most revelant haiku from the list below (correct grammatical construction, consistency between [Verses], capturing beauty of nature, sense of tranquility, peace and good moment of insight), generate UTF-8 emoticons for the corresponding [Book Title], and translate [Verses]:';
         const prompt = 'Choose the most revelant haiku from the list below (correct grammatical construction, consistency between [Verses], capturing beauty of nature, sense of tranquility, peace and good moment of insight) and generate UTF-8 emoticons for the corresponding [Book Title]. Please provide a series of clear and easily recognizable emoticons that best represent the book:';
-        const outputFormat = '{"id":[Id],"title":"<Give a creative short title to describe the haiku>","title_emoticons":"<Generate two UTF-8 emoticons that represent the haiku","book_emoticons":"<Generate a series of UTF-8 emoticons that represent the related book (\'[Book Title\'])>","description":"<Describe and explain the haiku as an English literature teacher>","fr":"<Translate verses in french with \\n separator>,"es":"<Translate verses in spanish with \\n separator>","hashtags":"<Give 6 lowercase hashtags>"}';
+        const outputFormat = '{"id":[Id],"title":"<Give a creative short title to describe the haiku>","book_emoticons":"<Generate a series of UTF-8 emoticons that represent the related book (\'[Book Title\'])>","description":"<Describe and explain the haiku as an English literature teacher>","fr":"<Translate verses in french with \\n separator>,"es":"<Translate verses in spanish with \\n separator>","hashtags":"<Give 6 lowercase hashtags>"}';
 
         return `${prompt} (Use the following format: ${outputFormat})\n${haikus.join('\n')}\nSTOP\n`;
     }

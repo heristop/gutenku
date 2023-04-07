@@ -15,34 +15,6 @@ const HaikuSchema = new Schema({
         type: Array<string>,
         required: true
     },
-    title: {
-        type: String,
-        required: false
-    },
-    description: {
-        type: String,
-        required: false
-    },
-    hashtags: {
-        type: String,
-        required: false
-    },
-    titleEmoticons: {
-        type: String,
-        required: false
-    },
-    bookEmoticons: {
-        type: String,
-        required: false
-    },
-    fr: {
-        type: String,
-        required: false
-    },
-    es: {
-        type: String,
-        required: false
-    },
     createdAt: {
         type: Date,
         default: Date.now
