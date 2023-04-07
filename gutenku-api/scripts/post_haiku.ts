@@ -41,6 +41,8 @@ const query = `
             description
             image
             hashtags
+            titleEmoticons
+            bookEmoticons
             fr
             es
         }
@@ -80,6 +82,8 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
         'title': haiku.title,
         'description': haiku.description,
         'hashtags': haiku.hashtags,
+        'titleEmoticons': haiku.titleEmoticons,
+        'bookEmoticons': haiku.bookEmoticons,
         'fr': haiku.fr,
         'es': haiku.es,
     });

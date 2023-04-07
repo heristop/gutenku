@@ -2,7 +2,7 @@ import fs from 'fs';
 import { promisify } from 'util';
 import Canvas from 'canvas';
 import greentea from './themes/greentea';
-import paper from './themes/paper';
+import colored from './themes/colored';
 
 export default class CanvasService {
     private readonly CACHE_DIRECTORY = './.cache';
@@ -16,8 +16,8 @@ export default class CanvasService {
         let canvas: Canvas.Canvas;
 
         try {
-            if ('paper' === this.theme) {
-                canvas = await paper.create(verses);
+            if ('colored' === this.theme) {
+                canvas = await colored.create(verses);
             }
 
             if ('greentea' === this.theme) {
