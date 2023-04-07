@@ -1,10 +1,13 @@
 import { promisify } from 'util';
 import { unlink } from 'fs';
-import { syllable } from 'syllable';
-import Book from '../models/book';
-import CanvasService from './canvas';
-import { BookValue, HaikuValue } from '../src/types';
+import natural from 'natural';
 import { Connection } from 'mongoose';
+import { syllable } from 'syllable';
+import CanvasService from './canvas';
+import Book from '../models/book';
+import { BookValue, HaikuValue } from '../src/types';
+
+const { PorterStemmer } = natural;
 
 export interface GeneratorInterface {
     generate(): Promise<HaikuValue>;
@@ -49,7 +52,8 @@ export default class HaikuService implements GeneratorInterface {
             // eslint-disable-next-line
             verses = this.getVerses(randomChapter['content']);
 
-            if (0 === i % 100) {
+            // Failed to find 3 verses in the selected book after 50 tries
+            if (0 === i % 50) {
                 randomBook = await this.selectRandomBook();
             }
 
@@ -150,9 +154,9 @@ export default class HaikuService implements GeneratorInterface {
     }
 
     getVerses(chapter: string): string[] {
-        const minQuotesCount = parseInt(process.env.MIN_QUOTES_COUNT) || 8;
-        const quotes = this.splitQuotes(chapter);
-        const filteredQuotes = this.filterQuotes(quotes);
+        const minQuotesCount = parseInt(process.env.MIN_QUOTES_COUNT) || 12;
+        const quotes = this.extractQuotes(chapter);
+        const filteredQuotes = this.filterQuotesCountingSyllables(quotes);
 
         // Exclude lists with less than MIN_QUOTES_COUNT quotes
         if (minQuotesCount && filteredQuotes.length < minQuotesCount) {
@@ -162,13 +166,11 @@ export default class HaikuService implements GeneratorInterface {
         return this.selectHaikuLines(filteredQuotes);
     }
 
-    splitQuotes(chapter: string): string[] {
-        return chapter
-            .replace(/([.?!,])\s*(?=[A-Za-z])/g, "$1|")
-            .split("|");
+    extractQuotes(chapter: string): string[] {
+        return new natural.SentenceTokenizer().tokenize(chapter);
     }
 
-    filterQuotes(quotes: string[]): string[] {
+    filterQuotesCountingSyllables(quotes: string[]): string[] {
         return quotes.filter((quote) => {
             const words = quote.match(/\b\w+\b/g);
 
@@ -187,47 +189,70 @@ export default class HaikuService implements GeneratorInterface {
     }
 
     selectHaikuLines(quotes: string[]): string[] {
-        const lines = [];
-        const syllableCounts = process.env.SYLLABLE_COUNTS
-            .split(',')
-            .map((str) => Number(str));
+        const syllableCounts = [5, 7, 5];
+        const haikuLines = [];
 
         for (const count of syllableCounts) {
-            const indexes = [];
+            const matchingQuotes = [];
 
-            for (let i = 0; i < quotes.length; i++) {
-                if (this.isQuoteInvalid(quotes[i])) {
+            for (const quote of quotes) {
+                if (this.isQuoteInvalid(quote)) {
+                    quotes.splice(quotes.indexOf(quote), 1);
+
                     continue;
                 }
 
-                if (this.countSyllables(quotes[i]) === count) {
-                    indexes.push(i);
+                const syllableCount = this.countSyllables(quote);
+
+                if (syllableCount === count) {
+                    const analyzer = new natural.SentimentAnalyzer('English', PorterStemmer, 'afinn');
+                    const tokenizer = new natural.WordTokenizer();
+                    const words = tokenizer.tokenize(quote);
+
+                    const sentiment = analyzer.getSentiment(words);
+
+                    if (sentiment < parseFloat(process.env.SENTIMENT_SCORE || '0.2')) {
+                        quotes.splice(quotes.indexOf(quote), 1);
+
+                        continue;
+                    }
+
+                    console.log('words', words);
+                    console.log('sentiment_score', sentiment);
+
+                    matchingQuotes.push({ quote, sentiment });
                 }
             }
 
-            if (0 === indexes.length) {
+            if (matchingQuotes.length === 0) {
                 return [];
             }
 
-            const index = indexes[Math.floor(Math.random() * indexes.length)];
+            // Sort matching quotes by sentiment score
+            matchingQuotes.sort((a, b) => a.sentiment - b.sentiment);
 
-            lines.push(quotes[index]);
-            quotes.splice(index, 1);
+            // Select a random quote with the highest sentiment score
+            const randomIndex = Math.floor(Math.random() * matchingQuotes.length);
+            const selectedQuote = matchingQuotes[randomIndex].quote;
+
+            haikuLines.push(selectedQuote);
+            quotes.splice(quotes.indexOf(selectedQuote), 1);
         }
 
-        return lines;
+        return haikuLines;
     }
+
 
     isQuoteInvalid(quote: string): boolean {
         if (this.hasUpperCaseChars(quote)) {
             return true;
         }
 
-        if (this.hasUnexpectedCharsInQuote(quote)) {
+        if (this.hasForbiddenCharsInQuote(quote)) {
             return true;
         }
 
-        if (quote.length >= parseInt(process.env.VERSE_MAX_LENGTH)) {
+        if (quote.length >= parseInt(process.env.VERSE_MAX_LENGTH || '30')) {
             return true;
         }
 
@@ -238,28 +263,16 @@ export default class HaikuService implements GeneratorInterface {
         return /^[A-Z\s!:.?]+$/g.test(quote);
     }
 
-    hasUnexpectedCharsInQuote(quote: string): boolean {
+    hasForbiddenCharsInQuote(quote: string): boolean {
         const startWordsRegex = /^(Or|And)/i;
         const lastWordsRegex = /(Mr|Mrs|Dr|Or|And|St)$/i;
-        const specialCharsRegex = /@|[0-9]|#|\[|\|\(|\)|"|“|”|--|:|,|_|—|\+|=|{|}|\]|\*|\$|%|\r|\n|;|~|&/g;
-
-        const forbiddenExpressions = [
-            'Translated',
-            'Illustration',
-            'On the other hand',
-            'On the contrary',
-            'copyright',
-            'provide a copy',
-        ];
-
-        const forbiddenWordsRegex = new RegExp(`(${forbiddenExpressions.join('|')})`, 'i');
+        const specialCharsRegex = /@|[0-9]|#|\[|\|\(|\)|"|“|”|‘|’|\/|--|:|,|_|—|\+|=|{|}|\]|\*|\$|%|\r|\n|;|~|&/g;
         const lostLetter = /\b[A-Z]\b$/;
 
         const regexList = [
             startWordsRegex,
             lastWordsRegex,
             specialCharsRegex,
-            forbiddenWordsRegex,
             lostLetter,
         ];
 
