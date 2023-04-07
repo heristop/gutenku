@@ -56,6 +56,8 @@ export default class OpenAIService implements GeneratorInterface {
                 haiku.title = output.title;
                 haiku.description = output.description;
                 haiku.hashtags = output.hashtags;
+                haiku.titleEmoticons = output.title_emoticons;
+                haiku.bookEmoticons = output.book_emoticons;
                 haiku.fr = output.fr;
                 haiku.es = output.es;
 
@@ -71,29 +73,31 @@ export default class OpenAIService implements GeneratorInterface {
     }
 
     private async generatePrompt(): Promise<string> {
-        const verses = await this.fetchVerses();
+        const haikus = await this.fetchHaikus();
 
-        const prompt = 'Choose the most revelant haiku from the list below. The haiku must have a correct grammatical construction and a good consistency between verses, and may capture the beauty of nature and evokes a sense of tranquility and peace, and finally may have a good moment of insight:'
-        const outputFormat = '{"id":ID,"title":"<Give a creative short title to describe the haiku>","description":"<Describe and explain the haiku as an English literature teacher>","fr":"<Translate haiku\'s verses in french>,"es":"<Translate haiku\'s verses in spanish>","hashtags":"<Give 6 lowercase hashtags>"}';
+        const prompt = 'Choose the most revelant haiku from the list below (correct grammatical construction, consistency between [Verses], capturing beauty of nature, sense of tranquility, peace and good moment of insight) and generate UTF-8 emoticons for the corresponding [Book Title]:';
+        const outputFormat = '{"id":[Id],"title":"<Give a creative short title to describe the haiku>","title_emoticons":"<Generate 2 UTF-8 emoticons that represent the haiku","book_emoticons":"<Generate a series of UTF-8 emoticons that represent the book titled [Book Title]>","description":"<Describe and explain the haiku as an English literature teacher>","fr":"<Translate haiku\'s verses in french>,"es":"<Translate haiku\'s verses in spanish>","hashtags":"<Give 6 lowercase hashtags>"}';
 
-        return `${prompt} (Use the following format: ${outputFormat})\n${verses.join('\n')}\nSTOP\n`;
+        return `${prompt} (Use the following format: ${outputFormat})\n${haikus.join('\n')}\nSTOP\n`;
     }
 
-    private async fetchVerses(): Promise<string[]> {
-        const verses: string[] = [];
+    private async fetchHaikus(): Promise<string[]> {
+        const haikus: string[] = [];
 
         for (const [i,] of Array(this.selectionCount).entries()) {
             const haiku = await this.haikuService.generate();
 
             this.haikuSelection.push(haiku);
 
-            console.log(i, haiku.verses, haiku.book.title);
+            const verses = `Haiku [Id]: ${i}\n` +
+                `[Book Title]: ${haiku.book.title}\n` +
+                `[Verses]: ${haiku.verses.join('\n')}\n`;
 
-            const verse = `${i}:\n${haiku.verses.join('\n')}\n`;
+            console.log(verses);
 
-            verses.push(verse);
+            haikus.push(verses);
         }
 
-        return verses;
+        return haikus;
     }
 }

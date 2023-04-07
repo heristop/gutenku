@@ -24,6 +24,8 @@ const typeDefs = `#graphql
         title: String
         description: String
         hashtags: String
+        titleEmoticons: String
+        bookEmoticons: String
         fr: String
         es: String
     }

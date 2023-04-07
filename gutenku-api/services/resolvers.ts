@@ -23,6 +23,7 @@ const resolvers = {
             const query = {};
 
             if (content) {
+                // eslint-disable-next-line
                 query['content'] = { $regex: content, $options: 'i' };
             }
 

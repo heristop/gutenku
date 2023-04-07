@@ -55,7 +55,7 @@ const downloadImage = () => {
         v-model="theme"
         @update:model-value="fetchText()"
         label="Theme"
-        :items="['paper', 'greentea']"
+        :items="['colored', 'greentea']"
         variant="underlined"
       />
 

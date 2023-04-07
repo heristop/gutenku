@@ -20,6 +20,8 @@ export interface HaikuValue {
     title?: string;
     description?: string;
     hashtags?: string;
+    titleEmoticons?: string;
+    bookEmoticons?: string;
     fr?: string;
     es?: string;
 }

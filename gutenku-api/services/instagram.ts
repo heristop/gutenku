@@ -19,9 +19,7 @@ export default {
         // Mask all letters except the random vowel
         const maskedTitle = bookTitle.replace(new RegExp(`[^ ${nonMaskedVowel}]`, "gi"), "*");
 
-        const postTitle = haiku.title;
-
-        if (null === postTitle) {
+        if (null === haiku.title) {
             throw new Error('Missing Title');
         }
 
@@ -30,8 +28,8 @@ export default {
             .replaceAll(/\s|,|\.|\(|\)/g, '');
 
         const caption = `
-🌸🗻 “${postTitle}” 
-📖 Reference Book: ${maskedTitle}
+${haiku.titleEmoticons} “${haiku.title}” 
+📖 Bookmojis: ${haiku.bookEmoticons} (${maskedTitle})
 ~~~
 🇫🇷
 ${haiku.fr}

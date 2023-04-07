@@ -27,6 +27,14 @@ const HaikuSchema = new Schema({
         type: String,
         required: false
     },
+    titleEmoticons: {
+        type: String,
+        required: false
+    },
+    bookEmoticons: {
+        type: String,
+        required: false
+    },
     fr: {
         type: String,
         required: false
