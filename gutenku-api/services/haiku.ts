@@ -184,7 +184,7 @@ export default class HaikuService implements GeneratorInterface {
 
             return syllableCount === 5 || syllableCount === 7;
         }).map((quote) => {
-            return quote.replace(/\.$|,$|!$/, "");
+            return quote.replace(/\.\.\.|\.$|,$|!$/, "");
         });
     }
 

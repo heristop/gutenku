@@ -39,8 +39,8 @@ export default class OpenAIService implements GeneratorInterface {
                 prompt,
                 temperature: 0.3,
                 max_tokens: 1200,
-                top_p: 0.2,
-                frequency_penalty: 0.2,
+                top_p: 0.1,
+                frequency_penalty: 0.3,
                 presence_penalty: 0,
                 stop: ['STOP'],
             });
@@ -50,17 +50,18 @@ export default class OpenAIService implements GeneratorInterface {
                 const output = JSON.parse(answer);
                 const index = output.id;
 
-                const haiku = this.haikuSelection[index];
+                let haiku = this.haikuSelection[index];
                 this.haikuSelection = [];
 
                 haiku.title = output.title;
                 haiku.description = output.description;
                 haiku.hashtags = output.hashtags;
-                haiku.book.emoticons = output.book_emoticons;
                 haiku.translations = {
                     'fr': output.fr,
                     'es': output.es,
                 };
+
+                haiku = await this.addBookmojis(haiku);
 
                 return haiku;
             }
@@ -76,10 +77,34 @@ export default class OpenAIService implements GeneratorInterface {
     private async generatePrompt(): Promise<string> {
         const haikus = await this.fetchHaikus();
 
-        const prompt = 'Choose the most revelant haiku from the list below (correct grammatical construction, consistency between [Verses], capturing beauty of nature, sense of tranquility, peace and good moment of insight) and generate UTF-8 emoticons for the corresponding [Book Title]. Please provide a series of clear and easily recognizable emoticons that best represent the book:';
-        const outputFormat = '{"id":[Id],"title":"<Give a creative short title to describe the haiku>","book_emoticons":"<Generate a series of UTF-8 emoticons that represent the related book (\'[Book Title\'])>","description":"<Describe and explain the haiku as an English literature teacher>","fr":"<Translate verses in french with \\n separator>,"es":"<Translate verses in spanish with \\n separator>","hashtags":"<Give 6 lowercase hashtags>"}';
+        const prompt = 'Choose the most revelant haiku from the list below (correct grammatical construction, consistency between [Verses], capturing beauty of nature, sense of tranquility, peace and good moment of insight), and translate with \\n separator:';
+        const outputFormat = '{"id":[Id],"title":"<Give a creative short title to describe the haiku>","description":"<Describe and explain the haiku as an English literature teacher>","fr":"<Translate verses in french>,"es":"<Translate verses in spanish>","hashtags":"<Give 6 lowercase hashtags>"}';
 
         return `${prompt} (Use the following format: ${outputFormat})\n${haikus.join('\n')}\nSTOP\n`;
+    }
+
+    private async addBookmojis(haiku: HaikuValue): Promise<HaikuValue> {
+        let prompt = `Please provide a series of clear and easily recognizable emoticons that best represent the book "${haiku.book.title}", taking into account the main theme and characters:`;
+        const outputFormat = '<Generate a series of UTF-8 emoticons that represent the related book>';
+        prompt = `${prompt} (Use the following format: ${outputFormat})`;
+
+        const completion = await this.openAIApi.createCompletion({
+            model: 'text-davinci-003',
+            prompt,
+            temperature: 0.6,
+            max_tokens: 20,
+            top_p: 1,
+            frequency_penalty: 0,
+            presence_penalty: 0,
+        });
+
+        if (200 === completion.status) {
+            const answer = completion.data.choices[0].text.replace(/[\n\s]+/g, '');
+
+            haiku.book.emoticons = answer;
+        }
+
+        return haiku;
     }
 
     private async fetchHaikus(): Promise<string[]> {
@@ -90,9 +115,7 @@ export default class OpenAIService implements GeneratorInterface {
 
             this.haikuSelection.push(haiku);
 
-            const verses = `Haiku [Id]: ${i}\n` +
-                `[Verses]: ${haiku.verses.join('\n')}\n` +
-                `[Book Title]: ${haiku.book.title}\n`;
+            const verses = `Haiku [Id]: ${i}\n[Verses]: ${haiku.verses.join('\n')}\n`;
 
             console.log(verses);
 
