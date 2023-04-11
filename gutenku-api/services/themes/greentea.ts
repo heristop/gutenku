@@ -60,7 +60,7 @@ export default {
         // Draw signature
         ctx.font = '108px Typewriter';
         ctx.globalAlpha = 0.6;
-        ctx.fillText('GutenKu.', canvas.width - 700, canvas.height - 250);
+        ctx.fillText('- GutenKu', canvas.width - 750, canvas.height - 250);
 
         return canvas;
     },
