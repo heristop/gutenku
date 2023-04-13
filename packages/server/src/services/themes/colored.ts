@@ -4,12 +4,12 @@ import Canvas from 'canvas';
 
 export default {
     async create(verses: string[]): Promise<Canvas.Canvas> {
-        Canvas.registerFont('./src/assets/fonts/JMH Typewriter.ttf', { family: 'Typewriter' });
+        Canvas.registerFont('./assets/fonts/JMH Typewriter.ttf', { family: 'Typewriter' });
 
         const canvas = Canvas.createCanvas(1200, 1200);
         const ctx = canvas.getContext('2d');
 
-        const folderPath = './src/assets/themes/paper/backgrounds';
+        const folderPath = './assets/themes/paper/backgrounds';
         const files = await readdir(folderPath);
 
         const randomIndex = Math.floor(Math.random() * files.length);
@@ -23,7 +23,7 @@ export default {
 
         // Load the logo
         const logo = new Canvas.Image();
-        logo.src = './src/assets/themes/paper/logo/gutenku_white.png';
+        logo.src = './assets/themes/paper/logo/gutenku_white.png';
 
         // Draw the logo
         ctx.globalAlpha = 0.25;

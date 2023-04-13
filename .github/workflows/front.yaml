@@ -1,4 +1,4 @@
-name: Vue
+name: Front
 
 on: [push]
 
@@ -10,15 +10,15 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
       - name: front
         run: |
-          cd gutenku-vue
+          cd packages/front
           cp .env.dist .env
           yarn install
           yarn lint
       - uses: cypress-io/github-action@v5
         with:
-          working-directory: gutenku-vue
+          working-directory: front
           build: yarn build
           start: yarn start
