@@ -21,7 +21,7 @@ Want more? Visit [🔗gutenku.xyz](https://gutenku.xyz)
 
 ---
 
-![GutenKu Logo](/docs/logo/gutenku.png)
+![GutenKu Logo](/assets/logo/gutenku.png)
 
 <footer>
     <p>© 2023 heristop / <a href="https://instagram.com/gutenku.poem" target="_blank">@gutenku.poem</a>. All rights reserved.</p>
