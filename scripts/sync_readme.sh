@@ -10,5 +10,6 @@ if git status | grep -qF daily_haiku_card.jpg; then
     sed -i "s/Last Snapshot:.*/Last Snapshot: \`$(date +'%a, %d %b %Y %H:%M:%S %z')\`/" README.md
     git add assets README.md
     git commit -m "[Readme] Updated Daily Haiku Card"
+    git pull
     git push https://$TOKEN@github.com/heristop/gutenku.git
 fi
