@@ -84,7 +84,7 @@ export default class OpenAIService implements GeneratorInterface {
     }
 
     private async addBookmojis(haiku: HaikuValue): Promise<HaikuValue> {
-        let prompt = `Please provide a series of clear and easily recognizable emoticons that best represent the book "${haiku.book.title}", taking into account the main theme and characters:`;
+        let prompt = `Please provide a series of clear and easily recognizable emoticons that best represent the book "${haiku.book.title}":`;
         const outputFormat = '<Generate a series of UTF-8 emoticons that represent the related book>';
         prompt = `${prompt} (Use the following format: ${outputFormat})`;
 
