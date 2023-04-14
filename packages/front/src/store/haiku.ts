@@ -9,15 +9,16 @@ const query = `
                 title
                 author
             }
+            chapter {
+                content
+                title
+            }
+            useCache
             verses
             rawVerses
             image
             title
             description
-            chapter {
-                content
-                title
-            }
         }
     }
 `;

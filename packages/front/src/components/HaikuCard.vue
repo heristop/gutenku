@@ -10,6 +10,14 @@ const networkError = computed(() => {
     return '' !== error.value;
 });
 
+const displayBtnLabel = computed(() => {
+    if (true === haiku.value.useCache) {
+        return loading.value ? 'Extracting' : 'Extract';
+    }
+
+    return loading.value ? 'Generating' : 'Generate';
+});
+
 const copied = ref(false);
 
 async function copy() {
@@ -53,8 +61,8 @@ async function copy() {
     <v-card-actions class="justify-end">
       <v-tooltip
         :disabled="loading"
-        text="Generate a new Haiku"
-        aria-label="Generate a new Haiku"
+        text="Display a new Haiku"
+        aria-label="Display a new Haiku"
         location="bottom"
       >
         <template #activator="{ props }">
@@ -68,7 +76,7 @@ async function copy() {
             data-cy="fetch-btn"
             class="ms-2"
           >
-            {{ loading ? 'Generating' : 'Generate' }}
+            {{ displayBtnLabel }}
           </v-btn>
         </template>
       </v-tooltip>

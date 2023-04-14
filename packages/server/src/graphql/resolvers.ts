@@ -1,9 +1,9 @@
 import { Connection } from 'mongoose';
 import Book from '../models/book';
 import Chapter from '../models/chapter';
-import { HaikuValue } from '../src/types';
-import HaikuService from './haiku';
-import OpenAIService from './openai';
+import { HaikuValue } from '../types';
+import HaikuService from '../services/haiku';
+import OpenAIService from '../services/openai';
 
 const resolvers = {
     Query: {

@@ -5,8 +5,8 @@ import dotenv from 'dotenv';
 import express, { json } from 'express';
 import http from 'http';
 import mongoose, { Connection, ConnectOptions } from 'mongoose';
-import resolvers from '../services/resolvers';
-import typeDefs from '../services/typeDefs';
+import resolvers from './graphql/resolvers';
+import typeDefs from './graphql/typeDefs';
 import cors from 'cors';
 
 dotenv.config();

@@ -23,6 +23,7 @@ const typeDefs = `#graphql
     type Haiku {
         book: Book!
         chapter: Chapter!
+        useCache: Boolean
         rawVerses: [String!]
         verses: [String!]
         image: String

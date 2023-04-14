@@ -43,6 +43,7 @@ ids = [
     161,    # Sense and Sensibility
     174,    # The Picture of Dorian Gray
     203,    # Uncle Tom’s Cabin
+    224,    # A Pair of Blue Eyes
     215,    # The Call of the Wild
     244,    # A Study In Scarlet
     345,    # Dracula
@@ -87,6 +88,8 @@ ids = [
     70471,  # Kabuki
     70473,  # Forrest house
     70478,  # The silver key
+    70525,  # Sahara
+    70530,  # Physician and patient
 ]
 
 delete_books = args.delete

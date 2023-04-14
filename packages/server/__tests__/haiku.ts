@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import { expect, it } from '@jest/globals';
-import HaikuService from '../services/haiku';
+import HaikuService from '../src/services/haiku';
 
 dotenv.config();
 
