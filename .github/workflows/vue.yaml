@@ -11,7 +11,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - name: front
+      - name: vue
         run: |
           cd packages/front
           cp .env.dist .env
