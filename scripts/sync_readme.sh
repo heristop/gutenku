@@ -2,7 +2,7 @@
 
 set -e
 
-cp gutenku-api/.cache/daily_haiku_card.jpg ./assets/img/daily_haiku_card.jpg
+cp packages/server/.cache/daily_haiku_card.jpg ./assets/img/daily_haiku_card.jpg
 
 if git status | grep -qF daily_haiku_card.jpg; then
     echo '\033[1;32mNew image found\033[0m'

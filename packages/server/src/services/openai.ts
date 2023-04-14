@@ -1,5 +1,5 @@
 import { Configuration, OpenAIApi } from 'openai';
-import { HaikuValue, OpenAIOptions } from '../src/types';
+import { HaikuValue, OpenAIOptions } from '../types';
 import HaikuService, { GeneratorInterface } from './haiku';
 
 export default class OpenAIService implements GeneratorInterface {
