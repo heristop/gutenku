@@ -1,7 +1,7 @@
 import { ApolloServer } from '@apollo/server';
 import { expect, it } from '@jest/globals';
 import { Connection } from 'mongoose';
-import typeDefs from '../services/typeDefs';
+import typeDefs from '../src/graphql/typeDefs';
 
 const resolvers = {
     Query: {

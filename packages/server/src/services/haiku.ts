@@ -5,7 +5,7 @@ import { Connection } from 'mongoose';
 import { syllable } from 'syllable';
 import CanvasService from './canvas';
 import Book from '../models/book';
-import { BookValue, HaikuValue } from '../src/types';
+import { BookValue, HaikuValue } from '../types';
 
 const { PorterStemmer } = natural;
 
@@ -35,7 +35,7 @@ export default class HaikuService implements GeneratorInterface {
     }
 
     async generate(): Promise<HaikuValue> {
-        let haiku = await this.getFromCache();
+        let haiku = await this.extractFromCache();
 
         if (null !== haiku) {
             return haiku;
@@ -67,6 +67,7 @@ export default class HaikuService implements GeneratorInterface {
                 'author': randomBook.author
             },
             'chapter': randomChapter,
+            'useCache': false,
             'rawVerses': verses,
             'verses': this.clean(verses),
         };
@@ -106,7 +107,7 @@ export default class HaikuService implements GeneratorInterface {
         return randomBook;
     }
 
-    async getFromCache(size = 1): Promise<HaikuValue | null> {
+    async extractFromCache(size = 1): Promise<HaikuValue | null> {
         if (false === !!this.db) {
             return null;
         }
@@ -121,11 +122,12 @@ export default class HaikuService implements GeneratorInterface {
             .aggregate([{ $sample: { size } }])
             .next();
 
-        console.log('Get from cache');
+        console.log('Exract from cache');
 
         return {
             'book': randomHaiku.book,
             'chapter': randomHaiku.chapter,
+            'useCache': true,
             'verses': randomHaiku.verses,
             'rawVerses': randomHaiku.rawVerses,
         };

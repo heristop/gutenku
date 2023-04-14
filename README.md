@@ -14,10 +14,10 @@ Want more? Visit [🔗gutenku.xyz](https://gutenku.xyz)
 
 [![Api](https://github.com/heristop/gutenku/actions/workflows/api.yaml/badge.svg)](https://github.com/heristop/gutenku/actions/workflows/api.yaml) [![Vue](https://github.com/heristop/gutenku/actions/workflows/vue.yaml/badge.svg)](https://github.com/heristop/gutenku/actions/workflows/vue.yaml)
 
-| Application                                  | Env                                                  |
-| -------------------------------------------- | ---------------------------------------------------- |
-| [Api](/gutenku-api/README.md#installation)   | TypeScript, NodeJS, MongoDB, GraphQL, Python, OpenAI |
-| [Front](/gutenku-vue/README.md#installation) | TypeScript, Vue 3 / Vuetify 3 / Pinia, Cypress.io    |
+| Application                                     | Env                                                  |
+| ----------------------------------------------- | ---------------------------------------------------- |
+| [Api](/packages/server/README.md#installation)  | TypeScript, NodeJS, MongoDB, GraphQL, Python, OpenAI |
+| [Front](/packages/front/README.md#installation) | TypeScript, Vue 3 / Vuetify 3 / Pinia, Cypress.io    |
 
 ---
 
