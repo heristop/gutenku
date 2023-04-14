@@ -5,7 +5,7 @@ import sharp from 'sharp';
 import { program } from 'commander';
 import { createInterface } from 'readline';
 import { HaikuResponseData } from '../src/types';
-import Instagram from '../services/instagram';
+import Instagram from '../src/services/instagram';
 import terminalImage from 'terminal-image';
 
 dotenv.config();
