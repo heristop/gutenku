@@ -23,11 +23,29 @@ onMounted(fetchText);
 <template>
   <v-container class="fill-height">
     <v-responsive class="d-flex text-center fill-height">
+      <v-btn
+        v-if="false === firstLoaded || networkError"
+        class="ma-8"
+        variant="plain"
+        color="third"
+        size="x-large"
+        href="https://gutenku.xyz"
+      >
+        gutenku.xyz
+      </v-btn>
+
       <v-sheet v-if="false === firstLoaded">
-        <app-loading text="Generating Haiku..." />
+        <app-loading text="Extracting Haiku..." />
       </v-sheet>
 
-      <v-container v-if="firstLoaded">
+      <v-sheet v-show="networkError">
+        <app-loading
+          error
+          text="Cannot connect to the server :("
+        />        
+      </v-sheet>
+
+      <v-container v-if="firstLoaded && false === networkError">
         <v-row class="d-flex">
           <v-col
             cols="12"
@@ -64,14 +82,6 @@ onMounted(fetchText);
           </v-col>
         </v-row>
       </v-container>
-
-      <v-snackbar
-        v-model="networkError"
-        :timeout="2000"
-        color="primary"
-      >
-        <v-icon>mdi-robot-dead-outline</v-icon> I cannot connect to the server :( Come back later...
-      </v-snackbar>
     </v-responsive>
   </v-container>
 </template>
