@@ -1,5 +1,5 @@
 <script lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 export default {
     props: {
@@ -12,9 +12,14 @@ export default {
             type: String,
             required: false,
             default: 'primary'
+        },
+        error: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
-    setup() {
+    setup(props) {
         const icons = ref([
             'mdi-robot-confused-outline',
             'mdi-robot-outline',
@@ -23,12 +28,17 @@ export default {
             'mdi-robot-love-outline',
         ]);
 
+        const flipIcons = computed(() => {
+            return false === props.error;
+        });
+
         return {
-            icons
+            icons,
+            flipIcons
         };
     },
     mounted() {
-        const icons = document.querySelectorAll('.loading i');
+        const icons = document.querySelectorAll('.loading i.flip');
         let index = 0;
 
         icons[index].classList.add('active');
@@ -45,13 +55,23 @@ export default {
 <template>
   <div class="loading">
     <v-icon
-      v-for="(icon, index) in icons"
-      :key="index"
-      :class="['icon']"
+      v-show="error"
       :color="color"
+      :class="['icon', 'active']"
     >
-      {{ icon }}
+      mdi-robot-dead-outline
     </v-icon>
+
+    <div v-if="flipIcons">
+      <v-icon
+        v-for="(icon, index) in icons"
+        :key="index"
+        :class="['flip', 'icon']"
+        :color="color"
+      >
+        {{ icon }}
+      </v-icon>
+    </div>
 
     <div v-if="text">
       <v-spacer class="pa-10" />
@@ -64,7 +84,7 @@ export default {
       </v-sheet>
 
       <v-progress-linear
-        indeterminate
+        :indeterminate="flipIcons"
         color="primary"
         class="mb-0"
       />
