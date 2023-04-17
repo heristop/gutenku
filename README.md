@@ -4,9 +4,9 @@ A Haiku generator based on a selection of books from [Project Gutenberg](https:/
 
 ## Daily Haiku Card
 
-<img src="/assets/img/daily_haiku_card.jpg?t=1681603201" width="300" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1681689601" width="300" alt="Daily Haiku Card">
 
-Last Snapshot: `Sun, 16 Apr 2023 00:00:01 +0000`
+Last Snapshot: `Mon, 17 Apr 2023 00:00:01 +0000`
 
 Want more? Visit [🔗gutenku.xyz](https://gutenku.xyz)
 
