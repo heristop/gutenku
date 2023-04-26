@@ -23,16 +23,39 @@ onMounted(fetchText);
 <template>
   <v-container class="fill-height">
     <v-responsive class="d-flex text-center fill-height">
-      <v-btn
+      <div
+        class="ma-4"
         v-if="false === firstLoaded || networkError"
-        class="ma-8"
-        variant="plain"
-        color="third"
-        size="x-large"
-        href="https://gutenku.xyz"
       >
-        gutenku.xyz
-      </v-btn>
+        <v-btn
+          variant="plain"
+          color="third"
+          size="x-large"
+          href="https://gutenku.xyz"
+        >
+          gutenku.xyz
+        </v-btn>
+
+        <v-spacer class="ma-4" />
+
+        <v-tooltip
+          v-if="networkError"
+          text="Refresh"
+          aria-label="Refresh"
+          location="bottom"
+        >
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              color="primary"
+              density="compact"
+              icon="mdi-refresh"
+              alt="Refresh"
+              @click="$router.go(0)"
+            />
+          </template>
+        </v-tooltip>
+      </div>
 
       <v-sheet v-if="false === firstLoaded">
         <app-loading text="Extracting Haiku..." />
@@ -42,7 +65,7 @@ onMounted(fetchText);
         <app-loading
           error
           text="Cannot connect to the server :("
-        />        
+        />
       </v-sheet>
 
       <v-container v-if="firstLoaded && false === networkError">

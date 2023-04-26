@@ -37,7 +37,7 @@ export default class OpenAIService implements GeneratorInterface {
             const completion = await this.openAIApi.createCompletion({
                 model: 'text-davinci-003',
                 prompt,
-                temperature: 0.3,
+                temperature: 0.2,
                 max_tokens: 1200,
                 top_p: 0.1,
                 frequency_penalty: 0.3,
@@ -78,7 +78,7 @@ export default class OpenAIService implements GeneratorInterface {
         const haikus = await this.fetchHaikus();
 
         const prompt = 'Choose the most revelant haiku from the list below (correct grammatical construction, consistency between [Verses], capturing beauty of nature, sense of tranquility, peace and good moment of insight), and translate with \\n separator:';
-        const outputFormat = '{"id":[Id],"title":"<Give a creative short title to describe the haiku>","description":"<Describe and explain the haiku as an English literature teacher>","fr":"<Translate verses in french>,"es":"<Translate verses in spanish>","hashtags":"<Give 6 lowercase hashtags>"}';
+        const outputFormat = '{"id":[Id],"title":"<Give a creative short title to describe the haiku>","description":"<Describe and explain the haiku as an English literature teacher>","fr":"<Translate the Haiku in french>,"es":"<Translate the Haiku in spanish>","hashtags":"<Give 6 lowercase hashtags>"}';
 
         return `${prompt} (Use the following format: ${outputFormat})\n${haikus.join('\n')}\nSTOP\n`;
     }

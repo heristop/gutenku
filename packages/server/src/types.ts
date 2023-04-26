@@ -8,6 +8,10 @@ export interface BookValue {
     emoticons?: string;
 }
 
+export interface ChapterValue {
+    content?: string;
+}
+
 export interface Translations {
     fr?: string;
     es?: string;
@@ -32,6 +36,10 @@ export interface HaikuValue {
 
 export interface HaikuResponseData {
     haiku: HaikuValue;
+}
+
+export interface ChapterResponseData {
+    chapters: ChapterValue[];
 }
 
 export interface OpenAIOptions {
