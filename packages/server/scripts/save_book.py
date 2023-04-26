@@ -69,11 +69,16 @@ else:
 
     flagged_chapters = []
 
+    gutenberg_pattern = re.compile(r"GUTENBERG", re.IGNORECASE)
+
     # Check each chapter for the required number of paragraphs
     for chapter in chapters:
         paragraph_count = chapter.count('\n')
 
-        if paragraph_count >= MIN_PARAGRAPHS:
+        # Check if the chapter contains the word "GUTENBERG" to exclude Gutenberg template decorator
+        contains_gutenberg = re.search(gutenberg_pattern, chapter)
+
+        if paragraph_count >= MIN_PARAGRAPHS and not contains_gutenberg:
             flagged_chapters.append(chapter)
 
     chapters_count = len(flagged_chapters)
