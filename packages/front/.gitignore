@@ -1,7 +1,6 @@
 .DS_Store
 node_modules
 /dist
-/public/ads.txt
 
 # local env files
 .env
