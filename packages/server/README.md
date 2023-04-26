@@ -39,8 +39,10 @@ yarn dev
 
 ## Train
 
+Uses Markov Chain to evaluate transitions:
+
 ```bash
-node --loader ts-node/esm scripts/markov_train.ts
+yarn train
 ```
 
 ## Generate

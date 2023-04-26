@@ -10,6 +10,7 @@
         "lint": "eslint . --fix --ignore-path .gitignore",
         "setup": "python3 scripts/setup.py",
         "extract": "ts-node-esm scripts/extract_haiku.ts",
+        "train": "ts-node-esm scripts/markov_train.ts",
         "post": "ts-node-esm scripts/post_haiku.ts",
         "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.config.ts ./__tests__"
     },
