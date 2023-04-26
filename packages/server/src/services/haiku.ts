@@ -6,6 +6,7 @@ import { syllable } from 'syllable';
 import CanvasService from './canvas';
 import Book from '../models/book';
 import { BookValue, HaikuValue } from '../types';
+import { MarkovEvaluator } from './markovEvaluator';
 
 const { PorterStemmer } = natural;
 
@@ -15,6 +16,7 @@ export interface GeneratorInterface {
 
 export default class HaikuService implements GeneratorInterface {
     private db: Connection;
+    private markovEvaluator: MarkovEvaluator;
     private minCachedDocs: number;
     private ttl: number;
     private skipCache: boolean;
@@ -32,6 +34,9 @@ export default class HaikuService implements GeneratorInterface {
         this.skipCache = options?.cache.disable ?? true;
         this.ttl = options?.cache.ttl ?? 0;
         this.theme = options?.theme ?? 'greentea';
+
+        this.markovEvaluator = new MarkovEvaluator();
+
     }
 
     async generate(): Promise<HaikuValue> {
@@ -50,7 +55,7 @@ export default class HaikuService implements GeneratorInterface {
             randomChapter = this.selectRandomChapter(randomBook);
 
             // eslint-disable-next-line
-            verses = this.getVerses(randomChapter['content']);
+            verses = await this.getVerses(randomChapter['content']);
 
             // Failed to find 3 verses in the selected book after 50 tries
             if (0 === i % 50) {
@@ -155,7 +160,7 @@ export default class HaikuService implements GeneratorInterface {
         return book.chapters[index.toString()];
     }
 
-    getVerses(chapter: string): string[] {
+    async getVerses(chapter: string): Promise<string[]> {
         const minQuotesCount = parseInt(process.env.MIN_QUOTES_COUNT) || 12;
         const quotes = this.extractQuotes(chapter);
         const filteredQuotes = this.filterQuotesCountingSyllables(quotes);
@@ -165,7 +170,7 @@ export default class HaikuService implements GeneratorInterface {
             return [];
         }
 
-        return this.selectHaikuLines(filteredQuotes);
+        return await this.selectHaikuLines(filteredQuotes);
     }
 
     extractQuotes(chapter: string): string[] {
@@ -190,14 +195,20 @@ export default class HaikuService implements GeneratorInterface {
         });
     }
 
-    selectHaikuLines(quotes: string[]): string[] {
+    async selectHaikuLines(quotes: string[]): Promise<string[]> {
         const syllableCounts = [5, 7, 5];
         const haikuLines = [];
 
-        for (const count of syllableCounts) {
+        for (let i = 0; i < syllableCounts.length; i++) {
+            const count = syllableCounts[i];
             const matchingQuotes = [];
 
             for (const quote of quotes) {
+                // First verse
+                if (0 === i && /^(for|and|nor|but|or|yet|so)/.test(quote)) {
+                    continue;
+                }
+
                 if (this.isQuoteInvalid(quote)) {
                     quotes.splice(quotes.indexOf(quote), 1);
 
@@ -211,18 +222,28 @@ export default class HaikuService implements GeneratorInterface {
                     const tokenizer = new natural.WordTokenizer();
                     const words = tokenizer.tokenize(quote);
 
-                    const sentiment = analyzer.getSentiment(words);
+                    await this.markovEvaluator.load();
+                    const markovScore = this.markovEvaluator.evaluateHaiku(quotes);
 
-                    if (sentiment < parseFloat(process.env.SENTIMENT_SCORE || '0.2')) {
+                    if (markovScore < parseFloat(process.env.MARKOV_SCORE || '0.01')) {
+                        quotes.splice(quotes.indexOf(quote), 1);
+
+                        continue;
+                    }
+
+                    const sentimentScore = analyzer.getSentiment(words);
+
+                    if (sentimentScore < parseFloat(process.env.SENTIMENT_SCORE || '0.2')) {
                         quotes.splice(quotes.indexOf(quote), 1);
 
                         continue;
                     }
 
                     console.log('words', words);
-                    console.log('sentiment_score', sentiment);
+                    console.log('sentiment_score', sentimentScore);
+                    console.log('markov_score', markovScore);
 
-                    matchingQuotes.push({ quote, sentiment });
+                    matchingQuotes.push({ quote, sentimentScore, markovScore });
                 }
             }
 
@@ -244,13 +265,12 @@ export default class HaikuService implements GeneratorInterface {
         return haikuLines;
     }
 
-
     isQuoteInvalid(quote: string): boolean {
-        if (this.hasUpperCaseChars(quote)) {
+        if (this.hasUpperCaseWords(quote)) {
             return true;
         }
 
-        if (this.hasForbiddenCharsInQuote(quote)) {
+        if (this.hasBlacklistedCharsInQuote(quote)) {
             return true;
         }
 
@@ -261,18 +281,16 @@ export default class HaikuService implements GeneratorInterface {
         return false;
     }
 
-    hasUpperCaseChars(quote: string): boolean {
+    hasUpperCaseWords(quote: string): boolean {
         return /^[A-Z\s!:.?]+$/g.test(quote);
     }
 
-    hasForbiddenCharsInQuote(quote: string): boolean {
-        const startWordsRegex = /^(Or|And)/i;
-        const lastWordsRegex = /(Mr|Mrs|Dr|Or|And|St)$/i;
+    hasBlacklistedCharsInQuote(quote: string): boolean {
+        const lastWordsRegex = /(Mr|Mrs|Dr|Or|And|Of|St)$/;
         const specialCharsRegex = /@|[0-9]|#|\[|\|\(|\)|"|“|”|‘|’|\/|--|:|,|_|—|\+|=|{|}|\]|\*|\$|%|\r|\n|;|~|&/g;
         const lostLetter = /\b[A-Z]\b$/;
 
         const regexList = [
-            startWordsRegex,
             lastWordsRegex,
             specialCharsRegex,
             lostLetter,

@@ -33,7 +33,7 @@ const legalNoticeDialog = ref(false);
           </h4>
 
           <p class="mb-8">
-            <b>Gutenku.xyz</b> is owned and operated by Alexandre Mogère. Some of the content on this website is used
+            <b>Gutenku.xyz</b> is owned and operated by Alexandre Mogère (heristop). Some of the content on this website is used
             under license from third-party sources. All such content is used in accordance with the terms of the
             applicable
             license agreements.
