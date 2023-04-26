@@ -10,6 +10,10 @@ const ChapterSchema = new Schema({
     content: {
         type: String,
         required: true
+    },
+    book: {
+        type: Schema.Types.ObjectId,
+        ref: 'Book'
     }
 });
 
