@@ -6,13 +6,13 @@ import requests
 BOOK_ID = int(sys.argv[1])
 url = f"https://www.gutenberg.org/cache/epub/{BOOK_ID}/pg{BOOK_ID}.txt"
 
-CACHE_DIRECTORY = ".cache"
+DATA_DIRECTORY = "./data"
 
-if not os.path.exists(CACHE_DIRECTORY):
-    os.makedirs(CACHE_DIRECTORY)
+if not os.path.exists(DATA_DIRECTORY):
+    os.makedirs(DATA_DIRECTORY)
 
 # Define the path to the text file containing the ebook
-file_path = f"{CACHE_DIRECTORY}/book_{BOOK_ID}.txt"
+file_path = f"{DATA_DIRECTORY}/book_{BOOK_ID}.txt"
 
 if not os.path.exists(file_path):
     # Make the request to the URL and get the response
@@ -20,7 +20,7 @@ if not os.path.exists(file_path):
 
     # Check that the response is OK
     if response.status_code == 200:
-        with open(f"{CACHE_DIRECTORY}/book_{BOOK_ID}.txt", "w", encoding="utf-8") as f:
+        with open(f"{DATA_DIRECTORY}/book_{BOOK_ID}.txt", "w", encoding="utf-8") as f:
             f.write(response.text)
 
         print(

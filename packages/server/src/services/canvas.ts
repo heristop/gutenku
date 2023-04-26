@@ -1,11 +1,11 @@
-import fs from 'fs';
-import { promisify } from 'util';
-import Canvas from 'canvas';
-import greentea from './themes/greentea';
-import colored from './themes/colored';
+import fs from "fs";
+import { promisify } from "util";
+import Canvas from "canvas";
+import greentea from "./themes/greentea";
+import colored from "./themes/colored";
 
 export default class CanvasService {
-    private readonly CACHE_DIRECTORY = './.cache';
+    private readonly DATA_DIRECTORY = "./data";
     private theme: string;
 
     constructor(theme: string) {
@@ -16,11 +16,11 @@ export default class CanvasService {
         let canvas: Canvas.Canvas;
 
         try {
-            if ('colored' === this.theme) {
+            if ("colored" === this.theme) {
                 canvas = await colored.create(verses);
             }
 
-            if ('greentea' === this.theme) {
+            if ("greentea" === this.theme) {
                 canvas = await greentea.create(verses);
             }
         } catch (err) {
@@ -32,17 +32,16 @@ export default class CanvasService {
     }
 
     async save(canvas: Canvas.Canvas): Promise<string> {
-        return new Promise<string>(resolve => {
-            const imagePath = `${this.CACHE_DIRECTORY}/haiku_${(Math.random() + 1)
+        return new Promise<string>((resolve) => {
+            const imagePath = `${this.DATA_DIRECTORY}/haiku_${(Math.random() + 1)
                 .toString(36)
-                .substring(7)
-            }.jpg`;
+                .substring(7)}.jpg`;
 
             const stream = canvas.createJPEGStream();
             const out = fs.createWriteStream(imagePath);
 
             stream.pipe(out);
-            out.on('finish', () => {
+            out.on("finish", () => {
                 console.log(`Image ${imagePath} created!`);
 
                 resolve(imagePath);
@@ -50,14 +49,15 @@ export default class CanvasService {
         });
     }
 
-    async read(imagePath: string): Promise<{ data: Buffer; contentType: string }> {
+    async read(
+        imagePath: string
+    ): Promise<{ data: Buffer; contentType: string }> {
         const readFile = promisify(fs.readFile);
         const data = await readFile(imagePath);
 
         return {
             data: data,
-            contentType: 'image/jpeg',
+            contentType: "image/jpeg",
         };
     }
 }
-

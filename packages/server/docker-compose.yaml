@@ -5,7 +5,7 @@ mongo-container:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=root
   volumes:
-    - './data:/data/db'
+    - './data/db:/data/db'
   ports:
     - "27017:27017"
   command: mongod
