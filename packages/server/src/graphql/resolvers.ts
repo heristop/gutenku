@@ -27,7 +27,7 @@ const resolvers = {
                 query['content'] = { $regex: content, $options: 'i' };
             }
 
-            return Chapter.findOne(query).populate('book').exec();
+            return Chapter.find(query).populate('book').exec();
         },
         haiku: async (_, args: {
             useAI: boolean,

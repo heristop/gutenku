@@ -11,7 +11,7 @@ yarn install
 
 Python:
 
-```bash 
+```bash
 pip3 install -r requirements.txt
 ```
 
@@ -35,6 +35,12 @@ yarn setup [--delete]
 
 ```bash
 yarn dev
+```
+
+## Train
+
+```bash
+node --loader ts-node/esm scripts/markov_train.ts
 ```
 
 ## Generate
