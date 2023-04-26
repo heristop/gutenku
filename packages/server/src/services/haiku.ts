@@ -205,7 +205,7 @@ export default class HaikuService implements GeneratorInterface {
 
             for (const quote of quotes) {
                 // First verse
-                if (0 === i && /^(and|but|or|of)/.test(quote)) {
+                if (0 === i && /^(and|but|or|of)/i.test(quote)) {
                     continue;
                 }
 
@@ -286,7 +286,7 @@ export default class HaikuService implements GeneratorInterface {
     }
 
     hasBlacklistedCharsInQuote(quote: string): boolean {
-        const lastWordsRegex = /(Mr|Mrs|Dr|Or|And|Of|St)$/;
+        const lastWordsRegex = /(Mr|Mrs|Dr|or|and|of|St)$/i;
         const specialCharsRegex = /@|[0-9]|#|\[|\|\(|\)|"|“|”|‘|’|\/|--|:|,|_|—|\+|=|{|}|\]|\*|\$|%|\r|\n|;|~|&/g;
         const lostLetter = /\b[A-Z]\b$/;
 
