@@ -17,6 +17,9 @@ cypress/downloads
 yarn-debug.log*
 yarn-error.log*
 
+# Build
+tsconfig.tsbuildinfo
+
 # Editor directories and files
 .idea
 .vscode
