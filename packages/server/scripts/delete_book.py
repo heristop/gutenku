@@ -20,7 +20,9 @@ book = book_collection.find_one({"reference": BOOK_ID})
 
 if book:
     # Delete all chapters associated with the book
-    chapter_collection.delete_many({'BOOK_ID': book["_id"]})
+    chapter_collection.delete_many({
+        'book': book["_id"]
+    })
 
     # Delete the book
     book_collection.delete_one({'_id': book["_id"]})

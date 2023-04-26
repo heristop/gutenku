@@ -29,8 +29,6 @@ async function listen(port: number) {
 
     await server.start();
 
-    mongoose.set('strictPopulate', false);
-
     const uri = process.env.MONGODB_URI || 'mongodb://root:root@localhost:27017'
     const database = process.env.MONGODB_DB || 'admin'
 

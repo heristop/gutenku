@@ -38,7 +38,9 @@ ids = [
     74,     # The Adventures of Tom Sawyer
     76,     # Adventures of Huckleberry Finn
     84,     # Frankenstein
+    98,     # A Tale of Two Cities
     105,    # Persuasion
+    145,    # Middlemarch
     158,    # Emma
     161,    # Sense and Sensibility
     174,    # The Picture of Dorian Gray
@@ -48,6 +50,7 @@ ids = [
     244,    # A Study In Scarlet
     345,    # Dracula
     394,    # Cranford
+    408,    # The Souls of Black Folk
     730,    # Oliver Twist
     768,    # Wuthering Heights
     996,    # The History of Don Quixote
@@ -60,15 +63,19 @@ ids = [
     1497,   # Republic
     1661,   # The Adventures of Sherlock Holmes
     2600,   # War and Peace
+    2641,   # A Room With A View
     2701,   # Moby Dick; or The Whale
     2852,   # The Hound of the Baskervilles
     3207,   # Leviathan
+    3600,   # The Essays of Montaigne, Complete
     4085,   # The Adventures of Roderick Random
     5827,   # The Problems of Philosophy
     6130,   # The Iliad of Homer
     6593,   # The History of Tom Jones, a Foundling
     8800,   # The Divine Comedy
+    16389,  # The Enchanted April
     25344,  # The Scarlet Letter
+    26184,  # Simple Sabotage Field Manual
     27827,  # The Kama Sutra of Vatsyayana
     28054,  # The Brothers Karamazov
     64317,  # The Great Gatsby

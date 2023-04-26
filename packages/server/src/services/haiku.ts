@@ -205,7 +205,7 @@ export default class HaikuService implements GeneratorInterface {
 
             for (const quote of quotes) {
                 // First verse
-                if (0 === i && /^(for|and|nor|but|or|yet|so)/.test(quote)) {
+                if (0 === i && /^(and|but|or|of)/.test(quote)) {
                     continue;
                 }
 
@@ -222,18 +222,18 @@ export default class HaikuService implements GeneratorInterface {
                     const tokenizer = new natural.WordTokenizer();
                     const words = tokenizer.tokenize(quote);
 
-                    await this.markovEvaluator.load();
-                    const markovScore = this.markovEvaluator.evaluateHaiku(quotes);
+                    const sentimentScore = analyzer.getSentiment(words);
 
-                    if (markovScore < parseFloat(process.env.MARKOV_SCORE || '0.01')) {
+                    if (sentimentScore < parseFloat(process.env.SENTIMENT_SCORE || '0.2')) {
                         quotes.splice(quotes.indexOf(quote), 1);
 
                         continue;
                     }
 
-                    const sentimentScore = analyzer.getSentiment(words);
+                    await this.markovEvaluator.load();
+                    const markovScore = this.markovEvaluator.evaluateHaiku(quotes);
 
-                    if (sentimentScore < parseFloat(process.env.SENTIMENT_SCORE || '0.2')) {
+                    if (markovScore < parseFloat(process.env.MARKOV_SCORE || '0.01')) {
                         quotes.splice(quotes.indexOf(quote), 1);
 
                         continue;
