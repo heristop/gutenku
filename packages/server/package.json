@@ -28,7 +28,7 @@
         "natural": "^6.2.0",
         "openai": "^3.1.0",
         "request": "^2.88.0",
-        "sharp": "^0.32.0",
+        "sharp": "^0.32.1",
         "syllable": "^5.0.1",
         "terminal-image": "^2.0.0"
     },

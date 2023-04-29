@@ -27,6 +27,7 @@ const query = `
                 title,
                 content
             }
+            executionTime
         }
     }
 `;
@@ -43,22 +44,25 @@ const body = {
     variables: variables,
 };
 
-try {
-    fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-    }).then(response => response.json()).then(async (response: {
-        data: HaikuResponseData
-    }) => {
-        const haiku = response.data.haiku;
+fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+}).then(response => response.json()).then(async (response: {
+    data: HaikuResponseData
+}) => {
+    const haiku = response.data?.haiku;
 
-        if (null === haiku) {
-            throw new Error('Haiku fetch error');
-        }
+    if (null === haiku) {
+        console.error(response);
 
-        console.log(haiku.verses, haiku.book.title);
-    });
-} catch (err) {
-    console.log(err);
-}
+        throw new Error('Haiku fetch error');
+    }
+
+    console.info(
+        haiku.verses, 
+        haiku.book.title
+    );
+
+    console.info('Time:', haiku.executionTime, 's');
+});

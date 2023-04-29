@@ -94,7 +94,7 @@ else:
             paragraph_count = chapter.count('\n')
 
             chapter_obj = {
-                "title": f"Chapter {i}",
+                "title": f"Chapter {i + 1}",
                 "content": chapter,
             }
             result = chapter_collection.insert_one(chapter_obj)
