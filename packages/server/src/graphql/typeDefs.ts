@@ -32,6 +32,7 @@ const typeDefs = `#graphql
         description: String
         hashtags: String
         translations: Translations
+        executionTime: Float
     }
 
     type Query {
