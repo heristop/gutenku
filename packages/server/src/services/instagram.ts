@@ -25,7 +25,7 @@ export default {
 
         const hashtagAuthor = haiku.book.author
             .toLowerCase()
-            .replaceAll(/\s|,|\.|\(|\)/g, '');
+            .replaceAll(/\s|,|-|\.|\(|\)/g, '');
 
         const caption = `
 🌸🗻 “${haiku.title}” 

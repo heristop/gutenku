@@ -23,7 +23,13 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
     data: ChapterResponseData
 }) => {
     const chapters = response.data.chapters;
-    
+
+    if (null === chapters) {
+        console.error(response);
+
+        throw new Error('Chapters fetch error');
+    }
+
     const markovEvaluator = new MarkovEvaluator();
 
     const bar = new cliProgress.SingleBar({

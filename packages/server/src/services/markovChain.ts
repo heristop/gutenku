@@ -56,11 +56,36 @@ export class MarkovChain {
             const count = transitions.get(firstWordTo);
 
             if (count) {
-                return count / 100;
+                return count / (lastWordFrom.length + toWords.length);
             }
         }
 
         return 0;
+    }
+
+    public evaluateWords(from: string, to: string): number {
+        const fromWords = new natural.WordTokenizer().tokenize(from);
+        const toWords = new natural.WordTokenizer().tokenize(to);
+
+        let totalScore = 0;
+        let totalCount = 0;
+    
+        for (const fromWord of fromWords) {
+            for (const toWord of toWords) {
+                const transitions = this.bigrams.get(fromWord);
+
+                if (transitions) {
+                    const count = transitions.get(toWord);
+
+                    if (count) {
+                        totalScore += count / 1000;
+                        totalCount++;
+                    }
+                }
+            }
+        }
+
+        return totalCount > 0 ? totalScore / totalCount : 0;
     }
 
     public async saveModel(): Promise<void> {

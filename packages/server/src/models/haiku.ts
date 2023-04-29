@@ -22,7 +22,7 @@ const HaikuSchema = new Schema({
     expireAt: {
         type: Date,
         required: true
-    },
+    }
 });
 
 export default mongoose.model('Haiku', HaikuSchema);

@@ -32,6 +32,7 @@ export interface HaikuValue {
     description?: string;
     hashtags?: string;
     translations?: Translations
+    executionTime?: number;
 }
 
 export interface HaikuResponseData {

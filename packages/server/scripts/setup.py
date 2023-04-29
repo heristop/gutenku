@@ -38,7 +38,6 @@ ids = [
     74,     # The Adventures of Tom Sawyer
     76,     # Adventures of Huckleberry Finn
     84,     # Frankenstein
-    98,     # A Tale of Two Cities
     105,    # Persuasion
     145,    # Middlemarch
     158,    # Emma
@@ -46,7 +45,6 @@ ids = [
     174,    # The Picture of Dorian Gray
     203,    # Uncle Tom’s Cabin
     224,    # A Pair of Blue Eyes
-    215,    # The Call of the Wild
     244,    # A Study In Scarlet
     345,    # Dracula
     394,    # Cranford
@@ -87,11 +85,9 @@ ids = [
     70236,  # The secret of the old mill
     70301,  # My leper friends
     70302,  # Education and the good life
-    70304,  # The Inquisition
     70305,  # Torwood's trust (Vol. 1 of 3)
     70306,  # Torwood's trust (Vol. 2 of 3)
     70307,  # Torwood's trust (Vol. 3 of 3)
-    70308,  # On the mechanism of the physiological action of the cathartics
     70471,  # Kabuki
     70473,  # Forrest house
     70478,  # The silver key

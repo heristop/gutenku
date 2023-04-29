@@ -70,55 +70,62 @@ fetch(process.env.SERVER_URI || "http://localhost:4000/graphql", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
-})
-    .then((response) => response.json())
-    .then(async (response: { data: HaikuResponseData }) => {
-        const haiku = response.data.haiku;
-        const imageData = Buffer.from(haiku.image, "base64");
+}).then((response) => response.json()).then(async (response: {
+    data: HaikuResponseData 
+}) => {
+    const haiku = response.data?.haiku;
 
-        haiku.imagePath = `${DATA_DIRECTORY}/preview_haiku.jpg`;
+    if (null === haiku) {
+        console.error(response);
+    
+        throw new Error('Haiku fetch error');
+    }
 
-        await fs.writeFile(haiku.imagePath, imageData);
+    const imageData = Buffer.from(haiku.image, "base64");
 
-        console.log(await terminalImage.file(haiku.imagePath, { width: 20 }));
-        console.log({
-            book: haiku.book,
-            verses: haiku.verses,
-            title: haiku.title,
-            description: haiku.description,
-            hashtags: haiku.hashtags,
-            translations: haiku.translations,
+    haiku.imagePath = `${DATA_DIRECTORY}/preview_haiku.jpg`;
+
+    await fs.writeFile(haiku.imagePath, imageData);
+
+    console.log(await terminalImage.file(haiku.imagePath, { width: 20 }));
+    console.log({
+        book: haiku.book,
+        verses: haiku.verses,
+        title: haiku.title,
+        description: haiku.description,
+        hashtags: haiku.hashtags,
+        translations: haiku.translations,
+    });
+
+    if (false === options.interaction) {
+        const imageBuffer = await fs.readFile(haiku.imagePath);
+
+        // Resize generated image for Readme Daily Haiku Card section
+        const resizedImageBuffer = await sharp(imageBuffer)
+            .resize(1000, 1000)
+            .toBuffer();
+
+        await fs.writeFile(
+            `${DATA_DIRECTORY}/daily_haiku_card.jpg`,
+            resizedImageBuffer
+        );
+
+        Instagram.post(haiku);
+    } else {
+        const rl = createInterface({
+            input: process.stdin,
+            output: process.stdout,
         });
 
-        if (false === options.interaction) {
-            const imageBuffer = await fs.readFile(haiku.imagePath);
-
-            // Resize generated image for Readme Daily Haiku Card section
-            const resizedImageBuffer = await sharp(imageBuffer)
-                .resize(1000, 1000)
-                .toBuffer();
-
-            await fs.writeFile(
-                `${DATA_DIRECTORY}/daily_haiku_card.jpg`,
-                resizedImageBuffer
-            );
-
-            Instagram.post(haiku);
-        } else {
-            const rl = createInterface({
-                input: process.stdin,
-                output: process.stdout,
-            });
-
-            rl.question(
-                "\nPost on Instagram? (y/n) \x1b[33m[n]\x1b[0m ",
-                (answer: string) => {
-                    if ("y" === answer || "yes" === answer) {
-                        Instagram.post(haiku);
-                    }
-
-                    rl.close();
+        rl.question(
+            "\nPost on Instagram? (y/n) \x1b[33m[n]\x1b[0m ",
+            (answer: string) => {
+                if ("y" === answer || "yes" === answer) {
+                    Instagram.post(haiku);
                 }
-            );
-        }
-    });
+
+                rl.close();
+            }
+        );
+    }
+});

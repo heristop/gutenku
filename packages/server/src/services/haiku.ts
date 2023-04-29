@@ -21,6 +21,7 @@ export default class HaikuService implements GeneratorInterface {
     private ttl: number;
     private skipCache: boolean;
     private theme: string;
+    private executionTime: number;
 
     constructor(db?: Connection, options?: {
         cache: {
@@ -36,10 +37,11 @@ export default class HaikuService implements GeneratorInterface {
         this.theme = options?.theme ?? 'greentea';
 
         this.markovEvaluator = new MarkovEvaluator();
-
     }
 
     async generate(): Promise<HaikuValue> {
+        this.executionTime = new Date().getTime();
+
         let haiku = await this.extractFromCache();
 
         if (null !== haiku) {
@@ -49,21 +51,29 @@ export default class HaikuService implements GeneratorInterface {
         let randomBook = await this.selectRandomBook();
         let randomChapter = null;
         let verses = [];
-        let i = 0;
+        let i = 1;
+
+        await this.markovEvaluator.load();
 
         while (verses.length < 3) {
             randomChapter = this.selectRandomChapter(randomBook);
 
             // eslint-disable-next-line
-            verses = await this.getVerses(randomChapter['content']);
+            const quotes = this.extractQuotes(randomChapter['content']);
 
-            // Failed to find 3 verses in the selected book after 50 tries
-            if (0 === i % 50) {
+            if (quotes.length > 0) {
+                verses = this.selectHaikuVerses(quotes);
+            }
+            
+            // Change book after too much tries
+            if (0 === i % 100) {
                 randomBook = await this.selectRandomBook();
             }
 
             ++i;
         }
+
+        const executionTime = (new Date().getTime() - this.executionTime) / 1000;
 
         haiku = {
             'book': {
@@ -75,6 +85,7 @@ export default class HaikuService implements GeneratorInterface {
             'useCache': false,
             'rawVerses': verses,
             'verses': this.clean(verses),
+            'executionTime': executionTime
         };
 
         await this.createCacheWithTTL(haiku);
@@ -97,7 +108,9 @@ export default class HaikuService implements GeneratorInterface {
     }
 
     async selectRandomBook(): Promise<BookValue> {
-        const books = await Book.find().populate('chapters').exec();
+        const books = await Book
+            .find({'chapters.id': { $ne: null }})
+            .populate('chapters').exec();
 
         const randomBook = books[Math.floor(Math.random() * books.length)];
 
@@ -106,7 +119,7 @@ export default class HaikuService implements GeneratorInterface {
         }
 
         if (0 === randomBook.chapters.length) {
-            throw new Error(`No chapter found for book "${randomBook.title}"`);
+            return this.selectRandomBook();
         }
 
         return randomBook;
@@ -127,7 +140,7 @@ export default class HaikuService implements GeneratorInterface {
             .aggregate([{ $sample: { size } }])
             .next();
 
-        console.log('Exract from cache');
+        console.log('Extract from cache');
 
         return {
             'book': randomHaiku.book,
@@ -160,26 +173,15 @@ export default class HaikuService implements GeneratorInterface {
         return book.chapters[index.toString()];
     }
 
-    async getVerses(chapter: string): Promise<string[]> {
-        const minQuotesCount = parseInt(process.env.MIN_QUOTES_COUNT) || 12;
-        const quotes = this.extractQuotes(chapter);
-        const filteredQuotes = this.filterQuotesCountingSyllables(quotes);
-
-        // Exclude lists with less than MIN_QUOTES_COUNT quotes
-        if (minQuotesCount && filteredQuotes.length < minQuotesCount) {
-            return [];
-        }
-
-        return await this.selectHaikuLines(filteredQuotes);
-    }
-
     extractQuotes(chapter: string): string[] {
-        return new natural.SentenceTokenizer().tokenize(chapter);
+        const quotes = new natural.SentenceTokenizer().tokenize(chapter);
+
+        return this.filterQuotesCountingSyllables(quotes);
     }
 
     filterQuotesCountingSyllables(quotes: string[]): string[] {
-        return quotes.filter((quote) => {
-            const words = quote.match(/\b\w+\b/g);
+        const filteredQuotes =  quotes.filter((quote) => {
+            const words = new natural.WordTokenizer().tokenize(quote);
 
             if (!words) {
                 return false;
@@ -191,14 +193,24 @@ export default class HaikuService implements GeneratorInterface {
 
             return syllableCount === 5 || syllableCount === 7;
         }).map((quote) => {
-            return quote.replace(/\.\.\.|\.$|,$|!$/, "");
-        });
+            // Remove punctuation from selected quotes
+            return quote.replace(/…$|\.\.\.$|\.$|,$|!$/, '');
+        });      
+
+        const minQuotesCount = parseInt(process.env.MIN_QUOTES_COUNT) || 20;
+
+        // Exclude filered lists with less than MIN_QUOTES_COUNT quotes
+        if (minQuotesCount && filteredQuotes.length < minQuotesCount) {
+            return [];
+        }
+
+        return filteredQuotes;
     }
 
-    async selectHaikuLines(quotes: string[]): Promise<string[]> {
+    selectHaikuVerses(quotes: string[]): string[] {
         const syllableCounts = [5, 7, 5];
-        const haikuLines = [];
-
+        const selectedVerses = [];
+                
         for (let i = 0; i < syllableCounts.length; i++) {
             const count = syllableCounts[i];
             const matchingQuotes = [];
@@ -209,60 +221,58 @@ export default class HaikuService implements GeneratorInterface {
                     continue;
                 }
 
-                if (this.isQuoteInvalid(quote)) {
-                    quotes.splice(quotes.indexOf(quote), 1);
+                if (false === this.isQuoteInvalid(quote)) {
+                    const syllableCount = this.countSyllables(quote);
 
-                    continue;
+                    if (syllableCount === count) {
+                        const analyzer = new natural.SentimentAnalyzer('English', PorterStemmer, 'afinn');
+                        const words = new natural.WordTokenizer().tokenize(quote);
+
+                        const sentimentScore = analyzer.getSentiment(words);
+                        const sentimentMinScore = parseFloat(process.env.SENTIMENT_MIN_SCORE || '0.2');
+
+                        if (sentimentScore >= sentimentMinScore) {
+                            console.log('words', words);
+                            console.log('sentiment_score', sentimentScore, 'min', sentimentMinScore);
+
+                            if (selectedVerses.length > 0) {
+                                const quotesToEvaluate = [
+                                    ...selectedVerses, 
+                                    quote
+                                ];
+
+                                const markovScore = this.markovEvaluator.evaluateHaiku(quotesToEvaluate);
+                                const markovMinScore = parseFloat(process.env.MARKOV_MIN_SCORE || '0.1');
+
+                                if (markovScore >= markovMinScore) {
+                                    console.log('markov_score', markovScore, 'min', markovMinScore);
+                
+                                    matchingQuotes.push({ quote, markovScore });
+                                }
+
+                                continue;
+                            }
+
+                            matchingQuotes.push({ quote });
+                        }
+                    }
                 }
 
-                const syllableCount = this.countSyllables(quote);
-
-                if (syllableCount === count) {
-                    const analyzer = new natural.SentimentAnalyzer('English', PorterStemmer, 'afinn');
-                    const tokenizer = new natural.WordTokenizer();
-                    const words = tokenizer.tokenize(quote);
-
-                    const sentimentScore = analyzer.getSentiment(words);
-
-                    if (sentimentScore < parseFloat(process.env.SENTIMENT_SCORE || '0.2')) {
-                        quotes.splice(quotes.indexOf(quote), 1);
-
-                        continue;
-                    }
-
-                    await this.markovEvaluator.load();
-                    const markovScore = this.markovEvaluator.evaluateHaiku(quotes);
-
-                    if (markovScore < parseFloat(process.env.MARKOV_SCORE || '0.01')) {
-                        quotes.splice(quotes.indexOf(quote), 1);
-
-                        continue;
-                    }
-
-                    console.log('words', words);
-                    console.log('sentiment_score', sentimentScore);
-                    console.log('markov_score', markovScore);
-
-                    matchingQuotes.push({ quote, sentimentScore, markovScore });
-                }
+                quotes.splice(quotes.indexOf(quote), 1);
             }
 
             if (matchingQuotes.length === 0) {
                 return [];
             }
 
-            // Sort matching quotes by sentiment score
-            matchingQuotes.sort((a, b) => a.sentiment - b.sentiment);
-
             // Select a random quote with the highest sentiment score
             const randomIndex = Math.floor(Math.random() * matchingQuotes.length);
             const selectedQuote = matchingQuotes[randomIndex].quote;
 
-            haikuLines.push(selectedQuote);
-            quotes.splice(quotes.indexOf(selectedQuote), 1);
+            selectedVerses.push(selectedQuote);
         }
 
-        return haikuLines;
+        return selectedVerses;
     }
 
     isQuoteInvalid(quote: string): boolean {

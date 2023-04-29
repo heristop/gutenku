@@ -25,10 +25,16 @@ export class MarkovEvaluator {
         let totalScore = 0;
 
         for (let i = 0; i < haiku.length - 1; i++) {
-            const score = this.markovChain.evaluateTransition(
+            let score = this.markovChain.evaluateTransition(
                 haiku[i].toLowerCase(), 
                 haiku[i + 1].toLowerCase()
             );
+
+            score += this.markovChain.evaluateWords(
+                haiku[i].toLowerCase(), 
+                haiku[i + 1].toLowerCase()
+            );
+
             totalScore += score;
         }
 
