@@ -6,13 +6,7 @@
       class="logo"
       src="@/assets/img/logo.png/gutenku_white.png"
       alt="GutenKu"
-      width="300"
+      height="32"
     />
   </v-app-bar>
 </template>
-
-<style scoped>
-.logo {
-    height: 32px;
-}
-</style>
