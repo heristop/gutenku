@@ -23,7 +23,7 @@ const query = `
             }
             verses,
             rawVerses
-            versesInContext
+            context
             chapter {
                 title,
                 content
