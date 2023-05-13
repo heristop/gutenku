@@ -222,6 +222,8 @@ export default class HaikuService implements IGenerator {
             const count = syllableCounts[i];
     
             const matchingQuotes = quotes.filter(({quote, index}) => {
+                quote = quote.replaceAll(/\n/g, ' ');
+
                 if (i === 0 && this.naturalLanguage.startWithConjunction(quote)) {
                     return false;
                 }
@@ -236,7 +238,7 @@ export default class HaikuService implements IGenerator {
                     return false;
                 }
 
-                console.log('quote', quote);
+                console.log('quote', quote.split(' '));
     
                 const sentimentScore = this.naturalLanguage.analyzeSentiment(quote);
     
