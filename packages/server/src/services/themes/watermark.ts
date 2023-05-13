@@ -2,16 +2,18 @@ import { readdir } from 'fs/promises';
 import { join } from 'path';
 import Canvas from 'canvas';
 import { HaikuValue } from '../../types';
+import HaikuService from '../haiku';
 
 export default {
     async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
-        const { verses, context } = haiku;
+        const { verses, chapter } = haiku;
+        let { context } = haiku;
 
         Canvas.registerFont('./src/assets/fonts/JMH Typewriter.ttf', { family: 'Typewriter' });
-    
+
         const canvas = Canvas.createCanvas(2400, 2400);
         const ctx = canvas.getContext('2d');
-    
+
         // Set background image
         const folderPath = './src/assets/themes/greentea/backgrounds';
         const files = await readdir(folderPath);
@@ -20,16 +22,24 @@ export default {
         const background = new Canvas.Image();
         background.src = imagePath;
         ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-    
+
         // Set font and styles
         ctx.font = '112px Typewriter';
 
         ctx.globalAlpha = 0.2;
-    
+
         // Setup coord
         const lineHeight = 380;
         const baseX = 244;
         const baseY = (canvas.height - lineHeight * verses.length) / 1.70;
+
+        if (!context) {
+            const haikuService = new HaikuService();
+            context = haikuService.extractContextVerses(
+                verses, 
+                chapter.content
+            );
+        }
 
         // Draw context lines
         ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
@@ -61,12 +71,13 @@ export default {
             } else if (i === 2 && sentenceAfter) {
                 ctx.fillText(sentenceAfter, (ctx.measureText(sentenceAfter).width / 4) * -1, y + lineHeight);
             }
-        });        
-    
+        });
+
         // Draw main verses
         ctx.fillStyle = '#2F5D62';
         ctx.globalAlpha = 0.84;
         let verseY = baseY;
+
         verses.forEach((verse) => {
             ctx.fillText(verse, baseX, verseY);
             verseY += lineHeight;

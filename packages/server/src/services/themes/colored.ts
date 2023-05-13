@@ -20,7 +20,6 @@ export default {
 
         const background = new Canvas.Image();
         background.src = imagePath;
-
         ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
         // Load the logo
