@@ -51,12 +51,17 @@ else:
     new_book_id = result.inserted_id
 
     # Split the chapters using regular expressions
-    chapter_patterns = r'(CHAPTER|BOOK|Chapter|CANTO|VOLUME) (\d+|[IVXLCDMivxlcdm]+)'
+    chapter_patterns = r'(CHAPTER|BOOK|Chapter|CANTO|VOLUME) (\d+|[IVXLCDMivxlcdm]+)\.'
     chapters = re.split(chapter_patterns, text)
     chapters_count = len(chapters)
 
+    # Try different patterns if the first one doesn't work
     if chapters_count <= 1:
-        # Try a different pattern if the first one doesn't work
+        chapter_patterns = r'(CHAPTER|BOOK|Chapter|CANTO|VOLUME) (\d+|[IVXLCDMivxlcdm]+)'
+        chapters = re.split(chapter_patterns, text)
+        chapters_count = len(chapters)
+
+    if chapters_count <= 1:
         chapter_patterns = r'(\d+|[IVXLCDMivxlcdm]+)\.'
         chapters = re.split(chapter_patterns, text)
         chapters_count = len(chapters)
