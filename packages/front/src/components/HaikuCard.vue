@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
-import { useHaikuStore } from '../store/haiku';
+import { useHaikuStore } from '@/store/haiku';
 import { storeToRefs } from 'pinia';
 
 const { fetchText } = useHaikuStore();

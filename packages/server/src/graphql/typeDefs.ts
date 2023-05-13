@@ -24,8 +24,9 @@ const typeDefs = `#graphql
         book: Book!
         chapter: Chapter!
         useCache: Boolean
-        rawVerses: [String!]
         verses: [String!]
+        rawVerses: [String!]
+        context: [String]
         image: String
         imagePath: String
         title: String

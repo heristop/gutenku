@@ -12,7 +12,7 @@ import 'vuetify/styles';
 import { createVuetify } from 'vuetify';
 
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
-const theme = {
+const gutenkuTheme = {
     dark: false,
     colors: {
         background: '#FFFFFF',
@@ -26,9 +26,9 @@ const theme = {
 
 export default createVuetify({
     theme: {
-        defaultTheme: 'theme',
+        defaultTheme: 'gutenkuTheme',
         themes: {
-            theme,
+            gutenkuTheme,
         }
     }
 });

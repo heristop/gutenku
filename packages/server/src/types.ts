@@ -26,6 +26,7 @@ export interface HaikuValue {
     useCache: boolean;
     verses: Array<string>;
     rawVerses: Array<string>;
+    context?: ContextVerses[];
     image?: string;
     imagePath?: string;
     title?: string;
@@ -46,4 +47,11 @@ export interface ChapterResponseData {
 export interface OpenAIOptions {
     apiKey: string;
     selectionCount?: number;
+}
+
+export interface ContextVerses {
+    wordsBefore?: string,
+    sentenceBefore?: string,
+    wordsAfter?: string,
+    sentenceAfter?: string
 }

@@ -90,9 +90,9 @@ ids = [
     70307,  # Torwood's trust (Vol. 3 of 3)
     70471,  # Kabuki
     70473,  # Forrest house
-    70478,  # The silver key
     70525,  # Sahara
     70530,  # Physician and patient
+    70749,  # Cosmic symbolism
 ]
 
 delete_books = args.delete
