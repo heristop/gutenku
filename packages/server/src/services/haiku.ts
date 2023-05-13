@@ -179,48 +179,49 @@ export default class HaikuService implements IGenerator {
         return book.chapters[index.toString()];
     }
 
-    extractQuotes(chapter: string): string[] {
-        const quotesL = this.naturalLanguage.extractSentencesByPunctuation(chapter);
-
-        return this.filterQuotesCountingSyllables(/*quotes.concat(*/quotesL/*)*/);
+    extractQuotes(chapter: string): {quote: string, index: number}[] {
+        const sentences = this.naturalLanguage.extractSentencesByPunctuation(chapter);
+        const quotes = sentences.map((quote, index) => ({quote, index}));
+    
+        return this.filterQuotesCountingSyllables(quotes.concat(quotes));
     }
-
-    filterQuotesCountingSyllables(quotes: string[]): string[] {
-        const filteredQuotes = quotes.filter((quote) => {
+    
+    filterQuotesCountingSyllables(quotes: {quote: string, index: number}[]): {quote: string, index: number}[] {
+        const filteredQuotes = quotes.filter(({quote}) => {
             const words = this.naturalLanguage.extractWords(quote);
-
+    
             if (!words) {
                 return false;
             }
-
+    
             const syllableCount = words.reduce((count, word) => {
                 return count + syllable(word);
             }, 0);
-
+    
             return syllableCount === 5 || syllableCount === 7;
         });      
-
+    
         const minQuotesCount = parseInt(process.env.MIN_QUOTES_COUNT) || 12;
-
-        // Exclude filered lists with less than MIN_QUOTES_COUNT quotes
+    
+        // Exclude filtered lists with less than MIN_QUOTES_COUNT quotes
         if (minQuotesCount && filteredQuotes.length < minQuotesCount) {
             return [];
         }
-
+    
         return filteredQuotes;
-    }
+    }    
 
-    selectHaikuVerses(quotes: string[]): string[] {
+    selectHaikuVerses(quotes: {quote: string, index: number}[]): string[] {
         const syllableCounts = [5, 7, 5];
         const sentimentMinScore = parseFloat(process.env.SENTIMENT_MIN_SCORE || '0');
         const markovMinScore = parseFloat(process.env.MARKOV_MIN_SCORE || '0');
         
-        const selectedVerses: string[] = [];
+        const selectedVerses: {quote: string, index: number}[] = [];
     
         for (let i = 0; i < syllableCounts.length; i++) {
             const count = syllableCounts[i];
     
-            const matchingQuotes = quotes.filter(quote => {
+            const matchingQuotes = quotes.filter(({quote, index}) => {
                 if (i === 0 && this.naturalLanguage.startWithConjunction(quote)) {
                     return false;
                 }
@@ -234,20 +235,33 @@ export default class HaikuService implements IGenerator {
                 if (syllableCount !== count) {
                     return false;
                 }
+
+                console.log('quote', quote);
     
                 const sentimentScore = this.naturalLanguage.analyzeSentiment(quote);
     
                 if (sentimentScore < sentimentMinScore) {
                     return false;
                 }
+
+                console.log('sentiment_score', sentimentScore, 'min', sentimentMinScore);
     
                 if (selectedVerses.length > 0) {
-                    const quotesToEvaluate = [...selectedVerses, quote];
+                    const lastVerseIndex = selectedVerses[selectedVerses.length - 1].index;
+    
+                    // Ensure that the selected verse follows the last selected verse in the original text
+                    if (index <= lastVerseIndex) {
+                        return false;
+                    }
+    
+                    const quotesToEvaluate = [...selectedVerses.map(verse => verse.quote), quote];
                     const markovScore = this.markovEvaluator.evaluateHaiku(quotesToEvaluate);
     
                     if (markovScore < markovMinScore) {
                         return false;
                     }
+
+                    console.log('markov_score', markovScore, 'min', markovMinScore);
                 }
     
                 return true;
@@ -264,11 +278,11 @@ export default class HaikuService implements IGenerator {
             selectedVerses.push(selectedQuote);
     
             // Remove the selected quote from the original quotes array
-            quotes = quotes.filter(quote => quote !== selectedQuote);
+            quotes = quotes.filter(({index}) => index !== selectedQuote.index);
         }
     
-        return selectedVerses;
-    }
+        return selectedVerses.map(({quote}) => quote);
+    }    
 
     isQuoteInvalid(quote: string): boolean {
         quote = quote.replaceAll(/\n/g, '');

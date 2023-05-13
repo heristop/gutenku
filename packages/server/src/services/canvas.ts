@@ -18,17 +18,17 @@ export default class CanvasService {
         let createCanvas = null;
     
         switch (this.theme) {
-            case 'colored':
-                createCanvas = colored.create;
-                break;
-            case 'greentea':
-                createCanvas = greentea.create;
-                break;
-            case 'watermark':
-                createCanvas = watermark.create;
-                break;
-            default:
-                throw new Error(`Unsupported theme: ${this.theme}`);
+        case 'colored':
+            createCanvas = colored.create;
+            break;
+        case 'greentea':
+            createCanvas = greentea.create;
+            break;
+        case 'watermark':
+            createCanvas = watermark.create;
+            break;
+        default:
+            throw new Error(`Unsupported theme: ${this.theme}`);
         }
 
         try {

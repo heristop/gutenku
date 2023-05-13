@@ -15,7 +15,7 @@ export class MarkovChain {
     }
 
     public train(text: string): void {
-        const sentences = this.extractSentences(text.replaceAll(/\n/g, ' '));
+        const sentences = this.naturalLanguage.extractSentences(text.replaceAll(/\n/g, ' '));
 
         for (const sentence of sentences) {
             const words = this.naturalLanguage.extractWords(sentence);
@@ -118,9 +118,5 @@ export class MarkovChain {
         } catch (error) {
             console.error(`Error on model load: ${error}`);
         }
-    }
-
-    private extractSentences(text: string): string[] {
-        return this.naturalLanguage.extractSentences(text);
     }
 }
