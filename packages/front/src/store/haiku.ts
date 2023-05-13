@@ -31,7 +31,7 @@ export const useHaikuStore = defineStore({
         loading: false as boolean,
         firstLoaded: false as boolean,
         useAI: false as boolean,
-        theme: 'greentea' as string,
+        theme: 'watermark' as string,
         error: '' as string
     }),
     actions: {

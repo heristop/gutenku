@@ -1,28 +1,35 @@
-import natural from 'natural';
 import fs from 'fs/promises';
+import NaturalLanguageService from '../natural';
+
+const FANBOYS_LIST = ['for', 'and', 'nor', 'but', 'or', 'yet', 'so'];
 
 export class MarkovChain {
     private bigrams: Map<string, Map<string, number>>;
     private totalBigrams: number;
+    private naturalLanguage: NaturalLanguageService;
 
     constructor() {
         this.bigrams = new Map();
         this.totalBigrams = 0;
+        this.naturalLanguage = new NaturalLanguageService();
     }
 
     public train(text: string): void {
-        const sentences = this.extractSentences(text);
+        const sentences = this.naturalLanguage.extractSentences(text.replaceAll(/\n/g, ' '));
 
         for (const sentence of sentences) {
-            const words = new natural.WordTokenizer().tokenize(sentence);
+            const words = this.naturalLanguage.extractWords(sentence);
 
-            for (let i = 0; i < words.length - 1; i++) {
-                const from = words[i];
-                const to = words[i + 1];
-
-                if (this.isExcluded(from) || this.isExcluded(to)) {
-                    continue;
+            const wordList = [];
+            words.forEach((word: string) => {
+                if (!FANBOYS_LIST.includes(word.toLowerCase())) {
+                    wordList.push(word);
                 }
+            });
+
+            for (let i = 0; i < wordList.length - 1; i++) {
+                const from = wordList[i];
+                const to = wordList[i + 1];
 
                 if (!this.bigrams.has(from)) {
                     this.bigrams.set(from, new Map());
@@ -40,8 +47,8 @@ export class MarkovChain {
     }
 
     public evaluateTransition(from: string, to: string): number {
-        const fromWords = new natural.WordTokenizer().tokenize(from);
-        const toWords = new natural.WordTokenizer().tokenize(to);
+        const fromWords = this.naturalLanguage.extractWords(from);
+        const toWords = this.naturalLanguage.extractWords(to);
 
         if (fromWords.length === 0 || toWords.length === 0) {
             return 0;
@@ -64,8 +71,8 @@ export class MarkovChain {
     }
 
     public evaluateWords(from: string, to: string): number {
-        const fromWords = new natural.WordTokenizer().tokenize(from);
-        const toWords = new natural.WordTokenizer().tokenize(to);
+        const fromWords = this.naturalLanguage.extractWords(from);
+        const toWords = this.naturalLanguage.extractWords(to);
 
         let totalScore = 0;
         let totalCount = 0;
@@ -112,18 +119,4 @@ export class MarkovChain {
             console.error(`Error on model load: ${error}`);
         }
     }
-
-    private extractSentences(text: string): string[] {
-        return new natural.SentenceTokenizer().tokenize(text.toLowerCase());
-    }
-
-    private isExcluded(word: string): boolean {
-        // Exclude words with one or several capitalized letters
-        if (/(?=.*[A-Z])/g.test(word)) {
-            return true;
-        }
-
-        return false;
-    }
-
 }

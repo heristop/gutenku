@@ -1,8 +1,10 @@
 import fs from "fs";
 import { promisify } from "util";
 import Canvas from "canvas";
-import greentea from "./themes/greentea";
+import { HaikuValue } from "../types";
 import colored from "./themes/colored";
+import greentea from "./themes/greentea";
+import watermark from "./themes/watermark";
 
 export default class CanvasService {
     private readonly DATA_DIRECTORY = "./data";
@@ -12,23 +14,32 @@ export default class CanvasService {
         this.theme = theme;
     }
 
-    async create(verses: string[]): Promise<string> {
-        let canvas: Canvas.Canvas;
-
-        try {
-            if ("colored" === this.theme) {
-                canvas = await colored.create(verses);
-            }
-
-            if ("greentea" === this.theme) {
-                canvas = await greentea.create(verses);
-            }
-        } catch (err) {
-            console.log(err);
+    async create(haiku: HaikuValue): Promise<string> {
+        let createCanvas = null;
+    
+        switch (this.theme) {
+        case 'colored':
+            createCanvas = colored.create;
+            break;
+        case 'greentea':
+            createCanvas = greentea.create;
+            break;
+        case 'watermark':
+            createCanvas = watermark.create;
+            break;
+        default:
+            throw new Error(`Unsupported theme: ${this.theme}`);
         }
 
-        // Save the image
-        return await this.save(canvas);
+        try {
+            const canvas = await createCanvas(haiku);
+
+            // Save the image
+            return this.save(canvas);
+        } catch (err) {
+            console.error(err);
+            throw err; 
+        }
     }
 
     async save(canvas: Canvas.Canvas): Promise<string> {

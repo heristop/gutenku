@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
-import { useHaikuStore } from '../store/haiku';
+import { useHaikuStore } from '@/store/haiku';
 import { storeToRefs } from 'pinia';
 
 const { fetchText } = useHaikuStore();
@@ -55,7 +55,7 @@ const downloadImage = () => {
         v-model="theme"
         @update:model-value="fetchText()"
         label="Theme"
-        :items="['colored', 'greentea']"
+        :items="['colored', 'greentea','watermark']"
         variant="underlined"
       />
 

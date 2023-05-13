@@ -1,10 +1,6 @@
-<template>
-  <span v-html="formattedText" />
-</template>
-
 <script lang="ts">
 import { computed } from 'vue';
-import { useHaikuStore } from '../store/haiku';
+import { useHaikuStore } from '@/store/haiku';
 import { storeToRefs } from 'pinia';
 
 const { error } = storeToRefs(useHaikuStore());
@@ -44,3 +40,7 @@ export default {
 };
 </script>
 
+<template>
+  <span v-html="formattedText" />
+</template>
+  

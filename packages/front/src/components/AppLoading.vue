@@ -1,56 +1,50 @@
-<script lang="ts">
-import { ref, computed } from 'vue';
+<script lang="ts" setup>
+import { ref, computed, onMounted } from 'vue';
 
-export default {
-    props: {
-        text: {
-            type: String,
-            required: false,
-            default: ''
-        },
-        color: {
-            type: String,
-            required: false,
-            default: 'primary'
-        },
-        error: {
-            type: Boolean,
-            required: false,
-            default: false
-        }
+const props = defineProps({
+    text: {
+        type: String,
+        required: false,
+        default: ''
     },
-    setup(props) {
-        const icons = ref([
-            'mdi-robot-confused-outline',
-            'mdi-robot-outline',
-            'mdi-robot-happy-outline',
-            'mdi-robot-excited-outline',
-            'mdi-robot-love-outline',
-        ]);
-
-        const flipIcons = computed(() => {
-            return false === props.error;
-        });
-
-        return {
-            icons,
-            flipIcons
-        };
+    color: {
+        type: String,
+        required: false,
+        default: 'primary'
     },
-    mounted() {
-        const icons = document.querySelectorAll('.loading i.flip');
-        let index = 0;
-
-        icons[index].classList.add('active');
-
-        setInterval(() => {
-            icons[index].classList.remove('active')
-            index = (index + 1) % icons.length
-            icons[index].classList.add('active')
-        }, 500);
+    error: {
+        type: Boolean,
+        required: false,
+        default: false
     }
-};
+});
+
+const icons = ref([
+    'mdi-robot-confused-outline',
+    'mdi-robot-outline',
+    'mdi-robot-happy-outline',
+    'mdi-robot-excited-outline',
+    'mdi-robot-love-outline',
+]);
+
+const flipIcons = computed(() => {
+    return false === props.error;
+});
+
+onMounted(() => {
+    const iconsElements = document.querySelectorAll('.loading i.flip');
+    let index = 0;
+
+    iconsElements[index].classList.add('active');
+
+    setInterval(() => {
+        iconsElements[index].classList.remove('active')
+        index = (index + 1) % iconsElements.length
+        iconsElements[index].classList.add('active')
+    }, 500);
+});
 </script>
+
 
 <template>
   <div class="loading">
@@ -91,34 +85,32 @@ export default {
     </div>
   </div>
 </template>
-  
-<style scoped>
-@import '@/assets/css/fonts.css';
 
+
+<style lang="scss" scoped>
 .loading {
   position: absolute;
   top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-}
 
-.loading .icon.active {
-  opacity: 0.75;
-}
+  .icon.active {
+    opacity: 0.75;
+  }
 
-.loading .icon {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  font-size: 48px;
-  margin: 0 auto;
-  animation: slide-in 1s ease-out infinite;
-  opacity: 0;
-}
+  .icon {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    font-size: 48px;
+    margin: 0 auto;
+    animation: slide-in 1s ease-out infinite;
+    opacity: 0;
+  }
 
-.loading-text {
-  font-family: 'Typewriter', serif;
-  font-size: 18px;
-  opacity: 0.9;
+  .loading-text {
+    font-size: 18px;
+    opacity: 0.9;
+  }
 }
 </style>

@@ -23,6 +23,7 @@ const query = `
             }
             verses,
             rawVerses
+            versesInContext
             chapter {
                 title,
                 content
@@ -36,7 +37,7 @@ const variables = {
     useAi: false,
     skipCache: true,
     appendImg: false,
-    theme: 'greentea',
+    theme: 'watermark',
 };
 
 const body = {
@@ -60,7 +61,7 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
     }
 
     console.info(
-        haiku.verses, 
+        haiku.verses,
         haiku.book.title
     );
 
