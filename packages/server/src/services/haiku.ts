@@ -1,22 +1,23 @@
 import { promisify } from 'util';
 import { unlink } from 'fs';
-import natural from 'natural';
 import { Connection } from 'mongoose';
 import { syllable } from 'syllable';
 import CanvasService from './canvas';
 import Book from '../models/book';
-import { BookValue, HaikuValue } from '../types';
-import { MarkovEvaluator } from './markovEvaluator';
+import { BookValue, HaikuValue, ContextVerses } from '../types';
+import { MarkovEvaluator } from './markov/evaluator';
+import NaturalLanguageService from './natural';
 
-const { PorterStemmer } = natural;
-
-export interface GeneratorInterface {
+export interface IGenerator {
     generate(): Promise<HaikuValue>;
 }
 
-export default class HaikuService implements GeneratorInterface {
+export default class HaikuService implements IGenerator {
+    private readonly maxTries = 50;
+
     private db: Connection;
     private markovEvaluator: MarkovEvaluator;
+    private naturalLanguage: NaturalLanguageService;
     private minCachedDocs: number;
     private ttl: number;
     private skipCache: boolean;
@@ -37,6 +38,7 @@ export default class HaikuService implements GeneratorInterface {
         this.theme = options?.theme ?? 'greentea';
 
         this.markovEvaluator = new MarkovEvaluator();
+        this.naturalLanguage = new NaturalLanguageService();
     }
 
     async generate(): Promise<HaikuValue> {
@@ -66,7 +68,7 @@ export default class HaikuService implements GeneratorInterface {
             }
             
             // Change book after too much tries
-            if (0 === i % 100) {
+            if (0 === i % this.maxTries) {
                 randomBook = await this.selectRandomBook();
             }
 
@@ -83,8 +85,12 @@ export default class HaikuService implements GeneratorInterface {
             },
             'chapter': randomChapter,
             'useCache': false,
-            'rawVerses': verses,
             'verses': this.clean(verses),
+            'rawVerses': verses,
+            'context': this.extractContextVerses(
+                verses, 
+                randomChapter.content
+            ),
             'executionTime': executionTime
         };
 
@@ -96,7 +102,7 @@ export default class HaikuService implements GeneratorInterface {
     async appendImg(haiku: HaikuValue): Promise<HaikuValue> {
         const canvasService = new CanvasService(this.theme);
 
-        const imagePath = await canvasService.create(haiku.verses);
+        const imagePath = await canvasService.create(haiku);
         const image = await canvasService.read(imagePath);
 
         await promisify(unlink)(imagePath);
@@ -173,114 +179,119 @@ export default class HaikuService implements GeneratorInterface {
         return book.chapters[index.toString()];
     }
 
-    extractQuotes(chapter: string): string[] {
-        const quotes = new natural.SentenceTokenizer().tokenize(chapter);
-
-        return this.filterQuotesCountingSyllables(quotes);
+    extractQuotes(chapter: string): {quote: string, index: number}[] {
+        const sentences = this.naturalLanguage.extractSentencesByPunctuation(chapter);
+        const quotes = sentences.map((quote, index) => ({quote, index}));
+    
+        return this.filterQuotesCountingSyllables(quotes.concat(quotes));
     }
-
-    filterQuotesCountingSyllables(quotes: string[]): string[] {
-        const filteredQuotes =  quotes.filter((quote) => {
-            const words = new natural.WordTokenizer().tokenize(quote);
-
+    
+    filterQuotesCountingSyllables(quotes: {quote: string, index: number}[]): {quote: string, index: number}[] {
+        const filteredQuotes = quotes.filter(({quote}) => {
+            const words = this.naturalLanguage.extractWords(quote);
+    
             if (!words) {
                 return false;
             }
-
+    
             const syllableCount = words.reduce((count, word) => {
                 return count + syllable(word);
             }, 0);
-
+    
             return syllableCount === 5 || syllableCount === 7;
-        }).map((quote) => {
-            // Remove punctuation from selected quotes
-            return quote.replace(/…$|\.\.\.$|\.$|,$|!$/, '');
         });      
-
-        const minQuotesCount = parseInt(process.env.MIN_QUOTES_COUNT) || 20;
-
-        // Exclude filered lists with less than MIN_QUOTES_COUNT quotes
+    
+        const minQuotesCount = parseInt(process.env.MIN_QUOTES_COUNT) || 12;
+    
+        // Exclude filtered lists with less than MIN_QUOTES_COUNT quotes
         if (minQuotesCount && filteredQuotes.length < minQuotesCount) {
             return [];
         }
-
+    
         return filteredQuotes;
-    }
+    }    
 
-    selectHaikuVerses(quotes: string[]): string[] {
+    selectHaikuVerses(quotes: {quote: string, index: number}[]): string[] {
         const syllableCounts = [5, 7, 5];
-        const selectedVerses = [];
-                
+        const sentimentMinScore = parseFloat(process.env.SENTIMENT_MIN_SCORE || '0');
+        const markovMinScore = parseFloat(process.env.MARKOV_MIN_SCORE || '0');
+        
+        const selectedVerses: {quote: string, index: number}[] = [];
+    
         for (let i = 0; i < syllableCounts.length; i++) {
             const count = syllableCounts[i];
-            const matchingQuotes = [];
-
-            for (const quote of quotes) {
-                // First verse
-                if (0 === i && /^(and|but|or|of)/i.test(quote)) {
-                    continue;
+    
+            const matchingQuotes = quotes.filter(({quote, index}) => {
+                if (i === 0 && this.naturalLanguage.startWithConjunction(quote)) {
+                    return false;
                 }
-
-                if (false === this.isQuoteInvalid(quote)) {
-                    const syllableCount = this.countSyllables(quote);
-
-                    if (syllableCount === count) {
-                        const analyzer = new natural.SentimentAnalyzer('English', PorterStemmer, 'afinn');
-                        const words = new natural.WordTokenizer().tokenize(quote);
-
-                        const sentimentScore = analyzer.getSentiment(words);
-                        const sentimentMinScore = parseFloat(process.env.SENTIMENT_MIN_SCORE || '0.2');
-
-                        if (sentimentScore >= sentimentMinScore) {
-                            console.log('words', words);
-                            console.log('sentiment_score', sentimentScore, 'min', sentimentMinScore);
-
-                            if (selectedVerses.length > 0) {
-                                const quotesToEvaluate = [
-                                    ...selectedVerses, 
-                                    quote
-                                ];
-
-                                const markovScore = this.markovEvaluator.evaluateHaiku(quotesToEvaluate);
-                                const markovMinScore = parseFloat(process.env.MARKOV_MIN_SCORE || '0.1');
-
-                                if (markovScore >= markovMinScore) {
-                                    console.log('markov_score', markovScore, 'min', markovMinScore);
+    
+                if (this.isQuoteInvalid(quote)) {
+                    return false;
+                }
                 
-                                    matchingQuotes.push({ quote, markovScore });
-                                }
-
-                                continue;
-                            }
-
-                            matchingQuotes.push({ quote });
-                        }
-                    }
+                const syllableCount = this.naturalLanguage.countSyllables(quote);
+    
+                if (syllableCount !== count) {
+                    return false;
                 }
 
-                quotes.splice(quotes.indexOf(quote), 1);
-            }
+                console.log('quote', quote);
+    
+                const sentimentScore = this.naturalLanguage.analyzeSentiment(quote);
+    
+                if (sentimentScore < sentimentMinScore) {
+                    return false;
+                }
 
+                console.log('sentiment_score', sentimentScore, 'min', sentimentMinScore);
+    
+                if (selectedVerses.length > 0) {
+                    const lastVerseIndex = selectedVerses[selectedVerses.length - 1].index;
+    
+                    // Ensure that the selected verse follows the last selected verse in the original text
+                    if (index <= lastVerseIndex) {
+                        return false;
+                    }
+    
+                    const quotesToEvaluate = [...selectedVerses.map(verse => verse.quote), quote];
+                    const markovScore = this.markovEvaluator.evaluateHaiku(quotesToEvaluate);
+    
+                    if (markovScore < markovMinScore) {
+                        return false;
+                    }
+
+                    console.log('markov_score', markovScore, 'min', markovMinScore);
+                }
+    
+                return true;
+            });
+    
             if (matchingQuotes.length === 0) {
                 return [];
             }
-
-            // Select a random quote with the highest sentiment score
+    
+            // Select a random quote
             const randomIndex = Math.floor(Math.random() * matchingQuotes.length);
-            const selectedQuote = matchingQuotes[randomIndex].quote;
-
+            const selectedQuote = matchingQuotes[randomIndex];
+    
             selectedVerses.push(selectedQuote);
+    
+            // Remove the selected quote from the original quotes array
+            quotes = quotes.filter(({index}) => index !== selectedQuote.index);
         }
-
-        return selectedVerses;
-    }
+    
+        return selectedVerses.map(({quote}) => quote);
+    }    
 
     isQuoteInvalid(quote: string): boolean {
-        if (this.hasUpperCaseWords(quote)) {
+        quote = quote.replaceAll(/\n/g, '');
+
+        if (this.naturalLanguage.hasUpperCaseWords(quote)) {
             return true;
         }
 
-        if (this.hasBlacklistedCharsInQuote(quote)) {
+        if (this.naturalLanguage.hasBlacklistedCharsInQuote(quote)) {
             return true;
         }
 
@@ -291,40 +302,46 @@ export default class HaikuService implements GeneratorInterface {
         return false;
     }
 
-    hasUpperCaseWords(quote: string): boolean {
-        return /^[A-Z\s!:.?]+$/g.test(quote);
+    extractContextVerses(
+        verses: string[],
+        chapter: string
+    ): ContextVerses[] {
+        return verses.map(verse => {
+            return this.findContext(
+                chapter.replaceAll(/\n/g, ' '), 
+                verse.replaceAll(/\n/g, ' ')
+            );
+        });
     }
 
-    hasBlacklistedCharsInQuote(quote: string): boolean {
-        const lastWordsRegex = /(Mr|Mrs|Dr|or|and|of|St)$/i;
-        const specialCharsRegex = /@|[0-9]|#|\[|\|\(|\)|"|“|”|‘|’|\/|--|:|,|_|—|\+|=|{|}|\]|\*|\$|%|\r|\n|;|~|&/g;
-        const lostLetter = /\b[A-Z]\b$/;
+    findContext(text, substring, numWords = 5, numSentences = 2) {
+        const sentences = text.split(/(?<=[.,;!?])\s+/);
 
-        const regexList = [
-            lastWordsRegex,
-            specialCharsRegex,
-            lostLetter,
-        ];
+        const index = text.indexOf(substring);
 
-        for (const regex of regexList) {
-            if (regex.test(quote)) {
-                return true;
-            }
+        if (index === -1) {
+            return null;
         }
 
-        return false;
-    }
+        const wordsBeforeArray = text.slice(0, index).split(" ").slice(-numWords);
+        const wordsAfterArray = text.slice(index + substring.length).split(" ").slice(0, numWords);
+        const wordsBefore = wordsBeforeArray.join(" ");
+        const wordsAfter = wordsAfterArray.join(" ");
 
-    countSyllables(quote: string): number {
-        const words = quote.match(/\b\w+\b/g);
+        const sentenceIndexBefore = sentences.findIndex(sentence => sentence.includes(wordsBeforeArray[0]));
+        const sentenceIndexAfter = sentences.findIndex(sentence => sentence.includes(wordsAfterArray[wordsAfterArray.length - 1]));
 
-        if (!words) {
-            return 0;
-        }
-
-        return words.reduce((count, word) => {
-            return count + syllable(word);
-        }, 0);
+        const sentencesBefore = sentences.slice(Math.max(0, sentenceIndexBefore - numSentences + 1), sentenceIndexBefore + 1);
+        const sentencesAfter = sentences.slice(sentenceIndexAfter, sentenceIndexAfter + numSentences);
+        const sentenceBefore = sentencesBefore.join(" ").replace(substring, "").trim();
+        const sentenceAfter = sentencesAfter.join(" ").replace(substring, "").trim();
+    
+        return {
+            wordsBefore,
+            sentenceBefore,
+            wordsAfter,
+            sentenceAfter
+        };
     }
 
     clean(verses: string[]): string[] {
@@ -333,8 +350,9 @@ export default class HaikuService implements GeneratorInterface {
 
         return verses.map(verse => {
             verse = verse.trim()
-                .replace(newLineRegex, ' ')
-                .replace(whitespaceRegex, ' ');
+                .replaceAll(newLineRegex, ' ')
+                .replaceAll(whitespaceRegex, ' ')
+                .replaceAll(/^'|'$|\.\.\.$|\.$\.$|\.$|,$|!$|;$|\?$/g, '');
 
             return verse.charAt(0).toUpperCase() + verse.slice(1);
         });

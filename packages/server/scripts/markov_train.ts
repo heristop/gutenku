@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 import cliProgress from 'cli-progress';
-import { MarkovEvaluator } from '../src/services/markovEvaluator';
+import { MarkovEvaluator } from '../src/services/markov/evaluator';
 import { ChapterResponseData } from '../src/types';
 
 const query = `

@@ -1,9 +1,11 @@
 import { readdir } from 'fs/promises';
 import { join } from 'path';
 import Canvas from 'canvas';
+import { HaikuValue } from '../../types';
 
 export default {
-    async create(verses: string[]): Promise<Canvas.Canvas> {
+    async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
+        const { verses } = haiku;
         Canvas.registerFont('./src/assets/fonts/JMH Typewriter.ttf', { family: 'Typewriter' });
 
         const canvas = Canvas.createCanvas(2400, 2400);

@@ -51,27 +51,44 @@ else:
     new_book_id = result.inserted_id
 
     # Split the chapters using regular expressions
-    chapter_patterns = r'(CHAPTER|BOOK|Chapter|CANTO|VOLUME) (\d+|[IVXLCDMivxlcdm]+)'
-    chapters = re.split(chapter_patterns, text)
-    chapters_count = len(chapters)
+    chapter_patterns = [
+        r'\n{2,}CHAPTER[ .]+(\d+|[IVXLCDMivxlcdm]+)[ .]*\n',
+        r'\n{2,}CHAPTER[ .]+([A-Z][\w ]*)\n',
+        r'\n{2,}([A-Z][\w ]*)[ .]*(\d+|[IVXLCDMivxlcdm]+)\n',
+        r'\n{2,}Chapter (\d+) ([A-Z\s]+)\n{1,}',
+        r'\n{2,}CHAPTER (\d+|[IVXLCDMivxlcdm]+)\. ([A-Z\s]+)\n',
+        r'\n{2,}BOOK[ .]*(\d+|[IVXLCDMivxlcdm]+)\n',
+        r'\n{2,}VOLUME[ .]*(\d+|[IVXLCDMivxlcdm]+)\n',
+        r'\n{2,}CANTO[ .]*(\d+|[IVXLCDMivxlcdm]+)\n',
+        r'\n{2,}PART[ .]*(\d+|[IVXLCDMivxlcdm]+)\n',
+        r'\n{2,}SECTION[ .]*(\d+|[IVXLCDMivxlcdm]+)\n',
+        r'\n{2,}(\d+)\n',
+        r'\n{2,}([IVXLCDMivxlcdm]+)\n',
+        r'\n{2,}([A-Z][\w ]*)\n',
+    ]
 
-    if chapters_count <= 1:
-        # Try a different pattern if the first one doesn't work
-        chapter_patterns = r'(\d+|[IVXLCDMivxlcdm]+)\.'
-        chapters = re.split(chapter_patterns, text)
-        chapters_count = len(chapters)
+    for pattern in chapter_patterns:
+        chapters = re.split(pattern, text, flags=re.I)
+
+        if len(chapters) > 1:
+            break
+
+    chapters_count = len(chapters)
 
     # Minimum number of paragraphs required in a chapter
     MIN_PARAGRAPHS = 10
 
     # Minimum number of chapters
-    MIN_CHAPTERS = 10
+    MIN_CHAPTERS = 8
 
     flagged_chapters = []
 
-    gutenberg_pattern = re.compile(r"GUTENBERG", re.IGNORECASE)
+    if not chapters:
+        print("No chapters found.")
 
     # Check each chapter for the required number of paragraphs
+    gutenberg_pattern = re.compile(r"GUTENBERG", re.IGNORECASE)
+
     for chapter in chapters:
         paragraph_count = chapter.count('\n')
 

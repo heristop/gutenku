@@ -1,4 +1,4 @@
-import { MarkovChain } from './markovChain';
+import { MarkovChain } from './chain';
 
 export class MarkovEvaluator {
     private markovChain: MarkovChain;
@@ -25,12 +25,7 @@ export class MarkovEvaluator {
         let totalScore = 0;
 
         for (let i = 0; i < haiku.length - 1; i++) {
-            let score = this.markovChain.evaluateTransition(
-                haiku[i].toLowerCase(), 
-                haiku[i + 1].toLowerCase()
-            );
-
-            score += this.markovChain.evaluateWords(
+            const score = this.markovChain.evaluateTransition(
                 haiku[i].toLowerCase(), 
                 haiku[i + 1].toLowerCase()
             );
