@@ -6,7 +6,7 @@ import HaikuService from '../haiku';
 
 export default {
     async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
-        const { verses, chapter } = haiku;
+        const { verses, rawVerses, chapter } = haiku;
         let { context } = haiku;
 
         Canvas.registerFont('./src/assets/fonts/JMH Typewriter.ttf', { family: 'Typewriter' });
@@ -36,7 +36,7 @@ export default {
         if (!context) {
             const haikuService = new HaikuService();
             context = haikuService.extractContextVerses(
-                verses, 
+                rawVerses, 
                 chapter.content
             );
         }
