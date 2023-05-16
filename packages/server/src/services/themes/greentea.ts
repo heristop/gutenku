@@ -47,7 +47,7 @@ export default {
 
         // Load pic
         const logo = new Canvas.Image();
-        logo.src = await this.catchNaturePic();
+        logo.src = await catchNaturePic();
 
         // Draw pic
         ctx.globalAlpha = 0.92;
@@ -65,15 +65,15 @@ export default {
         ctx.fillText('- GutenKu', canvas.width - 750, canvas.height - 250);
 
         return canvas;
-    },
-
-    async catchNaturePic() {
-        const folderPath = './src/assets/themes/greentea/nature';
-        const files = await readdir(folderPath);
-
-        const randomIndex = Math.floor(Math.random() * files.length);
-        const randomFile = files[randomIndex];
-
-        return join(folderPath, randomFile);
     }
+}
+
+async function catchNaturePic() {
+    const folderPath = './src/assets/themes/greentea/nature';
+    const files = await readdir(folderPath);
+
+    const randomIndex = Math.floor(Math.random() * files.length);
+    const randomFile = files[randomIndex];
+
+    return join(folderPath, randomFile);
 }
