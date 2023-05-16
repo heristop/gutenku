@@ -35,7 +35,7 @@ export default class HaikuService implements IGenerator {
         this.minCachedDocs = options?.cache.minCachedDocs ?? 100;
         this.skipCache = options?.cache.disable ?? true;
         this.ttl = options?.cache.ttl ?? 0;
-        this.theme = options?.theme ?? 'greentea';
+        this.theme = options?.theme ?? 'watermark';
 
         this.markovEvaluator = new MarkovEvaluator();
         this.naturalLanguage = new NaturalLanguageService();
