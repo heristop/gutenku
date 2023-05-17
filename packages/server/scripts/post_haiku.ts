@@ -49,6 +49,7 @@ const query = `
             translations {
                 fr
                 es
+                jp
             }
         }
     }

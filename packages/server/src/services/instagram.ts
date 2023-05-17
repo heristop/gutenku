@@ -36,6 +36,9 @@ ${haiku.translations.fr}
 
 🇪🇸
 ${haiku.translations.es}
+
+🇯🇵
+${haiku.translations.jp}
 ~~~
 ${haiku.hashtags} #${hashtagAuthor} ${process.env.INSTAGRAM_HASHTAGS}
 `;

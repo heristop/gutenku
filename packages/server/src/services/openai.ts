@@ -56,11 +56,8 @@ export default class OpenAIService implements IGenerator {
                 haiku.title = output.title;
                 haiku.description = output.description;
                 haiku.hashtags = output.hashtags;
-                haiku.translations = {
-                    'fr': output.fr,
-                    'es': output.es,
-                };
 
+                haiku = await this.addTranslations(haiku);
                 haiku = await this.addBookmojis(haiku);
 
                 return haiku;
@@ -77,10 +74,44 @@ export default class OpenAIService implements IGenerator {
     private async generatePrompt(): Promise<string> {
         const haikus = await this.fetchHaikus();
 
-        const prompt = 'Choose the most revelant haiku from the list below (correct grammatical construction, consistency between [Verses], capturing beauty of nature, sense of tranquility, peace and good moment of insight), and translate with \\n separator:';
-        const outputFormat = '{"id":[Id],"title":"<Give a creative short title to describe the haiku>","description":"<Describe and explain the haiku as an English literature teacher>","fr":"<Translate the Haiku in french>,"es":"<Translate the Haiku in spanish>","hashtags":"<Give 6 lowercase hashtags>"}';
+        const prompt = 'Choose the most revelant haiku from the list below (correct grammatical construction, consistency between [Verses], capturing beauty of nature, sense of tranquility, peace and good moment of insight):';
+        const outputFormat = '{"id":[Id],"title":"<Give a creative short title to describe the haiku>","description":"<Describe and explain the haiku as an English literature teacher>","hashtags":"<Give 6 lowercase hashtags>"}';
 
         return `${prompt} (Use the following format: ${outputFormat})\n${haikus.join('\n')}\nSTOP\n`;
+    }
+
+    private async addTranslations(haiku: HaikuValue): Promise<HaikuValue> {
+        let prompt = `Translate this haiku using \\n separator: "${haiku.verses.join('\\n')}"`;
+        const outputFormat = '{"fr":"<Translate the Haiku in french>,"es":"<Translate the Haiku in spanish>","jp":"<Translate the Haiku in rōmaji>"}';
+        prompt = `${prompt} (Use the following format: ${outputFormat})`;
+
+        console.log(prompt);
+
+        const completion = await this.openAIApi.createCompletion({
+            model: 'text-davinci-003',
+            prompt,
+            temperature: 0.4,
+            max_tokens: 1000,
+            top_p: 0.5,
+            frequency_penalty: 0,
+            presence_penalty: 0,
+        });
+
+        if (200 === completion.status) {
+            const answer = completion.data.choices[0].text;
+
+            console.log(answer);
+            const output = JSON.parse(answer);
+
+            haiku.translations = {
+                // 3 lines \n
+                'fr': output.fr,
+                'es': output.es,
+                'jp': output.jp,
+            };
+        }
+
+        return haiku; 
     }
 
     private async addBookmojis(haiku: HaikuValue): Promise<HaikuValue> {
