@@ -58,6 +58,7 @@ const variables = {
     useAi: options.openai,
     appendImg: true,
     selectionCount: parseInt(options.selectionCount),
+    theme: 'watermark',
 };
 
 const body = {
@@ -97,19 +98,19 @@ fetch(process.env.SERVER_URI || "http://localhost:4000/graphql", {
         translations: haiku.translations,
     });
 
+    const imageBuffer = await fs.readFile(haiku.imagePath);
+
+    // Resize generated image for Readme Daily Haiku Card section
+    const resizedImageBuffer = await sharp(imageBuffer)
+        .resize(1000, 1000)
+        .toBuffer();
+
+    await fs.writeFile(
+        `${DATA_DIRECTORY}/daily_haiku_card.jpg`,
+        resizedImageBuffer
+    );
+
     if (false === options.interaction) {
-        const imageBuffer = await fs.readFile(haiku.imagePath);
-
-        // Resize generated image for Readme Daily Haiku Card section
-        const resizedImageBuffer = await sharp(imageBuffer)
-            .resize(1000, 1000)
-            .toBuffer();
-
-        await fs.writeFile(
-            `${DATA_DIRECTORY}/daily_haiku_card.jpg`,
-            resizedImageBuffer
-        );
-
         Instagram.post(haiku);
     } else {
         const rl = createInterface({

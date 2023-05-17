@@ -1,23 +1,43 @@
 # GutenKu
 
-A Haiku generator based on a selection of books from [Project Gutenberg](https://gutenberg.org) 🌸 🗻
-
-## Daily Haiku Card
+## 🌸 Daily Haiku Card 🗻
 
 <img src="/assets/img/daily_haiku_card.jpg?t=1683676801" width="300" alt="Daily Haiku Card">
 
 Last Snapshot: `Wed, 10 May 2023 00:00:01 +0000`
 
-Want more? Visit [🔗gutenku.xyz](https://gutenku.xyz)
+Want more? Visit [🔗gutenku.xyz](https://gutenku.xyz) or come back tomorrow 😉
+
+## Description
+
+GutenKu is a creative, literature-inspired project that harnesses the power of Natural Language Processing (NLP) and Markov Chain algorithms to generate haiku poetry. The project is designed to scrape selected text data from Project Gutenberg, a vast online library of over 60,000 free eBooks, and then process this data to extract quotes and generate unique haiku.
+
+Haiku is a form of traditional Japanese poetry, consisting of three lines with a 5-7-5 syllable format. GutenKu respects this format while creating its poetry, ensuring an authentic haiku experience.
+
+## How it works
+
+GutenKu works by using Python to scrape text data from a whitelist of selected eBooks on Project Gutenberg. It then processes this data using a Markov Chain, a stochastic model that undergoes transitions from one state to another according to certain probabilistic rules. This model is used to generate new sentences based on the probability of a word following a sequence of words.
+
+The generated sentences are then further processed using Natural Language Processing (NLP) techniques to split sentences into words, perform sentiment analysis, and ensure they follow the 5-7-5 syllable structure of traditional haiku. The syllable count is performed using the syllable library.
+
+The frontend of the application is built using Vue.js 3, a progressive JavaScript framework for building user interfaces. It displays the generated haiku and provides users with options to generate new ones.
+
+## API Endpoint
+
+GutenKu provides a GraphQL API for interacting with the service. The server is built using Apollo Server, a community-driven, open-source GraphQL server that works with any GraphQL schema.
 
 ## Ecosystem
 
 [![Api](https://github.com/heristop/gutenku/actions/workflows/api.yaml/badge.svg)](https://github.com/heristop/gutenku/actions/workflows/api.yaml) [![Vue](https://github.com/heristop/gutenku/actions/workflows/vue.yaml/badge.svg)](https://github.com/heristop/gutenku/actions/workflows/vue.yaml)
 
-| Application                                     | Env                                                  |
-| ----------------------------------------------- | ---------------------------------------------------- |
-| [Api](/packages/server/README.md#installation)  | TypeScript, NodeJS, MongoDB, GraphQL, Python, OpenAI |
-| [Front](/packages/front/README.md#installation) | TypeScript, Vue 3 / Vuetify 3 / Pinia, Cypress.io    |
+| Application                                     | Env                                                         |
+| ----------------------------------------------- | ----------------------------------------------------------- |
+| [Api](/packages/server/README.md#installation)  | TypeScript, Apollo Server, MongoDB, GraphQL, Python, OpenAI |
+| [Front](/packages/front/README.md#installation) | TypeScript, Vue 3 / Vuetify 3 / Pinia, Cypress.io           |
+
+## Acknowledgments
+
+Thanks to the creators and maintainers of Project Gutenberg for providing the texts
 
 ---
 
