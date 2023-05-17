@@ -16,13 +16,13 @@ Haiku is a form of traditional Japanese poetry, consisting of three lines with a
 
 ## How it works
 
-GutenKu works by using Python to scrape text data from a whitelist of selected eBooks on Project Gutenberg. It then processes this data using a Markov Chain, a stochastic model that undergoes transitions from one state to another according to certain probabilistic rules. This model is used to match sentences with the best probability of transition.
+GutenKu operates by leveraging Python to scrape textual data from a curated whitelist of eBooks on Project Gutenberg. This gathered data is then processed through a Markov Chain, a probabilistic model that transitions from one state to another based on defined rules. The model is employed to identify and sequence sentences with the highest transition probabilities.
 
-The generated sentences are then further extracted using Natural Language Processing (NLP) techniques to split sentences into words, perform sentiment analysis, and ensure they follow the 5-7-5 syllable structure of traditional haiku. The syllable count is performed using the syllable library.
+Once sentences are generated, Natural Language Processing (NLP) techniques come into play. These techniques disassemble sentences into words, conduct sentiment analysis, and enforce the traditional 5-7-5 syllable structure of a haiku. The syllable counting is facilitated by the syllable library.
 
-Chapters are stored in a MongoDB database, and Haiku generated too, with a cache system based on TTL (Time to Live) to improve performance. The system also uses OpenAI to improve haiku selection and provide descriptions for each haiku. Finally, the application generates images of the haikus ready for posting on Instagram.
+The processed chapters are stored in a MongoDB database, along with the generated haikus, improving the application's performance with a cache system based on Time to Live (TTL) principles. GutenKu also incorporates OpenAI api to enhance haiku selection and to generate descriptive narratives for each haiku. In the final stage, the application creates ready-to-post images of the haikus for Instagram.
 
-The frontend of the application is built using Vue.js 3. It displays the generated haiku and provides users with options to generate new ones.
+The user-facing side of the application is powered by Vue.js 3, providing an interactive interface that not only displays the generated haikus but also allows users to prompt the creation of new ones.
 
 ## API Endpoint
 
