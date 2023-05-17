@@ -104,7 +104,6 @@ export default class OpenAIService implements IGenerator {
             const output = JSON.parse(answer);
 
             haiku.translations = {
-                // 3 lines \n
                 'fr': output.fr,
                 'es': output.es,
                 'jp': output.jp,
