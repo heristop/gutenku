@@ -10,19 +10,19 @@ Want more? Visit [ðŸ”—gutenku.xyz](https://gutenku.xyz) or come back tomorrow ðŸ
 
 ## Description
 
-GutenKu is a creative, literature-inspired project that uses Natural Language Processing (NLP), Markov Chain algorithms, Vue.js, and MongoDB to generate haiku poetry. The project scrapes selected text data from Project Gutenberg, a vast online library of over 60,000 free eBooks. This data is then processed to extract quotes, generate unique haiku, and offer sentiment analysis of the created poems. Furthermore, GutenKu employs OpenAI to improve selection and provide descriptions for each haiku. Ultimately, the application generates images of the haikus for posting on Instagram.
+GutenKu is a creative, literature-inspired project that uses Natural Language Processing (NLP), Markov Chain algorithms, Vue.js, and MongoDB to generate haiku poetry. The project scrapes selected text data from Project Gutenberg, a vast online library of free eBooks. This data is then processed to extract quotes, generate unique haiku, and offer sentiment analysis of the created poems. Furthermore, GutenKu employs OpenAI to improve selection and provide descriptions for each haiku. Ultimately, the application generates images of the haikus for posting on Instagram.
 
 Haiku is a form of traditional Japanese poetry, consisting of three lines with a 5-7-5 syllable format. GutenKu respects this format while creating its poetry, ensuring an authentic haiku experience.
 
 ## How it works
 
-GutenKu works by using Python to scrape text data from a whitelist of selected eBooks on Project Gutenberg. It then processes this data using a Markov Chain, a stochastic model that undergoes transitions from one state to another according to certain probabilistic rules. This model is used to generate new sentences based on the probability of a word following a sequence of words.
+GutenKu works by using Python to scrape text data from a whitelist of selected eBooks on Project Gutenberg. It then processes this data using a Markov Chain, a stochastic model that undergoes transitions from one state to another according to certain probabilistic rules. This model is used to match sentences with the best probability of transition.
 
-The generated sentences are then further processed using Natural Language Processing (NLP) techniques to split sentences into words, perform sentiment analysis, and ensure they follow the 5-7-5 syllable structure of traditional haiku. The syllable count is performed using the syllable library.
+The generated sentences are then further extracted using Natural Language Processing (NLP) techniques to split sentences into words, perform sentiment analysis, and ensure they follow the 5-7-5 syllable structure of traditional haiku. The syllable count is performed using the syllable library.
 
-Chapters are stored in a MongoDB database with a cache system based on TTL (Time to Live) to improve performance. The system also uses OpenAI to improve haiku selection and provide descriptions for each haiku. Finally, the application generates images of the haikus ready for posting on Instagram.
+Chapters are stored in a MongoDB database, and Haiku generated too, with a cache system based on TTL (Time to Live) to improve performance. The system also uses OpenAI to improve haiku selection and provide descriptions for each haiku. Finally, the application generates images of the haikus ready for posting on Instagram.
 
-The frontend of the application is built using Vue.js 3, a progressive JavaScript framework for building user interfaces. It displays the generated haiku and provides users with options to generate new ones.
+The frontend of the application is built using Vue.js 3. It displays the generated haiku and provides users with options to generate new ones.
 
 ## API Endpoint
 
