@@ -9,9 +9,7 @@ const GUTENBERG_URL = 'https://gutenberg.org';
     class="mx-auto pa-4 mb-sm-6 mb-0"
     title="🌸 🗻"
   >
-    <p><strong>GutenKu</strong> is a Haiku generator based on a selection of books from</p>
-
-    <p>Project Gutenberg</p>
+    <p><strong>GutenKu</strong> is a Haiku generator based on a selection of books from Project Gutenberg, a vast online library of free eBooks, and then process this data to extract quotes and generate unique haiku.</p>
 
     <v-card-actions class="justify-center">
       <v-tooltip
