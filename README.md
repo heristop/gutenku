@@ -2,9 +2,9 @@
 
 ## 🌸 Daily Haiku Card 🗻
 
-<img src="/assets/img/daily_haiku_card.jpg?t=1684454401" width="300" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1684627201" width="300" alt="Daily Haiku Card">
 
-Last Snapshot: `Fri, 19 May 2023 00:00:01 +0000`
+Last Snapshot: `Sun, 21 May 2023 00:00:01 +0000`
 
 Want more? Visit [🔗gutenku.xyz](https://gutenku.xyz) or come back tomorrow 😉
 
