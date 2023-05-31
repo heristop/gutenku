@@ -44,7 +44,7 @@ yarn install
 pip3 install -r requirements.txt
 ```
 
-6. INstall MongoDB:
+6. Install MongoDB:
 
 _Using Docker:_
 
