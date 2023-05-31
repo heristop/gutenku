@@ -62,6 +62,8 @@ else:
         r'\n{2,}CANTO[ .]*(\d+|[IVXLCDMivxlcdm]+)\n',
         r'\n{2,}PART[ .]*(\d+|[IVXLCDMivxlcdm]+)\n',
         r'\n{2,}SECTION[ .]*(\d+|[IVXLCDMivxlcdm]+)\n',
+        r'\n{2,}LETTER[ .]*(\d+|[IVXLCDMivxlcdm]+)\n',
+        r'\n{2,}Canto[ .]*(\d+|[IVXLCDMivxlcdm]+)\n',
         r'\n{2,}(\d+)\n',
         r'\n{2,}([IVXLCDMivxlcdm]+)\n',
         r'\n{2,}([A-Z][\w ]*)\n',

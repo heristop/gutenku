@@ -1,4 +1,5 @@
 # pylint: disable=missing-module-docstring
+# https://www.gutenberg.org/ebooks/search/?sort_order=downloads
 import argparse
 import subprocess
 import os
@@ -30,6 +31,8 @@ db.haiku_collection.create_index("expireAt", expireAfterSeconds=0)
 ids = [
     11,     # Alice’s Adventures in Wonderland
     16,     # Peter Pan
+    20,     # Paradise Lost
+    21,     # Aesop’s Fables
     23,     # Narrative of the Life of Frederick Douglass
     35,     # The Time Machine
     36,     # The War of the Worlds
@@ -49,8 +52,13 @@ ids = [
     345,    # Dracula
     394,    # Cranford
     408,    # The Souls of Black Folk
+    600,    # Notes from the Underground
     730,    # Oliver Twist
+    766,    # David Copperfield
     768,    # Wuthering Heights
+    769,    # The Book of Tea
+    863,    # The Mysterious Affair at Styles
+    986,    # Master and Man
     996,    # The History of Don Quixote
     1184,   # The Count of Monte Cristo
     1232,   # The Prince
@@ -65,6 +73,13 @@ ids = [
     2701,   # Moby Dick; or The Whale
     2852,   # The Hound of the Baskervilles
     3207,   # Leviathan
+    3300,   # An Inquiry into the Nature and Causes of the Wealth of Nations
+    3306,   # At Suvla Bay
+    3360,   # Letters to His Son, 1766-1771
+    3361,   # The PG Edition of Chesterfield's Letters to His Son
+    3362,   # The Kentons
+    3365,   # Their Wedding Journey
+    3380,   # Staccato Notes of a Vanished Summer
     3600,   # The Essays of Montaigne, Complete
     4085,   # The Adventures of Roderick Random
     5827,   # The Problems of Philosophy
@@ -79,6 +94,7 @@ ids = [
     64317,  # The Great Gatsby
     67098,  # Winnie-the-,Pooh
     67979,  # The Blue Castle
+    69087,  # The murder of Roger Ackroyd
     70114,  # The big four
     70225,  # The Fortunate Calamity
     70234,  # Hugh Worthington,
@@ -93,6 +109,9 @@ ids = [
     70525,  # Sahara
     70530,  # Physician and patient
     70749,  # Cosmic symbolism
+    70875,  # Arrowsmith
+    70882,  # The clue of the new pin
+    70883,  # Doctor Hathern's daughters
 ]
 
 delete_books = args.delete
