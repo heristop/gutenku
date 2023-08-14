@@ -7,6 +7,7 @@ import Book from '../models/book';
 import { BookValue, HaikuValue, ContextVerses } from '../types';
 import { MarkovEvaluator } from './markov/evaluator';
 import NaturalLanguageService from './natural';
+import { PubSub } from 'graphql-subscriptions';
 
 export interface IGenerator {
     generate(): Promise<HaikuValue>;
@@ -16,6 +17,7 @@ export default class HaikuService implements IGenerator {
     private readonly maxTries = 50;
 
     private db: Connection;
+    private pubsub: PubSub;
     private markovEvaluator: MarkovEvaluator;
     private naturalLanguage: NaturalLanguageService;
     private minCachedDocs: number;
@@ -24,7 +26,7 @@ export default class HaikuService implements IGenerator {
     private theme: string;
     private executionTime: number;
 
-    constructor(db?: Connection, options?: {
+    constructor(db?: Connection, pubsub?: PubSub, options?: {
         cache: {
             minCachedDocs: number,
             ttl: number,
@@ -32,6 +34,7 @@ export default class HaikuService implements IGenerator {
         }, theme: string
     }) {
         this.db = db;
+        this.pubsub = pubsub;
         this.minCachedDocs = options?.cache.minCachedDocs ?? 100;
         this.skipCache = options?.cache.disable ?? true;
         this.ttl = options?.cache.ttl ?? 0;
@@ -239,7 +242,11 @@ export default class HaikuService implements IGenerator {
                 }
 
                 console.log('quote', quote.split(' '));
-    
+
+                this.pubsub.publish('QUOTE_GENERATED', {
+                    quoteGenerated: quote,
+                });
+
                 const sentimentScore = this.naturalLanguage.analyzeSentiment(quote);
     
                 if (sentimentScore < sentimentMinScore) {
@@ -256,7 +263,11 @@ export default class HaikuService implements IGenerator {
                         return false;
                     }
     
-                    const quotesToEvaluate = [...selectedVerses.map(verse => verse.quote), quote];
+                    const quotesToEvaluate = [
+                        ...selectedVerses.map(verse => verse.quote), 
+                        quote
+                    ];
+
                     const markovScore = this.markovEvaluator.evaluateHaiku(quotesToEvaluate);
     
                     if (markovScore < markovMinScore) {
@@ -278,7 +289,7 @@ export default class HaikuService implements IGenerator {
             const selectedQuote = matchingQuotes[randomIndex];
     
             selectedVerses.push(selectedQuote);
-    
+
             // Remove the selected quote from the original quotes array
             quotes = quotes.filter(({index}) => index !== selectedQuote.index);
         }

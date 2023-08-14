@@ -31,7 +31,6 @@ db.haiku_collection.create_index("expireAt", expireAfterSeconds=0)
 ids = [
     11,     # Alice’s Adventures in Wonderland
     16,     # Peter Pan
-    20,     # Paradise Lost
     21,     # Aesop’s Fables
     23,     # Narrative of the Life of Frederick Douglass
     35,     # The Time Machine
@@ -56,7 +55,6 @@ ids = [
     730,    # Oliver Twist
     766,    # David Copperfield
     768,    # Wuthering Heights
-    769,    # The Book of Tea
     863,    # The Mysterious Affair at Styles
     986,    # Master and Man
     996,    # The History of Don Quixote
@@ -79,7 +77,6 @@ ids = [
     3361,   # The PG Edition of Chesterfield's Letters to His Son
     3362,   # The Kentons
     3365,   # Their Wedding Journey
-    3380,   # Staccato Notes of a Vanished Summer
     3600,   # The Essays of Montaigne, Complete
     4085,   # The Adventures of Roderick Random
     5827,   # The Problems of Philosophy

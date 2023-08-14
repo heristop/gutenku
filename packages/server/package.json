@@ -17,12 +17,15 @@
     "type": "module",
     "dependencies": {
         "@apollo/server": "^4.5.0",
+        "@graphql-tools/schema": "^10.0.0",
         "canvas": "^2.11.2",
         "cli-progress": "^3.12.0",
         "dotenv": "^16.0.3",
         "express": "^4.18.2",
         "global": "^4.4.0",
         "graphql": "^16.6.0",
+        "graphql-subscriptions": "^2.0.0",
+        "graphql-ws": "^5.13.1",
         "instagram-publisher": "^2.1.1",
         "mongoose": "^7.0.3",
         "natural": "^6.3.0",
@@ -30,7 +33,8 @@
         "request": "^2.88.0",
         "sharp": "^0.32.1",
         "syllable": "^5.0.1",
-        "terminal-image": "^2.0.0"
+        "terminal-image": "^2.0.0",
+        "ws": "^8.13.0"
     },
     "devDependencies": {
         "@shelf/jest-mongodb": "^4.1.7",
@@ -41,6 +45,7 @@
         "@types/natural": "^5.1.2",
         "@types/node": "^18.15.11",
         "@types/node-fetch": "^2.6.2",
+        "@types/ws": "^8.5.5",
         "@typescript-eslint/eslint-plugin": "^5.0.0",
         "@typescript-eslint/parser": "^5.0.0",
         "eslint": "^8.36.0",
