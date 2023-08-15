@@ -99,7 +99,9 @@ async function copy() {
       class="terminal pa-2 my-4 align-left justify-center"
       ref="terminal"
     >
-      <p class="mb-4">Last 100 Pre-selected 5/7 syllables quotes:</p>
+      <p class="mb-4">
+        Last 100 Pre-selected 5/7 syllables quotes:
+      </p>
 
       <p
         class="terminal-entry"
