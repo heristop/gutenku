@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import AppFooter from '@/components/AppFooter.vue';
 import HaikuAi from '@/components/HaikuAi.vue';
 import HaikuCanvas from '@/components/HaikuCanvas.vue';
@@ -7,56 +7,57 @@ import HaikuCard from '@/components/HaikuCard.vue';
 import HaikuChapter from '@/components/HaikuChapter.vue';
 import SocialNetwok from '@/components/SocialNetwork.vue';
 import AppLoading from '@/components/AppLoading.vue';
-import { useHaikuStore } from '../store/haiku';
+import { useHaikuStore } from '@/store/haiku';
 import { storeToRefs } from 'pinia';
 
 const { fetchText } = useHaikuStore();
-const { error, firstLoaded } = storeToRefs(useHaikuStore())
+const { error, firstLoaded } = storeToRefs(useHaikuStore());
 
 const networkError = computed(() => {
     return '' !== error.value;
 });
 
-onMounted(fetchText);
+onMounted(() => {
+    fetchText();
+});
+
 </script>
 
 <template>
-  <v-container class="fill-height">
-    <v-responsive class="d-flex text-center fill-height">
-      <div
-        class="ma-4"
-        v-if="false === firstLoaded || networkError"
-      >
+  <v-container
+    class="d-flex justify-center align-center"
+    v-if="false === firstLoaded || networkError"
+  >
+    <v-btn
+      variant="plain"
+      color="third"
+      size="x-large"
+      href="https://gutenku.xyz"
+    >
+      gutenku.xyz
+    </v-btn>
+
+    <v-tooltip
+      v-if="networkError"
+      text="Refresh"
+      aria-label="Refresh"
+      location="bottom"
+    >
+      <template #activator="{ props }">
         <v-btn
-          variant="plain"
-          color="third"
-          size="x-large"
-          href="https://gutenku.xyz"
-        >
-          gutenku.xyz
-        </v-btn>
+          v-bind="props"
+          color="primary"
+          density="compact"
+          icon="mdi-refresh"
+          alt="Refresh"
+          @click="$router.go(0)"
+        />
+      </template>
+    </v-tooltip>
+  </v-container>
 
-        <v-spacer class="ma-4" />
-
-        <v-tooltip
-          v-if="networkError"
-          text="Refresh"
-          aria-label="Refresh"
-          location="bottom"
-        >
-          <template #activator="{ props }">
-            <v-btn
-              v-bind="props"
-              color="primary"
-              density="compact"
-              icon="mdi-refresh"
-              alt="Refresh"
-              @click="$router.go(0)"
-            />
-          </template>
-        </v-tooltip>
-      </div>
-
+  <v-container class="fill-height">
+    <div class="d-flex text-center fill-height">
       <v-sheet v-if="false === firstLoaded">
         <app-loading text="Extracting Haiku..." />
       </v-sheet>
@@ -105,7 +106,7 @@ onMounted(fetchText);
           </v-col>
         </v-row>
       </v-container>
-    </v-responsive>
+    </div>
   </v-container>
 </template>
 

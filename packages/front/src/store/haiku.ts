@@ -1,8 +1,9 @@
-import axios from 'axios';
 import { defineStore } from 'pinia';
-import { HaikuValue } from '../types';
+import { HaikuValue } from '@/types';
+import { gql } from '@apollo/client';
+import { apolloClient } from '@/client';
 
-const query = `
+const query = gql`
     query Query($useAi: Boolean, $theme: String) {
         haiku(useAI: $useAi, theme: $theme) {
             book {
@@ -32,7 +33,7 @@ export const useHaikuStore = defineStore({
         firstLoaded: false as boolean,
         useAI: false as boolean,
         theme: 'watermark' as string,
-        error: '' as string
+        error: '' as string,
     }),
     actions: {
         async fetchText() {
@@ -46,19 +47,16 @@ export const useHaikuStore = defineStore({
                     theme: this.theme
                 };
 
-                const body = {
+                const { data, errors } = await apolloClient.query({
                     query: query,
                     variables: variables,
-                    timeout: 300,
-                };
+                    fetchPolicy: 'no-cache'
+                });
 
-                const envServerUri = import.meta.env.VITE_SERVER_URI || 'http://localhost:4000/graphql';
-                const response = await axios.post(envServerUri, body);
+                this.haiku = data.haiku;
 
-                this.haiku = response.data.data.haiku;
-
-                if (null === this.haiku) {
-                    this.error = response.data.errors[0].message;
+                if (errors && errors.length > 0) {
+                    this.error = errors[0].message;
                 }
             } catch (error) {
                 this.error = error as string;
