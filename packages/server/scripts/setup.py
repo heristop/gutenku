@@ -31,7 +31,6 @@ db.haiku_collection.create_index("expireAt", expireAfterSeconds=0)
 ids = [
     11,     # Alice’s Adventures in Wonderland
     16,     # Peter Pan
-    20,     # Paradise Lost
     21,     # Aesop’s Fables
     23,     # Narrative of the Life of Frederick Douglass
     35,     # The Time Machine
@@ -42,6 +41,7 @@ ids = [
     76,     # Adventures of Huckleberry Finn
     84,     # Frankenstein
     105,    # Persuasion
+    120,    # Treasure Island
     145,    # Middlemarch
     158,    # Emma
     161,    # Sense and Sensibility
@@ -56,7 +56,6 @@ ids = [
     730,    # Oliver Twist
     766,    # David Copperfield
     768,    # Wuthering Heights
-    769,    # The Book of Tea
     863,    # The Mysterious Affair at Styles
     986,    # Master and Man
     996,    # The History of Don Quixote
@@ -79,12 +78,12 @@ ids = [
     3361,   # The PG Edition of Chesterfield's Letters to His Son
     3362,   # The Kentons
     3365,   # Their Wedding Journey
-    3380,   # Staccato Notes of a Vanished Summer
     3600,   # The Essays of Montaigne, Complete
     4085,   # The Adventures of Roderick Random
     5827,   # The Problems of Philosophy
     6130,   # The Iliad of Homer
     6593,   # The History of Tom Jones, a Foundling
+    6761,   # The Adventures of Ferdinand Count Fathom — Complete
     8800,   # The Divine Comedy
     16389,  # The Enchanted April
     25344,  # The Scarlet Letter
@@ -112,6 +111,9 @@ ids = [
     70875,  # Arrowsmith
     70882,  # The clue of the new pin
     70883,  # Doctor Hathern's daughters
+    71449,  # Meg of the Heather
+    71450,  # My heart's in the Highlands
+    71454,  # Guide to the study of animal ecology
 ]
 
 delete_books = args.delete

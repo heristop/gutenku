@@ -5,16 +5,24 @@
  */
 
 // Components
-import App from './App.vue'
+import App from './App.vue';
 
 // Composables
-import { createApp } from 'vue'
+import { createApp, h } from 'vue';
+import { apolloClient } from './client';
+import { ApolloClients } from '@vue/apollo-composable';
 
 // Plugins
-import { registerPlugins } from '@/plugins'
+import { registerPlugins } from '@/plugins';
 
-const app = createApp(App)
+const app = createApp({
+    render: () => h(App),
+});
 
-registerPlugins(app)
+app.provide(ApolloClients, {
+    default: apolloClient,
+});
 
-app.mount('#app')
+registerPlugins(app);
+
+app.mount('#app');
