@@ -41,6 +41,7 @@ ids = [
     76,     # Adventures of Huckleberry Finn
     84,     # Frankenstein
     105,    # Persuasion
+    120,    # Treasure Island
     145,    # Middlemarch
     158,    # Emma
     161,    # Sense and Sensibility
@@ -82,6 +83,7 @@ ids = [
     5827,   # The Problems of Philosophy
     6130,   # The Iliad of Homer
     6593,   # The History of Tom Jones, a Foundling
+    6761,   # The Adventures of Ferdinand Count Fathom — Complete
     8800,   # The Divine Comedy
     16389,  # The Enchanted April
     25344,  # The Scarlet Letter
@@ -109,6 +111,9 @@ ids = [
     70875,  # Arrowsmith
     70882,  # The clue of the new pin
     70883,  # Doctor Hathern's daughters
+    71449,  # Meg of the Heather
+    71450,  # My heart's in the Highlands
+    71454,  # Guide to the study of animal ecology
 ]
 
 delete_books = args.delete
