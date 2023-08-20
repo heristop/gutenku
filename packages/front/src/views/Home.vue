@@ -17,10 +17,7 @@ const networkError = computed(() => {
     return '' !== error.value;
 });
 
-onMounted(() => {
-    fetchText();
-});
-
+onMounted(fetchText);
 </script>
 
 <template>
