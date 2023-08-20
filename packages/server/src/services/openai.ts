@@ -1,12 +1,12 @@
-import { Configuration, OpenAIApi } from 'openai';
+import OpenAI from 'openai';
+
 import { HaikuValue, OpenAIOptions } from '../types';
 import HaikuService, { IGenerator } from './haiku';
 
 export default class OpenAIService implements IGenerator {
     private haikuSelection: HaikuValue[] = [];
 
-    private configuration: Configuration;
-    private openAIApi: OpenAIApi;
+    private openai: OpenAI;
     private haikuService: HaikuService;
     private selectionCount: number;
 
@@ -26,44 +26,55 @@ export default class OpenAIService implements IGenerator {
             );
         }
 
-        this.configuration = new Configuration({ apiKey });
-        this.openAIApi = new OpenAIApi(this.configuration);
+        this.openai = new OpenAI({
+            apiKey: apiKey
+        });
+
         this.haikuService = haikuService;
     }
 
     async generate(): Promise<HaikuValue> {
         try {
             const prompt = await this.generatePrompt();
-            const completion = await this.openAIApi.createCompletion({
-                model: 'text-davinci-003',
-                prompt,
+            const completion = await this.openai.chat.completions.create({
+                model: 'gpt-4',
                 temperature: 0.2,
                 max_tokens: 1200,
                 top_p: 0.1,
                 frequency_penalty: 0.3,
                 presence_penalty: 0,
                 stop: ['STOP'],
+                messages: [{
+                    'role': 'user', 
+                    'content': prompt
+                }],
             });
 
-            if (200 === completion.status) {
-                const answer = completion.data.choices[0].text;
-                const output = JSON.parse(answer);
-                const index = output.id;
+            const answer = completion.choices[0].message.content;
+            const output = JSON.parse(answer);
+            const index = output.id;
 
-                let haiku = this.haikuSelection[index];
-                this.haikuSelection = [];
+            let haiku = this.haikuSelection[index];
+            this.haikuSelection = [];
 
-                haiku.title = output.title;
-                haiku.description = output.description;
-                haiku.hashtags = output.hashtags;
+            haiku.title = output.title;
+            haiku.description = output.description;
+            haiku.hashtags = output.hashtags;
 
-                haiku = await this.addTranslations(haiku);
-                haiku = await this.addBookmojis(haiku);
+            haiku = await this.addTranslations(haiku);
+            haiku = await this.addBookmojis(haiku);
 
-                return haiku;
-            }
+            return haiku;
         } catch (error) {
-            console.log(error);
+            if (error instanceof OpenAI.APIError) {
+                console.error(error.status);
+                console.error(error.message);
+                console.error(error.code);
+                console.error(error.type);
+            } else {
+                // Non-API error
+                console.log(error);
+            }
         } finally {
             this.haikuSelection = [];
         }
@@ -87,28 +98,27 @@ export default class OpenAIService implements IGenerator {
 
         console.log(prompt);
 
-        const completion = await this.openAIApi.createCompletion({
-            model: 'text-davinci-003',
-            prompt,
+        const completion = await this.openai.chat.completions.create({
+            model: 'gpt-4',
             temperature: 0.4,
             max_tokens: 1000,
             top_p: 0.5,
             frequency_penalty: 0,
             presence_penalty: 0,
+            messages: [{
+                'role': 'user', 
+                'content': prompt
+            }],
         });
 
-        if (200 === completion.status) {
-            const answer = completion.data.choices[0].text;
+        const answer = completion.choices[0].message.content;
+        const output = JSON.parse(answer);
 
-            console.log(answer);
-            const output = JSON.parse(answer);
-
-            haiku.translations = {
-                'fr': output.fr,
-                'es': output.es,
-                'jp': output.jp,
-            };
-        }
+        haiku.translations = {
+            'fr': output.fr,
+            'es': output.es,
+            'jp': output.jp,
+        };
 
         return haiku; 
     }
@@ -118,21 +128,22 @@ export default class OpenAIService implements IGenerator {
         const outputFormat = '<Generate a series of UTF-8 emoticons that represent the related book>';
         prompt = `${prompt} (Use the following format: ${outputFormat})`;
 
-        const completion = await this.openAIApi.createCompletion({
-            model: 'text-davinci-003',
-            prompt,
+        const completion = await this.openai.chat.completions.create({
+            model: 'gpt-4',
             temperature: 0.6,
             max_tokens: 20,
             top_p: 1,
             frequency_penalty: 0,
             presence_penalty: 0,
+            messages: [{
+                'role': 'user', 
+                'content': prompt
+            }],
         });
 
-        if (200 === completion.status) {
-            const answer = completion.data.choices[0].text.replace(/[\n\s]+/g, '');
+        const answer = completion.choices[0].message.content.replace(/[\n\s]+/g, '');
 
-            haiku.book.emoticons = answer;
-        }
+        haiku.book.emoticons = answer;
 
         return haiku;
     }
