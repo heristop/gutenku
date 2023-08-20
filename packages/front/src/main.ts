@@ -9,15 +9,18 @@ import App from './App.vue';
 
 // Composables
 import { createApp, h } from 'vue';
-import { apolloProvider } from './client';
+import { apolloClient } from './client';
+import { ApolloClients } from '@vue/apollo-composable';
 
 // Plugins
 import { registerPlugins } from '@/plugins';
 
 const app = createApp({
-    apolloProvider,
-
     render: () => h(App),
+});
+
+app.provide(ApolloClients, {
+    default: apolloClient,
 });
 
 registerPlugins(app);

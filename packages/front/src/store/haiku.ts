@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { HaikuValue } from '@/types';
-import { gql } from '@apollo/client';
+import { gql } from '@apollo/client/core';
 import { apolloClient } from '@/client';
 
 const query = gql`

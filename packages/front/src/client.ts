@@ -1,9 +1,8 @@
-import { ApolloClient, HttpLink, InMemoryCache, split } from '@apollo/client';
+import { ApolloClient, HttpLink, InMemoryCache, split } from '@apollo/client/core';
 import ApolloLinkTimeout from 'apollo-link-timeout';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { getMainDefinition } from '@apollo/client/utilities';
-import VueApollo from 'vue-apollo';
 
 const envServerHost = import.meta.env.VITE_SERVER_HOST || 'localhost:4000';
 
@@ -38,6 +37,3 @@ export const apolloClient  = new ApolloClient({
     connectToDevTools: true,
 });
 
-export const apolloProvider = new VueApollo({
-    defaultClient: apolloClient,
-});
