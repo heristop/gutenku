@@ -49,6 +49,10 @@ const typeDefs = `#graphql
             theme: String
         ): Haiku
     }
+
+    type Subscription {
+        quoteGenerated: String,
+    }
 `;
 
 export default typeDefs;
