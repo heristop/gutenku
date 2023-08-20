@@ -20,7 +20,7 @@ Once sentences are generated, Natural Language Processing (NLP) techniques come 
 
 The processed chapters are stored in a MongoDB database, along with the generated haikus, improving the application's performance with a cache system based on TTL principles. GutenKu also incorporates OpenAI api to enhance haiku selection and to generate descriptive narratives for each haiku. In the final stage, the application creates ready-to-post images of the haikus for Instagram.
 
-The user-facing side of the application is powered by Vue.js 3, providing an interactive interface that not only displays the generated haikus but also allows users to prompt the creation of new ones.
+The user-facing side of the application is powered by Vue.js 3, providing an interactive interface that not only displays the generated haikus.
 
 ## API Endpoint
 

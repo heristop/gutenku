@@ -1,6 +1,7 @@
 # GutenKu Api
 
-[![Api](https://github.com/heristop/gutenku/actions/workflows/api.yaml/badge.svg)](https://github.com/heristop/gutenku/actions/workflows/api.yaml)
+[![Ci](https://github.com/heristop/gutenku/actions/workflows/api.yaml/badge.svg)](https://github.com/heristop/gutenku/actions/workflows/api.yaml)
+[![Apollo](https://img.shields.io/badge/apollo-4.x-blue.svg)](https://www.apollographql.com/)
 
 ## Getting Started
 
@@ -47,6 +48,8 @@ pip3 install -r requirements.txt
 6. Install MongoDB:
 
 _Using Docker:_
+
+With Docker Compose v1:
 
 ```bash
 docker-compose up -d

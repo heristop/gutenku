@@ -4,6 +4,9 @@ import Chapter from '../models/chapter';
 import { HaikuValue } from '../types';
 import HaikuService from '../services/haiku';
 import OpenAIService from '../services/openai';
+import { PubSub } from 'graphql-subscriptions';
+
+const pubsub = new PubSub();
 
 const resolvers = {
     Query: {
@@ -37,7 +40,8 @@ const resolvers = {
             theme: string,
         }, context: { db: Connection; }): Promise<HaikuValue> => {
             let haiku: HaikuValue = null;
-            const haikuService = new HaikuService(context.db, {
+
+            const haikuService = new HaikuService(context.db, pubsub, {
                 cache: {
                     'minCachedDocs': parseInt(process.env.MIN_CACHED_DOCS),
                     'ttl': 24 * 60 * 60 * 1000, // 24 hours,
@@ -67,7 +71,12 @@ const resolvers = {
 
             return haiku;
         }
-    }
+    },
+    Subscription: {
+        quoteGenerated: {
+            subscribe: () => pubsub.asyncIterator(['QUOTE_GENERATED']),
+        },
+    },
 };
 
 export default resolvers;

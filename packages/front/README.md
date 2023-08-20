@@ -1,6 +1,7 @@
 # GutenKu Front
 
-[![Vue](https://github.com/heristop/gutenku/actions/workflows/vue.yaml/badge.svg)](https://github.com/heristop/gutenku/actions/workflows/vue.yaml)
+[![Ci](https://github.com/heristop/gutenku/actions/workflows/vue.yaml/badge.svg)](https://github.com/heristop/gutenku/actions/workflows/vue.yaml)
+[![Vue](https://img.shields.io/badge/vue-3-brightgreen.svg)](https://vuejs.org/)
 
 ## Getting Started
 
