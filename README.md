@@ -30,10 +30,10 @@ GutenKu provides a GraphQL API for interacting with the service. The server is b
 
 [![Api](https://github.com/heristop/gutenku/actions/workflows/api.yaml/badge.svg)](https://github.com/heristop/gutenku/actions/workflows/api.yaml) [![Vue](https://github.com/heristop/gutenku/actions/workflows/vue.yaml/badge.svg)](https://github.com/heristop/gutenku/actions/workflows/vue.yaml)
 
-| Application                                     | Env                                                         |
-| ----------------------------------------------- | ----------------------------------------------------------- |
-| [Api](/packages/server/README.md#installation)  | TypeScript, Apollo Server, MongoDB, GraphQL, Python, OpenAI |
-| [Front](/packages/front/README.md#installation) | TypeScript, Vue 3 / Vuetify 3 / Pinia, Cypress.io           |
+| Application                                     | Env                                                                         |
+| ----------------------------------------------- | --------------------------------------------------------------------------- |
+| [Api](/packages/server/README.md#installation)  | TypeScript, GraphQL / Apollo Server, MongoDB, Python, OpenAI 4              |
+| [Front](/packages/front/README.md#installation) | TypeScript, GraphQL / Apollo Client, Vue 3 / Vuetify 3 / Pinia, Cypress.io  |
 
 ## Acknowledgments
 
