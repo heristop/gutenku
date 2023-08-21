@@ -4,18 +4,18 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { getMainDefinition } from '@apollo/client/utilities';
 
-const envServerHost = import.meta.env.VITE_SERVER_HOST || 'localhost:4000';
+const envServerHost = import.meta.env.VITE_SERVER_HOST || 'http://localhost:4000';
 
 const timeoutLink = new ApolloLinkTimeout(10000); // 10 seconds timeout
 
 const httpLink = new HttpLink({
-    uri: `http://${envServerHost}/graphql`
+    uri: `${envServerHost}/graphql`
 });
 
 const timeoutHttpLink = timeoutLink.concat(httpLink);
 
 const wsLink = new GraphQLWsLink(createClient({
-    url: `ws://${envServerHost}/graphql`,
+    url: `${envServerHost.replace(/^(http:\/\/|https:\/\/)/, "ws://")}/graphql`,
 }));
 
 const splitLink = split(
