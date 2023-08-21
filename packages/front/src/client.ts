@@ -6,7 +6,7 @@ import { getMainDefinition } from '@apollo/client/utilities';
 
 const envServerHost = import.meta.env.VITE_SERVER_HOST || 'http://localhost:4000';
 
-const timeoutLink = new ApolloLinkTimeout(10000); // 10 seconds timeout
+const timeoutLink = new ApolloLinkTimeout(60000); // 60 seconds timeout
 
 const httpLink = new HttpLink({
     uri: `${envServerHost}/graphql`

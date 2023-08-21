@@ -96,8 +96,6 @@ export default class OpenAIService implements IGenerator {
         const outputFormat = '{"fr":"<Translate the Haiku in french>,"es":"<Translate the Haiku in spanish>","jp":"<Translate the Haiku in rōmaji>"}';
         prompt = `${prompt} (Use the following format: ${outputFormat})`;
 
-        console.log(prompt);
-
         const completion = await this.openai.chat.completions.create({
             model: 'gpt-4',
             temperature: 0.4,
