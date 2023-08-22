@@ -31,8 +31,8 @@ export const useHaikuStore = defineStore({
         haiku: null as unknown as HaikuValue,
         loading: false as boolean,
         firstLoaded: false as boolean,
-        useAI: false as boolean,
-        theme: 'watermark' as string,
+        useAI: localStorage.getItem('user-ai-option') === 'true' || false as boolean,
+        theme: localStorage.getItem('user-theme-option') || 'watermark' as string,
         error: '' as string,
     }),
     actions: {
@@ -61,6 +61,9 @@ export const useHaikuStore = defineStore({
             } catch (error) {
                 this.error = error as string;
             } finally {
+                localStorage.setItem('user-ai-option', this.useAI.toString());
+                localStorage.setItem('user-theme-option', this.theme);
+
                 this.firstLoaded = true;
                 this.loading = false;
             }

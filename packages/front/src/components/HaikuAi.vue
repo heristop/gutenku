@@ -17,18 +17,17 @@ const hasDescription = computed(() => {
     class="mx-auto pa-4 mb-6"
     color="third"
   >
-    <v-sheet
-      class="pa-4"
-      color="third"
-    >
+    <v-card-title>🤖 ⚙️</v-card-title>
+
+    <v-card-text>
       <v-switch
         v-model="useAI"
         data-cy="switch-api-btn"
         color="primary"
         hide-details
-        label="🤖 Use AI to have a better moment of insight"
+        label="Activate this option to select a haiku with a better moment of insight"
       />
-    </v-sheet>
+    </v-card-text>
 
     <app-loading
       v-if="loading"
