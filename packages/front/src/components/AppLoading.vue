@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onBeforeMount, onMounted } from 'vue';
 
 const props = defineProps({
     text: {
@@ -19,16 +19,17 @@ const props = defineProps({
     }
 });
 
-const icons = ref([
-    'mdi-robot-confused-outline',
-    'mdi-robot-outline',
-    'mdi-robot-happy-outline',
-    'mdi-robot-excited-outline',
-    'mdi-robot-love-outline',
-]);
+const icons = ref<string[]>([]);
 
 const flipIcons = computed(() => {
     return false === props.error;
+});
+
+onBeforeMount(() => {
+    icons.value.push('mdi-robot-outline');
+    icons.value.push('mdi-robot-happy-outline');
+    icons.value.push('mdi-robot-excited-outline');
+    icons.value.push('mdi-robot-love-outline');
 });
 
 onMounted(() => {
@@ -45,7 +46,6 @@ onMounted(() => {
 });
 </script>
 
-
 <template>
   <div class="loading">
     <v-icon
@@ -56,7 +56,16 @@ onMounted(() => {
       mdi-robot-dead-outline
     </v-icon>
 
-    <div v-if="flipIcons">
+    <div v-if="0 === icons.length">
+      <v-icon
+        :class="['icon']"
+        :color="color"
+      >
+        mdi-robot-confused-outline
+      </v-icon>
+    </div>
+
+    <div v-else-if="flipIcons">
       <v-icon
         v-for="(icon, index) in icons"
         :key="index"
