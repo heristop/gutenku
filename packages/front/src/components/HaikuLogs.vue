@@ -29,18 +29,26 @@ watch(
 </script>
 
 <template>
-    <v-expand-transition>
-        <v-sheet v-if="quotesReceived.length > 0" :elevation="3" color="black"
-            class="terminal pa-2 ma-4 my-4 mt-12 align-left justify-center">
-            <p class="mb-4">
-                ✏️ Last 100 Pre-selected Quotes:
-            </p>
+  <v-expand-transition>
+    <v-sheet
+      v-if="quotesReceived.length > 0"
+      :elevation="3"
+      color="black"
+      class="terminal pa-2 ma-4 my-4 mt-12 align-left justify-center"
+    >
+      <p class="mb-4">
+        Last Pre-selected Quotes ✏️
+      </p>
 
-            <p class="terminal-entry" v-for="(quoteReceived, index) in reversedQuotes" :key="index">
-                (📨) {{ quoteReceived }}
-            </p>
-        </v-sheet>
-    </v-expand-transition>
+      <p
+        class="terminal-entry"
+        v-for="(quoteReceived, index) in reversedQuotes"
+        :key="index"
+      >
+        (📨) {{ quoteReceived }}
+      </p>
+    </v-sheet>
+  </v-expand-transition>
 </template>
 
 <style scoped>

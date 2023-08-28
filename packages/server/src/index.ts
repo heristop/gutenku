@@ -33,7 +33,7 @@ async function listen(port: number) {
         server: httpServer,
         // Pass a different path here if app.use
         // serves expressMiddleware at a different path
-        path: '/graphql',
+        path: '/graphql-ws',
     });
 
     // Hand in the schema we just created and have the
