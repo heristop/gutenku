@@ -2,10 +2,24 @@ import { defineStore } from 'pinia';
 import { HaikuValue } from '@/types';
 import { gql } from '@apollo/client/core';
 import { apolloClient } from '@/client';
+import { GraphQLError } from 'graphql';
 
 const query = gql`
-    query Query($useAi: Boolean, $theme: String) {
-        haiku(useAI: $useAi, theme: $theme) {
+    query Query(
+        $useAi: Boolean, 
+        $useCache: Boolean, 
+        $theme: String, 
+        $filter: String,
+        $sentimentMinScore: Float,
+        $markovMinScore: Float) {
+        haiku(
+            useAI: $useAi, 
+            useCache: $useCache, 
+            theme: $theme, 
+            filter: $filter,
+            sentimentMinScore: $sentimentMinScore,
+            markovMinScore: $markovMinScore
+        ) {
             book {
                 title
                 author
@@ -14,12 +28,12 @@ const query = gql`
                 content
                 title
             }
-            useCache
             verses
             rawVerses
             image
             title
             description
+            cacheUsed
             executionTime
         }
     }
@@ -31,10 +45,28 @@ export const useHaikuStore = defineStore({
         haiku: null as unknown as HaikuValue,
         loading: false as boolean,
         firstLoaded: false as boolean,
-        useAI: localStorage.getItem('user-ai-option') === 'true' || false as boolean,
-        theme: localStorage.getItem('user-theme-option') || 'watermark' as string,
         error: '' as string,
+        optionUseCache: true as boolean,
+        optionUseAI: false as boolean,
+        optionTheme: 'watermark' as string,
+        optionFilter: '' as string,
+        optionMinSentimentScore: 0.2 as number,
+        optionMinMarkovScore: 0.2 as number,
     }),
+    persist: {
+        storage: sessionStorage,
+        paths: [
+            'optionUseCache',
+            'optionUseAI',
+            'optionTheme',
+            'optionMinSentimentScore',
+            'optionMinMarkovScore',
+        ],
+    },
+    getters: {
+        networkError: (state) => 'network-error' === state.error,
+        notificationError: (state) => '' !== state.error,
+    },
     actions: {
         async fetchText() {
             try {
@@ -42,31 +74,35 @@ export const useHaikuStore = defineStore({
                 this.error = '';
 
                 const variables = {
-                    useAi: this.useAI,
+                    useAi: this.optionUseAI,
+                    useCache: this.optionUseCache,
+                    theme: this.optionTheme,
+                    filter: this.optionFilter,
+                    sentimentMinScore: this.optionMinSentimentScore,
+                    markovMinScore: this.optionMinMarkovScore,
                     appendImg: true,
-                    theme: this.theme
                 };
 
-                const { data, errors } = await apolloClient.query({
+                const { data } = await apolloClient.query({
                     query: query,
                     variables: variables,
                     fetchPolicy: 'no-cache'
                 });
 
                 this.haiku = data.haiku;
+            } catch (error: unknown) {
+                const graphQLError = error as GraphQLError;
 
-                if (errors && errors.length > 0) {
-                    this.error = errors[0].message;
+                this.error = 'network-error';
+
+                if (true === this.firstLoaded && 'max-attempts-error' === graphQLError.message) {
+                    this.error = '🤖 I could not find a haiku that matches your filters after maximum attempts. ';
+                    this.error += 'Please try again with a different filter or try several words.';
                 }
-            } catch (error) {
-                this.error = error as string;
             } finally {
-                localStorage.setItem('user-ai-option', this.useAI.toString());
-                localStorage.setItem('user-theme-option', this.theme);
-
                 this.firstLoaded = true;
                 this.loading = false;
             }
         }
-    }
+    },
 });

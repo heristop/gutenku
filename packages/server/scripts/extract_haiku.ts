@@ -7,13 +7,13 @@ dotenv.config();
 const query = `
     query Query(
         $useAi: Boolean,
-        $skipCache: Boolean,
+        $useCache: Boolean,
         $appendImg: Boolean,
         $theme: String
     ) {
         haiku(
             useAI: $useAi,
-            skipCache: $skipCache,
+            useCache: $useCache,
             appendImg: $appendImg,
             theme: $theme
         ) {
@@ -35,7 +35,7 @@ const query = `
 
 const variables = {
     useAi: false,
-    skipCache: true,
+    useCache: false,
     appendImg: false,
     theme: 'watermark',
 };
