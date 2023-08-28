@@ -5,6 +5,7 @@ import { createClient } from 'graphql-ws';
 import { getMainDefinition } from '@apollo/client/utilities';
 
 const envServerHost = import.meta.env.VITE_SERVER_HOST || 'http://localhost:4000';
+const envWebSocketHost = import.meta.env.VITE_WEBSOCKET_HOST || 'ws://localhost:4000';
 
 const timeoutLink = new ApolloLinkTimeout(300000); // 300 seconds timeout
 
@@ -15,7 +16,7 @@ const httpLink = new HttpLink({
 const timeoutHttpLink = timeoutLink.concat(httpLink);
 
 const wsLink = new GraphQLWsLink(createClient({
-    url: `${envServerHost.replace(/^(http:\/\/|https:\/\/)/, "ws://")}/graphql`,
+    url: `${envWebSocketHost}/graphql-ws`,
 }));
 
 const splitLink = split(

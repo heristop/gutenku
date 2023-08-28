@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import AppFooter from '@/components/AppFooter.vue';
 import HaikuOptions from '@/components/HaikuOptions.vue';
 import HaikuCanvas from '@/components/HaikuCanvas.vue';
@@ -11,7 +11,15 @@ import { useHaikuStore } from '@/store/haiku';
 import { storeToRefs } from 'pinia';
 
 const { fetchText } = useHaikuStore();
-const { error, firstLoaded, networkError, notificationError } = storeToRefs(useHaikuStore());
+const { error, firstLoaded, networkError, notificationError, optionUseCache } = storeToRefs(useHaikuStore());
+
+const loadingLabel = computed(() => {
+    if (true === optionUseCache.value) {
+        return 'Extracting Haiku...';
+    }
+
+    return 'Generating Haiku...';
+});
 
 onMounted(fetchText);
 </script>
@@ -52,7 +60,7 @@ onMounted(fetchText);
   <v-container class="fill-height">
     <div class="d-flex text-center fill-height">
       <v-sheet v-if="false === firstLoaded">
-        <app-loading text="Extracting Haiku..." />
+        <app-loading :text="loadingLabel" />
       </v-sheet>
 
       <v-sheet v-show="networkError">
