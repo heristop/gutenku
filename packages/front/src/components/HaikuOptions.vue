@@ -130,7 +130,7 @@ const advancedMode = computed({
             data-cy="switch-api-btn"
             color="primary"
             hide-details
-            label="IA selection"
+            label="IA boost selection"
           />
         </template>
       </v-tooltip>
