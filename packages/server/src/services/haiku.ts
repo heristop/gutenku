@@ -23,8 +23,8 @@ class MaxAttemptsError extends Error {
 }
 
 export default class HaikuService implements IGenerator {
-    private readonly maxAttemptsInSelectedBook = 50;
     private readonly maxAttempts = 500;
+    private readonly maxAttemptsInBook = 50;
 
     private db: Connection;
     private pubsub: PubSub;
@@ -188,7 +188,7 @@ export default class HaikuService implements IGenerator {
             }
 
             // If the maximum number of iterations within a selected book has been reached, select a new book
-            if (0 === i % this.maxAttemptsInSelectedBook) {
+            if (0 === i % this.maxAttemptsInBook) {
                 book = await this.selectRandomBook();
             }
 
@@ -326,10 +326,6 @@ export default class HaikuService implements IGenerator {
 
                 console.log('quote', quote.split(' '));
 
-                this.pubsub.publish('QUOTE_GENERATED', {
-                    quoteGenerated: quote,
-                });
-
                 const sentimentScore = this.naturalLanguage.analyzeSentiment(quote);
 
                 if (sentimentScore < sentimentMinScore) {
@@ -358,6 +354,10 @@ export default class HaikuService implements IGenerator {
                     }
 
                     console.log('markov_score', markovScore, 'min', markovMinScore);
+
+                    this.pubsub.publish('QUOTE_GENERATED', {
+                        quoteGenerated: quote,
+                    });
                 }
 
                 return true;

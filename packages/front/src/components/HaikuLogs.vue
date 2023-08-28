@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { nextTick, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { provideApolloClient, useSubscription } from "@vue/apollo-composable";
 import gql from 'graphql-tag';
 import { apolloClient } from '@/client';
@@ -12,9 +12,11 @@ const { result } = provideApolloClient(apolloClient)(() => useSubscription(gql`
 
 const quotesReceived = ref<string[]>([]);
 
+const reversedQuotes = computed(() => [...quotesReceived.value].reverse());
+
 watch(
     result,
-    data => {
+    async (data) => {
         if (!quotesReceived.value.includes(data.quoteGenerated)) {
             quotesReceived.value.push(data.quoteGenerated);
 
@@ -24,40 +26,21 @@ watch(
         }
     }
 );
-
-watch(
-    quotesReceived,
-    async () => {
-        await nextTick();
-
-        const terminalElement = (ref("terminal") as any).value.$el;
-        terminalElement.scrollTop = terminalElement.scrollHeight;
-    }
-);
 </script>
 
 <template>
-  <v-expand-transition>
-    <v-sheet
-      v-if="quotesReceived.length > 0"
-      :elevation="3"
-      color="black"
-      class="terminal pa-2 ma-4 my-4 mt-12 align-left justify-center"
-      ref="terminal"
-    >
-      <p class="mb-4">
-        ✏️ Last 100 Pre-selected Quotes:
-      </p>
+    <v-expand-transition>
+        <v-sheet v-if="quotesReceived.length > 0" :elevation="3" color="black"
+            class="terminal pa-2 ma-4 my-4 mt-12 align-left justify-center">
+            <p class="mb-4">
+                ✏️ Last 100 Pre-selected Quotes:
+            </p>
 
-      <p
-        class="terminal-entry"
-        v-for="(quoteReceived, index) in quotesReceived"
-        :key="index"
-      >
-        (📨) {{ quoteReceived }}
-      </p>
-    </v-sheet>
-  </v-expand-transition>
+            <p class="terminal-entry" v-for="(quoteReceived, index) in reversedQuotes" :key="index">
+                (📨) {{ quoteReceived }}
+            </p>
+        </v-sheet>
+    </v-expand-transition>
 </template>
 
 <style scoped>
