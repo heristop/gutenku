@@ -43,7 +43,8 @@ const advancedMode = computed({
         data-cy="switch-cache-btn"
         color="primary"
         hide-details
-        label="Advanced mode"
+        label="ADVANCED MODE"
+        class="text-primary"
       />
 
       <v-expand-transition>
@@ -55,7 +56,7 @@ const advancedMode = computed({
         >
           <v-text-field
             v-model="optionFilter"
-            placeholder="Enter a word (ex: happy)"
+            placeholder="Enter a word"
             color="primary"
             label="Filter in quotes"
             variant="underlined"
@@ -77,7 +78,9 @@ const advancedMode = computed({
             max-width="300"
           >
             <template #activator="{ props }">
-              <span v-bind="props">Sentiment Score 😊</span>
+              <span v-bind="props">SENTIMENT SCORE <v-icon class="icon">
+                mdi-emoticon-outline
+              </v-icon></span>
             </template>
           </v-tooltip>
 
@@ -99,7 +102,9 @@ const advancedMode = computed({
             max-width="300"
           >
             <template #activator="{ props }">
-              <span v-bind="props">Markov Chain Score ⛓️</span>
+              <span v-bind="props">MARKOV CHAIN SCORE <v-icon class="icon">
+                mdi-link-variant
+              </v-icon></span>
             </template>
           </v-tooltip>
 
@@ -130,7 +135,8 @@ const advancedMode = computed({
             data-cy="switch-api-btn"
             color="primary"
             hide-details
-            label="IA boost selection"
+            label="IA BOOST SELECTION"
+            class="text-primary"
           />
         </template>
       </v-tooltip>

@@ -57,6 +57,7 @@ const downloadImage = () => {
         label="Theme"
         :items="['colored', 'greentea', 'watermark']"
         variant="underlined"
+        class="text-primary"
       />
 
       <v-btn
