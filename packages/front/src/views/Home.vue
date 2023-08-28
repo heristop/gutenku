@@ -88,6 +88,12 @@ onMounted(fetchText);
             <haiku-card />
 
             <haiku-chapter class="d-none d-sm-flex" />
+
+            <v-img
+              height="200"
+              src="@/assets/img/home_background.png"
+              class="text-primary"
+            />
           </v-col>
 
           <v-col
