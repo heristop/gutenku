@@ -10,11 +10,11 @@ const pubsub = new PubSub();
 
 const resolvers = {
     Query: {
-        books: (_, { content }: { content?: string }) => {
+        books: (_, { filter }: { filter?: string }) => {
             const query = {};
 
-            if (content) {
-                query['chapters.content'] = { $regex: content, $options: 'i' };
+            if (filter) {
+                query['chapters.content'] = { $regex: filter, $options: 'i' };
             }
 
             return Book.find(query).populate('chapters').exec();
@@ -22,22 +22,25 @@ const resolvers = {
         book: (_, { id }: { id: string; }) => {
             return Book.findById(id).populate('chapters').exec();
         },
-        chapters: (_, { content }: { content?: string }) => {
+        chapters: (_, { filter }: { filter?: string }) => {
             const query = {};
 
-            if (content) {
+            if (filter) {
                 // eslint-disable-next-line
-                query['content'] = { $regex: content, $options: 'i' };
+                query['content'] = { $regex: filter, $options: 'i' };
             }
 
             return Chapter.find(query).populate('book').exec();
         },
         haiku: async (_, args: {
             useAI: boolean,
-            skipCache: boolean,
+            useCache: boolean,
             appendImg: boolean,
             selectionCount: number,
             theme: string,
+            filter: string,
+            sentimentMinScore: number,
+            markovMinScore: number,
         }, context: { db: Connection; }): Promise<HaikuValue> => {
             let haiku: HaikuValue = null;
 
@@ -45,14 +48,18 @@ const resolvers = {
                 cache: {
                     'minCachedDocs': parseInt(process.env.MIN_CACHED_DOCS),
                     'ttl': 24 * 60 * 60 * 1000, // 24 hours,
-                    'disable': !!args.skipCache || 'true' === process.env.DISABLE_CACHE,
+                    'enabled': args.useCache,
+                },
+                score: {
+                    'sentiment': args.sentimentMinScore,
+                    'markovChain': args.markovMinScore,
                 },
                 theme: args.theme,
             });
 
-            const MODE_AI = args.useAI && undefined !== process.env.OPENAI_API_KEY;
+            const OPENAI_SELECTION_MODE = args.useAI && undefined !== process.env.OPENAI_API_KEY;
 
-            if (true === MODE_AI) {
+            if (true === OPENAI_SELECTION_MODE) {
                 const openAIService = new OpenAIService(haikuService, {
                     'apiKey': process.env.OPENAI_API_KEY,
                     'selectionCount': args.selectionCount,
@@ -61,8 +68,10 @@ const resolvers = {
                 haiku = await openAIService.generate();
             }
 
-            if (false === MODE_AI) {
-                haiku = await haikuService.generate();
+            if (null === haiku) {
+                haiku = await haikuService
+                    .filter(args.filter ? args.filter.split(' ') : [])
+                    .generate();
             }
 
             if (false !== args.appendImg) {

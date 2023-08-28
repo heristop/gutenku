@@ -9,7 +9,7 @@ export interface BookValue {
 }
 
 export interface ChapterValue {
-    content?: string;
+    content: string;
 }
 
 export interface Translations {
@@ -21,10 +21,9 @@ export interface Translations {
 export interface HaikuValue {
     book: BookValue;
     chapter: {
-        title: string;
+        title?: string;
         content: string;
     };
-    useCache: boolean;
     verses: Array<string>;
     rawVerses: Array<string>;
     context?: ContextVerses[];
@@ -34,6 +33,7 @@ export interface HaikuValue {
     description?: string;
     hashtags?: string;
     translations?: Translations
+    cacheUsed: boolean;
     executionTime?: number;
 }
 

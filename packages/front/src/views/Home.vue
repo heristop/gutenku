@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { computed, onMounted } from 'vue';
+import { onMounted } from 'vue';
 import AppFooter from '@/components/AppFooter.vue';
-import HaikuAi from '@/components/HaikuAi.vue';
+import HaikuOptions from '@/components/HaikuOptions.vue';
 import HaikuCanvas from '@/components/HaikuCanvas.vue';
 import HaikuCard from '@/components/HaikuCard.vue';
 import HaikuChapter from '@/components/HaikuChapter.vue';
@@ -11,11 +11,7 @@ import { useHaikuStore } from '@/store/haiku';
 import { storeToRefs } from 'pinia';
 
 const { fetchText } = useHaikuStore();
-const { error, firstLoaded } = storeToRefs(useHaikuStore());
-
-const networkError = computed(() => {
-    return '' !== error.value;
-});
+const { error, firstLoaded, networkError, notificationError } = storeToRefs(useHaikuStore());
 
 onMounted(fetchText);
 </script>
@@ -93,7 +89,7 @@ onMounted(fetchText);
           >
             <social-netwok class="d-none d-sm-block" />
 
-            <haiku-ai />
+            <haiku-options />
 
             <haiku-canvas />
 
@@ -102,6 +98,23 @@ onMounted(fetchText);
             <app-footer />
           </v-col>
         </v-row>
+
+        <v-snackbar
+          v-model="notificationError"
+          :timeout="4000"
+          color="primary"
+        >
+          {{ error }}
+
+          <template #actions>
+            <v-btn
+              @click="error = ''"
+              alt="Close"
+              icon="mdi-close"
+              size="small"
+            />
+          </template>
+        </v-snackbar>
       </v-container>
     </div>
   </v-container>

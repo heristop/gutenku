@@ -1,56 +1,20 @@
 <script lang="ts" setup>
-import { computed, nextTick, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import { useHaikuStore } from '@/store/haiku';
 import { storeToRefs } from 'pinia';
-import { provideApolloClient, useSubscription } from "@vue/apollo-composable";
-import gql from 'graphql-tag';
-import { apolloClient } from '@/client';
+import AppLoading from '@/components/AppLoading.vue';
+import HaikuLogs from '@/components/HaikuLogs.vue';
 
 const { fetchText } = useHaikuStore();
-const { haiku, loading, error } = storeToRefs(useHaikuStore());
-
-const networkError = computed(() => {
-    return '' !== error.value;
-});
-
-const { result } = provideApolloClient(apolloClient)(() => useSubscription(gql`
-    subscription onQuoteGenerated {
-        quoteGenerated
-    }
-`));
+const { haiku, loading, error, networkError, notificationError, optionUseCache } = storeToRefs(useHaikuStore());
 
 const displayBtnLabel = computed(() => {
-    if (true === haiku.value.useCache) {
+    if (true === optionUseCache.value) {
         return loading.value ? 'Extracting' : 'Extract';
     }
 
     return loading.value ? 'Generating' : 'Generate';
 });
-
-const quotesReceived = ref<string[]>([]);
-
-watch(
-    result,
-    data => {
-        if (!quotesReceived.value.includes(data.quoteGenerated)) {
-            quotesReceived.value.push(data.quoteGenerated);
-
-            while (quotesReceived.value.length > 100) {
-                quotesReceived.value.shift();
-            }
-        }
-    }
-);
-
-watch(
-    quotesReceived,
-    async() => {
-        await nextTick();
-
-        const terminalElement = (ref("terminal") as any).value.$el;
-        terminalElement.scrollTop = terminalElement.scrollHeight;
-    }
-);
 
 const copied = ref(false);
 
@@ -84,33 +48,20 @@ async function copy() {
       </p>
     </v-sheet>
 
+    <haiku-logs v-if="false === optionUseCache" />
+
     <v-icon
-      v-show="networkError"
+      v-show="networkError || notificationError"
       color="third"
       class="text-error py-10"
     >
       mdi-robot-dead-outline
     </v-icon>
 
-    <v-sheet
-      v-if="quotesReceived.length > 0"
-      :elevation="1"
-      color="black"
-      class="terminal pa-2 my-4 align-left justify-center"
-      ref="terminal"
-    >
-      <p class="mb-4">
-        Last 100 Pre-selected 5/7 syllables quotes:
-      </p>
-
-      <p
-        class="terminal-entry"
-        v-for="(quoteReceived, index) in quotesReceived"
-        :key="index"
-      >
-        (📨) {{ quoteReceived }}
-      </p>
-    </v-sheet>
+    <app-loading
+      v-if="loading"
+      color="third"
+    />
 
     <v-card-actions class="justify-end">
       <v-tooltip
@@ -170,18 +121,17 @@ async function copy() {
     <template #actions>
       <v-btn
         @click="copied = false"
-        variant="text"
         alt="Close"
-      >
-        Close
-      </v-btn>
+        icon="mdi-close"
+        size="small"
+      />
     </template>
   </v-snackbar>
 </template>
 
 <style scoped>
 .text-error {
-    font-size: 48px;
+  font-size: 48px;
 }
 
 .terminal {

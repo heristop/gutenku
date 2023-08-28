@@ -24,7 +24,6 @@ const typeDefs = `#graphql
     type Haiku {
         book: Book!
         chapter: Chapter!
-        useCache: Boolean
         verses: [String!]
         rawVerses: [String!]
         context: [String]
@@ -34,19 +33,23 @@ const typeDefs = `#graphql
         description: String
         hashtags: String
         translations: Translations
+        cacheUsed: Boolean
         executionTime: Float
     }
 
     type Query {
-        books(content: String): [Book]
+        books(filter: String): [Book]
         book(id: ID!): Book!
-        chapters(content: String): [Chapter]
+        chapters(filter: String): [Chapter]
         haiku(
             useAI: Boolean,
-            skipCache: Boolean,
+            useCache: Boolean,
             appendImg: Boolean,
             selectionCount: Int,
-            theme: String
+            theme: String,
+            filter: String,
+            sentimentMinScore: Float,
+            markovMinScore: Float
         ): Haiku
     }
 

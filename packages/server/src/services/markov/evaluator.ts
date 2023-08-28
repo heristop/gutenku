@@ -26,13 +26,13 @@ export class MarkovEvaluator {
 
         for (let i = 0; i < haiku.length - 1; i++) {
             const score = this.markovChain.evaluateTransition(
-                haiku[i].toLowerCase(), 
+                haiku[i].toLowerCase(),
                 haiku[i + 1].toLowerCase()
             );
 
             totalScore += score;
         }
 
-        return totalScore / (haiku.length - 1);
+        return totalScore / (haiku.length - 1) / 100;
     }
 }
