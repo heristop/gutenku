@@ -43,7 +43,7 @@ const advancedMode = computed({
         data-cy="switch-cache-btn"
         color="primary"
         hide-details
-        label="ADVANCED MODE"
+        label="Advanced Mode"
         class="text-primary"
       />
 
@@ -78,7 +78,7 @@ const advancedMode = computed({
             max-width="300"
           >
             <template #activator="{ props }">
-              <span v-bind="props">SENTIMENT SCORE <v-icon class="icon">
+              <span v-bind="props">Sentiment Score <v-icon class="icon">
                 mdi-emoticon-outline
               </v-icon></span>
             </template>
@@ -102,7 +102,7 @@ const advancedMode = computed({
             max-width="300"
           >
             <template #activator="{ props }">
-              <span v-bind="props">MARKOV CHAIN SCORE <v-icon class="icon">
+              <span v-bind="props">Markov Chain Score <v-icon class="icon">
                 mdi-link-variant
               </v-icon></span>
             </template>
@@ -135,7 +135,7 @@ const advancedMode = computed({
             data-cy="switch-api-btn"
             color="primary"
             hide-details
-            label="IA BOOST SELECTION"
+            label="IA Boost Selection"
             class="text-primary"
           />
         </template>
