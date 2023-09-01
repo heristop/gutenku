@@ -27,12 +27,14 @@ const options = program.opts();
 
 const query = `
     query Query(
-        $useAi: Boolean, 
+        $useAi: Boolean,
+        $useCache: Boolean,
         $appendImg: Boolean,
         $selectionCount: Int
     ) {
         haiku(
-            useAI: $useAi, 
+            useAI: $useAi,
+            useCache: $useCache,
             appendImg: $appendImg,
             selectionCount: $selectionCount
         ) {
@@ -57,6 +59,7 @@ const query = `
 
 const variables = {
     useAi: options.openai,
+    useCache: true,
     appendImg: true,
     selectionCount: parseInt(options.selectionCount),
     theme: 'watermark',
@@ -73,13 +76,13 @@ fetch(process.env.SERVER_URI || "http://localhost:4000/graphql", {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
 }).then((response) => response.json()).then(async (response: {
-    data: HaikuResponseData 
+    data: HaikuResponseData
 }) => {
     const haiku = response.data?.haiku;
 
     if (null === haiku) {
         console.error(response);
-    
+
         throw new Error('Haiku fetch error');
     }
 
