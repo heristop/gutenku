@@ -50,8 +50,10 @@ const query = `
             hashtags
             translations {
                 fr
-                es
                 jp
+                es
+                it
+                de
             }
         }
     }

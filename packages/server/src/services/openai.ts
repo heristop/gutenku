@@ -35,7 +35,9 @@ export default class OpenAIService implements IGenerator {
 
     async generate(): Promise<HaikuValue> {
         try {
-            const prompt = await this.generatePrompt();
+            // Meta Prompt
+            const prompt = await this.generateSelectionPrompt();
+
             const completion = await this.openai.chat.completions.create({
                 model: 'gpt-4',
                 temperature: 0.2,
@@ -45,7 +47,7 @@ export default class OpenAIService implements IGenerator {
                 presence_penalty: 0,
                 stop: ['STOP'],
                 messages: [{
-                    'role': 'user', 
+                    'role': 'user',
                     'content': prompt
                 }],
             });
@@ -57,10 +59,7 @@ export default class OpenAIService implements IGenerator {
             let haiku = this.haikuSelection[index];
             this.haikuSelection = [];
 
-            haiku.title = output.title;
-            haiku.description = output.description;
-            haiku.hashtags = output.hashtags;
-
+            haiku = await this.addDescription(haiku);
             haiku = await this.addTranslations(haiku);
             haiku = await this.addBookmojis(haiku);
 
@@ -82,29 +81,81 @@ export default class OpenAIService implements IGenerator {
         return await this.haikuService.generate();
     }
 
-    private async generatePrompt(): Promise<string> {
-        const haikus = await this.fetchHaikus();
-
-        const prompt = 'Choose the most revelant haiku from the list below (correct grammatical construction, consistency between [Verses], capturing beauty of nature, sense of tranquility, peace and good moment of insight):';
-        const outputFormat = '{"id":[Id],"title":"<Give a creative short title to describe the haiku>","description":"<Describe and explain the haiku as an English literature teacher>","hashtags":"<Give 6 lowercase hashtags>"}';
-
-        return `${prompt} (Use the following format: ${outputFormat})\n${haikus.join('\n')}\nSTOP\n`;
-    }
-
-    private async addTranslations(haiku: HaikuValue): Promise<HaikuValue> {
-        let prompt = `Translate this haiku using \\n separator: "${haiku.verses.join('\\n')}"`;
-        const outputFormat = '{"fr":"<Translate the Haiku in french>,"es":"<Translate the Haiku in spanish>","jp":"<Translate the Haiku in rōmaji>"}';
+    private async generateSelectionPrompt(): Promise<string> {
+        let prompt = 'Generate a gpt-4 prompt to choose the most revelant haiku from the list below (correct grammatical construction, consistency between [Verses], capturing beauty of nature, sense of tranquility, peace and good moment of insight):';
+        let outputFormat = '{"prompt":[Prompt]}';
         prompt = `${prompt} (Use the following format: ${outputFormat})`;
 
         const completion = await this.openai.chat.completions.create({
             model: 'gpt-4',
-            temperature: 0.4,
+            temperature: 0.5,
             max_tokens: 1000,
-            top_p: 0.5,
+            top_p: 1,
             frequency_penalty: 0,
             presence_penalty: 0,
             messages: [{
-                'role': 'user', 
+                'role': 'user',
+                'content': prompt
+            }],
+        });
+
+        console.log(completion.choices[0]);
+
+        const answer = completion.choices[0].message.content;
+        const output = JSON.parse(answer);
+
+        const haikus = await this.fetchHaikus();
+        outputFormat = '{"id":[Id]';
+
+        return `${output.prompt} (Use the following format: ${outputFormat})\n${haikus.join('\n')}\nSTOP\n`;
+    }
+
+    private async addDescription(haiku: HaikuValue): Promise<HaikuValue> {
+        const prompt = 'Act as an English Literature Teacher and describe the Haiku:';
+        const outputFormat = '{"title":"<Give a creative short title to describe the haiku>","description":"<Describe and explain the haiku>","hashtags":"<Give 6 lowercase hashtags>"}';
+
+        const completion = await this.openai.chat.completions.create({
+            model: 'gpt-4',
+            temperature: 0.3,
+            max_tokens: 1000,
+            top_p: 0.4,
+            frequency_penalty: 0,
+            presence_penalty: 0,
+            messages: [{
+                'role': 'user',
+                'content': `${prompt} (Use the following format: ${outputFormat})`
+            }],
+        });
+
+        const answer = completion.choices[0].message.content;
+        const output = JSON.parse(answer);
+
+        haiku.title = output.title;
+        haiku.description = output.description;
+        haiku.hashtags = output.hashtags;
+
+        return haiku;
+    }
+
+    private async addTranslations(haiku: HaikuValue): Promise<HaikuValue> {
+        let prompt = `Act as a Poem Translator and translate this haiku using \\n separator: "${haiku.verses.join('\\n')}"`;
+        let outputFormat = '';
+        outputFormat += '"fr":"<Translate the Haiku in french>",';
+        outputFormat += '"jp":"<Translate the Haiku in rōmaji>",';
+        outputFormat += '"es":"<Translate the Haiku in spanish>",';
+        outputFormat += '"it":"<Translate the Haiku in italian>",';
+        outputFormat += '"de":"<Translate the Haiku in german>"';
+        prompt = `${prompt} (Use the following format: {${outputFormat}})`;
+
+        const completion = await this.openai.chat.completions.create({
+            model: 'gpt-4',
+            temperature: 0.3,
+            max_tokens: 1000,
+            top_p: 0.4,
+            frequency_penalty: 0,
+            presence_penalty: 0,
+            messages: [{
+                'role': 'user',
                 'content': prompt
             }],
         });
@@ -114,11 +165,13 @@ export default class OpenAIService implements IGenerator {
 
         haiku.translations = {
             'fr': output.fr,
-            'es': output.es,
             'jp': output.jp,
+            'es': output.es,
+            'it': output.it,
+            'de': output.de,
         };
 
-        return haiku; 
+        return haiku;
     }
 
     private async addBookmojis(haiku: HaikuValue): Promise<HaikuValue> {
@@ -134,7 +187,7 @@ export default class OpenAIService implements IGenerator {
             frequency_penalty: 0,
             presence_penalty: 0,
             messages: [{
-                'role': 'user', 
+                'role': 'user',
                 'content': prompt
             }],
         });

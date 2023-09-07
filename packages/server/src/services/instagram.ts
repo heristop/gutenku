@@ -34,13 +34,21 @@ export default {
 🇫🇷
 ${haiku.translations.fr}
 
+🇯🇵
+${haiku.translations.jp}
+
 🇪🇸
 ${haiku.translations.es}
 
-🇯🇵
-${haiku.translations.jp}
+🇮🇹
+${haiku.translations.it}
+
+🇩🇪
+${haiku.translations.de}
 ~~~
-${haiku.hashtags} #${hashtagAuthor} ${process.env.INSTAGRAM_HASHTAGS}
+👩‍🏫 “${haiku.description}”
+~~~
+🏷️ ${haiku.hashtags} #${hashtagAuthor} ${process.env.INSTAGRAM_HASHTAGS}
 `;
 
         console.log(caption);
