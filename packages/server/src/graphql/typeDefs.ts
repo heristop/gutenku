@@ -17,8 +17,10 @@ const typeDefs = `#graphql
 
     type Translations {
         fr: String
-        es: String
         jp: String
+        es: String
+        it: String
+        de: String
     }
 
     type Haiku {
