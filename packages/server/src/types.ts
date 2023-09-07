@@ -14,8 +14,10 @@ export interface ChapterValue {
 
 export interface Translations {
     fr?: string;
-    es?: string;
     jp?: string;
+    es?: string;
+    it?: string;
+    de?: string;
 }
 
 export interface HaikuValue {
