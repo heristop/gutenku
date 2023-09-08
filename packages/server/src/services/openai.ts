@@ -82,13 +82,13 @@ export default class OpenAIService implements IGenerator {
     }
 
     private async generateSelectionPrompt(): Promise<string> {
-        let prompt = 'Generate a gpt-4 prompt to choose the most revelant haiku from the list below (correct grammatical construction, consistency between [Verses], capturing beauty of nature, sense of tranquility, peace and good moment of insight):';
-        let outputFormat = '{"prompt":[Prompt]}';
-        prompt = `${prompt} (Use the following format: ${outputFormat})`;
+        let prompt = 'Generate a gpt-4 prompt to choose the most revelant haiku from the list below.';
+        prompt += 'For instance: "Correct grammatical construction, consistency between [Verses], capturing beauty of nature, sense of tranquility, peace and good moment of insight"';
+        prompt = `${prompt} (Use the following format: {"prompt":[Prompt]})`;
 
         const completion = await this.openai.chat.completions.create({
             model: 'gpt-4',
-            temperature: 0.5,
+            temperature: 0.7,
             max_tokens: 1000,
             top_p: 1,
             frequency_penalty: 0,
@@ -99,19 +99,18 @@ export default class OpenAIService implements IGenerator {
             }],
         });
 
-        console.log(completion.choices[0]);
-
         const answer = completion.choices[0].message.content;
         const output = JSON.parse(answer);
 
-        const haikus = await this.fetchHaikus();
-        outputFormat = '{"id":[Id]';
+        console.log('prompt', output.prompt);
 
-        return `${output.prompt} (Use the following format: ${outputFormat})\n${haikus.join('\n')}\nSTOP\n`;
+        const haikus = await this.fetchHaikus();
+
+        return `${output.prompt} (Use the following format: {"id":[Id]})\n${haikus.join('\n')}\nSTOP\n`;
     }
 
     private async addDescription(haiku: HaikuValue): Promise<HaikuValue> {
-        const prompt = 'Act as an English Literature Teacher and describe the Haiku:';
+        const prompt = `Act as an English Literature Teacher and describe the Haiku: "${haiku.verses.join('\\n')}"`;
         const outputFormat = '{"title":"<Give a creative short title to describe the haiku>","description":"<Describe and explain the haiku>","hashtags":"<Give 6 lowercase hashtags>"}';
 
         const completion = await this.openai.chat.completions.create({
