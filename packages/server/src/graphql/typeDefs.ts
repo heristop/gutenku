@@ -51,7 +51,9 @@ const typeDefs = `#graphql
             theme: String,
             filter: String,
             sentimentMinScore: Float,
-            markovMinScore: Float
+            markovMinScore: Float,
+            promptTemperature: Float,
+            descriptionTemperature: Float
         ): Haiku
     }
 

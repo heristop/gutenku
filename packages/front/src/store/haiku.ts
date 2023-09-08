@@ -11,14 +11,18 @@ const query = gql`
         $theme: String, 
         $filter: String,
         $sentimentMinScore: Float,
-        $markovMinScore: Float) {
+        $markovMinScore: Float,
+        $promptTemperature: Float,
+        $descriptionTemperature: Float) {
         haiku(
             useAI: $useAi, 
             useCache: $useCache, 
             theme: $theme, 
             filter: $filter,
             sentimentMinScore: $sentimentMinScore,
-            markovMinScore: $markovMinScore
+            markovMinScore: $markovMinScore,
+            promptTemperature: $promptTemperature,
+            descriptionTemperature: $descriptionTemperature
         ) {
             book {
                 title
@@ -52,6 +56,8 @@ export const useHaikuStore = defineStore({
         optionFilter: '' as string,
         optionMinSentimentScore: 0.2 as number,
         optionMinMarkovScore: 0.2 as number,
+        optionPromptTemperature: 0.7 as number,
+        optionDescriptionTemperature: 0.3 as number,
     }),
     persist: {
         storage: sessionStorage,
@@ -61,6 +67,8 @@ export const useHaikuStore = defineStore({
             'optionTheme',
             'optionMinSentimentScore',
             'optionMinMarkovScore',
+            'optionPromptTemperature',
+            'optionDescriptionTemperature',
         ],
     },
     getters: {
@@ -80,6 +88,8 @@ export const useHaikuStore = defineStore({
                     filter: this.optionFilter,
                     sentimentMinScore: this.optionMinSentimentScore,
                     markovMinScore: this.optionMinMarkovScore,
+                    promptTemperature: this.optionPromptTemperature,
+                    descriptionTemperature: this.optionDescriptionTemperature,
                     appendImg: true,
                 };
 

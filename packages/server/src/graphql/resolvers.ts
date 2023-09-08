@@ -41,6 +41,8 @@ const resolvers = {
             filter: string,
             sentimentMinScore: number,
             markovMinScore: number,
+            promptTemperature: number,
+            descriptionTemperature: number,
         }, context: { db: Connection; }): Promise<HaikuValue> => {
             let haiku: HaikuValue = null;
 
@@ -61,8 +63,12 @@ const resolvers = {
 
             if (true === OPENAI_SELECTION_MODE) {
                 const openAIService = new OpenAIService(haikuService, {
-                    'apiKey': process.env.OPENAI_API_KEY,
-                    'selectionCount': args.selectionCount,
+                    apiKey: process.env.OPENAI_API_KEY,
+                    selectionCount: args.selectionCount,
+                    temperature: {
+                        'prompt': args.promptTemperature,
+                        'description': args.promptTemperature,
+                    },
                 });
 
                 haiku = await openAIService.generate();

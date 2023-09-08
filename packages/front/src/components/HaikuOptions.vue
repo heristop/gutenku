@@ -10,6 +10,8 @@ const {
     optionFilter,
     optionMinSentimentScore,
     optionMinMarkovScore,
+    optionPromptTemperature,
+    optionDescriptionTemperature,
     optionUseAI,
     optionUseCache,
 } = storeToRefs(useHaikuStore());
@@ -17,6 +19,30 @@ const {
 const hasDescription = computed(() => {
     return haiku.value?.description && optionUseAI.value;
 });
+
+const sentimenticon = computed(() => {
+    if (optionMinSentimentScore.value > 0) {
+        return 'mdi-emoticon-outline';
+    }
+
+    if (optionMinSentimentScore.value < 0) {
+        return 'mdi-emoticon-sad-outline';
+    }
+
+    return 'mdi-emoticon-neutral-outline';
+});
+
+function getThermometer(temperature: number) {
+    if (temperature > 0.7) {
+        return 'mdi-thermometer-high';
+    }
+
+    if (temperature < 0.3) {
+        return 'mdi-thermometer-low';
+    }
+
+    return 'mdi-thermometer';
+}
 
 const advancedMode = computed({
     get: () => false == optionUseCache.value,
@@ -79,8 +105,7 @@ const advancedMode = computed({
           >
             <template #activator="{ props }">
               <span v-bind="props">Sentiment Score <v-icon class="icon">
-                mdi-emoticon-outline
-              </v-icon></span>
+                {{ sentimenticon }} </v-icon></span>
             </template>
           </v-tooltip>
 
@@ -140,6 +165,63 @@ const advancedMode = computed({
           />
         </template>
       </v-tooltip>
+
+      <v-expand-transition>
+        <v-sheet
+          v-show="optionUseAI"
+          class="pa-2 py-4 mb-4"
+          color="secondary"
+          elevation="3"
+        >
+          <v-tooltip
+            text="This temperature setting adjusts the randomness of the generated prompts used for haiku selection. A lower value makes the prompts more focused and consistent, while a higher value introduces more variability and unpredictability."
+            location="bottom"
+            max-width="300"
+          >
+            <template #activator="{ props }">
+              <span v-bind="props">Prompt Temperature <v-icon class="icon">
+                {{ getThermometer(optionPromptTemperature) }}
+              </v-icon></span>
+            </template>
+          </v-tooltip>
+
+          <v-slider
+            v-model="optionPromptTemperature"
+            label="Temp"
+            thumb-label
+            color="third"
+            :min="0"
+            :max="0.90"
+            :step="0.05"
+            hide-details
+            class="ma-6"
+          />
+
+          <v-tooltip
+            text="This temperature setting influences the randomness of the description generated for the selected haiku. A lower value will produce a more concise and deterministic description, while a higher value allows for a more creative and unpredictable explanation."
+            location="bottom"
+            max-width="300"
+          >
+            <template #activator="{ props }">
+              <span v-bind="props">Description Temperature <v-icon class="icon">
+                {{ getThermometer(optionDescriptionTemperature) }}
+              </v-icon></span>
+            </template>
+          </v-tooltip>
+
+          <v-slider
+            v-model="optionDescriptionTemperature"
+            label="Temp"
+            thumb-label
+            color="third"
+            :min="0"
+            :max="0.40"
+            :step="0.05"
+            hide-details
+            class="ma-6"
+          />
+        </v-sheet>
+      </v-expand-transition>
     </v-card-text>
 
     <v-expand-transition>

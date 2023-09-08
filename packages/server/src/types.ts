@@ -50,6 +50,10 @@ export interface ChapterResponseData {
 export interface OpenAIOptions {
     apiKey: string;
     selectionCount?: number;
+    temperature: {
+        prompt?: number;
+        description?: number;
+    };
 }
 
 export interface ContextVerses {

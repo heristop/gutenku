@@ -9,11 +9,19 @@ export default class OpenAIService implements IGenerator {
     private openai: OpenAI;
     private haikuService: HaikuService;
     private selectionCount: number;
+    private promptTemperature: number;
+    private descriptionTemperature: number;
 
     private readonly MAX_SELECTION_COUNT: number = 100;
 
     constructor(haikuService: HaikuService, options: OpenAIOptions) {
-        const { apiKey, selectionCount } = options;
+        const {
+            apiKey,
+            selectionCount,
+            temperature
+        } = options;
+
+        console.log('temperature', options.temperature);
 
         if (undefined === selectionCount) {
             this.selectionCount = parseInt(process.env.OPENAI_SELECTION_COUNT);
@@ -26,6 +34,9 @@ export default class OpenAIService implements IGenerator {
             );
         }
 
+        this.promptTemperature = temperature.prompt ?? parseFloat(process.env.OPENAI_PROMPT_TEMPERATURE || '0.7');
+        this.descriptionTemperature = temperature.description ?? parseFloat(process.env.OPENAI_DESCRIPTION_TEMPERATURE || '0.3');
+
         this.openai = new OpenAI({
             apiKey: apiKey
         });
@@ -36,6 +47,11 @@ export default class OpenAIService implements IGenerator {
     async generate(): Promise<HaikuValue> {
         try {
             // Meta Prompt
+            // Example of generated prompt: "Among the following haikus,
+            // select the one that best captures the essence of the traditional Japanese form, 
+            // demonstrates a deep appreciation for nature, creates a sense of tranquility and peace, 
+            // and delivers a profound or insightful moment. 
+            // The haiku should also be grammatically correct and maintain a consistent theme across all verses.""
             const prompt = await this.generateSelectionPrompt();
 
             const completion = await this.openai.chat.completions.create({
@@ -88,7 +104,7 @@ export default class OpenAIService implements IGenerator {
 
         const completion = await this.openai.chat.completions.create({
             model: 'gpt-4',
-            temperature: 0.7,
+            temperature: this.promptTemperature,
             max_tokens: 1000,
             top_p: 1,
             frequency_penalty: 0,
@@ -115,7 +131,7 @@ export default class OpenAIService implements IGenerator {
 
         const completion = await this.openai.chat.completions.create({
             model: 'gpt-4',
-            temperature: 0.3,
+            temperature: this.descriptionTemperature,
             max_tokens: 1000,
             top_p: 0.4,
             frequency_penalty: 0,
