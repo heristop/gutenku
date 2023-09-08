@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const INSTAGRAM_URL = 'https://instagram.com/gutenku.poem';
-const GITHUB_URL = 'hhttps://github.com/heristop/gutenku';
+const GITHUB_URL = 'https://github.com/heristop/gutenku';
 const GUTENBERG_URL = 'https://gutenberg.org';
 </script>
 
