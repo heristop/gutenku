@@ -21,8 +21,6 @@ export default class OpenAIService implements IGenerator {
             temperature
         } = options;
 
-        console.log('temperature', options.temperature);
-
         if (undefined === selectionCount) {
             this.selectionCount = parseInt(process.env.OPENAI_SELECTION_COUNT);
         }
@@ -34,8 +32,13 @@ export default class OpenAIService implements IGenerator {
             );
         }
 
-        this.promptTemperature = temperature.prompt ?? parseFloat(process.env.OPENAI_PROMPT_TEMPERATURE || '0.7');
-        this.descriptionTemperature = temperature.description ?? parseFloat(process.env.OPENAI_DESCRIPTION_TEMPERATURE || '0.3');
+        temperature.prompt = temperature.prompt ?? parseFloat(process.env.OPENAI_PROMPT_TEMPERATURE || '0.7');
+        temperature.description = temperature.description ?? parseFloat(process.env.OPENAI_DESCRIPTION_TEMPERATURE || '0.3');
+
+        console.log('temperature', temperature);
+
+        this.promptTemperature = temperature.prompt;
+        this.descriptionTemperature = temperature.description;
 
         this.openai = new OpenAI({
             apiKey: apiKey
