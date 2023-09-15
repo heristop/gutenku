@@ -11,6 +11,10 @@
     "start": "yarn workspace @gutenku/api start",
     "next": "yarn workspace @gutenku/vue dev",
     "dev": "npm-run-all --parallel start next",
+    "setup": "yarn workspace @gutenku/api setup",
+    "extract": "yarn workspace @gutenku/api extract",
+    "train": "yarn workspace @gutenku/api train",
+    "post": "yarn workspace @gutenku/api post",
     "build": "yarn workspace @gutenku/vue build"
   },
   "workspaces": [
