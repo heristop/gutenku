@@ -1,5 +1,5 @@
 {
-    "name": "gutuenku-vue",
+    "name": "@gutuenku/front",
     "version": "1.4.0",
     "private": true,
     "licence": "UNLICENSED",
@@ -36,7 +36,7 @@
     },
     "devDependencies": {
         "@babel/types": "^7.20.7",
-        "@types/node": "^18.11.9",
+        "@types/node": "^20.6.1",
         "@types/webfontloader": "^1.6.35",
         "@types/zen-observable": "^0.8.3",
         "@vitejs/plugin-vue": "^4.2.3",
@@ -50,6 +50,8 @@
         "sass-loader": "^13.2.1",
         "typescript": "^5.0.2",
         "vite": "^4.3.9",
+        "vite-plugin-compression": "^0.5.1",
+        "vite-plugin-imagemin": "^0.6.1",
         "vite-plugin-vuetify": "^1.0.2",
         "vue-tsc": "^1.6.5",
         "webpack": "^5.76.2"
