@@ -20,22 +20,22 @@ These instructions will get you a copy of the project up and running on your loc
 git clone https://github.com/heristop/gutenku.git
 ```
 
-2. Navigate to the project directory:
+2. Install NPM dependencies:
 
 ```bash
-cd gutenku/packages/front
+yarn install
 ```
 
 3. Copy env variables (optional):
 
 ```bash
-cp .env.dist .env
+cp gutenku/packages/front/.env.dist gutenku/packages/front/.env
 ```
 
-4. Install NPM dependencies:
+4. Start server and front
 
 ```bash
-yarn install
+yarn dev
 ```
 
 ## Tests

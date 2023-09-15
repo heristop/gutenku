@@ -1,29 +1,9 @@
-.DS_Store
-node_modules
 /dist
 
-# local env files
-.env
-.env.local
-.env.*.local
-
 # Cypress
-cypress/screenshots
-cypress/videos
-cypress/downloads
-
-# Log files
-yarn-debug.log*
-yarn-error.log*
+/cypress/screenshots
+/cypress/videos
+/cypress/downloads
 
 # Build
 tsconfig.tsbuildinfo
-
-# Editor directories and files
-.idea
-.vscode
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
