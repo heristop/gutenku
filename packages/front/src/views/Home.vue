@@ -11,7 +11,13 @@ import { useHaikuStore } from '@/store/haiku';
 import { storeToRefs } from 'pinia';
 
 const { fetchText } = useHaikuStore();
-const { error, firstLoaded, networkError, notificationError, optionUseCache } = storeToRefs(useHaikuStore());
+const {
+    error,
+    firstLoaded,
+    networkError,
+    notificationError,
+    optionUseCache
+} = storeToRefs(useHaikuStore());
 
 const loadingLabel = computed(() => {
     if (true === optionUseCache.value) {
@@ -162,7 +168,7 @@ body {
   background: rgba(255, 255, 255, 1);
   padding: 0px;
 
-  h3,
+  h1,
   .author {
     &.dark-theme {
       color: transparent;
