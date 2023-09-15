@@ -3,13 +3,11 @@
   "version": "1.4.0",
   "private": true,
   "licence": "UNLICENSED",
-  "devDependencies": {
-    "husky": "^8.0.3",
-    "npm-run-all": "^4.1.5"
-  },
   "scripts": {
-    "pre-commit": "yarn workspace @gutenku/api lint && yarn workspace @gutenku/vue lint",
     "prepare": "husky install",
+    "lint": "yarn workspace @gutenku/api lint && yarn workspace @gutenku/vue lint",
+    "test": "yarn workspace @gutenku/api test && yarn workspace @gutenku/vue test",
+    "pre-commit": "yarn lint",
     "start": "yarn workspace @gutenku/api start",
     "next": "yarn workspace @gutenku/vue dev",
     "dev": "npm-run-all --parallel start next",
@@ -17,5 +15,16 @@
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "canvas": "^2.11.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.5",
+    "husky": "^8.0.3",
+    "jest": "^29.7.0",
+    "npm-run-all": "^4.1.5",
+    "ts-jest": "^29.1.1",
+    "ts-node": "^10.9.1"
+  }
 }
