@@ -13,10 +13,9 @@ jobs:
           node-version: 18
       - name: vue
         run: |
-          cd packages/front
-          cp .env.dist .env
-          yarn install
-          yarn lint
+          cp packages/front/.env.dist packages/front/.env
+          yarn workspace @gutenku/vue install
+          yarn workspace @gutenku/vue lint
       - uses: cypress-io/github-action@v5
         with:
           working-directory: packages/front

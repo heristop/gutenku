@@ -21,16 +21,10 @@ These instructions will get you a copy of the project up and running on your loc
 git clone https://github.com/heristop/gutenku.git
 ```
 
-2. Navigate to the project directory:
+2. Copy env variables (optional):
 
 ```bash
-cd gutenku/packages/server
-```
-
-3. Copy env variables (optional):
-
-```bash
-cp .env.dist .env
+cp gutenku/packages/server/.env.dist gutenku/packages/server/.env
 ```
 
 4. Install NPM dependencies:
@@ -49,10 +43,22 @@ pip3 install -r requirements.txt
 
 _Using Docker:_
 
-With Docker Compose v1:
+With Docker Desktop / Docker Compose V2 command:
+
+```bash
+docker compose up -d
+```
+
+Or with Docker Compose V1:
 
 ```bash
 docker-compose up -d
+```
+
+4. Start server and front
+
+```bash
+yarn dev
 ```
 
 ## Usage

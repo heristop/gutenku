@@ -13,8 +13,7 @@ jobs:
           node-version: 18
       - name: api
         run: |
-          cd packages/server
-          cp .env.dist .env
-          yarn install
-          yarn lint
-          yarn test
+          cp packages/server/.env.dist packages/server/.env
+          yarn workspace @gutenku/api install
+          yarn workspace @gutenku/api lint
+          yarn workspace @gutenku/api test

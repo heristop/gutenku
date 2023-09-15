@@ -6,6 +6,7 @@
         "allowSyntheticDefaultImports": true,
         "composite": true,
         "module": "esnext",
+        "skipLibCheck": true, // set for monorepo
         "moduleResolution": "node",
         "strict": true,
         "jsx": "preserve",
