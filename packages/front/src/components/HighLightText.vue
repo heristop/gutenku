@@ -1,23 +1,27 @@
 <script lang="ts">
-import { computed } from 'vue';
+import { defineComponent, PropType, ref, watchEffect } from 'vue';
 import { useHaikuStore } from '@/store/haiku';
 import { storeToRefs } from 'pinia';
 
-const { error } = storeToRefs(useHaikuStore());
-
-export default {
+export default defineComponent({
     props: {
         text: {
             type: String,
             required: true,
         },
         lines: {
-            type: Array<string>,
+            type: Array as PropType<Array<string>>,
             required: true,
         },
     },
     setup(props) {
-        const formattedText = computed(() => {
+        const { error } = storeToRefs(useHaikuStore());
+
+        // Initialize ref for formattedText
+        const formattedText = ref('');
+
+        // Use watchEffect to observe changes
+        watchEffect(() => {
             let rawText = props.text.trim().replace(/"/g, ' ');
 
             try {
@@ -26,21 +30,22 @@ export default {
                         return `<mark>${match}</mark>`;
                     });
                 });
+
+                // Update the formattedText without causing a side effect in a computed property
+                formattedText.value = rawText.replace(/\n\n/g, '<br /><br />');
+
             } catch (err) {
                 error.value = err as string;
             }
-
-            return rawText.replace(/\n\n/g, '<br /><br />');
         });
 
         return {
             formattedText,
         };
     },
-};
+});
 </script>
 
 <template>
   <span v-html="formattedText" />
 </template>
-  
