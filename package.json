@@ -1,10 +1,21 @@
 {
   "name": "gutenku",
+  "version": "1.4.0",
+  "private": true,
+  "licence": "UNLICENSED",
   "devDependencies": {
-    "husky": "^8.0.3"
+    "husky": "^8.0.3",
+    "npm-run-all": "^4.1.5"
   },
   "scripts": {
-    "pre-commit": "yarn --cwd packages/server lint && yarn --cwd packages/front lint",
-    "prepare": "husky install"
-  }
+    "pre-commit": "yarn workspace @gutenku/api lint && yarn workspace @gutenku/vue lint",
+    "prepare": "husky install",
+    "start": "yarn workspace @gutenku/api start",
+    "next": "yarn workspace @gutenku/vue dev",
+    "dev": "npm-run-all --parallel start next",
+    "build": "yarn workspace @gutenku/vue build"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }
