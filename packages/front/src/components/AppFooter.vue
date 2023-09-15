@@ -7,8 +7,8 @@ const legalNoticeDialog = ref(false);
 <template>
   <v-card class="mx-auto order-4">
     <v-img
-      lazy-src="@/assets/img/zazen.jpg"
-      src="@/assets/img/zazen.jpg"
+      lazy-src="@/assets/img/zazen.webp"
+      src="@/assets/img/zazen.webp"
       alt="Footer image Zazen"
       cover
     />
@@ -33,7 +33,8 @@ const legalNoticeDialog = ref(false);
           </h4>
 
           <p class="mb-8">
-            <b>Gutenku.xyz</b> is owned and operated by Alexandre Mogère (heristop). Some of the content on this website is used
+            <b>Gutenku.xyz</b> is owned and operated by Alexandre Mogère (heristop). Some of the content on this website
+            is used
             under license from third-party sources. All such content is used in accordance with the terms of the
             applicable
             license agreements.

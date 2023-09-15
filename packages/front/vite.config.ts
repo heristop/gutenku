@@ -1,10 +1,13 @@
 // Plugins
-import vue from '@vitejs/plugin-vue'
-import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
+import vue from '@vitejs/plugin-vue';
+import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
+import viteCompression from 'vite-plugin-compression';
+import { splitVendorChunkPlugin } from 'vite';
+import viteImagemin from 'vite-plugin-imagemin';
 
 // Utilities
-import { defineConfig } from 'vite'
-import { fileURLToPath, URL } from 'node:url'
+import { defineConfig } from 'vite';
+import { fileURLToPath, URL } from 'node:url';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -19,6 +22,9 @@ export default defineConfig({
                 configFile: 'src/styles/settings.scss',
             },
         }),
+        viteCompression(),
+        splitVendorChunkPlugin(),
+        viteImagemin()
     ],
     define: { 'process.env': {} },
     resolve: {

@@ -25,7 +25,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-card 
+  <v-card
     v-if="haiku"
     :loading="loading"
     color="secondary"
@@ -62,7 +62,7 @@ onMounted(() => {
       @click="toggle()"
     >
       <v-col>
-        <h3
+        <h1
           :class="{
             'dark-theme': blackMarker,
             'light-theme': !blackMarker
@@ -70,7 +70,7 @@ onMounted(() => {
           class="ma-4 text-h5 text-center mb-4"
         >
           {{ haiku.book.title }}
-        </h3>
+        </h1>
 
         <div
           :class="{
