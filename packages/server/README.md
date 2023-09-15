@@ -36,7 +36,8 @@ yarn install
 5. Install Python dependencies:
 
 ```bash
-pip3 install -r requirements.txt
+python3 -m pip install --upgrade pip
+pip3 install -r packages/server/requirements.txt
 ```
 
 6. Install MongoDB:
