@@ -16,7 +16,7 @@ export default class CanvasService {
 
     async create(haiku: HaikuValue): Promise<string> {
         let createCanvas = null;
-    
+
         switch (this.theme) {
         case 'colored':
             createCanvas = colored.create;
@@ -38,7 +38,7 @@ export default class CanvasService {
             return this.save(canvas);
         } catch (err) {
             console.error(err);
-            throw err; 
+            throw err;
         }
     }
 
