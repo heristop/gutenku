@@ -1,6 +1,8 @@
 import natural, { SentenceTokenizer, SentimentAnalyzer, WordTokenizer } from "natural";
 import { syllable } from 'syllable';
+import { injectable } from 'tsyringe';
 
+@injectable()
 export default class NaturalLanguageService {
     private sentenceTokenizer: SentenceTokenizer;
     private wordTokenizer: WordTokenizer;

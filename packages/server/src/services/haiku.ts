@@ -2,6 +2,8 @@ import { promisify } from 'util';
 import { unlink } from 'fs';
 import { Connection, Document } from 'mongoose';
 import { syllable } from 'syllable';
+import 'reflect-metadata';
+import { container } from 'tsyringe';
 import CanvasService from './canvas';
 import Book from '../models/book';
 import { BookValue, ChapterValue, HaikuValue, ContextVerses } from '../types';
@@ -61,8 +63,8 @@ export default class HaikuService implements IGenerator {
         this.sentimentMinScore = options?.score.sentiment ?? null;
         this.markovMinScore = options?.score.markovChain ?? null;
 
-        this.markovEvaluator = new MarkovEvaluator();
-        this.naturalLanguage = new NaturalLanguageService();
+        this.markovEvaluator = container.resolve(MarkovEvaluator);
+        this.naturalLanguage = container.resolve(NaturalLanguageService);
     }
 
     filter(filterWords: string[]): HaikuService {
@@ -90,7 +92,9 @@ export default class HaikuService implements IGenerator {
     }
 
     async appendImg(haiku: HaikuValue): Promise<HaikuValue> {
-        const canvasService = new CanvasService(this.theme);
+        const canvasService = container.resolve(CanvasService);
+
+        canvasService.useTheme(this.theme);
 
         const imagePath = await canvasService.create(haiku);
         const image = await canvasService.read(imagePath);

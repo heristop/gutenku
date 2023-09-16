@@ -1,10 +1,12 @@
 import { MarkovChain } from './chain';
+import { autoInjectable } from 'tsyringe';
 
+@autoInjectable()
 export class MarkovEvaluator {
     private markovChain: MarkovChain;
 
-    constructor() {
-        this.markovChain = new MarkovChain();
+    constructor(markovChain: MarkovChain) {
+        this.markovChain = markovChain;
     }
 
     public trainMarkovChain(text: string): MarkovEvaluator {
