@@ -1,8 +1,9 @@
 import OpenAI from 'openai';
-
+import { autoInjectable } from 'tsyringe';
 import { HaikuValue, OpenAIOptions } from '../types';
 import HaikuService, { IGenerator } from './haiku';
 
+@autoInjectable()
 export default class OpenAIService implements IGenerator {
     private haikuSelection: HaikuValue[] = [];
 

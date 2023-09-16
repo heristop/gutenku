@@ -19,6 +19,7 @@
         "@apollo/server": "^4.9.3",
         "canvas": "^2.11.2",
         "cli-progress": "^3.12.0",
+        "commander": "^11.0.0",
         "dotenv": "^16.0.3",
         "express": "^4.18.2",
         "global": "^4.4.0",
@@ -29,10 +30,12 @@
         "mongoose": "^7.3.3",
         "natural": "^6.3.0",
         "openai": "^4.0.1",
+        "reflect-metadata": "^0.1.13",
         "request": "^2.88.0",
         "sharp": "^0.32.1",
         "syllable": "^5.0.1",
         "terminal-image": "^2.0.0",
+        "tsyringe": "^4.8.0",
         "ws": "^8.13.0"
     },
     "devDependencies": {
