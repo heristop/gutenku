@@ -1,17 +1,19 @@
 import fs from 'fs/promises';
 import NaturalLanguageService from '../natural';
+import { autoInjectable } from 'tsyringe';
 
 const FANBOYS_LIST = ['for', 'and', 'nor', 'but', 'or', 'yet', 'so'];
 
+@autoInjectable()
 export class MarkovChain {
     private bigrams: Map<string, Map<string, number>>;
     private totalBigrams: number;
     private naturalLanguage: NaturalLanguageService;
 
-    constructor() {
+    constructor(naturalLanguage: NaturalLanguageService) {
         this.bigrams = new Map();
         this.totalBigrams = 0;
-        this.naturalLanguage = new NaturalLanguageService();
+        this.naturalLanguage = naturalLanguage;
     }
 
     public train(text: string): void {
@@ -76,7 +78,7 @@ export class MarkovChain {
 
         let totalScore = 0;
         let totalCount = 0;
-    
+
         for (const fromWord of fromWords) {
             for (const toWord of toWords) {
                 const transitions = this.bigrams.get(fromWord);
