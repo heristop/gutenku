@@ -10,7 +10,7 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 
 - Node.js (v14.0.0 or newer)
-- yarn
+- Yarn
 - Python (for scraping eBooks)
 
 ### Installation
@@ -112,13 +112,13 @@ yarn test
 
 ## Built With
 
-- Node.js
+- Node.js / TypeScript / ESM
 - Apollo Server
 - GraphQL
-- Yarn
+- Tsyringe (DI)
+- Yarn 1
 - Python (for eBook scraping)
 - Natural Language Processing (NLP)
-- Markov Chains
 
 ---
 

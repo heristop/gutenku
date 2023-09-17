@@ -1,16 +1,15 @@
 import fs from 'fs/promises';
-import NaturalLanguageService from '../natural';
-import { autoInjectable } from 'tsyringe';
+import NaturalLanguageService from './NaturalLanguageService';
+import { injectable } from 'tsyringe';
 
 const FANBOYS_LIST = ['for', 'and', 'nor', 'but', 'or', 'yet', 'so'];
 
-@autoInjectable()
-export class MarkovChain {
+@injectable()
+export class MarkovChainService {
     private bigrams: Map<string, Map<string, number>>;
     private totalBigrams: number;
-    private naturalLanguage: NaturalLanguageService;
 
-    constructor(naturalLanguage: NaturalLanguageService) {
+    constructor(private readonly naturalLanguage: NaturalLanguageService) {
         this.bigrams = new Map();
         this.totalBigrams = 0;
         this.naturalLanguage = naturalLanguage;

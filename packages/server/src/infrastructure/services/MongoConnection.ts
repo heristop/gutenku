@@ -1,0 +1,30 @@
+import mongoose, { Connection, ConnectOptions } from 'mongoose';
+import { injectable } from 'tsyringe';
+
+@injectable()
+export default class MongoConnection {
+    public db: Connection | null = null;
+
+    /**
+     * Method to connect to MongoDB using Mongoose
+     */
+    public async connect(): Promise<Connection> {
+        const uri = process.env.MONGODB_URI || 'mongodb://root:root@localhost:27017';
+        const database = process.env.MONGODB_DB || 'admin';
+
+        try {
+            await mongoose.connect(`${uri}/${database}`, {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+            } as ConnectOptions);
+
+            this.db = mongoose.connection;
+        } catch (error) {
+            console.error(`Error connecting to ${uri}/${database}: ${error}`);
+
+            throw error;
+        }
+
+        return this.db;
+    }
+}

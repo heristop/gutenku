@@ -1,12 +1,13 @@
-import dotenv from "dotenv";
-import fetch from "node-fetch";
-import fs from "fs/promises";
-import sharp from "sharp";
-import { program } from "commander";
-import { createInterface } from "readline";
-import { HaikuResponseData } from "../src/types";
-import Instagram from "../src/services/instagram";
-import terminalImage from "terminal-image";
+import 'reflect-metadata';
+import dotenv from 'dotenv';
+import fetch from 'node-fetch';
+import fs from 'fs/promises';
+import sharp from 'sharp';
+import { program } from 'commander';
+import { createInterface } from 'readline';
+import terminalImage from 'terminal-image';
+import { HaikuResponseData } from '../src/shared/types';
+import InstagramService from '../src/application/services/InstagramService';
 
 dotenv.config();
 
@@ -117,7 +118,7 @@ fetch(process.env.SERVER_URI || "http://localhost:4000/graphql", {
     );
 
     if (false === options.interaction) {
-        Instagram.post(haiku);
+        InstagramService.post(haiku);
     } else {
         const rl = createInterface({
             input: process.stdin,
@@ -128,7 +129,7 @@ fetch(process.env.SERVER_URI || "http://localhost:4000/graphql", {
             "\nPost on Instagram? (y/n) \x1b[33m[n]\x1b[0m ",
             (answer: string) => {
                 if ("y" === answer || "yes" === answer) {
-                    Instagram.post(haiku);
+                    InstagramService.post(haiku);
                 }
 
                 rl.close();
