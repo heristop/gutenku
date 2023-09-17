@@ -1,20 +1,18 @@
 import { promisify } from 'util';
 import { unlink } from 'fs';
-import { Connection, Document } from 'mongoose';
 import { syllable } from 'syllable';
-import 'reflect-metadata';
-import { container } from 'tsyringe';
-import CanvasService from './canvas';
-import Book from '../models/book';
-import { BookValue, ChapterValue, HaikuValue, ContextVerses } from '../types';
-import { MarkovEvaluator } from './markov/evaluator';
-import NaturalLanguageService from './natural';
+import { injectable } from 'tsyringe';
+import { BookValue, ChapterValue, HaikuValue } from '../../shared/types';
+import { MarkovEvaluatorService } from './MarkovEvaluatorService';
+import NaturalLanguageService from './NaturalLanguageService';
 import { PubSub } from 'graphql-subscriptions';
-import Chapter from '../models/chapter';
-
-export interface IGenerator {
-    generate(): Promise<HaikuValue>;
-}
+import CanvasService from './CanvasService';
+import { IGenerator } from './IGenerator';
+import BookService from '../../application/services/BookService';
+import HaikuRepository from '../../infrastructure/repositories/HaikuRepository';
+import ChapterRepository from '../../infrastructure/repositories/ChapterRepository';
+import { PubSubService } from '../../infrastructure/services/PubSubService';
+import HaikuHelper from '../../shared/helpers/HaikuHelper';
 
 class MaxAttemptsError extends Error {
     constructor(message?: string) {
@@ -24,14 +22,11 @@ class MaxAttemptsError extends Error {
     }
 }
 
-export default class HaikuService implements IGenerator {
+@injectable()
+export default class HaikuGeneratorService implements IGenerator {
     private readonly maxAttempts = 500;
     private readonly maxAttemptsInBook = 50;
 
-    private db: Connection;
-    private pubsub: PubSub;
-    private markovEvaluator: MarkovEvaluator;
-    private naturalLanguage: NaturalLanguageService;
     private minCachedDocs: number;
     private ttl: number;
     private useCache: boolean;
@@ -41,7 +36,22 @@ export default class HaikuService implements IGenerator {
     private sentimentMinScore: number;
     private markovMinScore: number;
 
-    constructor(db?: Connection, pubsub?: PubSub, options?: {
+    private pubSub: PubSub;
+
+    constructor(
+        private readonly haikuRepository: HaikuRepository,
+        private readonly chapterRepository: ChapterRepository,
+        private readonly bookService: BookService,
+        private readonly markovEvaluator: MarkovEvaluatorService,
+        private readonly naturalLanguage: NaturalLanguageService,
+        private readonly canvasService: CanvasService,
+        private readonly pubSubService: PubSubService
+    ) {
+        this.filterWords = [];
+        this.pubSub = this.pubSubService.instance;
+    }
+
+    configure(options?: {
         cache: {
             minCachedDocs: number,
             ttl: number,
@@ -52,9 +62,7 @@ export default class HaikuService implements IGenerator {
             markovChain: number,
         },
         theme: string
-    }) {
-        this.db = db;
-        this.pubsub = pubsub;
+    }): HaikuGeneratorService {
         this.minCachedDocs = options?.cache.minCachedDocs ?? 100;
         this.useCache = options?.cache.enabled ?? false;
         this.ttl = options?.cache.ttl ?? 0;
@@ -63,11 +71,10 @@ export default class HaikuService implements IGenerator {
         this.sentimentMinScore = options?.score.sentiment ?? null;
         this.markovMinScore = options?.score.markovChain ?? null;
 
-        this.markovEvaluator = container.resolve(MarkovEvaluator);
-        this.naturalLanguage = container.resolve(NaturalLanguageService);
+        return this;
     }
 
-    filter(filterWords: string[]): HaikuService {
+    filter(filterWords: string[]): HaikuGeneratorService {
         this.filterWords = filterWords;
 
         return this;
@@ -79,7 +86,7 @@ export default class HaikuService implements IGenerator {
         let haiku = null;
 
         if (true === this.useCache) {
-            haiku = await this.extractFromCache();
+            haiku = await this.haikuRepository.extractFromCache(1, this.minCachedDocs);
         }
 
         await this.markovEvaluator.load();
@@ -92,12 +99,10 @@ export default class HaikuService implements IGenerator {
     }
 
     async appendImg(haiku: HaikuValue): Promise<HaikuValue> {
-        const canvasService = container.resolve(CanvasService);
+        this.canvasService.useTheme(this.theme);
 
-        canvasService.useTheme(this.theme);
-
-        const imagePath = await canvasService.create(haiku);
-        const image = await canvasService.read(imagePath);
+        const imagePath = await this.canvasService.create(haiku);
+        const image = await this.canvasService.read(imagePath);
 
         await promisify(unlink)(imagePath);
 
@@ -105,50 +110,6 @@ export default class HaikuService implements IGenerator {
             ...haiku,
             'image': image.data.toString('base64'),
         }
-    }
-
-    async selectRandomBook(): Promise<BookValue> {
-        const books = await Book
-            .find({ 'chapters.id': { $ne: null } })
-            .populate('chapters').exec();
-
-        const randomBook = books[Math.floor(Math.random() * books.length)];
-
-        if (!randomBook) {
-            throw new Error('No book found');
-        }
-
-        if (0 === randomBook.chapters.length) {
-            return this.selectRandomBook();
-        }
-
-        return randomBook;
-    }
-
-    async extractFromCache(size = 1): Promise<HaikuValue | null> {
-        if (false === !!this.db) {
-            return null;
-        }
-
-        const haikusCollection = this.db.collection('haikus');
-
-        if (await haikusCollection.countDocuments() < this.minCachedDocs) {
-            return null;
-        }
-
-        const randomHaiku = await haikusCollection
-            .aggregate([{ $sample: { size } }])
-            .next();
-
-        console.log('Extract from cache');
-
-        return {
-            'book': randomHaiku.book,
-            'chapter': randomHaiku.chapter,
-            'verses': randomHaiku.verses,
-            'rawVerses': randomHaiku.rawVerses,
-            'cacheUsed': true,
-        };
     }
 
     async extractFromDb(): Promise<HaikuValue | null> {
@@ -160,11 +121,11 @@ export default class HaikuService implements IGenerator {
         let i = 1;
 
         if (this.filterWords.length > 0) {
-            chapters = await this.getFilteredChapters();
+            chapters = await this.chapterRepository.getFilteredChapters(this.filterWords);
         }
 
         if (0 === chapters.length) {
-            book = await this.selectRandomBook();
+            book = await this.bookService.selectRandomBook();
         }
 
         while (verses.length < 3) {
@@ -193,7 +154,7 @@ export default class HaikuService implements IGenerator {
 
             // If the maximum number of iterations within a selected book has been reached, select a new book
             if (0 === i % this.maxAttemptsInBook) {
-                book = await this.selectRandomBook();
+                book = await this.bookService.selectRandomBook();
             }
 
             ++i;
@@ -201,19 +162,12 @@ export default class HaikuService implements IGenerator {
 
         haiku = this.buildHaiku(book, chapter, verses);
 
-        await this.createCacheWithTTL(haiku);
+        await this.haikuRepository.createCacheWithTTL(haiku, this.ttl);
 
         return haiku;
     }
 
-    async getFilteredChapters(): Promise<(ChapterValue & Document)[]> {
-        const filterPattern = this.filterWords.join('|');
-        const query = { 'content': { $regex: filterPattern, $options: 'i' } };
-
-        return await Chapter.find(query).populate('book').exec();
-    }
-
-    getVerses(chapter: ChapterValue & Document): string[] {
+    getVerses(chapter: ChapterValue): string[] {
         const quotes = this.extractQuotes(chapter.content);
 
         return quotes.length > 0 ? this.selectHaikuVerses(quotes) : [];
@@ -225,7 +179,7 @@ export default class HaikuService implements IGenerator {
         );
     }
 
-    buildHaiku(book: BookValue, chapter: ChapterValue & Document, verses: string[]): HaikuValue {
+    buildHaiku(book: BookValue, chapter: ChapterValue, verses: string[]): HaikuValue {
         const executionTime = (new Date().getTime() - this.executionTime) / 1000;
 
         return {
@@ -235,31 +189,15 @@ export default class HaikuService implements IGenerator {
                 'author': book.author
             },
             'chapter': chapter,
-            'context': this.extractContextVerses(
+            'context': HaikuHelper.extractContextVerses(
                 verses,
                 chapter.content
             ),
-            'verses': this.clean(verses),
+            'verses': HaikuHelper.clean(verses),
             'rawVerses': verses,
             'cacheUsed': false,
             'executionTime': executionTime
         };
-    }
-
-    async createCacheWithTTL(haiku: HaikuValue): Promise<void> {
-        if (false === !!this.db) {
-            return;
-        }
-
-        const haikusCollection = this.db.collection('haikus');
-
-        const haikuData = {
-            ...haiku,
-            createdAt: new Date(Date.now()).toISOString(),
-            expireAt: new Date(Date.now() + this.ttl),
-        };
-
-        await haikusCollection.insertOne(haikuData);
     }
 
     selectRandomChapter(book: BookValue): string {
@@ -359,7 +297,7 @@ export default class HaikuService implements IGenerator {
 
                     console.log('markov_score', markovScore, 'min', markovMinScore);
 
-                    this.pubsub.publish('QUOTE_GENERATED', {
+                    this.pubSub.publish('QUOTE_GENERATED', {
                         quoteGenerated: quote,
                     });
                 }
@@ -400,61 +338,5 @@ export default class HaikuService implements IGenerator {
         }
 
         return false;
-    }
-
-    extractContextVerses(
-        verses: string[],
-        chapter: string
-    ): ContextVerses[] {
-        return verses.map(verse => {
-            return this.findContext(
-                chapter.replaceAll(/\n/g, ' '),
-                verse.replaceAll(/\n/g, ' ')
-            );
-        });
-    }
-
-    findContext(text, substring, numWords = 5, numSentences = 2) {
-        const sentences = text.split(/(?<=[.,;!?])\s+/);
-
-        const index = text.indexOf(substring);
-
-        if (index === -1) {
-            return null;
-        }
-
-        const wordsBeforeArray = text.slice(0, index).split(" ").slice(-numWords);
-        const wordsAfterArray = text.slice(index + substring.length).split(" ").slice(0, numWords);
-        const wordsBefore = wordsBeforeArray.join(" ");
-        const wordsAfter = wordsAfterArray.join(" ");
-
-        const sentenceIndexBefore = sentences.findIndex(sentence => sentence.includes(wordsBeforeArray[0]));
-        const sentenceIndexAfter = sentences.findIndex(sentence => sentence.includes(wordsAfterArray[wordsAfterArray.length - 1]));
-
-        const sentencesBefore = sentences.slice(Math.max(0, sentenceIndexBefore - numSentences + 1), sentenceIndexBefore + 1);
-        const sentencesAfter = sentences.slice(sentenceIndexAfter, sentenceIndexAfter + numSentences);
-        const sentenceBefore = sentencesBefore.join(" ").replace(substring, "").trim();
-        const sentenceAfter = sentencesAfter.join(" ").replace(substring, "").trim();
-
-        return {
-            wordsBefore,
-            sentenceBefore,
-            wordsAfter,
-            sentenceAfter
-        };
-    }
-
-    clean(verses: string[]): string[] {
-        const newLineRegex = /[\n\r]/g;
-        const whitespaceRegex = /\s+/g;
-
-        return verses.map(verse => {
-            verse = verse.trim()
-                .replaceAll(newLineRegex, ' ')
-                .replaceAll(whitespaceRegex, ' ')
-                .replaceAll(/^'|'$|\.\.\.$|\.$\.$|\.$|,$|!$|;$|\?$/g, '');
-
-            return verse.charAt(0).toUpperCase() + verse.slice(1);
-        });
     }
 }

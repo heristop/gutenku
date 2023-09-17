@@ -1,6 +1,7 @@
+import 'reflect-metadata';
 import dotenv from 'dotenv';
 import { expect, it } from '@jest/globals';
-import NaturalLanguageService from '../src/services/natural';
+import NaturalLanguageService from '../src/domain/services/NaturalLanguageService';
 
 dotenv.config();
 

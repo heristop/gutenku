@@ -1,21 +1,21 @@
 import { readdir } from 'fs/promises';
 import { join } from 'path';
 import Canvas from 'canvas';
-import { HaikuValue } from '../../types';
-import HaikuService from '../haiku';
+import { HaikuValue } from '../types';
+import HaikuContextHelper from '../helpers/HaikuHelper';
 
 export default {
     async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
         const { verses, rawVerses, chapter } = haiku;
         let { context } = haiku;
 
-        Canvas.registerFont('./src/assets/fonts/JMH Typewriter.ttf', { family: 'Typewriter' });
+        Canvas.registerFont('./src/shared/assets/fonts/JMH Typewriter.ttf', { family: 'Typewriter' });
 
         const canvas = Canvas.createCanvas(2400, 2400);
         const ctx = canvas.getContext('2d');
 
         // Set background image
-        const folderPath = './src/assets/themes/greentea/backgrounds';
+        const folderPath = './src/shared/assets/themes/greentea/backgrounds';
         const files = await readdir(folderPath);
         const randomFile = files[Math.floor(Math.random() * files.length)];
         const imagePath = join(folderPath, randomFile);
@@ -34,8 +34,7 @@ export default {
         const baseY = (canvas.height - lineHeight * verses.length) / 1.70;
 
         if (!context) {
-            const haikuService = new HaikuService();
-            context = haikuService.extractContextVerses(
+            context = HaikuContextHelper.extractContextVerses(
                 rawVerses, 
                 chapter.content
             );
@@ -85,7 +84,7 @@ export default {
     
         // Draw decor
         const decor = new Canvas.Image();
-        decor.src = './src/assets/themes/greentea/decoration/torn_paper.png';
+        decor.src = './src/shared/assets/themes/greentea/decoration/torn_paper.png';
         ctx.globalAlpha = 1.0;
         ctx.drawImage(decor, 0, 0, canvas.width, canvas.height);
 

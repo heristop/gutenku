@@ -39,6 +39,19 @@ export interface HaikuValue {
     executionTime?: number;
 }
 
+export interface HaikuVariables {
+    useAI: boolean;
+    useCache: boolean;
+    appendImg: boolean;
+    selectionCount: number;
+    theme: string;
+    filter: string;
+    sentimentMinScore: number;
+    markovMinScore: number;
+    promptTemperature: number;
+    descriptionTemperature: number;
+}
+
 export interface HaikuResponseData {
     haiku: HaikuValue;
 }

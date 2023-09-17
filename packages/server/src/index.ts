@@ -1,3 +1,8 @@
+import 'reflect-metadata';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { container } from 'tsyringe';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
@@ -6,12 +11,10 @@ import { createServer } from 'http';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { WebSocketServer } from 'ws';
 import { useServer } from 'graphql-ws/lib/use/ws';
-import bodyParser from 'body-parser';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import mongoose, { Connection, ConnectOptions } from 'mongoose';
-import resolvers from './graphql/resolvers';
-import typeDefs from './graphql/typeDefs';
+import { Connection } from 'mongoose';
+import resolvers from './presentation/graphql/resolvers';
+import typeDefs from './presentation/graphql/typeDefs';
+import MongoConnection from './infrastructure/services/MongoConnection';
 
 dotenv.config();
 
@@ -64,15 +67,12 @@ async function listen(port: number) {
 
     await server.start();
 
-    const uri = process.env.MONGODB_URI || 'mongodb://root:root@localhost:27017'
-    const database = process.env.MONGODB_DB || 'admin'
+    // Register and instantiate MongoConnection
+    container.registerSingleton<MongoConnection>(MongoConnection);
+    const mongoConnection = container.resolve(MongoConnection);
 
-    mongoose.connect(`${uri}/${database}`, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    } as ConnectOptions);
+    const db = await mongoConnection.connect();
 
-    const db = mongoose.connection;
     db.on('error', console.error.bind(console, 'connection error:'));
     db.once('open', function () {
         console.log('Connected to MongoDB!');

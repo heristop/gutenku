@@ -1,13 +1,11 @@
 import fs from 'fs';
 import { promisify } from 'util';
-import { injectable } from 'tsyringe';
 import Canvas from 'canvas';
-import { HaikuValue } from '../types';
-import colored from './themes/colored';
-import greentea from './themes/greentea';
-import watermark from './themes/watermark';
+import { HaikuValue } from '../../shared/types';
+import colored from '../../shared/themes/colored';
+import greentea from '../../shared/themes/greentea';
+import watermark from '../../shared/themes/watermark';
 
-@injectable()
 export default class CanvasService {
     private readonly DATA_DIRECTORY = "./data";
     private theme: string;
