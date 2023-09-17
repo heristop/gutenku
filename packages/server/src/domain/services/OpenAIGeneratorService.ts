@@ -1,21 +1,23 @@
 import OpenAI from 'openai';
-import { autoInjectable } from 'tsyringe';
-import { HaikuValue, OpenAIOptions } from '../types';
-import HaikuService, { IGenerator } from './haiku';
+import { injectable } from 'tsyringe';
+import { HaikuValue, OpenAIOptions } from '../../shared/types';
+import HaikuGeneratorService from './HaikuGeneratorService';
+import { IGenerator } from './IGenerator';
 
-@autoInjectable()
-export default class OpenAIService implements IGenerator {
+@injectable()
+export default class OpenAIGeneratorService implements IGenerator {
+    private readonly MAX_SELECTION_COUNT: number = 100;
+
     private haikuSelection: HaikuValue[] = [];
-
     private openai: OpenAI;
-    private haikuService: HaikuService;
+
     private selectionCount: number;
     private promptTemperature: number;
     private descriptionTemperature: number;
 
-    private readonly MAX_SELECTION_COUNT: number = 100;
+    constructor(private readonly haikuGeneratorService: HaikuGeneratorService) {}
 
-    constructor(haikuService: HaikuService, options: OpenAIOptions) {
+    configure(options: OpenAIOptions): OpenAIGeneratorService {
         const {
             apiKey,
             selectionCount,
@@ -45,7 +47,7 @@ export default class OpenAIService implements IGenerator {
             apiKey: apiKey
         });
 
-        this.haikuService = haikuService;
+        return this;
     }
 
     async generate(): Promise<HaikuValue> {
@@ -98,7 +100,7 @@ export default class OpenAIService implements IGenerator {
             this.haikuSelection = [];
         }
 
-        return await this.haikuService.generate();
+        return await this.haikuGeneratorService.generate();
     }
 
     private async generateSelectionPrompt(): Promise<string> {
@@ -222,7 +224,7 @@ export default class OpenAIService implements IGenerator {
         const haikus: string[] = [];
 
         for (const [i,] of Array(this.selectionCount).entries()) {
-            const haiku = await this.haikuService.generate();
+            const haiku = await this.haikuGeneratorService.generate();
 
             this.haikuSelection.push(haiku);
 

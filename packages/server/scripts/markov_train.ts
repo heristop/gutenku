@@ -1,9 +1,9 @@
+import 'reflect-metadata';
 import fetch from 'node-fetch';
 import cliProgress from 'cli-progress';
-import 'reflect-metadata';
 import { container } from 'tsyringe';
-import { MarkovEvaluator } from '../src/services/markov/evaluator';
-import { ChapterResponseData } from '../src/types';
+import { MarkovEvaluatorService } from '../src/application/services/MarkovEvaluatorService';
+import { ChapterResponseData } from '../src/shared/types';
 
 const query = `
     query Query {
@@ -32,7 +32,7 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
         throw new Error('Chapters fetch error');
     }
 
-    const markovEvaluator = container.resolve(MarkovEvaluator);
+    const markovEvaluator = container.resolve(MarkovEvaluatorService);
 
     const bar = new cliProgress.SingleBar({
         format: 'Chapters | {bar} | {percentage}% || {value}/{total}',
