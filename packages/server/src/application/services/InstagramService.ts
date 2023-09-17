@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { HaikuValue } from '../../types';
+import { HaikuValue } from '../../shared/types';
 import InstagramPublisher from 'instagram-publisher';
 
 dotenv.config();

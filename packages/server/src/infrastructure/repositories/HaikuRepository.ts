@@ -1,6 +1,6 @@
 import { autoInjectable } from 'tsyringe';
-import { HaikuValue } from '../../types';
-import MongoConnection from '../MongoConnection';
+import { HaikuValue } from '../../shared/types';
+import MongoConnection from '../services/MongoConnection';
 import { Connection } from 'mongoose';
 
 @autoInjectable()

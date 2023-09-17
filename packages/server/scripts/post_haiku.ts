@@ -5,8 +5,8 @@ import fs from 'fs/promises';
 import sharp from 'sharp';
 import { program } from 'commander';
 import { createInterface } from 'readline';
-import { HaikuResponseData } from '../src/types';
 import terminalImage from 'terminal-image';
+import { HaikuResponseData } from '../src/shared/types';
 import InstagramService from '../src/application/services/InstagramService';
 
 dotenv.config();

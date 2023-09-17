@@ -1,10 +1,11 @@
 import OpenAI from 'openai';
 import { injectable } from 'tsyringe';
-import { HaikuValue, OpenAIOptions } from '../../types';
-import HaikuGeneratorService, { IGenerator } from './HaikuGeneratorService';
+import { HaikuValue, OpenAIOptions } from '../../shared/types';
+import HaikuGeneratorService from './HaikuGeneratorService';
+import { IGenerator } from './IGenerator';
 
 @injectable()
-export default class OpenAIService implements IGenerator {
+export default class OpenAIGeneratorService implements IGenerator {
     private readonly MAX_SELECTION_COUNT: number = 100;
 
     private haikuSelection: HaikuValue[] = [];
@@ -14,9 +15,9 @@ export default class OpenAIService implements IGenerator {
     private promptTemperature: number;
     private descriptionTemperature: number;
 
-    constructor(private readonly haikuService: HaikuGeneratorService) {}
+    constructor(private readonly haikuGeneratorService: HaikuGeneratorService) {}
 
-    configure(options: OpenAIOptions): OpenAIService {
+    configure(options: OpenAIOptions): OpenAIGeneratorService {
         const {
             apiKey,
             selectionCount,
@@ -99,7 +100,7 @@ export default class OpenAIService implements IGenerator {
             this.haikuSelection = [];
         }
 
-        return await this.haikuService.generate();
+        return await this.haikuGeneratorService.generate();
     }
 
     private async generateSelectionPrompt(): Promise<string> {
@@ -223,7 +224,7 @@ export default class OpenAIService implements IGenerator {
         const haikus: string[] = [];
 
         for (const [i,] of Array(this.selectionCount).entries()) {
-            const haiku = await this.haikuService.generate();
+            const haiku = await this.haikuGeneratorService.generate();
 
             this.haikuSelection.push(haiku);
 

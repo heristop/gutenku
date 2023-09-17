@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import cliProgress from 'cli-progress';
 import { container } from 'tsyringe';
 import { MarkovEvaluatorService } from '../src/application/services/MarkovEvaluatorService';
-import { ChapterResponseData } from '../src/types';
+import { ChapterResponseData } from '../src/shared/types';
 
 const query = `
     query Query {

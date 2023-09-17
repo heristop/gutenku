@@ -1,4 +1,4 @@
-import { ChapterValue } from '../../types';
+import { ChapterValue } from '../../shared/types';
 import ChapterModel from '../models/ChapterModel';
 
 export default class ChapterRepository {

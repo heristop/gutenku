@@ -1,9 +1,9 @@
 import { container } from 'tsyringe';
-import { HaikuValue, HaikuVariables } from '../../types';
+import { HaikuValue, HaikuVariables } from '../../shared/types';
 import BookService from '../../application/services/BookService';
 import ChapterService from '../../application/services/ChapterService';
 import HaikuBridgeService from '../../application/services/HaikuBridgeService';
-import { PubSubService } from '../../infrastructure/PubSubService';
+import { PubSubService } from '../../infrastructure/services/PubSubService';
 
 // Register PubSub
 container.registerSingleton<PubSubService>(PubSubService);

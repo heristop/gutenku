@@ -1,4 +1,4 @@
-import { BookValue } from '../../types';
+import { BookValue } from '../../shared/types';
 import BookModel from '../models/BookModel';
 
 export default class BookRepository {

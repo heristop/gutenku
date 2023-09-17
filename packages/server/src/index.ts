@@ -14,7 +14,7 @@ import { useServer } from 'graphql-ws/lib/use/ws';
 import { Connection } from 'mongoose';
 import resolvers from './presentation/graphql/resolvers';
 import typeDefs from './presentation/graphql/typeDefs';
-import MongoConnection from './infrastructure/MongoConnection';
+import MongoConnection from './infrastructure/services/MongoConnection';
 
 dotenv.config();
 

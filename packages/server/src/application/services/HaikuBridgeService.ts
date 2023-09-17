@@ -1,13 +1,13 @@
 import { injectable } from 'tsyringe';
-import { HaikuValue, HaikuVariables } from '../../types';
-import HaikuGeneratorService from './HaikuGeneratorService';
-import OpenAIService from './OpenAIService';
+import { HaikuValue, HaikuVariables } from '../../shared/types';
+import HaikuGeneratorService from '../../domain/services/HaikuGeneratorService';
+import OpenAIGeneratorService from '../../domain/services/OpenAIGeneratorService';
 
 @injectable()
 export default class HaikuBridgeService {
     constructor(
         private readonly haikuGenerator: HaikuGeneratorService, 
-        private readonly openAI: OpenAIService
+        private readonly openAIGenerator: OpenAIGeneratorService
     ) {}
 
     async generate(args: HaikuVariables): Promise<HaikuValue> {
@@ -30,7 +30,7 @@ export default class HaikuBridgeService {
         const OPENAI_SELECTION_MODE = args.useAI && undefined !== process.env.OPENAI_API_KEY;
     
         if (true === OPENAI_SELECTION_MODE) {
-            this.openAI.configure({
+            this.openAIGenerator.configure({
                 apiKey: process.env.OPENAI_API_KEY,
                 selectionCount: args.selectionCount,
                 temperature: {
@@ -39,7 +39,7 @@ export default class HaikuBridgeService {
                 },
             });
     
-            haiku = await this.openAI.generate();
+            haiku = await this.openAIGenerator.generate();
         }
     
         if (null === haiku) {

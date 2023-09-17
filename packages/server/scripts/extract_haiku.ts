@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
-import { HaikuResponseData } from '../src/types';
+import { HaikuResponseData } from '../src/shared/types';
 
 dotenv.config();
 

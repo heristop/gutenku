@@ -11,7 +11,7 @@ export default {
         const canvas = Canvas.createCanvas(1200, 1200);
         const ctx = canvas.getContext('2d');
 
-        const folderPath = './src/assets/themes/paper/backgrounds';
+        const folderPath = './src/shared/assets/themes/paper/backgrounds';
         const files = await readdir(folderPath);
 
         const randomIndex = Math.floor(Math.random() * files.length);
@@ -24,7 +24,7 @@ export default {
 
         // Load the logo
         const logo = new Canvas.Image();
-        logo.src = './src/assets/themes/paper/logo/gutenku_white.png';
+        logo.src = './src/shared/assets/themes/paper/logo/gutenku_white.png';
 
         // Draw the logo
         ctx.globalAlpha = 0.25;

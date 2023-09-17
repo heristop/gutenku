@@ -1,4 +1,4 @@
-import { ContextVerses } from '../../types';
+import { ContextVerses } from '../types';
 
 export default class HaikuHelper {
     static extractContextVerses(
@@ -13,7 +13,7 @@ export default class HaikuHelper {
         });
     }
 
-    static findContext(text: string, substring: string, numWords: number = 5, numSentences: number = 2) {
+    static findContext(text: string, substring: string, numWords = 5, numSentences = 2) {
         const sentences = text.split(/(?<=[.,;!?])\s+/);
 
         const index = text.indexOf(substring);

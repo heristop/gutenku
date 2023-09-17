@@ -2,20 +2,17 @@ import { promisify } from 'util';
 import { unlink } from 'fs';
 import { syllable } from 'syllable';
 import { injectable } from 'tsyringe';
-import CanvasService from './CanvasService';
-import { BookValue, ChapterValue, HaikuValue } from '../../types';
+import { BookValue, ChapterValue, HaikuValue } from '../../shared/types';
 import { MarkovEvaluatorService } from './MarkovEvaluatorService';
 import NaturalLanguageService from './NaturalLanguageService';
 import { PubSub } from 'graphql-subscriptions';
-import HaikuHelper from '../helpers/HaikuHelper';
-import BookService from './BookService';
+import CanvasService from './CanvasService';
+import { IGenerator } from './IGenerator';
+import BookService from '../../application/services/BookService';
 import HaikuRepository from '../../infrastructure/repositories/HaikuRepository';
 import ChapterRepository from '../../infrastructure/repositories/ChapterRepository';
-import { PubSubService } from '../../infrastructure/PubSubService';
-
-export interface IGenerator {
-    generate(): Promise<HaikuValue>;
-}
+import { PubSubService } from '../../infrastructure/services/PubSubService';
+import HaikuHelper from '../../shared/helpers/HaikuHelper';
 
 class MaxAttemptsError extends Error {
     constructor(message?: string) {

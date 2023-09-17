@@ -6,12 +6,12 @@ import { HaikuValue } from '../types';
 export default {
     async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
         const { verses } = haiku;
-        Canvas.registerFont('./src/assets/fonts/JMH Typewriter.ttf', { family: 'Typewriter' });
+        Canvas.registerFont('./src/shared/assets/fonts/JMH Typewriter.ttf', { family: 'Typewriter' });
 
         const canvas = Canvas.createCanvas(2400, 2400);
         const ctx = canvas.getContext('2d');
 
-        const folderPath = './src/assets/themes/greentea/backgrounds';
+        const folderPath = './src/shared/assets/themes/greentea/backgrounds';
         const files = await readdir(folderPath);
 
         const randomIndex = Math.floor(Math.random() * files.length);
@@ -39,7 +39,7 @@ export default {
 
         // Load decor
         const decor = new Canvas.Image();
-        decor.src = './src/assets/themes/greentea/decoration/torn_paper.png';
+        decor.src = './src/shared/assets/themes/greentea/decoration/torn_paper.png';
 
         // Draw decor
         ctx.globalAlpha = 1.0;
@@ -69,7 +69,7 @@ export default {
 }
 
 async function catchNaturePic() {
-    const folderPath = './src/assets/themes/greentea/nature';
+    const folderPath = './src/shared/assets/themes/greentea/nature';
     const files = await readdir(folderPath);
 
     const randomIndex = Math.floor(Math.random() * files.length);
