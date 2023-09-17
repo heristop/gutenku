@@ -1,21 +1,22 @@
 import OpenAI from 'openai';
-import { autoInjectable } from 'tsyringe';
-import { HaikuValue, OpenAIOptions } from '../types';
-import HaikuService, { IGenerator } from './haiku';
+import { injectable } from 'tsyringe';
+import { HaikuValue, OpenAIOptions } from '../../types';
+import HaikuGeneratorService, { IGenerator } from './HaikuGeneratorService';
 
-@autoInjectable()
+@injectable()
 export default class OpenAIService implements IGenerator {
-    private haikuSelection: HaikuValue[] = [];
+    private readonly MAX_SELECTION_COUNT: number = 100;
 
+    private haikuSelection: HaikuValue[] = [];
     private openai: OpenAI;
-    private haikuService: HaikuService;
+
     private selectionCount: number;
     private promptTemperature: number;
     private descriptionTemperature: number;
 
-    private readonly MAX_SELECTION_COUNT: number = 100;
+    constructor(private readonly haikuService: HaikuGeneratorService) {}
 
-    constructor(haikuService: HaikuService, options: OpenAIOptions) {
+    configure(options: OpenAIOptions): OpenAIService {
         const {
             apiKey,
             selectionCount,
@@ -45,7 +46,7 @@ export default class OpenAIService implements IGenerator {
             apiKey: apiKey
         });
 
-        this.haikuService = haikuService;
+        return this;
     }
 
     async generate(): Promise<HaikuValue> {

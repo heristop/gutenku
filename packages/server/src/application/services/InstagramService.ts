@@ -1,11 +1,11 @@
 import dotenv from 'dotenv';
-import { HaikuValue } from '../types';
+import { HaikuValue } from '../../types';
 import InstagramPublisher from 'instagram-publisher';
 
 dotenv.config();
 
-export default {
-    post(haiku: HaikuValue) {
+export default class InstagramService {
+    static post(haiku: HaikuValue) {
         const bookTitle = haiku.book.title;
         const vowels = "aeiouyAEIOUY";
 

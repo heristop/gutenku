@@ -1,15 +1,11 @@
-import { MarkovChain } from './chain';
-import { autoInjectable } from 'tsyringe';
+import { MarkovChainService } from './MarkovChainService';
+import { injectable } from 'tsyringe';
 
-@autoInjectable()
-export class MarkovEvaluator {
-    private markovChain: MarkovChain;
+@injectable()
+export class MarkovEvaluatorService {
+    constructor(private readonly markovChain: MarkovChainService) {}
 
-    constructor(markovChain: MarkovChain) {
-        this.markovChain = markovChain;
-    }
-
-    public trainMarkovChain(text: string): MarkovEvaluator {
+    public trainMarkovChain(text: string): MarkovEvaluatorService {
         this.markovChain.train(text);
 
         return this;

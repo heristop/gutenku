@@ -1,8 +1,8 @@
 import { readdir } from 'fs/promises';
 import { join } from 'path';
 import Canvas from 'canvas';
-import { HaikuValue } from '../../types';
-import HaikuService from '../haiku';
+import { HaikuValue } from '../types';
+import HaikuContextHelper from '../application/helpers/HaikuHelper';
 
 export default {
     async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
@@ -34,8 +34,7 @@ export default {
         const baseY = (canvas.height - lineHeight * verses.length) / 1.70;
 
         if (!context) {
-            const haikuService = new HaikuService();
-            context = haikuService.extractContextVerses(
+            context = HaikuContextHelper.extractContextVerses(
                 rawVerses, 
                 chapter.content
             );

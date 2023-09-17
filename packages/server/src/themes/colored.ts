@@ -1,7 +1,7 @@
 import { readdir } from 'fs/promises';
 import { join } from 'path';
 import Canvas from 'canvas';
-import { HaikuValue } from '../../types';
+import { HaikuValue } from '../types';
 
 export default {
     async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
