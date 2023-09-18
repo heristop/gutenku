@@ -1,7 +1,7 @@
 import { PubSub } from 'graphql-subscriptions';
-import { injectable } from 'tsyringe';
+import { singleton } from 'tsyringe';
 
-@injectable()
+@singleton()
 export class PubSubService {
     private readonly pubSub: PubSub;
 

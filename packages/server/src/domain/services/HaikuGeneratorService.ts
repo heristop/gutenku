@@ -1,13 +1,13 @@
 import { promisify } from 'util';
 import { unlink } from 'fs';
 import { syllable } from 'syllable';
-import { injectable } from 'tsyringe';
+import { singleton } from 'tsyringe';
 import { BookValue, ChapterValue, HaikuValue } from '../../shared/types';
 import { MarkovEvaluatorService } from './MarkovEvaluatorService';
 import NaturalLanguageService from './NaturalLanguageService';
 import { PubSub } from 'graphql-subscriptions';
 import CanvasService from './CanvasService';
-import { IGenerator } from './IGenerator';
+import { IGenerator } from '../interfaces/IGenerator';
 import BookService from '../../application/services/BookService';
 import HaikuRepository from '../../infrastructure/repositories/HaikuRepository';
 import ChapterRepository from '../../infrastructure/repositories/ChapterRepository';
@@ -22,7 +22,7 @@ class MaxAttemptsError extends Error {
     }
 }
 
-@injectable()
+@singleton()
 export default class HaikuGeneratorService implements IGenerator {
     private readonly maxAttempts = 500;
     private readonly maxAttemptsInBook = 50;

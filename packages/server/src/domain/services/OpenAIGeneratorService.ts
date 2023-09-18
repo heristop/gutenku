@@ -1,10 +1,10 @@
 import OpenAI from 'openai';
-import { injectable } from 'tsyringe';
+import { singleton } from 'tsyringe';
 import { HaikuValue, OpenAIOptions } from '../../shared/types';
 import HaikuGeneratorService from './HaikuGeneratorService';
-import { IGenerator } from './IGenerator';
+import { IGenerator } from '../interfaces/IGenerator';
 
-@injectable()
+@singleton()
 export default class OpenAIGeneratorService implements IGenerator {
     private readonly MAX_SELECTION_COUNT: number = 100;
 

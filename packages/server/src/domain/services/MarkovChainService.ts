@@ -1,10 +1,10 @@
 import fs from 'fs/promises';
 import NaturalLanguageService from './NaturalLanguageService';
-import { injectable } from 'tsyringe';
+import { singleton } from 'tsyringe';
 
 const FANBOYS_LIST = ['for', 'and', 'nor', 'but', 'or', 'yet', 'so'];
 
-@injectable()
+@singleton()
 export class MarkovChainService {
     private bigrams: Map<string, Map<string, number>>;
     private totalBigrams: number;
@@ -114,6 +114,7 @@ export class MarkovChainService {
         try {
             const data = await fs.readFile('./data/markov_model.json', 'utf8');
             const jsonData = JSON.parse(data);
+
             this.bigrams = new Map(jsonData.bigrams.map(([key, value]: [string, [string, number][]]) => [key, new Map(value)]));
             this.totalBigrams = jsonData.totalBigrams;
         } catch (error) {

@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import fetch from 'node-fetch';
 import cliProgress from 'cli-progress';
 import { container } from 'tsyringe';
-import { MarkovEvaluatorService } from '../src/application/services/MarkovEvaluatorService';
+import { MarkovEvaluatorService } from '../src/domain/services/MarkovEvaluatorService';
 import { ChapterResponseData } from '../src/shared/types';
 
 const query = `

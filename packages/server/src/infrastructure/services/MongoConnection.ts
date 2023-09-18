@@ -1,7 +1,7 @@
 import mongoose, { Connection, ConnectOptions } from 'mongoose';
-import { injectable } from 'tsyringe';
+import { singleton } from 'tsyringe';
 
-@injectable()
+@singleton()
 export default class MongoConnection {
     public db: Connection | null = null;
 

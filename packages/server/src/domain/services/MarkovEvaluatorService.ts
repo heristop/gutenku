@@ -1,7 +1,7 @@
 import { MarkovChainService } from './MarkovChainService';
-import { injectable } from 'tsyringe';
+import { singleton } from 'tsyringe';
 
-@injectable()
+@singleton()
 export class MarkovEvaluatorService {
     constructor(private readonly markovChain: MarkovChainService) {}
 
