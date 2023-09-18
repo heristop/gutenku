@@ -5,8 +5,7 @@ import ChapterService from '../../application/services/ChapterService';
 import HaikuBridgeService from '../../application/services/HaikuBridgeService';
 import { PubSubService } from '../../infrastructure/services/PubSubService';
 
-// Register PubSub
-container.registerSingleton<PubSubService>(PubSubService);
+// Instanciate PubSub singleton
 const pubSub = container.resolve(PubSubService).instance;
 
 const resolvers = {
