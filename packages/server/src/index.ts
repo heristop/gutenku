@@ -67,8 +67,7 @@ async function listen(port: number) {
 
     await server.start();
 
-    // Register and instantiate MongoConnection
-    container.registerSingleton<MongoConnection>(MongoConnection);
+    // Instantiate MongoConnection singleton
     const mongoConnection = container.resolve(MongoConnection);
 
     const db = await mongoConnection.connect();

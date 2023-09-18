@@ -1,6 +1,12 @@
-import natural, { SentenceTokenizer, SentimentAnalyzer, WordTokenizer } from 'natural';
+import natural, { 
+    SentenceTokenizer, 
+    SentimentAnalyzer, 
+    WordTokenizer,
+} from 'natural';
 import { syllable } from 'syllable';
+import { singleton } from 'tsyringe';
 
+@singleton()
 export default class NaturalLanguageService {
     private sentenceTokenizer: SentenceTokenizer;
     private wordTokenizer: WordTokenizer;
