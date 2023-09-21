@@ -21,7 +21,7 @@
         "@vue/apollo-option": "^4.0.0-beta.5",
         "apollo-link-timeout": "^4.0.0",
         "core-js": "^3.32.1",
-        "graphql": "^16.8.0",
+        "graphql": "^16.8.1",
         "graphql-tag": "^2.12.6",
         "graphql-ws": "^5.14.0",
         "pinia": "^2.1.6",
