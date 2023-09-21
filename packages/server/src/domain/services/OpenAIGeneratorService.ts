@@ -199,17 +199,14 @@ export default class OpenAIGeneratorService implements IGenerator {
     private async fetchHaikus(): Promise<string[]> {
         const haikus: string[] = [];
 
-        for (const [i,] of Array(this.selectionCount).entries()) {
-            const haiku = await this.haikuGeneratorService.generate();
+        this.haikuSelection = await this.haikuGeneratorService.extractFromCache(this.selectionCount);
 
-            this.haikuSelection.push(haiku);
-
+        this.haikuSelection.forEach((haiku, i: number) => {
             const verses = `[Id]: ${i}\n[Verses]: ${haiku.verses.join('\n')}\n`;
 
             console.log(verses);
-
             haikus.push(verses);
-        }
+        });
 
         return haikus;
     }
