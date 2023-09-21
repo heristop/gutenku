@@ -1,5 +1,5 @@
 import { autoInjectable } from 'tsyringe';
-import { HaikuValue } from '../../shared/types';
+import { HaikuDocument, HaikuValue } from '../../shared/types';
 import MongoConnection from '../services/MongoConnection';
 import { Connection } from 'mongoose';
 
@@ -27,7 +27,7 @@ export default class HaikuRepository {
         await haikusCollection.insertOne(haikuData);
     }
 
-    async extractFromCache(size = 1, minCachedDocs: number): Promise<HaikuValue | null> {
+    async extractFromCache(size: number, minCachedDocs: number): Promise<HaikuValue[] | null> {
         if (false === !!this.db) {
             return null;
         }
@@ -38,18 +38,38 @@ export default class HaikuRepository {
             return null;
         }
 
-        const randomHaiku = await haikusCollection
-            .aggregate([{ $sample: { size } }])
-            .next();
-
         console.log('Extract from cache');
 
-        return {
-            'book': randomHaiku.book,
-            'chapter': randomHaiku.chapter,
-            'verses': randomHaiku.verses,
-            'rawVerses': randomHaiku.rawVerses,
-            'cacheUsed': true,
-        };
+        const sampledHaikus = await haikusCollection
+            .aggregate([{ $sample: { size } }])
+            .toArray() as HaikuDocument[];
+
+        return this.map(sampledHaikus);
+    }
+
+    async extractOneFromCache(minCachedDocs: number): Promise<HaikuValue | null> {
+        const haikusValues = await this.extractFromCache(1, minCachedDocs);
+
+        if (0 === haikusValues.length) {
+            return;
+        }
+
+        return haikusValues[0];
+    }
+
+    private map(collection: HaikuDocument[]): HaikuValue[] {
+        const haikuValues = [];
+
+        collection.forEach((document) => {
+            haikuValues.push({
+                'book': document.book,
+                'chapter': document.chapter,
+                'verses': document.verses,
+                'rawVerses': document.rawVerses,
+                'cacheUsed': true,
+            });
+        });
+
+        return haikuValues;
     }
 }

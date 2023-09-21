@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
 import { load } from '@fingerprintjs/botd'
-import HighLightText from '@/components/HighLightText.vue';
-import { useHaikuStore } from '@/store/haiku';
 import { storeToRefs } from 'pinia';
+import { useHaikuStore } from '@/store/haiku';
+import HighLightText from '@/components/HighLightText.vue';
 
 const { haiku, loading } = storeToRefs(useHaikuStore());
 

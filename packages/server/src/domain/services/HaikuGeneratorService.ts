@@ -80,22 +80,18 @@ export default class HaikuGeneratorService implements IGenerator {
         return this;
     }
 
+    async extractFromCache(size: number): Promise<HaikuValue[]> {
+        return await this.haikuRepository.extractFromCache(size, this.minCachedDocs);
+    }
+
     async generate(): Promise<HaikuValue> {
         this.executionTime = new Date().getTime();
 
-        let haiku = null;
-
         if (true === this.useCache) {
-            haiku = await this.haikuRepository.extractFromCache(1, this.minCachedDocs);
+            return await this.haikuRepository.extractOneFromCache(this.minCachedDocs);
         }
 
-        await this.markovEvaluator.load();
-
-        if (null === haiku) {
-            haiku = await this.extractFromDb();
-        }
-
-        return haiku;
+        return await this.buildFromDb();
     }
 
     async appendImg(haiku: HaikuValue): Promise<HaikuValue> {
@@ -112,13 +108,19 @@ export default class HaikuGeneratorService implements IGenerator {
         }
     }
 
-    async extractFromDb(): Promise<HaikuValue | null> {
+    async prepare(): Promise<void> {
+        await this.markovEvaluator.load();
+    }
+
+    async buildFromDb(): Promise<HaikuValue | null> {
         let haiku = null;
         let verses = [];
         let book = null;
         let chapter = null;
         let chapters = [];
         let i = 1;
+
+        await this.prepare();
 
         if (this.filterWords.length > 0) {
             chapters = await this.chapterRepository.getFilteredChapters(this.filterWords);
