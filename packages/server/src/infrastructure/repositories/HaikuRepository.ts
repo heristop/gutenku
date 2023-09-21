@@ -1,9 +1,9 @@
-import { autoInjectable } from 'tsyringe';
+import { injectable } from 'tsyringe';
 import { HaikuDocument, HaikuValue } from '../../shared/types';
 import MongoConnection from '../services/MongoConnection';
 import { Connection } from 'mongoose';
 
-@autoInjectable()
+@injectable()
 export default class HaikuRepository {
     private db: Connection;
 
