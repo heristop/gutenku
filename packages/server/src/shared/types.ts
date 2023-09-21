@@ -20,6 +20,16 @@ export interface Translations {
     de?: string;
 }
 
+export interface HaikuDocument {
+    book: BookValue;
+    chapter: {
+        title?: string;
+        content: string;
+    };
+    verses: Array<string>;
+    rawVerses: Array<string>;
+}
+
 export interface HaikuValue {
     book: BookValue;
     chapter: {
@@ -48,7 +58,6 @@ export interface HaikuVariables {
     filter: string;
     sentimentMinScore: number;
     markovMinScore: number;
-    promptTemperature: number;
     descriptionTemperature: number;
 }
 

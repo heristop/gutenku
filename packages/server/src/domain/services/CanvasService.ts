@@ -1,6 +1,6 @@
 import fs from 'fs';
-import { promisify } from 'util';
 import Canvas from 'canvas';
+import { promisify } from 'util';
 import { singleton } from 'tsyringe';
 import { HaikuValue } from '../../shared/types';
 import colored from '../../shared/themes/colored';

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
-import { useHaikuStore } from '@/store/haiku';
 import { storeToRefs } from 'pinia';
+import { useHaikuStore } from '@/store/haiku';
 import AppLoading from '@/components/AppLoading.vue';
 import HaikuLogs from '@/components/HaikuLogs.vue';
 

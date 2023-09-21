@@ -10,7 +10,6 @@ const {
     optionFilter,
     optionMinSentimentScore,
     optionMinMarkovScore,
-    optionPromptTemperature,
     optionDescriptionTemperature,
     optionUseAI,
     optionUseCache,
@@ -173,30 +172,6 @@ const advancedMode = computed({
           color="secondary"
           elevation="3"
         >
-          <v-tooltip
-            text="This temperature setting adjusts the randomness of the generated prompts used for haiku selection. A lower value makes the prompts more focused and consistent, while a higher value introduces more variability and unpredictability."
-            location="bottom"
-            max-width="300"
-          >
-            <template #activator="{ props }">
-              <span v-bind="props">Prompt Temperature <v-icon class="icon">
-                {{ getThermometer(optionPromptTemperature) }}
-              </v-icon></span>
-            </template>
-          </v-tooltip>
-
-          <v-slider
-            v-model="optionPromptTemperature"
-            label="Temp"
-            thumb-label
-            color="third"
-            :min="0"
-            :max="0.90"
-            :step="0.05"
-            hide-details
-            class="ma-6"
-          />
-
           <v-tooltip
             text="This temperature setting influences the randomness of the description generated for the selected haiku. A lower value will produce a more concise and deterministic description, while a higher value allows for a more creative and unpredictable explanation."
             location="bottom"
