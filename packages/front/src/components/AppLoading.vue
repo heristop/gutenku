@@ -1,5 +1,11 @@
 <script lang="ts" setup>
-import { ref, computed, onBeforeMount, onMounted } from 'vue';
+import { 
+    ref, 
+    computed, 
+    onBeforeMount, 
+    onMounted,
+    onUnmounted,
+} from 'vue';
 
 const props = defineProps({
     text: {
@@ -25,6 +31,8 @@ const flipIcons = computed(() => {
     return false === props.error;
 });
 
+let iconInterval: NodeJS.Timeout | null = null;
+
 onBeforeMount(() => {
     icons.value.push('mdi-robot-outline');
     icons.value.push('mdi-robot-happy-outline');
@@ -38,11 +46,17 @@ onMounted(() => {
 
     iconsElements[index].classList.add('active');
 
-    setInterval(() => {
-        iconsElements[index].classList.remove('active')
-        index = (index + 1) % iconsElements.length
-        iconsElements[index].classList.add('active')
+    iconInterval = setInterval(() => {
+        iconsElements[index].classList.remove('active');
+        index = (index + 1) % iconsElements.length;
+        iconsElements[index].classList.add('active');
     }, 500);
+});
+
+onUnmounted(() => {
+    if (null !== iconInterval) {
+        clearInterval(iconInterval);
+    }
 });
 </script>
 

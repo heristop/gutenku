@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
-import { useHaikuStore } from '@/store/haiku';
 import { storeToRefs } from 'pinia';
+import { useHaikuStore } from '@/store/haiku';
 
 const { fetchText } = useHaikuStore();
 const { haiku, loading, optionTheme } = storeToRefs(useHaikuStore());

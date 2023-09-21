@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent, PropType, ref, watchEffect } from 'vue';
-import { useHaikuStore } from '@/store/haiku';
 import { storeToRefs } from 'pinia';
+import { useHaikuStore } from '@/store/haiku';
 
 export default defineComponent({
     props: {

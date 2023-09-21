@@ -34,8 +34,7 @@ export default class HaikuBridgeService {
                 apiKey: process.env.OPENAI_API_KEY,
                 selectionCount: args.selectionCount,
                 temperature: {
-                    'prompt': args.promptTemperature,
-                    'description': args.promptTemperature,
+                    'description': args.descriptionTemperature,
                 },
             });
     

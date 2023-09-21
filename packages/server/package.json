@@ -5,8 +5,8 @@
     "licence": "UNLICENSED",
     "main": "src/index.ts",
     "scripts": {
-        "start": "node --loader ts-node/esm src/index.ts",
-        "dev": "nodemon --watch './**/*.ts' --exec 'node --loader ts-node/esm' src/index.ts",
+        "start": "node --loader ts-node/esm --use-strict src/index.ts",
+        "dev": "nodemon --watch './**/*.ts' --exec 'node --loader ts-node/esm --use-strict' src/index.ts",
         "lint": "eslint . --fix --ignore-path .gitignore",
         "setup": "python3 scripts/setup.py",
         "extract": "ts-node-esm scripts/extract_haiku.ts",

@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue';
 import { provideApolloClient, useSubscription } from "@vue/apollo-composable";
-import gql from 'graphql-tag';
 import { apolloClient } from '@/client';
+import gql from 'graphql-tag';
 
 const { result } = provideApolloClient(apolloClient)(() => useSubscription(gql`
     subscription onQuoteGenerated {

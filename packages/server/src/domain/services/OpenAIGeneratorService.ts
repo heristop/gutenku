@@ -12,7 +12,6 @@ export default class OpenAIGeneratorService implements IGenerator {
     private openai: OpenAI;
 
     private selectionCount: number;
-    private promptTemperature: number;
     private descriptionTemperature: number;
 
     constructor(private readonly haikuGeneratorService: HaikuGeneratorService) {}
@@ -40,7 +39,6 @@ export default class OpenAIGeneratorService implements IGenerator {
 
         console.log('temperature', temperature);
 
-        this.promptTemperature = temperature.prompt;
         this.descriptionTemperature = temperature.description;
 
         this.openai = new OpenAI({
@@ -51,13 +49,9 @@ export default class OpenAIGeneratorService implements IGenerator {
     }
 
     async generate(): Promise<HaikuValue> {
+        let haiku: HaikuValue;
+
         try {
-            // Meta Prompt
-            // Example of generated prompt: "Among the following haikus,
-            // select the one that best captures the essence of the traditional Japanese form, 
-            // demonstrates a deep appreciation for nature, creates a sense of tranquility and peace, 
-            // and delivers a profound or insightful moment. 
-            // The haiku should also be grammatically correct and maintain a consistent theme across all verses.""
             const prompt = await this.generateSelectionPrompt();
 
             const completion = await this.openai.chat.completions.create({
@@ -75,10 +69,11 @@ export default class OpenAIGeneratorService implements IGenerator {
             });
 
             const answer = completion.choices[0].message.content;
+
             const output = JSON.parse(answer);
             const index = output.id;
 
-            let haiku = this.haikuSelection[index];
+            haiku = this.haikuSelection[index];
             this.haikuSelection = [];
 
             haiku = await this.addDescription(haiku);
@@ -98,37 +93,18 @@ export default class OpenAIGeneratorService implements IGenerator {
             }
         } finally {
             this.haikuSelection = [];
+            haiku = null;
         }
 
         return await this.haikuGeneratorService.generate();
     }
 
     private async generateSelectionPrompt(): Promise<string> {
-        let prompt = 'Generate a gpt-4 prompt to choose the most revelant haiku from the list below.';
-        prompt += 'For instance: "Correct grammatical construction, consistency between [Verses], capturing beauty of nature, sense of tranquility, peace and good moment of insight"';
-        prompt = `${prompt} (Use the following format: {"prompt":[Prompt]})`;
-
-        const completion = await this.openai.chat.completions.create({
-            model: 'gpt-4',
-            temperature: this.promptTemperature,
-            max_tokens: 1000,
-            top_p: 1,
-            frequency_penalty: 0,
-            presence_penalty: 0,
-            messages: [{
-                'role': 'user',
-                'content': prompt
-            }],
-        });
-
-        const answer = completion.choices[0].message.content;
-        const output = JSON.parse(answer);
-
-        console.log('prompt', output.prompt);
+        const prompt = `Please select the most relevant haiku from the following list of ${this.selectionCount}, considering factors such as correct grammatical structure, consistency between the three lines, the ability to capture the beauty of nature, the conveyance of tranquility and peace, and the presentation of a profound moment of insight`;
 
         const haikus = await this.fetchHaikus();
 
-        return `${output.prompt} (Use the following format: {"id":[Id]})\n${haikus.join('\n')}\nSTOP\n`;
+        return `${prompt} (Use the following format: {"id":[Id]})\n${haikus.join('\n')}\nSTOP\n`;
     }
 
     private async addDescription(haiku: HaikuValue): Promise<HaikuValue> {
@@ -228,7 +204,7 @@ export default class OpenAIGeneratorService implements IGenerator {
 
             this.haikuSelection.push(haiku);
 
-            const verses = `Haiku [Id]: ${i}\n[Verses]: ${haiku.verses.join('\n')}\n`;
+            const verses = `[Id]: ${i}\n[Verses]: ${haiku.verses.join('\n')}\n`;
 
             console.log(verses);
 
