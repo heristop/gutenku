@@ -4,43 +4,6 @@ import { gql } from '@apollo/client/core';
 import { apolloClient } from '@/client';
 import { GraphQLError } from 'graphql';
 
-const query = gql`
-    query Query(
-        $useAi: Boolean, 
-        $useCache: Boolean, 
-        $theme: String, 
-        $filter: String,
-        $sentimentMinScore: Float,
-        $markovMinScore: Float,
-        $descriptionTemperature: Float) {
-        haiku(
-            useAI: $useAi, 
-            useCache: $useCache, 
-            theme: $theme, 
-            filter: $filter,
-            sentimentMinScore: $sentimentMinScore,
-            markovMinScore: $markovMinScore,
-            descriptionTemperature: $descriptionTemperature
-        ) {
-            book {
-                title
-                author
-            }
-            chapter {
-                content
-                title
-            }
-            verses
-            rawVerses
-            image
-            title
-            description
-            cacheUsed
-            executionTime
-        }
-    }
-`;
-
 export const useHaikuStore = defineStore({
     id: 'haiku',
     state: () => ({
@@ -72,10 +35,47 @@ export const useHaikuStore = defineStore({
         notificationError: (state) => '' !== state.error,
     },
     actions: {
-        async fetchText() {
+        async fetchNewHaiku(): Promise<void> {
             try {
                 this.loading = true;
                 this.error = '';
+
+                const queryHaiku = gql`
+                    query Query(
+                        $useAi: Boolean, 
+                        $useCache: Boolean, 
+                        $theme: String, 
+                        $filter: String,
+                        $sentimentMinScore: Float,
+                        $markovMinScore: Float,
+                        $descriptionTemperature: Float) {
+                        haiku(
+                            useAI: $useAi, 
+                            useCache: $useCache, 
+                            theme: $theme, 
+                            filter: $filter,
+                            sentimentMinScore: $sentimentMinScore,
+                            markovMinScore: $markovMinScore,
+                            descriptionTemperature: $descriptionTemperature
+                        ) {
+                            book {
+                                title
+                                author
+                            }
+                            chapter {
+                                content
+                                title
+                            }
+                            verses
+                            rawVerses
+                            image
+                            title
+                            description
+                            cacheUsed
+                            executionTime
+                        }
+                    }
+                `;            
 
                 const variables = {
                     useAi: this.optionUseAI,
@@ -89,7 +89,7 @@ export const useHaikuStore = defineStore({
                 };
 
                 const { data } = await apolloClient.query({
-                    query: query,
+                    query: queryHaiku,
                     variables: variables,
                     fetchPolicy: 'no-cache'
                 });
@@ -100,7 +100,7 @@ export const useHaikuStore = defineStore({
 
                 this.error = 'network-error';
 
-                if (true === this.firstLoaded && 'max-attempts-error' === graphQLError.message) {
+                if ('max-attempts-error' === graphQLError.message) {
                     this.error = '🤖 I could not find a haiku that matches your filters after maximum attempts. ';
                     this.error += 'Please try again with a different filter or try several words.';
                 }
@@ -108,6 +108,6 @@ export const useHaikuStore = defineStore({
                 this.firstLoaded = true;
                 this.loading = false;
             }
-        }
+        },
     },
 });

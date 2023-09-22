@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useHaikuStore } from '@/store/haiku';
 
-const { fetchText } = useHaikuStore();
+const { fetchNewHaiku } = useHaikuStore();
 const { haiku, loading, optionTheme } = storeToRefs(useHaikuStore());
 
 const haikuImage = computed(() => {
@@ -53,7 +53,7 @@ const downloadImage = () => {
     <v-card-actions class="justify-end">
       <v-select
         v-model="optionTheme"
-        @update:model-value="fetchText()"
+        @update:model-value="fetchNewHaiku()"
         label="Theme"
         :items="['colored', 'greentea', 'watermark']"
         variant="underlined"
