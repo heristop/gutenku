@@ -58,7 +58,7 @@ onMounted(() => {
     </v-row>
 
     <v-row
-      class="paragraphes"
+      class="book"
       @click="toggle()"
     >
       <v-col>
@@ -84,24 +84,28 @@ onMounted(() => {
 
         <v-row class="d-flex align-center justify-center">
           <v-col cols="auto">
-            <v-sheet
-              class="overflow-y-auto"
-              max-height="400"
-            >
-              <v-card-text>
-                <p
-                  :class="{
-                    'dark-theme': blackMarker,
-                    'light-theme': !blackMarker
-                  }"
-                >
-                  <high-light-text
-                    :text="haiku.chapter.content"
-                    :lines="haiku.rawVerses"
-                  />
-                </p>
-              </v-card-text>
-            </v-sheet>
+            <v-expand-transition>
+              <v-sheet
+                v-if="haiku.chapter.content"
+                class="overflow-y-auto chapter"
+                max-height="400"
+                min-height="200"
+              >
+                <v-card-text>
+                  <p
+                    :class="{
+                      'dark-theme': blackMarker,
+                      'light-theme': !blackMarker
+                    }"
+                  >
+                    <high-light-text
+                      :text="haiku.chapter.content"
+                      :lines="haiku.rawVerses"
+                    />
+                  </p>
+                </v-card-text>
+              </v-sheet>
+            </v-expand-transition>
           </v-col>
         </v-row>
       </v-col>

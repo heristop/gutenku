@@ -8,7 +8,7 @@
     "lint": "yarn workspace @gutenku/api lint && yarn workspace @gutenku/vue lint",
     "test": "yarn workspace @gutenku/api test && yarn workspace @gutenku/vue test",
     "pre-commit": "yarn lint",
-    "start": "yarn workspace @gutenku/api start",
+    "start": "yarn workspace @gutenku/api dev",
     "next": "yarn workspace @gutenku/vue dev",
     "dev": "npm-run-all --parallel start next",
     "setup": "yarn workspace @gutenku/api setup",
