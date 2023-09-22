@@ -8,4 +8,9 @@ export default class ChapterService {
     async getAllChapters(filter: string | null) {
         return await this.chapterRepository.getAllChapters(filter);
     }
+
+    async getChapterById(id: string) {
+        return await this.chapterRepository.getChapterById(id);
+    }
+
 }

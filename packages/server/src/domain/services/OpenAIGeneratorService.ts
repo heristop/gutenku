@@ -34,9 +34,7 @@ export default class OpenAIGeneratorService implements IGenerator {
             );
         }
 
-        temperature.prompt = temperature.prompt ?? parseFloat(process.env.OPENAI_PROMPT_TEMPERATURE || '0.7');
         temperature.description = temperature.description ?? parseFloat(process.env.OPENAI_DESCRIPTION_TEMPERATURE || '0.3');
-
         console.log('temperature', temperature);
 
         this.descriptionTemperature = temperature.description;
@@ -48,7 +46,7 @@ export default class OpenAIGeneratorService implements IGenerator {
         return this;
     }
 
-    async generate(): Promise<HaikuValue> {
+    async generate(): Promise<HaikuValue | null> {
         let haiku: HaikuValue;
 
         try {
@@ -199,11 +197,24 @@ export default class OpenAIGeneratorService implements IGenerator {
     private async fetchHaikus(): Promise<string[]> {
         const haikus: string[] = [];
 
+        // Fetch haikus from the cache using the service
         this.haikuSelection = await this.haikuGeneratorService.extractFromCache(this.selectionCount);
 
+        if (0 === this.haikuSelection.length) {
+            // Generate and append new haikus to the selection
+            for (let i = 0; i < this.selectionCount; i++) {
+                const haiku = await this.haikuGeneratorService.buildFromDb();
+                this.haikuSelection.push(haiku);
+    
+                const verses = `[Id]: ${i}\n[Verses]: ${haiku.verses.join('\n')}\n`;
+                console.log(verses);
+                haikus.push(verses);
+            }
+        }
+
+        // Log and append details of each haiku in the selection
         this.haikuSelection.forEach((haiku, i: number) => {
             const verses = `[Id]: ${i}\n[Verses]: ${haiku.verses.join('\n')}\n`;
-
             console.log(verses);
             haikus.push(verses);
         });

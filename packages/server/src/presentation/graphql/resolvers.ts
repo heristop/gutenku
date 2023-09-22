@@ -25,6 +25,11 @@ const resolvers = {
 
             return await chapterService.getAllChapters(filter);
         },
+        chapter: async (_, { id }: { id: string; }) => {
+            const chapterService = container.resolve(ChapterService);
+
+            return await chapterService.getChapterById(id);
+        },
         haiku: async (_, args: HaikuVariables): Promise<HaikuValue> => {
             const haikuBridgeService = container.resolve(HaikuBridgeService);
 

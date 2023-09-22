@@ -84,11 +84,15 @@ export default class HaikuGeneratorService implements IGenerator {
         return await this.haikuRepository.extractFromCache(size, this.minCachedDocs);
     }
 
-    async generate(): Promise<HaikuValue> {
+    async generate(): Promise<HaikuValue | null> {
         this.executionTime = new Date().getTime();
 
         if (true === this.useCache) {
-            return await this.haikuRepository.extractOneFromCache(this.minCachedDocs);
+            const haiku = await this.haikuRepository.extractOneFromCache(this.minCachedDocs);
+
+            if (null !== haiku) {
+                return haiku;
+            }
         }
 
         return await this.buildFromDb();

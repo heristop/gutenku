@@ -4,6 +4,7 @@ import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
 import viteCompression from 'vite-plugin-compression';
 import { splitVendorChunkPlugin } from 'vite';
 import viteImagemin from 'vite-plugin-imagemin';
+import webfontDownload from 'vite-plugin-webfont-dl';
 
 // Utilities
 import { defineConfig } from 'vite';
@@ -24,7 +25,10 @@ export default defineConfig({
         }),
         viteCompression(),
         splitVendorChunkPlugin(),
-        viteImagemin()
+        viteImagemin(),
+        webfontDownload([
+            'https://fonts.googleapis.com/icon?family=Material+Icons&display=swap'
+        ]),
     ],
     define: { 'process.env': {} },
     resolve: {

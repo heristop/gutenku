@@ -27,15 +27,15 @@ export default class HaikuRepository {
         await haikusCollection.insertOne(haikuData);
     }
 
-    async extractFromCache(size: number, minCachedDocs: number): Promise<HaikuValue[] | null> {
+    async extractFromCache(size: number, minCachedDocs: number): Promise<HaikuValue[]> {
         if (false === !!this.db) {
-            return null;
+            return [];
         }
 
         const haikusCollection = this.db.collection('haikus');
 
         if (await haikusCollection.countDocuments() < minCachedDocs) {
-            return null;
+            return [];
         }
 
         console.log('Extract from cache');
@@ -44,20 +44,20 @@ export default class HaikuRepository {
             .aggregate([{ $sample: { size } }])
             .toArray() as HaikuDocument[];
 
-        return this.map(sampledHaikus);
+        return this.mapCachedHaikuValue(sampledHaikus);
     }
 
     async extractOneFromCache(minCachedDocs: number): Promise<HaikuValue | null> {
         const haikusValues = await this.extractFromCache(1, minCachedDocs);
 
         if (0 === haikusValues.length) {
-            return;
+            return null;
         }
 
         return haikusValues[0];
     }
 
-    private map(collection: HaikuDocument[]): HaikuValue[] {
+    private mapCachedHaikuValue(collection: HaikuDocument[]): HaikuValue[] {
         const haikuValues = [];
 
         collection.forEach((document) => {

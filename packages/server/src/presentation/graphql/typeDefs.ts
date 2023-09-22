@@ -43,6 +43,7 @@ const typeDefs = `#graphql
         books(filter: String): [Book]
         book(id: ID!): Book!
         chapters(filter: String): [Chapter]
+        chapter(id: ID!): Chapter!
         haiku(
             useAI: Boolean,
             useCache: Boolean,

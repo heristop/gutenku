@@ -6,7 +6,7 @@ import { HaikuValue } from '../types';
 export default {
     async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
         const verses = haiku.verses;
-        Canvas.registerFont('./src/assets/fonts/JMH Typewriter.ttf', { family: 'Typewriter' });
+        Canvas.registerFont('./src/shared/assets/fonts/JMH Typewriter.ttf', { family: 'Typewriter' });
 
         const canvas = Canvas.createCanvas(1200, 1200);
         const ctx = canvas.getContext('2d');

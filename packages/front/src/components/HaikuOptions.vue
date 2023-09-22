@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useHaikuStore } from '@/store/haiku';
 
-const { fetchText } = useHaikuStore();
+const { fetchNewHaiku } = useHaikuStore();
 const {
     haiku,
     loading,
@@ -85,7 +85,7 @@ const advancedMode = computed({
             color="primary"
             label="Filter in quotes"
             variant="underlined"
-            @keydown.enter="fetchText"
+            @keydown.enter="fetchNewHaiku"
           />
         </v-sheet>
       </v-expand-transition>

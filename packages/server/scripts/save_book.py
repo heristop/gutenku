@@ -106,6 +106,9 @@ else:
         print(
             f"\033[1;33mThe book {BOOK_ID} has too few chapters ({chapters_count} found)\033[0m"
         )
+
+        # Delete the book
+        book_collection.delete_one({'_id': str(BOOK_ID)})
     else:
         # Store each chapter in the database with a reference to the book
         for i, chapter in enumerate(flagged_chapters):

@@ -5,7 +5,7 @@ import { useHaikuStore } from '@/store/haiku';
 import AppLoading from '@/components/AppLoading.vue';
 import HaikuLogs from '@/components/HaikuLogs.vue';
 
-const { fetchText } = useHaikuStore();
+const { fetchNewHaiku } = useHaikuStore();
 const { haiku, loading, error, networkError, notificationError, optionUseCache } = storeToRefs(useHaikuStore());
 
 const displayBtnLabel = computed(() => {
@@ -75,7 +75,7 @@ async function copy() {
             v-bind="props"
             :disabled="loading"
             :prepend-icon="loading ? 'mdi-loading mdi-spin' : 'mdi-reload'"
-            @click="fetchText()"
+            @click="fetchNewHaiku()"
             alt="Generate a new Haiku"
             color="third"
             data-cy="fetch-btn"

@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { computed, onMounted } from 'vue';
+import { storeToRefs } from 'pinia';
+import { useHaikuStore } from '@/store/haiku';
 import AppFooter from '@/components/AppFooter.vue';
 import HaikuOptions from '@/components/HaikuOptions.vue';
 import HaikuCanvas from '@/components/HaikuCanvas.vue';
@@ -7,10 +9,8 @@ import HaikuCard from '@/components/HaikuCard.vue';
 import HaikuChapter from '@/components/HaikuChapter.vue';
 import SocialNetwok from '@/components/SocialNetwork.vue';
 import AppLoading from '@/components/AppLoading.vue';
-import { useHaikuStore } from '@/store/haiku';
-import { storeToRefs } from 'pinia';
 
-const { fetchText } = useHaikuStore();
+const { fetchNewHaiku } = useHaikuStore();
 const {
     error,
     firstLoaded,
@@ -27,7 +27,7 @@ const loadingLabel = computed(() => {
     return 'Generating Haiku...';
 });
 
-onMounted(fetchText);
+onMounted(fetchNewHaiku);
 </script>
 
 <template>
@@ -162,7 +162,7 @@ body {
   text-transform: none;
 }
 
-.paragraphes {
+.book {
   color: #2c3e50;
   text-align: justify;
   background: rgba(255, 255, 255, 1);
@@ -176,17 +176,21 @@ body {
     }
   }
 
-  p {
-    mark {
-      padding-inline: 3px;
-      background: rgb(248, 174, 62);
-    }
+  .chapter {
+    p {
+      content-visibility: auto;
 
-    &.dark-theme {
-      display: inline;
-      background: #2F5D62;
-      padding: 0px;
-      border-bottom: 1px solid #bbbbbb;
+      mark {
+        padding-inline: 3px;
+        background: rgb(248, 174, 62);
+      }
+
+      &.dark-theme {
+        display: inline;
+        background: #2F5D62;
+        padding: 0px;
+        border-bottom: 1px solid #bbbbbb;
+      }
     }
   }
 }

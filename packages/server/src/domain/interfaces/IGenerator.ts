@@ -1,5 +1,5 @@
 import { HaikuValue } from '../../shared/types';
 
 export interface IGenerator {
-    generate(): Promise<HaikuValue>;
+    generate(): Promise<HaikuValue | null>;
 }
