@@ -35,7 +35,7 @@
         "yarn": "^1.22.19"
     },
     "devDependencies": {
-        "@babel/types": "^7.20.7",
+        "@babel/types": "^7.23.0",
         "@types/node": "^20.6.3",
         "@types/webfontloader": "^1.6.35",
         "@types/zen-observable": "^0.8.3",
