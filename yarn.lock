@@ -4702,10 +4702,10 @@ cycled@^1.2.0:
   resolved "https://registry.yarnpkg.com/cycled/-/cycled-1.2.0.tgz#dde6d9d58b0b14d02c8138c8f55be416a6595baf"
   integrity sha512-/BOOCEohSBflVHHtY/wUc1F6YDYPqyVs/A837gDoq4H1pm72nU/yChyGt91V4ML+MbbAmHs8uo2l1yJkkTIUdg==
 
-cypress@^13.2.0:
-  version "13.2.0"
-  resolved "https://registry.yarnpkg.com/cypress/-/cypress-13.2.0.tgz#10f73d06a0764764ffbb903a31e96e2118dcfc1d"
-  integrity sha512-AvDQxBydE771GTq0TR4ZUBvv9m9ffXuB/ueEtpDF/6gOcvFR96amgwSJP16Yhqw6VhmwqspT5nAGzoxxB+D89g==
+cypress@^13.3.0:
+  version "13.3.0"
+  resolved "https://registry.yarnpkg.com/cypress/-/cypress-13.3.0.tgz#d00104661b337d662c5a4280a051ee59f8aa1e31"
+  integrity sha512-mpI8qcTwLGiA4zEQvTC/U1xGUezVV4V8HQCOYjlEOrVmU1etVvxOjkCXHGwrlYdZU/EPmUiWfsO3yt1o+Q2bgw==
   dependencies:
     "@cypress/request" "^3.0.0"
     "@cypress/xvfb" "^1.2.4"
