@@ -32,7 +32,7 @@
         "openai": "^4.0.1",
         "reflect-metadata": "^0.1.13",
         "request": "^2.88.0",
-        "sharp": "^0.32.1",
+        "sharp": "^0.32.6",
         "syllable": "^5.0.1",
         "terminal-image": "^2.0.0",
         "tsyringe": "^4.8.0",
