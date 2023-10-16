@@ -8518,10 +8518,10 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==
 
-natural@^6.3.0:
-  version "6.7.2"
-  resolved "https://registry.yarnpkg.com/natural/-/natural-6.7.2.tgz#1f5779aea44178746a567329634396c6d0a949a9"
-  integrity sha512-5FiQBIx5VxwMzGiBeKNLjzl7c5ny/VP/uN6W1UjTrJGzN5vbenR2Y4/QdhLGSfgb6BjbrkDxl5M0QJUDu7dYIQ==
+natural@^6.8.0:
+  version "6.8.0"
+  resolved "https://registry.yarnpkg.com/natural/-/natural-6.8.0.tgz#a51ff746b0d773ffbc1ae55396f9ffcbe53205a6"
+  integrity sha512-lAPQ8Eupz0F64ERPxYDTxV2svF0Q5q/RywCn+CrDl45+1L7YzTe1ZSkOwABA18YfGz0fjyilnIjz2ajNbVpw/w==
   dependencies:
     afinn-165 "^1.0.2"
     afinn-165-financialmarketnews "^3.0.0"
