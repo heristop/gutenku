@@ -28,7 +28,7 @@
         "graphql-ws": "^5.14.1",
         "instagram-publisher": "^2.1.1",
         "mongoose": "^7.6.0",
-        "natural": "^6.3.0",
+        "natural": "^6.8.0",
         "openai": "^4.0.1",
         "reflect-metadata": "^0.1.13",
         "request": "^2.88.0",
