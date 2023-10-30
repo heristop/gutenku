@@ -30,7 +30,7 @@
         "vue": "^3.3.4",
         "vue-apollo": "^3.1.1",
         "vue-router": "^4.2.5",
-        "vuetify": "^3.3.17",
+        "vuetify": "^3.3.23",
         "webfontloader": "^1.0.0",
         "yarn": "^1.22.19"
     },
