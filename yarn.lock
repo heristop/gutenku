@@ -2942,10 +2942,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/zen-observable@^0.8.3":
-  version "0.8.4"
-  resolved "https://registry.yarnpkg.com/@types/zen-observable/-/zen-observable-0.8.4.tgz#e06f78a43387899cfa60c02f166620907fc534c8"
-  integrity sha512-XWquk4B9Y9bP++I9FsKBVDR+cM1duIqTksuD4l+XUDcqKdngHrtLBe6A5DQX5sdJPWDhLFM9xHZBCiWcecZ0Jg==
+"@types/zen-observable@^0.8.5":
+  version "0.8.5"
+  resolved "https://registry.yarnpkg.com/@types/zen-observable/-/zen-observable-0.8.5.tgz#4b8b18e52819e28ff3ab1eaa4ede835e74582176"
+  integrity sha512-jH5FqZ1bMAO3L4ltXxw68vg+W0diVsSM3tnpFycZDTLE2luquFi015vhkr9hAjlHpxQbkaSk2yBfPICyb4rpXQ==
 
 "@typescript-eslint/eslint-plugin@^5.0.0":
   version "5.62.0"
