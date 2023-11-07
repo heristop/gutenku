@@ -30,6 +30,7 @@
         "saas": "^1.0.0",
         "ts-node": "^10.9.1",
         "typescript": "^5.2.2",
+        "vite": "^4.5.0",
         "vue": "^3.3.8",
         "vue-apollo": "^3.1.1",
         "vue-router": "^4.2.5",
