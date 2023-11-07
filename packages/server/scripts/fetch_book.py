@@ -20,10 +20,13 @@ if not os.path.exists(file_path):
 
     # Check that the response is OK
     if response.status_code == 200:
-        with open(f"{DATA_DIRECTORY}/book_{BOOK_ID}.txt", "w", encoding="utf-8") as f:
+        with open(
+            f"{DATA_DIRECTORY}/book_{BOOK_ID}.txt",
+            "w",
+            encoding="utf-8"
+        ) as f:
             f.write(response.text)
 
-        print(
-            f"The book \033[1;32m{BOOK_ID}\033[0m has been successfully fetched")
+        print(f"The book \033[1;32m{BOOK_ID}\033[0m has been successfully fetched")
     else:
         print("The request failed with status code {}".format(response.status_code))
