@@ -20,7 +20,8 @@ program
         process.env.OPENAI_SELECTION_COUNT
     )
     .option("--no-interaction")
-    .option("--no-openai");
+    .option("--no-openai")
+    .option("--no-post");
 
 program.parse();
 
@@ -119,19 +120,21 @@ fetch(process.env.SERVER_URI || "http://localhost:4000/graphql", {
 
     if (false === options.interaction) {
         InstagramService.post(haiku);
-    } else {
+    }
+
+    if (true === options.post) {
         const rl = createInterface({
             input: process.stdin,
             output: process.stdout,
         });
-
+    
         rl.question(
             "\nPost on Instagram? (y/n) \x1b[33m[n]\x1b[0m ",
             (answer: string) => {
                 if ("y" === answer || "yes" === answer) {
                     InstagramService.post(haiku);
                 }
-
+    
                 rl.close();
             }
         );
