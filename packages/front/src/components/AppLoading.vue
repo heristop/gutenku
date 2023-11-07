@@ -28,7 +28,7 @@ const props = defineProps({
 const icons = ref<string[]>([]);
 
 const flipIcons = computed(() => {
-    return false === props.error;
+    return false === props.error && icons.value.length > 0;
 });
 
 let iconInterval: NodeJS.Timeout | null = null;

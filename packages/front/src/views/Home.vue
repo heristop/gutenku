@@ -97,7 +97,7 @@ onMounted(fetchNewHaiku);
 
             <v-img
               height="200"
-              src="@/assets/img/home_background.png"
+              src="@/assets/img/bird.webp"
               class="text-primary"
             />
           </v-col>
