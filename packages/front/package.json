@@ -13,10 +13,9 @@
         "lint": "eslint . --fix --ignore-path .gitignore"
     },
     "dependencies": {
-        "@apollo/client": "^3.8.5",
+        "@apollo/client": "^3.8.7",
         "@fingerprintjs/botd": "^1.6.6",
         "@mdi/font": "^7.3.67",
-        "@typescript-eslint/typescript-estree": "^6.10.0",
         "@vue/apollo-composable": "^4.0.0-beta.11",
         "@vue/apollo-option": "^4.0.0-beta.9",
         "apollo-link-timeout": "^4.0.0",
@@ -30,7 +29,6 @@
         "saas": "^1.0.0",
         "ts-node": "^10.9.1",
         "typescript": "^5.2.2",
-        "vite": "^4.5.0",
         "vue": "^3.3.8",
         "vue-apollo": "^3.1.1",
         "vue-router": "^4.2.5",
@@ -54,7 +52,7 @@
         "sass": "^1.69.4",
         "sass-loader": "^13.2.1",
         "typescript": "^5.2.2",
-        "vite": "^4.4.11",
+        "vite": "^4.5.0",
         "vite-plugin-compression": "^0.5.1",
         "vite-plugin-imagemin": "^0.6.1",
         "vite-plugin-vuetify": "^1.0.2",
