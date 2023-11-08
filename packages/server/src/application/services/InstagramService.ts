@@ -46,7 +46,7 @@ ${haiku.translations.it}
 🇩🇪
 ${haiku.translations.de}
 ~~~
-👩‍🏫 “${haiku.description}”
+👩‍🏫 Teacher Bot Poetic Musings: “${haiku.description}”
 ~~~
 🏷️ ${haiku.hashtags} #${hashtagAuthor} ${process.env.INSTAGRAM_HASHTAGS}
 `;
