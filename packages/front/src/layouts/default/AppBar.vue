@@ -4,7 +4,7 @@
   <v-app-bar color="primary">
     <v-img
       class="logo"
-      src="@/assets/img/logo.png/gutenku_white.png"
+      src="@/assets/img/logo/gutenku_white.webp"
       alt="GutenKu"
       height="32"
     />
