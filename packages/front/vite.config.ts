@@ -26,9 +26,7 @@ export default defineConfig({
         viteCompression(),
         splitVendorChunkPlugin(),
         viteImagemin(),
-        webfontDownload([
-            'https://fonts.googleapis.com/icon?family=Material+Icons&display=swap'
-        ]),
+        webfontDownload(),
     ],
     define: { 'process.env': {} },
     resolve: {
