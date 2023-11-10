@@ -143,7 +143,7 @@ export default class OpenAIGeneratorService implements IGenerator {
         prompt = `${prompt} (Use the following format: {${outputFormat}})`;
 
         const completion = await this.openai.chat.completions.create({
-            model: 'gpt-4',
+            model: 'gpt-4-1106-preview',
             temperature: 0.3,
             max_tokens: 1000,
             top_p: 0.4,
