@@ -60,8 +60,10 @@ const advancedMode = computed({
     class="mx-auto pa-4 mb-6"
     color="third"
   >
-    <v-card-title>⚙️ 🤖</v-card-title>
-
+    <v-card-title>
+      <v-icon color="primary">mdi-puzzle-edit-outline</v-icon>
+    </v-card-title>
+    
     <v-card-text>
       <v-switch
         v-model="advancedMode"
@@ -69,7 +71,6 @@ const advancedMode = computed({
         color="primary"
         hide-details
         label="Advanced Mode"
-        class="text-primary"
       />
 
       <v-expand-transition>
@@ -160,7 +161,6 @@ const advancedMode = computed({
             color="primary"
             hide-details
             label="IA Boost Selection"
-            class="text-primary"
           />
         </template>
       </v-tooltip>
