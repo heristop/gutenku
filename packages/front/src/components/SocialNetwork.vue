@@ -5,10 +5,11 @@ const GUTENBERG_URL = 'https://gutenberg.org';
 </script>
 
 <template>
-  <v-card
-    class="mx-auto pa-4 mb-sm-6 mb-0"
-    title="🌸 🗻"
-  >
+  <v-card class="mx-auto pa-4 mb-sm-6 mb-0">
+    <v-card-title>
+      <v-icon color="primary">mdi-spa-outline</v-icon>
+    </v-card-title>
+
     <p class="text-primary">
       <strong>GutenKu</strong> is a Haiku generator based on a selection of books from Project
       Gutenberg, a vast online
