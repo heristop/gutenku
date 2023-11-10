@@ -46,7 +46,9 @@ ${haiku.translations.it}
 🇩🇪
 ${haiku.translations.de}
 ~~~
-👩‍🏫 Teacher Bot Poetic Musings: “${haiku.description}”
+👩‍🏫 “${haiku.description}”
+
+*Analysis Written by BotenKu, your devoted Literature Teacher*
 ~~~
 🏷️ ${haiku.hashtags} #${hashtagAuthor} ${process.env.INSTAGRAM_HASHTAGS}
 `;
