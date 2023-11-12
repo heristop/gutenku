@@ -8,6 +8,11 @@ import {
 } from 'vue';
 
 const props = defineProps({
+    splash: {
+        type: Boolean,
+        required: false,
+        default: false
+    },
     text: {
         type: String,
         required: false,
@@ -44,13 +49,15 @@ onMounted(() => {
     const iconsElements = document.querySelectorAll('.loading i.flip');
     let index = 0;
 
-    iconsElements[index].classList.add('active');
-
-    iconInterval = setInterval(() => {
-        iconsElements[index].classList.remove('active');
-        index = (index + 1) % iconsElements.length;
+    if (iconsElements.length > 0) {
         iconsElements[index].classList.add('active');
-    }, 500);
+
+        iconInterval = setInterval(() => {
+            iconsElements[index].classList.remove('active');
+            index = (index + 1) % iconsElements.length;
+            iconsElements[index].classList.add('active');
+        }, 500);
+    }
 });
 
 onUnmounted(() => {
@@ -62,35 +69,36 @@ onUnmounted(() => {
 
 <template>
   <div class="loading">
-    <v-icon
-      v-show="error"
-      :color="color"
-      :class="['icon', 'active']"
+    <div
+      v-if="false === splash"
+      class="robot"
     >
-      mdi-robot-dead-outline
-    </v-icon>
-
-    <div v-if="0 === icons.length">
       <v-icon
-        :class="['icon']"
+        v-show="error"
         :color="color"
+        :class="['icon', 'active']"
       >
-        mdi-robot-confused-outline
+        mdi-robot-dead-outline
       </v-icon>
-    </div>
 
-    <div v-else-if="flipIcons">
-      <v-icon
-        v-for="(icon, index) in icons"
-        :key="index"
-        :class="['flip', 'icon']"
-        :color="color"
-      >
-        {{ icon }}
-      </v-icon>
+      <div>
+        <v-icon
+          v-for="(icon, index) in icons"
+          :key="index"
+          :class="['flip', 'icon']"
+          :color="color"
+        >
+          {{ icon }}
+        </v-icon>
+      </div>
     </div>
 
     <div v-if="text">
+      <v-img
+        src="@/assets/img/logo/gutenku_rounded.png"
+        height="60"
+      />
+
       <v-spacer class="pa-10" />
 
       <v-sheet

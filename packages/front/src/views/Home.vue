@@ -66,11 +66,15 @@ onMounted(fetchNewHaiku);
   <v-container class="fill-height">
     <div class="d-flex text-center fill-height">
       <v-sheet v-if="false === firstLoaded">
-        <app-loading :text="loadingLabel" />
+        <app-loading
+          :text="loadingLabel"
+          :splash="true"
+        />
       </v-sheet>
 
       <v-sheet v-show="networkError">
         <app-loading
+          :splash="true"
           error
           text="Cannot connect to the server :("
         />
