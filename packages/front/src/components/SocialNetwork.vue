@@ -6,10 +6,11 @@ const GUTENBERG_URL = 'https://gutenberg.org';
 
 <template>
   <v-card class="mx-auto pa-4 mb-sm-6 mb-0">
-    <v-card-title>
-      <v-icon color="primary">
-        mdi-spa-outline
-      </v-icon>
+    <v-card-title class="ma-2">
+      <v-img
+        height="50"
+        src="@/assets/img/logo/gutenku_rounded.png"
+      />
     </v-card-title>
 
     <p class="text-primary">

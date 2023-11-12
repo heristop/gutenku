@@ -61,7 +61,10 @@ const advancedMode = computed({
     color="third"
   >
     <v-card-title>
-      <v-icon color="primary">
+      <v-icon
+        color="secondary"
+        size="large"
+      >
         mdi-puzzle-edit-outline
       </v-icon>
     </v-card-title>
