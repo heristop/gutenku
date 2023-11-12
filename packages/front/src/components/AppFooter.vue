@@ -9,7 +9,7 @@ const legalNoticeDialog = ref(false);
     <v-img
       lazy-src="@/assets/img/zazen.webp"
       src="@/assets/img/zazen.webp"
-      alt="Footer image Zazen"
+      alt="Footer image scribe"
       cover
     />
 
