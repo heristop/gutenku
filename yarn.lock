@@ -11221,10 +11221,10 @@ vite-plugin-vuetify@^1.0.2:
     debug "^4.3.3"
     upath "^2.0.1"
 
-vite-plugin-webfont-dl@^3.7.6:
-  version "3.8.1"
-  resolved "https://registry.yarnpkg.com/vite-plugin-webfont-dl/-/vite-plugin-webfont-dl-3.8.1.tgz#9ad45c33238f0639897f289b8d9a07de8113f752"
-  integrity sha512-Rj4qrlR5NGKBMFbKKgwxW18kLxftW6zBAgWORWCgb6eGZOOlPIjQE6NKJ2QviApxYTVb2Jm3Ze6sGBuJRdxsRA==
+vite-plugin-webfont-dl@^3.9.0:
+  version "3.9.0"
+  resolved "https://registry.yarnpkg.com/vite-plugin-webfont-dl/-/vite-plugin-webfont-dl-3.9.0.tgz#e47a458a87503bf4b956367745aaa4e349d6465a"
+  integrity sha512-A56+B/newkXjGuftScl77ryiHZ8yfSy7Od4Vefn3Ddt1Yazt0wUFChLoQUrO9bXVF/3zOVavJBjdj4CDo6qkCA==
   dependencies:
     axios "^1"
     clean-css "^5"
