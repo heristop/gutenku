@@ -34,10 +34,10 @@ const downloadImage = () => {
     v-if="haiku"
     :loading="loading"
     class="pa-4 mb-6 align-center justify-center"
-    color="white"
+    color="third"
   >
     <v-sheet
-      class="canvas"
+      class="canvas pa-4"
       elevation="3"
     >
       <v-img
