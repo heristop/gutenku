@@ -8,7 +8,7 @@ const GUTENBERG_URL = 'https://gutenberg.org';
   <v-card class="mx-auto pa-4 mb-sm-6 mb-0">
     <v-card-title class="ma-2">
       <v-img
-        height="50"
+        height="48"
         src="@/assets/img/logo/gutenku_rounded.png"
       />
     </v-card-title>
