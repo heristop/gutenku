@@ -239,7 +239,7 @@ const advancedMode = computed({
             @click="fetchNewHaiku()"
             alt="Generate a new Haiku"
             color="primary"
-            data-cy="fetch-btn"
+            data-cy="options-fetch-btn"
             class="ms-2"
             size="small"
           />
