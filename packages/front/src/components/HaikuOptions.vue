@@ -61,7 +61,10 @@ const advancedMode = computed({
     color="third"
   >
     <v-card-title>
-      <v-icon color="secondary">
+      <v-icon 
+        color="secondary"
+        size="large"
+      >
         mdi-puzzle-edit-outline
       </v-icon>
     </v-card-title>
@@ -221,9 +224,7 @@ const advancedMode = computed({
           {{ haiku.description }}
         </p>
       </v-sheet>
-    </v-expand-transition>
 
-    <v-card-actions>
       <v-tooltip
         :disabled="loading"
         text="Display a new Haiku"
@@ -231,22 +232,19 @@ const advancedMode = computed({
         location="bottom"
       >
         <template #activator="{ props }">
-          <v-spacer />
-
           <v-btn
             v-bind="props"
             :disabled="loading"
-            :prepend-icon="loading ? 'mdi-loading mdi-spin' : 'mdi-reload'"
+            :icon="loading ? 'mdi-loading mdi-spin' : 'mdi-reload'"
             @click="fetchNewHaiku()"
             alt="Generate a new Haiku"
             color="primary"
             data-cy="fetch-btn"
             class="ms-2"
-          >
-            Generate
-          </v-btn>
+            size="small"
+          />
         </template>
       </v-tooltip>
-    </v-card-actions>
+    </v-expand-transition>
   </v-card>
 </template>
