@@ -113,9 +113,9 @@ onMounted(fetchNewHaiku);
           >
             <social-netwok class="d-none d-sm-block" />
 
-            <haiku-options />
-
             <haiku-canvas />
+
+            <haiku-options />
 
             <haiku-chapter class="d-sm-none" />
 
@@ -148,7 +148,7 @@ onMounted(fetchNewHaiku);
 @import '@/assets/css/fonts.css';
 
 body {
-  font-family: 'Typewriter', serif;
+  font-family: 'ComicNeue', serif;
 
   p {
     font-size: 1em;
@@ -158,7 +158,7 @@ body {
   }
 
   .text-h5 {
-    font-family: 'Typewriter', serif !important;
+    font-family: 'ComicNeue', serif !important;
   }
 }
 
