@@ -58,22 +58,35 @@ const advancedMode = computed({
   <v-card
     :loading="loading"
     class="mx-auto pa-4 mb-6"
-    color="third"
+    color="primary"
   >
     <v-card-title>
-      <v-icon 
-        color="secondary"
-        size="large"
+      <v-tooltip
+        :disabled="loading"
+        text="Display a new Haiku"
+        aria-label="Display a new Haiku"
+        location="bottom"
       >
-        mdi-puzzle-edit-outline
-      </v-icon>
+        <template #activator="{ props }">
+          <v-btn
+            v-bind="props"
+            :disabled="loading"
+            :icon="loading ? 'mdi-loading mdi-spin' : 'mdi-reload'"
+            @click="fetchNewHaiku()"
+            alt="Generate a new Haiku"
+            color="secondary"
+            data-cy="options-fetch-btn"
+            size="small"
+          />
+        </template>
+      </v-tooltip>
     </v-card-title>
-    
+
     <v-card-text>
       <v-switch
         v-model="advancedMode"
         data-cy="switch-cache-btn"
-        color="primary"
+        color="third"
         hide-details
         label="Advanced Mode"
       />
@@ -163,7 +176,7 @@ const advancedMode = computed({
             :disabled="advancedMode"
             v-model="optionUseAI"
             data-cy="switch-api-btn"
-            color="primary"
+            color="third"
             hide-details
             label="IA Boost Selection"
           />
@@ -193,7 +206,7 @@ const advancedMode = computed({
             v-model="optionDescriptionTemperature"
             label="Temp"
             thumb-label
-            color="third"
+            color="primary"
             :min="0"
             :max="0.40"
             :step="0.05"
@@ -225,25 +238,5 @@ const advancedMode = computed({
         </p>
       </v-sheet>
     </v-expand-transition>
-
-    <v-tooltip
-      :disabled="loading"
-      text="Display a new Haiku"
-      aria-label="Display a new Haiku"
-      location="bottom"
-    >
-      <template #activator="{ props }">
-        <v-btn
-          v-bind="props"
-          :disabled="loading"
-          :icon="loading ? 'mdi-loading mdi-spin' : 'mdi-reload'"
-          @click="fetchNewHaiku()"
-          alt="Generate a new Haiku"
-          color="primary"
-          data-cy="options-fetch-btn"
-          size="x-small"
-        />
-      </template>
-    </v-tooltip>
   </v-card>
 </template>

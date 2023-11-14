@@ -35,9 +35,10 @@ const downloadImage = () => {
     :loading="loading"
     class="pa-4 mb-6 align-center justify-center"
     color="third"
+    variant="tonal"
   >
     <v-sheet
-      class="canvas pa-4"
+      class="canvas pa-2"
       elevation="3"
     >
       <v-img

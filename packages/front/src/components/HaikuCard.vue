@@ -32,23 +32,28 @@ async function copy() {
 <template>
   <v-card
     :loading="loading"
-    class="pa-10 mb-sm-6 mb-0"
+    class="pa-4 mb-sm-6 mb-0"
     color="primary"
+    image="@/assets/img/haiku_card.webp"
   >
-    <v-sheet
-      v-if="haiku"
-      color="primary"
-    >
+    <v-card-title class="text-third">
+      Haiku Card
+    </v-card-title>
+
+    <v-card-text v-if="haiku">
       <p
-        class="pa-4"
-        v-for="sentence in haiku.verses"
+        class="pt-6"
+        v-for="sentence in haiku.verses "
         :key="sentence"
       >
         {{ sentence }}
       </p>
-    </v-sheet>
+    </v-card-text>
 
-    <haiku-logs v-if="false === optionUseCache" />
+    <haiku-logs
+      class="mx-12"
+      v-if="false === optionUseCache"
+    />
 
     <v-icon
       v-show="networkError || notificationError"
