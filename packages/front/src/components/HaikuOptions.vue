@@ -224,27 +224,26 @@ const advancedMode = computed({
           {{ haiku.description }}
         </p>
       </v-sheet>
-
-      <v-tooltip
-        :disabled="loading"
-        text="Display a new Haiku"
-        aria-label="Display a new Haiku"
-        location="bottom"
-      >
-        <template #activator="{ props }">
-          <v-btn
-            v-bind="props"
-            :disabled="loading"
-            :icon="loading ? 'mdi-loading mdi-spin' : 'mdi-reload'"
-            @click="fetchNewHaiku()"
-            alt="Generate a new Haiku"
-            color="primary"
-            data-cy="options-fetch-btn"
-            class="ms-2"
-            size="small"
-          />
-        </template>
-      </v-tooltip>
     </v-expand-transition>
+
+    <v-tooltip
+      :disabled="loading"
+      text="Display a new Haiku"
+      aria-label="Display a new Haiku"
+      location="bottom"
+    >
+      <template #activator="{ props }">
+        <v-btn
+          v-bind="props"
+          :disabled="loading"
+          :icon="loading ? 'mdi-loading mdi-spin' : 'mdi-reload'"
+          @click="fetchNewHaiku()"
+          alt="Generate a new Haiku"
+          color="primary"
+          data-cy="options-fetch-btn"
+          size="x-small"
+        />
+      </template>
+    </v-tooltip>
   </v-card>
 </template>
