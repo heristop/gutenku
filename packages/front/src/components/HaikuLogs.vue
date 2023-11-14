@@ -34,7 +34,7 @@ watch(
       v-if="quotesReceived.length > 0"
       :elevation="3"
       color="black"
-      class="terminal pa-2 ma-4 my-4 mt-12 align-left justify-center"
+      class="terminal px-2 ma-4 align-left justify-center"
     >
       <p class="mb-4">
         Last Pre-selected Quotes ✏️
@@ -53,22 +53,22 @@ watch(
 
 <style scoped>
 .text-error {
-    font-size: 48px;
+  font-size: 48px;
 }
 
 .terminal {
-    background-color: #000;
-    color: #fff;
-    font-family: 'Courier New', monospace;
-    padding: 20px;
-    border-radius: 5px;
-    height: 200px;
-    overflow-y: auto;
+  background-color: #000;
+  color: #fff;
+  font-family: 'Courier New', monospace;
+  padding: 20px;
+  border-radius: 5px;
+  height: 200px;
+  overflow-y: auto;
 }
 
 .terminal-entry {
-    margin: 0;
-    word-break: break-all;
-    text-align: left;
+  margin: 0;
+  word-break: break-all;
+  text-align: left;
 }
 </style>

@@ -18,8 +18,9 @@ const gutenkuTheme = {
         background: '#FFFFFF',
         surface: '#FFFFFF',
         // https://colorhunt.co/palette/2f5d625e8b7ea7c4bcdfeeea
+        // https://colorhunt.co/palette/f0ebe3e4dccf7d9d9c576f72
         primary: '#2F5D62',
-        secondary: '#5E8B7E',
+        secondary: '#7D9D9C',
         third: "#A7C4BC"
     }
 }
