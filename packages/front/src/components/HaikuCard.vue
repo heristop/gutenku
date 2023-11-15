@@ -57,7 +57,7 @@ async function copy() {
 
     <v-icon
       v-show="networkError || notificationError"
-      color="third"
+      color="accent"
       class="text-error py-10"
     >
       mdi-robot-dead-outline
@@ -65,7 +65,7 @@ async function copy() {
 
     <app-loading
       v-if="loading"
-      color="third"
+      color="accent"
     />
 
     <v-card-actions class="justify-end">
@@ -82,7 +82,7 @@ async function copy() {
             :prepend-icon="loading ? 'mdi-loading mdi-spin' : 'mdi-reload'"
             @click="fetchNewHaiku()"
             alt="Generate a new Haiku"
-            color="third"
+            color="accent"
             data-cy="fetch-btn"
             class="ms-2"
           >
@@ -100,7 +100,7 @@ async function copy() {
           <v-btn
             v-bind="props"
             @click="copy()"
-            color="third"
+            color="accent"
             data-cy="copy-btn"
             class="ms-2"
             prepend-icon="mdi-content-copy"

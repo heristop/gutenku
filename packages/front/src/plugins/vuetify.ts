@@ -21,7 +21,7 @@ const gutenkuTheme = {
         // https://colorhunt.co/palette/f0ebe3e4dccf7d9d9c576f72
         primary: '#2F5D62',
         secondary: '#7D9D9C',
-        third: "#A7C4BC"
+        accent: "#A7C4BC"
     }
 }
 
