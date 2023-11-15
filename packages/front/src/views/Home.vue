@@ -3,7 +3,6 @@ import { computed, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useHaikuStore } from '@/store/haiku';
 import AppFooter from '@/components/AppFooter.vue';
-import HaikuOptions from '@/components/HaikuOptions.vue';
 import HaikuCanvas from '@/components/HaikuCanvas.vue';
 import HaikuCard from '@/components/HaikuCard.vue';
 import HaikuChapter from '@/components/HaikuChapter.vue';
@@ -37,7 +36,7 @@ onMounted(fetchNewHaiku);
   >
     <v-btn
       variant="plain"
-      color="third"
+      color="accent"
       size="x-large"
       href="https://gutenku.xyz"
     >
@@ -114,8 +113,6 @@ onMounted(fetchNewHaiku);
             <social-netwok class="d-none d-sm-block" />
 
             <haiku-canvas />
-
-            <haiku-options />
 
             <haiku-chapter class="d-sm-none" />
 

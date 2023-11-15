@@ -15,7 +15,7 @@ const legalNoticeDialog = ref(false);
 
     <v-footer
       class="justify-right"
-      color="third"
+      color="accent"
     >
       <v-dialog
         v-model="legalNoticeDialog"
@@ -25,31 +25,35 @@ const legalNoticeDialog = ref(false);
         <v-sheet
           border="md"
           class="pa-6 text-white mx-auto"
-          color="primary"
+          color="secondary"
           max-width="400"
         >
-          <h4 class="text-h5 font-weight-bold mb-4">
+          <v-img
+            class="logo mb-8"
+            src="@/assets/img/logo/gutenku_white.png"
+            alt="GutenKu"
+            height="42"
+          />
+
+          <h5 class="text-h5 font-weight-bold my-4">
             Legal Notice
-          </h4>
+          </h5>
 
           <p class="mb-8">
-            <b>Gutenku.xyz</b> is owned and operated by Alexandre Mogère (heristop). Some of the content on this website
-            is used
-            under license from third-party sources. All such content is used in accordance with the terms of the
-            applicable
-            license agreements.
+            <b>GutenKu.xyz</b> is owned and operated by Alexandre Mederic Mogère (heristop).<br>
             <br>
+            Some of the content on this website is used under license from third-party sources. All such content is used
+            in accordance with the terms of the applicable license agreements.<br>
             <br>
-            Thank you for visiting.
+            🌸 Thank you for visiting! 🗻
           </p>
 
           <v-btn
             @click="legalNoticeDialog = false"
             block
-            class="text-none text-black mb-4"
-            color="third"
+            color="primary"
             size="large"
-            variant="flat"
+            variant="text"
           >
             Close
           </v-btn>

@@ -34,7 +34,7 @@ const downloadImage = () => {
     v-if="haiku"
     :loading="loading"
     class="pa-4 mb-6 align-center justify-center"
-    color="third"
+    color="accent"
     variant="tonal"
   >
     <v-sheet

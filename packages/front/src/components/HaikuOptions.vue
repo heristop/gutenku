@@ -55,12 +55,14 @@ const advancedMode = computed({
 </script>
 
 <template>
-  <v-card
-    :loading="loading"
-    class="mx-auto pa-4 mb-6"
-    color="primary"
+  <v-sheet
+    color="secondary"
+    class="text-center"
   >
-    <v-card-title>
+    <v-sheet
+      class="mt-6"
+      color="secondary"
+    >
       <v-tooltip
         :disabled="loading"
         text="Display a new Haiku"
@@ -74,19 +76,19 @@ const advancedMode = computed({
             :icon="loading ? 'mdi-loading mdi-spin' : 'mdi-reload'"
             @click="fetchNewHaiku()"
             alt="Generate a new Haiku"
-            color="secondary"
+            color="primary"
             data-cy="options-fetch-btn"
             size="small"
           />
         </template>
       </v-tooltip>
-    </v-card-title>
+    </v-sheet>
 
     <v-card-text>
       <v-switch
         v-model="advancedMode"
         data-cy="switch-cache-btn"
-        color="third"
+        color="white"
         hide-details
         label="Advanced Mode"
       />
@@ -95,7 +97,7 @@ const advancedMode = computed({
         <v-sheet
           v-show="advancedMode"
           class="px-6 py-4 mb-4"
-          color="secondary"
+          color="primary"
           elevation="3"
         >
           <v-text-field
@@ -113,7 +115,7 @@ const advancedMode = computed({
         <v-sheet
           v-show="advancedMode"
           class="pa-2 py-4 mb-4"
-          color="secondary"
+          color="primary"
           elevation="3"
         >
           <v-tooltip
@@ -131,7 +133,7 @@ const advancedMode = computed({
             v-model="optionMinSentimentScore"
             label="Min"
             thumb-label
-            color="third"
+            color="accent"
             :min="-1"
             :max="0.2"
             :step="0.05"
@@ -155,7 +157,7 @@ const advancedMode = computed({
             v-model="optionMinMarkovScore"
             label="Min"
             thumb-label
-            color="third"
+            color="accent"
             :min="0"
             :max="1"
             :step="0.05"
@@ -176,7 +178,7 @@ const advancedMode = computed({
             :disabled="advancedMode"
             v-model="optionUseAI"
             data-cy="switch-api-btn"
-            color="third"
+            color="white"
             hide-details
             label="IA Boost Selection"
           />
@@ -186,8 +188,8 @@ const advancedMode = computed({
       <v-expand-transition>
         <v-sheet
           v-show="optionUseAI"
-          class="pa-2 py-4 mb-4"
-          color="secondary"
+          class="pa-2 py-4"
+          color="primary"
           elevation="3"
         >
           <v-tooltip
@@ -206,7 +208,7 @@ const advancedMode = computed({
             v-model="optionDescriptionTemperature"
             label="Temp"
             thumb-label
-            color="primary"
+            color="accent"
             :min="0"
             :max="0.40"
             :step="0.05"
@@ -221,7 +223,7 @@ const advancedMode = computed({
       <v-sheet
         v-if="hasDescription"
         data-cy="🤖-description"
-        class="pa-4 mb-4"
+        class="pa-8 mx-4 mb-4"
         color="primary"
         elevation="3"
       >
@@ -238,5 +240,11 @@ const advancedMode = computed({
         </p>
       </v-sheet>
     </v-expand-transition>
-  </v-card>
+  </v-sheet>
 </template>
+
+<style>
+.v-switch .v-switch__thumb {
+  background-color: rgb(var(--v-theme-accent)) !important;
+}
+</style>
