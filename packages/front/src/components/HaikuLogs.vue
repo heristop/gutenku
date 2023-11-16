@@ -37,7 +37,7 @@ watch(
       class="terminal px-2 ma-4 align-left justify-center"
     >
       <p class="mb-4">
-        Last Pre-selected Quotes ✏️
+        Last Quotes found ✏️
       </p>
 
       <p

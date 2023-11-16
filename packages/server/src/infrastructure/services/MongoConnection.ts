@@ -1,4 +1,4 @@
-import mongoose, { Connection, ConnectOptions } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { singleton } from 'tsyringe';
 
 @singleton()
@@ -13,10 +13,7 @@ export default class MongoConnection {
         const database = process.env.MONGODB_DB || 'admin';
 
         try {
-            await mongoose.connect(`${uri}/${database}`, {
-                useNewUrlParser: true,
-                useUnifiedTopology: true,
-            } as ConnectOptions);
+            await mongoose.connect(`${uri}/${database}`);
 
             this.db = mongoose.connection;
         } catch (error) {

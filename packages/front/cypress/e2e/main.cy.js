@@ -14,7 +14,6 @@ describe('Landing page test', () => {
 
     it('homepage', () => {
         cy.wait('@api').then(() => {
-            cy.get('[data-cy=switch-api-btn]').should('be.visible');
             cy.get('[data-cy=fetch-btn]').should('be.visible');
             cy.get('[data-cy=copy-btn]').should('be.visible');
             cy.get('[data-cy=fetch-btn').click();
@@ -32,7 +31,8 @@ describe('Landing page test', () => {
     });
 
     it('ai-generation', () => {
-        cy.get('[data-cy=switch-api-btn]').click();
+        cy.get('[data-cy=menu-btn]').click();
+        cy.get('[data-cy=switch-api-btn]').should('be.visible').click();
         cy.get('[data-cy=fetch-btn]').should('be.visible');
 
         cy.wait('@api').then(() => {

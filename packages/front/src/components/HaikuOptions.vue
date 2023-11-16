@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useHaikuStore } from '@/store/haiku';
+import HaikuLogs from '@/components/HaikuLogs.vue';
 
 const { fetchNewHaiku } = useHaikuStore();
 const {
@@ -164,7 +165,10 @@ const advancedMode = computed({
             hide-details
             class="ma-6"
           />
+
+          <haiku-logs v-if="false === optionUseCache" />
         </v-sheet>
+        />
       </v-expand-transition>
 
       <v-tooltip
