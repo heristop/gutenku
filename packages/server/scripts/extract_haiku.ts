@@ -37,7 +37,7 @@ const variables = {
     useAi: false,
     useCache: false,
     appendImg: false,
-    theme: 'watermark',
+    theme: 'random',
 };
 
 const body = {

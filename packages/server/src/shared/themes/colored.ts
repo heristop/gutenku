@@ -6,9 +6,9 @@ import { HaikuValue } from '../types';
 export default {
     async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
         const verses = haiku.verses;
-        Canvas.registerFont('./src/shared/assets/fonts/JMH Typewriter.ttf', { family: 'Typewriter' });
-
-        const canvas = Canvas.createCanvas(1200, 1200);
+        Canvas.registerFont('./src/shared/assets/fonts/Yomogi-Regular.ttf', { family: 'Yomogi' });
+        
+        const canvas = Canvas.createCanvas(2400, 2400);
         const ctx = canvas.getContext('2d');
 
         const folderPath = './src/shared/assets/themes/paper/backgrounds';
@@ -30,25 +30,25 @@ export default {
         ctx.globalAlpha = 0.25;
         ctx.drawImage(
             logo,
-            canvas.width - logo.width - 10,
+            canvas.width - logo.width + 20,
             canvas.height - logo.height - 10,
-            logo.width,
-            logo.height
+            logo.width * 0.85,
+            logo.height * 0.85
         );
         ctx.globalAlpha = 1;
 
         // Set the font and background color
-        ctx.font = '56px Typewriter';
+        ctx.font = '130px Yomogi';
         ctx.fillStyle = '#fff';
 
         // Draw the text
         ctx.globalAlpha = 0.8;
 
-        const x = 122;
+        const x = 244;
         let y = canvas.height / 3.5;
         verses.map(verse => {
             ctx.fillText(verse, x, y);
-            y = y + 220;
+            y = y + 440;
         });
 
         return canvas;

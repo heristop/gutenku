@@ -67,11 +67,13 @@ ids = [
     1400,   # Great Expectations
     1497,   # Republic
     1661,   # The Adventures of Sherlock Holmes
+    1998,   # Thus Spake Zarathustra: A Book for All and None
     2600,   # War and Peace
     2641,   # A Room With A View
     2701,   # Moby Dick; or The Whale
     2852,   # The Hound of the Baskervilles
     3207,   # Leviathan
+    3296,   # The Confessions of St. Augustine
     3300,   # An Inquiry into the Nature and Causes of the Wealth of Nations
     3306,   # At Suvla Bay
     3360,   # Letters to His Son, 1766-1771
@@ -85,11 +87,15 @@ ids = [
     6593,   # The History of Tom Jones, a Foundling
     6761,   # The Adventures of Ferdinand Count Fathom — Complete
     8800,   # The Divine Comedy
+    10007,  # Carmilla
     16389,  # The Enchanted April
+    22381,  # Myths and Legends of Ancient Greece and Rome
     25344,  # The Scarlet Letter
     26184,  # Simple Sabotage Field Manual
     27827,  # The Kama Sutra of Vatsyayana
     28054,  # The Brothers Karamazov
+    36034,  # White Nights and Other Stories
+    55264,  # On Growth and Form
     64317,  # The Great Gatsby
     67098,  # Winnie-the-,Pooh
     67979,  # The Blue Castle
@@ -114,6 +120,9 @@ ids = [
     71449,  # Meg of the Heather
     71450,  # My heart's in the Highlands
     71454,  # Guide to the study of animal ecology
+    72123,  # The Arctic World
+    72132,  # Daddy Joe's fiddle
+    72133,  # The octopus
 ]
 
 delete_books = args.delete
