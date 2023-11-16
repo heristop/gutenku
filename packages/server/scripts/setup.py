@@ -87,7 +87,6 @@ ids = [
     6593,   # The History of Tom Jones, a Foundling
     6761,   # The Adventures of Ferdinand Count Fathom — Complete
     8800,   # The Divine Comedy
-    10007,  # Carmilla
     16389,  # The Enchanted April
     22381,  # Myths and Legends of Ancient Greece and Rome
     25344,  # The Scarlet Letter
