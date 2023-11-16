@@ -35,6 +35,21 @@ export default {
             y = y + 440;
         });
 
+        // Load the logo
+        const logo = new Canvas.Image();
+        logo.src = './src/shared/assets/themes/landscape/gutenku.png';
+
+        // Draw the logo
+        ctx.globalAlpha = 0.25;
+        ctx.drawImage(
+            logo,
+            canvas.width - logo.width - 60,
+            canvas.height - logo.height - 200,
+            logo.width * 0.6,
+            logo.height * 0.6
+        );
+        ctx.globalAlpha = 1;
+
         // Draw signature
         ctx.font = '134px IndieFlower';
         ctx.globalAlpha = 0.6;

@@ -46,17 +46,17 @@ export default {
         ctx.drawImage(decor, 0, 0, canvas.width, canvas.height);
 
         // Load pic
-        const logo = new Canvas.Image();
-        logo.src = await catchNaturePic();
+        const pic = new Canvas.Image();
+        pic.src = await catchNaturePic();
 
         // Draw pic
         ctx.globalAlpha = 0.92;
         ctx.drawImage(
-            logo,
-            canvas.width - logo.width - 150,
-            canvas.height - logo.height - 380,
-            logo.width,
-            logo.height
+            pic,
+            canvas.width - pic.width - 150,
+            canvas.height - pic.height - 380,
+            pic.width,
+            pic.height
         );
 
         // Draw signature
