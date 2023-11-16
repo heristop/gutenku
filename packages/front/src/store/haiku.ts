@@ -13,7 +13,7 @@ export const useHaikuStore = defineStore({
         error: '' as string,
         optionUseCache: true as boolean,
         optionUseAI: false as boolean,
-        optionTheme: 'watermark' as string,
+        optionTheme: 'random' as string,
         optionFilter: '' as string,
         optionMinSentimentScore: 0.1 as number,
         optionMinMarkovScore: 0.1 as number,

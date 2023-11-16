@@ -45,7 +45,7 @@ async function copy() {
         v-for="sentence in haiku.verses "
         :key="sentence"
       >
-        {{ sentence }}
+        <mark class="highlighted-quote">{{ sentence }}</mark>
       </p>
     </v-card-text>
 
@@ -148,4 +148,12 @@ async function copy() {
   word-break: break-all;
   text-align: left;
 }
+
+mark.highlighted-quote {
+  color: #fff; 
+  padding: 2px 6px; 
+  background-color: rgba(255,255,255,0.05);
+  font-size: 1.1em;
+}
 </style>
+

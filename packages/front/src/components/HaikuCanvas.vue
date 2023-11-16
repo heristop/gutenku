@@ -56,7 +56,7 @@ const downloadImage = () => {
         v-model="optionTheme"
         @update:model-value="fetchNewHaiku()"
         label="Theme"
-        :items="['colored', 'greentea', 'watermark']"
+        :items="['random', 'colored', 'greentea', 'watermark', 'landscape']"
         variant="underlined"
         class="text-primary"
       />

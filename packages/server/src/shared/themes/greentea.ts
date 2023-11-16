@@ -6,7 +6,7 @@ import { HaikuValue } from '../types';
 export default {
     async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
         const { verses } = haiku;
-        Canvas.registerFont('./src/shared/assets/fonts/JMH Typewriter.ttf', { family: 'Typewriter' });
+        Canvas.registerFont('./src/shared/assets/fonts/NanumBrushScript-Regular.ttf', { family: 'NanumBrushScript' });
 
         const canvas = Canvas.createCanvas(2400, 2400);
         const ctx = canvas.getContext('2d');
@@ -24,7 +24,7 @@ export default {
         ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
         // Set the font and background color
-        ctx.font = '112px Typewriter';
+        ctx.font = '200px NanumBrushScript';
         ctx.fillStyle = '#2F5D62';
 
         // Draw the text
@@ -53,16 +53,16 @@ export default {
         ctx.globalAlpha = 0.92;
         ctx.drawImage(
             logo,
-            canvas.width - logo.width - 100,
-            canvas.height - logo.height - 300,
-            logo.width / 1.2,
-            logo.height / 1.2
+            canvas.width - logo.width - 150,
+            canvas.height - logo.height - 380,
+            logo.width,
+            logo.height
         );
 
         // Draw signature
-        ctx.font = '108px Typewriter';
+        ctx.font = '154px NanumBrushScript';
         ctx.globalAlpha = 0.6;
-        ctx.fillText('- GutenKu', canvas.width - 750, canvas.height - 250);
+        ctx.fillText('- GutenKu', canvas.width - 784, canvas.height - 240);
 
         return canvas;
     }

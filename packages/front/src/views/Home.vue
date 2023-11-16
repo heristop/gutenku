@@ -183,7 +183,7 @@ body {
 
       mark {
         padding-inline: 3px;
-        background: rgb(248, 174, 62);
+        background: rgb(var(--v-theme-accent));
       }
 
       &.dark-theme {

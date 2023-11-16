@@ -6,6 +6,7 @@ import { HaikuValue } from '../../shared/types';
 import colored from '../../shared/themes/colored';
 import greentea from '../../shared/themes/greentea';
 import watermark from '../../shared/themes/watermark';
+import landscape from '../../shared/themes/landscape';
 
 @singleton()
 export default class CanvasService {
@@ -19,6 +20,12 @@ export default class CanvasService {
     async create(haiku: HaikuValue): Promise<string> {
         let createCanvas = null;
 
+        if ('random' === this.theme) {
+            const themes = ['colored', 'greentea', 'watermark', 'landscape'];
+            const randomIndex = Math.floor(Math.random() * themes.length);
+            this.theme = themes[randomIndex];
+        }
+
         switch (this.theme) {
         case 'colored':
             createCanvas = colored.create;
@@ -29,12 +36,17 @@ export default class CanvasService {
         case 'watermark':
             createCanvas = watermark.create;
             break;
+        case 'landscape':
+            createCanvas = landscape.create;
+            break;
         default:
             throw new Error(`Unsupported theme: ${this.theme}`);
         }
 
         try {
             const canvas = await createCanvas(haiku);
+
+            Canvas.deregisterAllFonts();
 
             // Save the image
             return this.save(canvas);
