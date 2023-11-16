@@ -35,12 +35,21 @@ const legalNoticeDialog = ref(false);
             height="42"
           />
 
+          <v-divider
+            thickness="3"
+            color="primary"
+          />
+
           <h5 class="text-h5 font-weight-bold my-4">
             Legal Notice
           </h5>
 
           <p class="mb-8">
-            <b>GutenKu.xyz</b> is owned and operated by Alexandre Mederic Mogère (heristop).<br>
+            <b>GutenKu</b> is owned and operated by Alexandre Mederic Mogère (<a
+              class="text-primary"
+              href="https://heristop.vercel.app"
+              target="_blank"
+            >heristop</a>).<br>
             <br>
             Some of the content on this website is used under license from third-party sources. All such content is used
             in accordance with the terms of the applicable license agreements.<br>
@@ -50,6 +59,7 @@ const legalNoticeDialog = ref(false);
 
           <v-btn
             @click="legalNoticeDialog = false"
+            prepend-icon="mdi-close"
             block
             color="primary"
             size="large"

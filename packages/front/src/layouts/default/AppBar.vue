@@ -13,17 +13,33 @@ const drawer = ref(false);
   <v-app-bar color="primary">
     <v-spacer :class="firstLoaded ? 'mx-7' : 'mx-0'" />
 
-    <v-img class="logo" src="@/assets/img/logo/gutenku_white.png" alt="GutenKu" height="42" />
+    <v-img
+      class="logo"
+      src="@/assets/img/logo/gutenku_white.png"
+      alt="GutenKu"
+      height="42"
+    />
 
     <v-spacer />
 
-    <v-btn v-show="firstLoaded" icon @click="drawer = !drawer">
+    <v-btn
+      v-show="firstLoaded"
+      icon
+      data-cy="menu-btn"
+      @click="drawer = !drawer"
+    >
       <v-icon>mdi-dots-vertical</v-icon>
     </v-btn>
   </v-app-bar>
 
-  <!-- Navigation Drawer qui s'ouvre depuis la droite -->
-  <v-navigation-drawer v-model="drawer" location="right" permanent color="secondary" width="350" class="config-drawer">
+  <v-navigation-drawer
+    v-model="drawer"
+    location="right"
+    permanent
+    color="secondary"
+    width="350"
+    class="config-drawer"
+  >
     <haiku-options />
   </v-navigation-drawer>
 </template>
