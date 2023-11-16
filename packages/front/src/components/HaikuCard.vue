@@ -3,7 +3,6 @@ import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useHaikuStore } from '@/store/haiku';
 import AppLoading from '@/components/AppLoading.vue';
-import HaikuLogs from '@/components/HaikuLogs.vue';
 
 const { fetchNewHaiku } = useHaikuStore();
 const { haiku, loading, error, networkError, notificationError, optionUseCache } = storeToRefs(useHaikuStore());
@@ -49,11 +48,6 @@ async function copy() {
         {{ sentence }}
       </p>
     </v-card-text>
-
-    <haiku-logs
-      class="mx-12"
-      v-if="false === optionUseCache"
-    />
 
     <v-icon
       v-show="networkError || notificationError"
