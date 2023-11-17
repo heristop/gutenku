@@ -66,7 +66,7 @@ const variables = {
     useCache: true,
     appendImg: true,
     selectionCount: parseInt(options.selectionCount),
-    theme: 'watermark',
+    theme: 'random',
 };
 
 const body = {
