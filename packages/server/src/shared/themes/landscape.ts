@@ -22,7 +22,7 @@ export default {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         // Set the font
-        ctx.font = '144px IndieFlower';
+        ctx.font = '130px IndieFlower';
         ctx.fillStyle = '#2F5D62';
 
         // Draw the text
