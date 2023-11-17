@@ -66,7 +66,7 @@ export default class HaikuGeneratorService implements IGenerator {
         this.minCachedDocs = options?.cache.minCachedDocs ?? 100;
         this.useCache = options?.cache.enabled ?? false;
         this.ttl = options?.cache.ttl ?? 0;
-        this.theme = options?.theme ?? 'watermark';
+        this.theme = options?.theme ?? 'random';
         this.filterWords = [];
         this.sentimentMinScore = options?.score.sentiment ?? null;
         this.markovMinScore = options?.score.markovChain ?? null;
