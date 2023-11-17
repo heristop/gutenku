@@ -24,7 +24,7 @@ export default {
         ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
         // Set the font and background color
-        ctx.font = '200px NanumBrushScript';
+        ctx.font = '180px NanumBrushScript';
         ctx.fillStyle = '#2F5D62';
 
         // Draw the text
