@@ -16,7 +16,7 @@
     },
     "type": "module",
     "dependencies": {
-        "@apollo/server": "^4.9.4",
+        "@apollo/server": "^4.9.5",
         "@typescript-eslint/typescript-estree": "^6.10.0",
         "canvas": "^2.11.2",
         "cli-progress": "^3.12.0",
@@ -30,7 +30,7 @@
         "instagram-publisher": "^2.1.1",
         "mongoose": "^8.0.0",
         "natural": "^6.8.0",
-        "openai": "^4.17.4",
+        "openai": "^4.19.0",
         "reflect-metadata": "^0.1.13",
         "request": "^2.88.0",
         "sharp": "^0.32.6",

@@ -9,7 +9,7 @@ const legalNoticeDialog = ref(false);
     <v-img
       lazy-src="@/assets/img/zazen.webp"
       src="@/assets/img/zazen.webp"
-      alt="Footer image scribe"
+      alt="Footer Image Scribe"
       cover
     />
 
@@ -31,7 +31,7 @@ const legalNoticeDialog = ref(false);
           <v-img
             class="logo mb-8"
             src="@/assets/img/logo/gutenku_white.png"
-            alt="GutenKu"
+            alt="GutenKu Logo"
             height="42"
           />
 

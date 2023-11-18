@@ -133,22 +133,6 @@ async function copy() {
   font-size: 48px;
 }
 
-.terminal {
-  background-color: #000;
-  color: #fff;
-  font-family: 'Courier New', monospace;
-  padding: 20px;
-  border-radius: 5px;
-  height: 200px;
-  overflow-y: auto;
-}
-
-.terminal-entry {
-  margin: 0;
-  word-break: break-all;
-  text-align: left;
-}
-
 mark.highlighted-quote {
   color: #fff; 
   padding: 2px 6px; 

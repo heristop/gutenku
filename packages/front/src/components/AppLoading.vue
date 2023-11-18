@@ -96,6 +96,7 @@ onUnmounted(() => {
     <div v-if="text">
       <v-img
         src="@/assets/img/logo/gutenku_rounded.png"
+        alt="Logo"
         height="60"
       />
 
