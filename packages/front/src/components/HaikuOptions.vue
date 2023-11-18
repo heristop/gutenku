@@ -254,4 +254,8 @@ const advancedMode = computed({
 .v-switch .v-switch__thumb {
   background-color: rgb(var(--v-theme-accent)) !important;
 }
+
+.v-switch__track {
+  background-color: white !important;
+}
 </style>
