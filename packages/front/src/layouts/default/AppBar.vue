@@ -16,20 +16,34 @@ const drawer = ref(false);
     <v-img
       class="logo"
       src="@/assets/img/logo/gutenku_white.png"
-      alt="GutenKu"
+      alt="GutenKu Logo"
       height="42"
     />
 
     <v-spacer />
 
-    <v-btn
-      v-show="firstLoaded"
-      icon
-      data-cy="menu-btn"
-      @click="drawer = !drawer"
+    <v-tooltip
+      :text="!drawer ? 'Menu Drawer Open' : 'Menu Drawer Close'"
+      :aria-label="!drawer ? 'Menu Drawer Open' : 'Menu Drawer Close'"
+      location="left"
     >
-      <v-icon>mdi-dots-vertical</v-icon>
-    </v-btn>
+      <template #activator="{ props }">
+        <v-btn
+          v-show="firstLoaded"
+          v-bind="props"
+          icon
+          data-cy="menu-btn"
+          @click="drawer = !drawer"
+        >
+          <v-icon v-if="!drawer">
+            mdi-menu-open
+          </v-icon>
+          <v-icon v-else>
+            mdi-menu-close
+          </v-icon>
+        </v-btn>
+      </template>
+    </v-tooltip>
   </v-app-bar>
 
   <v-navigation-drawer
@@ -47,7 +61,7 @@ const drawer = ref(false);
 <style scoped>
 @media (max-width: 600px) {
   .config-drawer {
-    opacity: 0.9;
+    opacity: 0.98;
   }
 }
 </style>

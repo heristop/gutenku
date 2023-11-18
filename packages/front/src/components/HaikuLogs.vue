@@ -52,10 +52,6 @@ watch(
 </template>
 
 <style scoped>
-.text-error {
-  font-size: 48px;
-}
-
 .terminal {
   background-color: #000;
   color: #fff;

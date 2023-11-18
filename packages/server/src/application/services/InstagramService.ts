@@ -48,7 +48,7 @@ ${haiku.translations.de}
 ~~~
 👩‍🏫 “${haiku.description}”
 
-*Analysis Written by BotenKu, your devoted Literature Teacher*
+🤖✒️ *Analysis Written by BotenKu, Your devoted Bot Literature Teacher*
 ~~~
 🏷️ ${haiku.hashtags} #${hashtagAuthor} ${process.env.INSTAGRAM_HASHTAGS}
 `;

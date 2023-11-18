@@ -100,6 +100,7 @@ const advancedMode = computed({
           class="px-6 py-4 mb-4"
           color="primary"
           elevation="3"
+          rounded
         >
           <v-text-field
             v-model="optionFilter"
@@ -118,6 +119,7 @@ const advancedMode = computed({
           class="pa-2 py-4 mb-4"
           color="primary"
           elevation="3"
+          rounded
         >
           <v-tooltip
             text="A numerical measure of the text's emotional tone: positive values indicate positive emotions, negative values indicate negative emotions, and neutral indicates no strong emotions."
@@ -195,6 +197,7 @@ const advancedMode = computed({
           class="pa-2 py-4"
           color="primary"
           elevation="3"
+          rounded
         >
           <v-tooltip
             text="This temperature setting influences the randomness of the description generated for the selected haiku. A lower value will produce a more concise and deterministic description, while a higher value allows for a more creative and unpredictable explanation."

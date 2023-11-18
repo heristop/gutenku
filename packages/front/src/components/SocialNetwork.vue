@@ -9,7 +9,7 @@ const GUTENBERG_URL = 'https://gutenberg.org';
     <v-card-title class="ma-2">
       <v-img
         height="56"
-        alt="GutenKu logo"
+        alt="GutenKu Logo"
         src="@/assets/img/logo/gutenku_rounded.png"
       />
     </v-card-title>
