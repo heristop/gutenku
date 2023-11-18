@@ -29,7 +29,7 @@ onMounted(() => {
     v-if="haiku"
     :loading="loading"
     color="secondary"
-    class="pa-4 mb-6 align-center justify-center"
+    class="pa-4 align-center justify-center"
   >
     Disclose chapter where quotes were extracted
     <v-row>
