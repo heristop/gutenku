@@ -28,8 +28,10 @@ export default class InstagramService {
             .replaceAll(/\s|,|-|\.|\(|\)/g, '');
 
         const caption = `
-🌸🗻 “${haiku.title}” 
-📖 Bookmojis: ${haiku.book.emoticons} (${maskedTitle})
+🌸 “${haiku.title}” 🗻
+📖 Quotes extracted from: ${maskedTitle}
+
+📔 Bookmojis: ${haiku.book.emoticons}
 ~~~
 🇫🇷
 ${haiku.translations.fr}
