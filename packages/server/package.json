@@ -30,7 +30,7 @@
         "instagram-publisher": "^2.1.1",
         "mongoose": "^8.0.0",
         "natural": "^6.8.0",
-        "openai": "^4.19.0",
+        "openai": "^4.20.0",
         "reflect-metadata": "^0.1.13",
         "request": "^2.88.0",
         "sharp": "^0.32.6",
