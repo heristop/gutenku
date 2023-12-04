@@ -39,7 +39,7 @@
     },
     "devDependencies": {
         "@babel/types": "^7.23.0",
-        "@types/node": "^20.6.3",
+        "@types/node": "^20.10.3",
         "@types/webfontloader": "^1.6.35",
         "@types/zen-observable": "^0.8.5",
         "@typescript-eslint/typescript-estree": "^7.0.0-alpha.0",
