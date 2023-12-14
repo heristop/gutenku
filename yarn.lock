@@ -3016,7 +3016,7 @@
   resolved "https://registry.yarnpkg.com/@typescript-eslint/types/-/types-7.0.0-alpha.0.tgz#3812bd28c6730f4f3b151387359c42e62bb11540"
   integrity sha512-QEd1/6WGX7be2uIL5Zw/QjIb6V0k979lYj4qD4sJ5QcuM//WFbk+yvGxLLttJyTMiYruhGAZT8mNjxJN7+PL6g==
 
-"@typescript-eslint/typescript-estree@6.11.0", "@typescript-eslint/typescript-estree@^6.10.0":
+"@typescript-eslint/typescript-estree@6.11.0":
   version "6.11.0"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/typescript-estree/-/typescript-estree-6.11.0.tgz#7b52c12a623bf7f8ec7f8a79901b9f98eb5c7990"
   integrity sha512-Aezzv1o2tWJwvZhedzvD5Yv7+Lpu1by/U1LZ5gLc4tCx8jUmuSCMioPFRjliN/6SJIvY6HpTtJIWubKuYYYesQ==
