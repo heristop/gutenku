@@ -25,7 +25,7 @@
         "graphql-tag": "^2.12.6",
         "graphql-ws": "^5.14.2",
         "pinia": "^2.1.7",
-        "pinia-plugin-persistedstate": "^3.2.0",
+        "pinia-plugin-persistedstate": "^3.2.1",
         "roboto-fontface": "*",
         "saas": "^1.0.0",
         "ts-node": "^10.9.1",
