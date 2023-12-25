@@ -2057,10 +2057,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/webfontloader@^1.6.35":
-  version "1.6.37"
-  resolved "https://registry.yarnpkg.com/@types/webfontloader/-/webfontloader-1.6.37.tgz#7c3d67315afc2a7a4ac26768d077722e50df90bd"
-  integrity sha512-/rX4xIG7E4pvkCcXfuZklgb3cwnD3WGLi5DUg0tfBvlklo5qfVom0XiDFonp1styeEGWoXuv1dMQHmEt0cZysA==
+"@types/webfontloader@^1.6.38":
+  version "1.6.38"
+  resolved "https://registry.yarnpkg.com/@types/webfontloader/-/webfontloader-1.6.38.tgz#2cb965a7e7e4a83af6bac67688bc7d1c076107e8"
+  integrity sha512-kUaF72Fv202suFx6yBrwXqeVRMx7hGtJTesyESZgn9sEPCUeDXm2p0SiyS1MTqW74nQP4p7JyrOCwZ7pNFns4w==
 
 "@types/webidl-conversions@*":
   version "7.0.3"
