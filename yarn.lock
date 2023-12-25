@@ -666,10 +666,10 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.54.0.tgz#4fab9a2ff7860082c304f750e94acd644cf984cf"
   integrity sha512-ut5V+D+fOoWPgGGNj83GGjnntO39xDy6DWxO0wb7Jp3DcMX0TfIqdzHF85VTQkerdyGmuuMD9AKAo5KiNlf/AQ==
 
-"@fingerprintjs/botd@^1.6.6":
-  version "1.7.1"
-  resolved "https://registry.yarnpkg.com/@fingerprintjs/botd/-/botd-1.7.1.tgz#0bff63233f7d1295dcbf6bbbf6aa055cd6ff9cb7"
-  integrity sha512-8tJZdg/1KJZMwVe5lnMf2afkmr6HpJjolMnBFYALitrt+8Q9GqOLVeXYw/+AWQn6LuKfZqNGHEtu4yfmDdFujQ==
+"@fingerprintjs/botd@^1.7.2":
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/@fingerprintjs/botd/-/botd-1.7.2.tgz#cae884b4388448caf0173e843a464513a99625d9"
+  integrity sha512-n7qIU6TCZ0+Zb35LqQZu9bemIwbenMgwpQ8PVg2437ItzQPxAPJSCrfFAq1kbEFpqoboO7mfVokWzBtfL1GG7Q==
   dependencies:
     tslib "^2.4.0"
 

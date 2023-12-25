@@ -14,7 +14,7 @@
     },
     "dependencies": {
         "@apollo/client": "^3.8.7",
-        "@fingerprintjs/botd": "^1.6.6",
+        "@fingerprintjs/botd": "^1.7.2",
         "@mdi/font": "^7.3.67",
         "@vue/apollo-composable": "^4.0.0-beta.11",
         "@vue/apollo-option": "^4.0.0-beta.9",
