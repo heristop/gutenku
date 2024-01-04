@@ -14,7 +14,7 @@ export default class OpenAIGeneratorService implements IGenerator {
     private selectionCount: number;
     private descriptionTemperature: number;
 
-    constructor(private readonly haikuGeneratorService: HaikuGeneratorService) {}
+    constructor(private readonly haikuGeneratorService: HaikuGeneratorService) { }
 
     configure(options: OpenAIOptions): OpenAIGeneratorService {
         const {
@@ -171,15 +171,15 @@ export default class OpenAIGeneratorService implements IGenerator {
 
     private async addBookmojis(haiku: HaikuValue): Promise<HaikuValue> {
         let prompt = `Please provide a series of clear and easily recognizable emoticons that best represent the book "${haiku.book.title}":`;
-        const outputFormat = '<Generate a series of UTF-8 emoticons that represent the related book>';
+        const outputFormat = '<Generate a series of UTF-8 emoticons only that represent the related book>';
         prompt = `${prompt} (Use the following format: ${outputFormat})`;
 
         const completion = await this.openai.chat.completions.create({
             model: 'gpt-4-1106-preview',
             temperature: 0.6,
-            max_tokens: 20,
+            max_tokens: 14,
             top_p: 1,
-            frequency_penalty: 0,
+            frequency_penalty: 0.2,
             presence_penalty: 0,
             messages: [{
                 'role': 'user',
@@ -205,7 +205,7 @@ export default class OpenAIGeneratorService implements IGenerator {
             for (let i = 0; i < this.selectionCount; i++) {
                 const haiku = await this.haikuGeneratorService.buildFromDb();
                 this.haikuSelection.push(haiku);
-    
+
                 const verses = `[Id]: ${i}\n[Verses]: ${haiku.verses.join('\n')}\n`;
                 console.log(verses);
                 haikus.push(verses);
