@@ -4584,10 +4584,10 @@ eslint-compat-utils@^0.1.2:
   resolved "https://registry.yarnpkg.com/eslint-compat-utils/-/eslint-compat-utils-0.1.2.tgz#f45e3b5ced4c746c127cf724fb074cd4e730d653"
   integrity sha512-Jia4JDldWnFNIru1Ehx1H5s9/yxiRHY/TimCuUc0jNexew3cF1gI6CYZil1ociakfWO3rRqFjl1mskBblB3RYg==
 
-eslint-config-standard-with-typescript@^42.0.0:
-  version "42.0.0"
-  resolved "https://registry.yarnpkg.com/eslint-config-standard-with-typescript/-/eslint-config-standard-with-typescript-42.0.0.tgz#19e8fb3d996701328230cf735ee86dbfb8e8e352"
-  integrity sha512-m1/2g/Sicun1uFZOFigJVeOqo9fE7OkMsNtilcpHwdCdcGr21qsGqYiyxYSvvHfJwY7w5OTQH0hxk8sM2N5Ohg==
+eslint-config-standard-with-typescript@^43.0.1:
+  version "43.0.1"
+  resolved "https://registry.yarnpkg.com/eslint-config-standard-with-typescript/-/eslint-config-standard-with-typescript-43.0.1.tgz#977862d7d41b0e1f27f399137bbf7b2e017037ff"
+  integrity sha512-WfZ986+qzIzX6dcr4yGUyVb/l9N3Z8wPXCc5z/70fljs3UbWhhV+WxrfgsqMToRzuuyX9MqZ974pq2UPhDTOcA==
   dependencies:
     "@typescript-eslint/parser" "^6.4.0"
     eslint-config-standard "17.1.0"
