@@ -1,11 +1,42 @@
 import dotenv from 'dotenv';
+import { IgApiClient } from 'instagram-private-api';
+import { promises as fs } from 'fs';
 import { HaikuValue } from '../../shared/types';
-import InstagramPublisher from 'instagram-publisher';
 
 dotenv.config();
 
+interface PublishPhotoResponse {
+    media: {
+        id: string;
+        code: string;
+        user: {
+            username: string;
+        };
+    };
+    status: string;
+}
+
 export default class InstagramService {
-    static post(haiku: HaikuValue) {
+
+    static async loginToInstagram(): Promise<IgApiClient> {
+        const ig = new IgApiClient();
+        ig.state.generateDevice(process.env.INSTAGRAM_API_USER);
+        await ig.account.login(process.env.INSTAGRAM_API_USER, process.env.INSTAGRAM_API_PASSWORD);
+
+        return ig;
+    }
+    
+    static async publish(ig: IgApiClient, imagePath: string, caption: string): Promise<PublishPhotoResponse> {
+        const imageBuffer = await fs.readFile(imagePath);
+        const publishResult = await ig.publish.photo({
+            file: imageBuffer,
+            caption,
+        });
+
+        return publishResult;
+    }
+
+    static async post(haiku: HaikuValue) {
         const bookTitle = haiku.book.title;
         const vowels = "aeiouyAEIOUY";
 
@@ -41,16 +72,6 @@ ${haiku.translations.jp}
 
 🇪🇸
 ${haiku.translations.es}
-
-🇮🇹
-${haiku.translations.it}
-
-🇩🇪
-${haiku.translations.de}
-~~~
-👩‍🏫 “${haiku.description}”
-
-🤖✒️ *Analysis Written by BotenKu, Your devoted Bot Literature Teacher*
 ~~~
 🏷️ ${haiku.hashtags} #${hashtagAuthor} ${process.env.INSTAGRAM_HASHTAGS}
 `;
@@ -58,20 +79,9 @@ ${haiku.translations.de}
         console.log(caption);
 
         if (process.env.INSTAGRAM_API_USER) {
-            const client = new InstagramPublisher({
-                email: process.env.INSTAGRAM_API_USER,
-                password: process.env.INSTAGRAM_API_PASSWORD,
-                verbose: true,
-            });
+            const ig = await this.loginToInstagram();
 
-            const imageData = {
-                image_path: haiku.imagePath,
-                caption: caption,
-            };
-
-            client.createSingleImage(imageData).then(() => {
-                console.log('Image sent!');
-            });
+            await this.publish(ig, haiku.imagePath, caption);
         }
     }
 }

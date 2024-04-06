@@ -42,6 +42,7 @@ ids = [
     84,     # Frankenstein
     105,    # Persuasion
     120,    # Treasure Island
+    135,    # Les Misérables
     145,    # Middlemarch
     158,    # Emma
     161,    # Sense and Sensibility
@@ -62,6 +63,7 @@ ids = [
     1184,   # The Count of Monte Cristo
     1232,   # The Prince
     1259,   # Twenty Years After
+    1260,   # Jane Eyre: An Autobiography
     1342,   # Pride and prejudice
     1399,   # Anna Karenina
     1400,   # Great Expectations
@@ -86,9 +88,12 @@ ids = [
     6130,   # The Iliad of Homer
     6593,   # The History of Tom Jones, a Foundling
     6761,   # The Adventures of Ferdinand Count Fathom — Complete
+    8492,   # The King in Yellow
     8800,   # The Divine Comedy
+    11030,  # Incidents in the Life of a Slave Girl
     16389,  # The Enchanted April
     22381,  # Myths and Legends of Ancient Greece and Rome
+    24869,  # The Rámáyan of Válmíki
     25344,  # The Scarlet Letter
     26184,  # Simple Sabotage Field Manual
     27827,  # The Kama Sutra of Vatsyayana
@@ -122,6 +127,7 @@ ids = [
     72123,  # The Arctic World
     72132,  # Daddy Joe's fiddle
     72133,  # The octopus
+    73340,  # Worthy of his name
 ]
 
 delete_books = args.delete

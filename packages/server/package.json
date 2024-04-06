@@ -27,7 +27,7 @@
         "graphql": "^16.8.1",
         "graphql-subscriptions": "^2.0.0",
         "graphql-ws": "^5.14.2",
-        "instagram-publisher": "^2.1.1",
+        "instagram-private-api": "^1.46.1",
         "mongoose": "^8.0.0",
         "natural": "^6.8.0",
         "openai": "^4.24.1",
