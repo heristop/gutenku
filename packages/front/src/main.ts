@@ -16,11 +16,11 @@ import { ApolloClients } from '@vue/apollo-composable';
 import { registerPlugins } from '@/plugins';
 
 const app = createApp({
-    render: () => h(App),
+  render: () => h(App),
 });
 
 app.provide(ApolloClients, {
-    default: apolloClient,
+  default: apolloClient,
 });
 
 registerPlugins(app);

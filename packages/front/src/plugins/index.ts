@@ -14,10 +14,7 @@ import router from '@/router';
 import type { App } from 'vue';
 
 export function registerPlugins(app: App) {
-    loadFonts();
+  loadFonts();
 
-    app
-        .use(vuetify)
-        .use(router)
-        .use(pinia);
+  app.use(vuetify).use(router).use(pinia);
 }

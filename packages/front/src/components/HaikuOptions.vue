@@ -6,52 +6,52 @@ import HaikuLogs from '@/components/HaikuLogs.vue';
 
 const { fetchNewHaiku } = useHaikuStore();
 const {
-    haiku,
-    loading,
-    optionFilter,
-    optionMinSentimentScore,
-    optionMinMarkovScore,
-    optionDescriptionTemperature,
-    optionUseAI,
-    optionUseCache,
+  haiku,
+  loading,
+  optionFilter,
+  optionMinSentimentScore,
+  optionMinMarkovScore,
+  optionDescriptionTemperature,
+  optionUseAI,
+  optionUseCache,
 } = storeToRefs(useHaikuStore());
 
 const hasDescription = computed(() => {
-    return haiku.value?.description && optionUseAI.value;
+  return haiku.value?.description && optionUseAI.value;
 });
 
 const sentimenticon = computed(() => {
-    if (optionMinSentimentScore.value > 0) {
-        return 'mdi-emoticon-outline';
-    }
+  if (optionMinSentimentScore.value > 0) {
+    return 'mdi-emoticon-outline';
+  }
 
-    if (optionMinSentimentScore.value < 0) {
-        return 'mdi-emoticon-sad-outline';
-    }
+  if (optionMinSentimentScore.value < 0) {
+    return 'mdi-emoticon-sad-outline';
+  }
 
-    return 'mdi-emoticon-neutral-outline';
+  return 'mdi-emoticon-neutral-outline';
 });
 
 function getThermometer(temperature: number) {
-    if (temperature > 0.7) {
-        return 'mdi-thermometer-high';
-    }
+  if (temperature > 0.7) {
+    return 'mdi-thermometer-high';
+  }
 
-    if (temperature < 0.3) {
-        return 'mdi-thermometer-low';
-    }
+  if (temperature < 0.3) {
+    return 'mdi-thermometer-low';
+  }
 
-    return 'mdi-thermometer';
+  return 'mdi-thermometer';
 }
 
 const advancedMode = computed({
-    get: () => false == optionUseCache.value,
-    set: (newValue) => {
-        optionUseCache.value = !optionUseCache.value;
-        if (true === newValue) {
-            optionUseAI.value = false;
-        }
+  get: () => false == optionUseCache.value,
+  set: (newValue) => {
+    optionUseCache.value = !optionUseCache.value;
+    if (true === newValue) {
+      optionUseAI.value = false;
     }
+  },
 });
 </script>
 
@@ -127,8 +127,7 @@ const advancedMode = computed({
             max-width="300"
           >
             <template #activator="{ props }">
-              <span v-bind="props">Sentiment Score <v-icon class="icon">
-                {{ sentimenticon }} </v-icon></span>
+              <span v-bind="props">Sentiment Score <v-icon class="icon"> {{ sentimenticon }} </v-icon></span>
             </template>
           </v-tooltip>
 
@@ -150,9 +149,7 @@ const advancedMode = computed({
             max-width="300"
           >
             <template #activator="{ props }">
-              <span v-bind="props">Markov Chain Score <v-icon class="icon">
-                mdi-link-variant
-              </v-icon></span>
+              <span v-bind="props">Markov Chain Score <v-icon class="icon"> mdi-link-variant </v-icon></span>
             </template>
           </v-tooltip>
 
@@ -205,9 +202,10 @@ const advancedMode = computed({
             max-width="300"
           >
             <template #activator="{ props }">
-              <span v-bind="props">Description Temperature <v-icon class="icon">
-                {{ getThermometer(optionDescriptionTemperature) }}
-              </v-icon></span>
+              <span v-bind="props">Description Temperature
+                <v-icon class="icon">
+                  {{ getThermometer(optionDescriptionTemperature) }}
+                </v-icon></span>
             </template>
           </v-tooltip>
 
@@ -217,7 +215,7 @@ const advancedMode = computed({
             thumb-label
             color="accent"
             :min="0"
-            :max="0.40"
+            :max="0.4"
             :step="0.05"
             hide-details
             class="ma-6"
@@ -234,9 +232,7 @@ const advancedMode = computed({
         color="primary"
         elevation="3"
       >
-        <b>
-          “{{ haiku.title }}”
-        </b>
+        <b> “{{ haiku.title }}” </b>
 
         <p class="text-body-1">
           ~~~

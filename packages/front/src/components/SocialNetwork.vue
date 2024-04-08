@@ -15,8 +15,7 @@ const GUTENBERG_URL = 'https://gutenberg.org';
     </v-card-title>
 
     <p class="text-primary">
-      <strong>GutenKu</strong> is a Haiku generator based on a selection of books from Project
-      Gutenberg, a vast online
+      <strong>GutenKu</strong> is a Haiku generator based on a selection of books from Project Gutenberg, a vast online
       library of free eBooks, and then process this data to extract quotes and generate unique haiku.
     </p>
 

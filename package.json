@@ -5,21 +5,18 @@
   "licence": "UNLICENSED",
   "scripts": {
     "prepare": "husky install",
-    "lint": "yarn workspace @gutenku/api lint && yarn workspace @gutenku/vue lint",
-    "test": "yarn workspace @gutenku/api test && yarn workspace @gutenku/vue test",
-    "pre-commit": "yarn lint",
-    "start": "yarn workspace @gutenku/api dev",
-    "next": "yarn workspace @gutenku/vue dev",
+    "lint": "pnpm --filter @gutenku/api lint && pnpm --filter @gutenku/vue lint",
+    "test": "pnpm --filter @gutenku/api test && pnpm --filter @gutenku/vue test",
+    "pre-commit": "pnpm lint",
+    "start": "pnpm --filter @gutenku/api dev",
+    "next": "pnpm --filter @gutenku/vue dev",
     "dev": "npm-run-all --parallel start next",
-    "setup": "yarn workspace @gutenku/api setup",
-    "extract": "yarn workspace @gutenku/api extract",
-    "train": "yarn workspace @gutenku/api train",
-    "post": "yarn workspace @gutenku/api post",
-    "build": "yarn workspace @gutenku/vue build"
+    "setup": "pnpm --filter @gutenku/api setup",
+    "extract": "pnpm --filter @gutenku/api extract",
+    "train": "pnpm --filter @gutenku/api train",
+    "post": "pnpm --filter @gutenku/api post",
+    "build": "pnpm --filter @gutenku/vue build"
   },
-  "workspaces": [
-    "packages/*"
-  ],
   "dependencies": {
     "canvas": "^2.11.2"
   },

@@ -14,6 +14,6 @@ jobs:
       - name: api
         run: |
           cp packages/server/.env.dist packages/server/.env
-          yarn workspace @gutenku/api install
-          yarn workspace @gutenku/api lint
-          yarn workspace @gutenku/api test
+          pnpm --filter ./packages/server install
+          pnpm --filter ./packages/server lint
+          pnpm --filter ./packages/server test

@@ -1,31 +1,30 @@
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue';
-import { provideApolloClient, useSubscription } from "@vue/apollo-composable";
+import { provideApolloClient, useSubscription } from '@vue/apollo-composable';
 import { apolloClient } from '@/client';
 import gql from 'graphql-tag';
 
-const { result } = provideApolloClient(apolloClient)(() => useSubscription(gql`
+const { result } = provideApolloClient(apolloClient)(() =>
+  useSubscription(gql`
     subscription onQuoteGenerated {
-        quoteGenerated
+      quoteGenerated
     }
-`));
+  `),
+);
 
 const quotesReceived = ref<string[]>([]);
 
 const reversedQuotes = computed(() => [...quotesReceived.value].reverse());
 
-watch(
-    result,
-    async (data) => {
-        if (!quotesReceived.value.includes(data.quoteGenerated)) {
-            quotesReceived.value.push(data.quoteGenerated);
+watch(result, async (data) => {
+  if (!quotesReceived.value.includes(data.quoteGenerated)) {
+    quotesReceived.value.push(data.quoteGenerated);
 
-            while (quotesReceived.value.length > 100) {
-                quotesReceived.value.shift();
-            }
-        }
+    while (quotesReceived.value.length > 100) {
+      quotesReceived.value.shift();
     }
-);
+  }
+});
 </script>
 
 <template>

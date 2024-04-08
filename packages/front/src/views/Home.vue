@@ -10,20 +10,14 @@ import SocialNetwok from '@/components/SocialNetwork.vue';
 import AppLoading from '@/components/AppLoading.vue';
 
 const { fetchNewHaiku } = useHaikuStore();
-const {
-    error,
-    firstLoaded,
-    networkError,
-    notificationError,
-    optionUseCache
-} = storeToRefs(useHaikuStore());
+const { error, firstLoaded, networkError, notificationError, optionUseCache } = storeToRefs(useHaikuStore());
 
 const loadingLabel = computed(() => {
-    if (true === optionUseCache.value) {
-        return 'Extracting Haiku...';
-    }
+  if (true === optionUseCache.value) {
+    return 'Extracting Haiku...';
+  }
 
-    return 'Generating Haiku...';
+  return 'Generating Haiku...';
 });
 
 onMounted(fetchNewHaiku);
@@ -170,7 +164,10 @@ body {
   background: rgba(255, 255, 255, 1);
   padding: 0px;
   border-radius: 0px;
-  box-shadow: 0px 2px 1px -1px var(--v-shadow-key-umbra-opacity, rgba(0, 0, 0, 0.2)), 0px 1px 1px 0px var(--v-shadow-key-penumbra-opacity, rgba(0, 0, 0, 0.14)), 0px 1px 3px 0px var(--v-shadow-key-penumbra-opacity, rgba(0, 0, 0, 0.12));
+  box-shadow:
+    0px 2px 1px -1px var(--v-shadow-key-umbra-opacity, rgba(0, 0, 0, 0.2)),
+    0px 1px 1px 0px var(--v-shadow-key-penumbra-opacity, rgba(0, 0, 0, 0.14)),
+    0px 1px 3px 0px var(--v-shadow-key-penumbra-opacity, rgba(0, 0, 0, 0.12));
 
   h1,
   .author {
@@ -191,7 +188,7 @@ body {
 
       &.dark-theme {
         display: inline;
-        background: #2F5D62;
+        background: #2f5d62;
         padding: 0px;
         border-bottom: 1px solid #bbbbbb;
       }

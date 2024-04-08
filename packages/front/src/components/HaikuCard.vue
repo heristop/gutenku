@@ -8,23 +8,23 @@ const { fetchNewHaiku } = useHaikuStore();
 const { haiku, loading, error, networkError, notificationError, optionUseCache } = storeToRefs(useHaikuStore());
 
 const displayBtnLabel = computed(() => {
-    if (true === optionUseCache.value) {
-        return loading.value ? 'Extracting' : 'Extract';
-    }
+  if (true === optionUseCache.value) {
+    return loading.value ? 'Extracting' : 'Extract';
+  }
 
-    return loading.value ? 'Generating' : 'Generate';
+  return loading.value ? 'Generating' : 'Generate';
 });
 
 const copied = ref(false);
 
 async function copy() {
-    try {
-        await navigator.clipboard.writeText(haiku.value.verses.join("\n"));
+  try {
+    await navigator.clipboard.writeText(haiku.value.verses.join('\n'));
 
-        copied.value = true;
-    } catch (err) {
-        error.value = err as string;
-    }
+    copied.value = true;
+  } catch (err) {
+    error.value = err as string;
+  }
 }
 </script>
 
@@ -42,7 +42,7 @@ async function copy() {
     <v-card-text v-if="haiku">
       <p
         class="pt-6"
-        v-for="sentence in haiku.verses "
+        v-for="sentence in haiku.verses"
         :key="sentence"
       >
         <mark class="highlighted-quote">{{ sentence }}</mark>
@@ -134,10 +134,9 @@ async function copy() {
 }
 
 mark.highlighted-quote {
-  color: #fff; 
-  padding: 2px 6px; 
-  background-color: rgba(255,255,255,0.05);
+  color: #fff;
+  padding: 2px 6px;
+  background-color: rgba(255, 255, 255, 0.05);
   font-size: 1.1em;
 }
 </style>
-

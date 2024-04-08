@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import { load } from '@fingerprintjs/botd'
+import { load } from '@fingerprintjs/botd';
 import { storeToRefs } from 'pinia';
 import { useHaikuStore } from '@/store/haiku';
 import HighLightText from '@/components/HighLightText.vue';
@@ -10,18 +10,18 @@ const { haiku, loading } = storeToRefs(useHaikuStore());
 const blackMarker = ref(true);
 
 function toggle(): void {
-    blackMarker.value = !blackMarker.value;
+  blackMarker.value = !blackMarker.value;
 }
 
 onMounted(() => {
-    const botdPromise = load();
+  const botdPromise = load();
 
-    botdPromise.then((botd) => {
-        if (true === botd.detect().bot) {
-            blackMarker.value = false;
-        }
-    });
-})
+  botdPromise.then((botd) => {
+    if (true === botd.detect().bot) {
+      blackMarker.value = false;
+    }
+  });
+});
 </script>
 
 <template>
@@ -65,7 +65,7 @@ onMounted(() => {
         <h1
           :class="{
             'dark-theme': blackMarker,
-            'light-theme': !blackMarker
+            'light-theme': !blackMarker,
           }"
           class="ma-4 text-h5 text-center mb-4"
         >
@@ -75,7 +75,7 @@ onMounted(() => {
         <div
           :class="{
             'dark-theme': blackMarker,
-            'light-theme': !blackMarker
+            'light-theme': !blackMarker,
           }"
           class="text-center mb-6 author"
         >
@@ -95,7 +95,7 @@ onMounted(() => {
                   <p
                     :class="{
                       'dark-theme': blackMarker,
-                      'light-theme': !blackMarker
+                      'light-theme': !blackMarker,
                     }"
                   >
                     <high-light-text

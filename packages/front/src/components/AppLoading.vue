@@ -1,69 +1,63 @@
 <script lang="ts" setup>
-import { 
-    ref, 
-    computed, 
-    onBeforeMount, 
-    onMounted,
-    onUnmounted,
-} from 'vue';
+import { ref, computed, onBeforeMount, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps({
-    splash: {
-        type: Boolean,
-        required: false,
-        default: false
-    },
-    text: {
-        type: String,
-        required: false,
-        default: ''
-    },
-    color: {
-        type: String,
-        required: false,
-        default: 'primary'
-    },
-    error: {
-        type: Boolean,
-        required: false,
-        default: false
-    }
+  splash: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+  text: {
+    type: String,
+    required: false,
+    default: '',
+  },
+  color: {
+    type: String,
+    required: false,
+    default: 'primary',
+  },
+  error: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 });
 
 const icons = ref<string[]>([]);
 
 const flipIcons = computed(() => {
-    return false === props.error && icons.value.length > 0;
+  return false === props.error && icons.value.length > 0;
 });
 
 let iconInterval: NodeJS.Timeout | null = null;
 
 onBeforeMount(() => {
-    icons.value.push('mdi-robot-outline');
-    icons.value.push('mdi-robot-happy-outline');
-    icons.value.push('mdi-robot-excited-outline');
-    icons.value.push('mdi-robot-love-outline');
+  icons.value.push('mdi-robot-outline');
+  icons.value.push('mdi-robot-happy-outline');
+  icons.value.push('mdi-robot-excited-outline');
+  icons.value.push('mdi-robot-love-outline');
 });
 
 onMounted(() => {
-    const iconsElements = document.querySelectorAll('.loading i.flip');
-    let index = 0;
+  const iconsElements = document.querySelectorAll('.loading i.flip');
+  let index = 0;
 
-    if (iconsElements.length > 0) {
-        iconsElements[index].classList.add('active');
+  if (iconsElements.length > 0) {
+    iconsElements[index].classList.add('active');
 
-        iconInterval = setInterval(() => {
-            iconsElements[index].classList.remove('active');
-            index = (index + 1) % iconsElements.length;
-            iconsElements[index].classList.add('active');
-        }, 500);
-    }
+    iconInterval = setInterval(() => {
+      iconsElements[index].classList.remove('active');
+      index = (index + 1) % iconsElements.length;
+      iconsElements[index].classList.add('active');
+    }, 500);
+  }
 });
 
 onUnmounted(() => {
-    if (null !== iconInterval) {
-        clearInterval(iconInterval);
-    }
+  if (null !== iconInterval) {
+    clearInterval(iconInterval);
+  }
 });
 </script>
 
@@ -117,7 +111,6 @@ onUnmounted(() => {
     </div>
   </div>
 </template>
-
 
 <style lang="scss" scoped>
 .loading {
