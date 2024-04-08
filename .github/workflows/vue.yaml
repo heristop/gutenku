@@ -21,6 +21,5 @@ jobs:
           pnpm --filter ./packages/front lint
       - uses: cypress-io/github-action@v5
         with:
-          working-directory: packages/front
-          build: pnpm build
-          start: pnpm start
+          build: pnpm --filter ./packages/front build
+          start: pnpm --filter ./packages/front start
