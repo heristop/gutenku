@@ -9,7 +9,7 @@
     "start": "pnpm --filter @gutenku/api dev",
     "next": "pnpm --filter @gutenku/vue dev",
     "dev": "npm-run-all --parallel start next",
-    "setup": "pnpm --filter @gutenku/api setup",
+    "setup": "pnpm --filter @gutenku/api run setup",
     "extract": "pnpm --filter @gutenku/api extract",
     "train": "pnpm --filter @gutenku/api train",
     "post": "pnpm --filter @gutenku/api post",
