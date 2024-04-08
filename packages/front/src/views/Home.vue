@@ -10,7 +10,8 @@ import SocialNetwok from '@/components/SocialNetwork.vue';
 import AppLoading from '@/components/AppLoading.vue';
 
 const { fetchNewHaiku } = useHaikuStore();
-const { error, firstLoaded, networkError, notificationError, optionUseCache } = storeToRefs(useHaikuStore());
+const { error, firstLoaded, networkError, notificationError, optionUseCache } =
+  storeToRefs(useHaikuStore());
 
 const loadingLabel = computed(() => {
   if (true === optionUseCache.value) {
@@ -59,10 +60,7 @@ onMounted(fetchNewHaiku);
   <v-container class="fill-height">
     <div class="d-flex text-center fill-height">
       <v-sheet v-if="false === firstLoaded">
-        <app-loading
-          :text="loadingLabel"
-          :splash="true"
-        />
+        <app-loading :text="loadingLabel" :splash="true" />
       </v-sheet>
 
       <v-sheet v-show="networkError">
@@ -115,11 +113,7 @@ onMounted(fetchNewHaiku);
           </v-col>
         </v-row>
 
-        <v-snackbar
-          v-model="notificationError"
-          :timeout="4000"
-          color="primary"
-        >
+        <v-snackbar v-model="notificationError" :timeout="4000" color="primary">
           {{ error }}
 
           <template #actions>

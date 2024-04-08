@@ -15,16 +15,13 @@ const GUTENBERG_URL = 'https://gutenberg.org';
     </v-card-title>
 
     <p class="text-primary">
-      <strong>GutenKu</strong> is a Haiku generator based on a selection of books from Project Gutenberg, a vast online
-      library of free eBooks, and then process this data to extract quotes and generate unique haiku.
+      <strong>GutenKu</strong> is a Haiku generator based on a selection of
+      books from Project Gutenberg, a vast online library of free eBooks, and
+      then process this data to extract quotes and generate unique haiku.
     </p>
 
     <v-card-actions class="justify-center">
-      <v-tooltip
-        text="Instagram"
-        location="bottom"
-        aria-label="Instagram"
-      >
+      <v-tooltip text="Instagram" location="bottom" aria-label="Instagram">
         <template #activator="{ props }">
           <v-btn
             v-bind="props"
@@ -57,11 +54,7 @@ const GUTENBERG_URL = 'https://gutenberg.org';
         </template>
       </v-tooltip>
 
-      <v-tooltip
-        text="GitHub"
-        location="bottom"
-        aria-label="GitHub"
-      >
+      <v-tooltip text="GitHub" location="bottom" aria-label="GitHub">
         <template #activator="{ props }">
           <v-btn
             v-bind="props"

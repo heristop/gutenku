@@ -57,10 +57,7 @@ onMounted(() => {
       </v-col>
     </v-row>
 
-    <v-row
-      class="book"
-      @click="toggle()"
-    >
+    <v-row class="book" @click="toggle()">
       <v-col>
         <h1
           :class="{

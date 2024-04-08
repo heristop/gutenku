@@ -63,15 +63,8 @@ onUnmounted(() => {
 
 <template>
   <div class="loading">
-    <div
-      v-if="false === splash"
-      class="robot"
-    >
-      <v-icon
-        v-show="error"
-        :color="color"
-        :class="['icon', 'active']"
-      >
+    <div v-if="false === splash" class="robot">
+      <v-icon v-show="error" :color="color" :class="['icon', 'active']">
         mdi-robot-dead-outline
       </v-icon>
 
@@ -96,10 +89,7 @@ onUnmounted(() => {
 
       <v-spacer class="pa-10" />
 
-      <v-sheet
-        class="loading-text px-4 py-1"
-        color="primary"
-      >
+      <v-sheet class="loading-text px-4 py-1" color="primary">
         {{ text }}
       </v-sheet>
 

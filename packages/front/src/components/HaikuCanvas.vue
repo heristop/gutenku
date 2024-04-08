@@ -21,7 +21,9 @@ const downloadImage = () => {
   const chapterTitle = haiku.value.chapter.title;
 
   downloadLink.href = imageData;
-  downloadLink.download = `${bookTitle}_${chapterTitle}`.toLowerCase().replace(/[ ;.,]/g, '_');
+  downloadLink.download = `${bookTitle}_${chapterTitle}`
+    .toLowerCase()
+    .replace(/[ ;.,]/g, '_');
   downloadLink.target = '_blank';
   downloadLink.click();
 };
@@ -35,10 +37,7 @@ const downloadImage = () => {
     color="accent"
     variant="tonal"
   >
-    <v-sheet
-      class="canvas pa-2"
-      elevation="3"
-    >
+    <v-sheet class="canvas pa-2" elevation="3">
       <v-img
         :src="haikuImage"
         :lazy-src="haikuImage"

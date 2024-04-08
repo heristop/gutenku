@@ -102,8 +102,10 @@ export const useHaikuStore = defineStore({
         this.error = 'network-error';
 
         if ('max-attempts-error' === graphQLError.message) {
-          this.error = '🤖 I could not find a haiku that matches your filters after maximum attempts. ';
-          this.error += 'Please try again with a different filter or try several words.';
+          this.error =
+            '🤖 I could not find a haiku that matches your filters after maximum attempts. ';
+          this.error +=
+            'Please try again with a different filter or try several words.';
         }
       } finally {
         this.firstLoaded = true;

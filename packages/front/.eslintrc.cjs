@@ -9,10 +9,11 @@ module.exports = {
     'plugin:vue/vue3-strongly-recommended',
     'plugin:vuetify/base',
     '@vue/eslint-config-typescript',
+    'plugin:prettier/recommended',
   ],
   rules: {
     'vue/multi-word-component-names': 'off',
     'eol-last': 'error',
   },
-  ignorePatterns: ['cypress'],
+  ignorePatterns: ['cypress', 'dist'],
 };

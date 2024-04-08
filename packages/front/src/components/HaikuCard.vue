@@ -5,7 +5,14 @@ import { useHaikuStore } from '@/store/haiku';
 import AppLoading from '@/components/AppLoading.vue';
 
 const { fetchNewHaiku } = useHaikuStore();
-const { haiku, loading, error, networkError, notificationError, optionUseCache } = storeToRefs(useHaikuStore());
+const {
+  haiku,
+  loading,
+  error,
+  networkError,
+  notificationError,
+  optionUseCache,
+} = storeToRefs(useHaikuStore());
 
 const displayBtnLabel = computed(() => {
   if (true === optionUseCache.value) {
@@ -35,16 +42,10 @@ async function copy() {
     color="primary"
     image="@/assets/img/haiku_card.webp"
   >
-    <v-card-title class="text-third">
-      Haiku Card
-    </v-card-title>
+    <v-card-title class="text-third"> Haiku Card </v-card-title>
 
     <v-card-text v-if="haiku">
-      <p
-        class="pt-6"
-        v-for="sentence in haiku.verses"
-        :key="sentence"
-      >
+      <p class="pt-6" v-for="sentence in haiku.verses" :key="sentence">
         <mark class="highlighted-quote">{{ sentence }}</mark>
       </p>
     </v-card-text>
@@ -57,10 +58,7 @@ async function copy() {
       mdi-robot-dead-outline
     </v-icon>
 
-    <app-loading
-      v-if="loading"
-      color="accent"
-    />
+    <app-loading v-if="loading" color="accent" />
 
     <v-card-actions class="justify-end">
       <v-tooltip
@@ -108,14 +106,9 @@ async function copy() {
     </v-card-actions>
   </v-card>
 
-  <v-snackbar
-    v-model="copied"
-    :timeout="2000"
-    color="primary"
-  >
-    <v-icon data-cy="copy-success-icon">
-      mdi-check-circle
-    </v-icon> Haiku copied!
+  <v-snackbar v-model="copied" :timeout="2000" color="primary">
+    <v-icon data-cy="copy-success-icon"> mdi-check-circle </v-icon> Haiku
+    copied!
 
     <template #actions>
       <v-btn

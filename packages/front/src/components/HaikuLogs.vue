@@ -35,9 +35,7 @@ watch(result, async (data) => {
       color="black"
       class="terminal px-2 ma-4 align-left justify-center"
     >
-      <p class="mb-4">
-        Last Quotes found ✏️
-      </p>
+      <p class="mb-4">Last Quotes found ✏️</p>
 
       <p
         class="terminal-entry"

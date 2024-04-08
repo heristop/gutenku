@@ -56,14 +56,8 @@ const advancedMode = computed({
 </script>
 
 <template>
-  <v-sheet
-    color="secondary"
-    class="text-center"
-  >
-    <v-sheet
-      class="mt-6"
-      color="secondary"
-    >
+  <v-sheet color="secondary" class="text-center">
+    <v-sheet class="mt-6" color="secondary">
       <v-tooltip
         :disabled="loading"
         text="Display a new Haiku"
@@ -127,7 +121,10 @@ const advancedMode = computed({
             max-width="300"
           >
             <template #activator="{ props }">
-              <span v-bind="props">Sentiment Score <v-icon class="icon"> {{ sentimenticon }} </v-icon></span>
+              <span v-bind="props"
+                >Sentiment Score
+                <v-icon class="icon"> {{ sentimenticon }} </v-icon></span
+              >
             </template>
           </v-tooltip>
 
@@ -149,7 +146,10 @@ const advancedMode = computed({
             max-width="300"
           >
             <template #activator="{ props }">
-              <span v-bind="props">Markov Chain Score <v-icon class="icon"> mdi-link-variant </v-icon></span>
+              <span v-bind="props"
+                >Markov Chain Score
+                <v-icon class="icon"> mdi-link-variant </v-icon></span
+              >
             </template>
           </v-tooltip>
 
@@ -202,10 +202,12 @@ const advancedMode = computed({
             max-width="300"
           >
             <template #activator="{ props }">
-              <span v-bind="props">Description Temperature
+              <span v-bind="props"
+                >Description Temperature
                 <v-icon class="icon">
                   {{ getThermometer(optionDescriptionTemperature) }}
-                </v-icon></span>
+                </v-icon></span
+              >
             </template>
           </v-tooltip>
 
@@ -234,9 +236,7 @@ const advancedMode = computed({
       >
         <b> “{{ haiku.title }}” </b>
 
-        <p class="text-body-1">
-          ~~~
-        </p>
+        <p class="text-body-1">~~~</p>
 
         <p>
           {{ haiku.description }}

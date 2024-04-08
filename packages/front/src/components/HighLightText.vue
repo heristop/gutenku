@@ -26,9 +26,12 @@ export default defineComponent({
 
       try {
         props.lines.forEach((line) => {
-          rawText = rawText.replace(new RegExp(line.toString(), 'g'), (match) => {
-            return `<mark>${match}</mark>`;
-          });
+          rawText = rawText.replace(
+            new RegExp(line.toString(), 'g'),
+            (match) => {
+              return `<mark>${match}</mark>`;
+            },
+          );
         });
 
         // Update the formattedText without causing a side effect in a computed property
