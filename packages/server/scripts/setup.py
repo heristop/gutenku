@@ -42,7 +42,6 @@ ids = [
     84,     # Frankenstein
     105,    # Persuasion
     120,    # Treasure Island
-    135,    # Les Misérables
     145,    # Middlemarch
     158,    # Emma
     161,    # Sense and Sensibility
