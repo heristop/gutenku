@@ -9,8 +9,8 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-- Node.js (v14.0.0 or newer)
-- yarn
+- Node.js (v18)
+- pnpm
 
 ## Installation
 
@@ -23,7 +23,7 @@ git clone https://github.com/heristop/gutenku.git
 2. Install NPM dependencies:
 
 ```bash
-yarn install
+pnpm i
 ```
 
 3. Copy env variables (optional):
@@ -35,7 +35,7 @@ cp gutenku/packages/front/.env.dist gutenku/packages/front/.env
 4. Start server and front
 
 ```bash
-yarn dev
+pnpm run dev
 ```
 
 ## Tests
@@ -49,7 +49,7 @@ apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 lib
 Cypress:
 
 ```bash
-yarn add cypress --dev -g
+pnpm add cypress --dev -g
 ```
 
 ---

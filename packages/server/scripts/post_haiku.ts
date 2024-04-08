@@ -11,17 +11,13 @@ import InstagramService from '../src/application/services/InstagramService';
 
 dotenv.config();
 
-const DATA_DIRECTORY = "./data";
+const DATA_DIRECTORY = './data';
 
 program
-    .option(
-        "-c, --selection-count <type>",
-        "number of haiku selection",
-        process.env.OPENAI_SELECTION_COUNT
-    )
-    .option("--no-interaction")
-    .option("--no-openai")
-    .option("--no-post");
+  .option('-c, --selection-count <type>', 'number of haiku selection', process.env.OPENAI_SELECTION_COUNT)
+  .option('--no-interaction')
+  .option('--no-openai')
+  .option('--no-post');
 
 program.parse();
 
@@ -62,35 +58,35 @@ const query = `
 `;
 
 const variables = {
-    useAi: options.openai,
-    useCache: true,
-    appendImg: true,
-    selectionCount: parseInt(options.selectionCount),
-    theme: 'random',
+  useAi: options.openai,
+  useCache: true,
+  appendImg: true,
+  selectionCount: parseInt(options.selectionCount),
+  theme: 'random',
 };
 
 const body = {
-    query: query,
-    variables: variables,
-    timeout: 100,
+  query: query,
+  variables: variables,
+  timeout: 100,
 };
 
-fetch(process.env.SERVER_URI || "http://localhost:4000/graphql", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-}).then((response) => response.json()).then(async (response: {
-    data: HaikuResponseData
-}) => {
+fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(body),
+})
+  .then((response) => response.json())
+  .then(async (response: { data: HaikuResponseData }) => {
     const haiku = response.data?.haiku;
 
     if (null === haiku) {
-        console.error(response);
+      console.error(response);
 
-        throw new Error('Haiku fetch error');
+      throw new Error('Haiku fetch error');
     }
 
-    const imageData = Buffer.from(haiku.image, "base64");
+    const imageData = Buffer.from(haiku.image, 'base64');
 
     haiku.imagePath = `${DATA_DIRECTORY}/preview_haiku.jpg`;
 
@@ -98,45 +94,37 @@ fetch(process.env.SERVER_URI || "http://localhost:4000/graphql", {
 
     console.log(await terminalImage.file(haiku.imagePath, { width: 20 }));
     console.log({
-        book: haiku.book,
-        verses: haiku.verses,
-        title: haiku.title,
-        description: haiku.description,
-        hashtags: haiku.hashtags,
-        translations: haiku.translations,
+      book: haiku.book,
+      verses: haiku.verses,
+      title: haiku.title,
+      description: haiku.description,
+      hashtags: haiku.hashtags,
+      translations: haiku.translations,
     });
 
     const imageBuffer = await fs.readFile(haiku.imagePath);
 
     // Resize generated image for Readme Daily Haiku Card section
-    const resizedImageBuffer = await sharp(imageBuffer)
-        .resize(1000, 1000)
-        .toBuffer();
+    const resizedImageBuffer = await sharp(imageBuffer).resize(1000, 1000).toBuffer();
 
-    await fs.writeFile(
-        `${DATA_DIRECTORY}/daily_haiku_card.jpg`,
-        resizedImageBuffer
-    );
+    await fs.writeFile(`${DATA_DIRECTORY}/daily_haiku_card.jpg`, resizedImageBuffer);
 
     if (false === options.interaction) {
-        InstagramService.post(haiku);
+      InstagramService.post(haiku);
     }
 
     if (true === options.post) {
-        const rl = createInterface({
-            input: process.stdin,
-            output: process.stdout,
-        });
-    
-        rl.question(
-            "\nPost on Instagram? (y/n) \x1b[33m[n]\x1b[0m ",
-            async (answer: string) => {
-                if ("y" === answer || "yes" === answer) {
-                    await InstagramService.post(haiku);
-                }
-    
-                rl.close();
-            }
-        );
+      const rl = createInterface({
+        input: process.stdin,
+        output: process.stdout,
+      });
+
+      rl.question('\nPost on Instagram? (y/n) \x1b[33m[n]\x1b[0m ', async (answer: string) => {
+        if ('y' === answer || 'yes' === answer) {
+          await InstagramService.post(haiku);
+        }
+
+        rl.close();
+      });
     }
-});
+  });

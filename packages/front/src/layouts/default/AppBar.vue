@@ -35,12 +35,8 @@ const drawer = ref(false);
           data-cy="menu-btn"
           @click="drawer = !drawer"
         >
-          <v-icon v-if="!drawer">
-            mdi-menu-open
-          </v-icon>
-          <v-icon v-else>
-            mdi-menu-close
-          </v-icon>
+          <v-icon v-if="!drawer"> mdi-menu-open </v-icon>
+          <v-icon v-else> mdi-menu-close </v-icon>
         </v-btn>
       </template>
     </v-tooltip>

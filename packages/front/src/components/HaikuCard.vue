@@ -5,26 +5,33 @@ import { useHaikuStore } from '@/store/haiku';
 import AppLoading from '@/components/AppLoading.vue';
 
 const { fetchNewHaiku } = useHaikuStore();
-const { haiku, loading, error, networkError, notificationError, optionUseCache } = storeToRefs(useHaikuStore());
+const {
+  haiku,
+  loading,
+  error,
+  networkError,
+  notificationError,
+  optionUseCache,
+} = storeToRefs(useHaikuStore());
 
 const displayBtnLabel = computed(() => {
-    if (true === optionUseCache.value) {
-        return loading.value ? 'Extracting' : 'Extract';
-    }
+  if (true === optionUseCache.value) {
+    return loading.value ? 'Extracting' : 'Extract';
+  }
 
-    return loading.value ? 'Generating' : 'Generate';
+  return loading.value ? 'Generating' : 'Generate';
 });
 
 const copied = ref(false);
 
 async function copy() {
-    try {
-        await navigator.clipboard.writeText(haiku.value.verses.join("\n"));
+  try {
+    await navigator.clipboard.writeText(haiku.value.verses.join('\n'));
 
-        copied.value = true;
-    } catch (err) {
-        error.value = err as string;
-    }
+    copied.value = true;
+  } catch (err) {
+    error.value = err as string;
+  }
 }
 </script>
 
@@ -35,16 +42,10 @@ async function copy() {
     color="primary"
     image="@/assets/img/haiku_card.webp"
   >
-    <v-card-title class="text-third">
-      Haiku Card
-    </v-card-title>
+    <v-card-title class="text-third"> Haiku Card </v-card-title>
 
     <v-card-text v-if="haiku">
-      <p
-        class="pt-6"
-        v-for="sentence in haiku.verses "
-        :key="sentence"
-      >
+      <p class="pt-6" v-for="sentence in haiku.verses" :key="sentence">
         <mark class="highlighted-quote">{{ sentence }}</mark>
       </p>
     </v-card-text>
@@ -57,10 +58,7 @@ async function copy() {
       mdi-robot-dead-outline
     </v-icon>
 
-    <app-loading
-      v-if="loading"
-      color="accent"
-    />
+    <app-loading v-if="loading" color="accent" />
 
     <v-card-actions class="justify-end">
       <v-tooltip
@@ -108,14 +106,9 @@ async function copy() {
     </v-card-actions>
   </v-card>
 
-  <v-snackbar
-    v-model="copied"
-    :timeout="2000"
-    color="primary"
-  >
-    <v-icon data-cy="copy-success-icon">
-      mdi-check-circle
-    </v-icon> Haiku copied!
+  <v-snackbar v-model="copied" :timeout="2000" color="primary">
+    <v-icon data-cy="copy-success-icon"> mdi-check-circle </v-icon> Haiku
+    copied!
 
     <template #actions>
       <v-btn
@@ -134,10 +127,9 @@ async function copy() {
 }
 
 mark.highlighted-quote {
-  color: #fff; 
-  padding: 2px 6px; 
-  background-color: rgba(255,255,255,0.05);
+  color: #fff;
+  padding: 2px 6px;
+  background-color: rgba(255, 255, 255, 0.05);
   font-size: 1.1em;
 }
 </style>
-

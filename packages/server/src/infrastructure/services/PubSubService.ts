@@ -3,13 +3,13 @@ import { singleton } from 'tsyringe';
 
 @singleton()
 export class PubSubService {
-    private readonly pubSub: PubSub;
+  private readonly pubSub: PubSub;
 
-    constructor() {
-        this.pubSub = new PubSub();
-    }
+  constructor() {
+    this.pubSub = new PubSub();
+  }
 
-    public get instance(): PubSub {
-        return this.pubSub;
-    }
+  public get instance(): PubSub {
+    return this.pubSub;
+  }
 }

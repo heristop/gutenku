@@ -4,53 +4,55 @@ import Canvas from 'canvas';
 import { HaikuValue } from '../types';
 
 export default {
-    async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
-        const verses = haiku.verses;
-        Canvas.registerFont('./src/shared/assets/fonts/Yomogi-Regular.ttf', { family: 'Yomogi' });
-        
-        const canvas = Canvas.createCanvas(2400, 2400);
-        const ctx = canvas.getContext('2d');
+  async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
+    const verses = haiku.verses;
+    Canvas.registerFont('./src/shared/assets/fonts/Yomogi-Regular.ttf', {
+      family: 'Yomogi',
+    });
 
-        const folderPath = './src/shared/assets/themes/paper/backgrounds';
-        const files = await readdir(folderPath);
+    const canvas = Canvas.createCanvas(2400, 2400);
+    const ctx = canvas.getContext('2d');
 
-        const randomIndex = Math.floor(Math.random() * files.length);
-        const randomFile = files[randomIndex];
-        const imagePath = join(folderPath, randomFile);
+    const folderPath = './src/shared/assets/themes/paper/backgrounds';
+    const files = await readdir(folderPath);
 
-        const background = new Canvas.Image();
-        background.src = imagePath;
-        ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+    const randomIndex = Math.floor(Math.random() * files.length);
+    const randomFile = files[randomIndex];
+    const imagePath = join(folderPath, randomFile);
 
-        // Load the logo
-        const logo = new Canvas.Image();
-        logo.src = './src/shared/assets/themes/paper/logo/gutenku_white.png';
+    const background = new Canvas.Image();
+    background.src = imagePath;
+    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-        // Draw the logo
-        ctx.globalAlpha = 0.25;
-        ctx.drawImage(
-            logo,
-            canvas.width - logo.width + 20,
-            canvas.height - logo.height - 10,
-            logo.width * 0.85,
-            logo.height * 0.85
-        );
-        ctx.globalAlpha = 1;
+    // Load the logo
+    const logo = new Canvas.Image();
+    logo.src = './src/shared/assets/themes/paper/logo/gutenku_white.png';
 
-        // Set the font and background color
-        ctx.font = '130px Yomogi';
-        ctx.fillStyle = '#fff';
+    // Draw the logo
+    ctx.globalAlpha = 0.25;
+    ctx.drawImage(
+      logo,
+      canvas.width - logo.width + 20,
+      canvas.height - logo.height - 10,
+      logo.width * 0.85,
+      logo.height * 0.85,
+    );
+    ctx.globalAlpha = 1;
 
-        // Draw the text
-        ctx.globalAlpha = 0.8;
+    // Set the font and background color
+    ctx.font = '130px Yomogi';
+    ctx.fillStyle = '#fff';
 
-        const x = 244;
-        let y = canvas.height / 3.5;
-        verses.map(verse => {
-            ctx.fillText(verse, x, y);
-            y = y + 440;
-        });
+    // Draw the text
+    ctx.globalAlpha = 0.8;
 
-        return canvas;
-    }
-}
+    const x = 244;
+    let y = canvas.height / 3.5;
+    verses.map((verse) => {
+      ctx.fillText(verse, x, y);
+      y = y + 440;
+    });
+
+    return canvas;
+  },
+};

@@ -8,12 +8,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
       - uses: actions/setup-node@v3
         with:
           node-version: 18
       - name: api
         run: |
           cp packages/server/.env.dist packages/server/.env
-          yarn workspace @gutenku/api install
-          yarn workspace @gutenku/api lint
-          yarn workspace @gutenku/api test
+          pnpm --filter ./packages/server install
+          pnpm --filter ./packages/server lint
+          pnpm --filter ./packages/server test

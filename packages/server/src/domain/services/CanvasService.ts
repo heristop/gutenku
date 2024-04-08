@@ -10,79 +10,75 @@ import landscape from '../../shared/themes/landscape';
 
 @singleton()
 export default class CanvasService {
-    private readonly DATA_DIRECTORY = "./data";
-    private theme: string;
+  private readonly DATA_DIRECTORY = './data';
+  private theme: string;
 
-    useTheme(theme: string): void {
-        this.theme = theme;
+  useTheme(theme: string): void {
+    this.theme = theme;
+  }
+
+  async create(haiku: HaikuValue): Promise<string> {
+    let createCanvas = null;
+
+    if ('random' === this.theme) {
+      const themes = ['colored', 'greentea', 'watermark', 'landscape'];
+      const randomIndex = Math.floor(Math.random() * themes.length);
+      this.theme = themes[randomIndex];
     }
 
-    async create(haiku: HaikuValue): Promise<string> {
-        let createCanvas = null;
-
-        if ('random' === this.theme) {
-            const themes = ['colored', 'greentea', 'watermark', 'landscape'];
-            const randomIndex = Math.floor(Math.random() * themes.length);
-            this.theme = themes[randomIndex];
-        }
-
-        switch (this.theme) {
-        case 'colored':
-            createCanvas = colored.create;
-            break;
-        case 'greentea':
-            createCanvas = greentea.create;
-            break;
-        case 'watermark':
-            createCanvas = watermark.create;
-            break;
-        case 'landscape':
-            createCanvas = landscape.create;
-            break;
-        default:
-            throw new Error(`Unsupported theme: ${this.theme}`);
-        }
-
-        try {
-            const canvas = await createCanvas(haiku);
-
-            Canvas.deregisterAllFonts();
-
-            // Save the image
-            return this.save(canvas);
-        } catch (err) {
-            console.error(err);
-            throw err;
-        }
+    switch (this.theme) {
+      case 'colored':
+        createCanvas = colored.create;
+        break;
+      case 'greentea':
+        createCanvas = greentea.create;
+        break;
+      case 'watermark':
+        createCanvas = watermark.create;
+        break;
+      case 'landscape':
+        createCanvas = landscape.create;
+        break;
+      default:
+        throw new Error(`Unsupported theme: ${this.theme}`);
     }
 
-    async save(canvas: Canvas.Canvas): Promise<string> {
-        return new Promise<string>((resolve) => {
-            const imagePath = `${this.DATA_DIRECTORY}/haiku_${(Math.random() + 1)
-                .toString(36)
-                .substring(7)}.jpg`;
+    try {
+      const canvas = await createCanvas(haiku);
 
-            const stream = canvas.createJPEGStream();
-            const out = fs.createWriteStream(imagePath);
+      Canvas.deregisterAllFonts();
 
-            stream.pipe(out);
-            out.on("finish", () => {
-                console.log(`Image ${imagePath} created!`);
-
-                resolve(imagePath);
-            });
-        });
+      // Save the image
+      return this.save(canvas);
+    } catch (err) {
+      console.error(err);
+      throw err;
     }
+  }
 
-    async read(
-        imagePath: string
-    ): Promise<{ data: Buffer; contentType: string }> {
-        const readFile = promisify(fs.readFile);
-        const data = await readFile(imagePath);
+  async save(canvas: Canvas.Canvas): Promise<string> {
+    return new Promise<string>((resolve) => {
+      const imagePath = `${this.DATA_DIRECTORY}/haiku_${(Math.random() + 1).toString(36).substring(7)}.jpg`;
 
-        return {
-            data: data,
-            contentType: "image/jpeg",
-        };
-    }
+      const stream = canvas.createJPEGStream();
+      const out = fs.createWriteStream(imagePath);
+
+      stream.pipe(out);
+      out.on('finish', () => {
+        console.log(`Image ${imagePath} created!`);
+
+        resolve(imagePath);
+      });
+    });
+  }
+
+  async read(imagePath: string): Promise<{ data: Buffer; contentType: string }> {
+    const readFile = promisify(fs.readFile);
+    const data = await readFile(imagePath);
+
+    return {
+      data: data,
+      contentType: 'image/jpeg',
+    };
+  }
 }

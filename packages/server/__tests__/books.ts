@@ -4,25 +4,25 @@ import { Connection } from 'mongoose';
 import typeDefs from '../src/presentation/graphql/typeDefs';
 
 const resolvers = {
-    Query: {
-        books() {
-            return [];
-        },
+  Query: {
+    books() {
+      return [];
     },
+  },
 };
 
 interface MyContext {
-    db?: Connection;
+  db?: Connection;
 }
 
 const testServer = new ApolloServer<MyContext>({
-    typeDefs,
-    resolvers,
+  typeDefs,
+  resolvers,
 });
 
 it('returns books', async () => {
-    const response = await testServer.executeOperation({
-        query: `
+  const response = await testServer.executeOperation({
+    query: `
             query Query {
                 books {
                     id
@@ -32,14 +32,14 @@ it('returns books', async () => {
                 }
             }
         `,
-        variables: {},
-    });
+    variables: {},
+  });
 
-    expect(response).toBeTruthy();
-    expect(response).toHaveProperty('body');
-    expect(response.body).toHaveProperty('singleResult');
-    // eslint-disable-next-line
+  expect(response).toBeTruthy();
+  expect(response).toHaveProperty('body');
+  expect(response.body).toHaveProperty('singleResult');
+  // eslint-disable-next-line
     expect(response.body['singleResult']).toHaveProperty('data');
-    // eslint-disable-next-line
+  // eslint-disable-next-line
     expect(response.body['singleResult'].data).toHaveProperty('books');
 });

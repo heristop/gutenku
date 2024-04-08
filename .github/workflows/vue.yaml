@@ -8,16 +8,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
       - uses: actions/setup-node@v3
         with:
           node-version: 18
       - name: vue
         run: |
           cp packages/front/.env.dist packages/front/.env
-          yarn workspace @gutenku/vue install
-          yarn workspace @gutenku/vue lint
+          pnpm --filter ./packages/front install
+          pnpm --filter ./packages/front lint
       - uses: cypress-io/github-action@v5
         with:
           working-directory: packages/front
-          build: yarn build
-          start: yarn start
+          build: pnpm build
+          start: pnpm start
