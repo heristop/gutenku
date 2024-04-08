@@ -22,5 +22,6 @@ jobs:
           pnpm --filter ./packages/front build
       - uses: cypress-io/github-action@v6
         with:
+          working-directory: packages/front
           install: false
           start: pnpm --filter ./packages/front start
