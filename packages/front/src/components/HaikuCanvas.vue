@@ -7,26 +7,26 @@ const { fetchNewHaiku } = useHaikuStore();
 const { haiku, loading, optionTheme } = storeToRefs(useHaikuStore());
 
 const haikuImage = computed(() => {
-    if (!haiku.value) {
-        return;
-    }
+  if (!haiku.value) {
+    return;
+  }
 
-    return `data:image/png;base64,${haiku.value.image}`;
+  return `data:image/png;base64,${haiku.value.image}`;
 });
 
 const downloadImage = () => {
-    const imageData = haikuImage.value as string;
-    const downloadLink = document.createElement('a');
-    const bookTitle = haiku.value.book.title;
-    const chapterTitle = haiku.value.chapter.title;
+  const imageData = haikuImage.value as string;
+  const downloadLink = document.createElement('a');
+  const bookTitle = haiku.value.book.title;
+  const chapterTitle = haiku.value.chapter.title;
 
-    downloadLink.href = imageData;
-    downloadLink.download = `${bookTitle}_${chapterTitle}`
-        .toLowerCase()
-        .replace(/[ ;.,]/g, '_');
-    downloadLink.target = '_blank';
-    downloadLink.click();
-}
+  downloadLink.href = imageData;
+  downloadLink.download = `${bookTitle}_${chapterTitle}`
+    .toLowerCase()
+    .replace(/[ ;.,]/g, '_');
+  downloadLink.target = '_blank';
+  downloadLink.click();
+};
 </script>
 
 <template>
@@ -37,10 +37,7 @@ const downloadImage = () => {
     color="accent"
     variant="tonal"
   >
-    <v-sheet
-      class="canvas pa-2"
-      elevation="3"
-    >
+    <v-sheet class="canvas pa-2" elevation="3">
       <v-img
         :src="haikuImage"
         :lazy-src="haikuImage"

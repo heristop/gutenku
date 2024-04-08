@@ -34,36 +34,33 @@ const query = `
 `;
 
 const variables = {
-    useAi: false,
-    useCache: false,
-    appendImg: false,
-    theme: 'random',
+  useAi: false,
+  useCache: false,
+  appendImg: false,
+  theme: 'random',
 };
 
 const body = {
-    query: query,
-    variables: variables,
+  query: query,
+  variables: variables,
 };
 
 fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-}).then(response => response.json()).then(async (response: {
-    data: HaikuResponseData
-}) => {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(body),
+})
+  .then((response) => response.json())
+  .then(async (response: { data: HaikuResponseData }) => {
     const haiku = response.data?.haiku;
 
     if (null === haiku) {
-        console.error(response);
+      console.error(response);
 
-        throw new Error('Haiku fetch error');
+      throw new Error('Haiku fetch error');
     }
 
-    console.info(
-        haiku.verses,
-        haiku.book.title
-    );
+    console.info(haiku.verses, haiku.book.title);
 
     console.info('Time:', haiku.executionTime, 's');
-});
+  });

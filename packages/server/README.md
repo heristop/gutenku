@@ -9,8 +9,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-- Node.js (v14.0.0 or newer)
-- Yarn
+- Node.js (v18)
 - Python (for scraping eBooks)
 
 ### Installation
@@ -30,7 +29,7 @@ cp gutenku/packages/server/.env.dist gutenku/packages/server/.env
 4. Install NPM dependencies:
 
 ```bash
-yarn install
+pnpm i
 ```
 
 5. Install Python dependencies:
@@ -59,7 +58,7 @@ docker-compose up -d
 4. Start server and front
 
 ```bash
-yarn dev
+pnpm dev
 ```
 
 ## Usage
@@ -69,13 +68,13 @@ yarn dev
 Fetch and store books:
 
 ```bash
-yarn setup [--delete]
+pnpm run setup [--delete]
 ```
 
 ### Run
 
 ```bash
-yarn dev
+pnpm run dev
 ```
 
 ### Train
@@ -83,7 +82,7 @@ yarn dev
 Uses Markov Chain to evaluate transitions:
 
 ```bash
-yarn train
+pnpm train
 ```
 
 ### Generate
@@ -91,7 +90,7 @@ yarn train
 Generate Haiku:
 
 ```bash
-yarn extract
+pnpm extract
 ```
 
 ### Post
@@ -99,7 +98,7 @@ yarn extract
 Send Instagram Post:
 
 ```bash
-yarn post [--selection-count=50] [--no-interaction] [--no-openai]
+pnpm post [--selection-count=50] [--no-interaction] [--no-openai]
 ```
 
 ## Test
@@ -107,7 +106,7 @@ yarn post [--selection-count=50] [--no-interaction] [--no-openai]
 To run the test suite, execute the following command:
 
 ```bash
-yarn test
+pnpm test
 ```
 
 ## Built With
@@ -116,7 +115,6 @@ yarn test
 - Apollo Server
 - GraphQL
 - Tsyringe (DI)
-- Yarn 1
 - Python (for eBook scraping)
 - Natural Language Processing (NLP)
 
