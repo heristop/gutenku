@@ -19,7 +19,12 @@ jobs:
           cp packages/front/.env.dist packages/front/.env
           pnpm --filter ./packages/front install
           pnpm --filter ./packages/front lint
-      - uses: cypress-io/github-action@v5
+      - uses: cypress-io/github-action@v6
         with:
-          build: pnpm --filter ./packages/front build
-          start: pnpm --filter ./packages/front start
+          working-directory: packages/front
+          runTests: false
+      - name: Cypress test
+        uses: cypress-io/github-action@v6
+        with:
+          install: false
+          working-directory: packages/front
