@@ -19,89 +19,89 @@ import MongoConnection from './infrastructure/services/MongoConnection';
 dotenv.config();
 
 interface MyContext {
-    db?: Connection;
+  db?: Connection;
 }
 
 async function listen(port: number) {
-    const app = express();
-    const httpServer = createServer(app);
+  const app = express();
+  const httpServer = createServer(app);
 
-    // Create the schema, which will be used separately by ApolloServer and
-    // the WebSocket server.
-    const schema = makeExecutableSchema({ typeDefs, resolvers });
+  // Create the schema, which will be used separately by ApolloServer and
+  // the WebSocket server.
+  const schema = makeExecutableSchema({ typeDefs, resolvers });
 
-    // Creating the WebSocket server
-    const wsServer = new WebSocketServer({
-        // This is the `httpServer` we created in a previous step.
-        server: httpServer,
-        // Pass a different path here if app.use
-        // serves expressMiddleware at a different path
-        path: '/graphql-ws',
-    });
+  // Creating the WebSocket server
+  const wsServer = new WebSocketServer({
+    // This is the `httpServer` we created in a previous step.
+    server: httpServer,
+    // Pass a different path here if app.use
+    // serves expressMiddleware at a different path
+    path: '/graphql-ws',
+  });
 
-    // Hand in the schema we just created and have the
-    // WebSocketServer start listening.
-    const serverCleanup = useServer({ schema }, wsServer);
+  // Hand in the schema we just created and have the
+  // WebSocketServer start listening.
+  const serverCleanup = useServer({ schema }, wsServer);
 
-    // Set up ApolloServer.
-    const server = new ApolloServer<MyContext>({
-        schema,
-        introspection: true,
-        persistedQueries: false,
-        plugins: [
-            // Proper shutdown for the HTTP server.
-            ApolloServerPluginDrainHttpServer({ httpServer }),
+  // Set up ApolloServer.
+  const server = new ApolloServer<MyContext>({
+    schema,
+    introspection: true,
+    persistedQueries: false,
+    plugins: [
+      // Proper shutdown for the HTTP server.
+      ApolloServerPluginDrainHttpServer({ httpServer }),
 
-            // Proper shutdown for the WebSocket server.
-            {
-                async serverWillStart() {
-                    return {
-                        async drainServer() {
-                            await serverCleanup.dispose();
-                        },
-                    };
-                },
+      // Proper shutdown for the WebSocket server.
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              await serverCleanup.dispose();
             },
-        ]
-    });
+          };
+        },
+      },
+    ],
+  });
 
-    await server.start();
+  await server.start();
 
-    // Instantiate MongoConnection singleton
-    const mongoConnection = container.resolve(MongoConnection);
+  // Instantiate MongoConnection singleton
+  const mongoConnection = container.resolve(MongoConnection);
 
-    const db = await mongoConnection.connect();
+  const db = await mongoConnection.connect();
 
-    db.on('error', console.error.bind(console, 'connection error:'));
-    db.once('open', function () {
-        console.log('Connected to MongoDB!');
-    });
+  db.on('error', console.error.bind(console, 'connection error:'));
+  db.once('open', function () {
+    console.log('Connected to MongoDB!');
+  });
 
-    app.use(
-        '/graphql',
-        cors<cors.CorsRequest>({ origin: process.env.CORS_WHITELIST.split(',') }),
-        bodyParser.json(),
-        expressMiddleware(server, {
-            context: async () => ({ db: db }),
-        }),
-    );
+  app.use(
+    '/graphql',
+    cors<cors.CorsRequest>({ origin: process.env.CORS_WHITELIST.split(',') }),
+    bodyParser.json(),
+    expressMiddleware(server, {
+      context: async () => ({ db: db }),
+    }),
+  );
 
-    return new Promise<void>((resolve, reject) => {
-        httpServer.listen(port).once('listening', resolve).once('error', reject);
-    });
+  return new Promise<void>((resolve, reject) => {
+    httpServer.listen(port).once('listening', resolve).once('error', reject);
+  });
 }
 
 async function main() {
-    try {
-        const port = parseInt(process.env.SERVER_PORT) || 4000;
+  try {
+    const port = parseInt(process.env.SERVER_PORT) || 4000;
 
-        await listen(port);
+    await listen(port);
 
-        console.log(`🚀 Query endpoint ready at http://localhost:${port}/graphql`);
-        console.log(`🚀 Subscription endpoint ready at ws://localhost:${port}/graphql`);
-    } catch (err) {
-        console.error('🤖 Error starting the node server', err);
-    }
+    console.log(`🚀 Query endpoint ready at http://localhost:${port}/graphql`);
+    console.log(`🚀 Subscription endpoint ready at ws://localhost:${port}/graphql`);
+  } catch (err) {
+    console.error('🤖 Error starting the node server', err);
+  }
 }
 
 void main();

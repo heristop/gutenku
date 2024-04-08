@@ -13,15 +13,8 @@ const legalNoticeDialog = ref(false);
       cover
     />
 
-    <v-footer
-      class="justify-right"
-      color="accent"
-    >
-      <v-dialog
-        v-model="legalNoticeDialog"
-        activator="parent"
-        width="auto"
-      >
+    <v-footer class="justify-right" color="accent">
+      <v-dialog v-model="legalNoticeDialog" activator="parent" width="auto">
         <v-sheet
           border="md"
           class="pa-6 text-white mx-auto"
@@ -35,25 +28,22 @@ const legalNoticeDialog = ref(false);
             height="42"
           />
 
-          <v-divider
-            thickness="3"
-            color="primary"
-          />
+          <v-divider thickness="3" color="primary" />
 
-          <h5 class="text-h5 font-weight-bold my-4">
-            Legal Notice
-          </h5>
+          <h5 class="text-h5 font-weight-bold my-4">Legal Notice</h5>
 
           <p class="mb-8">
             <b>GutenKu</b> is owned and operated by Alexandre Mederic Mogère (<a
               class="text-primary"
               href="https://heristop.vercel.app"
               target="_blank"
-            >heristop</a>).<br>
-            <br>
-            Some of the content on this website is used under license from third-party sources. All such content is used
-            in accordance with the terms of the applicable license agreements.<br>
-            <br>
+              >heristop</a
+            >).<br />
+            <br />
+            Some of the content on this website is used under license from
+            third-party sources. All such content is used in accordance with the
+            terms of the applicable license agreements.<br />
+            <br />
             🌸 Thank you for visiting! 🗻
           </p>
 
