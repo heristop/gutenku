@@ -1,10 +1,9 @@
 {
   "name": "gutenku",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "private": true,
   "licence": "UNLICENSED",
   "scripts": {
-    "prepare": "husky install",
     "lint": "pnpm --filter @gutenku/api lint && pnpm --filter @gutenku/vue lint",
     "test": "pnpm --filter @gutenku/api test && pnpm --filter @gutenku/vue test",
     "start": "pnpm --filter @gutenku/api dev",
