@@ -6,7 +6,13 @@
 
 Last Snapshot: `Sat, 06 Apr 2024 00:00:02 +0000`
 
+> 👩‍🏫 “{HAIKU_DESCRIPTION}”
+>
+> _Analysis Written by BotenKu, your devoted Literature Teacher_
+
 Want more? Visit 🔗[gutenku.xyz](https://gutenku.xyz) or come back tomorrow 😉
+
+---
 
 ## Description
 

@@ -33,8 +33,7 @@
     "vue-apollo": "^3.1.2",
     "vue-router": "^4.3.0",
     "vuetify": "^3.5.14",
-    "webfontloader": "^1.6.28",
-    "yarn": "^1.22.22"
+    "webfontloader": "^1.6.28"
   },
   "devDependencies": {
     "@babel/types": "^7.24.0",
