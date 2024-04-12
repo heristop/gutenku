@@ -8,14 +8,12 @@ const query = `
     query Query(
         $useAi: Boolean,
         $useCache: Boolean,
-        $appendImg: Boolean,
-        $theme: String
+        $appendImg: Boolean
     ) {
         haiku(
             useAI: $useAi,
             useCache: $useCache,
-            appendImg: $appendImg,
-            theme: $theme
+            appendImg: $appendImg
         ) {
             book {
                 title
@@ -37,7 +35,6 @@ const variables = {
   useAi: false,
   useCache: false,
   appendImg: false,
-  theme: 'random',
 };
 
 const body = {
