@@ -7,6 +7,7 @@ import colored from '../../shared/themes/colored';
 import greentea from '../../shared/themes/greentea';
 import watermark from '../../shared/themes/watermark';
 import landscape from '../../shared/themes/landscape';
+import dallE from '../../shared/themes/dallE';
 
 @singleton()
 export default class CanvasService {
@@ -19,6 +20,8 @@ export default class CanvasService {
 
   async create(haiku: HaikuValue): Promise<string> {
     let createCanvas = null;
+
+    console.log(`Creating image with theme: ${this.theme}`);
 
     if ('random' === this.theme) {
       const themes = ['colored', 'greentea', 'watermark', 'landscape'];
@@ -38,6 +41,9 @@ export default class CanvasService {
         break;
       case 'landscape':
         createCanvas = landscape.create;
+        break;
+      case 'dallE':
+        createCanvas = dallE.create;
         break;
       default:
         throw new Error(`Unsupported theme: ${this.theme}`);
@@ -72,7 +78,9 @@ export default class CanvasService {
     });
   }
 
-  async read(imagePath: string): Promise<{ data: Buffer; contentType: string }> {
+  async read(
+    imagePath: string,
+  ): Promise<{ data: Buffer; contentType: string }> {
     const readFile = promisify(fs.readFile);
     const data = await readFile(imagePath);
 

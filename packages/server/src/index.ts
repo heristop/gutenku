@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import 'module-alias/register';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -98,7 +99,9 @@ async function main() {
     await listen(port);
 
     console.log(`🚀 Query endpoint ready at http://localhost:${port}/graphql`);
-    console.log(`🚀 Subscription endpoint ready at ws://localhost:${port}/graphql`);
+    console.log(
+      `🚀 Subscription endpoint ready at ws://localhost:${port}/graphql`,
+    );
   } catch (err) {
     console.error('🤖 Error starting the node server', err);
   }
