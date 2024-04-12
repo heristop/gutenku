@@ -1,0 +1,4 @@
+{
+  "*.{cjs,js,ts,tsx,vue,json,css,scss,md}": ["prettier --write"],
+  "*.{cjs,js,ts}": ["pnpm lint"]
+}

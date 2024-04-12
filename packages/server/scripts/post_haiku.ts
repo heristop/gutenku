@@ -14,7 +14,12 @@ dotenv.config();
 const DATA_DIRECTORY = './data';
 
 program
-  .option('-c, --selection-count <type>', 'number of haiku selection', process.env.OPENAI_SELECTION_COUNT)
+  .option(
+    '-c, --selection-count <type>',
+    'number of haiku selection',
+    process.env.OPENAI_SELECTION_COUNT,
+  )
+  .option('-t, --theme <type>', 'theme', 'random')
   .option('--no-interaction')
   .option('--no-openai')
   .option('--no-post');
@@ -28,13 +33,15 @@ const query = `
         $useAi: Boolean,
         $useCache: Boolean,
         $appendImg: Boolean,
-        $selectionCount: Int
+        $selectionCount: Int,
+        $theme: String
     ) {
         haiku(
             useAI: $useAi,
             useCache: $useCache,
             appendImg: $appendImg,
-            selectionCount: $selectionCount
+            selectionCount: $selectionCount,
+            theme: $theme
         ) {
             book {
                 title
@@ -62,7 +69,7 @@ const variables = {
   useCache: true,
   appendImg: true,
   selectionCount: parseInt(options.selectionCount),
-  theme: 'random',
+  theme: options.theme,
 };
 
 const body = {
@@ -105,9 +112,14 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
     const imageBuffer = await fs.readFile(haiku.imagePath);
 
     // Resize generated image for Readme Daily Haiku Card section
-    const resizedImageBuffer = await sharp(imageBuffer).resize(1000, 1000).toBuffer();
+    const resizedImageBuffer = await sharp(imageBuffer)
+      .resize(1000, 1000)
+      .toBuffer();
 
-    await fs.writeFile(`${DATA_DIRECTORY}/daily_haiku_card.jpg`, resizedImageBuffer);
+    await fs.writeFile(
+      `${DATA_DIRECTORY}/daily_haiku_card.jpg`,
+      resizedImageBuffer,
+    );
 
     if (false === options.interaction) {
       InstagramService.post(haiku);
@@ -119,12 +131,15 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
         output: process.stdout,
       });
 
-      rl.question('\nPost on Instagram? (y/n) \x1b[33m[n]\x1b[0m ', async (answer: string) => {
-        if ('y' === answer || 'yes' === answer) {
-          await InstagramService.post(haiku);
-        }
+      rl.question(
+        '\nPost on Instagram? (y/n) \x1b[33m[n]\x1b[0m ',
+        async (answer: string) => {
+          if ('y' === answer || 'yes' === answer) {
+            await InstagramService.post(haiku);
+          }
 
-        rl.close();
-      });
+          rl.close();
+        },
+      );
     }
   });
