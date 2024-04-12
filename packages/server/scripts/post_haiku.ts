@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
 import fs from 'fs/promises';
+import path from 'path';
 import sharp from 'sharp';
 import { program } from 'commander';
 import { createInterface } from 'readline';
@@ -95,7 +96,7 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
 
     const imageData = Buffer.from(haiku.image, 'base64');
 
-    haiku.imagePath = `${DATA_DIRECTORY}/preview_haiku.jpg`;
+    haiku.imagePath = path.join(DATA_DIRECTORY, 'preview_haiku.jpg');
 
     await fs.writeFile(haiku.imagePath, imageData);
 
@@ -117,9 +118,16 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
       .toBuffer();
 
     await fs.writeFile(
-      `${DATA_DIRECTORY}/daily_haiku_card.jpg`,
+      path.join(DATA_DIRECTORY, 'daily_haiku_card.jpg'),
       resizedImageBuffer,
     );
+
+    if (haiku.description) {
+      await fs.writeFile(
+        path.join(DATA_DIRECTORY, 'description.txt'),
+        haiku.description,
+      );
+    }
 
     if (false === options.interaction) {
       InstagramService.post(haiku);
