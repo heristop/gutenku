@@ -46,7 +46,7 @@
     "cypress": "^13.7.2",
     "eslint-plugin-vue": "^9.24.1",
     "eslint-plugin-vuetify": "^2.2.0",
-    "sass": "^1.74.1",
+    "sass": "^1.75.0",
     "sass-loader": "^14.2.0",
     "typescript": "^5.3.3",
     "vite": "^5.2.8",
