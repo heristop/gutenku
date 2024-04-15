@@ -32,7 +32,7 @@
     "graphql-ws": "^5.16.0",
     "instagram-private-api": "^1.46.1",
     "mongoose": "^8.3.1",
-    "natural": "^7.0.0",
+    "natural": "^7.0.1",
     "node-fetch": "^3.3.2",
     "openai": "^4.33.0",
     "reflect-metadata": "^0.2.2",
