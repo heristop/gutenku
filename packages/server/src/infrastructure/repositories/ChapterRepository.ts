@@ -7,7 +7,7 @@ export default class ChapterRepository {
 
     if (filter) {
       // eslint-disable-next-line
-            query['content'] = { $regex: filter, $options: 'i' };
+      query['content'] = { $regex: filter, $options: 'i' };
     }
 
     return await ChapterModel.find(query).populate('book').exec();
