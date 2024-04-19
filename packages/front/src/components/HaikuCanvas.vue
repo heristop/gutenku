@@ -4,7 +4,8 @@ import { storeToRefs } from 'pinia';
 import { useHaikuStore } from '@/store/haiku';
 
 const { fetchNewHaiku } = useHaikuStore();
-const { haiku, loading, optionTheme } = storeToRefs(useHaikuStore());
+const { haiku, loading, optionTheme, themeOptions } =
+  storeToRefs(useHaikuStore());
 
 const haikuImage = computed(() => {
   if (!haiku.value) {
@@ -53,7 +54,7 @@ const downloadImage = () => {
         v-model="optionTheme"
         @update:model-value="fetchNewHaiku()"
         label="Theme"
-        :items="['random', 'colored', 'greentea', 'watermark', 'landscape']"
+        :items="themeOptions"
         variant="underlined"
         class="text-primary"
       />
