@@ -4,6 +4,8 @@ set -e
 
 cp packages/server/data/daily_haiku_card.jpg ./assets/img/daily_haiku_card.jpg
 
+git pull
+
 if git status | grep -qF daily_haiku_card.jpg; then
     echo '\033[1;32mNew image found\033[0m'
     sed -i "s/t=[0-9]\+/t=$(date +%s)/" README.md
@@ -14,6 +16,5 @@ if git status | grep -qF daily_haiku_card.jpg; then
 
     git add assets README.md
     git commit -m "[Readme] Updated Daily Haiku Card"
-    git pull
     git push https://$TOKEN@github.com/heristop/gutenku.git
 fi

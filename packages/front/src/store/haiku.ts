@@ -4,6 +4,14 @@ import { gql } from '@apollo/client/core';
 import { apolloClient } from '@/client';
 import { GraphQLError } from 'graphql';
 
+const THEME_OPTIONS = [
+  'random',
+  'colored',
+  'greentea',
+  'watermark',
+  'landscape',
+];
+
 export const useHaikuStore = defineStore({
   id: 'haiku',
   state: () => ({
@@ -13,6 +21,7 @@ export const useHaikuStore = defineStore({
     error: '' as string,
     optionUseCache: true as boolean,
     optionUseAI: false as boolean,
+    optionImageAI: false as boolean,
     optionTheme: 'random' as string,
     optionFilter: '' as string,
     optionMinSentimentScore: 0.1 as number,
@@ -33,6 +42,8 @@ export const useHaikuStore = defineStore({
   getters: {
     networkError: (state) => 'network-error' === state.error,
     notificationError: (state) => '' !== state.error,
+    themeOptions: (state) =>
+      state.optionImageAI ? THEME_OPTIONS.concat(['dallE']) : THEME_OPTIONS,
   },
   actions: {
     async fetchNewHaiku(): Promise<void> {

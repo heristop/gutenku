@@ -14,6 +14,7 @@ const {
   optionDescriptionTemperature,
   optionUseAI,
   optionUseCache,
+  optionImageAI,
 } = storeToRefs(useHaikuStore());
 
 const hasDescription = computed(() => {
@@ -183,7 +184,7 @@ const advancedMode = computed({
             data-cy="switch-api-btn"
             color="white"
             hide-details
-            label="IA Boost Selection"
+            label="AI Boost Selection"
           />
         </template>
       </v-tooltip>
@@ -224,6 +225,24 @@ const advancedMode = computed({
           />
         </v-sheet>
       </v-expand-transition>
+
+      <v-tooltip
+        text="Add DALL-E to the mix to generate a unique image for each haiku."
+        location="bottom"
+        max-width="300"
+      >
+        <template #activator="{ props }">
+          <v-switch
+            v-bind="props"
+            :disabled="advancedMode"
+            v-model="optionImageAI"
+            data-cy="switch-image-ai-btn"
+            color="white"
+            hide-details
+            label="AI Image Generation"
+          />
+        </template>
+      </v-tooltip>
     </v-card-text>
 
     <v-expand-transition>
