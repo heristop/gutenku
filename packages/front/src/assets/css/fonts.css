@@ -1,15 +1,15 @@
 @font-face {
-    font-family: 'ComicNeue';
-    src: url('@/assets/fonts/ComicNeue-Regular.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
+  font-family: 'ComicNeue';
+  src: url('@/assets/fonts/ComicNeue-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-    font-family: 'Material Icons';
-    font-style: normal;
-    font-weight: 400;
-    src: url('@/assets/fonts/MaterialIcons-Regular.woff2') format('woff2');
-    font-display: swap;
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: url('@/assets/fonts/MaterialIcons-Regular.woff2') format('woff2');
+  font-display: swap;
 }
