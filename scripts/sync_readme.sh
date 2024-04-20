@@ -10,7 +10,7 @@ if git status | grep -qF daily_haiku_card.jpg; then
     sed -i "s/Last Snapshot:.*/Last Snapshot: \`$(date +'%a, %d %b %Y %H:%M:%S %z')\`/" README.md
 
     description=$(cat packages/server/data/description.txt)
-    sed -i "s/{HAIKU_DESCRIPTION}/$description/" README.md
+    sed -i "s/“[^”]*”/“$description”/" README.md
 
     git add assets README.md
     git commit -m "[Readme] Updated Daily Haiku Card"
