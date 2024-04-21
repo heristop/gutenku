@@ -102,8 +102,8 @@ importers:
         specifier: ^4.3.0
         version: 4.3.0(vue@3.4.21)
       vuetify:
-        specifier: ^3.5.14
-        version: 3.5.14(typescript@5.4.4)(vite-plugin-vuetify@2.0.3)(vue@3.4.21)
+        specifier: ^3.5.16
+        version: 3.5.16(typescript@5.4.4)(vite-plugin-vuetify@2.0.3)(vue@3.4.21)
       webfontloader:
         specifier: ^1.6.28
         version: 1.6.28
@@ -137,7 +137,7 @@ importers:
         version: 9.24.1(eslint@8.57.0)
       eslint-plugin-vuetify:
         specifier: ^2.2.0
-        version: 2.2.0(eslint@8.57.0)(vuetify@3.5.14)
+        version: 2.2.0(eslint@8.57.0)(vuetify@3.5.16)
       sass:
         specifier: ^1.75.0
         version: 1.75.0
@@ -155,7 +155,7 @@ importers:
         version: 0.6.1(vite@5.2.8)
       vite-plugin-vuetify:
         specifier: ^2.0.3
-        version: 2.0.3(vite@5.2.8)(vue@3.4.21)(vuetify@3.5.14)
+        version: 2.0.3(vite@5.2.8)(vue@3.4.21)(vuetify@3.5.16)
       vite-plugin-webfont-dl:
         specifier: ^3.9.3
         version: 3.9.3(vite@5.2.8)
@@ -3579,7 +3579,7 @@ packages:
   /@vue/shared@3.4.21:
     resolution: {integrity: sha512-PuJe7vDIi6VYSinuEbUIQgMIRZGgM8e4R+G+/dQTk0X1NEdvgvvgv7m+rfmDH1gZzyA1OjjoWskvHlfRNfQf3g==}
 
-  /@vuetify/loader-shared@2.0.3(vue@3.4.21)(vuetify@3.5.14):
+  /@vuetify/loader-shared@2.0.3(vue@3.4.21)(vuetify@3.5.16):
     resolution: {integrity: sha512-Ss3GC7eJYkp2SF6xVzsT7FAruEmdihmn4OCk2+UocREerlXKWgOKKzTN5PN3ZVN5q05jHHrsNhTuWbhN61Bpdg==}
     peerDependencies:
       vue: ^3.0.0
@@ -3587,7 +3587,7 @@ packages:
     dependencies:
       upath: 2.0.1
       vue: 3.4.21(typescript@5.4.4)
-      vuetify: 3.5.14(typescript@5.4.4)(vite-plugin-vuetify@2.0.3)(vue@3.4.21)
+      vuetify: 3.5.16(typescript@5.4.4)(vite-plugin-vuetify@2.0.3)(vue@3.4.21)
 
   /@webassemblyjs/ast@1.12.1:
     resolution: {integrity: sha512-EKfMUOPRRUTy5UII4qJDGPpqfwjOmZ5jeGFwid9mnoqIFK+e0vqoi1qH56JpmZSzEL53jKnNzScdmftJyG5xWg==}
@@ -5974,7 +5974,7 @@ packages:
       - supports-color
     dev: true
 
-  /eslint-plugin-vuetify@2.2.0(eslint@8.57.0)(vuetify@3.5.14):
+  /eslint-plugin-vuetify@2.2.0(eslint@8.57.0)(vuetify@3.5.16):
     resolution: {integrity: sha512-JcG1QflqACrLF0pFxxtCvC/vYoA4IBYq1yMQZUiPqksEJFPi94kG0yNAum2Z8ehW5ac+lw0vPnQvGEdxLuVx6Q==}
     peerDependencies:
       eslint: ^8.0.0
@@ -5983,7 +5983,7 @@ packages:
       eslint: 8.57.0
       eslint-plugin-vue: 9.24.1(eslint@8.57.0)
       requireindex: 1.2.0
-      vuetify: 3.5.14(typescript@5.4.4)(vite-plugin-vuetify@2.0.3)(vue@3.4.21)
+      vuetify: 3.5.16(typescript@5.4.4)(vite-plugin-vuetify@2.0.3)(vue@3.4.21)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -11870,7 +11870,7 @@ packages:
       - supports-color
     dev: true
 
-  /vite-plugin-vuetify@2.0.3(vite@5.2.8)(vue@3.4.21)(vuetify@3.5.14):
+  /vite-plugin-vuetify@2.0.3(vite@5.2.8)(vue@3.4.21)(vuetify@3.5.16):
     resolution: {integrity: sha512-HbYajgGgb/noaVKNRhnnXIiQZrNXfNIeanUGAwXgOxL6h/KULS40Uf51Kyz8hNmdegF+DwjgXXI/8J1PNS83xw==}
     engines: {node: ^18.0.0 || >=20.0.0}
     peerDependencies:
@@ -11878,12 +11878,12 @@ packages:
       vue: ^3.0.0
       vuetify: ^3.0.0
     dependencies:
-      '@vuetify/loader-shared': 2.0.3(vue@3.4.21)(vuetify@3.5.14)
+      '@vuetify/loader-shared': 2.0.3(vue@3.4.21)(vuetify@3.5.16)
       debug: 4.3.4(supports-color@5.5.0)
       upath: 2.0.1
       vite: 5.2.8(@types/node@20.12.5)(sass@1.75.0)
       vue: 3.4.21(typescript@5.4.4)
-      vuetify: 3.5.14(typescript@5.4.4)(vite-plugin-vuetify@2.0.3)(vue@3.4.21)
+      vuetify: 3.5.16(typescript@5.4.4)(vite-plugin-vuetify@2.0.3)(vue@3.4.21)
     transitivePeerDependencies:
       - supports-color
 
@@ -12024,8 +12024,8 @@ packages:
       '@vue/shared': 3.4.21
       typescript: 5.4.4
 
-  /vuetify@3.5.14(typescript@5.4.4)(vite-plugin-vuetify@2.0.3)(vue@3.4.21):
-    resolution: {integrity: sha512-bmfid7K4D+wPi9h7sK4PxjmIB2tBzNuqlW14cs30iQ7GAphEeo/HYwn6aEdNK/Na+imhti8CJDDqdGs6SEfyXQ==}
+  /vuetify@3.5.16(typescript@5.4.4)(vite-plugin-vuetify@2.0.3)(vue@3.4.21):
+    resolution: {integrity: sha512-jyApfATreFMkgjvK0bL7ntZnr+p9TU73+4E3kX6fIvUitdAP9fltG7yj+v3k14HLqZRSNhTL1GhQ95DFx631zw==}
     engines: {node: ^12.20 || >=14.13}
     peerDependencies:
       typescript: '>=4.7'
@@ -12044,7 +12044,7 @@ packages:
         optional: true
     dependencies:
       typescript: 5.4.4
-      vite-plugin-vuetify: 2.0.3(vite@5.2.8)(vue@3.4.21)(vuetify@3.5.14)
+      vite-plugin-vuetify: 2.0.3(vite@5.2.8)(vue@3.4.21)(vuetify@3.5.16)
       vue: 3.4.21(typescript@5.4.4)
 
   /walker@1.0.8:
