@@ -6,7 +6,10 @@ import { HaikuValue } from '../types';
 export default {
   async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
     const { verses } = haiku;
-    Canvas.registerFont('./src/shared/assets/fonts/NanumBrushScript-Regular.ttf', { family: 'NanumBrushScript' });
+    Canvas.registerFont(
+      './src/shared/assets/fonts/NanumBrushScript-Regular.ttf',
+      { family: 'NanumBrushScript' },
+    );
 
     const canvas = Canvas.createCanvas(2400, 2400);
     const ctx = canvas.getContext('2d');
@@ -51,7 +54,13 @@ export default {
 
     // Draw pic
     ctx.globalAlpha = 0.92;
-    ctx.drawImage(pic, canvas.width - pic.width - 150, canvas.height - pic.height - 380, pic.width, pic.height);
+    ctx.drawImage(
+      pic,
+      canvas.width - pic.width - 150,
+      canvas.height - pic.height - 380,
+      pic.width,
+      pic.height,
+    );
 
     // Draw signature
     ctx.font = '154px NanumBrushScript';

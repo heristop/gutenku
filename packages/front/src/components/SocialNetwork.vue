@@ -2,6 +2,7 @@
 const INSTAGRAM_URL = 'https://instagram.com/gutenku.poem';
 const GITHUB_URL = 'https://github.com/heristop/gutenku';
 const GUTENBERG_URL = 'https://gutenberg.org';
+const DISCORD_URL = 'https://discord.com/invite/eUS4zugt';
 </script>
 
 <template>
@@ -50,6 +51,21 @@ const GUTENBERG_URL = 'https://gutenberg.org';
             icon="mdi-book-open"
             target="_blank"
             aria-label="See Project Gutenberg website"
+          />
+        </template>
+      </v-tooltip>
+
+      <v-tooltip text="Discord" location="bottom" aria-label="Discord">
+        <template #activator="{ props }">
+          <v-btn
+            v-bind="props"
+            :href="DISCORD_URL"
+            color="accent"
+            class="ms-2"
+            icon="mdi-gamepad-variant"
+            variant="text"
+            target="_blank"
+            aria-label="See Discord"
           />
         </template>
       </v-tooltip>
