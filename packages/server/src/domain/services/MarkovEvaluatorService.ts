@@ -23,7 +23,10 @@ export class MarkovEvaluatorService {
     let totalScore = 0;
 
     for (let i = 0; i < haiku.length - 1; i++) {
-      const score = this.markovChain.evaluateTransition(haiku[i].toLowerCase(), haiku[i + 1].toLowerCase());
+      const score = this.markovChain.evaluateTransition(
+        haiku[i].toLowerCase(),
+        haiku[i + 1].toLowerCase(),
+      );
 
       totalScore += score;
     }

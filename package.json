@@ -1,6 +1,6 @@
 {
   "name": "gutenku",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "private": true,
   "licence": "UNLICENSED",
   "scripts": {
@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
-    "eslint": "^8.56.0",
+    "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
     "husky": "^9.0.11",

@@ -14,6 +14,7 @@ module.exports = {
   rules: {
     'vue/multi-word-component-names': 'off',
     'eol-last': 'error',
+    'prettier/prettier': 'error',
   },
   ignorePatterns: ['cypress', 'dist'],
 };

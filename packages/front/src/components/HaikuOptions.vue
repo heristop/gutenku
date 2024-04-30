@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useHaikuStore } from '@/store/haiku';
 import HaikuLogs from '@/components/HaikuLogs.vue';
@@ -54,6 +54,8 @@ const advancedMode = computed({
     }
   },
 });
+
+const aiEnabled = import.meta.env.VITE_AI_ENABLED === 'true';
 </script>
 
 <template>
@@ -171,6 +173,11 @@ const advancedMode = computed({
         />
       </v-expand-transition>
 
+      <v-sheet class="pa-2 rounded" color="primary">
+        <span v-if="aiEnabled">OpenAI Options</span>
+        <span v-else>OpenAI Options are disabled</span>
+      </v-sheet>
+
       <v-tooltip
         text="Uses GPT-4 to select and describe haikus with the most insightful moments."
         location="bottom"
@@ -179,7 +186,7 @@ const advancedMode = computed({
         <template #activator="{ props }">
           <v-switch
             v-bind="props"
-            :disabled="advancedMode"
+            :disabled="advancedMode || false === aiEnabled"
             v-model="optionUseAI"
             data-cy="switch-api-btn"
             color="white"
@@ -234,7 +241,7 @@ const advancedMode = computed({
         <template #activator="{ props }">
           <v-switch
             v-bind="props"
-            :disabled="advancedMode"
+            :disabled="advancedMode || false === aiEnabled"
             v-model="optionImageAI"
             data-cy="switch-image-ai-btn"
             color="white"

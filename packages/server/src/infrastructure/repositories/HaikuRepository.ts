@@ -1,3 +1,4 @@
+import log from 'loglevel';
 import { injectable } from 'tsyringe';
 import { HaikuDocument, HaikuValue } from '../../shared/types';
 import MongoConnection from '../services/MongoConnection';
@@ -27,7 +28,10 @@ export default class HaikuRepository {
     await haikusCollection.insertOne(haikuData);
   }
 
-  async extractFromCache(size: number, minCachedDocs: number): Promise<HaikuValue[]> {
+  async extractFromCache(
+    size: number,
+    minCachedDocs: number,
+  ): Promise<HaikuValue[]> {
     if (false === !!this.db) {
       return [];
     }
@@ -38,9 +42,11 @@ export default class HaikuRepository {
       return [];
     }
 
-    console.log('Extract from cache');
+    log.info('Extract from cache');
 
-    const sampledHaikus = (await haikusCollection.aggregate([{ $sample: { size } }]).toArray()) as HaikuDocument[];
+    const sampledHaikus = (await haikusCollection
+      .aggregate([{ $sample: { size } }])
+      .toArray()) as HaikuDocument[];
 
     return this.mapCachedHaikuValue(sampledHaikus);
   }

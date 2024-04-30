@@ -26,7 +26,8 @@ export default class HaikuBridgeService {
       theme: args.theme,
     });
 
-    const OPENAI_SELECTION_MODE = args.useAI && undefined !== process.env.OPENAI_API_KEY;
+    const OPENAI_SELECTION_MODE =
+      args.useAI && undefined !== process.env.OPENAI_API_KEY;
 
     if (true === OPENAI_SELECTION_MODE) {
       this.openAIGenerator.configure({
@@ -41,7 +42,9 @@ export default class HaikuBridgeService {
     }
 
     if (null === haiku) {
-      haiku = await this.haikuGenerator.filter(args.filter ? args.filter.split(' ') : []).generate();
+      haiku = await this.haikuGenerator
+        .filter(args.filter ? args.filter.split(' ') : [])
+        .generate();
     }
 
     if (false !== args.appendImg) {
