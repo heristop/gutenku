@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import dotenv from 'dotenv';
+import log from 'loglevel';
 import fetch from 'node-fetch';
 import fs from 'fs/promises';
 import path from 'path';
@@ -8,9 +9,10 @@ import { program } from 'commander';
 import { createInterface } from 'readline';
 import terminalImage from 'terminal-image';
 import { HaikuResponseData } from '../src/shared/types';
-import InstagramService from '../src/application/services/InstagramService';
+import DiscordService from '../src/application/services/DiscordService';
 
 dotenv.config();
+log.enableAll();
 
 const DATA_DIRECTORY = './data';
 
@@ -89,7 +91,7 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
     const haiku = response.data?.haiku;
 
     if (null === haiku) {
-      console.error(response);
+      log.error(response);
 
       throw new Error('Haiku fetch error');
     }
@@ -100,8 +102,8 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
 
     await fs.writeFile(haiku.imagePath, imageData);
 
-    console.log(await terminalImage.file(haiku.imagePath, { width: 20 }));
-    console.log({
+    log.info(await terminalImage.file(haiku.imagePath, { width: 20 }));
+    log.info({
       book: haiku.book,
       verses: haiku.verses,
       title: haiku.title,
@@ -130,7 +132,9 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
     }
 
     if (false === options.interaction) {
-      InstagramService.post(haiku);
+      DiscordService.post(haiku);
+
+      return;
     }
 
     if (true === options.post) {
@@ -139,11 +143,19 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
         output: process.stdout,
       });
 
+      const timeout = setTimeout(() => {
+        log.info('\nNo input received, closing...');
+        rl.close();
+        process.exit();
+      }, 10000); // Wait for 10 seconds
+
       rl.question(
-        '\nPost on Instagram? (y/n) \x1b[33m[n]\x1b[0m ',
+        '\nPost on Discord? (y/n) \x1b[33m[n]\x1b[0m ',
         async (answer: string) => {
+          clearTimeout(timeout); // Cancel the timeout if input is received
+
           if ('y' === answer || 'yes' === answer) {
-            await InstagramService.post(haiku);
+            await DiscordService.post(haiku);
           }
 
           rl.close();

@@ -36,7 +36,10 @@ export default {
     const baseY = (canvas.height - lineHeight * verses.length) / 1.7;
 
     if (!context) {
-      context = HaikuContextHelper.extractContextVerses(rawVerses, chapter.content);
+      context = HaikuContextHelper.extractContextVerses(
+        rawVerses,
+        chapter.content,
+      );
     }
 
     // Draw context lines
@@ -53,25 +56,44 @@ export default {
 
       const beforeVerseWidth = ctx.measureText(beforeVerse).width;
 
-      ctx.fillText(beforeVerse, ctx.measureText(beforeVerse).width * -1 + 192, y);
+      ctx.fillText(
+        beforeVerse,
+        ctx.measureText(beforeVerse).width * -1 + 192,
+        y,
+      );
 
       // Set transparent color for rawVerse
       ctx.fillStyle = 'rgba(0, 0, 0, 0.0)';
-      ctx.fillText(ghostVerse, ctx.measureText(beforeVerse).width * -1 + 240 + beforeVerseWidth, y);
+      ctx.fillText(
+        ghostVerse,
+        ctx.measureText(beforeVerse).width * -1 + 240 + beforeVerseWidth,
+        y,
+      );
 
       // Restore previous color for afterVerse
       ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
       ctx.fillText(
         afterVerse,
-        ctx.measureText(beforeVerse).width * -1 + 250 + beforeVerseWidth + ctx.measureText(ghostVerse).width,
+        ctx.measureText(beforeVerse).width * -1 +
+          250 +
+          beforeVerseWidth +
+          ctx.measureText(ghostVerse).width,
         y,
       );
 
       // Draw header and footer lines
       if (i === 0) {
-        ctx.fillText(sentenceBefore, (ctx.measureText(sentenceBefore).width / 4) * -1, baseY - lineHeight);
+        ctx.fillText(
+          sentenceBefore,
+          (ctx.measureText(sentenceBefore).width / 4) * -1,
+          baseY - lineHeight,
+        );
       } else if (i === 2 && sentenceAfter) {
-        ctx.fillText(sentenceAfter, (ctx.measureText(sentenceAfter).width / 4) * -1, y + lineHeight);
+        ctx.fillText(
+          sentenceAfter,
+          (ctx.measureText(sentenceAfter).width / 4) * -1,
+          y + lineHeight,
+        );
       }
     });
 

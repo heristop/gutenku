@@ -1,8 +1,10 @@
 import dotenv from 'dotenv';
+import log from 'loglevel';
 import fetch from 'node-fetch';
 import { HaikuResponseData } from '../src/shared/types';
 
 dotenv.config();
+log.enableAll();
 
 const query = `
     query Query(
