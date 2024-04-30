@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import log from 'loglevel';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -17,6 +18,7 @@ import typeDefs from './presentation/graphql/typeDefs';
 import MongoConnection from './infrastructure/services/MongoConnection';
 
 dotenv.config();
+log.enableAll();
 
 interface MyContext {
   db?: Connection;
@@ -72,9 +74,9 @@ async function listen(port: number) {
 
   const db = await mongoConnection.connect();
 
-  db.on('error', console.error.bind(console, 'connection error:'));
+  db.on('error', log.error.bind(console, 'connection error:'));
   db.once('open', function () {
-    console.log('Connected to MongoDB!');
+    log.info('Connected to MongoDB!');
   });
 
   app.use(
@@ -97,12 +99,12 @@ async function main() {
 
     await listen(port);
 
-    console.log(`🚀 Query endpoint ready at http://localhost:${port}/graphql`);
-    console.log(
+    log.info(`🚀 Query endpoint ready at http://localhost:${port}/graphql`);
+    log.info(
       `🚀 Subscription endpoint ready at ws://localhost:${port}/graphql`,
     );
   } catch (err) {
-    console.error('🤖 Error starting the node server', err);
+    log.error('🤖 Error starting the node server', err);
   }
 }
 

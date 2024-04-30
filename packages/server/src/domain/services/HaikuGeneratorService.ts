@@ -1,3 +1,4 @@
+import log from 'loglevel';
 import { promisify } from 'util';
 import { unlink } from 'fs';
 import { syllable } from 'syllable';
@@ -81,14 +82,19 @@ export default class HaikuGeneratorService implements IGenerator {
   }
 
   async extractFromCache(size: number): Promise<HaikuValue[]> {
-    return await this.haikuRepository.extractFromCache(size, this.minCachedDocs);
+    return await this.haikuRepository.extractFromCache(
+      size,
+      this.minCachedDocs,
+    );
   }
 
   async generate(): Promise<HaikuValue | null> {
     this.executionTime = new Date().getTime();
 
     if (true === this.useCache) {
-      const haiku = await this.haikuRepository.extractOneFromCache(this.minCachedDocs);
+      const haiku = await this.haikuRepository.extractOneFromCache(
+        this.minCachedDocs,
+      );
 
       if (null !== haiku) {
         return haiku;
@@ -127,7 +133,9 @@ export default class HaikuGeneratorService implements IGenerator {
     await this.prepare();
 
     if (this.filterWords.length > 0) {
-      chapters = await this.chapterRepository.getFilteredChapters(this.filterWords);
+      chapters = await this.chapterRepository.getFilteredChapters(
+        this.filterWords,
+      );
     }
 
     if (0 === chapters.length) {
@@ -180,10 +188,16 @@ export default class HaikuGeneratorService implements IGenerator {
   }
 
   verseContainsFilterWord(verses: string[]): boolean {
-    return verses.some((verse) => this.filterWords.some((word) => verse.includes(word)));
+    return verses.some((verse) =>
+      this.filterWords.some((word) => verse.includes(word)),
+    );
   }
 
-  buildHaiku(book: BookValue, chapter: ChapterValue, verses: string[]): HaikuValue {
+  buildHaiku(
+    book: BookValue,
+    chapter: ChapterValue,
+    verses: string[],
+  ): HaikuValue {
     const executionTime = (new Date().getTime() - this.executionTime) / 1000;
 
     return {
@@ -208,13 +222,16 @@ export default class HaikuGeneratorService implements IGenerator {
   }
 
   extractQuotes(chapter: string): { quote: string; index: number }[] {
-    const sentences = this.naturalLanguage.extractSentencesByPunctuation(chapter);
+    const sentences =
+      this.naturalLanguage.extractSentencesByPunctuation(chapter);
     const quotes = sentences.map((quote, index) => ({ quote, index }));
 
     return this.filterQuotesCountingSyllables(quotes.concat(quotes));
   }
 
-  filterQuotesCountingSyllables(quotes: { quote: string; index: number }[]): { quote: string; index: number }[] {
+  filterQuotesCountingSyllables(
+    quotes: { quote: string; index: number }[],
+  ): { quote: string; index: number }[] {
     const filteredQuotes = quotes.filter(({ quote }) => {
       const words = this.naturalLanguage.extractWords(quote);
 
@@ -242,8 +259,11 @@ export default class HaikuGeneratorService implements IGenerator {
   selectHaikuVerses(quotes: { quote: string; index: number }[]): string[] {
     const syllableCounts = [5, 7, 5];
 
-    const sentimentMinScore = this.sentimentMinScore ?? parseFloat(process.env.SENTIMENT_MIN_SCORE || '0');
-    const markovMinScore = this.markovMinScore ?? parseFloat(process.env.MARKOV_MIN_SCORE || '0');
+    const sentimentMinScore =
+      this.sentimentMinScore ??
+      parseFloat(process.env.SENTIMENT_MIN_SCORE || '0');
+    const markovMinScore =
+      this.markovMinScore ?? parseFloat(process.env.MARKOV_MIN_SCORE || '0');
 
     const selectedVerses: { quote: string; index: number }[] = [];
 
@@ -267,7 +287,7 @@ export default class HaikuGeneratorService implements IGenerator {
           return false;
         }
 
-        console.log('quote', quote.split(' '));
+        log.info('quote', quote.split(' '));
 
         const sentimentScore = this.naturalLanguage.analyzeSentiment(quote);
 
@@ -275,25 +295,30 @@ export default class HaikuGeneratorService implements IGenerator {
           return false;
         }
 
-        console.log('sentiment_score', sentimentScore, 'min', sentimentMinScore);
+        log.info('sentiment_score', sentimentScore, 'min', sentimentMinScore);
 
         if (selectedVerses.length > 0) {
-          const lastVerseIndex = selectedVerses[selectedVerses.length - 1].index;
+          const lastVerseIndex =
+            selectedVerses[selectedVerses.length - 1].index;
 
           // Ensure that the selected verse follows the last selected verse in the original text
           if (index <= lastVerseIndex) {
             return false;
           }
 
-          const quotesToEvaluate = [...selectedVerses.map((verse) => verse.quote), quote];
+          const quotesToEvaluate = [
+            ...selectedVerses.map((verse) => verse.quote),
+            quote,
+          ];
 
-          const markovScore = this.markovEvaluator.evaluateHaiku(quotesToEvaluate);
+          const markovScore =
+            this.markovEvaluator.evaluateHaiku(quotesToEvaluate);
 
           if (markovScore < markovMinScore) {
             return false;
           }
 
-          console.log('markov_score', markovScore, 'min', markovMinScore);
+          log.info('markov_score', markovScore, 'min', markovMinScore);
 
           this.pubSub.publish('QUOTE_GENERATED', {
             quoteGenerated: quote,

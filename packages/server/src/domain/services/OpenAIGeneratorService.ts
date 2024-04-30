@@ -1,3 +1,4 @@
+import log from 'loglevel';
 import OpenAI from 'openai';
 import { singleton } from 'tsyringe';
 import { HaikuValue, OpenAIOptions } from '../../shared/types';
@@ -28,8 +29,9 @@ export default class OpenAIGeneratorService implements IGenerator {
     }
 
     temperature.description =
-      temperature.description ?? parseFloat(process.env.OPENAI_DESCRIPTION_TEMPERATURE || '0.3');
-    console.log('temperature', temperature);
+      temperature.description ??
+      parseFloat(process.env.OPENAI_DESCRIPTION_TEMPERATURE || '0.3');
+    log.info('temperature', temperature);
 
     this.descriptionTemperature = temperature.description;
 
@@ -48,7 +50,7 @@ export default class OpenAIGeneratorService implements IGenerator {
 
       const completion = await this.openai.chat.completions.create({
         model: 'gpt-4-1106-preview',
-        temperature: 0.2,
+        temperature: 0.4,
         max_tokens: 1200,
         top_p: 0.1,
         frequency_penalty: 0.3,
@@ -77,13 +79,13 @@ export default class OpenAIGeneratorService implements IGenerator {
       return haiku;
     } catch (error) {
       if (error instanceof OpenAI.APIError) {
-        console.error(error.status);
-        console.error(error.message);
-        console.error(error.code);
-        console.error(error.type);
+        log.error(error.status);
+        log.error(error.message);
+        log.error(error.code);
+        log.error(error.type);
       } else {
         // Non-API error
-        console.log(error);
+        log.info(error);
       }
     } finally {
       this.haikuSelection = [];
@@ -172,7 +174,8 @@ export default class OpenAIGeneratorService implements IGenerator {
 
   private async addBookmojis(haiku: HaikuValue): Promise<HaikuValue> {
     let prompt = `Please provide a series of clear and easily recognizable emoticons that best represent the book "${haiku.book.title}":`;
-    const outputFormat = '<Generate a series of UTF-8 emoticons only that represent the related book>';
+    const outputFormat =
+      '<Generate a series of UTF-8 emoticons only that represent the related book>';
     prompt = `${prompt} (Use the following format: ${outputFormat})`;
 
     const completion = await this.openai.chat.completions.create({
@@ -190,7 +193,10 @@ export default class OpenAIGeneratorService implements IGenerator {
       ],
     });
 
-    const answer = completion.choices[0].message.content.replace(/[\n\s]+/g, '');
+    const answer = completion.choices[0].message.content.replace(
+      /[\n\s]+/g,
+      '',
+    );
 
     haiku.book.emoticons = answer;
 
@@ -201,7 +207,9 @@ export default class OpenAIGeneratorService implements IGenerator {
     const haikus: string[] = [];
 
     // Fetch haikus from the cache using the service
-    this.haikuSelection = await this.haikuGeneratorService.extractFromCache(this.selectionCount);
+    this.haikuSelection = await this.haikuGeneratorService.extractFromCache(
+      this.selectionCount,
+    );
 
     if (0 === this.haikuSelection.length) {
       // Generate and append new haikus to the selection
@@ -210,7 +218,7 @@ export default class OpenAIGeneratorService implements IGenerator {
         this.haikuSelection.push(haiku);
 
         const verses = `[Id]: ${i}\n[Verses]: ${haiku.verses.join('\n')}\n`;
-        console.log(verses);
+        log.info(verses);
         haikus.push(verses);
       }
     }
@@ -218,7 +226,7 @@ export default class OpenAIGeneratorService implements IGenerator {
     // Log and append details of each haiku in the selection
     this.haikuSelection.forEach((haiku, i: number) => {
       const verses = `[Id]: ${i}\n[Verses]: ${haiku.verses.join('\n')}\n`;
-      console.log(verses);
+      log.info(verses);
       haikus.push(verses);
     });
 

@@ -1,4 +1,8 @@
-import natural, { SentenceTokenizer, SentimentAnalyzer, WordTokenizer } from 'natural';
+import natural, {
+  SentenceTokenizer,
+  SentimentAnalyzer,
+  WordTokenizer,
+} from 'natural';
 import { syllable } from 'syllable';
 import { singleton } from 'tsyringe';
 
@@ -13,7 +17,11 @@ export default class NaturalLanguageService {
 
     this.sentenceTokenizer = new natural.SentenceTokenizer();
     this.wordTokenizer = new natural.WordTokenizer();
-    this.sentimentAnalyzer = new natural.SentimentAnalyzer('English', PorterStemmer, 'senticon');
+    this.sentimentAnalyzer = new natural.SentimentAnalyzer(
+      'English',
+      PorterStemmer,
+      'senticon',
+    );
   }
 
   extractWords(text: string): string[] {
@@ -49,7 +57,12 @@ export default class NaturalLanguageService {
       /(@|[0-9]|Mr|Mrs|Dr|#|\[|\|\(|\)|"|“|”|‘|’|\/|--|:|,|_|—|\+|=|{|}|\]|\*|\$|%|\r|\n|;|~|&|\/)/g;
     const lostLetter = /\b[A-Z]\b$/;
 
-    const regexList = [firstWordsRegex, lastWordsRegex, specialCharsRegex, lostLetter];
+    const regexList = [
+      firstWordsRegex,
+      lastWordsRegex,
+      specialCharsRegex,
+      lostLetter,
+    ];
 
     for (const regex of regexList) {
       if (regex.test(text)) {

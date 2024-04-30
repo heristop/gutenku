@@ -1,13 +1,24 @@
 import { ContextVerses } from '../types';
 
 export default class HaikuHelper {
-  static extractContextVerses(verses: string[], chapter: string): ContextVerses[] {
+  static extractContextVerses(
+    verses: string[],
+    chapter: string,
+  ): ContextVerses[] {
     return verses.map((verse) => {
-      return HaikuHelper.findContext(chapter.replaceAll(/\n/g, ' '), verse.replaceAll(/\n/g, ' '));
+      return HaikuHelper.findContext(
+        chapter.replaceAll(/\n/g, ' '),
+        verse.replaceAll(/\n/g, ' '),
+      );
     });
   }
 
-  static findContext(text: string, substring: string, numWords = 5, numSentences = 2) {
+  static findContext(
+    text: string,
+    substring: string,
+    numWords = 5,
+    numSentences = 2,
+  ) {
     const sentences = text.split(/(?<=[.,;!?])\s+/);
 
     const index = text.indexOf(substring);
@@ -24,7 +35,9 @@ export default class HaikuHelper {
     const wordsBefore = wordsBeforeArray.join(' ');
     const wordsAfter = wordsAfterArray.join(' ');
 
-    const sentenceIndexBefore = sentences.findIndex((sentence) => sentence.includes(wordsBeforeArray[0]));
+    const sentenceIndexBefore = sentences.findIndex((sentence) =>
+      sentence.includes(wordsBeforeArray[0]),
+    );
     const sentenceIndexAfter = sentences.findIndex((sentence) =>
       sentence.includes(wordsAfterArray[wordsAfterArray.length - 1]),
     );
@@ -33,9 +46,18 @@ export default class HaikuHelper {
       Math.max(0, sentenceIndexBefore - numSentences + 1),
       sentenceIndexBefore + 1,
     );
-    const sentencesAfter = sentences.slice(sentenceIndexAfter, sentenceIndexAfter + numSentences);
-    const sentenceBefore = sentencesBefore.join(' ').replace(substring, '').trim();
-    const sentenceAfter = sentencesAfter.join(' ').replace(substring, '').trim();
+    const sentencesAfter = sentences.slice(
+      sentenceIndexAfter,
+      sentenceIndexAfter + numSentences,
+    );
+    const sentenceBefore = sentencesBefore
+      .join(' ')
+      .replace(substring, '')
+      .trim();
+    const sentenceAfter = sentencesAfter
+      .join(' ')
+      .replace(substring, '')
+      .trim();
 
     return {
       wordsBefore,

@@ -1,3 +1,4 @@
+import log from 'loglevel';
 import fs from 'fs';
 import Canvas from 'canvas';
 import { promisify } from 'util';
@@ -21,7 +22,7 @@ export default class CanvasService {
   async create(haiku: HaikuValue): Promise<string> {
     let createCanvas = null;
 
-    console.log(`Creating image with theme: ${this.theme}`);
+    log.info(`Creating image with theme: ${this.theme}`);
 
     if ('random' === this.theme) {
       const themes = ['colored', 'greentea', 'watermark', 'landscape'];
@@ -57,7 +58,7 @@ export default class CanvasService {
       // Save the image
       return this.save(canvas);
     } catch (err) {
-      console.error(err);
+      log.error(err);
       throw err;
     }
   }
@@ -71,7 +72,7 @@ export default class CanvasService {
 
       stream.pipe(out);
       out.on('finish', () => {
-        console.log(`Image ${imagePath} created!`);
+        log.info(`Image ${imagePath} created!`);
 
         resolve(imagePath);
       });

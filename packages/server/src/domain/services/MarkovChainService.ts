@@ -1,3 +1,4 @@
+import log from 'loglevel';
 import fs from 'fs/promises';
 import NaturalLanguageService from './NaturalLanguageService';
 import { singleton } from 'tsyringe';
@@ -16,7 +17,9 @@ export class MarkovChainService {
   }
 
   public train(text: string): void {
-    const sentences = this.naturalLanguage.extractSentences(text.replaceAll(/\n/g, ' '));
+    const sentences = this.naturalLanguage.extractSentences(
+      text.replaceAll(/\n/g, ' '),
+    );
 
     for (const sentence of sentences) {
       const words = this.naturalLanguage.extractWords(sentence);
@@ -98,15 +101,18 @@ export class MarkovChainService {
 
   public async saveModel(): Promise<void> {
     const data = JSON.stringify({
-      bigrams: Array.from(this.bigrams, ([key, value]) => [key, Array.from(value)]),
+      bigrams: Array.from(this.bigrams, ([key, value]) => [
+        key,
+        Array.from(value),
+      ]),
       totalBigrams: this.totalBigrams,
     });
 
     try {
       await fs.writeFile('./data/markov_model.json', data, 'utf8');
-      console.log('Model saved with success.');
+      log.info('Model saved with success.');
     } catch (error) {
-      console.error(`Error on model save: ${error}`);
+      log.error(`Error on model save: ${error}`);
     }
   }
 
@@ -116,11 +122,14 @@ export class MarkovChainService {
       const jsonData = JSON.parse(data);
 
       this.bigrams = new Map(
-        jsonData.bigrams.map(([key, value]: [string, [string, number][]]) => [key, new Map(value)]),
+        jsonData.bigrams.map(([key, value]: [string, [string, number][]]) => [
+          key,
+          new Map(value),
+        ]),
       );
       this.totalBigrams = jsonData.totalBigrams;
     } catch (error) {
-      console.error(`Error on model load: ${error}`);
+      log.error(`Error on model load: ${error}`);
     }
   }
 }

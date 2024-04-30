@@ -11,7 +11,12 @@ it('extract context verses', async () => {
   const numWords = 5;
   const numSentences = 2;
 
-  const contextArray = HaikuHelper.findContext(chapter, substring, numWords, numSentences);
+  const contextArray = HaikuHelper.findContext(
+    chapter,
+    substring,
+    numWords,
+    numSentences,
+  );
 
   expect(contextArray.wordsBefore).toEqual('sanctity of domestic bliss; ');
   expect(contextArray.sentenceBefore).toEqual(
