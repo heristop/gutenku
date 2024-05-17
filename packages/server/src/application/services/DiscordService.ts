@@ -25,7 +25,7 @@ export default class DiscordService {
     );
 
     if (null === haiku.title) {
-      //throw new Error('Missing Title');
+      throw new Error('Missing Title');
     }
 
     const hashtagAuthor = haiku.book.author
@@ -81,8 +81,9 @@ ${haiku.translations?.es}
     const form = new FormData();
 
     // Append the image file; note the third parameter options which include the filename and contentType
+    const formattedTitle = haiku.title.replace(/\s/g, '_').toLowerCase();
     form.append('file', imageBuffer, {
-      filename: 'image.jpg',
+      filename: `${formattedTitle}.jpg`,
       contentType: 'image/jpeg',
       knownLength: imageBuffer.length,
     });
