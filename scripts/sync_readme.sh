@@ -14,6 +14,6 @@ if git status | grep -qF daily_haiku_card.jpg; then
     sed -i "s/“[^”]*”/“$description”/" README.md
 
     git add assets README.md
-    git commit -m "[Readme] Updated Daily Haiku Card"
+    git commit -m "docs(readme): updated daily haiku card"
     git push https://$TOKEN@github.com/heristop/gutenku.git
 fi
