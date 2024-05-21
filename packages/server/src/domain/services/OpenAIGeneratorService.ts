@@ -49,7 +49,7 @@ export default class OpenAIGeneratorService implements IGenerator {
       const prompt = await this.generateSelectionPrompt();
 
       const completion = await this.openai.chat.completions.create({
-        model: 'gpt-4-1106-preview',
+        model: 'gpt-4o',
         temperature: 0.4,
         max_tokens: 1200,
         top_p: 0.1,
@@ -109,7 +109,7 @@ export default class OpenAIGeneratorService implements IGenerator {
       '{"title":"<Give a creative short title to describe the haiku>","description":"<Describe and explain the haiku>","hashtags":"<Give 6 lowercase hashtags>"}';
 
     const completion = await this.openai.chat.completions.create({
-      model: 'gpt-4-1106-preview',
+      model: 'gpt-4o',
       temperature: this.descriptionTemperature,
       max_tokens: 1000,
       top_p: 0.4,
@@ -144,7 +144,7 @@ export default class OpenAIGeneratorService implements IGenerator {
     prompt = `${prompt} (Use the following format: {${outputFormat}})`;
 
     const completion = await this.openai.chat.completions.create({
-      model: 'gpt-4-1106-preview',
+      model: 'gpt-4o',
       temperature: 0.3,
       max_tokens: 1000,
       top_p: 0.4,
@@ -179,7 +179,7 @@ export default class OpenAIGeneratorService implements IGenerator {
     prompt = `${prompt} (Use the following format: ${outputFormat})`;
 
     const completion = await this.openai.chat.completions.create({
-      model: 'gpt-4-1106-preview',
+      model: 'gpt-4o',
       temperature: 0.6,
       max_tokens: 14,
       top_p: 1,
