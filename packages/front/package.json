@@ -32,7 +32,7 @@
     "vue": "^3.4.26",
     "vue-apollo": "^3.1.2",
     "vue-router": "^4.3.2",
-    "vuetify": "^3.5.17",
+    "vuetify": "^3.6.9",
     "webfontloader": "^1.6.28"
   },
   "devDependencies": {
