@@ -54,7 +54,7 @@
     "vite-plugin-imagemin": "^0.6.1",
     "vite-plugin-vuetify": "^2.0.3",
     "vite-plugin-webfont-dl": "^3.9.4",
-    "vue-tsc": "^2.0.14",
+    "vue-tsc": "^2.0.19",
     "webpack": "^5.91.0"
   }
 }
