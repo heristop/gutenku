@@ -55,6 +55,6 @@
     "vite-plugin-vuetify": "^2.0.3",
     "vite-plugin-webfont-dl": "^3.9.4",
     "vue-tsc": "^2.0.19",
-    "webpack": "^5.91.0"
+    "webpack": "^5.94.0"
   }
 }
