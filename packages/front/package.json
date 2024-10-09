@@ -49,7 +49,7 @@
     "sass": "^1.75.0",
     "sass-loader": "^16.0.2",
     "typescript": "^5.3.3",
-    "vite": "^5.2.10",
+    "vite": "^5.2.14",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-imagemin": "^0.6.1",
     "vite-plugin-vuetify": "^2.0.3",
