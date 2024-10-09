@@ -19,7 +19,7 @@
     "@apollo/server": "^4.10.4",
     "@graphql-tools/schema": "^10.0.3",
     "@typescript-eslint/typescript-estree": "^8.3.0",
-    "axios": "^1.6.8",
+    "axios": "^1.7.4",
     "body-parser": "^1.20.3",
     "canvas": "^2.11.2",
     "cli-progress": "^3.12.0",
