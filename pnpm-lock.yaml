@@ -54,8 +54,8 @@ importers:
         specifier: ^7.4.47
         version: 7.4.47
       '@vue/apollo-composable':
-        specifier: ^4.0.2
-        version: 4.0.2(@apollo/client@3.10.4(graphql-ws@5.16.0(graphql@16.8.1))(graphql@16.8.1))(graphql@16.8.1)(typescript@5.4.5)(vue@3.4.27(typescript@5.4.5))
+        specifier: ^4.2.1
+        version: 4.2.1(@apollo/client@3.10.4(graphql-ws@5.16.0(graphql@16.8.1))(graphql@16.8.1))(graphql@16.8.1)(typescript@5.4.5)(vue@3.4.27(typescript@5.4.5))
       '@vue/apollo-option':
         specifier: ^4.0.0
         version: 4.0.0(@apollo/client@3.10.4(graphql-ws@5.16.0(graphql@16.8.1))(graphql@16.8.1))(vue@3.4.27(typescript@5.4.5))
@@ -1903,8 +1903,8 @@ packages:
   '@volar/typescript@2.2.5':
     resolution: {integrity: sha512-eSV/n75+ppfEVugMC/salZsI44nXDPAyL6+iTYCNLtiLHGJsnMv9GwiDMujrvAUj/aLQyqRJgYtXRoxop2clCw==}
 
-  '@vue/apollo-composable@4.0.2':
-    resolution: {integrity: sha512-/yfEktliXw+oMy/6n9C0J05woYoKlM+kcffVXMh0qljbXdrioyj0WkR/LgPdpnRf6TglFnjIgCKKicd5Gyzpnw==}
+  '@vue/apollo-composable@4.2.1':
+    resolution: {integrity: sha512-9PZ/pSl4Miqgg9uUOkAbg38ALyjm1j7QL9iZeppgUCBcJI3Sa7SA3LOCB2IV1jYsLjXuKVMHh2cwHJE1wzhfSA==}
     peerDependencies:
       '@apollo/client': ^3.4.13
       '@vue/composition-api': ^1.0.0
@@ -8594,7 +8594,7 @@ snapshots:
       '@volar/language-core': 2.2.5
       path-browserify: 1.0.1
 
-  '@vue/apollo-composable@4.0.2(@apollo/client@3.10.4(graphql-ws@5.16.0(graphql@16.8.1))(graphql@16.8.1))(graphql@16.8.1)(typescript@5.4.5)(vue@3.4.27(typescript@5.4.5))':
+  '@vue/apollo-composable@4.2.1(@apollo/client@3.10.4(graphql-ws@5.16.0(graphql@16.8.1))(graphql@16.8.1))(graphql@16.8.1)(typescript@5.4.5)(vue@3.4.27(typescript@5.4.5))':
     dependencies:
       '@apollo/client': 3.10.4(graphql-ws@5.16.0(graphql@16.8.1))(graphql@16.8.1)
       graphql: 16.8.1
