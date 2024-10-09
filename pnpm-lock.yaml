@@ -181,8 +181,8 @@ importers:
         specifier: ^1.6.8
         version: 1.7.2
       body-parser:
-        specifier: ^1.20.2
-        version: 1.20.2
+        specifier: ^1.20.3
+        version: 1.20.3
       canvas:
         specifier: ^2.11.2
         version: 2.11.2
