@@ -16,7 +16,7 @@
     "@apollo/client": "^3.10.1",
     "@fingerprintjs/botd": "^1.9.1",
     "@mdi/font": "^7.4.47",
-    "@vue/apollo-composable": "^4.0.2",
+    "@vue/apollo-composable": "^4.2.1",
     "@vue/apollo-option": "^4.0.0",
     "apollo-link-timeout": "^4.0.0",
     "core-js": "^3.37.0",
@@ -32,7 +32,7 @@
     "vue": "^3.4.26",
     "vue-apollo": "^3.1.2",
     "vue-router": "^4.3.2",
-    "vuetify": "^3.5.17",
+    "vuetify": "^3.7.1",
     "webfontloader": "^1.6.28"
   },
   "devDependencies": {
@@ -40,21 +40,21 @@
     "@types/node": "^20.12.7",
     "@types/webfontloader": "^1.6.38",
     "@types/zen-observable": "^0.8.7",
-    "@typescript-eslint/typescript-estree": "^7.8.0",
+    "@typescript-eslint/typescript-estree": "^8.3.0",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/eslint-config-typescript": "^13.0.0",
     "cypress": "^13.8.1",
     "eslint-plugin-vue": "^9.25.0",
     "eslint-plugin-vuetify": "^2.4.0",
     "sass": "^1.75.0",
-    "sass-loader": "^14.2.1",
+    "sass-loader": "^16.0.2",
     "typescript": "^5.3.3",
-    "vite": "^5.2.10",
+    "vite": "^5.2.14",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-imagemin": "^0.6.1",
     "vite-plugin-vuetify": "^2.0.3",
     "vite-plugin-webfont-dl": "^3.9.4",
     "vue-tsc": "^2.0.19",
-    "webpack": "^5.91.0"
+    "webpack": "^5.94.0"
   }
 }
