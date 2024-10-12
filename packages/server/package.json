@@ -44,7 +44,7 @@
     "terminal-image": "^2.0.0",
     "tsyringe": "^4.8.0",
     "typescript": "^5.4.5",
-    "ws": "^8.17.0"
+    "ws": "^8.17.1"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
