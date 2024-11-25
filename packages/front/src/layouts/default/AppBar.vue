@@ -4,9 +4,9 @@ import { storeToRefs } from 'pinia';
 import { useHaikuStore } from '@/store/haiku';
 import HaikuOptions from '@/components/HaikuOptions.vue';
 
-const { firstLoaded } = storeToRefs(useHaikuStore());
+const { firstLoaded, optionDrawerOpened } = storeToRefs(useHaikuStore());
 
-const drawer = ref(false);
+const drawer = ref(optionDrawerOpened);
 </script>
 
 <template>

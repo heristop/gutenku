@@ -37,6 +37,7 @@ const downloadImage = () => {
     class="pa-4 mb-6 align-center justify-center"
     color="accent"
     variant="tonal"
+    elevation="1"
   >
     <v-sheet class="canvas pa-2" elevation="3">
       <v-img
