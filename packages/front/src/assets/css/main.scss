@@ -58,5 +58,6 @@ body {
 }
 
 .v-tooltip.v-overlay > .v-overlay__content {
-  background: rgba(var(--v-theme-accent), 0.9);
+  background: rgba(var(--v-theme-secondary), 0.9);
+  max-width: 400px !important;
 }

@@ -30,6 +30,7 @@ onMounted(() => {
     :loading="loading"
     color="secondary"
     class="pa-4 mb-6 mb-sm-0 align-center justify-center"
+    elevation="2"
   >
     Disclose chapter where quotes were extracted
     <v-row>

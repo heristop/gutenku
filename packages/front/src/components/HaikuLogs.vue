@@ -33,9 +33,9 @@ watch(result, async (data) => {
       v-if="quotesReceived.length > 0"
       :elevation="3"
       color="black"
-      class="terminal px-2 ma-4 align-left justify-center"
+      class="terminal align-left justify-center mr-4"
     >
-      <p class="mb-4">Last Quotes found ✏️</p>
+      <p class="mb-4 font-weight-bold">Last Quotes found ✏️</p>
 
       <p
         class="terminal-entry"
@@ -53,10 +53,9 @@ watch(result, async (data) => {
   background-color: #000;
   color: #fff;
   font-family: 'Courier New', monospace;
+  font-size: 0.9em;
   padding: 20px;
   border-radius: 5px;
-  height: 200px;
-  overflow-y: auto;
 }
 
 .terminal-entry {

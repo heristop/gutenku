@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useHaikuStore } from '@/store/haiku';
 import HaikuLogs from '@/components/HaikuLogs.vue';
@@ -173,10 +173,14 @@ const aiEnabled = import.meta.env.VITE_AI_ENABLED === 'true';
         />
       </v-expand-transition>
 
-      <v-sheet class="pa-2 rounded" color="primary">
-        <span v-if="aiEnabled">OpenAI Options</span>
-        <span v-else>OpenAI Options are disabled</span>
-      </v-sheet>
+      <v-alert
+        :type="aiEnabled ? 'info' : 'warning'"
+        variant="flat"
+        density="comfortable"
+        class="mb-4 mt-2 ai-alert"
+      >
+        {{ aiEnabled ? 'AI Features Available' : 'AI Features Disabled' }}
+      </v-alert>
 
       <v-tooltip
         text="Uses GPT-4 to select and describe haikus with the most insightful moments."
@@ -259,6 +263,7 @@ const aiEnabled = import.meta.env.VITE_AI_ENABLED === 'true';
         class="pa-8 mx-4 mb-4"
         color="primary"
         elevation="3"
+        rounded
       >
         <b> “{{ haiku.title }}” </b>
 
@@ -279,5 +284,11 @@ const aiEnabled = import.meta.env.VITE_AI_ENABLED === 'true';
 
 .v-switch__track {
   background-color: white !important;
+}
+
+.ai-alert {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: inherit !important;
+  box-shadow: none;
 }
 </style>
