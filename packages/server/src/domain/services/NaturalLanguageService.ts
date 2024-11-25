@@ -15,7 +15,8 @@ export default class NaturalLanguageService {
   constructor() {
     const { PorterStemmer } = natural;
 
-    this.sentenceTokenizer = new natural.SentenceTokenizer();
+    const abbreviations = ['i.e.', 'e.g.', 'Dr.'];
+    this.sentenceTokenizer = new natural.SentenceTokenizer(abbreviations);
     this.wordTokenizer = new natural.WordTokenizer();
     this.sentimentAnalyzer = new natural.SentimentAnalyzer(
       'English',
