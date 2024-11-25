@@ -9,7 +9,6 @@ const socialLinks = [
     url: INSTAGRAM_URL,
     icon: 'mdi-instagram',
     label: 'See published haikus on Instagram',
-    variant: 'text',
   },
   {
     name: 'Project Gutenberg',
@@ -22,7 +21,6 @@ const socialLinks = [
     url: GITHUB_URL,
     icon: 'mdi-github',
     label: 'View source code on GitHub',
-    variant: 'text',
   },
 ];
 
@@ -74,7 +72,7 @@ const handleClick = (url: string) => {
             color="accent"
             class="ms-2"
             :icon="link.icon"
-            :variant="link.variant"
+            :variant="'text'"
             :aria-label="link.label"
             @click="handleClick(link.url)"
           />
