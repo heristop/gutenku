@@ -5,7 +5,7 @@ const legalNoticeDialog = ref(false);
 </script>
 
 <template>
-  <v-card class="mx-auto order-4">
+  <v-card class="mx-auto order-4 mb-6" elevation="1">
     <v-img
       lazy-src="@/assets/img/zazen.webp"
       src="@/assets/img/zazen.webp"
@@ -63,7 +63,7 @@ const legalNoticeDialog = ref(false);
       <v-btn
         @click="legalNoticeDialog"
         color="primary"
-        size="x-small"
+        size="small"
         variant="text"
       >
         {{ new Date().getFullYear() }} —&nbsp;<strong>heristop</strong>

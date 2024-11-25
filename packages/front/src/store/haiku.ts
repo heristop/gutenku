@@ -19,6 +19,7 @@ export const useHaikuStore = defineStore({
     loading: false as boolean,
     firstLoaded: false as boolean,
     error: '' as string,
+    optionDrawerOpened: false as boolean,
     optionUseCache: true as boolean,
     optionUseAI: false as boolean,
     optionImageAI: false as boolean,
@@ -31,6 +32,7 @@ export const useHaikuStore = defineStore({
   persist: {
     storage: sessionStorage,
     paths: [
+      'optionDrawerOpened',
       'optionUseCache',
       'optionUseAI',
       'optionTheme',
