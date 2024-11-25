@@ -4,25 +4,31 @@ import { storeToRefs } from 'pinia';
 import { useHaikuStore } from '@/store/haiku';
 import AppLoading from '@/components/AppLoading.vue';
 
+// Store setup
 const haikuStore = useHaikuStore();
 const { fetchNewHaiku } = haikuStore;
 const { haiku, loading, networkError, notificationError, optionUseCache } =
   storeToRefs(haikuStore);
 
-const buttonLabel = computed(() => {
+// Typage explicite des propriétés dérivées
+const buttonLabel = computed<string>(() => {
   if (loading.value) {
     return optionUseCache.value ? 'Extracting' : 'Generating';
   }
   return optionUseCache.value ? 'Extract' : 'Generate';
 });
 
-const hasError = computed(() => networkError.value || notificationError.value);
+const hasError = computed<boolean>(
+  () => !!(networkError.value || notificationError.value),
+);
 
+// Typage de l'état de copie
 const copyStatus = ref<{ copied: boolean; error: string | null }>({
   copied: false,
   error: null,
 });
 
+// Fonction de copie avec gestion d'erreurs
 const copyHaiku = async () => {
   if (!haiku.value?.verses) return;
 
@@ -40,9 +46,13 @@ const copyHaiku = async () => {
   }
 };
 
-const animateVerse = (el: Element) => {
-  el.classList.add('verse--animate');
-  setTimeout(() => el.classList.remove('verse--animate'), 500);
+// Fonction d'animation avec typage
+const animateVerse = (event: Event) => {
+  const target = event.target as HTMLElement | null;
+  if (!target) return;
+
+  target.classList.add('verse--animate');
+  setTimeout(() => target.classList.remove('verse--animate'), 500);
 };
 </script>
 
@@ -70,7 +80,7 @@ const animateVerse = (el: Element) => {
           v-for="(verse, index) in haiku.verses"
           :key="index"
           class="verse"
-          @click="animateVerse($event.target)"
+          @click="animateVerse($event)"
         >
           <mark class="verse__text">{{ verse }}</mark>
         </p>
@@ -151,9 +161,9 @@ const animateVerse = (el: Element) => {
       </div>
     </template>
 
-    <template #actions="{ props }">
+    <template #actions="{ isActive }">
       <v-btn
-        v-bind="props"
+        :active="isActive.value"
         icon="mdi-close"
         size="small"
         variant="text"
