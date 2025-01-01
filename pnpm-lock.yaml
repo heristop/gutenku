@@ -67,8 +67,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0(@apollo/client@3.10.4(graphql-ws@5.16.0(graphql@16.9.0))(graphql@16.9.0))
       core-js:
-        specifier: ^3.37.0
-        version: 3.37.1
+        specifier: ^3.39.0
+        version: 3.39.0
       graphql:
         specifier: ^16.9.0
         version: 16.9.0
@@ -141,7 +141,7 @@ importers:
         version: 9.26.0(eslint@8.57.1)
       eslint-plugin-vuetify:
         specifier: ^2.4.0
-        version: 2.4.0(eslint@8.57.1)(vuetify@3.7.4(typescript@5.4.5)(vite-plugin-vuetify@2.0.3)(vue@3.5.13(typescript@5.4.5)))
+        version: 2.4.0(eslint@8.57.1)(vuetify@3.7.4)
       sass:
         specifier: ^1.75.0
         version: 1.77.4
@@ -258,11 +258,7 @@ importers:
         version: 5.4.5
       ws:
         specifier: ^8.17.1
-<<<<<<< HEAD
-        version: 8.17.1
-=======
         version: 8.18.0
->>>>>>> 39d3c46 (chore: bump dependencies)
     devDependencies:
       '@jest/globals':
         specifier: ^29.7.0
@@ -2730,8 +2726,8 @@ packages:
     resolution: {integrity: sha512-U71cyTamuh1CRNCfpGY6to28lxvNwPG4Guz/EVjgf3Jmzv0vlDp1atT9eS5dDjMYHucpHbWns6Lwf3BKz6svdw==}
     engines: {node: '>= 0.6'}
 
-  core-js@3.37.1:
-    resolution: {integrity: sha512-Xn6qmxrQZyB0FFY8E3bgRXei3lWDJHhvI+u0q9TKIYM49G8pAr0FgnnrFRAmsbptZL1yxRADVXn+x5AGsbBfyw==}
+  core-js@3.39.0:
+    resolution: {integrity: sha512-raM0ew0/jJUqkJ0E6e8UDtl+y/7ktFivgWvqw8dNSQeNWoSDLvQ1H/RN3aPXB9tBd4/FhyR4RDPGhsNIMsAn7g==}
 
   core-util-is@1.0.2:
     resolution: {integrity: sha512-3lqz5YjWTYnW6dlDa5TLaTCcShfar1e40rmcJVwCBJC6mWlFuj0eCHIElmG1g5kyuJ/GD+8Wn4FFCcz4gJPfaQ==}
@@ -8925,7 +8921,7 @@ snapshots:
 
   '@vue/shared@3.5.13': {}
 
-  '@vuetify/loader-shared@2.0.3(vue@3.5.13(typescript@5.4.5))(vuetify@3.7.4(typescript@5.4.5)(vite-plugin-vuetify@2.0.3)(vue@3.5.13(typescript@5.4.5)))':
+  '@vuetify/loader-shared@2.0.3(vue@3.5.13(typescript@5.4.5))(vuetify@3.7.4)':
     dependencies:
       upath: 2.0.1
       vue: 3.5.13(typescript@5.4.5)
@@ -9692,7 +9688,7 @@ snapshots:
 
   cookie@0.6.0: {}
 
-  core-js@3.37.1: {}
+  core-js@3.39.0: {}
 
   core-util-is@1.0.2: {}
 
@@ -10409,7 +10405,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-vuetify@2.4.0(eslint@8.57.1)(vuetify@3.7.4(typescript@5.4.5)(vite-plugin-vuetify@2.0.3)(vue@3.5.13(typescript@5.4.5))):
+  eslint-plugin-vuetify@2.4.0(eslint@8.57.1)(vuetify@3.7.4):
     dependencies:
       eslint: 8.57.1
       eslint-plugin-vue: 9.26.0(eslint@8.57.1)
@@ -14044,7 +14040,7 @@ snapshots:
 
   vite-plugin-vuetify@2.0.3(vite@5.4.11(@types/node@20.13.0)(sass@1.77.4)(terser@5.31.0))(vue@3.5.13(typescript@5.4.5))(vuetify@3.7.4):
     dependencies:
-      '@vuetify/loader-shared': 2.0.3(vue@3.5.13(typescript@5.4.5))(vuetify@3.7.4(typescript@5.4.5)(vite-plugin-vuetify@2.0.3)(vue@3.5.13(typescript@5.4.5)))
+      '@vuetify/loader-shared': 2.0.3(vue@3.5.13(typescript@5.4.5))(vuetify@3.7.4)
       debug: 4.3.5(supports-color@5.5.0)
       upath: 2.0.1
       vite: 5.4.11(@types/node@20.13.0)(sass@1.77.4)(terser@5.31.0)
