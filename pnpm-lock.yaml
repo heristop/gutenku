@@ -141,7 +141,7 @@ importers:
         version: 9.26.0(eslint@8.57.1)
       eslint-plugin-vuetify:
         specifier: ^2.4.0
-        version: 2.4.0(eslint@8.57.1)(vuetify@3.7.4(typescript@5.4.5)(vite-plugin-vuetify@2.0.3)(vue@3.5.13(typescript@5.4.5)))
+        version: 2.4.0(eslint@8.57.1)(vuetify@3.7.4)
       sass:
         specifier: ^1.75.0
         version: 1.77.4
@@ -233,8 +233,8 @@ importers:
         specifier: ^3.3.2
         version: 3.3.2
       openai:
-        specifier: ^4.38.5
-        version: 4.47.3
+        specifier: ^4.77.0
+        version: 4.77.0
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -258,11 +258,7 @@ importers:
         version: 5.4.5
       ws:
         specifier: ^8.17.1
-<<<<<<< HEAD
-        version: 8.17.1
-=======
         version: 8.18.0
->>>>>>> 39d3c46 (chore: bump dependencies)
     devDependencies:
       '@jest/globals':
         specifier: ^29.7.0
@@ -5109,9 +5105,14 @@ packages:
     resolution: {integrity: sha512-1FlR+gjXK7X+AsAHso35MnyN5KqGwJRi/31ft6x0M194ht7S+rWAvd7PHss9xSKMzE0asv1pyIHaJYq+BbacAQ==}
     engines: {node: '>=12'}
 
-  openai@4.47.3:
-    resolution: {integrity: sha512-470d4ibH5kizXflCzgur22GpM4nOjrg7WQ9jTOa3dNKEn248oBy4+pjOyfcFR4V4YUn/YlDNjp6h83PbviCCKQ==}
+  openai@4.77.0:
+    resolution: {integrity: sha512-WWacavtns/7pCUkOWvQIjyOfcdr9X+9n9Vvb0zFeKVDAqwCMDHB+iSr24SVaBAhplvSG6JrRXFpcNM9gWhOGIw==}
     hasBin: true
+    peerDependencies:
+      zod: ^3.23.8
+    peerDependenciesMeta:
+      zod:
+        optional: true
 
   opener@1.5.2:
     resolution: {integrity: sha512-ur5UIdyw5Y7yEj9wLzhqXiy6GZ3Mwx0yGI+5sMn2r0N0v3cKJvUmFH5yPP+WXh9e0xfyzyJX95D8l088DNFj7A==}
@@ -8925,7 +8926,7 @@ snapshots:
 
   '@vue/shared@3.5.13': {}
 
-  '@vuetify/loader-shared@2.0.3(vue@3.5.13(typescript@5.4.5))(vuetify@3.7.4(typescript@5.4.5)(vite-plugin-vuetify@2.0.3)(vue@3.5.13(typescript@5.4.5)))':
+  '@vuetify/loader-shared@2.0.3(vue@3.5.13(typescript@5.4.5))(vuetify@3.7.4)':
     dependencies:
       upath: 2.0.1
       vue: 3.5.13(typescript@5.4.5)
@@ -10409,7 +10410,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-vuetify@2.4.0(eslint@8.57.1)(vuetify@3.7.4(typescript@5.4.5)(vite-plugin-vuetify@2.0.3)(vue@3.5.13(typescript@5.4.5))):
+  eslint-plugin-vuetify@2.4.0(eslint@8.57.1)(vuetify@3.7.4):
     dependencies:
       eslint: 8.57.1
       eslint-plugin-vue: 9.26.0(eslint@8.57.1)
@@ -12539,7 +12540,7 @@ snapshots:
     dependencies:
       mimic-fn: 4.0.0
 
-  openai@4.47.3:
+  openai@4.77.0:
     dependencies:
       '@types/node': 18.19.33
       '@types/node-fetch': 2.6.11
@@ -12548,7 +12549,6 @@ snapshots:
       form-data-encoder: 1.7.2
       formdata-node: 4.4.1
       node-fetch: 2.7.0
-      web-streams-polyfill: 3.3.3
     transitivePeerDependencies:
       - encoding
 
@@ -14044,7 +14044,7 @@ snapshots:
 
   vite-plugin-vuetify@2.0.3(vite@5.4.11(@types/node@20.13.0)(sass@1.77.4)(terser@5.31.0))(vue@3.5.13(typescript@5.4.5))(vuetify@3.7.4):
     dependencies:
-      '@vuetify/loader-shared': 2.0.3(vue@3.5.13(typescript@5.4.5))(vuetify@3.7.4(typescript@5.4.5)(vite-plugin-vuetify@2.0.3)(vue@3.5.13(typescript@5.4.5)))
+      '@vuetify/loader-shared': 2.0.3(vue@3.5.13(typescript@5.4.5))(vuetify@3.7.4)
       debug: 4.3.5(supports-color@5.5.0)
       upath: 2.0.1
       vite: 5.4.11(@types/node@20.13.0)(sass@1.77.4)(terser@5.31.0)
