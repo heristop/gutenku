@@ -19,7 +19,7 @@
     "@vue/apollo-composable": "^4.2.1",
     "@vue/apollo-option": "^4.0.0",
     "apollo-link-timeout": "^4.0.0",
-    "core-js": "^3.37.0",
+    "core-js": "^3.40.0",
     "graphql": "^16.9.0",
     "graphql-tag": "^2.12.6",
     "graphql-ws": "^5.16.0",
