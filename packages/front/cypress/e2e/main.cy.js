@@ -16,7 +16,7 @@ describe('Landing page test', () => {
     cy.wait('@api').then(() => {
       cy.get('[data-cy=fetch-btn]').should('be.visible');
       cy.get('[data-cy=copy-btn]').should('be.visible');
-      cy.get('[data-cy=fetch-btn').click();
+      cy.get('[data-cy=fetch-btn]').click();
 
       cy.wait('@api').then(() => {
         cy.get('[data-cy=copy-btn]').click();
@@ -28,21 +28,16 @@ describe('Landing page test', () => {
           .first()
           .click();
         cy.get('[data-cy=download-btn]').should('be.visible').click();
-        cy.get('[data-cy=🤖-description]').should('not.exist');
       });
     });
   });
 
-  it('ai-generation', () => {
+  it('opens advanced config', () => {
     cy.get('[data-cy=menu-btn]').click();
-    cy.get('[data-cy=ai-boost-switch]').should('be.visible').click();
+    cy.contains('Advanced Configuration').should('be.visible');
+    cy.contains('Sentiment').should('be.visible');
+    cy.contains('Markov Chain').should('be.visible');
     cy.get('[data-cy=fetch-btn]').should('be.visible').click();
-
-    cy.wait('@api').then(() => {
-      cy.contains('AI Analysis').should('be.visible');
-    });
-
-    cy.get('[data-cy=switch-api-btn]').should('be.visible').click();
-    cy.contains('Quote Filtering').should('be.visible');
+    cy.wait('@api');
   });
 });

@@ -4,13 +4,7 @@ import { gql } from '@apollo/client/core';
 import { apolloClient } from '@/client';
 import { GraphQLError } from 'graphql';
 
-const THEME_OPTIONS = [
-  'random',
-  'colored',
-  'greentea',
-  'watermark',
-  'landscape',
-];
+const THEME_OPTIONS = ['random', 'colored', 'greentea', 'watermark'];
 
 export const useHaikuStore = defineStore({
   id: 'haiku',
@@ -33,7 +27,6 @@ export const useHaikuStore = defineStore({
     storage: sessionStorage,
     paths: [
       'optionDrawerOpened',
-      'optionUseCache',
       'optionUseAI',
       'optionTheme',
       'optionMinSentimentScore',
@@ -46,6 +39,7 @@ export const useHaikuStore = defineStore({
     notificationError: (state) => '' !== state.error,
     themeOptions: (state) =>
       state.optionImageAI ? THEME_OPTIONS.concat(['dallE']) : THEME_OPTIONS,
+    shouldUseCache: (state) => !state.firstLoaded,
   },
   actions: {
     async fetchNewHaiku(): Promise<void> {
@@ -93,7 +87,7 @@ export const useHaikuStore = defineStore({
 
         const variables = {
           useAi: this.optionUseAI,
-          useCache: this.optionUseCache,
+          useCache: this.shouldUseCache,
           theme: this.optionTheme,
           filter: this.optionFilter,
           sentimentMinScore: this.optionMinSentimentScore,

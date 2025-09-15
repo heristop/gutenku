@@ -36,19 +36,53 @@ export default class HaikuRepository {
       return [];
     }
 
-    const haikusCollection = this.db.collection('haikus');
+    try {
+      const haikusCollection = this.db.collection('haikus');
 
-    if ((await haikusCollection.countDocuments()) < minCachedDocs) {
+      // Add timeout for countDocuments operation
+      const countPromise = haikusCollection.countDocuments();
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Database operation timeout')), 5000),
+      );
+
+      const documentCount = (await Promise.race([
+        countPromise,
+        timeoutPromise,
+      ])) as number;
+
+      if (documentCount < minCachedDocs) {
+        log.info(
+          `Not enough cached documents: ${documentCount} < ${minCachedDocs}`,
+        );
+        return [];
+      }
+
+      log.info('Extract from cache');
+
+      // Add timeout for aggregation operation
+      const aggregatePromise = haikusCollection
+        .aggregate([{ $sample: { size } }])
+        .toArray();
+      const aggregateTimeoutPromise = new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error('Database aggregation timeout')),
+          5000,
+        ),
+      );
+
+      const sampledHaikus = (await Promise.race([
+        aggregatePromise,
+        aggregateTimeoutPromise,
+      ])) as HaikuDocument[];
+
+      return this.mapCachedHaikuValue(sampledHaikus);
+    } catch (error) {
+      log.warn(
+        'Cache extraction failed, falling back to generation:',
+        error.message,
+      );
       return [];
     }
-
-    log.info('Extract from cache');
-
-    const sampledHaikus = (await haikusCollection
-      .aggregate([{ $sample: { size } }])
-      .toArray()) as HaikuDocument[];
-
-    return this.mapCachedHaikuValue(sampledHaikus);
   }
 
   async extractOneFromCache(minCachedDocs: number): Promise<HaikuValue | null> {
