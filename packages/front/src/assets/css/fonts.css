@@ -7,6 +7,14 @@
 }
 
 @font-face {
+  font-family: 'JMH Typewriter';
+  src: url('@/assets/fonts/JMH Typewriter.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'Material Icons';
   font-style: normal;
   font-weight: 400;

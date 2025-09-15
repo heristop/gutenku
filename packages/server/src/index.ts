@@ -81,7 +81,11 @@ async function listen(port: number) {
 
   app.use(
     '/graphql',
-    cors<cors.CorsRequest>({ origin: process.env.CORS_WHITELIST.split(',') }),
+    cors<cors.CorsRequest>({
+      origin: (process.env.CORS_WHITELIST || 'http://localhost:3000').split(
+        ',',
+      ),
+    }),
     bodyParser.json(),
     expressMiddleware(server, {
       context: async () => ({ db: db }),

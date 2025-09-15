@@ -1,24 +1,132 @@
 <script lang="ts" setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
+import { provideApolloClient, useSubscription } from '@vue/apollo-composable';
+import { apolloClient } from '@/client';
+import gql from 'graphql-tag';
 import { useHaikuStore } from '@/store/haiku';
 import AppFooter from '@/components/AppFooter.vue';
 import HaikuCanvas from '@/components/HaikuCanvas.vue';
-import HaikuCard from '@/components/HaikuCard.vue';
 import HaikuChapter from '@/components/HaikuChapter.vue';
+import HaikuCrafting from '@/components/HaikuCrafting.vue';
+import HaikuTitle from '@/components/HaikuTitle.vue';
+import ZenToolbar from '@/components/ZenToolbar.vue';
 import SocialNetwok from '@/components/SocialNetwork.vue';
 import AppLoading from '@/components/AppLoading.vue';
 
 const { fetchNewHaiku } = useHaikuStore();
-const { error, firstLoaded, networkError, notificationError, optionUseCache } =
+const { error, firstLoaded, networkError, notificationError, loading } =
   storeToRefs(useHaikuStore());
 
-const loadingLabel = computed(() => {
-  if (true === optionUseCache.value) {
-    return 'Extracting Haiku...';
-  }
+// GraphQL subscription for real-time quotes
+const { result } = provideApolloClient(apolloClient)(() =>
+  useSubscription(gql`
+    subscription onQuoteGenerated {
+      quoteGenerated
+    }
+  `),
+);
 
-  return 'Generating Haiku...';
+const quotesReceived = ref<string[]>([]);
+const latestMessage = ref<string>('');
+const messageHistory = ref<
+  Array<{ text: string; timestamp: number; emoji: string }>
+>([]);
+
+watch(result, async (data: { quoteGenerated: string; }) => {
+  if (
+    data?.quoteGenerated &&
+    !quotesReceived.value.includes(data.quoteGenerated)
+  ) {
+    quotesReceived.value.push(data.quoteGenerated);
+    latestMessage.value = data.quoteGenerated;
+
+    // Add to message history with emoji and timestamp
+    const logLower = data.quoteGenerated.toLowerCase();
+    const emojiMap: Record<string, string> = {
+      extracting: '🔍',
+      reading: '📖',
+      analyzing: '🎭',
+      generating: '✨',
+      creating: '🎨',
+      crafting: '📝',
+      processing: '⚙️',
+      searching: '🔍',
+      loading: '📚',
+      found: '✨',
+      quote: '📝',
+      selecting: '🎯',
+      evaluating: '🧠',
+      weaving: '🕸️',
+      finalizing: '🏁',
+    };
+
+    const emoji = Object.keys(emojiMap).find((key) => logLower.includes(key));
+    const selectedEmoji = emoji ? emojiMap[emoji] : '✨';
+
+    messageHistory.value.unshift({
+      text: data.quoteGenerated,
+      timestamp: Date.now(),
+      emoji: selectedEmoji,
+    });
+
+    // Keep only last 5 messages for display
+    while (messageHistory.value.length > 5) {
+      messageHistory.value.pop();
+    }
+
+    // Keep only last 10 quotes for performance
+    while (quotesReceived.value.length > 10) {
+      quotesReceived.value.shift();
+    }
+  }
+});
+
+// Dynamic loading messages with personality
+const literaryLoadingMessages = [
+  '🔍 Our poetic robots are diving into classic literature...',
+  '📚 Scanning through the greatest works ever written...',
+  '🎭 Absorbing the emotional essence of timeless stories...',
+  '✨ Weaving seventeen syllables of pure magic...',
+  '🎨 Selecting the perfect artistic theme for your poem...',
+  '🖼️ Creating a visual masterpiece for your haiku...',
+  '📝 Adding the final touches to your literary art...',
+];
+
+const loadingLabel = computed(() => {
+  if (!firstLoaded.value || loading.value) {
+    // Priority 1: Use real-time GraphQL subscription logs if available and loading
+    if (loading.value && quotesReceived.value.length > 0) {
+      const latestLog = quotesReceived.value[quotesReceived.value.length - 1];
+      // Add emojis to make subscription messages more engaging
+      const emojiMap: Record<string, string> = {
+        extracting: '🔍',
+        reading: '📖',
+        analyzing: '🎭',
+        generating: '✨',
+        creating: '🎨',
+        crafting: '📝',
+        processing: '⚙️',
+        searching: '🔍',
+        loading: '📚',
+        found: '✨',
+        quote: '📝',
+      };
+
+      // Find matching emoji for the log message
+      const logLower = latestLog.toLowerCase();
+      const emoji = Object.keys(emojiMap).find((key) => logLower.includes(key));
+      const prefix = emoji ? emojiMap[emoji] : '✨';
+
+      return `${prefix} ${latestLog}`;
+    }
+
+    // Priority 2: Fallback to rotating personality messages
+    const index =
+      Math.floor(Date.now() / 2500) % literaryLoadingMessages.length;
+    return literaryLoadingMessages[index];
+  }
+  return 'Ready to create poetry';
 });
 
 onMounted(fetchNewHaiku);
@@ -72,12 +180,14 @@ onMounted(fetchNewHaiku);
       </v-sheet>
 
       <v-container v-if="firstLoaded && false === networkError">
-        <v-row class="d-flex">
+        <v-row class="d-flex mx-sm-16 mx-0">
           <v-col
             cols="12"
-            sm="12"
-            class="d-sm-none mx-auto h-100 align-center justify-center order-0"
+            sm="8"
+            class="d-sm-none mx-auto h-100 align-center justify-center order-0 mt-n12"
           >
+            <haiku-title class="d-sm-none mt-10" />
+
             <social-netwok />
           </v-col>
 
@@ -86,16 +196,15 @@ onMounted(fetchNewHaiku);
             sm="8"
             class="mx-auto h-100 align-center justify-center order-1"
           >
-            <haiku-card />
+            <haiku-title class="d-none d-sm-block" />
 
-            <haiku-chapter class="d-none d-sm-flex" />
-
-            <v-img
-              height="200"
-              src="@/assets/img/bird.webp"
-              alt="Bird Image"
-              class="text-primary"
+            <haiku-crafting
+              v-if="loading && messageHistory.length > 0"
+              :messages="messageHistory"
+              class="d-none d-sm-block"
             />
+
+            <haiku-chapter v-else class="d-none d-sm-block" />
           </v-col>
 
           <v-col
@@ -105,9 +214,17 @@ onMounted(fetchNewHaiku);
           >
             <social-netwok class="d-none d-sm-block" />
 
+            <zen-toolbar class="mb-2 mb-sm-6" />
+
             <haiku-canvas />
 
-            <haiku-chapter class="d-sm-none" />
+            <haiku-crafting
+              v-if="loading && messageHistory.length > 0"
+              :messages="messageHistory"
+              class="d-sm-none"
+            />
+
+            <haiku-chapter v-else class="d-sm-none" />
 
             <app-footer />
           </v-col>

@@ -9,9 +9,9 @@
     "dev": "nodemon --watch './**/*.ts' --exec 'node --loader ts-node/esm --use-strict' src/index.ts",
     "lint": "eslint . --fix --ignore-pattern .gitignore",
     "setup": "python3 scripts/setup.py",
-    "extract": "ts-node-esm scripts/extract_haiku.ts",
-    "train": "ts-node-esm scripts/markov_train.ts",
-    "post": "ts-node-esm scripts/post_haiku.ts",
+    "extract": "node --loader ts-node/esm scripts/extract_haiku.ts",
+    "train": "node --loader ts-node/esm scripts/markov_train.ts",
+    "post": "node --loader ts-node/esm scripts/post_haiku.ts",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.config.ts ./__tests__"
   },
   "type": "module",
