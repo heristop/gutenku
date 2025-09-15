@@ -19,10 +19,25 @@ parser.add_argument(
 args = parser.parse_args()
 
 # Connect to the MongoDB database
-client = pymongo.MongoClient(os.environ.get(
-    'MONGODB_URI')+'/'+os.environ.get('MONGODB_DB')
-)
-db = client[os.environ.get('MONGODB_DB')]
+mongodb_uri = os.environ.get('MONGODB_URI')
+mongodb_db = os.environ.get('MONGODB_DB')
+
+if not mongodb_uri or not mongodb_db:
+    print("Error: MONGODB_URI and MONGODB_DB environment variables must be set")
+    print("Please create a .env file based on .env.dist and set these values")
+    exit(1)
+
+try:
+    client = pymongo.MongoClient(f"{mongodb_uri}/{mongodb_db}")
+    db = client[mongodb_db]
+    # Test the connection
+    client.admin.command('ping')
+    print(f"Successfully connected to MongoDB at {mongodb_uri}")
+except pymongo.errors.ServerSelectionTimeoutError as e:
+    print(f"Error: Could not connect to MongoDB at {mongodb_uri}")
+    print("Make sure MongoDB is running locally or update MONGODB_URI in your .env file")
+    print(f"Connection error: {e}")
+    exit(1)
 haiku_collection = db["haikus"]
 
 # Added expiration index on haiku collection
@@ -32,8 +47,6 @@ ids = [
     11,     # Alice’s Adventures in Wonderland
     16,     # Peter Pan
     21,     # Aesop’s Fables
-    23,     # Narrative of the Life of Frederick Douglass
-    35,     # The Time Machine
     36,     # The War of the Worlds
     45,     # Anne of Green Gables
     55,     # The Wonderful Wizard of Oz
@@ -93,25 +106,17 @@ ids = [
     16389,  # The Enchanted April
     22381,  # Myths and Legends of Ancient Greece and Rome
     24869,  # The Rámáyan of Válmíki
-    25344,  # The Scarlet Letter
-    26184,  # Simple Sabotage Field Manual
     27827,  # The Kama Sutra of Vatsyayana
     28054,  # The Brothers Karamazov
     36034,  # White Nights and Other Stories
     55264,  # On Growth and Form
     64317,  # The Great Gatsby
-    67098,  # Winnie-the-,Pooh
     67979,  # The Blue Castle
     69087,  # The murder of Roger Ackroyd
     70114,  # The big four
     70225,  # The Fortunate Calamity
-    70234,  # Hugh Worthington,
     70236,  # The secret of the old mill
-    70301,  # My leper friends
     70302,  # Education and the good life
-    70305,  # Torwood's trust (Vol. 1 of 3)
-    70306,  # Torwood's trust (Vol. 2 of 3)
-    70307,  # Torwood's trust (Vol. 3 of 3)
     70471,  # Kabuki
     70473,  # Forrest house
     70525,  # Sahara

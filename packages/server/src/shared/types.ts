@@ -84,3 +84,16 @@ export interface ContextVerses {
   wordsAfter?: string;
   sentenceAfter?: string;
 }
+
+export interface ProcessedChapter {
+  quotes: { quote: string; index: number; syllableCount: number }[];
+  sentimentScores: Map<string, number>;
+  processedAt: Date;
+  chapterId: string;
+}
+
+export interface HaikuProcessingCache {
+  chapters: Map<string, ProcessedChapter>;
+  maxCacheSize: number;
+  ttlMs: number;
+}

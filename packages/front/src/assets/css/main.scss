@@ -1,7 +1,44 @@
 @import '@/assets/css/fonts.css';
 
+// ====================================
+// GUTENKU GLOBAL DESIGN SYSTEM
+// ====================================
+
+// CSS Variables for Design System
+:root {
+  // Colors - Book/Paper Theme
+  --gutenku-paper-bg: #f8f6f0;
+  --gutenku-paper-border: rgba(139, 69, 19, 0.2);
+  --gutenku-paper-border-hover: rgba(139, 69, 19, 0.6);
+  --gutenku-text-primary: #2c1810;
+  --gutenku-text-secondary: #4a4a4a;
+  --gutenku-text-muted: #5a5a5a;
+  --gutenku-text-accent: #6b4423;
+
+  // Button Theme Colors
+  --gutenku-btn-generate: rgba(46, 125, 50, 0.4);
+  --gutenku-btn-generate-hover: rgba(46, 125, 50, 0.6);
+  --gutenku-btn-generate-bg: rgba(46, 125, 50, 0.1);
+  --gutenku-btn-copy: rgba(69, 90, 120, 0.4);
+  --gutenku-btn-copy-hover: rgba(69, 90, 120, 0.6);
+  --gutenku-btn-copy-bg: rgba(69, 90, 120, 0.1);
+  --gutenku-btn-success: rgba(46, 125, 50, 0.6);
+  --gutenku-btn-success-bg: rgba(46, 125, 50, 0.1);
+
+  // Shadows
+  --gutenku-shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --gutenku-shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --gutenku-shadow-book: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
+  --gutenku-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  // Transitions
+  --gutenku-transition: all 0.3s ease;
+  --gutenku-transition-fast: all 0.2s ease;
+}
+
+// Typography System
 body {
-  font-family: 'ComicNeue', serif;
+  font-family: 'JMH Typewriter', monospace;
 
   p {
     font-size: 1em;
@@ -11,10 +48,281 @@ body {
   }
 
   .text-h5 {
-    font-family: 'ComicNeue', serif !important;
+    font-family: 'JMH Typewriter', monospace !important;
   }
 }
 
+// Typography Classes
+.gutenku-font-typewriter {
+  font-family: 'JMH Typewriter', monospace !important;
+}
+
+.gutenku-text-primary {
+  color: var(--gutenku-text-primary);
+}
+
+.gutenku-text-secondary {
+  color: var(--gutenku-text-secondary);
+}
+
+.gutenku-text-muted {
+  color: var(--gutenku-text-muted);
+}
+
+// Paper Background System
+.gutenku-paper {
+  background: var(--gutenku-paper-bg);
+  border: 1px solid var(--gutenku-paper-border);
+  border-radius: 8px;
+  position: relative;
+
+  // Subtle paper texture
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(139, 69, 19, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(139, 69, 19, 0.05) 0%, transparent 50%);
+    border-radius: 8px;
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+
+.gutenku-paper-content {
+  position: relative;
+  z-index: 2;
+}
+
+// Button System
+.gutenku-btn {
+  font-family: 'JMH Typewriter', monospace !important;
+  border-radius: 6px;
+  transition: var(--gutenku-transition);
+  border-width: 1.5px;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--gutenku-shadow-medium);
+  }
+
+  .btn-text {
+    margin-left: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+}
+
+.gutenku-btn-generate {
+  border-color: var(--gutenku-btn-generate);
+  color: #2e7d32;
+
+  &:hover {
+    background: var(--gutenku-btn-generate-bg);
+    border-color: var(--gutenku-btn-generate-hover);
+  }
+}
+
+.gutenku-btn-copy {
+  border-color: var(--gutenku-btn-copy);
+  color: #455a78;
+
+  &:hover {
+    background: var(--gutenku-btn-copy-bg);
+    border-color: var(--gutenku-btn-copy-hover);
+  }
+
+  &.success {
+    border-color: var(--gutenku-btn-success);
+    background: var(--gutenku-btn-success-bg);
+    color: #2e7d32;
+  }
+}
+
+// Book Page System
+.gutenku-book-page {
+  @extend .gutenku-paper;
+  padding: 3rem 2rem 2rem 3rem; // More left margin for binding
+  margin-bottom: 1.5rem;
+  min-height: 500px;
+  box-shadow: var(--gutenku-shadow-book);
+
+  // Book binding shadow
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(to bottom,
+      rgba(0, 0, 0, 0.1) 0%,
+      rgba(0, 0, 0, 0.05) 50%,
+      rgba(0, 0, 0, 0.1) 100%
+    );
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+  }
+}
+
+.gutenku-book-title {
+  font-family: 'JMH Typewriter', monospace;
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--gutenku-text-primary);
+  text-align: center;
+  margin: 2rem 0 1rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+
+  &.dark-theme {
+    opacity: 0.3;
+    filter: blur(2px);
+    transition: var(--gutenku-transition);
+  }
+
+  &.light-theme {
+    opacity: 1;
+    filter: blur(0);
+    transition: var(--gutenku-transition);
+  }
+}
+
+.gutenku-book-author {
+  font-family: 'JMH Typewriter', monospace;
+  font-size: 1.2rem;
+  color: var(--gutenku-text-secondary);
+  text-align: center;
+  margin-bottom: 2.5rem;
+  font-style: italic;
+
+  &::before {
+    content: 'by ';
+    font-style: normal;
+    opacity: 0.7;
+  }
+
+  &.dark-theme {
+    opacity: 0.3;
+    filter: blur(2px);
+    transition: var(--gutenku-transition);
+  }
+
+  &.light-theme {
+    opacity: 1;
+    filter: blur(0);
+    transition: var(--gutenku-transition);
+  }
+}
+
+.gutenku-chapter-text {
+  font-family: 'JMH Typewriter', monospace;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #2c2c2c;
+  text-align: justify;
+  margin: 0;
+  padding: 1.5rem 0;
+  position: relative;
+}
+
+.gutenku-btn-toggle {
+  @extend .gutenku-btn;
+  background: rgba(139, 69, 19, 0.1) !important;
+  border: 1px solid rgba(139, 69, 19, 0.3);
+
+  &:hover {
+    background: rgba(139, 69, 19, 0.2) !important;
+    transform: scale(1.05) translateY(-1px);
+  }
+
+  &.expand-toggle {
+    background: rgba(34, 139, 34, 0.1) !important;
+    border: 1px solid rgba(34, 139, 34, 0.3);
+
+    &:hover {
+      background: rgba(34, 139, 34, 0.2) !important;
+    }
+  }
+}
+
+// Layout Components
+.gutenku-card {
+  @extend .gutenku-paper;
+  padding: 1rem 1.5rem;
+  margin: 1rem 0;
+  box-shadow: var(--gutenku-shadow-light), var(--gutenku-shadow-inset);
+
+  .action-buttons {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  .zen-btn {
+    @extend .gutenku-btn;
+    min-width: 100px;
+    height: 36px;
+  }
+}
+
+// Transitions
+.gutenku-fade-enter-active,
+.gutenku-fade-leave-active {
+  transition: var(--gutenku-transition);
+}
+
+.gutenku-fade-enter-from,
+.gutenku-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .gutenku-card {
+    padding: 0.75rem 1rem;
+
+    .action-buttons {
+      flex-direction: column;
+      gap: 0.5rem;
+
+      .zen-btn,
+      .gutenku-btn {
+        width: 100%;
+        min-width: unset;
+      }
+    }
+  }
+
+  .gutenku-book-page {
+    padding: 2rem 1.5rem 1.5rem 2rem;
+    min-height: 400px;
+  }
+
+  .gutenku-book-title {
+    font-size: 1.5rem;
+  }
+
+  .gutenku-book-author {
+    font-size: 1rem;
+  }
+
+  .gutenku-chapter-text {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+}
+
+// Legacy Support (maintain existing classes)
 .v-btn {
   text-transform: none;
 }

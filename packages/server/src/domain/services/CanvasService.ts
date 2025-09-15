@@ -7,7 +7,6 @@ import { HaikuValue } from '../../shared/types';
 import colored from '../../shared/themes/colored';
 import greentea from '../../shared/themes/greentea';
 import watermark from '../../shared/themes/watermark';
-import landscape from '../../shared/themes/landscape';
 import dallE from '../../shared/themes/dallE';
 
 @singleton()
@@ -25,7 +24,7 @@ export default class CanvasService {
     log.info(`Creating image with theme: ${this.theme}`);
 
     if ('random' === this.theme) {
-      const themes = ['colored', 'greentea', 'watermark', 'landscape'];
+      const themes = ['colored', 'greentea', 'watermark'];
       const randomIndex = Math.floor(Math.random() * themes.length);
       this.theme = themes[randomIndex];
     }
@@ -39,9 +38,6 @@ export default class CanvasService {
         break;
       case 'watermark':
         createCanvas = watermark.create;
-        break;
-      case 'landscape':
-        createCanvas = landscape.create;
         break;
       case 'dallE':
         createCanvas = dallE.create;

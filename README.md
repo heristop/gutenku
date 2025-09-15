@@ -18,8 +18,6 @@ Want more? Visit 🔗[gutenku.xyz](https://gutenku.xyz) or come back tomorrow �
 
 GutenKu is a creative, literature-inspired project that uses Natural Language Processing (NLP), Markov Chain algorithms, Vue.js, and MongoDB to generate haiku poetry. The project scrapes selected text data from Project Gutenberg, a vast online library of free eBooks. This data is then processed to extract quotes, generate unique haiku, and offer sentiment analysis of the created poems. Furthermore, GutenKu employs OpenAI to improve selection and provide descriptions for each haiku. Ultimately, the application generates images of the haikus.
 
-![Preview](https://github.com/heristop/gutenku/blob/main/assets/img/homepage.jpg?raw=true)
-
 ## How it works
 
 GutenKu operates by leveraging Python to scrape textual data from a curated whitelist of eBooks on Project Gutenberg. This gathered data is then processed through a Markov Chain, a probabilistic model that transitions from one state to another based on defined rules. The model is employed to identify and sequence sentences with the highest transition probabilities.
@@ -49,8 +47,6 @@ Thanks to the creators and maintainers of Project Gutenberg for providing the te
 
 ---
 
-![GutenKu Logo](/assets/logo/gutenku.png)
-
 <footer>
-    <p>© 2023 heristop / <a href="https://instagram.com/gutenku.poem" target="_blank">@gutenku.poem</a>. All rights reserved.</p>
+    <p>© 2023-2025 heristop / <a href="https://instagram.com/gutenku.poem" target="_blank">@gutenku.poem</a>. All rights reserved.</p>
 </footer>

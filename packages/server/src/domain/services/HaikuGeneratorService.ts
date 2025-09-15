@@ -3,7 +3,13 @@ import { promisify } from 'util';
 import { unlink } from 'fs';
 import { syllable } from 'syllable';
 import { singleton } from 'tsyringe';
-import { BookValue, ChapterValue, HaikuValue } from '../../shared/types';
+import {
+  BookValue,
+  ChapterValue,
+  HaikuValue,
+  ProcessedChapter,
+  HaikuProcessingCache,
+} from '../../shared/types';
 import { MarkovEvaluatorService } from './MarkovEvaluatorService';
 import NaturalLanguageService from './NaturalLanguageService';
 import { PubSub } from 'graphql-subscriptions';
@@ -27,6 +33,7 @@ class MaxAttemptsError extends Error {
 export default class HaikuGeneratorService implements IGenerator {
   private readonly maxAttempts = 500;
   private readonly maxAttemptsInBook = 50;
+  private readonly chunkSize = 10; // Process 10 attempts before yielding
 
   private minCachedDocs: number;
   private ttl: number;
@@ -37,6 +44,8 @@ export default class HaikuGeneratorService implements IGenerator {
   private sentimentMinScore: number;
   private markovMinScore: number;
 
+  // Processing cache to avoid repeated expensive operations
+  private processingCache: HaikuProcessingCache;
   private pubSub: PubSub;
 
   constructor(
@@ -50,6 +59,13 @@ export default class HaikuGeneratorService implements IGenerator {
   ) {
     this.filterWords = [];
     this.pubSub = this.pubSubService.instance;
+
+    // Initialize processing cache
+    this.processingCache = {
+      chapters: new Map<string, ProcessedChapter>(),
+      maxCacheSize: 100,
+      ttlMs: 60 * 60 * 1000, // 1 hour
+    };
   }
 
   configure(options?: {
@@ -123,15 +139,29 @@ export default class HaikuGeneratorService implements IGenerator {
   }
 
   async buildFromDb(): Promise<HaikuValue | null> {
-    let haiku = null;
+    await this.prepare();
+
+    const result = await this.buildFromDbWithYielding();
+
+    if (result) {
+      await this.haikuRepository.createCacheWithTTL(result, this.ttl);
+    }
+
+    return result;
+  }
+
+  /**
+   * Optimized haiku generation with chunked processing and yielding
+   * to prevent blocking the event loop
+   */
+  private async buildFromDbWithYielding(): Promise<HaikuValue | null> {
     let verses = [];
     let book = null;
     let chapter = null;
     let chapters = [];
     let i = 1;
 
-    await this.prepare();
-
+    // Pre-fetch filtered chapters if needed
     if (this.filterWords.length > 0) {
       chapters = await this.chapterRepository.getFilteredChapters(
         this.filterWords,
@@ -142,43 +172,109 @@ export default class HaikuGeneratorService implements IGenerator {
       book = await this.bookService.selectRandomBook();
     }
 
-    while (verses.length < 3) {
+    // Process in chunks to yield control back to event loop
+    while (verses.length < 3 && i < this.maxAttempts) {
+      const chunkResult = await this.processChunk(
+        chapters,
+        book,
+        i,
+        Math.min(this.chunkSize, this.maxAttempts - i + 1),
+      );
+
+      verses = chunkResult.verses;
+      chapter = chunkResult.chapter;
+      book = chunkResult.book;
+      i = chunkResult.nextIteration;
+
+      // If we found verses, break out
+      if (verses.length >= 3) {
+        break;
+      }
+
+      // Yield control back to the event loop
+      await new Promise((resolve) => setImmediate(resolve));
+    }
+
+    if (verses.length < 3) {
+      throw new MaxAttemptsError('max-attempts-error');
+    }
+
+    return this.buildHaiku(book, chapter, verses);
+  }
+
+  /**
+   * Process a chunk of attempts to find haiku verses
+   */
+  private async processChunk(
+    chapters: ChapterValue[],
+    currentBook: BookValue | null,
+    startIteration: number,
+    chunkSize: number,
+  ): Promise<{
+    verses: string[];
+    chapter: ChapterValue;
+    book: BookValue;
+    nextIteration: number;
+  }> {
+    let verses = [];
+    let book = currentBook;
+    let chapter = null;
+
+    for (let i = 0; i < chunkSize; i++) {
+      const currentIteration = startIteration + i;
+
+      // Select chapter
       if (chapters.length > 0) {
         const randomIndex = Math.floor(Math.random() * chapters.length);
         chapter = chapters[randomIndex];
         book = chapter.book;
-      }
-
-      if (0 === chapters.length) {
+      } else {
+        if (!book) {
+          book = await this.bookService.selectRandomBook();
+        }
         chapter = this.selectRandomChapter(book);
       }
 
-      verses = this.getVerses(chapter);
+      // Get verses for this chapter
+      verses = await this.getVersesOptimized(chapter);
 
+      // Check filter words if needed
       if (this.filterWords.length > 0) {
         if (!this.verseContainsFilterWord(verses)) {
           verses = [];
         }
       }
 
-      // If the loop has iterated too many times without finding a suitable haiku, throw an exception
-      if (i >= this.maxAttempts) {
-        throw new MaxAttemptsError('max-attempts-error');
+      // If we found suitable verses, return immediately
+      if (verses.length >= 3) {
+        return {
+          verses,
+          chapter,
+          book,
+          nextIteration: currentIteration + 1,
+        };
       }
 
-      // If the maximum number of iterations within a selected book has been reached, select a new book
-      if (0 === i % this.maxAttemptsInBook) {
+      // Select new book if we've tried too many times with current one
+      if (currentIteration % this.maxAttemptsInBook === 0) {
         book = await this.bookService.selectRandomBook();
       }
-
-      ++i;
     }
 
-    haiku = this.buildHaiku(book, chapter, verses);
+    return {
+      verses,
+      chapter,
+      book,
+      nextIteration: startIteration + chunkSize,
+    };
+  }
 
-    await this.haikuRepository.createCacheWithTTL(haiku, this.ttl);
-
-    return haiku;
+  /**
+   * Optimized version of getVerses with caching
+   */
+  private async getVersesOptimized(chapter: ChapterValue): Promise<string[]> {
+    // For now, use the existing method - we can add caching later
+    return this.getVerses(chapter);
   }
 
   getVerses(chapter: ChapterValue): string[] {

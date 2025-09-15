@@ -1,2 +1,18 @@
 packages:
-  - 'packages/*'
+  - packages/*
+
+onlyBuiltDependencies:
+  - '@apollo/protobufjs'
+  - canvas
+  - core-js
+  - cwebp-bin
+  - cypress
+  - esbuild
+  - gifsicle
+  - jpegtran-bin
+  - mongodb-memory-server
+  - mozjpeg
+  - optipng-bin
+  - pngquant-bin
+  - sharp
+  - vue-demi

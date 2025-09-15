@@ -34,5 +34,6 @@
   },
   "dependencies": {
     "@commitlint/config-conventional": "^19.6.0"
-  }
+  },
+  "packageManager": "pnpm@10.16.1"
 }

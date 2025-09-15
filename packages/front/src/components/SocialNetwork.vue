@@ -31,16 +31,15 @@ const handleClick = (url: string) => {
 
 <template>
   <v-card
-    class="about-card pa-4 mb-sm-6 mb-0"
+    class="gutenku-card about-card pa-4 mb-sm-6 mb-0"
     role="complementary"
     aria-label="About GutenKu"
-    elevation="1"
   >
     <v-card-title class="about-card__header ma-2">
       <v-img
         height="56"
         alt="GutenKu Logo"
-        src="@/assets/img/logo/gutenku_rounded.png"
+        src="@/assets/img/logo/gutenku-logo.png"
         class="about-card__logo"
       />
     </v-card-title>
@@ -50,7 +49,8 @@ const handleClick = (url: string) => {
         <strong>GutenKu</strong> is a Haiku generator based on a selection of
         books from <span class="visually-hidden">the</span> Project Gutenberg, a
         vast online library of free eBooks, and then process this data to
-        extract quotes and generate unique haiku.
+        extract quotes and generate unique haiku
+        <strong>5</strong>-<strong>7</strong>-<strong>5</strong>
       </p>
     </div>
 
@@ -83,6 +83,7 @@ const handleClick = (url: string) => {
 </template>
 
 <style lang="scss" scoped>
+// Component-specific styles only (shadow handled by global .gutenku-card)
 .about-card {
   &__header {
     display: flex;
@@ -90,7 +91,7 @@ const handleClick = (url: string) => {
   }
 
   &__logo {
-    transition: transform 0.2s ease;
+    transition: var(--gutenku-transition-fast);
 
     &:hover {
       transform: scale(1.05);

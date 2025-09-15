@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ref, computed, onBeforeMount, onMounted, onUnmounted } from 'vue';
+import { useLoadingMessages } from '@/composables/useLoadingMessages';
 
 const props = defineProps({
   splash: {
@@ -59,6 +60,9 @@ onUnmounted(() => {
     clearInterval(iconInterval);
   }
 });
+
+const { message: randomMessage } = useLoadingMessages({ context: 'default' });
+const displayText = computed(() => props.text || randomMessage);
 </script>
 
 <template>
@@ -80,17 +84,13 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div v-if="text">
-      <v-img
-        src="@/assets/img/logo/gutenku_rounded.png"
-        alt="Logo"
-        height="60"
-      />
+    <div v-if="displayText">
+      <v-img src="@/assets/img/logo/gutenku-logo.png" alt="Logo" height="60" />
 
       <v-spacer class="pa-10" />
 
       <v-sheet class="loading-text px-4 py-1" color="primary">
-        {{ text }}
+        {{ displayText }}
       </v-sheet>
 
       <v-progress-linear
