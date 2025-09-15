@@ -51,11 +51,3 @@ Cypress:
 ```bash
 pnpm add cypress --dev -g
 ```
-
----
-
-![GutenKu Logo](/assets/logo/gutenku.png)
-
-<footer>
-    <p>© 2023 heristop / <a href="https://instagram.com/gutenku.poem" target="_blank">@gutenku.poem</a>. All rights reserved.</p>
-</footer>
