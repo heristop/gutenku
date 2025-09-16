@@ -1,28 +1,25 @@
 /// <reference types="cypress" />
 
-Cypress.on('uncaught:exception', (err, runnable) => {
-  // returning false here prevents Cypress from
-  // failing the test
-  return false;
-});
-
 describe('Landing page test', () => {
   beforeEach(() => {
-    cy.intercept('POST', /\/graphql$/, { fixture: 'haiku.json' }).as('api');
-    cy.visit('http://localhost:3000');
+    cy.interceptGraphQL('api', 'haiku.json');
+    cy.visitApp('/');
   });
 
   it('homepage', () => {
-    cy.wait('@api').then(() => {
+    cy.waitForHaiku('api').then(() => {
       cy.get('[data-cy=fetch-btn]').should('be.visible');
       cy.get('[data-cy=copy-btn]').should('be.visible');
       cy.get('[data-cy=fetch-btn]').click();
 
-      cy.wait('@api').then(() => {
+      cy.waitForHaiku('api').then(() => {
         cy.get('[data-cy=copy-btn]').click();
-        cy.get('[data-cy=copy-success-icon]').should('be.visible');
-        cy.wait(2000);
-        cy.get('[data-cy=copy-success-icon]').should('not.exist');
+        cy.get('[data-cy=copy-success-icon]', { timeout: 4000 }).should(
+          'be.visible',
+        );
+        cy.get('[data-cy=copy-success-icon]', { timeout: 5000 }).should(
+          'not.exist',
+        );
         cy.get('[data-cy=light-toggle-btn]')
           .should('be.visible')
           .first()
@@ -38,6 +35,6 @@ describe('Landing page test', () => {
     cy.contains('Sentiment').should('be.visible');
     cy.contains('Markov Chain').should('be.visible');
     cy.get('[data-cy=fetch-btn]').should('be.visible').click();
-    cy.wait('@api');
+    cy.waitForHaiku('api');
   });
 });

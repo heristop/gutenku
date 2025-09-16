@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "test": "cypress run",
     "test:gui": "cypress run --headed --no-exit",
-    "lint": "eslint . --fix"
+    "lint": "eslint . --fix --no-warn-ignored"
   },
   "dependencies": {
     "@apollo/client": "^3.10.1",
