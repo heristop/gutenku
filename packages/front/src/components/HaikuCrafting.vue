@@ -21,6 +21,7 @@ const { message: craftingMessage } = useLoadingMessages({
     <!-- Book Header Style for Crafting -->
     <div class="book-header">
       <div class="crafting-text">{{ craftingMessage }}</div>
+
       <div class="header-controls">
         <v-icon class="craft-icon" color="primary" size="large">
           mdi-creation
@@ -173,7 +174,7 @@ const { message: craftingMessage } = useLoadingMessages({
     font-family: 'JMH Typewriter', monospace;
     font-size: 0.9rem;
     color: #5a5a5a;
-    font-style: italic;
+    text-transform: uppercase;
     margin-bottom: 1rem;
   }
 
@@ -245,7 +246,7 @@ const { message: craftingMessage } = useLoadingMessages({
   border-radius: 8px;
   border-left: 3px solid transparent;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  font-size: 1rem;
+  font-size: 0.9rem;
   line-height: 1.8;
   color: #2c2c2c;
   width: 100%;
