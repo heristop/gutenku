@@ -165,7 +165,7 @@ onMounted(fetchNewHaiku);
     </v-tooltip>
   </v-container>
 
-  <v-container class="fill-height">
+  <v-container class="fill-height pa-2 pa-sm-4">
     <div class="d-flex text-center fill-height">
       <v-sheet v-if="false === firstLoaded">
         <app-loading :text="loadingLabel" :splash="true" />
@@ -179,25 +179,25 @@ onMounted(fetchNewHaiku);
         />
       </v-sheet>
 
-      <v-container v-if="firstLoaded && false === networkError">
-        <v-row justify="center">
-          <v-col cols="12" lg="10" xl="9">
-            <v-row>
+      <v-container v-if="firstLoaded && false === networkError" class="pa-2 pa-sm-4">
+        <v-row justify="center" no-gutters>
+          <v-col cols="12" lg="10" xl="9" class="pa-0">
+            <v-row no-gutters>
           <v-col
             cols="12"
             sm="8"
-            class="d-sm-none mx-auto h-100 align-center justify-center order-0 mt-n12"
+            class="d-sm-none mx-auto h-100 align-center justify-center order-0 pa-1"
           >
-            <haiku-title class="d-sm-none mt-10" />
+            <haiku-title class="d-sm-none mb-2" />
 
-            <social-netwok />
+            <social-netwok class="mb-3" />
           </v-col>
 
           <v-col
             cols="12"
             sm="8"
             md="8"
-            class="h-100 align-center justify-center order-1"
+            class="h-100 align-center justify-center order-1 pa-1 pa-sm-3"
           >
             <haiku-title class="d-none d-sm-block" />
 
@@ -214,21 +214,21 @@ onMounted(fetchNewHaiku);
             cols="12"
             sm="4"
             md="4"
-            class="h-100 align-center justify-center order-2"
+            class="h-100 align-center justify-center order-2 pa-1 pa-sm-3"
           >
             <social-netwok class="d-none d-sm-block" />
 
-            <zen-toolbar class="mb-2 mb-sm-6" />
+            <zen-toolbar class="mb-3 mb-sm-6" />
 
-            <haiku-canvas />
+            <haiku-canvas class="mb-3" />
 
             <haiku-crafting
               v-if="loading && messageHistory.length > 0"
               :messages="messageHistory"
-              class="d-sm-none"
+              class="d-sm-none mb-2"
             />
 
-            <haiku-chapter v-else class="d-sm-none" />
+            <haiku-chapter v-else class="d-sm-none mb-2" />
 
             <app-footer />
           </v-col>
