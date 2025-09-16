@@ -9,7 +9,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-- Node.js (v18)
+- Node.js (v22)
 - Python (for scraping eBooks)
 
 ### Installation
