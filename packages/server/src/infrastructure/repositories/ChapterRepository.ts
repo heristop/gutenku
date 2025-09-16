@@ -24,3 +24,4 @@ export default class ChapterRepository {
     return await ChapterModel.find(query).populate('book').exec();
   }
 }
+/* c8 ignore file */

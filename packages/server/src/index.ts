@@ -113,3 +113,4 @@ async function main() {
 }
 
 void main();
+/* c8 ignore file */

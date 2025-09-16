@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { load } from '@fingerprintjs/botd';
 import { storeToRefs } from 'pinia';
 import { useHaikuStore } from '@/store/haiku';
@@ -17,6 +17,29 @@ function toggle(): void {
 function toggleCompactedView(): void {
   isCompacted.value = !isCompacted.value;
 }
+
+// Handle keyboard accessibility
+function handleKeydown(event: KeyboardEvent): void {
+  if (event.code === 'Space' || event.code === 'Enter') {
+    event.preventDefault();
+    toggle();
+  }
+}
+
+// Generate consistent page number based on haiku data
+const pageNumber = computed(() => {
+  if (!haiku.value?.book?.title || !haiku.value?.chapter?.title) return 1;
+
+  // Create a simple hash from book and chapter titles for consistency
+  const combined = haiku.value.book.title + haiku.value.chapter.title;
+  let hash = 0;
+  for (let i = 0; i < combined.length; i++) {
+    const char = combined.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return Math.abs(hash % 200) + 1;
+});
 
 function getCompactedText(): string {
   if (!haiku.value?.chapter.content || !haiku.value?.rawVerses) return '';
@@ -76,7 +99,11 @@ onMounted(() => {
     <!-- Book Header with Toggles -->
     <div class="book-header">
       <div class="disclosure-text">
-        Disclose chapter where quotes were extracted
+        {{
+          blackMarker
+            ? 'Click anywhere on the text to reveal content'
+            : 'Click anywhere to hide content'
+        }}
       </div>
       <div class="header-controls">
         <!-- Stabilo Toggle -->
@@ -127,7 +154,19 @@ onMounted(() => {
     </div>
 
     <!-- Book Content -->
-    <div class="book-content" @click="toggle()">
+    <div
+      class="book-content"
+      @click="toggle()"
+      @keydown="handleKeydown"
+      tabindex="0"
+      role="button"
+      :aria-label="
+        blackMarker
+          ? 'Click to reveal hidden text content'
+          : 'Click to hide text content'
+      "
+      :aria-pressed="!blackMarker"
+    >
       <!-- Book Title -->
       <h1
         :class="{
@@ -172,7 +211,7 @@ onMounted(() => {
     </div>
 
     <!-- Optional page number -->
-    <div class="page-number">— {{ Math.floor(Math.random() * 200) + 1 }} —</div>
+    <div class="page-number">— {{ pageNumber }} —</div>
   </v-card>
 </template>
 
@@ -194,7 +233,7 @@ onMounted(() => {
   // Book page background - solid color eliminates highlighting interference
   background: #f8f6f0;
   position: relative;
-  padding: 3rem 2rem 2rem 3rem; // More left margin for binding
+  padding: 3rem 2rem 2rem 3rem;
   margin-bottom: 1.5rem;
   min-height: 500px;
   border-radius: 4px;
@@ -226,7 +265,8 @@ onMounted(() => {
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: radial-gradient(
+    background-image:
+      radial-gradient(
         circle at 20% 50%,
         rgba(120, 119, 108, 0.3) 0%,
         transparent 50%
@@ -282,8 +322,8 @@ onMounted(() => {
     transition: all 0.2s ease;
 
     &:hover {
-      background: rgba(139, 69, 19, 0.2) !important;
-      transform: scale(1.05);
+      background: rgba(var(--v-theme-primary), 0.15);
+      opacity: 0.8;
     }
 
     &.expand-toggle {
@@ -301,6 +341,26 @@ onMounted(() => {
   position: relative;
   z-index: 2;
   font-family: 'JMH Typewriter', monospace;
+  cursor:
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>'),
+    auto;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-1px);
+  }
+
+  &:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
 }
 
 .book-title {
@@ -485,7 +545,7 @@ onMounted(() => {
   }
 }
 
-// Page number (optional decoration)
+// Page number
 .page-number {
   position: absolute;
   bottom: 1rem;

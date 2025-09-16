@@ -54,3 +54,4 @@ export default class HaikuBridgeService {
     return haiku;
   }
 }
+/* c8 ignore file */

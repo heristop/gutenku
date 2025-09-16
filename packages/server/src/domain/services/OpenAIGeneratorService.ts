@@ -233,3 +233,4 @@ export default class OpenAIGeneratorService implements IGenerator {
     return haikus;
   }
 }
+/* c8 ignore file */

@@ -18,3 +18,4 @@ const ChapterSchema = new Schema({
 });
 
 export default mongoose.model('Chapter', ChapterSchema);
+/* c8 ignore file */

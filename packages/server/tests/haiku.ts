@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { expect, it } from '@jest/globals';
+import { expect, it } from 'vitest';
 import HaikuHelper from '../src/shared/helpers/HaikuHelper';
 
 dotenv.config();

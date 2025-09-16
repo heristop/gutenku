@@ -22,6 +22,14 @@ export const useHaikuStore = defineStore({
     optionMinSentimentScore: 0.1 as number,
     optionMinMarkovScore: 0.1 as number,
     optionDescriptionTemperature: 0.3 as number,
+    stats: {
+      haikusGenerated: 0 as number,
+      cachedHaikus: 0 as number,
+      booksBrowsed: 0 as number,
+      totalExecutionTime: 0 as number,
+      books: [] as string[],
+      bookCounts: {} as Record<string, number>,
+    },
   }),
   persist: {
     storage: sessionStorage,
@@ -32,6 +40,7 @@ export const useHaikuStore = defineStore({
       'optionMinSentimentScore',
       'optionMinMarkovScore',
       'optionDescriptionTemperature',
+      'stats',
     ],
   },
   getters: {
@@ -40,6 +49,10 @@ export const useHaikuStore = defineStore({
     themeOptions: (state) =>
       state.optionImageAI ? THEME_OPTIONS.concat(['dallE']) : THEME_OPTIONS,
     shouldUseCache: (state) => !state.firstLoaded,
+    avgExecutionTime: (state) =>
+      state.stats.haikusGenerated > 0
+        ? state.stats.totalExecutionTime / state.stats.haikusGenerated
+        : 0,
   },
   actions: {
     async fetchNewHaiku(): Promise<void> {
@@ -103,6 +116,28 @@ export const useHaikuStore = defineStore({
         });
 
         this.haiku = data.haiku;
+
+        // Update stats
+        if (data?.haiku) {
+          this.stats.haikusGenerated += 1;
+          if (true === data.haiku.cacheUsed) {
+            this.stats.cachedHaikus += 1;
+          }
+          if (typeof data.haiku.executionTime === 'number') {
+            this.stats.totalExecutionTime += data.haiku.executionTime;
+          }
+          const bookTitle = data.haiku.book?.title?.trim();
+          if (bookTitle) {
+            // Unique tracking for browsed
+            if (!this.stats.books.includes(bookTitle)) {
+              this.stats.books.push(bookTitle);
+              this.stats.booksBrowsed = this.stats.books.length;
+            }
+            // Frequency tracking for top 3
+            this.stats.bookCounts[bookTitle] =
+              (this.stats.bookCounts[bookTitle] || 0) + 1;
+          }
+        }
       } catch (error: unknown) {
         const graphQLError = error as GraphQLError;
 

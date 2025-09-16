@@ -17,7 +17,8 @@
     "extract": "pnpm --filter @gutenku/api extract",
     "train": "pnpm --filter @gutenku/api train",
     "post": "pnpm --filter @gutenku/api post",
-    "build": "pnpm --filter @gutenku/vue build"
+    "build": "pnpm --filter @gutenku/vue build",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",

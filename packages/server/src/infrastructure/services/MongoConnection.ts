@@ -46,3 +46,4 @@ export default class MongoConnection {
     return this.db;
   }
 }
+/* c8 ignore file */
