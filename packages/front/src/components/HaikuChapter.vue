@@ -265,7 +265,7 @@ onMounted(() => {
     font-family: 'JMH Typewriter', monospace;
     font-size: 0.9rem;
     color: #5a5a5a;
-    font-style: italic;
+    text-transform: uppercase;
     margin-bottom: 1rem;
   }
 
