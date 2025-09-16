@@ -1,0 +1,15 @@
+{
+  "data": {
+    "haiku": {
+      "book": { "title": "Cached Book", "author": "Author" },
+      "chapter": { "content": "lorem ipsum", "title": "Chapter" },
+      "verses": ["one", "two", "three"],
+      "rawVerses": ["one", "two", "three"],
+      "image": null,
+      "title": "A cached haiku",
+      "description": "desc",
+      "cacheUsed": true,
+      "executionTime": 0.1
+    }
+  }
+}

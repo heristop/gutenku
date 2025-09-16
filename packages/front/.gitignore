@@ -1,9 +1,4 @@
 /dist
-
-# Cypress
-/cypress/screenshots
-/cypress/videos
-/cypress/downloads
-
-# Build
-tsconfig.tsbuildinfo
+cypress/videos
+cypress/screenshots
+coverage/
