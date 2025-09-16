@@ -31,5 +31,5 @@ export default createVuetify({
     themes: {
       gutenkuTheme,
     },
-  }
+  },
 });
