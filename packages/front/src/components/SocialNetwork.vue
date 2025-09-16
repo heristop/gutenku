@@ -35,6 +35,11 @@ const handleClick = (url: string) => {
     role="complementary"
     aria-label="About GutenKu"
   >
+    <!-- Classic Solid Bookmark -->
+    <div class="bookmark-3d" aria-hidden="true">
+      <div class="bookmark-ribbon"></div>
+    </div>
+
     <v-card-title class="about-card__header ma-2">
       <v-img
         height="56"
@@ -83,8 +88,72 @@ const handleClick = (url: string) => {
 </template>
 
 <style lang="scss" scoped>
+// Classic Solid Bookmark - simple and clearly visible
+.bookmark-3d {
+  position: absolute;
+  top: -15px;
+  right: 20px;
+  pointer-events: none;
+  z-index: 15;
+
+  .bookmark-ribbon {
+    position: relative;
+    width: 24px;
+    height: 45px;
+    background: #8b4513; // Solid brown color
+    border-radius: 3px 3px 0 0;
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.3),
+      inset 1px 1px 2px rgba(255, 255, 255, 0.2),
+      inset -1px -1px 2px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+
+    // Classic bookmark V-notch at bottom
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 12px solid #8b4513;
+      border-right: 12px solid #8b4513;
+      border-bottom: 8px solid transparent;
+    }
+
+    // Bookmark hole for string (optional detail)
+    &::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 50%;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    // Hover effect
+    &:hover {
+      background: #a0522d; // Slightly lighter brown on hover
+      transform: translateY(-2px);
+      box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.4),
+        inset 1px 1px 2px rgba(255, 255, 255, 0.3),
+        inset -1px -1px 2px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
 // Component-specific styles only (shadow handled by global .gutenku-card)
 .about-card {
+  // Ensure the card has relative positioning for the bookmark and allows overflow
+  position: relative;
+  overflow: visible; // Allow 3D bookmark to extend beyond card boundaries
+
   &__header {
     display: flex;
     justify-content: center;
@@ -94,7 +163,7 @@ const handleClick = (url: string) => {
     transition: var(--gutenku-transition-fast);
 
     &:hover {
-      transform: scale(1.05);
+      opacity: 0.8;
     }
   }
 
@@ -121,5 +190,48 @@ const handleClick = (url: string) => {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+// Responsive bookmark sizing
+@media (max-width: 768px) {
+  .bookmark-3d {
+    top: -12px;
+    right: 16px;
+
+    .bookmark-ribbon {
+      width: 20px;
+      height: 38px;
+
+      &::after {
+        border-left: 10px solid #8b4513;
+        border-right: 10px solid #8b4513;
+        border-bottom: 6px solid transparent;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .bookmark-3d {
+    top: -10px;
+    right: 12px;
+
+    .bookmark-ribbon {
+      width: 18px;
+      height: 32px;
+
+      &::after {
+        border-left: 9px solid #8b4513;
+        border-right: 9px solid #8b4513;
+        border-bottom: 5px solid transparent;
+      }
+
+      &::before {
+        top: 6px;
+        width: 3px;
+        height: 3px;
+      }
+    }
+  }
 }
 </style>

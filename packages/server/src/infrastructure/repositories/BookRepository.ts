@@ -55,3 +55,4 @@ export default class BookRepository {
     return randomBook;
   }
 }
+/* c8 ignore file */

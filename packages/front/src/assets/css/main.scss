@@ -34,6 +34,25 @@
   // Transitions
   --gutenku-transition: all 0.3s ease;
   --gutenku-transition-fast: all 0.2s ease;
+
+  // Zen Variables (Referenced throughout CSS but not defined)
+  --gutenku-paper-bg-warm: #faf8f2;
+  --gutenku-paper-bg-aged: #f5f2e8;
+  --gutenku-text-zen: #2F5D62;
+  --gutenku-zen-primary: #2F5D62;
+  --gutenku-zen-secondary: #7D9D9C;
+  --gutenku-zen-accent: #A7C4BC;
+  --gutenku-zen-mist: rgba(167, 196, 188, 0.1);
+  --gutenku-zen-water: rgba(47, 93, 98, 0.05);
+  --gutenku-shadow-zen: 0 8px 32px rgba(47, 93, 98, 0.1);
+  --gutenku-shadow-ink: 0 2px 8px rgba(47, 93, 98, 0.15);
+  --gutenku-transition-zen: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --gutenku-transition-slow: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  --gutenku-space-5: 0.5rem;
+  --gutenku-space-7: 0.7rem;
+  --gutenku-space-haiku: 1.75rem;
+  --gutenku-space-golden-sm: 1rem;
+  --gutenku-space-golden-md: 1.618rem;
 }
 
 // Typography System
@@ -98,7 +117,7 @@ body {
   z-index: 2;
 }
 
-// Enhanced Button System with Zen Interactions
+// Button System with Zen Interactions
 .gutenku-btn {
   font-family: 'JMH Typewriter', monospace !important;
   border-radius: 6px;
@@ -122,7 +141,7 @@ body {
     border-radius: 50%;
   }
 
-  // Enhanced hover with zen breathing
+  // Hover with zen breathing
   &:hover {
     transform: translateY(-2px) scale(1.02);
     box-shadow: var(--gutenku-shadow-ink);
@@ -339,7 +358,7 @@ body {
   }
 }
 
-// Enhanced Zen Transitions and Animations
+// Zen Transitions and Animations
 .gutenku-fade-enter-active,
 .gutenku-fade-leave-active {
   transition: var(--gutenku-transition-zen);
@@ -521,7 +540,7 @@ body {
   }
 }
 
-// Enhanced Responsive Design
+// Responsive Design
 @media (max-width: 768px) {
   .gutenku-card {
     padding: var(--gutenku-space-7) var(--gutenku-space-golden-sm);
@@ -579,16 +598,16 @@ body {
   }
 }
 
-// Dark mode enhancements (if needed later)
-@media (prefers-color-scheme: dark) {
-  :root {
-    --gutenku-paper-bg: #2a2520;
-    --gutenku-paper-bg-warm: #2d2722;
-    --gutenku-text-primary: #e8e3d8;
-    --gutenku-text-secondary: #c4bfb4;
-    --gutenku-zen-water: rgba(167, 196, 188, 0.05);
-  }
-}
+// Dark mode enhancements (disabled for now - will be managed later)
+// @media (prefers-color-scheme: dark) {
+//   :root {
+//     --gutenku-paper-bg: #2a2520;
+//     --gutenku-paper-bg-warm: #2d2722;
+//     --gutenku-text-primary: #e8e3d8;
+//     --gutenku-text-secondary: #c4bfb4;
+//     --gutenku-zen-water: rgba(167, 196, 188, 0.05);
+//   }
+// }
 
 // High contrast mode for accessibility
 @media (prefers-contrast: high) {

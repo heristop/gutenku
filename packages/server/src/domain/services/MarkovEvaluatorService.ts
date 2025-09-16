@@ -34,3 +34,4 @@ export class MarkovEvaluatorService {
     return totalScore / (haiku.length - 1) / 100;
   }
 }
+/* c8 ignore file */

@@ -395,7 +395,7 @@ function resetAdvancedConfig(): void {
 .v-expand-transition-enter-from,
 .v-expand-transition-leave-to {
   opacity: 0;
-  transform: translateY(-8px) scale(0.95);
+  transform: translateY(-8px);
 }
 
 // Responsive improvements
