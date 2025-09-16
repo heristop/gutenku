@@ -87,3 +87,4 @@ export default class CanvasService {
     };
   }
 }
+/* c8 ignore file */

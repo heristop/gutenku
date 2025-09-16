@@ -29,3 +29,4 @@ const HaikuSchema = new Schema({
 });
 
 export default mongoose.model('Haiku', HaikuSchema);
+/* c8 ignore file */

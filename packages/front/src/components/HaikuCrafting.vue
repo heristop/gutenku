@@ -136,7 +136,8 @@ const { message: craftingMessage } = useLoadingMessages({
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: radial-gradient(
+    background-image:
+      radial-gradient(
         circle at 20% 50%,
         rgba(120, 119, 108, 0.3) 0%,
         transparent 50%
@@ -255,7 +256,6 @@ const { message: craftingMessage } = useLoadingMessages({
   &.latest-message {
     background: rgba(76, 175, 80, 0.15);
     border-left-color: rgb(76, 175, 80);
-    transform: scale(1.02);
     box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
 
     .message-emoji {
@@ -270,7 +270,6 @@ const { message: craftingMessage } = useLoadingMessages({
 
   &.fade-message {
     opacity: 0.6;
-    transform: scale(0.98);
   }
 }
 
@@ -325,11 +324,9 @@ const { message: craftingMessage } = useLoadingMessages({
 @keyframes craft-pulse {
   0%,
   100% {
-    transform: scale(1);
     opacity: 1;
   }
   50% {
-    transform: scale(1.1);
     opacity: 0.8;
   }
 }
@@ -345,12 +342,12 @@ const { message: craftingMessage } = useLoadingMessages({
 
 .craft-message-enter-from {
   opacity: 0;
-  transform: translateY(-20px) scale(0.95);
+  transform: translateY(-20px);
 }
 
 .craft-message-leave-to {
   opacity: 0;
-  transform: translateY(10px) scale(0.95);
+  transform: translateY(10px);
 }
 
 // Responsive adjustments (same as HaikuChapter)

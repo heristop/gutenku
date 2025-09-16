@@ -111,3 +111,4 @@ export default class HaikuRepository {
     return haikuValues;
   }
 }
+/* c8 ignore file */

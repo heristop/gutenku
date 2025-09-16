@@ -20,6 +20,10 @@ export default tseslint.config(
       'dot-notation': 'error',
       'eol-last': 'error',
       'prettier/prettier': 'error',
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
     },
   },
 
