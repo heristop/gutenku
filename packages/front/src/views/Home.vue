@@ -180,7 +180,9 @@ onMounted(fetchNewHaiku);
       </v-sheet>
 
       <v-container v-if="firstLoaded && false === networkError">
-        <v-row class="d-flex mx-sm-16 mx-0">
+        <v-row justify="center">
+          <v-col cols="12" lg="10" xl="9">
+            <v-row>
           <v-col
             cols="12"
             sm="8"
@@ -194,7 +196,8 @@ onMounted(fetchNewHaiku);
           <v-col
             cols="12"
             sm="8"
-            class="mx-auto h-100 align-center justify-center order-1"
+            md="8"
+            class="h-100 align-center justify-center order-1"
           >
             <haiku-title class="d-none d-sm-block" />
 
@@ -210,7 +213,8 @@ onMounted(fetchNewHaiku);
           <v-col
             cols="12"
             sm="4"
-            class="mx-auto h-100 align-center justify-center order-2"
+            md="4"
+            class="h-100 align-center justify-center order-2"
           >
             <social-netwok class="d-none d-sm-block" />
 
@@ -227,6 +231,8 @@ onMounted(fetchNewHaiku);
             <haiku-chapter v-else class="d-sm-none" />
 
             <app-footer />
+          </v-col>
+            </v-row>
           </v-col>
         </v-row>
 
