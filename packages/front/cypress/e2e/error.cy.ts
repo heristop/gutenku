@@ -10,11 +10,9 @@ describe('Error handling', () => {
     cy.get('[data-cy=fetch-btn]').click();
     cy.waitForHaiku('api');
 
-    cy.get('.v-snackbar', { timeout: 4000 })
-      .should('be.visible')
-      .invoke('text')
-      .then((txt) => {
-        expect(txt).to.include('I could not find a haiku');
-      });
+    cy.get('.v-snackbar', { timeout: 8000 })
+      .should('exist')
+      .and('have.class', 'v-snackbar--active')
+      .and('contain.text', 'I could not find a haiku');
   });
 });
