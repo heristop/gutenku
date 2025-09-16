@@ -98,22 +98,87 @@ body {
   z-index: 2;
 }
 
-// Button System
+// Enhanced Button System with Zen Interactions
 .gutenku-btn {
   font-family: 'JMH Typewriter', monospace !important;
   border-radius: 6px;
-  transition: var(--gutenku-transition);
+  transition: var(--gutenku-transition-zen);
   border-width: 1.5px;
+  position: relative;
+  overflow: hidden;
 
+  // Zen ink effect background
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, var(--gutenku-zen-mist) 0%, transparent 70%);
+    transition: var(--gutenku-transition-zen);
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    border-radius: 50%;
+  }
+
+  // Enhanced hover with zen breathing
   &:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--gutenku-shadow-medium);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: var(--gutenku-shadow-ink);
+
+    &::before {
+      width: 200%;
+      height: 200%;
+      animation: ink-ripple 0.6s ease-out;
+    }
+  }
+
+  // Active state with zen pulse
+  &:active {
+    transform: translateY(0) scale(0.98);
+    transition: var(--gutenku-transition-fast);
+  }
+
+  // Focus state for accessibility
+  &:focus-visible {
+    outline: 2px solid var(--gutenku-zen-accent);
+    outline-offset: 2px;
+    box-shadow:
+      var(--gutenku-shadow-ink),
+      0 0 0 4px rgba(167, 196, 188, 0.2);
   }
 
   .btn-text {
-    margin-left: 0.5rem;
+    margin-left: var(--gutenku-space-5);
     font-size: 0.85rem;
     font-weight: 500;
+    position: relative;
+    z-index: 1;
+    transition: var(--gutenku-transition-zen);
+  }
+
+  // Icon styling
+  .v-icon {
+    position: relative;
+    z-index: 1;
+    transition: var(--gutenku-transition-zen);
+  }
+
+  &:hover .v-icon {
+    transform: scale(1.1);
+  }
+}
+
+// Ink ripple animation
+@keyframes ink-ripple {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 
@@ -274,51 +339,267 @@ body {
   }
 }
 
-// Transitions
+// Enhanced Zen Transitions and Animations
 .gutenku-fade-enter-active,
 .gutenku-fade-leave-active {
-  transition: var(--gutenku-transition);
+  transition: var(--gutenku-transition-zen);
 }
 
 .gutenku-fade-enter-from,
 .gutenku-fade-leave-to {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: translateY(-10px) scale(0.95);
+  filter: blur(2px);
 }
 
-// Responsive Design
+// Zen page transitions
+.zen-page-enter-active {
+  transition: var(--gutenku-transition-slow);
+}
+
+.zen-page-leave-active {
+  transition: var(--gutenku-transition-fast);
+}
+
+.zen-page-enter-from {
+  opacity: 0;
+  transform: translateX(30px) scale(0.95);
+  filter: blur(4px);
+}
+
+.zen-page-leave-to {
+  opacity: 0;
+  transform: translateX(-30px) scale(1.05);
+  filter: blur(2px);
+}
+
+// Poetry typing effect
+@keyframes typewriter-cursor {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+.typewriter-text {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typewriter 2s steps(20) forwards;
+
+  &::after {
+    content: '|';
+    animation: typewriter-cursor 1s infinite;
+    color: var(--gutenku-zen-primary);
+  }
+}
+
+@keyframes typewriter {
+  0% { width: 0; }
+  100% { width: 100%; }
+}
+
+// Zen loading states
+.zen-loading {
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid var(--gutenku-zen-mist);
+    border-top-color: var(--gutenku-zen-primary);
+    border-radius: 50%;
+    animation: zen-spin 1s linear infinite;
+  }
+}
+
+@keyframes zen-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Zen floating animation for decorative elements
+@keyframes zen-float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-5px) rotate(1deg);
+  }
+  50% {
+    transform: translateY(-3px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-7px) rotate(-1deg);
+  }
+}
+
+.zen-float {
+  animation: zen-float 4s ease-in-out infinite;
+}
+
+// Zen pulse for important elements
+@keyframes zen-pulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--gutenku-zen-accent);
+    opacity: 1;
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(167, 196, 188, 0);
+    opacity: 0.8;
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(167, 196, 188, 0);
+    opacity: 1;
+  }
+}
+
+.zen-pulse {
+  animation: zen-pulse 2s infinite;
+}
+
+// Zen Utility Classes
+.zen-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zen-spacing {
+  margin: var(--gutenku-space-haiku) 0;
+}
+
+.zen-spacing-golden {
+  margin: var(--gutenku-space-golden-md) 0;
+}
+
+.zen-text-shadow {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.zen-backdrop {
+  backdrop-filter: blur(8px);
+  background: rgba(248, 246, 240, 0.8);
+}
+
+.zen-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--gutenku-zen-accent) 50%,
+    transparent 100%
+  );
+  margin: var(--gutenku-space-golden-md) 0;
+  opacity: 0.6;
+}
+
+// Zen brush stroke divider
+.zen-brush-divider {
+  height: 3px;
+  background: url("data:image/svg+xml,%3Csvg width='100' height='3' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,1.5 Q25,0 50,1.5 T100,1.5' stroke='%232F5D62' stroke-width='1' fill='none' opacity='0.6'/%3E%3C/svg%3E") repeat-x;
+  margin: var(--gutenku-space-golden-md) 0;
+}
+
+// Reading focus mode
+.reading-focus {
+  .gutenku-text-muted,
+  .zen-decorative {
+    opacity: 0.3;
+    transition: var(--gutenku-transition-zen);
+  }
+
+  .gutenku-text-primary {
+    opacity: 1;
+    font-weight: 500;
+  }
+}
+
+// Enhanced Responsive Design
 @media (max-width: 768px) {
   .gutenku-card {
-    padding: 0.75rem 1rem;
+    padding: var(--gutenku-space-7) var(--gutenku-space-golden-sm);
 
     .action-buttons {
       flex-direction: column;
-      gap: 0.5rem;
+      gap: var(--gutenku-space-5);
 
       .zen-btn,
       .gutenku-btn {
         width: 100%;
         min-width: unset;
+        min-height: 44px; // Touch target size
       }
     }
   }
 
   .gutenku-book-page {
-    padding: 2rem 1.5rem 1.5rem 2rem;
+    padding: var(--gutenku-space-golden-md) var(--gutenku-space-golden-sm);
     min-height: 400px;
+    margin-bottom: var(--gutenku-space-golden-md);
   }
 
   .gutenku-book-title {
     font-size: 1.5rem;
+    margin: var(--gutenku-space-golden-sm) 0;
   }
 
   .gutenku-book-author {
     font-size: 1rem;
+    margin-bottom: var(--gutenku-space-golden-md);
   }
 
   .gutenku-chapter-text {
     font-size: 0.9rem;
     line-height: 1.6;
+  }
+
+  // Mobile zen interactions
+  .gutenku-btn:hover {
+    transform: scale(1.02);
+  }
+
+  // Reduce motion for mobile users who prefer it
+  @media (prefers-reduced-motion: reduce) {
+    .zen-float,
+    .zen-pulse,
+    .zen-breathe {
+      animation: none;
+    }
+
+    .gutenku-btn:hover {
+      transform: none;
+    }
+  }
+}
+
+// Dark mode enhancements (if needed later)
+@media (prefers-color-scheme: dark) {
+  :root {
+    --gutenku-paper-bg: #2a2520;
+    --gutenku-paper-bg-warm: #2d2722;
+    --gutenku-text-primary: #e8e3d8;
+    --gutenku-text-secondary: #c4bfb4;
+    --gutenku-zen-water: rgba(167, 196, 188, 0.05);
+  }
+}
+
+// High contrast mode for accessibility
+@media (prefers-contrast: high) {
+  :root {
+    --gutenku-paper-border: rgba(0, 0, 0, 0.8);
+    --gutenku-text-primary: #000000;
+    --gutenku-text-secondary: #333333;
+  }
+
+  .gutenku-btn {
+    border-width: 2px;
   }
 }
 
