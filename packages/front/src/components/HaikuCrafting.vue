@@ -87,14 +87,6 @@ const { message: craftingMessage } = useLoadingMessages({
 </template>
 
 <style lang="scss" scoped>
-// Import JMH Typewriter font (same as HaikuChapter)
-@font-face {
-  font-family: 'JMH Typewriter';
-  src: url('@/assets/fonts/JMH Typewriter.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
 .haiku-crafting.book-page {
   // Same book page styling as HaikuChapter
   box-shadow:
@@ -102,7 +94,7 @@ const { message: craftingMessage } = useLoadingMessages({
     0 4px 5px 0 rgba(0, 0, 0, 0.14),
     0 1px 10px 0 rgba(0, 0, 0, 0.12);
 
-  background: #f8f6f0;
+  background: var(--gutenku-paper-bg);
   position: relative;
   padding: 3rem 2rem 2rem 3rem;
   margin-bottom: 1.5rem;
@@ -172,9 +164,8 @@ const { message: craftingMessage } = useLoadingMessages({
   padding-bottom: 1rem;
 
   .crafting-text {
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.9rem;
-    color: #5a5a5a;
+    color: var(--gutenku-text-muted);
     text-transform: uppercase;
     margin-bottom: 1rem;
   }
@@ -197,14 +188,12 @@ const { message: craftingMessage } = useLoadingMessages({
 .book-content {
   position: relative;
   z-index: 2;
-  font-family: 'JMH Typewriter', monospace;
 }
 
 .craft-title {
-  font-family: 'JMH Typewriter', monospace;
   font-size: 2rem;
   font-weight: bold;
-  color: #2c1810;
+  color: var(--gutenku-text-primary);
   text-align: center;
   margin: 2rem 0 1rem 0;
   text-transform: uppercase;
@@ -224,7 +213,6 @@ const { message: craftingMessage } = useLoadingMessages({
 }
 
 .message-feed {
-  font-family: 'JMH Typewriter', monospace;
   height: 340px;
   overflow: hidden;
   padding: 1.5rem 0;
@@ -249,7 +237,7 @@ const { message: craftingMessage } = useLoadingMessages({
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 0.9rem;
   line-height: 1.8;
-  color: #2c2c2c;
+  color: var(--gutenku-text-primary);
   width: 100%;
   box-sizing: border-box;
 
@@ -264,7 +252,7 @@ const { message: craftingMessage } = useLoadingMessages({
 
     .message-text {
       font-weight: bold;
-      color: #1b5e20;
+      color: var(--gutenku-text-accent);
     }
   }
 
@@ -283,7 +271,6 @@ const { message: craftingMessage } = useLoadingMessages({
 }
 
 .message-text {
-  font-family: 'JMH Typewriter', monospace;
   flex: 1;
   word-break: break-word;
   text-align: justify;
@@ -303,9 +290,8 @@ const { message: craftingMessage } = useLoadingMessages({
   }
 
   .progress-text {
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.9rem;
-    color: #5a5a5a;
+    color: var(--gutenku-text-muted);
     font-style: italic;
   }
 }
@@ -314,9 +300,8 @@ const { message: craftingMessage } = useLoadingMessages({
   position: absolute;
   bottom: 1rem;
   right: 2rem;
-  font-family: 'JMH Typewriter', monospace;
   font-size: 0.8rem;
-  color: #888;
+  color: var(--gutenku-text-muted);
   z-index: 3;
 }
 

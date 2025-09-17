@@ -6,12 +6,13 @@ import { apolloClient } from '@/client';
 import gql from 'graphql-tag';
 import { useHaikuStore } from '@/store/haiku';
 import AppFooter from '@/components/AppFooter.vue';
+import ConfigPanel from '@/components/ConfigPanel.vue';
 import HaikuCanvas from '@/components/HaikuCanvas.vue';
 import HaikuChapter from '@/components/HaikuChapter.vue';
 import HaikuCrafting from '@/components/HaikuCrafting.vue';
 import HaikuTitle from '@/components/HaikuTitle.vue';
-import ZenToolbar from '@/components/ZenToolbar.vue';
-import SocialNetwok from '@/components/SocialNetwork.vue';
+import ToolbarPanel from '@/components/ToolbarPanel.vue';
+import SocialNetworkPanel from '@/components/SocialNetworkPanel.vue';
 import StatsPanel from '@/components/StatsPanel.vue';
 import AppLoading from '@/components/AppLoading.vue';
 
@@ -191,7 +192,7 @@ onMounted(fetchNewHaiku);
               >
                 <haiku-title class="d-sm-none mb-2" />
 
-                <social-netwok class="mb-3" />
+                <social-network-panel class="mb-sm-3 mb-0" />
               </v-col>
 
               <v-col
@@ -217,13 +218,15 @@ onMounted(fetchNewHaiku);
                 md="4"
                 class="h-100 align-center justify-center order-2 pa-1 pa-sm-3"
               >
-                <social-netwok class="d-none d-sm-block" />
+                <social-network-panel class="d-none d-sm-block" />
 
-                <zen-toolbar class="mb-3 mb-sm-6" />
+                <toolbar-panel class="mb-3 mb-sm-6" />
 
                 <haiku-canvas class="mb-3" />
 
-                <stats-panel class="mb-3" />
+                <config-panel class="mb-6" />
+
+                <stats-panel class="mb-6" />
 
                 <haiku-crafting
                   v-if="loading && messageHistory.length > 0"
@@ -233,7 +236,7 @@ onMounted(fetchNewHaiku);
 
                 <haiku-chapter v-else class="d-sm-none mb-2" />
 
-                <app-footer />
+                <app-footer class="mt-6" />
               </v-col>
             </v-row>
           </v-col>

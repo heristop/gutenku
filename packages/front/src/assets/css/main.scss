@@ -6,7 +6,7 @@
 
 // CSS Variables for Design System
 :root {
-  // Colors - Book/Paper Theme
+  // Colors - Book/Paper Theme (Light Mode)
   --gutenku-paper-bg: #f8f6f0;
   --gutenku-paper-border: rgba(139, 69, 19, 0.2);
   --gutenku-paper-border-hover: rgba(139, 69, 19, 0.6);
@@ -28,7 +28,9 @@
   // Shadows
   --gutenku-shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
   --gutenku-shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.15);
-  --gutenku-shadow-book: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
+  --gutenku-shadow-book:
+    0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+    0 1px 10px 0 rgba(0, 0, 0, 0.12);
   --gutenku-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 
   // Transitions
@@ -38,10 +40,10 @@
   // Zen Variables (Referenced throughout CSS but not defined)
   --gutenku-paper-bg-warm: #faf8f2;
   --gutenku-paper-bg-aged: #f5f2e8;
-  --gutenku-text-zen: #2F5D62;
-  --gutenku-zen-primary: #2F5D62;
-  --gutenku-zen-secondary: #7D9D9C;
-  --gutenku-zen-accent: #A7C4BC;
+  --gutenku-text-zen: #2f5d62;
+  --gutenku-zen-primary: #2f5d62;
+  --gutenku-zen-secondary: #7d9d9c;
+  --gutenku-zen-accent: #a7c4bc;
   --gutenku-zen-mist: rgba(167, 196, 188, 0.1);
   --gutenku-zen-water: rgba(47, 93, 98, 0.05);
   --gutenku-shadow-zen: 0 8px 32px rgba(47, 93, 98, 0.1);
@@ -53,6 +55,97 @@
   --gutenku-space-haiku: 1.75rem;
   --gutenku-space-golden-sm: 1rem;
   --gutenku-space-golden-md: 1.618rem;
+
+  // Enhanced contrast and opacity variables (light mode)
+  --gutenku-text-contrast: #000000;
+  --gutenku-border-visible: rgba(0, 0, 0, 0.2);
+  --gutenku-border-visible-hover: rgba(0, 0, 0, 0.4);
+  --gutenku-canvas-overlay: rgba(255, 255, 255, 0.05);
+  --gutenku-backdrop-overlay: rgba(0, 0, 0, 0.02);
+  --gutenku-app-bg: #fefcf7;
+
+  // Button contrast variables
+  --gutenku-btn-subtle-bg: rgba(139, 69, 19, 0.1);
+  --gutenku-btn-subtle-hover: rgba(139, 69, 19, 0.2);
+  --gutenku-btn-expand-bg: rgba(34, 139, 34, 0.1);
+  --gutenku-btn-expand-hover: rgba(34, 139, 34, 0.2);
+}
+
+// Dark Mode - Moonlit Library Theme
+[data-theme='dark'] {
+  // Colors - Moonlit Library Theme
+  --gutenku-paper-bg: #1a1611;
+  --gutenku-paper-bg-warm: #1d1814;
+  --gutenku-paper-bg-aged: #232019;
+  --gutenku-paper-border: rgba(167, 196, 188, 0.2);
+  --gutenku-paper-border-hover: rgba(167, 196, 188, 0.4);
+  --gutenku-text-primary: #e8e3d8;
+  --gutenku-text-secondary: #c4bfb4;
+  --gutenku-text-muted: #a8a395;
+  --gutenku-text-accent: #9bb6b4;
+  --gutenku-text-zen: #5a8a8f;
+
+  // Enhanced Button Theme Colors for Dark Mode (Better Contrast)
+  --gutenku-btn-generate: rgba(90, 138, 143, 0.8);
+  --gutenku-btn-generate-hover: rgba(90, 138, 143, 1);
+  --gutenku-btn-generate-bg: rgba(90, 138, 143, 0.2);
+  --gutenku-btn-copy: rgba(155, 182, 180, 0.8);
+  --gutenku-btn-copy-hover: rgba(155, 182, 180, 1);
+  --gutenku-btn-copy-bg: rgba(155, 182, 180, 0.2);
+  --gutenku-btn-success: rgba(90, 138, 143, 0.8);
+  --gutenku-btn-success-bg: rgba(90, 138, 143, 0.2);
+
+  // Dark Mode Shadows
+  --gutenku-shadow-light: 0 2px 4px rgba(0, 0, 0, 0.4);
+  --gutenku-shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.5);
+  --gutenku-shadow-book:
+    0 2px 4px -1px rgba(0, 0, 0, 0.6), 0 4px 5px 0 rgba(0, 0, 0, 0.4),
+    0 1px 10px 0 rgba(0, 0, 0, 0.3);
+  --gutenku-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --gutenku-shadow-zen: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --gutenku-shadow-ink: 0 2px 8px rgba(90, 138, 143, 0.3);
+
+  // Zen Variables for Dark Mode
+  --gutenku-zen-primary: #5a8a8f;
+  --gutenku-zen-secondary: #9bb6b4;
+  --gutenku-zen-accent: #bfd4d0;
+  --gutenku-zen-mist: rgba(191, 212, 208, 0.1);
+  --gutenku-zen-water: rgba(90, 138, 143, 0.05);
+
+  // Dark mode specific paper textures
+  .gutenku-paper::before {
+    background-image:
+      radial-gradient(
+        circle at 20% 30%,
+        rgba(90, 138, 143, 0.08) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 70%,
+        rgba(90, 138, 143, 0.08) 0%,
+        transparent 50%
+      );
+  }
+
+  // Enhanced contrast and opacity variables
+  --gutenku-text-contrast: #ffffff;
+  --gutenku-border-visible: rgba(255, 255, 255, 0.2);
+  --gutenku-border-visible-hover: rgba(255, 255, 255, 0.4);
+  --gutenku-canvas-overlay: rgba(0, 0, 0, 0.3);
+  --gutenku-backdrop-overlay: rgba(255, 255, 255, 0.03);
+  --gutenku-app-bg: #0f0d09;
+
+  // Dark mode button contrast variables
+  --gutenku-btn-subtle-bg: rgba(90, 138, 143, 0.15);
+  --gutenku-btn-subtle-hover: rgba(90, 138, 143, 0.25);
+  --gutenku-btn-expand-bg: rgba(155, 182, 180, 0.15);
+  --gutenku-btn-expand-hover: rgba(155, 182, 180, 0.25);
+
+  // Dark backdrop
+  .zen-backdrop {
+    backdrop-filter: blur(8px);
+    background: rgba(26, 22, 17, 0.8);
+  }
 }
 
 // Typography System
@@ -67,13 +160,30 @@ body {
   }
 
   .text-h5 {
-    font-family: 'JMH Typewriter', monospace !important;
+    // Inherits JMH Typewriter from Vuetify global config
   }
+}
+
+// Vuetify Typography Utility Class Overrides
+.text-caption,
+.text-body-1,
+.text-body-2,
+.text-subtitle-1,
+.text-subtitle-2,
+.text-h1,
+.text-h2,
+.text-h3,
+.text-h4,
+.text-h5,
+.text-h6,
+.text-overline,
+.text-button {
+  font-family: 'JMH Typewriter', monospace !important;
 }
 
 // Typography Classes
 .gutenku-font-typewriter {
-  font-family: 'JMH Typewriter', monospace !important;
+  // This class is now redundant - JMH Typewriter is the global default
 }
 
 .gutenku-text-primary {
@@ -104,8 +214,16 @@ body {
     right: 0;
     bottom: 0;
     background-image:
-      radial-gradient(circle at 20% 30%, rgba(139, 69, 19, 0.05) 0%, transparent 50%),
-      radial-gradient(circle at 80% 70%, rgba(139, 69, 19, 0.05) 0%, transparent 50%);
+      radial-gradient(
+        circle at 20% 30%,
+        rgba(139, 69, 19, 0.05) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 70%,
+        rgba(139, 69, 19, 0.05) 0%,
+        transparent 50%
+      );
     border-radius: 8px;
     pointer-events: none;
     z-index: 1;
@@ -119,7 +237,6 @@ body {
 
 // Button System with Zen Interactions
 .gutenku-btn {
-  font-family: 'JMH Typewriter', monospace !important;
   border-radius: 6px;
   transition: var(--gutenku-transition-zen);
   border-width: 1.5px;
@@ -134,7 +251,11 @@ body {
     left: 50%;
     width: 0;
     height: 0;
-    background: radial-gradient(circle, var(--gutenku-zen-mist) 0%, transparent 70%);
+    background: radial-gradient(
+      circle,
+      var(--gutenku-zen-mist) 0%,
+      transparent 70%
+    );
     transition: var(--gutenku-transition-zen);
     transform: translate(-50%, -50%);
     z-index: 0;
@@ -243,7 +364,8 @@ body {
     left: 0;
     width: 2px;
     height: 100%;
-    background: linear-gradient(to bottom,
+    background: linear-gradient(
+      to bottom,
       rgba(0, 0, 0, 0.1) 0%,
       rgba(0, 0, 0, 0.05) 50%,
       rgba(0, 0, 0, 0.1) 100%
@@ -254,7 +376,6 @@ body {
 }
 
 .gutenku-book-title {
-  font-family: 'JMH Typewriter', monospace;
   font-size: 2rem;
   font-weight: bold;
   color: var(--gutenku-text-primary);
@@ -278,7 +399,6 @@ body {
 }
 
 .gutenku-book-author {
-  font-family: 'JMH Typewriter', monospace;
   font-size: 1.2rem;
   color: var(--gutenku-text-secondary);
   text-align: center;
@@ -305,7 +425,6 @@ body {
 }
 
 .gutenku-chapter-text {
-  font-family: 'JMH Typewriter', monospace;
   font-size: 1rem;
   line-height: 1.8;
   color: #2c2c2c;
@@ -394,10 +513,12 @@ body {
 
 // Poetry typing effect
 @keyframes typewriter-cursor {
-  0%, 50% {
+  0%,
+  50% {
     opacity: 1;
   }
-  51%, 100% {
+  51%,
+  100% {
     opacity: 0;
   }
 }
@@ -415,8 +536,12 @@ body {
 }
 
 @keyframes typewriter {
-  0% { width: 0; }
-  100% { width: 100%; }
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
 }
 
 // Zen loading states
@@ -439,13 +564,18 @@ body {
 }
 
 @keyframes zen-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 // Zen floating animation for decorative elements
 @keyframes zen-float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0) rotate(0deg);
   }
   25% {
@@ -522,7 +652,8 @@ body {
 // Zen brush stroke divider
 .zen-brush-divider {
   height: 3px;
-  background: url("data:image/svg+xml,%3Csvg width='100' height='3' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,1.5 Q25,0 50,1.5 T100,1.5' stroke='%232F5D62' stroke-width='1' fill='none' opacity='0.6'/%3E%3C/svg%3E") repeat-x;
+  background: url("data:image/svg+xml,%3Csvg width='100' height='3' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,1.5 Q25,0 50,1.5 T100,1.5' stroke='%232F5D62' stroke-width='1' fill='none' opacity='0.6'/%3E%3C/svg%3E")
+    repeat-x;
   margin: var(--gutenku-space-golden-md) 0;
 }
 
@@ -668,4 +799,22 @@ body {
 .v-tooltip.v-overlay > .v-overlay__content {
   background: rgba(var(--v-theme-secondary), 0.9);
   max-width: 400px !important;
+}
+
+// Enhanced tooltips for dark mode
+[data-theme='dark'] .v-tooltip.v-overlay > .v-overlay__content {
+  background: var(--gutenku-paper-bg-dark);
+  color: var(--gutenku-text-primary);
+  border: 1px solid var(--gutenku-border-visible);
+  box-shadow: var(--gutenku-shadow-zen);
+  font-size: 0.85rem;
+}
+
+// Light mode tooltip enhancement
+:root .v-tooltip.v-overlay > .v-overlay__content {
+  background: var(--gutenku-paper-bg-warm);
+  color: var(--gutenku-text-primary);
+  border: 1px solid var(--gutenku-border-visible);
+  box-shadow: var(--gutenku-shadow-light);
+  font-size: 0.85rem;
 }

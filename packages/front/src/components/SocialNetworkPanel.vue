@@ -44,7 +44,7 @@ const handleClick = (url: string) => {
       <v-img
         height="56"
         alt="GutenKu Logo"
-        src="@/assets/img/logo/gutenku-logo.png"
+        src="@/assets/img/logo/gutenku-logo-300.png"
         class="about-card__logo"
       />
     </v-card-title>

@@ -128,7 +128,7 @@ onMounted(() => {
                     size="small"
                     >#{{ idx + 1 }}</v-chip
                   >
-                  <span class="text-body-2">{{ name }}</span>
+                  <span class="stats-top-book__title">{{ name }}</span>
                 </div>
                 <div class="text-caption text-medium-emphasis">
                   {{ count }} time{{ count > 1 ? 's' : '' }}
@@ -155,18 +155,27 @@ onMounted(() => {
 }
 
 .gutenku-stats__title {
+  font-family: 'JMH Typewriter', monospace !important;
   letter-spacing: 0.5px;
 }
 
 .gutenku-book-page {
-  background: var(--gutenku-book-background, #fff);
+  background: var(--gutenku-paper-bg-aged);
   border-radius: 8px;
   box-shadow: var(--gutenku-shadow-book);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--gutenku-paper-border);
 }
 
 .stats-top-book {
   padding: 4px 0;
+}
+
+.stats-top-book__title {
+  font-family: 'JMH Typewriter', monospace !important;
+  font-size: 0.8rem; /* smaller than text-body-2 */
+  line-height: 1.2;
+  color: var(--gutenku-text-primary);
+  letter-spacing: 0.2px;
 }
 
 .gutenku-book-page.stats-compact {

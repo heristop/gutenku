@@ -143,6 +143,10 @@ onMounted(() => {
                   : 'mdi-unfold-less-horizontal'
               "
               @click="toggleCompactedView()"
+              :class="{
+                'icon-white': blackMarker,
+                'icon-black': !blackMarker,
+              }"
               class="toggle-btn expand-toggle"
               :title="isCompacted ? 'Show Full Chapter' : 'Show Compacted View'"
               size="small"
@@ -170,8 +174,8 @@ onMounted(() => {
       <!-- Book Title -->
       <h1
         :class="{
-          'dark-theme': blackMarker,
-          'light-theme': !blackMarker,
+          'stabilo-hidden': blackMarker,
+          'stabilo-visible': !blackMarker,
         }"
         class="book-title"
       >
@@ -181,8 +185,8 @@ onMounted(() => {
       <!-- Book Author -->
       <div
         :class="{
-          'dark-theme': blackMarker,
-          'light-theme': !blackMarker,
+          'stabilo-hidden': blackMarker,
+          'stabilo-visible': !blackMarker,
         }"
         class="book-author"
       >
@@ -195,8 +199,8 @@ onMounted(() => {
           <div v-if="haiku.chapter.content" class="chapter-sheet">
             <p
               :class="{
-                'dark-theme': blackMarker,
-                'light-theme': !blackMarker,
+                'stabilo-hidden': blackMarker,
+                'stabilo-visible': !blackMarker,
               }"
               class="chapter-text"
             >
@@ -216,14 +220,6 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
-// Import JMH Typewriter font
-@font-face {
-  font-family: 'JMH Typewriter';
-  src: url('@/assets/fonts/JMH Typewriter.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
 .book-page {
   box-shadow:
     0 2px 4px -1px rgba(0, 0, 0, 0.2),
@@ -231,7 +227,7 @@ onMounted(() => {
     0 1px 10px 0 rgba(0, 0, 0, 0.12);
 
   // Book page background - solid color eliminates highlighting interference
-  background: #f8f6f0;
+  background: var(--gutenku-paper-bg);
   position: relative;
   padding: 3rem 2rem 2rem 3rem;
   margin-bottom: 1.5rem;
@@ -298,13 +294,12 @@ onMounted(() => {
   z-index: 2;
   text-align: center;
   margin-bottom: 2rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid var(--gutenku-border-visible);
   padding-bottom: 1rem;
 
   .disclosure-text {
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.9rem;
-    color: #5a5a5a;
+    color: var(--gutenku-text-muted);
     text-transform: uppercase;
     margin-bottom: 1rem;
   }
@@ -317,22 +312,77 @@ onMounted(() => {
   }
 
   .toggle-btn {
-    background: rgba(139, 69, 19, 0.1) !important;
-    border: 1px solid rgba(139, 69, 19, 0.3);
-    transition: all 0.2s ease;
+    background: var(--gutenku-btn-subtle-bg) !important;
+    border: 1px solid var(--gutenku-border-visible);
+    color: var(--gutenku-text-contrast) !important;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    box-shadow: var(--gutenku-shadow-light);
+    transition: var(--gutenku-transition-zen);
+    cursor: pointer !important;
+
+    &,
+    *,
+    .v-icon,
+    .v-icon::before,
+    .v-icon::after {
+      cursor: pointer !important;
+    }
 
     &:hover {
-      background: rgba(var(--v-theme-primary), 0.15);
-      opacity: 0.8;
+      background: var(--gutenku-btn-subtle-hover) !important;
+      border-color: var(--gutenku-border-visible-hover);
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: var(--gutenku-shadow-ink);
+    }
+
+    &:active {
+      transform: translateY(0) scale(0.95);
+      transition: var(--gutenku-transition-fast);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--gutenku-zen-accent);
+      outline-offset: 2px;
+    }
+
+    .v-icon {
+      transition: var(--gutenku-transition-zen);
+    }
+
+    &:hover .v-icon {
+      transform: rotate(12deg) scale(1.1);
     }
 
     &.expand-toggle {
-      background: rgba(34, 139, 34, 0.1) !important;
-      border: 1px solid rgba(34, 139, 34, 0.3);
+      background: var(--gutenku-btn-expand-bg) !important;
+      border: 1px solid var(--gutenku-border-visible);
 
       &:hover {
-        background: rgba(34, 139, 34, 0.2) !important;
+        background: var(--gutenku-btn-expand-hover) !important;
+        border-color: var(--gutenku-border-visible-hover);
       }
+
+      // Dynamic icon colors based on stabilo mode
+      &.icon-white .v-icon {
+        color: #ffffff !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+      }
+
+      &.icon-black .v-icon {
+        color: #000000 !important;
+        text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .book-header {
+    .toggle-btn {
+      width: 36px;
+      height: 36px;
     }
   }
 }
@@ -340,12 +390,25 @@ onMounted(() => {
 .book-content {
   position: relative;
   z-index: 2;
-  font-family: 'JMH Typewriter', monospace;
-  cursor:
-    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>'),
-    auto;
+  cursor: pointer;
   transition: all 0.3s ease;
   border-radius: 4px;
+
+  // Theme-aware cursor colors
+  &:hover {
+    cursor:
+      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>'),
+      auto;
+  }
+
+  // Dark mode cursor
+  [data-theme='dark'] & {
+    &:hover {
+      cursor:
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>'),
+        auto;
+    }
+  }
 
   &:hover {
     background: rgba(255, 255, 255, 0.05);
@@ -364,23 +427,22 @@ onMounted(() => {
 }
 
 .book-title {
-  font-family: 'JMH Typewriter', monospace;
   font-size: 2rem;
   font-weight: bold;
-  color: #2c1810;
+  color: var(--gutenku-text-primary);
   text-align: center;
   margin: 2rem 0 1rem 0;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 
-  &.dark-theme {
+  &.stabilo-hidden {
     opacity: 0.3;
     filter: blur(2px);
     transition: all 0.3s ease;
   }
 
-  &.light-theme {
+  &.stabilo-visible {
     opacity: 1;
     filter: blur(0);
     transition: all 0.3s ease;
@@ -388,9 +450,8 @@ onMounted(() => {
 }
 
 .book-author {
-  font-family: 'JMH Typewriter', monospace;
   font-size: 1.2rem;
-  color: #4a4a4a;
+  color: var(--gutenku-text-secondary);
   text-align: center;
   margin-bottom: 2.5rem;
   font-style: italic;
@@ -401,13 +462,13 @@ onMounted(() => {
     opacity: 0.7;
   }
 
-  &.dark-theme {
+  &.stabilo-hidden {
     opacity: 0.3;
     filter: blur(2px);
     transition: all 0.3s ease;
   }
 
-  &.light-theme {
+  &.stabilo-visible {
     opacity: 1;
     filter: blur(0);
     transition: all 0.3s ease;
@@ -424,22 +485,16 @@ onMounted(() => {
     border: none !important;
 
     .chapter-text {
-      font-family: 'JMH Typewriter', monospace;
       font-size: 1rem;
       line-height: 1.8;
-      color: #2c2c2c;
+      color: var(--gutenku-text-primary);
       text-align: justify;
       margin: 0;
       padding: 1.5rem 0;
       position: relative;
 
-      &.dark-theme {
-        // Stabilo marker blackout effect - make text invisible
-        color: transparent !important;
-        text-shadow: none !important;
-        background: linear-gradient(to right, #000 0%, #1a1a1a 100%);
-        background-clip: text;
-        -webkit-background-clip: text;
+      &.stabilo-hidden {
+        // Enhanced stabilo effect that works in both light and dark themes
         position: relative;
         transition: all 0.5s ease;
 
@@ -465,41 +520,41 @@ onMounted(() => {
           opacity: 0.8;
         }
 
-        // Hidden mode - haiku verses with completely solid white background
+        // Hidden mode - haiku verses with theme-aware background
         :deep(mark) {
-          background: #ffffff !important;
+          background: var(--gutenku-paper-bg) !important;
           background-image: none !important;
           background-clip: border-box !important;
-          color: #2c2c2c !important;
+          color: var(--gutenku-text-primary) !important;
           padding: 4px 8px;
           border-radius: 4px;
           font-weight: bold;
           position: relative;
           z-index: 20;
-          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+          text-shadow: none !important;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
           isolation: isolate;
           display: inline-block;
         }
 
         :deep(.highlight) {
-          background: #ffffff !important;
+          background: var(--gutenku-paper-bg) !important;
           background-image: none !important;
           background-clip: border-box !important;
-          color: #2c2c2c !important;
+          color: var(--gutenku-text-primary) !important;
           padding: 4px 8px;
           border-radius: 4px;
           font-weight: bold;
           position: relative;
           z-index: 20;
-          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+          text-shadow: none !important;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
           isolation: isolate;
           display: inline-block;
         }
       }
 
-      &.light-theme {
+      &.stabilo-visible {
         opacity: 1;
         filter: blur(0);
         transition: all 0.5s ease;
@@ -550,9 +605,8 @@ onMounted(() => {
   position: absolute;
   bottom: 1rem;
   right: 2rem;
-  font-family: 'JMH Typewriter', monospace;
   font-size: 0.8rem;
-  color: #888;
+  color: var(--gutenku-text-muted);
   z-index: 3;
 }
 
