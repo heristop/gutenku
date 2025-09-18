@@ -41,6 +41,12 @@ GutenKu provides a GraphQL API for interacting with the service. The server is b
 | [Api](/packages/server/README.md#installation)  | TypeScript, GraphQL / Apollo Server, MongoDB, Python, OpenAI 4             |
 | [Front](/packages/front/README.md#installation) | TypeScript, GraphQL / Apollo Client, Vue 3 / Vuetify 3 / Pinia, Cypress.io |
 
+### Architecture & DI docs
+
+See the server’s DDD and DI documentation, interface tokens, and event flow:
+
+- packages/server/README.md#architecture--di-ddd
+
 ## Acknowledgments
 
 Thanks to the creators and maintainers of Project Gutenberg for providing the texts

@@ -36,8 +36,10 @@ describe('Application services', () => {
     expect(repo.getChapterById).toHaveBeenCalledWith('c1');
   });
 
-  it('PubSubService exposes a PubSub instance', () => {
-    const pub = new PubSubService().instance;
-    expect(typeof pub.asyncIterator).toBe('function');
+  it('PubSubService exposes an async iterator', () => {
+    const svc = new PubSubService();
+    const iter = svc.iterator(['TEST_EVENT']);
+    const sym = (iter as AsyncIterableIterator<unknown>)[Symbol.asyncIterator];
+    expect(typeof sym).toBe('function');
   });
 });

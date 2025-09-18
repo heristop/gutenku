@@ -1,7 +1,7 @@
 import log from 'loglevel';
 import fs from 'fs/promises';
 import NaturalLanguageService from './NaturalLanguageService';
-import { singleton } from 'tsyringe';
+import { inject, singleton } from 'tsyringe';
 
 const FANBOYS_LIST = ['for', 'and', 'nor', 'but', 'or', 'yet', 'so'];
 
@@ -10,7 +10,10 @@ export class MarkovChainService {
   private bigrams: Map<string, Map<string, number>>;
   private totalBigrams: number;
 
-  constructor(private readonly naturalLanguage: NaturalLanguageService) {
+  constructor(
+    @inject(NaturalLanguageService)
+    private readonly naturalLanguage: NaturalLanguageService,
+  ) {
     this.bigrams = new Map();
     this.totalBigrams = 0;
     this.naturalLanguage = naturalLanguage;

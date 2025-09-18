@@ -12,13 +12,15 @@ import {
 } from '../../shared/types';
 import { MarkovEvaluatorService } from './MarkovEvaluatorService';
 import NaturalLanguageService from './NaturalLanguageService';
-import { PubSub } from 'graphql-subscriptions';
-import CanvasService from './CanvasService';
+import { ICanvasServiceToken, ICanvasService } from './ICanvasService';
 import { IGenerator } from '../interfaces/IGenerator';
-import BookService from '../../application/services/BookService';
-import HaikuRepository from '../../infrastructure/repositories/HaikuRepository';
-import ChapterRepository from '../../infrastructure/repositories/ChapterRepository';
+import { IHaikuRepository } from '../repositories/IHaikuRepository';
+import { IChapterRepository } from '../repositories/IChapterRepository';
+import { IBookRepository } from '../repositories/IBookRepository';
 import { PubSubService } from '../../infrastructure/services/PubSubService';
+import { inject } from 'tsyringe';
+import { IEventBusToken, IEventBus } from '../events/IEventBus';
+import { QuoteGeneratedEvent } from '../events/QuoteGeneratedEvent';
 import HaikuHelper from '../../shared/helpers/HaikuHelper';
 
 class MaxAttemptsError extends Error {
@@ -46,19 +48,23 @@ export default class HaikuGeneratorService implements IGenerator {
 
   // Processing cache to avoid repeated expensive operations
   private processingCache: HaikuProcessingCache;
-  private pubSub: PubSub;
 
   constructor(
-    private readonly haikuRepository: HaikuRepository,
-    private readonly chapterRepository: ChapterRepository,
-    private readonly bookService: BookService,
+    @inject('IHaikuRepository')
+    private readonly haikuRepository: IHaikuRepository,
+    @inject('IChapterRepository')
+    private readonly chapterRepository: IChapterRepository,
+    @inject('IBookRepository') private readonly bookRepository: IBookRepository,
+    @inject(MarkovEvaluatorService)
     private readonly markovEvaluator: MarkovEvaluatorService,
+    @inject(NaturalLanguageService)
     private readonly naturalLanguage: NaturalLanguageService,
-    private readonly canvasService: CanvasService,
-    private readonly pubSubService: PubSubService,
+    @inject(ICanvasServiceToken)
+    private readonly canvasService: ICanvasService,
+    @inject(PubSubService) private readonly pubSubService: PubSubService,
+    @inject(IEventBusToken) private readonly eventBus: IEventBus,
   ) {
     this.filterWords = [];
-    this.pubSub = this.pubSubService.instance;
 
     // Initialize processing cache
     this.processingCache = {
@@ -169,7 +175,7 @@ export default class HaikuGeneratorService implements IGenerator {
     }
 
     if (0 === chapters.length) {
-      book = await this.bookService.selectRandomBook();
+      book = await this.bookRepository.selectRandomBook();
     }
 
     // Process in chunks to yield control back to event loop
@@ -230,13 +236,13 @@ export default class HaikuGeneratorService implements IGenerator {
         book = chapter.book;
       } else {
         if (!book) {
-          book = await this.bookService.selectRandomBook();
+          book = await this.bookRepository.selectRandomBook();
         }
         chapter = this.selectRandomChapter(book);
       }
 
       // Get verses for this chapter
-      verses = await this.getVersesOptimized(chapter);
+      verses = this.getVerses(chapter);
 
       // Check filter words if needed
       if (this.filterWords.length > 0) {
@@ -267,14 +273,6 @@ export default class HaikuGeneratorService implements IGenerator {
       book,
       nextIteration: startIteration + chunkSize,
     };
-  }
-
-  /**
-   * Optimized version of getVerses with caching
-   */
-  private async getVersesOptimized(chapter: ChapterValue): Promise<string[]> {
-    // For now, use the existing method - we can add caching later
-    return this.getVerses(chapter);
   }
 
   getVerses(chapter: ChapterValue): string[] {
@@ -416,9 +414,7 @@ export default class HaikuGeneratorService implements IGenerator {
 
           log.info('markov_score', markovScore, 'min', markovMinScore);
 
-          this.pubSub.publish('QUOTE_GENERATED', {
-            quoteGenerated: quote,
-          });
+          this.eventBus.publish(new QuoteGeneratedEvent({ quote }));
         }
 
         return true;

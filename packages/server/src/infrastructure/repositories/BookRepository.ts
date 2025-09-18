@@ -1,7 +1,10 @@
+import { injectable } from 'tsyringe';
 import { BookValue } from '../../shared/types';
+import { IBookRepository } from '../../domain/repositories/IBookRepository';
 import BookModel from '../models/BookModel';
 
-export default class BookRepository {
+@injectable()
+export default class BookRepository implements IBookRepository {
   async getAllBooks(filter: string | null) {
     const query = {};
 
@@ -55,4 +58,3 @@ export default class BookRepository {
     return randomBook;
   }
 }
-/* c8 ignore file */
