@@ -494,7 +494,7 @@ onMounted(() => {
       position: relative;
 
       &.stabilo-hidden {
-        // Enhanced stabilo effect that works in both light and dark themes
+        // Stabilo effect that works in both light and dark themes
         position: relative;
         transition: all 0.5s ease;
 

@@ -34,9 +34,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-card class="gutenku-card stats-card pa-5 mb-4 w-100" rounded>
+  <v-card
+    class="gutenku-card stats-panel stats-panel--card pa-5 mb-4 w-100"
+    rounded
+  >
     <div
-      class="d-flex align-center mb-2 stats-header"
+      class="stats-panel__header d-flex align-center mb-2"
       @click="toggleStats"
       role="button"
       tabindex="0"
@@ -44,72 +47,115 @@ onMounted(() => {
       @keydown.enter="toggleStats"
       @keydown.space="toggleStats"
     >
-      <v-icon size="large" color="primary" class="mr-2"
+      <v-icon
+        size="large"
+        color="primary"
+        class="stats-panel__icon stats-panel__icon--main mr-2"
         >mdi-book-open-page-variant</v-icon
       >
-      <div class="flex-grow-1">
-        <div class="text-subtitle-1 gutenku-stats__title">Your Zen Journey</div>
-        <div class="text-body-2 text-medium-emphasis">
+      <div class="stats-panel__header-content flex-grow-1">
+        <div class="stats-panel__title text-subtitle-1">Your Zen Journey</div>
+        <div class="stats-panel__subtitle text-body-2 text-medium-emphasis">
           Reading the wind of words
         </div>
       </div>
       <v-icon
         color="primary"
-        class="stats-toggle-icon"
-        :class="{ rotated: !expanded }"
+        class="stats-panel__toggle-icon"
+        :class="{ 'stats-panel__toggle-icon--rotated': !expanded }"
       >
         mdi-chevron-up
       </v-icon>
     </div>
 
     <v-expand-transition>
-      <div v-show="expanded" class="stats-content">
-        <div class="gutenku-book-page stats-compact pa-3 mb-2">
+      <div v-show="expanded" class="stats-panel__content">
+        <div class="stats-panel__inner gutenku-book-page pa-3 mb-2">
           <v-row dense>
             <v-col cols="6" class="text-center">
-              <div class="text-caption text-medium-emphasis">Haiku forged</div>
-              <div class="text-subtitle-1 font-weight-bold">
+              <div
+                class="stats-panel__metric-label text-caption text-medium-emphasis"
+              >
+                Haiku forged
+              </div>
+              <div
+                class="stats-panel__metric-value text-subtitle-1 font-weight-bold"
+              >
                 {{ stats.haikusGenerated }}
               </div>
             </v-col>
             <v-col cols="6" class="text-center">
-              <div class="text-caption text-medium-emphasis">Books browsed</div>
-              <div class="text-subtitle-1 font-weight-bold">
+              <div
+                class="stats-panel__metric-label text-caption text-medium-emphasis"
+              >
+                Books browsed
+              </div>
+              <div
+                class="stats-panel__metric-value text-subtitle-1 font-weight-bold"
+              >
                 {{ stats.booksBrowsed }}
               </div>
             </v-col>
             <v-col cols="6" class="text-center mt-2">
-              <div class="text-caption text-medium-emphasis">From cache</div>
-              <div class="text-subtitle-1 font-weight-bold">
+              <div
+                class="stats-panel__metric-label text-caption text-medium-emphasis"
+              >
+                From cache
+              </div>
+              <div
+                class="stats-panel__metric-value text-subtitle-1 font-weight-bold"
+              >
                 {{ stats.cachedHaikus }}
               </div>
             </v-col>
             <v-col cols="6" class="text-center mt-2">
-              <div class="text-caption text-medium-emphasis">Avg time</div>
-              <div class="text-subtitle-1 font-weight-bold">{{ avgTime }}s</div>
+              <div
+                class="stats-panel__metric-label text-caption text-medium-emphasis"
+              >
+                Avg time
+              </div>
+              <div
+                class="stats-panel__metric-value text-subtitle-1 font-weight-bold"
+              >
+                {{ avgTime }}s
+              </div>
             </v-col>
           </v-row>
         </div>
 
-        <div class="mb-1 d-flex align-center justify-space-between">
-          <div class="text-caption text-medium-emphasis">
+        <div
+          class="stats-panel__progress-wrapper mb-1 d-flex align-center justify-space-between"
+        >
+          <div
+            class="stats-panel__progress-label text-caption text-medium-emphasis"
+          >
             Calm waters (cache usage)
           </div>
-          <div class="text-caption">{{ progress }}%</div>
+          <div class="stats-panel__progress-percentage text-caption">
+            {{ progress }}%
+          </div>
         </div>
         <v-progress-linear
           :model-value="progress"
           color="primary"
           rounded
           height="6"
+          class="stats-panel__progress-bar"
         />
 
-        <div class="mt-2">
-          <div class="text-subtitle-2 mb-2 d-flex align-center">
-            <v-icon size="small" class="mr-2" color="primary"
+        <div class="stats-panel__books-section mt-2">
+          <div
+            class="stats-panel__books-header text-subtitle-2 mb-2 d-flex align-center"
+          >
+            <v-icon
+              size="small"
+              class="stats-panel__books-icon mr-2"
+              color="primary"
               >mdi-star-circle</v-icon
             >
-            Top books inspiring your haiku
+            <span class="stats-panel__books-title"
+              >Top books inspiring your haiku</span
+            >
           </div>
           <v-row dense>
             <v-col
@@ -118,19 +164,21 @@ onMounted(() => {
               cols="12"
             >
               <div
-                class="d-flex align-center justify-space-between stats-top-book"
+                class="stats-panel__book d-flex align-center justify-space-between"
               >
-                <div class="d-flex align-center">
+                <div class="stats-panel__book-info d-flex align-center">
                   <v-chip
-                    class="mr-2"
+                    class="stats-panel__book-rank mr-2"
                     color="accent"
                     variant="elevated"
                     size="small"
                     >#{{ idx + 1 }}</v-chip
                   >
-                  <span class="stats-top-book__title">{{ name }}</span>
+                  <span class="stats-panel__book-title">{{ name }}</span>
                 </div>
-                <div class="text-caption text-medium-emphasis">
+                <div
+                  class="stats-panel__book-count text-caption text-medium-emphasis"
+                >
                   {{ count }} time{{ count > 1 ? 's' : '' }}
                 </div>
               </div>
@@ -138,7 +186,7 @@ onMounted(() => {
             <v-col
               v-if="topBooks.length === 0"
               cols="12"
-              class="text-center text-medium-emphasis text-caption"
+              class="stats-panel__empty-state text-center text-medium-emphasis text-caption"
             >
               Awaiting your first poems...
             </v-col>
@@ -150,63 +198,169 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-.stats-card {
+// ====================================
+// STATS PANEL - BEM STRUCTURE
+// ====================================
+
+.stats-panel {
   position: relative;
-}
 
-.gutenku-stats__title {
-  font-family: 'JMH Typewriter', monospace !important;
-  letter-spacing: 0.5px;
-}
-
-.gutenku-book-page {
-  background: var(--gutenku-paper-bg-aged);
-  border-radius: 8px;
-  box-shadow: var(--gutenku-shadow-book);
-  border: 1px solid var(--gutenku-paper-border);
-}
-
-.stats-top-book {
-  padding: 4px 0;
-}
-
-.stats-top-book__title {
-  font-family: 'JMH Typewriter', monospace !important;
-  font-size: 0.8rem; /* smaller than text-body-2 */
-  line-height: 1.2;
-  color: var(--gutenku-text-primary);
-  letter-spacing: 0.2px;
-}
-
-.gutenku-book-page.stats-compact {
-  min-height: auto !important;
-  padding: 12px !important;
-}
-
-.stats-header {
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-radius: 4px;
-
-  &:hover {
-    background: rgba(var(--v-theme-primary), 0.05);
+  // Modifiers
+  &--card {
+    // Inherits from global gutenku-card styles
   }
 
-  &:focus {
-    outline: 2px solid rgba(var(--v-theme-primary), 0.3);
-    outline-offset: 2px;
+  // Elements
+  &__header {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+
+    &:hover {
+      background: rgba(var(--v-theme-primary), 0.05);
+    }
+
+    &:focus {
+      outline: 2px solid rgba(var(--v-theme-primary), 0.3);
+      outline-offset: 2px;
+    }
+  }
+
+  &__header-content {
+    // Uses flex-grow-1 utility class
+  }
+
+  &__title {
+    font-family: 'JMH Typewriter', monospace !important;
+    letter-spacing: 0.5px;
+  }
+
+  &__subtitle {
+    // Uses Vuetify utility classes
+  }
+
+  &__icon {
+    // Icon styles
+
+    &--main {
+      // Main stats icon styling
+    }
+  }
+
+  &__toggle-icon {
+    transition: transform 0.2s ease;
+
+    &--rotated {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__content {
+    padding-top: 0.5rem;
+  }
+
+  &__inner {
+    background: var(--gutenku-paper-bg-aged);
+    border-radius: 8px;
+    box-shadow: var(--gutenku-shadow-book);
+    border: 1px solid var(--gutenku-paper-border);
+    min-height: auto !important;
+    padding: 12px !important;
+  }
+
+  &__metric-label {
+    // Metric label styles
+  }
+
+  &__metric-value {
+    // Metric value styles
+  }
+
+  &__progress-wrapper {
+    // Progress section container
+  }
+
+  &__progress-label {
+    // Progress label styles
+  }
+
+  &__progress-percentage {
+    // Progress percentage display
+  }
+
+  &__progress-bar {
+    // Progress bar styles
+  }
+
+  &__books-section {
+    // Books section container
+  }
+
+  &__books-header {
+    // Books section header
+  }
+
+  &__books-icon {
+    // Books section icon
+  }
+
+  &__books-title {
+    // Books section title
+  }
+
+  &__book {
+    padding: 4px 0;
+
+    // Book modifiers can be added here if needed
+  }
+
+  &__book-info {
+    // Book info container
+  }
+
+  &__book-rank {
+    // Book ranking chip
+  }
+
+  &__book-title {
+    font-family: 'JMH Typewriter', monospace !important;
+    font-size: 0.8rem; /* smaller than text-body-2 */
+    line-height: 1.2;
+    color: var(--gutenku-text-primary);
+    letter-spacing: 0.2px;
+  }
+
+  &__book-count {
+    // Book usage count
+  }
+
+  &__empty-state {
+    // Empty state message
   }
 }
 
-.stats-toggle-icon {
-  transition: transform 0.2s ease;
+// Responsive improvements using BEM modifiers
+@media (max-width: 768px) {
+  .stats-panel {
+    &--card {
+      padding: 1.25rem !important;
+    }
 
-  &.rotated {
-    transform: rotate(180deg);
+    &__content {
+      padding-top: 1rem;
+    }
+
+    &__inner {
+      padding: 1rem !important;
+    }
+
+    &__title {
+      font-size: 0.9rem;
+    }
+
+    &__book-title {
+      font-size: 0.75rem;
+    }
   }
-}
-
-.stats-content {
-  padding-top: 0.5rem;
 }
 </style>

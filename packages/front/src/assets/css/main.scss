@@ -56,7 +56,7 @@
   --gutenku-space-golden-sm: 1rem;
   --gutenku-space-golden-md: 1.618rem;
 
-  // Enhanced contrast and opacity variables (light mode)
+  // Contrast and opacity variables (light mode)
   --gutenku-text-contrast: #000000;
   --gutenku-border-visible: rgba(0, 0, 0, 0.2);
   --gutenku-border-visible-hover: rgba(0, 0, 0, 0.4);
@@ -85,7 +85,7 @@
   --gutenku-text-accent: #9bb6b4;
   --gutenku-text-zen: #5a8a8f;
 
-  // Enhanced Button Theme Colors for Dark Mode (Better Contrast)
+  // Button Theme Colors for Dark Mode (Better Contrast)
   --gutenku-btn-generate: rgba(90, 138, 143, 0.8);
   --gutenku-btn-generate-hover: rgba(90, 138, 143, 1);
   --gutenku-btn-generate-bg: rgba(90, 138, 143, 0.2);
@@ -127,7 +127,7 @@
       );
   }
 
-  // Enhanced contrast and opacity variables
+  // Contrast and opacity variables
   --gutenku-text-contrast: #ffffff;
   --gutenku-border-visible: rgba(255, 255, 255, 0.2);
   --gutenku-border-visible-hover: rgba(255, 255, 255, 0.4);
@@ -801,7 +801,7 @@ body {
   max-width: 400px !important;
 }
 
-// Enhanced tooltips for dark mode
+// Tooltips for dark mode
 [data-theme='dark'] .v-tooltip.v-overlay > .v-overlay__content {
   background: var(--gutenku-paper-bg-dark);
   color: var(--gutenku-text-primary);

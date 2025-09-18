@@ -120,7 +120,7 @@ export function useTheme() {
     }, 600);
   };
 
-  // Enhanced toggle with zen transition
+  // Toggle with zen transition
   const toggleThemeWithTransition = () => {
     triggerZenTransition();
     setTimeout(toggleTheme, 50);
