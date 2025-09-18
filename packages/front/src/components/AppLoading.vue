@@ -122,7 +122,7 @@ const { isDarkMode } = useTheme();
         <v-progress-linear
           :indeterminate="flipIcons"
           color="primary"
-          class="mb-0"
+          class="mb-0 loading-progress"
         />
       </div>
     </div>
@@ -194,8 +194,32 @@ const { isDarkMode } = useTheme();
   .loading-text {
     font-size: 18px;
     opacity: 0.9;
-    border-radius: 6px;
     font-weight: 500;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+  }
+
+  // Progress bar with rounded bottom corners
+  .loading-progress {
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    overflow: hidden;
+
+    // Ensure the progress fill follows the rounded corners
+    :deep(.v-progress-linear__determinate) {
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+    }
+
+    :deep(.v-progress-linear__indeterminate) {
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+    }
+
+    :deep(.v-progress-linear__background) {
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+    }
   }
 
   // Dark mode specific adjustments
