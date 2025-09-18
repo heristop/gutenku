@@ -18,14 +18,6 @@ function toggleCompactedView(): void {
   isCompacted.value = !isCompacted.value;
 }
 
-// Handle keyboard accessibility
-function handleKeydown(event: KeyboardEvent): void {
-  if (event.code === 'Space' || event.code === 'Enter') {
-    event.preventDefault();
-    toggle();
-  }
-}
-
 // Generate consistent page number based on haiku data
 const pageNumber = computed(() => {
   if (!haiku.value?.book?.title || !haiku.value?.chapter?.title) return 1;
@@ -47,34 +39,42 @@ function getCompactedText(): string {
   const content = haiku.value.chapter.content;
   const verses = haiku.value.rawVerses;
 
-  // Split content into sentences/lines
-  const lines = content
-    .split(/[.!?]+/)
-    .filter((line) => line.trim().length > 0);
+  // Split content into sentences preserving punctuation
+  const sentences = content
+    .split(/(?<=[.!?])\s+/)
+    .filter((sentence) => sentence.trim().length > 0);
 
   let compactedSections: string[] = [];
 
   verses.forEach((verse) => {
-    // Find the line containing this verse
-    const verseLineIndex = lines.findIndex((line) =>
-      line.includes(verse.trim()),
+    // Find the sentence containing this verse
+    const verseSentenceIndex = sentences.findIndex((sentence) =>
+      sentence.includes(verse.trim()),
     );
 
-    if (verseLineIndex !== -1) {
-      // Get line before, verse line, and line after
-      const prevLine =
-        verseLineIndex > 0 ? lines[verseLineIndex - 1].trim() : '';
-      const verseLine = lines[verseLineIndex].trim();
-      const nextLine =
-        verseLineIndex < lines.length - 1
-          ? lines[verseLineIndex + 1].trim()
+    if (verseSentenceIndex !== -1) {
+      // Get sentence before, verse sentence, and sentence after
+      const prevSentence =
+        verseSentenceIndex > 0 ? sentences[verseSentenceIndex - 1].trim() : '';
+      const verseSentence = sentences[verseSentenceIndex].trim();
+      const nextSentence =
+        verseSentenceIndex < sentences.length - 1
+          ? sentences[verseSentenceIndex + 1].trim()
           : '';
 
-      // Create compacted section
+      // Create compacted section with proper punctuation
       let section = '';
-      if (prevLine) section += prevLine + '. ';
-      section += verseLine + '.';
-      if (nextLine) section += ' ' + nextLine + '.';
+      if (prevSentence) {
+        section += prevSentence;
+        if (!prevSentence.match(/[.!?]$/)) section += '.';
+        section += ' ';
+      }
+      section += verseSentence;
+      if (!verseSentence.match(/[.!?]$/)) section += '.';
+      if (nextSentence) {
+        section += ' ' + nextSentence;
+        if (!nextSentence.match(/[.!?]$/)) section += '.';
+      }
 
       compactedSections.push(section);
     }
@@ -158,19 +158,7 @@ onMounted(() => {
     </div>
 
     <!-- Book Content -->
-    <div
-      class="book-content"
-      @click="toggle()"
-      @keydown="handleKeydown"
-      tabindex="0"
-      role="button"
-      :aria-label="
-        blackMarker
-          ? 'Click to reveal hidden text content'
-          : 'Click to hide text content'
-      "
-      :aria-pressed="!blackMarker"
-    >
+    <div class="book-content" @click="toggle()">
       <!-- Book Title -->
       <h1
         :class="{
@@ -194,23 +182,21 @@ onMounted(() => {
       </div>
 
       <!-- Chapter Content -->
-      <div class="chapter-content">
-        <v-expand-transition>
-          <div v-if="haiku.chapter.content" class="chapter-sheet">
-            <p
-              :class="{
-                'stabilo-hidden': blackMarker,
-                'stabilo-visible': !blackMarker,
-              }"
-              class="chapter-text"
-            >
-              <high-light-text
-                :text="isCompacted ? getCompactedText() : haiku.chapter.content"
-                :lines="haiku.rawVerses"
-              />
-            </p>
-          </div>
-        </v-expand-transition>
+      <div class="chapter-content" :class="{ expandable: !isCompacted }">
+        <div v-if="haiku.chapter.content" class="chapter-sheet">
+          <p
+            :class="{
+              'stabilo-hidden': blackMarker,
+              'stabilo-visible': !blackMarker,
+            }"
+            class="chapter-text"
+          >
+            <high-light-text
+              :text="isCompacted ? getCompactedText() : haiku.chapter.content"
+              :lines="haiku.rawVerses"
+            />
+          </p>
+        </div>
       </div>
     </div>
 
@@ -497,6 +483,18 @@ onMounted(() => {
   max-width: 100%;
   margin: 0 auto;
 
+  // Compacted mode: natural content flow, no scrollbar
+  &:not(.expandable) {
+    overflow: visible;
+  }
+
+  // Expanded mode: fixed height with scrollbar
+  &.expandable {
+    height: 400px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+
   .chapter-sheet {
     background: transparent !important;
     box-shadow: none !important;
@@ -510,44 +508,37 @@ onMounted(() => {
       margin: 0;
       padding: 1.5rem 0;
       position: relative;
+      transition: opacity 0.3s ease;
 
       &.stabilo-hidden {
-        // Stabilo effect that works in both light and dark themes
+        // Restore original stabilo effect with direct text masking
         position: relative;
         transition: all 0.5s ease;
-        opacity: 0.8;
 
-        // Remove any container-level styling that affects empty areas
-        background: none !important;
-
-        // Apply stabilo effect only to actual text content - hide text behind black lines
-        :deep(*:not(br):not(:empty)) {
+        // Apply stabilo effect with straight lines + irregular edge mask for handwritten appearance
+        // Exclude highlighted elements (mark, .highlight) from mask application so they appear above black lines
+        :deep(*:not(br):not(:empty):not(mark):not(.highlight)) {
           background: repeating-linear-gradient(
             transparent,
             transparent 0.1em,
-            #000 0.1em,
-            #000 1.1em,
+            rgba(0, 0, 0, 0.7) 0.1em,
+            rgba(0, 0, 0, 0.7) 1.1em,
             transparent 1.1em,
             transparent 1.2em
           );
           background-size: 100% 1.2em;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='35' viewBox='0 0 100 35'%3E%3Cpath d='M0,4 L8,3.7 L15,4.2 L23,3.9 L32,4.1 L42,3.8 L52,4.3 L62,3.9 L72,4.1 L82,3.8 L92,4.2 L100,4 L100,31 L92,31.3 L82,30.9 L72,31.2 L62,31 L52,31.4 L42,30.8 L32,31.3 L23,31 L15,31.2 L8,30.9 L0,31.1 Z' fill='white'/%3E%3C/svg%3E");
+          -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='35' viewBox='0 0 100 35'%3E%3Cpath d='M0,4 L8,3.7 L15,4.2 L23,3.9 L32,4.1 L42,3.8 L52,4.3 L62,3.9 L72,4.1 L82,3.8 L92,4.2 L100,4 L100,31 L92,31.3 L82,30.9 L72,31.2 L62,31 L52,31.4 L42,30.8 L32,31.3 L23,31 L15,31.2 L8,30.9 L0,31.1 Z' fill='white'/%3E%3C/svg%3E");
+          mask-repeat: repeat;
+          -webkit-mask-repeat: repeat;
+          mask-size: 100px 35px;
+          -webkit-mask-size: 100px 35px;
           color: transparent;
           text-shadow: 0 0 0 #000;
           display: inline;
         }
 
-        // Ensure empty elements get no styling
-        :deep(br),
-        :deep(:empty) {
-          background: none !important;
-        }
-
-        // Remove the overlay that creates black lines everywhere
-        &::before {
-          display: none !important;
-        }
-
-        // Hidden mode - haiku verses with theme-aware background
+        // Hidden mode - haiku verses with theme-aware background (prevents truncation)
         :deep(mark) {
           background: var(--gutenku-paper-bg) !important;
           background-image: none !important;
@@ -578,6 +569,17 @@ onMounted(() => {
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
           isolation: isolate;
           display: inline-block;
+        }
+
+        // Ensure empty elements get no styling
+        :deep(br),
+        :deep(:empty) {
+          background: none !important;
+        }
+
+        // Remove the overlay that creates black lines everywhere
+        &::before {
+          display: none !important;
         }
       }
 
