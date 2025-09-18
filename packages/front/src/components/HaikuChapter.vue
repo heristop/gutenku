@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, nextTick, watch } from 'vue';
 import { load } from '@fingerprintjs/botd';
 import { storeToRefs } from 'pinia';
 import { useHaikuStore } from '@/store/haiku';
@@ -83,6 +83,80 @@ function getCompactedText(): string {
   return compactedSections.join('\n\n');
 }
 
+// Generate unique hand-drawn highlighter SVG for each instance
+function generateHandDrawnHighlighter(): string {
+  const width = 100;
+  const height = 20;
+  const baseY = height / 2 - 3;
+
+  // Random parameters for this specific highlight
+  const waveIntensity = 1 + Math.random() * 2;
+  const strokeWidth = 8 + Math.random() * 4;
+  const opacity1 = 0.4 + Math.random() * 0.3;
+  const opacity2 = 0.2 + Math.random() * 0.3;
+  const rotation = -2 + Math.random() * 4;
+
+  // Generate wavy path with random control points
+  const path1 = `M0,${baseY + Math.random() * 2 - 1}
+    Q${width * 0.25},${baseY + (Math.random() - 0.5) * waveIntensity}
+    ${width * 0.5},${baseY + (Math.random() - 0.5) * waveIntensity}
+    T${width},${baseY + Math.random() * 2 - 1}
+    L${width},${baseY + strokeWidth + Math.random() * 2}
+    Q${width * 0.75},${baseY + strokeWidth + (Math.random() - 0.5) * waveIntensity}
+    ${width * 0.5},${baseY + strokeWidth + (Math.random() - 0.5) * waveIntensity}
+    T0,${baseY + strokeWidth + Math.random() * 2 - 1} Z`;
+
+  // Second overlapping stroke for depth
+  const path2 = `M0,${baseY + Math.random() * 1.5 - 0.75}
+    Q${width * 0.3},${baseY + (Math.random() - 0.5) * waveIntensity * 0.8}
+    ${width * 0.6},${baseY + (Math.random() - 0.5) * waveIntensity * 0.8}
+    T${width},${baseY + Math.random() * 1.5 - 0.75}
+    L${width},${baseY + strokeWidth * 0.8 + Math.random() * 1.5}
+    Q${width * 0.7},${baseY + strokeWidth * 0.8 + (Math.random() - 0.5) * waveIntensity * 0.8}
+    ${width * 0.4},${baseY + strokeWidth * 0.8 + (Math.random() - 0.5) * waveIntensity * 0.8}
+    T0,${baseY + strokeWidth * 0.8 + Math.random() * 1.5 - 0.75} Z`;
+
+  // Create SVG with unique patterns
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+    <defs>
+      <filter id="roughPaper${Math.random().toString(36).substr(2, 9)}">
+        <feTurbulence baseFrequency="0.04" numOctaves="3" result="noise" seed="${Math.random() * 100}"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.5"/>
+      </filter>
+    </defs>
+    <g transform="rotate(${rotation} ${width / 2} ${height / 2})">
+      <path d="${path1}" fill="#ffd700" opacity="${opacity1}" filter="url(#roughPaper${Math.random().toString(36).substr(2, 9)})"/>
+      <path d="${path2}" fill="#ffed4e" opacity="${opacity2}"/>
+    </g>
+  </svg>`;
+
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+// Apply unique highlighter patterns to all highlight elements
+function applyHandDrawnHighlighters(): void {
+  nextTick(() => {
+    const highlights = document.querySelectorAll(
+      '.chapter-text mark, .chapter-text .highlight',
+    );
+    highlights.forEach((element: Element) => {
+      const htmlElement = element as HTMLElement;
+      const uniquePattern = generateHandDrawnHighlighter();
+      const randomTranslateY = -0.5 + Math.random() * 1;
+      const randomRotation = -1 + Math.random() * 2;
+
+      htmlElement.style.setProperty(
+        '--unique-highlighter-bg',
+        `url("${uniquePattern}")`,
+      );
+      htmlElement.style.setProperty(
+        '--unique-transform',
+        `translateY(${randomTranslateY}px) rotate(${randomRotation}deg)`,
+      );
+    });
+  });
+}
+
 onMounted(() => {
   const botdPromise = load();
 
@@ -91,7 +165,19 @@ onMounted(() => {
       blackMarker.value = false;
     }
   });
+
+  // Apply hand-drawn highlighters after component mounts
+  applyHandDrawnHighlighters();
 });
+
+// Reapply patterns when content changes
+watch(
+  [haiku, isCompacted],
+  () => {
+    applyHandDrawnHighlighters();
+  },
+  { flush: 'post' },
+);
 </script>
 
 <template>
@@ -592,37 +678,43 @@ onMounted(() => {
           display: none;
         }
 
-        // Revealed mode - haiku verses with completely solid yellow highlighting
+        // Revealed mode - haiku verses with hand-drawn highlighter effect
         :deep(mark) {
-          background: #ffd700 !important;
-          background-image: none !important;
-          background-clip: border-box !important;
+          background: var(--unique-highlighter-bg, #ffd700) !important;
+          background-size: 100% 100% !important;
+          background-repeat: no-repeat !important;
+          background-position: center !important;
           color: #2c2c2c !important;
           padding: 2px 8px;
-          border-radius: 4px;
+          border-radius: 0;
           font-weight: bold;
           position: relative;
           z-index: 20;
           text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          box-shadow: none;
           isolation: isolate;
           display: inline-block;
+          transform: var(--unique-transform, none);
+          transition: transform 0.2s ease;
         }
 
         :deep(.highlight) {
-          background: #ffd700 !important;
-          background-image: none !important;
-          background-clip: border-box !important;
+          background: var(--unique-highlighter-bg, #ffd700) !important;
+          background-size: 100% 100% !important;
+          background-repeat: no-repeat !important;
+          background-position: center !important;
           color: #2c2c2c !important;
           padding: 2px 8px;
-          border-radius: 4px;
+          border-radius: 0;
           font-weight: bold;
           position: relative;
           z-index: 20;
           text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          box-shadow: none;
           isolation: isolate;
           display: inline-block;
+          transform: var(--unique-transform, none);
+          transition: transform 0.2s ease;
         }
       }
     }
