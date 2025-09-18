@@ -1,21 +1,30 @@
 import log from 'loglevel';
-import OpenAI from 'openai';
-import { singleton } from 'tsyringe';
+import { inject, singleton } from 'tsyringe';
 import { HaikuValue, OpenAIOptions } from '../../shared/types';
-import HaikuGeneratorService from './HaikuGeneratorService';
-import { IGenerator } from '../interfaces/IGenerator';
+import HaikuGeneratorService from '../../domain/services/HaikuGeneratorService';
+import { IGenerator } from '../../domain/interfaces/IGenerator';
+import {
+  IOpenAIClient,
+  IOpenAIClientToken,
+} from '../../domain/gateways/IOpenAIClient';
 
 @singleton()
 export default class OpenAIGeneratorService implements IGenerator {
   private readonly MAX_SELECTION_COUNT: number = 100;
 
   private haikuSelection: HaikuValue[] = [];
-  private openai: OpenAI;
+  private openai: IOpenAIClient;
 
   private selectionCount: number;
   private descriptionTemperature: number;
 
-  constructor(private readonly haikuGeneratorService: HaikuGeneratorService) {}
+  constructor(
+    @inject(HaikuGeneratorService)
+    private readonly haikuGeneratorService: HaikuGeneratorService,
+    @inject(IOpenAIClientToken) openaiClient: IOpenAIClient,
+  ) {
+    this.openai = openaiClient;
+  }
 
   configure(options: OpenAIOptions): OpenAIGeneratorService {
     const { apiKey, selectionCount, temperature } = options;
@@ -35,9 +44,7 @@ export default class OpenAIGeneratorService implements IGenerator {
 
     this.descriptionTemperature = temperature.description;
 
-    this.openai = new OpenAI({
-      apiKey: apiKey,
-    });
+    this.openai.configure(apiKey);
 
     return this;
   }
@@ -48,7 +55,7 @@ export default class OpenAIGeneratorService implements IGenerator {
     try {
       const prompt = await this.generateSelectionPrompt();
 
-      const completion = await this.openai.chat.completions.create({
+      const completion = await this.openai.chatCompletionsCreate({
         model: 'gpt-4o',
         temperature: 0.4,
         max_tokens: 1200,
@@ -108,7 +115,7 @@ export default class OpenAIGeneratorService implements IGenerator {
     const outputFormat =
       '{"title":"<Give a creative short title to describe the haiku>","description":"<Describe and explain the haiku>","hashtags":"<Give 6 lowercase hashtags>"}';
 
-    const completion = await this.openai.chat.completions.create({
+    const completion = await this.openai.chatCompletionsCreate({
       model: 'gpt-4o',
       temperature: this.descriptionTemperature,
       max_tokens: 1000,
@@ -143,7 +150,7 @@ export default class OpenAIGeneratorService implements IGenerator {
     outputFormat += '"de":"<Translate the Haiku in german>"';
     prompt = `${prompt} (Use the following format: {${outputFormat}})`;
 
-    const completion = await this.openai.chat.completions.create({
+    const completion = await this.openai.chatCompletionsCreate({
       model: 'gpt-4o',
       temperature: 0.3,
       max_tokens: 1000,
@@ -233,4 +240,3 @@ export default class OpenAIGeneratorService implements IGenerator {
     return haikus;
   }
 }
-/* c8 ignore file */

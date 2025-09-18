@@ -1,12 +1,14 @@
-import { injectable } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
 import { HaikuValue, HaikuVariables } from '../../shared/types';
 import HaikuGeneratorService from '../../domain/services/HaikuGeneratorService';
-import OpenAIGeneratorService from '../../domain/services/OpenAIGeneratorService';
+import OpenAIGeneratorService from '../../infrastructure/services/OpenAIGeneratorService';
 
 @injectable()
 export default class HaikuBridgeService {
   constructor(
+    @inject(HaikuGeneratorService)
     private readonly haikuGenerator: HaikuGeneratorService,
+    @inject(OpenAIGeneratorService)
     private readonly openAIGenerator: OpenAIGeneratorService,
   ) {}
 
@@ -54,4 +56,3 @@ export default class HaikuBridgeService {
     return haiku;
   }
 }
-/* c8 ignore file */

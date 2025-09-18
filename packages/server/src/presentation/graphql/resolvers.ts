@@ -5,8 +5,8 @@ import ChapterService from '../../application/services/ChapterService';
 import HaikuBridgeService from '../../application/services/HaikuBridgeService';
 import { PubSubService } from '../../infrastructure/services/PubSubService';
 
-// Instanciate PubSub singleton
-const pubSub = container.resolve(PubSubService).instance;
+// Instantiate PubSub singleton
+const pubSubService = container.resolve(PubSubService);
 
 const resolvers = {
   Query: {
@@ -38,7 +38,7 @@ const resolvers = {
   },
   Subscription: {
     quoteGenerated: {
-      subscribe: () => pubSub.asyncIterator(['QUOTE_GENERATED']),
+      subscribe: () => pubSubService.iterator<string>(['QUOTE_GENERATED']),
     },
   },
 };

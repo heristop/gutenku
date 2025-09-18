@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   mongo-container:
     image: mongo:5.0.14

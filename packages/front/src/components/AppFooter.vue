@@ -7,9 +7,9 @@
       href="https://heristop.vercel.app"
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Visit heristop on Vercel"
+      aria-label="Visit heristop on his page"
     >
-      © 2023-{{ new Date().getFullYear() }} —&nbsp;<strong>heristop</strong>
+      heristop © 2023-{{ new Date().getFullYear() }}
     </v-btn>
   </v-card>
 </template>

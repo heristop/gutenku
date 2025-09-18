@@ -25,4 +25,3 @@ const BookSchema = new Schema({
 });
 
 export default mongoose.model('Book', BookSchema);
-/* c8 ignore file */

@@ -1,6 +1,12 @@
 import 'reflect-metadata';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import HaikuGeneratorService from '../src/domain/services/HaikuGeneratorService';
+import { IHaikuRepository } from '../src/domain/repositories/IHaikuRepository';
+import { IChapterRepository } from '../src/domain/repositories/IChapterRepository';
+import { IBookRepository } from '../src/domain/repositories/IBookRepository';
+import { ICanvasService } from '../src/domain/services/ICanvasService';
+import { IEventBus } from '../src/domain/events/IEventBus';
+import { PubSubService } from '../src/infrastructure/services/PubSubService';
 
 // Mock fs.unlink used via promisify in appendImg
 vi.mock('fs', () => ({
@@ -9,30 +15,30 @@ vi.mock('fs', () => ({
 
 describe('HaikuGeneratorService', () => {
   const makeService = () => {
-    const haikuRepository = {
-      extractFromCache: vi.fn(async (_size: number, _min: number) => []),
-      extractOneFromCache: vi.fn(async (_min: number) => null),
-      createCacheWithTTL: vi.fn(async () => undefined),
-    };
-
-    const chapterRepository = {
-      getFilteredChapters: vi.fn(async (_words: string[]) => []),
-    };
-
-    const bookService = {
-      selectRandomBook: vi.fn(async () => ({
+    class FakeHaikuRepository implements IHaikuRepository {
+      extractFromCache = vi.fn(async () => []);
+      extractOneFromCache = vi.fn(async () => null);
+      createCacheWithTTL = vi.fn(async () => undefined);
+    }
+    class FakeChapterRepository implements IChapterRepository {
+      getFilteredChapters = vi.fn(async () => []);
+      getAllChapters = vi.fn(async () => []);
+      getChapterById = vi.fn(async () => null);
+    }
+    class FakeBookRepository implements IBookRepository {
+      getAllBooks = vi.fn(async () => []);
+      getBookById = vi.fn(async () => null);
+      selectRandomBook = vi.fn(async () => ({
         reference: 'ref',
         title: 't',
         author: 'a',
         chapters: ['c1', 'c2'],
-      })),
-    };
-
+      }));
+    }
     const markovEvaluator = {
       load: vi.fn(async () => undefined),
       evaluateHaiku: vi.fn((_verses: string[]) => 1),
     };
-
     const naturalLanguage = {
       extractSentencesByPunctuation: (t: string) => t.split(/[.?!,;]+\s+/g),
       extractWords: (t: string) => t.split(/\s+/g).filter(Boolean),
@@ -42,44 +48,35 @@ describe('HaikuGeneratorService', () => {
       hasBlacklistedCharsInQuote: (_t: string) => false,
       startWithConjunction: (_t: string) => false,
     };
-
-    const canvasService = {
-      useTheme: vi.fn(),
-      create: vi.fn(async () => '/tmp/fake.png'),
-      read: vi.fn(async (_p: string) => ({ data: Buffer.from('xyz') })),
-    };
-
-    const pubSubService = {
-      instance: { publish: vi.fn() },
-    };
+    class FakeCanvasService implements ICanvasService {
+      useTheme = vi.fn();
+      create = vi.fn(async () => '/tmp/fake.png');
+      read = vi.fn(async () => ({
+        data: Buffer.from('xyz'),
+        contentType: 'image/jpeg',
+      }));
+    }
+    const pubSubService = new PubSubService();
+    const eventBus: IEventBus = { publish: vi.fn(async () => {}) };
 
     const svc = new HaikuGeneratorService(
-      // @ts-expect-error - minimal test doubles
-      haikuRepository,
-      // @ts-expect-error - minimal test doubles
-      chapterRepository,
-      // @ts-expect-error - minimal test doubles
-      bookService,
-      // @ts-expect-error - minimal test doubles
+      new FakeHaikuRepository(),
+      new FakeChapterRepository(),
+      new FakeBookRepository(),
+      // @ts-expect-error – structural typing for tests
       markovEvaluator,
-      // @ts-expect-error - minimal test doubles
+      // @ts-expect-error – structural typing for tests
       naturalLanguage,
-      // @ts-expect-error - minimal test doubles
-      canvasService,
-      // @ts-expect-error - minimal test doubles
+      new FakeCanvasService(),
       pubSubService,
+      eventBus,
     );
 
     return {
       svc,
       deps: {
-        haikuRepository,
-        chapterRepository,
-        bookService,
         markovEvaluator,
         naturalLanguage,
-        canvasService,
-        pubSubService,
       },
     };
   };

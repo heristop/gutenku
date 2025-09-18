@@ -52,4 +52,3 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
 
     markovEvaluator.save();
   });
-/* c8 ignore file */

@@ -1,9 +1,12 @@
 import { MarkovChainService } from './MarkovChainService';
-import { singleton } from 'tsyringe';
+import { inject, singleton } from 'tsyringe';
 
 @singleton()
 export class MarkovEvaluatorService {
-  constructor(private readonly markovChain: MarkovChainService) {}
+  constructor(
+    @inject(MarkovChainService)
+    private readonly markovChain: MarkovChainService,
+  ) {}
 
   public trainMarkovChain(text: string): MarkovEvaluatorService {
     this.markovChain.train(text);
@@ -34,4 +37,3 @@ export class MarkovEvaluatorService {
     return totalScore / (haiku.length - 1) / 100;
   }
 }
-/* c8 ignore file */

@@ -11,11 +11,13 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import { createServer } from 'http';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { WebSocketServer } from 'ws';
-import { useServer } from 'graphql-ws/lib/use/ws';
+import { useServer } from 'graphql-ws/use/ws';
 import { Connection } from 'mongoose';
 import resolvers from './presentation/graphql/resolvers';
 import typeDefs from './presentation/graphql/typeDefs';
 import MongoConnection from './infrastructure/services/MongoConnection';
+// DI bindings (infra -> domain interfaces)
+import './infrastructure/di/container';
 
 dotenv.config();
 log.enableAll();
@@ -74,10 +76,14 @@ async function listen(port: number) {
 
   const db = await mongoConnection.connect();
 
-  db.on('error', log.error.bind(console, 'connection error:'));
-  db.once('open', function () {
-    log.info('Connected to MongoDB!');
-  });
+  if (db) {
+    db.on('error', log.error.bind(console, 'connection error:'));
+    db.once('open', function () {
+      log.info('Connected to MongoDB!');
+    });
+  } else {
+    log.warn('MongoDB not available. Continuing without a DB connection.');
+  }
 
   app.use(
     '/graphql',
@@ -88,7 +94,7 @@ async function listen(port: number) {
     }),
     bodyParser.json(),
     expressMiddleware(server, {
-      context: async () => ({ db: db }),
+      context: async () => ({ db: db ?? undefined }),
     }),
   );
 
@@ -105,7 +111,7 @@ async function main() {
 
     log.info(`🚀 Query endpoint ready at http://localhost:${port}/graphql`);
     log.info(
-      `🚀 Subscription endpoint ready at ws://localhost:${port}/graphql`,
+      `🚀 Subscription endpoint ready at ws://localhost:${port}/graphql-ws`,
     );
   } catch (err) {
     log.error('🤖 Error starting the node server', err);
@@ -113,4 +119,3 @@ async function main() {
 }
 
 void main();
-/* c8 ignore file */

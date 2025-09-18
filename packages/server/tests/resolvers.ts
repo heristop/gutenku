@@ -4,17 +4,22 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('tsyringe', async (importOriginal) => {
   const actual = await importOriginal<typeof import('tsyringe')>();
 
+  const makeEmptyAsyncIter = () => ({
+    [Symbol.asyncIterator]() {
+      return this;
+    },
+    async next() {
+      return { done: true, value: undefined } as IteratorResult<unknown>;
+    },
+  });
+
   const pubSubMock = {
     instance: {
-      asyncIterator: vi.fn(() => ({
-        [Symbol.asyncIterator]() {
-          return this;
-        },
-        async next() {
-          return { done: true, value: undefined } as IteratorResult<unknown>;
-        },
-      })),
+      asyncIterator: vi.fn(() => makeEmptyAsyncIter()),
     },
+    iterator: vi.fn((_triggers: string | readonly string[]) =>
+      makeEmptyAsyncIter(),
+    ),
   };
 
   const bookServiceMock = {
