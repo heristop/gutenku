@@ -63,4 +63,3 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
 
     console.info('Time:', haiku.executionTime, 's');
   });
-/* c8 ignore file */

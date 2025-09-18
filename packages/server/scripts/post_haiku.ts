@@ -98,11 +98,29 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
 
     const imageData = Buffer.from(haiku.image, 'base64');
 
-    haiku.imagePath = path.join(DATA_DIRECTORY, 'preview_haiku.jpg');
+    // Inline preview in terminal from buffer for compatibility with newer terminal-image
+    try {
+      const preview = await terminalImage.buffer(imageData, { width: 20 });
+      log.info(preview);
+    } catch {
+      // Fallback to file preview if buffer rendering is unavailable
+      try {
+        haiku.imagePath = path.join(DATA_DIRECTORY, 'preview_haiku.jpg');
+        await fs.writeFile(haiku.imagePath, imageData);
+        const ti = terminalImage as unknown as {
+          file?: (p: string, opts: { width: number }) => Promise<string>;
+        };
+        const previewFromFile = await ti.file?.(haiku.imagePath, { width: 20 });
+        if (previewFromFile) log.info(previewFromFile);
+      } catch {
+        // ignore preview errors
+      }
+    }
 
+    // Persist preview image to disk for subsequent steps
+    haiku.imagePath =
+      haiku.imagePath || path.join(DATA_DIRECTORY, 'preview_haiku.jpg');
     await fs.writeFile(haiku.imagePath, imageData);
-
-    log.info(await terminalImage.file(haiku.imagePath, { width: 20 }));
     log.info({
       book: haiku.book,
       verses: haiku.verses,
@@ -163,4 +181,3 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
       );
     }
   });
-/* c8 ignore file */

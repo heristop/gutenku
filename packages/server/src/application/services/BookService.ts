@@ -1,9 +1,11 @@
-import { injectable } from 'tsyringe';
-import BookRepository from '../../infrastructure/repositories/BookRepository';
+import { inject, injectable } from 'tsyringe';
+import { IBookRepository } from '../../domain/repositories/IBookRepository';
 
 @injectable()
 export default class BookService {
-  constructor(private readonly bookRepository: BookRepository) {}
+  constructor(
+    @inject('IBookRepository') private readonly bookRepository: IBookRepository,
+  ) {}
 
   async getAllBooks(filter: string | null) {
     return await this.bookRepository.getAllBooks(filter);

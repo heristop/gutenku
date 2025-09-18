@@ -1,14 +1,15 @@
 import log from 'loglevel';
-import { injectable } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
 import { HaikuDocument, HaikuValue } from '../../shared/types';
+import { IHaikuRepository } from '../../domain/repositories/IHaikuRepository';
 import MongoConnection from '../services/MongoConnection';
 import { Connection } from 'mongoose';
 
 @injectable()
-export default class HaikuRepository {
+export default class HaikuRepository implements IHaikuRepository {
   private db: Connection;
 
-  constructor(mongoConnection: MongoConnection) {
+  constructor(@inject(MongoConnection) mongoConnection: MongoConnection) {
     this.db = mongoConnection.db;
   }
 
@@ -111,4 +112,3 @@ export default class HaikuRepository {
     return haikuValues;
   }
 }
-/* c8 ignore file */

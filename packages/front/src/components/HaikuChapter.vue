@@ -18,14 +18,6 @@ function toggleCompactedView(): void {
   isCompacted.value = !isCompacted.value;
 }
 
-// Handle keyboard accessibility
-function handleKeydown(event: KeyboardEvent): void {
-  if (event.code === 'Space' || event.code === 'Enter') {
-    event.preventDefault();
-    toggle();
-  }
-}
-
 // Generate consistent page number based on haiku data
 const pageNumber = computed(() => {
   if (!haiku.value?.book?.title || !haiku.value?.chapter?.title) return 1;
@@ -47,34 +39,42 @@ function getCompactedText(): string {
   const content = haiku.value.chapter.content;
   const verses = haiku.value.rawVerses;
 
-  // Split content into sentences/lines
-  const lines = content
-    .split(/[.!?]+/)
-    .filter((line) => line.trim().length > 0);
+  // Split content into sentences preserving punctuation
+  const sentences = content
+    .split(/(?<=[.!?])\s+/)
+    .filter((sentence) => sentence.trim().length > 0);
 
   let compactedSections: string[] = [];
 
   verses.forEach((verse) => {
-    // Find the line containing this verse
-    const verseLineIndex = lines.findIndex((line) =>
-      line.includes(verse.trim()),
+    // Find the sentence containing this verse
+    const verseSentenceIndex = sentences.findIndex((sentence) =>
+      sentence.includes(verse.trim()),
     );
 
-    if (verseLineIndex !== -1) {
-      // Get line before, verse line, and line after
-      const prevLine =
-        verseLineIndex > 0 ? lines[verseLineIndex - 1].trim() : '';
-      const verseLine = lines[verseLineIndex].trim();
-      const nextLine =
-        verseLineIndex < lines.length - 1
-          ? lines[verseLineIndex + 1].trim()
+    if (verseSentenceIndex !== -1) {
+      // Get sentence before, verse sentence, and sentence after
+      const prevSentence =
+        verseSentenceIndex > 0 ? sentences[verseSentenceIndex - 1].trim() : '';
+      const verseSentence = sentences[verseSentenceIndex].trim();
+      const nextSentence =
+        verseSentenceIndex < sentences.length - 1
+          ? sentences[verseSentenceIndex + 1].trim()
           : '';
 
-      // Create compacted section
+      // Create compacted section with proper punctuation
       let section = '';
-      if (prevLine) section += prevLine + '. ';
-      section += verseLine + '.';
-      if (nextLine) section += ' ' + nextLine + '.';
+      if (prevSentence) {
+        section += prevSentence;
+        if (!prevSentence.match(/[.!?]$/)) section += '.';
+        section += ' ';
+      }
+      section += verseSentence;
+      if (!verseSentence.match(/[.!?]$/)) section += '.';
+      if (nextSentence) {
+        section += ' ' + nextSentence;
+        if (!nextSentence.match(/[.!?]$/)) section += '.';
+      }
 
       compactedSections.push(section);
     }
@@ -143,6 +143,10 @@ onMounted(() => {
                   : 'mdi-unfold-less-horizontal'
               "
               @click="toggleCompactedView()"
+              :class="{
+                'icon-white': blackMarker,
+                'icon-black': !blackMarker,
+              }"
               class="toggle-btn expand-toggle"
               :title="isCompacted ? 'Show Full Chapter' : 'Show Compacted View'"
               size="small"
@@ -154,24 +158,12 @@ onMounted(() => {
     </div>
 
     <!-- Book Content -->
-    <div
-      class="book-content"
-      @click="toggle()"
-      @keydown="handleKeydown"
-      tabindex="0"
-      role="button"
-      :aria-label="
-        blackMarker
-          ? 'Click to reveal hidden text content'
-          : 'Click to hide text content'
-      "
-      :aria-pressed="!blackMarker"
-    >
+    <div class="book-content" @click="toggle()">
       <!-- Book Title -->
       <h1
         :class="{
-          'dark-theme': blackMarker,
-          'light-theme': !blackMarker,
+          'stabilo-hidden': blackMarker,
+          'stabilo-visible': !blackMarker,
         }"
         class="book-title"
       >
@@ -181,8 +173,8 @@ onMounted(() => {
       <!-- Book Author -->
       <div
         :class="{
-          'dark-theme': blackMarker,
-          'light-theme': !blackMarker,
+          'stabilo-hidden': blackMarker,
+          'stabilo-visible': !blackMarker,
         }"
         class="book-author"
       >
@@ -190,23 +182,21 @@ onMounted(() => {
       </div>
 
       <!-- Chapter Content -->
-      <div class="chapter-content">
-        <v-expand-transition>
-          <div v-if="haiku.chapter.content" class="chapter-sheet">
-            <p
-              :class="{
-                'dark-theme': blackMarker,
-                'light-theme': !blackMarker,
-              }"
-              class="chapter-text"
-            >
-              <high-light-text
-                :text="isCompacted ? getCompactedText() : haiku.chapter.content"
-                :lines="haiku.rawVerses"
-              />
-            </p>
-          </div>
-        </v-expand-transition>
+      <div class="chapter-content" :class="{ expandable: !isCompacted }">
+        <div v-if="haiku.chapter.content" class="chapter-sheet">
+          <p
+            :class="{
+              'stabilo-hidden': blackMarker,
+              'stabilo-visible': !blackMarker,
+            }"
+            class="chapter-text"
+          >
+            <high-light-text
+              :text="isCompacted ? getCompactedText() : haiku.chapter.content"
+              :lines="haiku.rawVerses"
+            />
+          </p>
+        </div>
       </div>
     </div>
 
@@ -216,14 +206,6 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
-// Import JMH Typewriter font
-@font-face {
-  font-family: 'JMH Typewriter';
-  src: url('@/assets/fonts/JMH Typewriter.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
 .book-page {
   box-shadow:
     0 2px 4px -1px rgba(0, 0, 0, 0.2),
@@ -231,13 +213,42 @@ onMounted(() => {
     0 1px 10px 0 rgba(0, 0, 0, 0.12);
 
   // Book page background - solid color eliminates highlighting interference
-  background: #f8f6f0;
+  background: var(--gutenku-paper-bg);
   position: relative;
   padding: 3rem 2rem 2rem 3rem;
   margin-bottom: 1.5rem;
   min-height: 500px;
   border-radius: 4px;
   overflow: visible;
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  // Enhanced hover effect for entire card
+  &:hover {
+    transform: translateY(-3px) scale(1.01);
+    box-shadow:
+      0 8px 25px rgba(0, 0, 0, 0.3),
+      0 4px 10px rgba(0, 0, 0, 0.2);
+
+    // Light mode hover brightening
+    background: color-mix(in srgb, var(--gutenku-paper-bg) 92%, white 8%);
+  }
+
+  // Active state for entire card
+  &:active {
+    transform: translateY(-1px) scale(0.99);
+    transition: all 0.1s ease;
+  }
+
+  // Dark mode specific enhancements
+  [data-theme='dark'] & {
+    &:hover {
+      background: color-mix(in srgb, var(--gutenku-paper-bg) 88%, white 12%);
+      box-shadow:
+        0 12px 35px rgba(0, 0, 0, 0.4),
+        0 6px 15px rgba(0, 0, 0, 0.3);
+    }
+  }
 
   // Page curl effect at bottom-right corner
   &::after {
@@ -298,13 +309,12 @@ onMounted(() => {
   z-index: 2;
   text-align: center;
   margin-bottom: 2rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid var(--gutenku-border-visible);
   padding-bottom: 1rem;
 
   .disclosure-text {
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.9rem;
-    color: #5a5a5a;
+    color: var(--gutenku-text-muted);
     text-transform: uppercase;
     margin-bottom: 1rem;
   }
@@ -317,22 +327,77 @@ onMounted(() => {
   }
 
   .toggle-btn {
-    background: rgba(139, 69, 19, 0.1) !important;
-    border: 1px solid rgba(139, 69, 19, 0.3);
-    transition: all 0.2s ease;
+    background: var(--gutenku-btn-subtle-bg) !important;
+    border: 1px solid var(--gutenku-border-visible);
+    color: var(--gutenku-text-contrast) !important;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    box-shadow: var(--gutenku-shadow-light);
+    transition: var(--gutenku-transition-zen);
+    cursor: pointer !important;
+
+    &,
+    *,
+    .v-icon,
+    .v-icon::before,
+    .v-icon::after {
+      cursor: pointer !important;
+    }
 
     &:hover {
-      background: rgba(var(--v-theme-primary), 0.15);
-      opacity: 0.8;
+      background: var(--gutenku-btn-subtle-hover) !important;
+      border-color: var(--gutenku-border-visible-hover);
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: var(--gutenku-shadow-ink);
+    }
+
+    &:active {
+      transform: translateY(0) scale(0.95);
+      transition: var(--gutenku-transition-fast);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--gutenku-zen-accent);
+      outline-offset: 2px;
+    }
+
+    .v-icon {
+      transition: var(--gutenku-transition-zen);
+    }
+
+    &:hover .v-icon {
+      transform: rotate(12deg) scale(1.1);
     }
 
     &.expand-toggle {
-      background: rgba(34, 139, 34, 0.1) !important;
-      border: 1px solid rgba(34, 139, 34, 0.3);
+      background: var(--gutenku-btn-expand-bg) !important;
+      border: 1px solid var(--gutenku-border-visible);
 
       &:hover {
-        background: rgba(34, 139, 34, 0.2) !important;
+        background: var(--gutenku-btn-expand-hover) !important;
+        border-color: var(--gutenku-border-visible-hover);
       }
+
+      // Dynamic icon colors based on stabilo mode
+      &.icon-white .v-icon {
+        color: #ffffff !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+      }
+
+      &.icon-black .v-icon {
+        color: #000000 !important;
+        text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .book-header {
+    .toggle-btn {
+      width: 36px;
+      height: 36px;
     }
   }
 }
@@ -340,47 +405,48 @@ onMounted(() => {
 .book-content {
   position: relative;
   z-index: 2;
-  font-family: 'JMH Typewriter', monospace;
-  cursor:
-    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>'),
-    auto;
+  cursor: pointer;
   transition: all 0.3s ease;
   border-radius: 4px;
 
+  // Theme-aware cursor colors
   &:hover {
-    background: rgba(255, 255, 255, 0.05);
-    transform: translateY(-1px);
+    cursor:
+      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>'),
+      auto;
+  }
+
+  // Dark mode cursor
+  [data-theme='dark'] & {
+    &:hover {
+      cursor:
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>'),
+        auto;
+    }
   }
 
   &:focus {
     outline: none;
-    background: rgba(255, 255, 255, 0.05);
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: translateY(0);
   }
 }
 
 .book-title {
-  font-family: 'JMH Typewriter', monospace;
   font-size: 2rem;
   font-weight: bold;
-  color: #2c1810;
+  color: var(--gutenku-text-primary);
   text-align: center;
   margin: 2rem 0 1rem 0;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 
-  &.dark-theme {
+  &.stabilo-hidden {
     opacity: 0.3;
     filter: blur(2px);
     transition: all 0.3s ease;
   }
 
-  &.light-theme {
+  &.stabilo-visible {
     opacity: 1;
     filter: blur(0);
     transition: all 0.3s ease;
@@ -388,9 +454,8 @@ onMounted(() => {
 }
 
 .book-author {
-  font-family: 'JMH Typewriter', monospace;
   font-size: 1.2rem;
-  color: #4a4a4a;
+  color: var(--gutenku-text-secondary);
   text-align: center;
   margin-bottom: 2.5rem;
   font-style: italic;
@@ -401,13 +466,13 @@ onMounted(() => {
     opacity: 0.7;
   }
 
-  &.dark-theme {
+  &.stabilo-hidden {
     opacity: 0.3;
     filter: blur(2px);
     transition: all 0.3s ease;
   }
 
-  &.light-theme {
+  &.stabilo-visible {
     opacity: 1;
     filter: blur(0);
     transition: all 0.3s ease;
@@ -418,88 +483,107 @@ onMounted(() => {
   max-width: 100%;
   margin: 0 auto;
 
+  // Compacted mode: natural content flow, no scrollbar
+  &:not(.expandable) {
+    overflow: visible;
+  }
+
+  // Expanded mode: fixed height with scrollbar
+  &.expandable {
+    height: 400px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+
   .chapter-sheet {
     background: transparent !important;
     box-shadow: none !important;
     border: none !important;
 
     .chapter-text {
-      font-family: 'JMH Typewriter', monospace;
       font-size: 1rem;
       line-height: 1.8;
-      color: #2c2c2c;
+      color: var(--gutenku-text-primary);
       text-align: justify;
       margin: 0;
       padding: 1.5rem 0;
       position: relative;
+      transition: opacity 0.3s ease;
 
-      &.dark-theme {
-        // Stabilo marker blackout effect - make text invisible
-        color: transparent !important;
-        text-shadow: none !important;
-        background: linear-gradient(to right, #000 0%, #1a1a1a 100%);
-        background-clip: text;
-        -webkit-background-clip: text;
+      &.stabilo-hidden {
+        // Restore original stabilo effect with direct text masking
         position: relative;
         transition: all 0.5s ease;
 
-        // Create stabilo marker bars over the text
-        &::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
+        // Apply stabilo effect with straight lines + irregular edge mask for handwritten appearance
+        // Exclude highlighted elements (mark, .highlight) from mask application so they appear above black lines
+        :deep(*:not(br):not(:empty):not(mark):not(.highlight)) {
           background: repeating-linear-gradient(
             transparent,
             transparent 0.1em,
-            #000 0.1em,
-            #000 1.1em,
+            rgba(0, 0, 0, 0.7) 0.1em,
+            rgba(0, 0, 0, 0.7) 1.1em,
             transparent 1.1em,
             transparent 1.2em
           );
           background-size: 100% 1.2em;
-          pointer-events: none;
-          z-index: 1;
-          opacity: 0.8;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='35' viewBox='0 0 100 35'%3E%3Cpath d='M0,4 L8,3.7 L15,4.2 L23,3.9 L32,4.1 L42,3.8 L52,4.3 L62,3.9 L72,4.1 L82,3.8 L92,4.2 L100,4 L100,31 L92,31.3 L82,30.9 L72,31.2 L62,31 L52,31.4 L42,30.8 L32,31.3 L23,31 L15,31.2 L8,30.9 L0,31.1 Z' fill='white'/%3E%3C/svg%3E");
+          -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='35' viewBox='0 0 100 35'%3E%3Cpath d='M0,4 L8,3.7 L15,4.2 L23,3.9 L32,4.1 L42,3.8 L52,4.3 L62,3.9 L72,4.1 L82,3.8 L92,4.2 L100,4 L100,31 L92,31.3 L82,30.9 L72,31.2 L62,31 L52,31.4 L42,30.8 L32,31.3 L23,31 L15,31.2 L8,30.9 L0,31.1 Z' fill='white'/%3E%3C/svg%3E");
+          mask-repeat: repeat;
+          -webkit-mask-repeat: repeat;
+          mask-size: 100px 35px;
+          -webkit-mask-size: 100px 35px;
+          color: transparent;
+          text-shadow: 0 0 0 #000;
+          display: inline;
         }
 
-        // Hidden mode - haiku verses with completely solid white background
+        // Hidden mode - haiku verses with theme-aware background (prevents truncation)
         :deep(mark) {
-          background: #ffffff !important;
+          background: var(--gutenku-paper-bg) !important;
           background-image: none !important;
           background-clip: border-box !important;
-          color: #2c2c2c !important;
+          color: var(--gutenku-text-primary) !important;
           padding: 4px 8px;
           border-radius: 4px;
           font-weight: bold;
           position: relative;
           z-index: 20;
-          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+          text-shadow: none !important;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
           isolation: isolate;
           display: inline-block;
         }
 
         :deep(.highlight) {
-          background: #ffffff !important;
+          background: var(--gutenku-paper-bg) !important;
           background-image: none !important;
           background-clip: border-box !important;
-          color: #2c2c2c !important;
+          color: var(--gutenku-text-primary) !important;
           padding: 4px 8px;
           border-radius: 4px;
           font-weight: bold;
           position: relative;
           z-index: 20;
-          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+          text-shadow: none !important;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
           isolation: isolate;
           display: inline-block;
         }
+
+        // Ensure empty elements get no styling
+        :deep(br),
+        :deep(:empty) {
+          background: none !important;
+        }
+
+        // Remove the overlay that creates black lines everywhere
+        &::before {
+          display: none !important;
+        }
       }
 
-      &.light-theme {
+      &.stabilo-visible {
         opacity: 1;
         filter: blur(0);
         transition: all 0.5s ease;
@@ -514,7 +598,7 @@ onMounted(() => {
           background-image: none !important;
           background-clip: border-box !important;
           color: #2c2c2c !important;
-          padding: 4px 8px;
+          padding: 2px 8px;
           border-radius: 4px;
           font-weight: bold;
           position: relative;
@@ -530,7 +614,7 @@ onMounted(() => {
           background-image: none !important;
           background-clip: border-box !important;
           color: #2c2c2c !important;
-          padding: 4px 8px;
+          padding: 2px 8px;
           border-radius: 4px;
           font-weight: bold;
           position: relative;
@@ -550,9 +634,8 @@ onMounted(() => {
   position: absolute;
   bottom: 1rem;
   right: 2rem;
-  font-family: 'JMH Typewriter', monospace;
   font-size: 0.8rem;
-  color: #888;
+  color: var(--gutenku-text-muted);
   z-index: 3;
 }
 
