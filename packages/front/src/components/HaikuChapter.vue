@@ -234,6 +234,35 @@ onMounted(() => {
   min-height: 500px;
   border-radius: 4px;
   overflow: visible;
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  // Enhanced hover effect for entire card
+  &:hover {
+    transform: translateY(-3px) scale(1.01);
+    box-shadow:
+      0 8px 25px rgba(0, 0, 0, 0.3),
+      0 4px 10px rgba(0, 0, 0, 0.2);
+
+    // Light mode hover brightening
+    background: color-mix(in srgb, var(--gutenku-paper-bg) 92%, white 8%);
+  }
+
+  // Active state for entire card
+  &:active {
+    transform: translateY(-1px) scale(0.99);
+    transition: all 0.1s ease;
+  }
+
+  // Dark mode specific enhancements
+  [data-theme='dark'] & {
+    &:hover {
+      background: color-mix(in srgb, var(--gutenku-paper-bg) 88%, white 12%);
+      box-shadow:
+        0 12px 35px rgba(0, 0, 0, 0.4),
+        0 6px 15px rgba(0, 0, 0, 0.3);
+    }
+  }
 
   // Page curl effect at bottom-right corner
   &::after {
@@ -410,19 +439,8 @@ onMounted(() => {
     }
   }
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.05);
-    transform: translateY(-1px);
-  }
-
   &:focus {
     outline: none;
-    background: rgba(255, 255, 255, 0.05);
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: translateY(0);
   }
 }
 
@@ -497,15 +515,13 @@ onMounted(() => {
         // Stabilo effect that works in both light and dark themes
         position: relative;
         transition: all 0.5s ease;
+        opacity: 0.8;
 
-        // Create stabilo marker bars over the text
-        &::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
+        // Remove any container-level styling that affects empty areas
+        background: none !important;
+
+        // Apply stabilo effect only to actual text content - hide text behind black lines
+        :deep(*:not(br):not(:empty)) {
           background: repeating-linear-gradient(
             transparent,
             transparent 0.1em,
@@ -515,9 +531,20 @@ onMounted(() => {
             transparent 1.2em
           );
           background-size: 100% 1.2em;
-          pointer-events: none;
-          z-index: 1;
-          opacity: 0.8;
+          color: transparent;
+          text-shadow: 0 0 0 #000;
+          display: inline;
+        }
+
+        // Ensure empty elements get no styling
+        :deep(br),
+        :deep(:empty) {
+          background: none !important;
+        }
+
+        // Remove the overlay that creates black lines everywhere
+        &::before {
+          display: none !important;
         }
 
         // Hidden mode - haiku verses with theme-aware background
@@ -569,7 +596,7 @@ onMounted(() => {
           background-image: none !important;
           background-clip: border-box !important;
           color: #2c2c2c !important;
-          padding: 4px 8px;
+          padding: 2px 8px;
           border-radius: 4px;
           font-weight: bold;
           position: relative;
@@ -585,7 +612,7 @@ onMounted(() => {
           background-image: none !important;
           background-clip: border-box !important;
           color: #2c2c2c !important;
-          padding: 4px 8px;
+          padding: 2px 8px;
           border-radius: 4px;
           font-weight: bold;
           position: relative;

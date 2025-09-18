@@ -74,7 +74,7 @@
 // Dark Mode - Moonlit Library Theme
 [data-theme='dark'] {
   // Colors - Moonlit Library Theme
-  --gutenku-paper-bg: #1a1611;
+  --gutenku-paper-bg: #232019;
   --gutenku-paper-bg-warm: #1d1814;
   --gutenku-paper-bg-aged: #232019;
   --gutenku-paper-border: rgba(167, 196, 188, 0.2);
@@ -782,11 +782,40 @@ body {
       content-visibility: auto;
 
       mark {
-        padding-inline: 3px;
-        background: rgb(var(--v-theme-accent));
+        // Enhanced stabilo (highlighter) effect - precise text-only highlighting
+        padding: 3px 5px;
+        background: rgba(var(--v-theme-accent), 0.6); // Semi-transparent
+        border-radius: 4px; // Rounded highlighter tip effect
+        box-decoration-break: clone; // Handle line breaks properly
+
+        // Override text line with highlighting
+        position: relative;
+        z-index: 3; // High z-index to override dark theme lines
+        display: inline;
+        line-height: 1.2; // Precise line height to avoid bleeding
+
+        // Add subtle shadow for depth and realism
+        box-shadow:
+          0 1px 3px rgba(var(--v-theme-accent), 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2);
+
+        // Blend mode for realistic highlighter effect
+        mix-blend-mode: multiply;
+
+        // Smooth transitions for interactive states
+        transition: all 0.2s ease;
+
+        // Enhanced hover effect
+        &:hover {
+          background: rgba(var(--v-theme-accent), 0.8);
+          transform: translateY(-1px);
+          box-shadow:
+            0 2px 6px rgba(var(--v-theme-accent), 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
       }
 
-      &.dark-theme {
+      &.dark-theme:not(:empty) {
         display: inline;
         background: #2f5d62;
         padding: 0px;
