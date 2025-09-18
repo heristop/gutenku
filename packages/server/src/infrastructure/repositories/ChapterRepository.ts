@@ -1,7 +1,10 @@
+import { injectable } from 'tsyringe';
 import { ChapterValue } from '../../shared/types';
+import { IChapterRepository } from '../../domain/repositories/IChapterRepository';
 import ChapterModel from '../models/ChapterModel';
 
-export default class ChapterRepository {
+@injectable()
+export default class ChapterRepository implements IChapterRepository {
   async getAllChapters(filter: string | null) {
     const query = {};
 
@@ -24,4 +27,3 @@ export default class ChapterRepository {
     return await ChapterModel.find(query).populate('book').exec();
   }
 }
-/* c8 ignore file */

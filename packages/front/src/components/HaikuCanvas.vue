@@ -85,6 +85,9 @@ const onImageLoad = () => {
             @contextmenu.prevent
           />
 
+          <!-- Canvas Focus Overlay -->
+          <div class="canvas-focus-overlay"></div>
+
           <!-- Paper Texture Overlay -->
           <div class="paper-overlay"></div>
 
@@ -140,14 +143,6 @@ const onImageLoad = () => {
 </template>
 
 <style lang="scss" scoped>
-// Import JMH Typewriter font
-@font-face {
-  font-family: 'JMH Typewriter';
-  src: url('@/assets/fonts/JMH Typewriter.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
 .haiku-canvas-card {
   background: linear-gradient(
     135deg,
@@ -177,7 +172,6 @@ const onImageLoad = () => {
   overflow: hidden;
 
   .loading-text {
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.9rem;
     color: var(--gutenku-text-zen);
     z-index: 3;
@@ -265,6 +259,51 @@ const onImageLoad = () => {
   border-radius: 4px;
 }
 
+// Canvas Focus Overlay - Improves contrast and focus
+.canvas-focus-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--gutenku-canvas-overlay);
+  pointer-events: none;
+  border-radius: 4px;
+  opacity: 0.8;
+  transition: var(--gutenku-transition-zen);
+  z-index: 1;
+
+  // Subtle breathing effect for zen atmosphere
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(
+      circle,
+      var(--gutenku-backdrop-overlay) 0%,
+      transparent 70%
+    );
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    animation: zen-breathe 4s ease-in-out infinite;
+  }
+}
+
+@keyframes zen-breathe {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
 // Paper Texture Overlay
 .paper-overlay {
   position: absolute;
@@ -275,20 +314,20 @@ const onImageLoad = () => {
   background-image:
     radial-gradient(
       circle at 25% 25%,
-      rgba(139, 69, 19, 0.02) 0%,
+      var(--gutenku-zen-mist) 0%,
       transparent 50%
     ),
     radial-gradient(
       circle at 75% 75%,
-      rgba(139, 69, 19, 0.03) 0%,
+      var(--gutenku-zen-water) 0%,
       transparent 50%
     ),
     repeating-linear-gradient(
       90deg,
       transparent,
       transparent 1px,
-      rgba(139, 69, 19, 0.01) 1px,
-      rgba(139, 69, 19, 0.01) 2px
+      var(--gutenku-zen-water) 1px,
+      var(--gutenku-zen-water) 2px
     );
   pointer-events: none;
   opacity: 0.6;
@@ -309,7 +348,11 @@ const onImageLoad = () => {
 
 .edge {
   position: absolute;
-  background: linear-gradient(to right, rgba(139, 69, 19, 0.1), transparent);
+  background: linear-gradient(
+    to right,
+    var(--gutenku-paper-border),
+    transparent
+  );
 
   &.edge-top {
     top: 0;
@@ -318,7 +361,7 @@ const onImageLoad = () => {
     height: 2px;
     background: linear-gradient(
       to bottom,
-      rgba(139, 69, 19, 0.15),
+      var(--gutenku-paper-border),
       transparent
     );
   }
@@ -328,7 +371,11 @@ const onImageLoad = () => {
     right: 0;
     bottom: 0;
     width: 2px;
-    background: linear-gradient(to left, rgba(139, 69, 19, 0.15), transparent);
+    background: linear-gradient(
+      to left,
+      var(--gutenku-paper-border),
+      transparent
+    );
   }
 
   &.edge-bottom {
@@ -336,7 +383,11 @@ const onImageLoad = () => {
     left: 0;
     right: 0;
     height: 2px;
-    background: linear-gradient(to top, rgba(139, 69, 19, 0.15), transparent);
+    background: linear-gradient(
+      to top,
+      var(--gutenku-paper-border),
+      transparent
+    );
   }
 
   &.edge-left {
@@ -344,7 +395,11 @@ const onImageLoad = () => {
     left: 0;
     bottom: 0;
     width: 2px;
-    background: linear-gradient(to right, rgba(139, 69, 19, 0.15), transparent);
+    background: linear-gradient(
+      to right,
+      var(--gutenku-paper-border),
+      transparent
+    );
   }
 }
 
@@ -359,7 +414,6 @@ const onImageLoad = () => {
   max-width: 200px;
 
   :deep(.v-field__input) {
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.85rem;
   }
 }

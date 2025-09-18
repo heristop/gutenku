@@ -44,7 +44,7 @@ const handleClick = (url: string) => {
       <v-img
         height="56"
         alt="GutenKu Logo"
-        src="@/assets/img/logo/gutenku-logo.png"
+        src="@/assets/img/logo/gutenku-logo-300.png"
         class="about-card__logo"
       />
     </v-card-title>
@@ -54,8 +54,9 @@ const handleClick = (url: string) => {
         <strong>GutenKu</strong> is a Haiku generator based on a selection of
         books from <span class="visually-hidden">the</span> Project Gutenberg, a
         vast online library of free eBooks, and then process this data to
-        extract quotes and generate unique haiku
+        extract quotes and generate unique
         <strong>5</strong>-<strong>7</strong>-<strong>5</strong>
+        haiku
       </p>
     </div>
 

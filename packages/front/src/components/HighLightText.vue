@@ -26,12 +26,15 @@ export default defineComponent({
 
       try {
         props.lines.forEach((line) => {
-          rawText = rawText.replace(
-            new RegExp(line.toString(), 'g'),
-            (match) => {
-              return `<mark>${match}</mark>`;
-            },
-          );
+          // Filter out empty strings, whitespace-only strings, and newlines
+          if (line && line.trim() && line.trim().length > 0) {
+            rawText = rawText.replace(
+              new RegExp(line.toString(), 'g'),
+              (match) => {
+                return `<mark>${match}</mark>`;
+              },
+            );
+          }
         });
 
         // Update the formattedText without causing a side effect in a computed property

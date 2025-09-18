@@ -1,9 +1,12 @@
-import { injectable } from 'tsyringe';
-import ChapterRepository from '../../infrastructure/repositories/ChapterRepository';
+import { inject, injectable } from 'tsyringe';
+import { IChapterRepository } from '../../domain/repositories/IChapterRepository';
 
 @injectable()
 export default class ChapterService {
-  constructor(private readonly chapterRepository: ChapterRepository) {}
+  constructor(
+    @inject('IChapterRepository')
+    private readonly chapterRepository: IChapterRepository,
+  ) {}
 
   async getAllChapters(filter: string | null) {
     return await this.chapterRepository.getAllChapters(filter);

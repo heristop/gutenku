@@ -8,7 +8,7 @@ describe('Stats panel', () => {
   });
 
   it('shows core metrics and updates after generation', () => {
-    cy.get('.gutenku-card.stats-card').should('be.visible');
+    cy.get('.gutenku-card.stats-panel').should('be.visible');
     cy.contains('Haiku forged').should('exist');
     cy.contains('Books browsed').should('exist');
 
