@@ -339,6 +339,109 @@ onMounted(() => {
   }
 }
 
+// Enhanced dark mode fix - comprehensive text visibility with maximum specificity
+[data-theme='dark'] .stats-panel {
+  // Fix title text that appears black with !important for override
+  &__title {
+    color: var(--gutenku-text-primary) !important;
+  }
+
+  &__books-title {
+    color: var(--gutenku-text-primary) !important;
+  }
+
+  &__book-title {
+    color: var(--gutenku-text-primary) !important;
+  }
+
+  &__metric-value {
+    color: var(--gutenku-text-primary) !important;
+  }
+
+  // Fix subtitle and secondary text with !important
+  &__subtitle {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  &__metric-label {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  &__progress-label {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  &__book-count {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  &__empty-state {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  &__progress-percentage {
+    color: var(--gutenku-text-secondary) !important;
+  }
+
+  // Fix Vuetify utility classes with maximum specificity
+  .text-subtitle-1 {
+    color: var(--gutenku-text-primary) !important;
+  }
+
+  .text-subtitle-2 {
+    color: var(--gutenku-text-primary) !important;
+  }
+
+  .text-body-2 {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  .text-caption {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  .text-medium-emphasis {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  // Fix combined utility classes with higher specificity using :deep()
+  :deep(.text-body-2.text-medium-emphasis) {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  :deep(.text-caption.text-medium-emphasis) {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  :deep(.text-subtitle-1.text-medium-emphasis) {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  :deep(.text-subtitle-2.text-medium-emphasis) {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  // Nuclear option: fix any remaining text elements
+  * {
+    &:not(.v-icon):not(.mdi):not([class*='mdi-']) {
+      &:not(.v-btn):not(.v-chip) {
+        color: var(--gutenku-text-primary);
+      }
+    }
+  }
+
+  // Specific element targeting for stubborn text
+  span,
+  div,
+  p {
+    &:not(.v-icon):not(.mdi):not([class*='mdi-']) {
+      &:not(.v-btn__content):not(.v-chip__content) {
+        color: var(--gutenku-text-primary);
+      }
+    }
+  }
+}
+
 // Responsive improvements using BEM modifiers
 @media (max-width: 768px) {
   .stats-panel {
@@ -360,6 +463,14 @@ onMounted(() => {
 
     &__book-title {
       font-size: 0.75rem;
+    }
+  }
+
+  // Dark mode responsive adjustments
+  [data-theme='dark'] .stats-panel {
+    &__inner {
+      background: rgba(26, 22, 17, 0.8);
+      border: 1px solid rgba(155, 182, 180, 0.3);
     }
   }
 }

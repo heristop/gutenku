@@ -76,12 +76,12 @@
   // Colors - Moonlit Library Theme
   --gutenku-paper-bg: #232019;
   --gutenku-paper-bg-warm: #1d1814;
-  --gutenku-paper-bg-aged: #232019;
+  --gutenku-paper-bg-aged: rgba(26, 22, 17, 0.8);
   --gutenku-paper-border: rgba(167, 196, 188, 0.2);
   --gutenku-paper-border-hover: rgba(167, 196, 188, 0.4);
   --gutenku-text-primary: #e8e3d8;
   --gutenku-text-secondary: #c4bfb4;
-  --gutenku-text-muted: #a8a395;
+  --gutenku-text-muted: rgba(168, 163, 149, 0.8);
   --gutenku-text-accent: #9bb6b4;
   --gutenku-text-zen: #5a8a8f;
 
@@ -725,6 +725,163 @@ body {
 
     .gutenku-btn:hover {
       transform: none;
+    }
+  }
+}
+
+// ====================================
+// COMPREHENSIVE DARK MODE TEXT FIXES
+// ====================================
+
+// Global Vuetify utility class overrides for dark mode
+[data-theme='dark'] {
+  // Fix all Vuetify text utility classes with high specificity
+  .text-h1,
+  .text-h2,
+  .text-h3,
+  .text-h4,
+  .text-h5,
+  .text-h6 {
+    color: var(--gutenku-text-primary) !important;
+  }
+
+  .text-subtitle-1,
+  .text-subtitle-2 {
+    color: var(--gutenku-text-primary) !important;
+  }
+
+  .text-body-1,
+  .text-body-2 {
+    color: var(--gutenku-text-secondary) !important;
+  }
+
+  .text-caption,
+  .text-overline {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  .text-button {
+    color: var(--gutenku-text-primary) !important;
+  }
+
+  // Fix emphasis and semantic text classes
+  .text-medium-emphasis {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  .text-high-emphasis {
+    color: var(--gutenku-text-primary) !important;
+  }
+
+  .text-disabled {
+    color: rgba(var(--gutenku-text-muted), 0.6) !important;
+  }
+
+  // Fix combined utility classes with higher specificity
+  .text-body-2.text-medium-emphasis {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  .text-caption.text-medium-emphasis {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  .text-subtitle-1.text-medium-emphasis {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  .text-subtitle-2.text-medium-emphasis {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  // Fix Vuetify component text colors
+  .v-card-title {
+    color: var(--gutenku-text-primary) !important;
+  }
+
+  .v-card-subtitle {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  .v-card-text {
+    color: var(--gutenku-text-secondary) !important;
+  }
+
+  // Enhanced button text fixes for dark mode
+  .v-btn {
+    color: var(--gutenku-text-primary) !important;
+
+    .v-btn__content {
+      color: var(--gutenku-text-primary) !important;
+    }
+
+    // Primary button specific fixes
+    &.v-btn--variant-text {
+      color: var(--gutenku-text-primary) !important;
+
+      .v-btn__content {
+        color: var(--gutenku-text-primary) !important;
+      }
+
+      &:hover {
+        color: var(--gutenku-zen-accent) !important;
+
+        .v-btn__content {
+          color: var(--gutenku-zen-accent) !important;
+        }
+      }
+    }
+
+    // Elevated and contained buttons
+    &.v-btn--variant-elevated,
+    &.v-btn--variant-contained {
+      .v-btn__content {
+        color: var(--gutenku-text-primary) !important;
+      }
+    }
+
+    // Outlined buttons
+    &.v-btn--variant-outlined {
+      color: var(--gutenku-text-primary) !important;
+      border-color: var(--gutenku-border-visible) !important;
+
+      .v-btn__content {
+        color: var(--gutenku-text-primary) !important;
+      }
+    }
+  }
+
+  .v-chip {
+    .v-chip__content {
+      color: inherit !important;
+    }
+  }
+
+  .v-tooltip .v-overlay__content {
+    color: var(--gutenku-text-primary) !important;
+  }
+
+  // Fix any remaining black text
+  * {
+    &:not(.v-icon):not(.mdi):not([class*='mdi-']) {
+      color: var(--gutenku-text-primary);
+    }
+  }
+
+  // Specific fix for text that might still appear black
+  span,
+  div,
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    &:not(.v-icon):not(.mdi):not([class*='mdi-']) {
+      &:not([class*='v-btn']):not([class*='v-chip']) {
+        color: var(--gutenku-text-primary);
+      }
     }
   }
 }
