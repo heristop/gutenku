@@ -441,47 +441,78 @@ function resetAdvancedConfig(): void {
   }
 }
 
-// Dark mode overrides for better visibility
+// Enhanced dark mode fix - comprehensive text visibility with maximum specificity
 [data-theme='dark'] .config-panel {
-  &__value {
-    background: rgba(90, 138, 143, 0.2);
-    border: 1px solid rgba(90, 138, 143, 0.5);
-    color: rgba(155, 182, 180, 1);
-
-    &:hover {
-      background: rgba(90, 138, 143, 0.3);
-      border-color: rgba(155, 182, 180, 0.7);
-    }
+  // Fix title text that appears black with !important for override
+  &__title {
+    color: var(--gutenku-text-primary) !important;
   }
 
-  &__button {
-    &--generate {
-      color: rgba(155, 182, 180, 1) !important;
+  &__label {
+    color: var(--gutenku-text-primary) !important;
+  }
 
-      &:hover:not(:disabled) {
-        color: rgba(255, 255, 255, 1) !important;
+  &__label-text {
+    color: var(--gutenku-text-primary) !important;
+  }
+
+  // Fix subtitle and secondary text with !important
+  &__subtitle {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  &__subtitle-text {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  // Fix Vuetify utility classes with maximum specificity
+  .text-subtitle-1 {
+    color: var(--gutenku-text-primary) !important;
+  }
+
+  .text-body-2 {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  .text-medium-emphasis {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  // Fix combined utility classes
+  :deep(.text-body-2.text-medium-emphasis) {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  :deep(.text-caption.text-medium-emphasis) {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  :deep(.text-subtitle-1.text-medium-emphasis) {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  :deep(.text-subtitle-2.text-medium-emphasis) {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  // Nuclear option: fix any remaining text elements
+  * {
+    &:not(.v-icon):not(.mdi):not([class*='mdi-']) {
+      &:not(.v-btn):not(.v-chip) {
+        color: var(--gutenku-text-primary);
       }
     }
+  }
 
-    &--reset {
-      color: rgba(155, 182, 180, 0.8) !important;
-
-      &:hover:not(:disabled) {
-        color: rgba(255, 255, 255, 1) !important;
+  // Specific element targeting for stubborn text
+  span,
+  div,
+  p {
+    &:not(.v-icon):not(.mdi):not([class*='mdi-']) {
+      &:not(.v-btn__content):not(.v-chip__content) {
+        color: var(--gutenku-text-primary);
       }
     }
-  }
-
-  &__icon {
-    color: rgba(155, 182, 180, 1) !important;
-
-    &--main {
-      color: rgba(155, 182, 180, 1) !important;
-    }
-  }
-
-  &__toggle-icon {
-    color: rgba(155, 182, 180, 1) !important;
   }
 }
 
