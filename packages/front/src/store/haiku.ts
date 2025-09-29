@@ -47,7 +47,7 @@ export const useHaikuStore = defineStore({
     networkError: (state) => 'network-error' === state.error,
     notificationError: (state) => '' !== state.error,
     themeOptions: (state) =>
-      state.optionImageAI ? THEME_OPTIONS.concat(['dallE']) : THEME_OPTIONS,
+      state.optionImageAI ? THEME_OPTIONS.concat(['openai']) : THEME_OPTIONS,
     shouldUseCache: (state) => !state.firstLoaded,
     avgExecutionTime: (state) =>
       state.stats.haikusGenerated > 0

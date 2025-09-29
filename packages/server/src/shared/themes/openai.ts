@@ -1,4 +1,6 @@
-import OpenAI from 'openai';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const OpenAI = require('openai').default;
 import Canvas from 'canvas';
 import { HaikuValue } from '../types';
 
@@ -12,7 +14,8 @@ export default {
     const canvas = Canvas.createCanvas(2400, 2400);
     const ctx = canvas.getContext('2d');
 
-    const background = await Canvas.loadImage(await generateImage(haiku));
+    const backgroundImageData = await generateImageWithGPTImage1(haiku);
+    const background = await Canvas.loadImage(backgroundImageData);
 
     ctx.globalAlpha = 1;
     ctx.fillStyle = 'white';
@@ -52,25 +55,35 @@ export default {
   },
 };
 
-async function generateImage(haiku: HaikuValue): Promise<string> {
+async function generateImageWithGPTImage1(haiku: HaikuValue): Promise<Buffer> {
   const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
   });
 
-  const prompt = `Generate a traditional Japanese landscape inspired by the following haiku: "${haiku.verses.join(' ')}"`;
+  // Enhanced prompt for GPT-Image-1's better instruction following
+  const prompt = `Create a serene traditional Japanese landscape inspired by this haiku: "${haiku.verses.join(' / ')}"
+
+Style: Traditional Japanese art, peaceful atmosphere, soft colors, minimalist composition
+Elements: Nature scenes that reflect the mood and imagery of the haiku
+Quality: High artistic quality with attention to traditional Japanese aesthetics`;
 
   const response = await openai.images.generate({
-    model: 'dall-e-3',
+    model: process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1',
     prompt: prompt,
     n: 1,
     size: '1024x1024',
+    quality: process.env.OPENAI_IMAGE_QUALITY || 'high',
+    output_format: 'png',
+    user: 'gutenku-haiku-generator',
   });
 
-  const imageUrl = response.data[0].url;
+  // GPT-Image-1 always returns base64-encoded images
+  const imageBase64 = response.data[0].b64_json;
 
-  if (typeof imageUrl === 'undefined') {
-    throw new Error('No image URL returned from DALL-E API');
+  if (!imageBase64) {
+    throw new Error('No image data returned from GPT-Image-1 API');
   }
 
-  return imageUrl;
+  // Convert base64 to Buffer for Canvas.loadImage
+  return Buffer.from(imageBase64, 'base64');
 }
