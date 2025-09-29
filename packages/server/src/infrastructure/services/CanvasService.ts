@@ -7,7 +7,7 @@ import { HaikuValue } from '../../shared/types';
 import colored from '../../shared/themes/colored';
 import greentea from '../../shared/themes/greentea';
 import watermark from '../../shared/themes/watermark';
-import dallE from '../../shared/themes/dallE';
+import openai from '../../shared/themes/openai';
 
 @singleton()
 export default class CanvasService {
@@ -39,8 +39,8 @@ export default class CanvasService {
       case 'watermark':
         createCanvas = watermark.create;
         break;
-      case 'dallE':
-        createCanvas = dallE.create;
+      case 'openai':
+        createCanvas = openai.create;
         break;
       default:
         throw new Error(`Unsupported theme: ${this.theme}`);

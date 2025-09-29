@@ -1,4 +1,6 @@
-import OpenAI from 'openai';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const OpenAI = require('openai').default;
 import {
   ChatCompletionParams,
   ChatCompletionResult,

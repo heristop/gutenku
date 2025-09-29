@@ -56,13 +56,9 @@ export default class OpenAIGeneratorService implements IGenerator {
       const prompt = await this.generateSelectionPrompt();
 
       const completion = await this.openai.chatCompletionsCreate({
-        model: 'gpt-4o',
-        temperature: 0.4,
-        max_tokens: 1200,
-        top_p: 0.1,
-        frequency_penalty: 0.3,
-        presence_penalty: 0,
-        stop: ['STOP'],
+        model: process.env.OPENAI_GPT5_MODEL || 'gpt-4o-mini',
+        temperature: 0.7,
+        max_completion_tokens: 1200,
         messages: [
           {
             role: 'user',
@@ -85,15 +81,7 @@ export default class OpenAIGeneratorService implements IGenerator {
 
       return haiku;
     } catch (error) {
-      if (error instanceof OpenAI.APIError) {
-        log.error(error.status);
-        log.error(error.message);
-        log.error(error.code);
-        log.error(error.type);
-      } else {
-        // Non-API error
-        log.info(error);
-      }
+      log.error('OpenAI API error:', error);
     } finally {
       this.haikuSelection = [];
       haiku = null;
@@ -111,101 +99,112 @@ export default class OpenAIGeneratorService implements IGenerator {
   }
 
   private async addDescription(haiku: HaikuValue): Promise<HaikuValue> {
-    const prompt = `Act as an English Literature Teacher and describe the Haiku: "${haiku.verses.join('\\n')}"`;
-    const outputFormat =
-      '{"title":"<Give a creative short title to describe the haiku>","description":"<Describe and explain the haiku>","hashtags":"<Give 6 lowercase hashtags>"}';
+    try {
+      const prompt = `Act as an English Literature Teacher and describe the Haiku: "${haiku.verses.join('\\n')}"`;
+      const outputFormat =
+        '{"title":"<Give a creative short title to describe the haiku>","description":"<Describe and explain the haiku>","hashtags":"<Give 6 lowercase hashtags>"}';
 
-    const completion = await this.openai.chatCompletionsCreate({
-      model: 'gpt-4o',
-      temperature: this.descriptionTemperature,
-      max_tokens: 1000,
-      top_p: 0.4,
-      frequency_penalty: 0,
-      presence_penalty: 0,
-      messages: [
-        {
-          role: 'user',
-          content: `${prompt} (Use the following format: ${outputFormat})`,
-        },
-      ],
-    });
+      const completion = await this.openai.chatCompletionsCreate({
+        model: process.env.OPENAI_GPT5_MODEL || 'gpt-4o-mini',
+        temperature: 0.7,
+        max_completion_tokens: 1000,
+        messages: [
+          {
+            role: 'user',
+            content: `${prompt} (Use the following format: ${outputFormat})`,
+          },
+        ],
+      });
 
-    const answer = completion.choices[0].message.content;
-    const output = JSON.parse(answer);
+      const answer = completion.choices[0].message.content;
+      const output = JSON.parse(answer);
 
-    haiku.title = output.title;
-    haiku.description = output.description;
-    haiku.hashtags = output.hashtags;
+      haiku.title = output.title;
+      haiku.description = output.description;
+      haiku.hashtags = output.hashtags;
+    } catch (error) {
+      log.error('GPT-5 description generation error:', error);
+      haiku.title = 'Untitled Haiku';
+      haiku.description = 'A beautiful haiku';
+      haiku.hashtags = '#haiku #poetry #nature #zen #peaceful #gutenku';
+    }
 
     return haiku;
   }
 
   private async addTranslations(haiku: HaikuValue): Promise<HaikuValue> {
-    let prompt = `Act as a Poem Translator and translate this haiku using \\n separator: "${haiku.verses.join('\\n')}"`;
-    let outputFormat = '';
-    outputFormat += '"fr":"<Translate the Haiku in french>",';
-    outputFormat += '"jp":"<Translate the Haiku in rōmaji>",';
-    outputFormat += '"es":"<Translate the Haiku in spanish>",';
-    outputFormat += '"it":"<Translate the Haiku in italian>",';
-    outputFormat += '"de":"<Translate the Haiku in german>"';
-    prompt = `${prompt} (Use the following format: {${outputFormat}})`;
+    try {
+      let prompt = `Act as a Poem Translator and translate this haiku using \\n separator: "${haiku.verses.join('\\n')}"`;
+      let outputFormat = '';
+      outputFormat += '"fr":"<Translate the Haiku in french>",';
+      outputFormat += '"jp":"<Translate the Haiku in rōmaji>",';
+      outputFormat += '"es":"<Translate the Haiku in spanish>",';
+      outputFormat += '"it":"<Translate the Haiku in italian>",';
+      outputFormat += '"de":"<Translate the Haiku in german>"';
+      prompt = `${prompt} (Use the following format: {${outputFormat}})`;
 
-    const completion = await this.openai.chatCompletionsCreate({
-      model: 'gpt-4o',
-      temperature: 0.3,
-      max_tokens: 1000,
-      top_p: 0.4,
-      frequency_penalty: 0,
-      presence_penalty: 0,
-      messages: [
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-    });
+      const completion = await this.openai.chatCompletionsCreate({
+        model: process.env.OPENAI_GPT5_MODEL || 'gpt-4o-mini',
+        temperature: 0.7,
+        max_completion_tokens: 1000,
+        messages: [
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+      });
 
-    const answer = completion.choices[0].message.content;
-    const output = JSON.parse(answer);
+      const answer = completion.choices[0].message.content;
+      const output = JSON.parse(answer);
 
-    haiku.translations = {
-      fr: output.fr,
-      jp: output.jp,
-      es: output.es,
-      it: output.it,
-      de: output.de,
-    };
+      haiku.translations = {
+        fr: output.fr,
+        jp: output.jp,
+        es: output.es,
+        it: output.it,
+        de: output.de,
+      };
+    } catch (error) {
+      log.error('GPT-5 translation generation error:', error);
+      haiku.translations = {
+        fr: haiku.verses.join(' / '),
+        jp: haiku.verses.join(' / '),
+        es: haiku.verses.join(' / '),
+        it: haiku.verses.join(' / '),
+        de: haiku.verses.join(' / '),
+      };
+    }
 
     return haiku;
   }
 
   private async addBookmojis(haiku: HaikuValue): Promise<HaikuValue> {
-    let prompt = `Please provide a series of clear and easily recognizable emoticons that best represent the book "${haiku.book.title}":`;
-    const outputFormat =
-      '<Generate a series of UTF-8 emoticons only that represent the related book>';
-    prompt = `${prompt} (Use the following format: ${outputFormat})`;
+    try {
+      const prompt = `Generate 3-5 emoticons that represent the book "${haiku.book.title}". Respond with only the emoticons, no text or explanation.`;
 
-    const completion = await this.openai.chat.completions.create({
-      model: 'gpt-4o',
-      temperature: 0.6,
-      max_tokens: 14,
-      top_p: 1,
-      frequency_penalty: 0.2,
-      presence_penalty: 0,
-      messages: [
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-    });
+      const completion = await this.openai.chatCompletionsCreate({
+        model: process.env.OPENAI_GPT5_MODEL || 'gpt-4o-mini',
+        temperature: 0.7,
+        max_completion_tokens: 20,
+        messages: [
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+      });
 
-    const answer = completion.choices[0].message.content.replace(
-      /[\n\s]+/g,
-      '',
-    );
+      const answer = completion.choices[0].message.content.replace(
+        /[\n\s]+/g,
+        '',
+      );
 
-    haiku.book.emoticons = answer;
+      haiku.book.emoticons = answer;
+    } catch (error) {
+      log.error('GPT-5 emoticons generation error:', error);
+      haiku.book.emoticons = '📚✨🌸';
+    }
 
     return haiku;
   }
