@@ -34,8 +34,7 @@ export default class DiscordService {
 
     const caption = `
 🌸 “${haiku.title}” 🗻
-📖 Quotes extracted from: ${maskedTitle}
-
+✨ A haiku woven from the words of ${maskedTitle} by ${haiku.book.author}
 📔 Bookmojis: ${haiku.book.emoticons}
 
 ---

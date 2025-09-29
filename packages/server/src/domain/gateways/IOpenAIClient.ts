@@ -6,10 +6,7 @@ export interface ChatMessage {
 export interface ChatCompletionParams {
   model: string;
   temperature: number;
-  max_tokens: number;
-  top_p: number;
-  frequency_penalty: number;
-  presence_penalty: number;
+  max_completion_tokens: number;
   stop?: string[];
   messages: ChatMessage[];
 }
