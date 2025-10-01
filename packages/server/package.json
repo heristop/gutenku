@@ -36,7 +36,7 @@
     "graphql-subscriptions": "^3.0.0",
     "graphql-ws": "^6.0.6",
     "loglevel": "^1.9.2",
-    "mongoose": "^8.18.1",
+    "mongoose": "^8.18.3",
     "natural": "^8.1.0",
     "node-fetch": "^3.3.2",
     "openai": "^5.21.0",
