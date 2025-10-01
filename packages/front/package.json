@@ -17,7 +17,7 @@
     "@fingerprintjs/botd": "^1.9.1",
     "@mdi/font": "^7.4.47",
     "@vue/apollo-composable": "^4.2.1",
-    "@vue/apollo-option": "^4.0.0",
+    "@vue/apollo-option": "^4.2.2",
     "apollo-link-timeout": "^4.0.0",
     "core-js": "^3.45.1",
     "graphql": "^16.9.0",
