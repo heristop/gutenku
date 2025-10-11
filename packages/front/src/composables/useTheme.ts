@@ -46,7 +46,7 @@ export function useTheme() {
       isDarkMode.value = newTheme === 'dark';
 
       // Update Vuetify theme
-      vuetifyTheme.global.name =
+      vuetifyTheme.global.name.value =
         newTheme === 'dark' ? 'gutenkuDarkTheme' : 'gutenkuTheme';
 
       // Update CSS custom properties for smooth transitions
