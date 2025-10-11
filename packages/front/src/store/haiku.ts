@@ -2,7 +2,10 @@ import { defineStore } from 'pinia';
 import { HaikuValue } from '@/types';
 import { gql } from '@apollo/client/core';
 import { apolloClient } from '@/client';
-import { GraphQLError } from 'graphql';
+import {
+  CombinedGraphQLErrors,
+  CombinedProtocolErrors,
+} from '@apollo/client/errors';
 
 const THEME_OPTIONS = ['random', 'colored', 'greentea', 'watermark'];
 
@@ -139,15 +142,33 @@ export const useHaikuStore = defineStore({
           }
         }
       } catch (error: unknown) {
-        const graphQLError = error as GraphQLError;
-
         this.error = 'network-error';
 
-        if ('max-attempts-error' === graphQLError.message) {
+        const applyMaxAttemptsMessage = () => {
           this.error =
             '🤖 I could not find a haiku that matches your filters after maximum attempts. ';
           this.error +=
             'Please try again with a different filter or try several words.';
+        };
+
+        const graphErrors = CombinedGraphQLErrors.is(error)
+          ? error.errors
+          : CombinedProtocolErrors.is(error)
+            ? error.errors
+            : null;
+
+        if (
+          graphErrors &&
+          graphErrors.some(
+            (graphError) => graphError.message === 'max-attempts-error',
+          )
+        ) {
+          applyMaxAttemptsMessage();
+        } else if (
+          error instanceof Error &&
+          error.message === 'max-attempts-error'
+        ) {
+          applyMaxAttemptsMessage();
         }
       } finally {
         this.firstLoaded = true;
