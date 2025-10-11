@@ -2,10 +2,7 @@ import { defineStore } from 'pinia';
 import { HaikuValue } from '@/types';
 import { gql } from '@apollo/client/core';
 import { apolloClient } from '@/client';
-import {
-  CombinedGraphQLErrors,
-  CombinedProtocolErrors,
-} from '@apollo/client/errors';
+import { ApolloError } from '@apollo/client/errors';
 
 const THEME_OPTIONS = ['random', 'colored', 'greentea', 'watermark'];
 
@@ -112,24 +109,28 @@ export const useHaikuStore = defineStore({
           appendImg: true,
         };
 
-        const { data } = await apolloClient.query({
-          query: queryHaiku,
-          variables: variables,
-          fetchPolicy: 'no-cache',
-        });
+        const { data } = await apolloClient.query<{ haiku: HaikuValue | null }>(
+          {
+            query: queryHaiku,
+            variables: variables,
+            fetchPolicy: 'no-cache',
+          },
+        );
 
-        this.haiku = data.haiku;
+        const haiku = data?.haiku ?? null;
+
+        this.haiku = (haiku ?? (null as unknown as HaikuValue)) as HaikuValue;
 
         // Update stats
-        if (data?.haiku) {
+        if (haiku) {
           this.stats.haikusGenerated += 1;
-          if (true === data.haiku.cacheUsed) {
+          if (true === haiku.cacheUsed) {
             this.stats.cachedHaikus += 1;
           }
-          if (typeof data.haiku.executionTime === 'number') {
-            this.stats.totalExecutionTime += data.haiku.executionTime;
+          if (typeof haiku.executionTime === 'number') {
+            this.stats.totalExecutionTime += haiku.executionTime;
           }
-          const bookTitle = data.haiku.book?.title?.trim();
+          const bookTitle = haiku.book?.title?.trim();
           if (bookTitle) {
             // Unique tracking for browsed
             if (!this.stats.books.includes(bookTitle)) {
@@ -151,16 +152,14 @@ export const useHaikuStore = defineStore({
             'Please try again with a different filter or try several words.';
         };
 
-        const graphErrors = CombinedGraphQLErrors.is(error)
-          ? error.errors
-          : CombinedProtocolErrors.is(error)
-            ? error.errors
-            : null;
+        const apolloError = error as ApolloError;
+        const graphErrors = apolloError?.graphQLErrors || null;
 
         if (
           graphErrors &&
           graphErrors.some(
-            (graphError) => graphError.message === 'max-attempts-error',
+            (graphError: { message: string }) =>
+              graphError.message === 'max-attempts-error',
           )
         ) {
           applyMaxAttemptsMessage();

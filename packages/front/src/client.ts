@@ -6,9 +6,15 @@ import {
   Observable,
   split,
 } from '@apollo/client/core';
+import type {
+  Operation,
+  NextLink,
+  FetchResult,
+} from '@apollo/client/link/core';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { getMainDefinition } from '@apollo/client/utilities';
+import type { DefinitionNode } from 'graphql';
 
 const envServerHost =
   import.meta.env.VITE_SERVER_HOST || 'http://localhost:4000';
@@ -23,13 +29,14 @@ class TimeoutLink extends ApolloLink {
     this.defaultTimeout = timeoutMs;
   }
 
-  request(operation, forward) {
-    if (!forward) {
-      return null;
-    }
-
+  request(operation: Operation, forward: NextLink): Observable<FetchResult> {
+    const definition: DefinitionNode | undefined = getMainDefinition(
+      operation.query,
+    );
     const operationType =
-      getMainDefinition(operation.query)?.operation ?? 'query';
+      definition && definition.kind === 'OperationDefinition'
+        ? definition.operation
+        : 'query';
 
     if ('subscription' === operationType) {
       return forward(operation);
@@ -48,21 +55,31 @@ class TimeoutLink extends ApolloLink {
     let controller: AbortController | undefined;
 
     if ('undefined' !== typeof AbortController) {
-      const fetchOptions = context.fetchOptions || {};
-      controller = fetchOptions.controller || new AbortController();
+      type FetchOptionsWithAbort = {
+        controller?: AbortController;
+        signal?: AbortSignal;
+        [key: string]: unknown;
+      };
+
+      const fetchOptions: FetchOptionsWithAbort =
+        context.fetchOptions || ({} as FetchOptionsWithAbort);
+
+      const activeController = fetchOptions.controller ?? new AbortController();
+      controller = activeController;
+
       operation.setContext({
         ...context,
         fetchOptions: {
           ...fetchOptions,
-          controller,
-          signal: controller.signal,
+          controller: activeController,
+          signal: activeController.signal,
         },
       });
     }
 
     const chainObservable = forward(operation);
 
-    return new Observable((observer) => {
+    return new Observable<FetchResult>((observer) => {
       const timer = setTimeout(() => {
         controller?.abort();
 
@@ -74,11 +91,11 @@ class TimeoutLink extends ApolloLink {
       }, timeout);
 
       const subscription = chainObservable.subscribe({
-        next: (value) => {
+        next: (value: FetchResult) => {
           clearTimeout(timer);
           observer.next(value);
         },
-        error: (err) => {
+        error: (err: unknown) => {
           clearTimeout(timer);
           observer.error(err);
         },
