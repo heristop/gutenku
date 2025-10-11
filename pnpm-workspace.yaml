@@ -16,3 +16,6 @@ onlyBuiltDependencies:
   - pngquant-bin
   - sharp
   - vue-demi
+
+patchedDependencies:
+  '@vue/apollo-composable@4.2.1': patches/@vue__apollo-composable@4.2.1.patch
