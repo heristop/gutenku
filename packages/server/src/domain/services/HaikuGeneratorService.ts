@@ -263,7 +263,7 @@ export default class HaikuGeneratorService implements IGenerator {
 
       // Select new book if we've tried too many times with current one
       if (currentIteration % this.maxAttemptsInBook === 0) {
-        book = await this.bookService.selectRandomBook();
+        book = await this.bookRepository.selectRandomBook();
       }
     }
 
