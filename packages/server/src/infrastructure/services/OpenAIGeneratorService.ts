@@ -56,7 +56,7 @@ export default class OpenAIGeneratorService implements IGenerator {
       const prompt = await this.generateSelectionPrompt();
 
       const completion = await this.openai.chatCompletionsCreate({
-        model: process.env.OPENAI_GPT5_MODEL || 'gpt-4o-mini',
+        model: process.env.OPENAI_GPT_MODEL || 'gpt-4o-mini',
         temperature: 0.7,
         max_completion_tokens: 1200,
         messages: [
@@ -105,7 +105,7 @@ export default class OpenAIGeneratorService implements IGenerator {
         '{"title":"<Give a creative short title to describe the haiku>","description":"<Describe and explain the haiku>","hashtags":"<Give 6 lowercase hashtags>"}';
 
       const completion = await this.openai.chatCompletionsCreate({
-        model: process.env.OPENAI_GPT5_MODEL || 'gpt-4o-mini',
+        model: process.env.OPENAI_GPT_MODEL || 'gpt-4o-mini',
         temperature: 0.7,
         max_completion_tokens: 1000,
         messages: [
@@ -144,7 +144,7 @@ export default class OpenAIGeneratorService implements IGenerator {
       prompt = `${prompt} (Use the following format: {${outputFormat}})`;
 
       const completion = await this.openai.chatCompletionsCreate({
-        model: process.env.OPENAI_GPT5_MODEL || 'gpt-4o-mini',
+        model: process.env.OPENAI_GPT_MODEL || 'gpt-4o-mini',
         temperature: 0.7,
         max_completion_tokens: 1000,
         messages: [
@@ -184,7 +184,7 @@ export default class OpenAIGeneratorService implements IGenerator {
       const prompt = `Generate 3-5 emoticons that represent the book "${haiku.book.title}". Respond with only the emoticons, no text or explanation.`;
 
       const completion = await this.openai.chatCompletionsCreate({
-        model: process.env.OPENAI_GPT5_MODEL || 'gpt-4o-mini',
+        model: process.env.OPENAI_GPT_MODEL || 'gpt-4o-mini',
         temperature: 0.7,
         max_completion_tokens: 20,
         messages: [
