@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import { expect, it } from 'vitest';
-import HaikuHelper from '../src/shared/helpers/HaikuHelper';
+import { findContext } from '../src/shared/helpers/HaikuHelper';
 
 dotenv.config();
 
@@ -11,19 +11,14 @@ it('extract context verses', async () => {
   const numWords = 5;
   const numSentences = 2;
 
-  const contextArray = HaikuHelper.findContext(
-    chapter,
-    substring,
-    numWords,
-    numSentences,
-  );
+  const contextArray = findContext(chapter, substring, numWords, numSentences);
 
-  expect(contextArray.wordsBefore).toEqual('sanctity of domestic bliss; ');
-  expect(contextArray.sentenceBefore).toEqual(
+  expect(contextArray?.wordsBefore).toEqual('sanctity of domestic bliss; ');
+  expect(contextArray?.sentenceBefore).toEqual(
     'indeed, if unprincipled young rakes like him are to be permitted to invade the sanctity of domestic bliss;',
   );
-  expect(contextArray.wordsAfter).toEqual(', he cannot keep the');
-  expect(contextArray.sentenceAfter).toEqual(
+  expect(contextArray?.wordsAfter).toEqual(', he cannot keep the');
+  expect(contextArray?.sentenceAfter).toEqual(
     'When serenely advancing on one of these journeys, if any strange suspicious sights are seen,',
   );
 });

@@ -79,15 +79,15 @@ describe('GraphQL resolvers', () => {
 
   it('haiku query resolves via HaikuBridgeService', async () => {
     const h = await resolvers.Query.haiku(undefined, {
+      appendImg: false,
+      descriptionTemperature: 0.5,
+      filter: '',
+      markovMinScore: 0,
+      selectionCount: 1,
+      sentimentMinScore: 0,
+      theme: 'default',
       useAI: false,
       useCache: false,
-      appendImg: false,
-      selectionCount: 1,
-      theme: 'default',
-      filter: '',
-      sentimentMinScore: 0,
-      markovMinScore: 0,
-      descriptionTemperature: 0.5,
     });
     expect(h).toEqual({ verses: ['a', 'b', 'c'] });
   });
@@ -95,5 +95,49 @@ describe('GraphQL resolvers', () => {
   it('subscription exposes async iterator', async () => {
     const sub = resolvers.Subscription.quoteGenerated.subscribe();
     expect(typeof sub[Symbol.asyncIterator]).toBe('function');
+  });
+
+  it('books query with filter passes filter to service', async () => {
+    const result = await resolvers.Query.books(undefined, {
+      filter: 'whale',
+    });
+    expect(result).toEqual([]);
+  });
+
+  it('chapters query with filter passes filter to service', async () => {
+    const result = await resolvers.Query.chapters(undefined, {
+      filter: 'ocean',
+    });
+    expect(result).toEqual([]);
+  });
+
+  it('haiku query with all options', async () => {
+    const h = await resolvers.Query.haiku(undefined, {
+      appendImg: true,
+      descriptionTemperature: 0.7,
+      filter: 'nature',
+      markovMinScore: 0.5,
+      selectionCount: 5,
+      sentimentMinScore: 0.3,
+      theme: 'greentea',
+      useAI: true,
+      useCache: true,
+    });
+    expect(h).toEqual({ verses: ['a', 'b', 'c'] });
+  });
+
+  it('haiku query with minimal options', async () => {
+    const h = await resolvers.Query.haiku(undefined, {
+      appendImg: false,
+      descriptionTemperature: undefined,
+      filter: undefined,
+      markovMinScore: undefined,
+      selectionCount: undefined,
+      sentimentMinScore: undefined,
+      theme: undefined,
+      useAI: undefined,
+      useCache: undefined,
+    });
+    expect(h).toEqual({ verses: ['a', 'b', 'c'] });
   });
 });
