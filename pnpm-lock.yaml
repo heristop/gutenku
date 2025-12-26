@@ -36,6 +36,9 @@ importers:
       '@fingerprintjs/botd':
         specifier: ^1.9.1
         version: 1.9.1
+      '@gutenku/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@mdi/font':
         specifier: ^7.4.47
         version: 7.4.47
@@ -151,6 +154,9 @@ importers:
       '@graphql-tools/schema':
         specifier: ^10.0.30
         version: 10.0.30(graphql@16.12.0)
+      '@gutenku/shared':
+        specifier: workspace:*
+        version: link:../shared
       axios:
         specifier: ^1.13.2
         version: 1.13.2
@@ -275,6 +281,8 @@ importers:
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@22.19.3)(sass@1.93.2)(terser@5.44.0)
+
+  packages/shared: {}
 
 packages:
 

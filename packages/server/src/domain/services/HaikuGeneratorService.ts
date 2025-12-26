@@ -5,6 +5,7 @@ import { syllable } from 'syllable';
 import { singleton, inject } from 'tsyringe';
 import type {
   BookValue,
+  BookValueWithChapters,
   ChapterValue,
   HaikuProcessingCache,
   HaikuValue,
@@ -215,13 +216,13 @@ export default class HaikuGeneratorService implements IGenerator {
 
   private async processChunk(
     chapters: ChapterValue[],
-    currentBook: BookValue | null,
+    currentBook: BookValueWithChapters | null,
     startIteration: number,
     chunkSize: number,
   ): Promise<{
     verses: string[];
     chapter: ChapterValue;
-    book: BookValue;
+    book: BookValueWithChapters;
     nextIteration: number;
   }> {
     let verses = [];
@@ -308,7 +309,7 @@ export default class HaikuGeneratorService implements IGenerator {
     };
   }
 
-  selectRandomChapter(book: BookValue): string {
+  selectRandomChapter(book: BookValueWithChapters): string {
     const index = Math.floor(Math.random() * book.chapters.length);
 
     return book.chapters[index.toString()];
