@@ -2,14 +2,14 @@ import 'reflect-metadata';
 import dotenv from 'dotenv';
 import log from 'loglevel';
 import fetch from 'node-fetch';
-import fs from 'fs/promises';
-import path from 'path';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import sharp from 'sharp';
 import { program } from 'commander';
-import { createInterface } from 'readline';
+import { createInterface } from 'node:readline';
 import terminalImage from 'terminal-image';
-import { HaikuResponseData } from '../src/shared/types';
-import DiscordService from '../src/application/services/DiscordService';
+import type { HaikuResponseData } from '~/shared/types';
+import { post as discordPost } from '~/application/services/DiscordService';
 
 dotenv.config();
 log.enableAll();
@@ -68,29 +68,29 @@ const query = `
 `;
 
 const variables = {
+  appendImg: true,
+  selectionCount: Number.parseInt(options.selectionCount),
+  theme: options.theme,
   useAi: options.openai,
   useCache: true,
-  appendImg: true,
-  selectionCount: parseInt(options.selectionCount),
-  theme: options.theme,
 };
 
 const body = {
   query: query,
-  variables: variables,
   timeout: 100,
+  variables: variables,
 };
 
 fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify(body),
+  headers: { 'Content-Type': 'application/json' },
+  method: 'POST',
 })
   .then((response) => response.json())
   .then(async (response: { data: HaikuResponseData }) => {
     const haiku = response.data?.haiku;
 
-    if (null === haiku) {
+    if (haiku === null) {
       log.error(response);
 
       throw new Error('Haiku fetch error');
@@ -111,9 +111,11 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
           file?: (p: string, opts: { width: number }) => Promise<string>;
         };
         const previewFromFile = await ti.file?.(haiku.imagePath, { width: 20 });
-        if (previewFromFile) log.info(previewFromFile);
+        if (previewFromFile) {
+          log.info(previewFromFile);
+        }
       } catch {
-        // ignore preview errors
+        // Ignore preview errors
       }
     }
 
@@ -123,11 +125,11 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
     await fs.writeFile(haiku.imagePath, imageData);
     log.info({
       book: haiku.book,
-      verses: haiku.verses,
-      title: haiku.title,
       description: haiku.description,
       hashtags: haiku.hashtags,
+      title: haiku.title,
       translations: haiku.translations,
+      verses: haiku.verses,
     });
 
     const imageBuffer = await fs.readFile(haiku.imagePath);
@@ -149,13 +151,13 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
       );
     }
 
-    if (false === options.interaction) {
-      DiscordService.post(haiku);
+    if (options.interaction === false) {
+      discordPost(haiku);
 
       return;
     }
 
-    if (true === options.post) {
+    if (options.post === true) {
       const rl = createInterface({
         input: process.stdin,
         output: process.stdout,
@@ -172,8 +174,8 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
         async (answer: string) => {
           clearTimeout(timeout); // Cancel the timeout if input is received
 
-          if ('y' === answer || 'yes' === answer) {
-            await DiscordService.post(haiku);
+          if (answer === 'y' || answer === 'yes') {
+            await discordPost(haiku);
           }
 
           rl.close();

@@ -2,8 +2,8 @@ import 'reflect-metadata';
 import fetch from 'node-fetch';
 import cliProgress from 'cli-progress';
 import { container } from 'tsyringe';
-import { MarkovEvaluatorService } from '../src/domain/services/MarkovEvaluatorService';
-import { ChapterResponseData } from '../src/shared/types';
+import { MarkovEvaluatorService } from '~/domain/services/MarkovEvaluatorService';
+import type { ChapterResponseData } from '~/shared/types';
 
 const query = `
     query Query {
@@ -18,15 +18,15 @@ const body = {
 };
 
 fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify(body),
+  headers: { 'Content-Type': 'application/json' },
+  method: 'POST',
 })
   .then((response) => response.json())
   .then(async (response: { data: ChapterResponseData }) => {
     const chapters = response.data.chapters;
 
-    if (null === chapters) {
+    if (chapters === null) {
       console.error(response);
 
       throw new Error('Chapters fetch error');
@@ -35,9 +35,9 @@ fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
     const markovEvaluator = container.resolve(MarkovEvaluatorService);
 
     const bar = new cliProgress.SingleBar({
-      format: 'Chapters | {bar} | {percentage}% || {value}/{total}',
       barCompleteChar: '\u2588',
       barIncompleteChar: '\u2591',
+      format: 'Chapters | {bar} | {percentage}% || {value}/{total}',
       hideCursor: true,
     });
 
