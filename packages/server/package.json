@@ -2,23 +2,22 @@
   "name": "@gutenku/api",
   "version": "1.8.0",
   "private": true,
-  "licence": "UNLICENSED",
+  "type": "module",
   "main": "src/index.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && tsc-alias",
     "start": "tsx src/index.ts",
     "start:dist": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
-    "lint": "eslint . --fix",
+    "lint": "oxlint --fix",
     "setup": "python3 scripts/setup.py",
-    "extract": "tsx scripts/extract_haiku.ts",
-    "train": "tsx scripts/markov_train.ts",
-    "post": "tsx scripts/post_haiku.ts",
+    "extract": "tsx scripts/extract-haiku.ts",
+    "train": "tsx scripts/markov-train.ts",
+    "post": "tsx scripts/post-haiku.ts",
     "test": "vitest run",
     "test:cov": "vitest run --coverage",
     "test:watch": "vitest"
   },
-  "type": "module",
   "dependencies": {
     "@apollo/server": "^5.2.0",
     "@as-integrations/express5": "^1.1.2",
@@ -50,7 +49,6 @@
     "ws": "^8.18.3"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.2",
     "@types/cli-progress": "^3.11.6",
     "@types/compression": "^1.7.5",
     "@types/cors": "^2.8.19",
@@ -58,16 +56,15 @@
     "@types/node": "^22.15.30",
     "@types/node-fetch": "^2.6.13",
     "@types/ws": "^8.18.1",
-    "@typescript-eslint/typescript-estree": "^8.50.1",
     "@vitest/coverage-istanbul": "^3.2.4",
-    "eslint": "^9.39.2",
-    "eslint-plugin-prettier": "^5.5.4",
+    "@vitest/coverage-v8": "3.2.4",
     "nodemon": "^3.1.11",
     "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.10",
     "tsc-watch": "^7.2.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.50.1",
     "vitest": "^3.2.4"
-  }
+  },
+  "licence": "UNLICENSED"
 }
