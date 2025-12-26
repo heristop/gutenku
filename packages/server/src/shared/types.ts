@@ -1,6 +1,18 @@
 import type { Types } from 'mongoose';
 
-export interface BookValue {
+// Re-export shared types
+export type {
+  BookValue,
+  ChapterValue,
+  ContextVerses,
+  HaikuValue,
+  Translations,
+  HaikuResponseData,
+  ChapterResponseData,
+} from '@gutenku/shared';
+
+// Server-only types
+export interface BookValueWithChapters {
   reference: string;
   title: string;
   author: string;
@@ -8,45 +20,14 @@ export interface BookValue {
   emoticons?: string;
 }
 
-export interface ChapterValue {
-  content: string;
-}
-
-export interface Translations {
-  fr?: string;
-  jp?: string;
-  es?: string;
-  it?: string;
-  de?: string;
-}
-
 export interface HaikuDocument {
-  book: BookValue;
+  book: BookValueWithChapters;
   chapter: {
     title?: string;
     content: string;
   };
   verses: string[];
   rawVerses: string[];
-}
-
-export interface HaikuValue {
-  book: BookValue;
-  chapter: {
-    title?: string;
-    content: string;
-  };
-  verses: string[];
-  rawVerses: string[];
-  context?: ContextVerses[];
-  image?: string;
-  imagePath?: string;
-  title?: string;
-  description?: string;
-  hashtags?: string;
-  translations?: Translations;
-  cacheUsed: boolean;
-  executionTime?: number;
 }
 
 export interface HaikuVariables {
@@ -61,14 +42,6 @@ export interface HaikuVariables {
   descriptionTemperature: number;
 }
 
-export interface HaikuResponseData {
-  haiku: HaikuValue;
-}
-
-export interface ChapterResponseData {
-  chapters: ChapterValue[];
-}
-
 export interface OpenAIOptions {
   apiKey: string;
   selectionCount?: number;
@@ -76,13 +49,6 @@ export interface OpenAIOptions {
     prompt?: number;
     description?: number;
   };
-}
-
-export interface ContextVerses {
-  wordsBefore?: string;
-  sentenceBefore?: string;
-  wordsAfter?: string;
-  sentenceAfter?: string;
 }
 
 export interface ProcessedChapter {
