@@ -1,5 +1,5 @@
 import { inject, injectable } from 'tsyringe';
-import { IBookRepository } from '../../domain/repositories/IBookRepository';
+import type { IBookRepository } from '~/domain/repositories/IBookRepository';
 
 @injectable()
 export default class BookService {

@@ -1,27 +1,32 @@
 import log from 'loglevel';
-import { promisify } from 'util';
-import { unlink } from 'fs';
+import { promisify } from 'node:util';
+import { unlink } from 'node:fs';
 import { syllable } from 'syllable';
-import { singleton } from 'tsyringe';
-import {
+import { singleton, inject } from 'tsyringe';
+import type {
   BookValue,
   ChapterValue,
+  HaikuProcessingCache,
   HaikuValue,
   ProcessedChapter,
-  HaikuProcessingCache,
-} from '../../shared/types';
-import { MarkovEvaluatorService } from './MarkovEvaluatorService';
-import NaturalLanguageService from './NaturalLanguageService';
-import { ICanvasServiceToken, ICanvasService } from './ICanvasService';
-import { IGenerator } from '../interfaces/IGenerator';
-import { IHaikuRepository } from '../repositories/IHaikuRepository';
-import { IChapterRepository } from '../repositories/IChapterRepository';
-import { IBookRepository } from '../repositories/IBookRepository';
-import { PubSubService } from '../../infrastructure/services/PubSubService';
-import { inject } from 'tsyringe';
-import { IEventBusToken, IEventBus } from '../events/IEventBus';
-import { QuoteGeneratedEvent } from '../events/QuoteGeneratedEvent';
-import HaikuHelper from '../../shared/helpers/HaikuHelper';
+} from '~/shared/types';
+import { MarkovEvaluatorService } from '~/domain/services/MarkovEvaluatorService';
+import NaturalLanguageService from '~/domain/services/NaturalLanguageService';
+import {
+  type ICanvasService,
+  ICanvasServiceToken,
+} from '~/domain/services/ICanvasService';
+import type { IGenerator } from '~/domain/interfaces/IGenerator';
+import type { IHaikuRepository } from '~/domain/repositories/IHaikuRepository';
+import type { IChapterRepository } from '~/domain/repositories/IChapterRepository';
+import type { IBookRepository } from '~/domain/repositories/IBookRepository';
+import { PubSubService } from '~/infrastructure/services/PubSubService';
+import { type IEventBus, IEventBusToken } from '~/domain/events/IEventBus';
+import { QuoteGeneratedEvent } from '~/domain/events/QuoteGeneratedEvent';
+import {
+  extractContextVerses,
+  cleanVerses,
+} from '~/shared/helpers/HaikuHelper';
 
 class MaxAttemptsError extends Error {
   constructor(message?: string) {
@@ -101,7 +106,7 @@ export default class HaikuGeneratorService implements IGenerator {
 
     if (filterWords.length > 0) {
       const escapedWords = filterWords.map((word) =>
-        word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+        word.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&'),
       );
       this.filterWordsRegex = new RegExp(escapedWords.join('|'), 'i');
     } else {
@@ -119,14 +124,14 @@ export default class HaikuGeneratorService implements IGenerator {
   }
 
   async generate(): Promise<HaikuValue | null> {
-    this.executionTime = new Date().getTime();
+    this.executionTime = Date.now();
 
-    if (true === this.useCache) {
+    if (this.useCache === true) {
       const haiku = await this.haikuRepository.extractOneFromCache(
         this.minCachedDocs,
       );
 
-      if (null !== haiku) {
+      if (haiku !== null) {
         return haiku;
       }
     }
@@ -177,7 +182,7 @@ export default class HaikuGeneratorService implements IGenerator {
       );
     }
 
-    if (0 === chapters.length) {
+    if (chapters.length === 0) {
       book = await this.bookRepository.selectRandomBook();
     }
 
@@ -239,18 +244,19 @@ export default class HaikuGeneratorService implements IGenerator {
 
       verses = this.getVerses(chapter);
 
-      if (this.filterWords.length > 0) {
-        if (!this.verseContainsFilterWord(verses)) {
-          verses = [];
-        }
+      if (
+        this.filterWords.length > 0 &&
+        !this.verseContainsFilterWord(verses)
+      ) {
+        verses = [];
       }
 
       if (verses.length >= 3) {
         return {
-          verses,
-          chapter,
           book,
+          chapter,
           nextIteration: currentIteration + 1,
+          verses,
         };
       }
 
@@ -260,10 +266,10 @@ export default class HaikuGeneratorService implements IGenerator {
     }
 
     return {
-      verses,
-      chapter,
       book,
+      chapter,
       nextIteration: startIteration + chunkSize,
+      verses,
     };
   }
 
@@ -285,7 +291,7 @@ export default class HaikuGeneratorService implements IGenerator {
     chapter: ChapterValue,
     verses: string[],
   ): HaikuValue {
-    const executionTime = (new Date().getTime() - this.executionTime) / 1000;
+    const executionTime = (Date.now() - this.executionTime) / 1000;
 
     return {
       book: {
@@ -293,12 +299,12 @@ export default class HaikuGeneratorService implements IGenerator {
         title: book.title,
         author: book.author,
       },
-      chapter: chapter,
-      context: HaikuHelper.extractContextVerses(verses, chapter.content),
-      verses: HaikuHelper.clean(verses),
-      rawVerses: verses,
       cacheUsed: false,
+      chapter: chapter,
+      context: extractContextVerses(verses, chapter.content),
       executionTime: executionTime,
+      rawVerses: verses,
+      verses: cleanVerses(verses),
     };
   }
 
@@ -311,7 +317,7 @@ export default class HaikuGeneratorService implements IGenerator {
   extractQuotes(chapter: string): { quote: string; index: number }[] {
     const sentences =
       this.naturalLanguage.extractSentencesByPunctuation(chapter);
-    const quotes = sentences.map((quote, index) => ({ quote, index }));
+    const quotes = sentences.map((quote, index) => ({ index, quote }));
 
     return this.filterQuotesCountingSyllables(quotes);
   }
@@ -326,14 +332,15 @@ export default class HaikuGeneratorService implements IGenerator {
         return false;
       }
 
-      const syllableCount = words.reduce((count, word) => {
-        return count + syllable(word);
-      }, 0);
+      const syllableCount = words.reduce(
+        (count, word) => count + syllable(word),
+        0,
+      );
 
       return syllableCount === 5 || syllableCount === 7;
     });
 
-    const minQuotesCount = parseInt(process.env.MIN_QUOTES_COUNT) || 12;
+    const minQuotesCount = Number.parseInt(process.env.MIN_QUOTES_COUNT) || 12;
 
     if (minQuotesCount && filteredQuotes.length < minQuotesCount) {
       return [];
@@ -347,9 +354,10 @@ export default class HaikuGeneratorService implements IGenerator {
 
     const sentimentMinScore =
       this.sentimentMinScore ??
-      parseFloat(process.env.SENTIMENT_MIN_SCORE || '0');
+      Number.parseFloat(process.env.SENTIMENT_MIN_SCORE || '0');
     const markovMinScore =
-      this.markovMinScore ?? parseFloat(process.env.MARKOV_MIN_SCORE || '0');
+      this.markovMinScore ??
+      Number.parseFloat(process.env.MARKOV_MIN_SCORE || '0');
 
     const selectedVerses: { quote: string; index: number }[] = [];
     const usedIndices = new Set<number>();
@@ -362,7 +370,7 @@ export default class HaikuGeneratorService implements IGenerator {
           return false;
         }
 
-        quote = quote.replaceAll(/\n/g, ' ');
+        quote = quote.replaceAll('\n', ' ');
 
         if (i === 0 && this.naturalLanguage.startWithConjunction(quote)) {
           return false;
@@ -389,8 +397,7 @@ export default class HaikuGeneratorService implements IGenerator {
         log.info('sentiment_score', sentimentScore, 'min', sentimentMinScore);
 
         if (selectedVerses.length > 0) {
-          const lastVerseIndex =
-            selectedVerses[selectedVerses.length - 1].index;
+          const lastVerseIndex = selectedVerses.at(-1).index;
 
           if (index <= lastVerseIndex) {
             return false;
@@ -431,7 +438,7 @@ export default class HaikuGeneratorService implements IGenerator {
   }
 
   isQuoteInvalid(quote: string): boolean {
-    quote = quote.replaceAll(/\n/g, '');
+    quote = quote.replaceAll('\n', '');
 
     if (this.naturalLanguage.hasUpperCaseWords(quote)) {
       return true;
@@ -441,7 +448,7 @@ export default class HaikuGeneratorService implements IGenerator {
       return true;
     }
 
-    if (quote.length >= parseInt(process.env.VERSE_MAX_LENGTH || '30')) {
+    if (quote.length >= Number.parseInt(process.env.VERSE_MAX_LENGTH || '30')) {
       return true;
     }
 

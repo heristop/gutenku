@@ -1,7 +1,7 @@
 import { inject, injectable } from 'tsyringe';
-import { HaikuValue, HaikuVariables } from '../../shared/types';
-import HaikuGeneratorService from '../../domain/services/HaikuGeneratorService';
-import OpenAIGeneratorService from '../../infrastructure/services/OpenAIGeneratorService';
+import type { HaikuValue, HaikuVariables } from '~/shared/types';
+import HaikuGeneratorService from '~/domain/services/HaikuGeneratorService';
+import OpenAIGeneratorService from '~/infrastructure/services/OpenAIGeneratorService';
 
 @injectable()
 export default class HaikuBridgeService {
@@ -17,13 +17,13 @@ export default class HaikuBridgeService {
 
     this.haikuGenerator.configure({
       cache: {
-        minCachedDocs: parseInt(process.env.MIN_CACHED_DOCS),
+        minCachedDocs: Number.parseInt(process.env.MIN_CACHED_DOCS),
         ttl: 24 * 60 * 60 * 1000, // 24 hours,
         enabled: args.useCache,
       },
       score: {
-        sentiment: args.sentimentMinScore,
         markovChain: args.markovMinScore,
+        sentiment: args.sentimentMinScore,
       },
       theme: args.theme,
     });
@@ -31,7 +31,7 @@ export default class HaikuBridgeService {
     const OPENAI_SELECTION_MODE =
       args.useAI && undefined !== process.env.OPENAI_API_KEY;
 
-    if (true === OPENAI_SELECTION_MODE) {
+    if (OPENAI_SELECTION_MODE === true) {
       this.openAIGenerator.configure({
         apiKey: process.env.OPENAI_API_KEY,
         selectionCount: args.selectionCount,
@@ -43,13 +43,13 @@ export default class HaikuBridgeService {
       haiku = await this.openAIGenerator.generate();
     }
 
-    if (null === haiku) {
+    if (haiku === null) {
       haiku = await this.haikuGenerator
         .filter(args.filter ? args.filter.split(' ') : [])
         .generate();
     }
 
-    if (false !== args.appendImg) {
+    if (args.appendImg !== false) {
       haiku = await this.haikuGenerator.appendImg(haiku);
     }
 

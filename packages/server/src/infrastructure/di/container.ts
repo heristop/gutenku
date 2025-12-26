@@ -1,27 +1,27 @@
 import { container } from 'tsyringe';
 import {
-  IBookRepository,
+  type IBookRepository,
   IBookRepositoryToken,
-} from '../../domain/repositories/IBookRepository';
+} from '~/domain/repositories/IBookRepository';
 import {
-  IChapterRepository,
+  type IChapterRepository,
   IChapterRepositoryToken,
-} from '../../domain/repositories/IChapterRepository';
+} from '~/domain/repositories/IChapterRepository';
 import {
-  IHaikuRepository,
+  type IHaikuRepository,
   IHaikuRepositoryToken,
-} from '../../domain/repositories/IHaikuRepository';
-import BookRepository from '../repositories/BookRepository';
-import ChapterRepository from '../repositories/ChapterRepository';
-import HaikuRepository from '../repositories/HaikuRepository';
-import CanvasService from '../services/CanvasService';
-import { ICanvasServiceToken } from '../../domain/services/ICanvasService';
-import { IEventBusToken } from '../../domain/events/IEventBus';
-import { GraphQLEventBus } from '../../application/events/GraphQLEventBus';
-import { IOpenAIClientToken } from '../../domain/gateways/IOpenAIClient';
-import OpenAIClient from '../external/OpenAIClient';
-import { IMessagePublisherToken } from '../../application/messaging/IMessagePublisher';
-import { PubSubMessagePublisher } from '../messaging/PubSubMessagePublisher';
+} from '~/domain/repositories/IHaikuRepository';
+import BookRepository from '~/infrastructure/repositories/BookRepository';
+import ChapterRepository from '~/infrastructure/repositories/ChapterRepository';
+import HaikuRepository from '~/infrastructure/repositories/HaikuRepository';
+import CanvasService from '~/infrastructure/services/CanvasService';
+import { ICanvasServiceToken } from '~/domain/services/ICanvasService';
+import { IEventBusToken } from '~/domain/events/IEventBus';
+import { GraphQLEventBus } from '~/application/events/GraphQLEventBus';
+import { IOpenAIClientToken } from '~/domain/gateways/IOpenAIClient';
+import OpenAIClient from '~/infrastructure/external/OpenAIClient';
+import { IMessagePublisherToken } from '~/application/messaging/IMessagePublisher';
+import { PubSubMessagePublisher } from '~/infrastructure/messaging/PubSubMessagePublisher';
 
 container.register<IBookRepository>(IBookRepositoryToken, {
   useClass: BookRepository,

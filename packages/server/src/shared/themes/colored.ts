@@ -1,7 +1,7 @@
-import { readdir } from 'fs/promises';
-import { join } from 'path';
+import { readdir } from 'node:fs/promises';
+import { join } from 'node:path';
 import Canvas from 'canvas';
-import { HaikuValue } from '../types';
+import type { HaikuValue } from '~/shared/types';
 
 export default {
   async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
@@ -50,7 +50,7 @@ export default {
     let y = canvas.height / 3.5;
     verses.map((verse) => {
       ctx.fillText(verse, x, y);
-      y = y + 440;
+      y += 440;
     });
 
     return canvas;

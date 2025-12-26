@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+import type { Types } from 'mongoose';
 
 export interface BookValue {
   reference: string;
@@ -26,8 +26,8 @@ export interface HaikuDocument {
     title?: string;
     content: string;
   };
-  verses: Array<string>;
-  rawVerses: Array<string>;
+  verses: string[];
+  rawVerses: string[];
 }
 
 export interface HaikuValue {
@@ -36,8 +36,8 @@ export interface HaikuValue {
     title?: string;
     content: string;
   };
-  verses: Array<string>;
-  rawVerses: Array<string>;
+  verses: string[];
+  rawVerses: string[];
   context?: ContextVerses[];
   image?: string;
   imagePath?: string;

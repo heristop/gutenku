@@ -1,6 +1,6 @@
-import { injectable, inject } from 'tsyringe';
-import { IMessagePublisher } from '../../application/messaging/IMessagePublisher';
-import { PubSubService } from '../services/PubSubService';
+import { inject, injectable } from 'tsyringe';
+import type { IMessagePublisher } from '~/application/messaging/IMessagePublisher';
+import { PubSubService } from '~/infrastructure/services/PubSubService';
 
 @injectable()
 export class PubSubMessagePublisher implements IMessagePublisher {

@@ -1,4 +1,4 @@
-import { MarkovChainService } from './MarkovChainService';
+import { MarkovChainService } from '~/domain/services/MarkovChainService';
 import { inject, singleton } from 'tsyringe';
 
 @singleton()

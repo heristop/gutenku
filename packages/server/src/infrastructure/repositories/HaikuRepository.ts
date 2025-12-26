@@ -1,9 +1,9 @@
 import log from 'loglevel';
 import { inject, injectable } from 'tsyringe';
-import { HaikuDocument, HaikuValue } from '../../shared/types';
-import { IHaikuRepository } from '../../domain/repositories/IHaikuRepository';
-import MongoConnection from '../services/MongoConnection';
-import { Connection } from 'mongoose';
+import type { HaikuDocument, HaikuValue } from '~/shared/types';
+import type { IHaikuRepository } from '~/domain/repositories/IHaikuRepository';
+import MongoConnection from '~/infrastructure/services/MongoConnection';
+import type { Connection } from 'mongoose';
 
 @injectable()
 export default class HaikuRepository implements IHaikuRepository {
@@ -14,7 +14,7 @@ export default class HaikuRepository implements IHaikuRepository {
   }
 
   async createCacheWithTTL(haiku: HaikuValue, ttl: number): Promise<void> {
-    if (false === !!this.db) {
+    if (!!this.db === false) {
       return;
     }
 
@@ -77,7 +77,7 @@ export default class HaikuRepository implements IHaikuRepository {
   async extractOneFromCache(minCachedDocs: number): Promise<HaikuValue | null> {
     const haikusValues = await this.extractFromCache(1, minCachedDocs);
 
-    if (0 === haikusValues.length) {
+    if (haikusValues.length === 0) {
       return null;
     }
 
@@ -90,10 +90,10 @@ export default class HaikuRepository implements IHaikuRepository {
     collection.forEach((document) => {
       haikuValues.push({
         book: document.book,
-        chapter: document.chapter,
-        verses: document.verses,
-        rawVerses: document.rawVerses,
         cacheUsed: true,
+        chapter: document.chapter,
+        rawVerses: document.rawVerses,
+        verses: document.verses,
       });
     });
 

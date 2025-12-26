@@ -1,39 +1,38 @@
 import log from 'loglevel';
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 import FormData from 'form-data';
 import axios from 'axios';
-import { HaikuValue } from '../../shared/types';
+import type { HaikuValue } from '~/shared/types';
 
-export default class DiscordService {
-  static async post(haiku: HaikuValue) {
-    const bookTitle = haiku.book.title;
-    const vowels = 'aeiouyAEIOUY';
+export async function post(haiku: HaikuValue) {
+  const bookTitle = haiku.book.title;
+  const vowels = 'aeiouyAEIOUY';
 
-    let nonMaskedVowel: string;
+  let nonMaskedVowel: string;
 
-    // Find a random vowel in the title
-    do {
-      nonMaskedVowel = bookTitle.charAt(
-        Math.floor(Math.random() * bookTitle.length),
-      );
-    } while (!vowels.includes(nonMaskedVowel));
-
-    // Mask all letters except the random vowel
-    const maskedTitle = bookTitle.replace(
-      new RegExp(`[^ ${nonMaskedVowel}]`, 'gi'),
-      '*',
+  // Find a random vowel in the title
+  do {
+    nonMaskedVowel = bookTitle.charAt(
+      Math.floor(Math.random() * bookTitle.length),
     );
+  } while (!vowels.includes(nonMaskedVowel));
 
-    if (null === haiku.title) {
-      throw new Error('Missing Title');
-    }
+  // Mask all letters except the random vowel
+  const maskedTitle = bookTitle.replaceAll(
+    new RegExp(`[^ ${nonMaskedVowel}]`, 'gi'),
+    '*',
+  );
 
-    const hashtagAuthor = haiku.book.author
-      .toLowerCase()
-      .replaceAll(/\s|,|-|\.|\(|\)/g, '');
+  if (haiku.title === null) {
+    throw new Error('Missing Title');
+  }
 
-    const caption = `
-🌸 “${haiku.title}” 🗻
+  const hashtagAuthor = haiku.book.author
+    .toLowerCase()
+    .replaceAll(/\s|,|-|\.|\(|\)/g, '');
+
+  const caption = `
+🌸 "${haiku.title}" 🗻
 ✨ A haiku woven from the words of ${maskedTitle} by ${haiku.book.author}
 📔 Bookmojis: ${haiku.book.emoticons}
 
@@ -54,53 +53,55 @@ ${haiku.translations?.es}
 
 ---
 
-👩‍🏫 “${haiku.description}”
+👩‍🏫 "${haiku.description}"
 
 🤖✒️ Analysis Written by BotenKu, Your devoted Bot Literature Teacher
 
 ---
 `;
 
-    log.info(caption);
+  log.info(caption);
 
-    if (process.env.DISCORD_WEBHOOK_URL) {
-      await this.publish(haiku, caption);
-    }
+  if (process.env.DISCORD_WEBHOOK_URL) {
+    await publish(haiku, caption);
+  }
+}
+
+export async function publish(
+  haiku: HaikuValue,
+  caption: string,
+): Promise<void> {
+  if (!caption) {
+    throw new Error('Caption cannot be empty');
   }
 
-  static async publish(haiku: HaikuValue, caption: string): Promise<void> {
-    if (!caption) {
-      throw new Error('Caption cannot be empty');
-    }
+  // Read the image file into a buffer
+  const imageBuffer = await fs.readFile(haiku.imagePath);
 
-    // Read the image file into a buffer
-    const imageBuffer = await fs.readFile(haiku.imagePath);
+  // Create a FormData instance
+  const form = new FormData();
 
-    // Create a FormData instance
-    const form = new FormData();
+  // Append image file with filename and content type
+  const formattedTitle = haiku.title.replaceAll(/\s/g, '_').toLowerCase();
+  form.append('file', imageBuffer, {
+    contentType: 'image/jpeg',
+    filename: `${formattedTitle}.jpg`,
+    knownLength: imageBuffer.length,
+  });
 
-    // Append the image file; note the third parameter options which include the filename and contentType
-    const formattedTitle = haiku.title.replace(/\s/g, '_').toLowerCase();
-    form.append('file', imageBuffer, {
-      filename: `${formattedTitle}.jpg`,
-      contentType: 'image/jpeg',
-      knownLength: imageBuffer.length,
+  // Append the caption (content of the message)
+  form.append('content', caption);
+
+  // Get multipart form headers
+  const formHeaders = form.getHeaders();
+
+  try {
+    await axios.post(process.env.DISCORD_WEBHOOK_URL, form, {
+      headers: formHeaders,
     });
 
-    // Append the caption (content of the message)
-    form.append('content', caption);
-
-    // Prepare the headers, including multipart form boundaries
-    const formHeaders = form.getHeaders();
-
-    try {
-      await axios.post(process.env.DISCORD_WEBHOOK_URL, form, {
-        headers: formHeaders,
-      });
-
-      log.info('Message posted successfully');
-    } catch (error) {
-      log.error('Failed to send message:', error);
-    }
+    log.info('Message posted successfully');
+  } catch (error) {
+    log.error('Failed to send message:', error);
   }
 }

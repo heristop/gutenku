@@ -3,9 +3,13 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const HaikuSchema = new Schema({
-  verses: {
-    type: Array<string>,
-    required: true,
+  book: {
+    type: Schema.Types.ObjectId,
+    ref: 'Book',
+  },
+  chapter: {
+    type: Schema.Types.ObjectId,
+    ref: 'Chapter',
   },
   context: {
     type: Array<string>,
@@ -18,17 +22,13 @@ const HaikuSchema = new Schema({
     type: Date,
     required: true,
   },
-  book: {
-    type: Schema.Types.ObjectId,
-    ref: 'Book',
-  },
-  chapter: {
-    type: Schema.Types.ObjectId,
-    ref: 'Chapter',
+  verses: {
+    type: Array<string>,
+    required: true,
   },
 });
 
-// Indexes for faster queries and TTL-based expiration
+// Indexes and TTL expiration
 HaikuSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 }); // TTL auto-delete
 HaikuSchema.index({ book: 1, chapter: 1 });
 HaikuSchema.index({ createdAt: -1 });
