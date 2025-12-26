@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
-import { HaikuValue } from '@/types';
+import type { HaikuValue } from '@/types';
 import { gql } from '@apollo/client/core';
 import { apolloClient } from '@/client';
-import { ApolloError } from '@apollo/client/errors';
+import type { ApolloError } from '@apollo/client/errors';
 
 const THEME_OPTIONS = ['random', 'colored', 'greentea', 'watermark'];
 
@@ -47,7 +47,7 @@ export const useHaikuStore = defineStore({
     networkError: (state) => 'network-error' === state.error,
     notificationError: (state) => '' !== state.error,
     themeOptions: (state) =>
-      state.optionImageAI ? THEME_OPTIONS.concat(['openai']) : THEME_OPTIONS,
+      state.optionImageAI ? [...THEME_OPTIONS, 'openai'] : THEME_OPTIONS,
     shouldUseCache: (state) => !state.firstLoaded,
     avgExecutionTime: (state) =>
       state.stats.haikusGenerated > 0

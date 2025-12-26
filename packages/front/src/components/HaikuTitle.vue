@@ -159,8 +159,15 @@ onUnmounted(() => {
         <span class="typewriter-text">{{ typewriterText }}</span>
       </h1>
 
-      <transition name="quote-fade" mode="out-in">
-        <p v-if="showQuote" :key="currentQuote" class="poetry-quote">
+      <transition
+        name="quote-fade"
+        mode="out-in"
+      >
+        <p
+          v-if="showQuote"
+          :key="currentQuote"
+          class="poetry-quote"
+        >
           {{ poetryQuotes[currentQuote] }}
         </p>
       </transition>

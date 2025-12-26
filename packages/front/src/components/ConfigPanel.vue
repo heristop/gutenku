@@ -83,11 +83,12 @@ function resetAdvancedConfig(): void {
         <div
           class="config-panel__subtitle d-flex align-center justify-space-between text-body-2 text-medium-emphasis"
         >
-          <span class="config-panel__subtitle-text"
-            >Fine-tune your haiku generation</span
-          >
+          <span class="config-panel__subtitle-text">Fine-tune your haiku generation</span>
           <div class="config-panel__actions d-flex align-center">
-            <v-tooltip text="Generate with current settings" location="top">
+            <v-tooltip
+              text="Generate with current settings"
+              location="top"
+            >
               <template #activator="{ props }">
                 <v-btn
                   v-bind="props"
@@ -101,7 +102,10 @@ function resetAdvancedConfig(): void {
                 />
               </template>
             </v-tooltip>
-            <v-tooltip text="Reset to defaults" location="top">
+            <v-tooltip
+              text="Reset to defaults"
+              location="top"
+            >
               <template #activator="{ props }">
                 <v-btn
                   v-bind="props"
@@ -128,11 +132,16 @@ function resetAdvancedConfig(): void {
     </div>
 
     <v-expand-transition>
-      <div v-show="expanded" class="config-panel__content">
+      <div
+        v-show="expanded"
+        class="config-panel__content"
+      >
         <div class="config-panel__inner gutenku-book-page pa-3 mb-2">
           <div class="config-panel__section">
             <div class="config-panel__label">
-              <v-icon class="config-panel__icon">{{ sentimentIcon }}</v-icon>
+              <v-icon class="config-panel__icon">
+                {{ sentimentIcon }}
+              </v-icon>
               <span class="config-panel__label-text">Sentiment</span>
               <span class="config-panel__value">{{
                 optionMinSentimentScore.toFixed(2)
@@ -152,7 +161,9 @@ function resetAdvancedConfig(): void {
 
           <div class="config-panel__section config-panel__section--last">
             <div class="config-panel__label">
-              <v-icon class="config-panel__icon">mdi-link-variant</v-icon>
+              <v-icon class="config-panel__icon">
+                mdi-link-variant
+              </v-icon>
               <span class="config-panel__label-text">Markov Chain</span>
               <span class="config-panel__value">{{
                 optionMinMarkovScore.toFixed(2)

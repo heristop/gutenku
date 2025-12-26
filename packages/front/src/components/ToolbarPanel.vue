@@ -51,7 +51,10 @@ async function copyHaiku(): Promise<void> {
     <!-- Action Buttons -->
     <div class="toolbar-panel__buttons">
       <!-- Extract/Generate Button -->
-      <v-tooltip :text="`${buttonLabel} a new haiku`" location="top">
+      <v-tooltip
+        :text="`${buttonLabel} a new haiku`"
+        location="top"
+      >
         <template #activator="{ props }">
           <v-btn
             v-bind="props"
@@ -64,16 +67,21 @@ async function copyHaiku(): Promise<void> {
             variant="outlined"
             size="small"
           >
-            <v-icon class="toolbar-panel__icon">{{
-              loading ? 'mdi-loading mdi-spin' : 'mdi-creation'
-            }}</v-icon>
+            <v-icon class="toolbar-panel__icon">
+              {{
+                loading ? 'mdi-loading mdi-spin' : 'mdi-creation'
+              }}
+            </v-icon>
             <span class="toolbar-panel__button-text">{{ buttonLabel }}</span>
           </v-btn>
         </template>
       </v-tooltip>
 
       <!-- Copy Button -->
-      <v-tooltip text="Copy haiku to clipboard" location="top">
+      <v-tooltip
+        text="Copy haiku to clipboard"
+        location="top"
+      >
         <template #activator="{ props }">
           <v-btn
             v-bind="props"
@@ -88,9 +96,11 @@ async function copyHaiku(): Promise<void> {
             size="small"
             :disabled="!haiku?.verses?.length"
           >
-            <v-icon class="toolbar-panel__icon">{{
-              copyStatus.copied ? 'mdi-check' : 'mdi-content-copy'
-            }}</v-icon>
+            <v-icon class="toolbar-panel__icon">
+              {{
+                copyStatus.copied ? 'mdi-check' : 'mdi-content-copy'
+              }}
+            </v-icon>
             <span class="toolbar-panel__button-text">{{
               copyStatus.copied ? 'Copied!' : 'Copy'
             }}</span>
@@ -115,9 +125,7 @@ async function copyHaiku(): Promise<void> {
           >
             mdi-check-circle
           </v-icon>
-          <span class="toolbar-panel__snackbar-text"
-            >Haiku copied to clipboard!</span
-          >
+          <span class="toolbar-panel__snackbar-text">Haiku copied to clipboard!</span>
         </div>
       </template>
 

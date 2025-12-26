@@ -70,13 +70,23 @@ const { isDarkMode } = useTheme();
 </script>
 
 <template>
-  <div class="loading" :class="{ 'loading--dark': isDarkMode }">
+  <div
+    class="loading"
+    :class="{ 'loading--dark': isDarkMode }"
+  >
     <!-- Theme-aware backdrop -->
-    <div class="loading-backdrop"></div>
+    <div class="loading-backdrop" />
 
     <div class="loading-content">
-      <div v-if="false === splash" class="robot">
-        <v-icon v-show="error" :color="color" :class="['icon', 'active']">
+      <div
+        v-if="false === splash"
+        class="robot"
+      >
+        <v-icon
+          v-show="error"
+          :color="color"
+          :class="['icon', 'active']"
+        >
           mdi-robot-dead-outline
         </v-icon>
 
@@ -92,7 +102,10 @@ const { isDarkMode } = useTheme();
         </div>
       </div>
 
-      <div v-if="displayText" class="loading-splash">
+      <div
+        v-if="displayText"
+        class="loading-splash"
+      >
         <!-- Logo with theme-aware background -->
         <div class="logo-container">
           <v-img

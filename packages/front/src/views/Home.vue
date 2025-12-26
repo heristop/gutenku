@@ -170,7 +170,10 @@ onMounted(fetchNewHaiku);
   <v-container class="fill-height pa-2 pa-sm-4">
     <div class="d-flex text-center fill-height justify-center align-center">
       <v-sheet v-if="false === firstLoaded">
-        <app-loading :text="loadingLabel" :splash="true" />
+        <app-loading
+          :text="loadingLabel"
+          :splash="true"
+        />
       </v-sheet>
 
       <v-sheet v-show="networkError">
@@ -181,9 +184,20 @@ onMounted(fetchNewHaiku);
         />
       </v-sheet>
 
-      <div v-if="firstLoaded && false === networkError" class="w-100">
-        <v-row justify="center" no-gutters>
-          <v-col cols="12" lg="10" xl="9" class="pa-0">
+      <div
+        v-if="firstLoaded && false === networkError"
+        class="w-100"
+      >
+        <v-row
+          justify="center"
+          no-gutters
+        >
+          <v-col
+            cols="12"
+            lg="10"
+            xl="9"
+            class="pa-0"
+          >
             <v-row no-gutters>
               <v-col
                 cols="12"
@@ -209,7 +223,10 @@ onMounted(fetchNewHaiku);
                   class="d-none d-sm-block"
                 />
 
-                <haiku-chapter v-else class="d-none d-sm-block" />
+                <haiku-chapter
+                  v-else
+                  class="d-none d-sm-block"
+                />
               </v-col>
 
               <v-col
@@ -234,7 +251,10 @@ onMounted(fetchNewHaiku);
                   class="d-sm-none mb-2"
                 />
 
-                <haiku-chapter v-else class="d-sm-none mb-2" />
+                <haiku-chapter
+                  v-else
+                  class="d-sm-none mb-2"
+                />
 
                 <app-footer class="mt-6" />
               </v-col>
@@ -242,7 +262,11 @@ onMounted(fetchNewHaiku);
           </v-col>
         </v-row>
 
-        <v-snackbar v-model="notificationError" :timeout="4000" color="primary">
+        <v-snackbar
+          v-model="notificationError"
+          :timeout="4000"
+          color="primary"
+        >
           {{ error }}
 
           <template #actions>
