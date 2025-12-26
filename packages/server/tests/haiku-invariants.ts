@@ -1,16 +1,16 @@
 import 'reflect-metadata';
-import { describe, expect, it, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import dotenv from 'dotenv';
 import HaikuGeneratorService from '../src/domain/services/HaikuGeneratorService';
 import NaturalLanguageService from '../src/domain/services/NaturalLanguageService';
-import { IHaikuRepository } from '../src/domain/repositories/IHaikuRepository';
-import { IChapterRepository } from '../src/domain/repositories/IChapterRepository';
-import { IBookRepository } from '../src/domain/repositories/IBookRepository';
-import { ICanvasService } from '../src/domain/services/ICanvasService';
-import { IEventBus } from '../src/domain/events/IEventBus';
+import type { IHaikuRepository } from '../src/domain/repositories/IHaikuRepository';
+import type { IChapterRepository } from '../src/domain/repositories/IChapterRepository';
+import type { IBookRepository } from '../src/domain/repositories/IBookRepository';
+import type { ICanvasService } from '../src/domain/services/ICanvasService';
+import type { IEventBus } from '../src/domain/events/IEventBus';
 import { PubSubService } from '../src/infrastructure/services/PubSubService';
-import { BookValue, ChapterValue, HaikuValue } from '../src/shared/types';
-import { MarkovEvaluatorService } from '../src/domain/services/MarkovEvaluatorService';
+import type { BookValue, ChapterValue, HaikuValue } from '../src/shared/types';
+import type { MarkovEvaluatorService } from '../src/domain/services/MarkovEvaluatorService';
 
 dotenv.config();
 
@@ -44,10 +44,10 @@ class FakeBookRepository implements IBookRepository {
   }
   async selectRandomBook(): Promise<BookValue> {
     return {
-      title: 't',
       author: 'a',
-      reference: 'r',
       chapters: ['c1'],
+      reference: 'r',
+      title: 't',
     } as unknown as BookValue;
   }
 }
@@ -63,7 +63,7 @@ class FakeCanvasService implements ICanvasService {
     return '/tmp/x.png';
   }
   async read(_p: string): Promise<{ data: Buffer; contentType: string }> {
-    return { data: Buffer.from('x'), contentType: 'image/jpeg' };
+    return { contentType: 'image/jpeg', data: Buffer.from('x') };
   }
 }
 class FakeEventBus implements IEventBus {
@@ -94,10 +94,10 @@ describe('HaikuGeneratorService invariants (domain-level)', () => {
       new FakeEventBus(),
     );
 
-    expect(gen.isQuoteInvalid('AND I WANT TO BE')).toBe(true);
-    expect(gen.isQuoteInvalid('I #want to be')).toBe(true);
+    expect(gen.isQuoteInvalid('AND I WANT TO BE')).toBeTruthy();
+    expect(gen.isQuoteInvalid('I #want to be')).toBeTruthy();
     process.env.VERSE_MAX_LENGTH = '5';
-    expect(gen.isQuoteInvalid('too long here')).toBe(true);
+    expect(gen.isQuoteInvalid('too long here')).toBeTruthy();
   });
 
   it('selects 5-7-5 verses in increasing order', () => {
@@ -113,9 +113,9 @@ describe('HaikuGeneratorService invariants (domain-level)', () => {
     );
 
     const quotes = [
-      { quote: 'An old silent pond', index: 0 }, // ~5 syllables
-      { quote: 'A frog jumps into the pond', index: 1 }, // ~7 syllables
-      { quote: 'Splash! Silence again', index: 2 }, // ~5 syllables
+      { index: 0, quote: 'An old silent pond' }, // ~5 syllables
+      { index: 1, quote: 'A frog jumps into the pond' }, // ~7 syllables
+      { index: 2, quote: 'Splash! Silence again' }, // ~5 syllables
     ];
 
     const selected = gen.selectHaikuVerses(quotes);
@@ -138,10 +138,10 @@ describe('HaikuGeneratorService invariants (domain-level)', () => {
     );
 
     const quotes = [
-      { quote: 'And old silent pond', index: 0 }, // 5 but starts with conjunction (invalid for first)
-      { quote: 'An old silent pond', index: 1 }, // valid 5 (first)
-      { quote: 'A frog jumps into the pond', index: 2 }, // valid 7 (second)
-      { quote: 'Under autumn sky', index: 3 }, // valid 5 (third)
+      { index: 0, quote: 'And old silent pond' }, // 5 but starts with conjunction (invalid for first)
+      { index: 1, quote: 'An old silent pond' }, // Valid 5 (first)
+      { index: 2, quote: 'A frog jumps into the pond' }, // Valid 7 (second)
+      { index: 3, quote: 'Under autumn sky' }, // Valid 5 (third)
     ];
 
     const selected = gen.selectHaikuVerses(quotes);
@@ -165,10 +165,10 @@ describe('HaikuGeneratorService invariants (domain-level)', () => {
     );
 
     const quotes = [
-      { quote: 'one two three four five', index: 0 }, // 5 syllables (words)
-      { quote: 'one two three four five six seven', index: 1 }, // 7
-      { quote: 'one two three four five', index: 2 }, // 5
-      { quote: 'alpha beta gamma delta epsilon zeta eta theta', index: 3 }, // 8+ not 5/7
+      { index: 0, quote: 'one two three four five' }, // 5 syllables (words)
+      { index: 1, quote: 'one two three four five six seven' }, // 7
+      { index: 2, quote: 'one two three four five' }, // 5
+      { index: 3, quote: 'alpha beta gamma delta epsilon zeta eta theta' }, // 8+ not 5/7
     ];
 
     process.env.MIN_QUOTES_COUNT = '1';

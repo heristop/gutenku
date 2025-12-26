@@ -1,6 +1,6 @@
 import { ApolloServer } from '@apollo/server';
 import { describe, expect, it } from 'vitest';
-import { Connection } from 'mongoose';
+import type { Connection } from 'mongoose';
 import typeDefs from '../src/presentation/graphql/typeDefs';
 
 const resolvers = {
@@ -16,11 +16,13 @@ interface MyContext {
 }
 
 const testServer = new ApolloServer<MyContext>({
-  typeDefs,
   resolvers,
+  typeDefs,
 });
 
-type BooksData = { books: unknown[] };
+interface BooksData {
+  books: unknown[];
+}
 function isBooksData(value: unknown): value is BooksData {
   if (typeof value !== 'object' || value === null || !('books' in value)) {
     return false;
@@ -43,7 +45,7 @@ describe('GraphQL Query: books', () => {
     const { data, errors } = response.body.singleResult;
     expect(errors).toBeUndefined();
     expect(data).toBeDefined();
-    expect(isBooksData(data)).toBe(true);
+    expect(isBooksData(data)).toBeTruthy();
     if (isBooksData(data)) {
       expect(data.books.length).toBe(0);
     }
