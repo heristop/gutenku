@@ -35,22 +35,18 @@ container.register<IHaikuRepository>(IHaikuRepositoryToken, {
   useClass: HaikuRepository,
 });
 
-// Canvas service binding
 container.register(ICanvasServiceToken, {
   useClass: CanvasService,
 });
 
-// Event bus binding
 container.register(IEventBusToken, {
   useClass: GraphQLEventBus,
 });
 
-// OpenAI client binding
 container.register(IOpenAIClientToken, {
   useClass: OpenAIClient,
 });
 
-// Graph message publisher binding (PubSub)
 container.register(IMessagePublisherToken, {
   useClass: PubSubMessagePublisher,
 });

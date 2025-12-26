@@ -1,12 +1,13 @@
 import 'reflect-metadata';
 import log from 'loglevel';
 import bodyParser from 'body-parser';
+import compression from 'compression';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import { container } from 'tsyringe';
 import { ApolloServer } from '@apollo/server';
-import { expressMiddleware } from '@apollo/server/express4';
+import { expressMiddleware } from '@as-integrations/express5';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { createServer } from 'http';
 import { makeExecutableSchema } from '@graphql-tools/schema';
@@ -16,7 +17,6 @@ import { Connection } from 'mongoose';
 import resolvers from './presentation/graphql/resolvers';
 import typeDefs from './presentation/graphql/typeDefs';
 import MongoConnection from './infrastructure/services/MongoConnection';
-// DI bindings (infra -> domain interfaces)
 import './infrastructure/di/container';
 
 dotenv.config();
@@ -30,33 +30,21 @@ async function listen(port: number) {
   const app = express();
   const httpServer = createServer(app);
 
-  // Create the schema, which will be used separately by ApolloServer and
-  // the WebSocket server.
   const schema = makeExecutableSchema({ typeDefs, resolvers });
 
-  // Creating the WebSocket server
   const wsServer = new WebSocketServer({
-    // This is the `httpServer` we created in a previous step.
     server: httpServer,
-    // Pass a different path here if app.use
-    // serves expressMiddleware at a different path
     path: '/graphql-ws',
   });
 
-  // Hand in the schema we just created and have the
-  // WebSocketServer start listening.
   const serverCleanup = useServer({ schema }, wsServer);
 
-  // Set up ApolloServer.
   const server = new ApolloServer<MyContext>({
     schema,
     introspection: true,
     persistedQueries: false,
     plugins: [
-      // Proper shutdown for the HTTP server.
       ApolloServerPluginDrainHttpServer({ httpServer }),
-
-      // Proper shutdown for the WebSocket server.
       {
         async serverWillStart() {
           return {
@@ -71,7 +59,6 @@ async function listen(port: number) {
 
   await server.start();
 
-  // Instantiate MongoConnection singleton
   const mongoConnection = container.resolve(MongoConnection);
 
   const db = await mongoConnection.connect();
@@ -84,6 +71,8 @@ async function listen(port: number) {
   } else {
     log.warn('MongoDB not available. Continuing without a DB connection.');
   }
+
+  app.use(compression());
 
   app.use(
     '/graphql',

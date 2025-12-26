@@ -17,4 +17,8 @@ const ChapterSchema = new Schema({
   },
 });
 
+// Indexes for faster queries
+ChapterSchema.index({ book: 1 });
+ChapterSchema.index({ content: 'text' }); // Text index for efficient search
+
 export default mongoose.model('Chapter', ChapterSchema);

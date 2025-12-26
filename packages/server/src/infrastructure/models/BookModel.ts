@@ -24,4 +24,7 @@ const BookSchema = new Schema({
   ],
 });
 
+// Indexes for faster queries
+BookSchema.index({ reference: 1 });
+
 export default mongoose.model('Book', BookSchema);

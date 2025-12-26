@@ -6,14 +6,18 @@ import ChapterModel from '../models/ChapterModel';
 @injectable()
 export default class ChapterRepository implements IChapterRepository {
   async getAllChapters(filter: string | null) {
-    const query = {};
-
     if (filter) {
-      // eslint-disable-next-line
-      query['content'] = { $regex: filter, $options: 'i' };
+      // Use MongoDB text search (requires text index on content field)
+      return await ChapterModel.find(
+        { $text: { $search: filter } },
+        { score: { $meta: 'textScore' } },
+      )
+        .sort({ score: { $meta: 'textScore' } })
+        .populate('book')
+        .exec();
     }
 
-    return await ChapterModel.find(query).populate('book').exec();
+    return await ChapterModel.find().populate('book').exec();
   }
 
   async getChapterById(id: string) {
@@ -21,9 +25,16 @@ export default class ChapterRepository implements IChapterRepository {
   }
 
   async getFilteredChapters(filterWords: string[]): Promise<ChapterValue[]> {
-    const filterPattern = filterWords.join('|');
-    const query = { content: { $regex: filterPattern, $options: 'i' } };
+    // Use text search with limit to prevent OOM
+    const searchTerms = filterWords.join(' ');
 
-    return await ChapterModel.find(query).populate('book').exec();
+    return await ChapterModel.find(
+      { $text: { $search: searchTerms } },
+      { score: { $meta: 'textScore' } },
+    )
+      .sort({ score: { $meta: 'textScore' } })
+      .limit(100)
+      .populate('book')
+      .exec();
   }
 }

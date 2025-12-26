@@ -43,10 +43,10 @@ export default class HaikuGeneratorService implements IGenerator {
   private theme: string;
   private executionTime: number;
   private filterWords: string[];
+  private filterWordsRegex: RegExp | null = null;
   private sentimentMinScore: number;
   private markovMinScore: number;
 
-  // Processing cache to avoid repeated expensive operations
   private processingCache: HaikuProcessingCache;
 
   constructor(
@@ -66,11 +66,10 @@ export default class HaikuGeneratorService implements IGenerator {
   ) {
     this.filterWords = [];
 
-    // Initialize processing cache
     this.processingCache = {
       chapters: new Map<string, ProcessedChapter>(),
       maxCacheSize: 100,
-      ttlMs: 60 * 60 * 1000, // 1 hour
+      ttlMs: 60 * 60 * 1000,
     };
   }
 
@@ -99,6 +98,15 @@ export default class HaikuGeneratorService implements IGenerator {
 
   filter(filterWords: string[]): HaikuGeneratorService {
     this.filterWords = filterWords;
+
+    if (filterWords.length > 0) {
+      const escapedWords = filterWords.map((word) =>
+        word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+      );
+      this.filterWordsRegex = new RegExp(escapedWords.join('|'), 'i');
+    } else {
+      this.filterWordsRegex = null;
+    }
 
     return this;
   }
@@ -156,10 +164,6 @@ export default class HaikuGeneratorService implements IGenerator {
     return result;
   }
 
-  /**
-   * Optimized haiku generation with chunked processing and yielding
-   * to prevent blocking the event loop
-   */
   private async buildFromDbWithYielding(): Promise<HaikuValue | null> {
     let verses = [];
     let book = null;
@@ -167,7 +171,6 @@ export default class HaikuGeneratorService implements IGenerator {
     let chapters = [];
     let i = 1;
 
-    // Pre-fetch filtered chapters if needed
     if (this.filterWords.length > 0) {
       chapters = await this.chapterRepository.getFilteredChapters(
         this.filterWords,
@@ -178,7 +181,6 @@ export default class HaikuGeneratorService implements IGenerator {
       book = await this.bookRepository.selectRandomBook();
     }
 
-    // Process in chunks to yield control back to event loop
     while (verses.length < 3 && i < this.maxAttempts) {
       const chunkResult = await this.processChunk(
         chapters,
@@ -192,12 +194,10 @@ export default class HaikuGeneratorService implements IGenerator {
       book = chunkResult.book;
       i = chunkResult.nextIteration;
 
-      // If we found verses, break out
       if (verses.length >= 3) {
         break;
       }
 
-      // Yield control back to the event loop
       await new Promise((resolve) => setImmediate(resolve));
     }
 
@@ -208,9 +208,6 @@ export default class HaikuGeneratorService implements IGenerator {
     return this.buildHaiku(book, chapter, verses);
   }
 
-  /**
-   * Process a chunk of attempts to find haiku verses
-   */
   private async processChunk(
     chapters: ChapterValue[],
     currentBook: BookValue | null,
@@ -229,7 +226,6 @@ export default class HaikuGeneratorService implements IGenerator {
     for (let i = 0; i < chunkSize; i++) {
       const currentIteration = startIteration + i;
 
-      // Select chapter
       if (chapters.length > 0) {
         const randomIndex = Math.floor(Math.random() * chapters.length);
         chapter = chapters[randomIndex];
@@ -241,17 +237,14 @@ export default class HaikuGeneratorService implements IGenerator {
         chapter = this.selectRandomChapter(book);
       }
 
-      // Get verses for this chapter
       verses = this.getVerses(chapter);
 
-      // Check filter words if needed
       if (this.filterWords.length > 0) {
         if (!this.verseContainsFilterWord(verses)) {
           verses = [];
         }
       }
 
-      // If we found suitable verses, return immediately
       if (verses.length >= 3) {
         return {
           verses,
@@ -261,7 +254,6 @@ export default class HaikuGeneratorService implements IGenerator {
         };
       }
 
-      // Select new book if we've tried too many times with current one
       if (currentIteration % this.maxAttemptsInBook === 0) {
         book = await this.bookRepository.selectRandomBook();
       }
@@ -282,9 +274,10 @@ export default class HaikuGeneratorService implements IGenerator {
   }
 
   verseContainsFilterWord(verses: string[]): boolean {
-    return verses.some((verse) =>
-      this.filterWords.some((word) => verse.includes(word)),
-    );
+    if (!this.filterWordsRegex) {
+      return true;
+    }
+    return verses.some((verse) => this.filterWordsRegex.test(verse));
   }
 
   buildHaiku(
@@ -320,7 +313,7 @@ export default class HaikuGeneratorService implements IGenerator {
       this.naturalLanguage.extractSentencesByPunctuation(chapter);
     const quotes = sentences.map((quote, index) => ({ quote, index }));
 
-    return this.filterQuotesCountingSyllables(quotes.concat(quotes));
+    return this.filterQuotesCountingSyllables(quotes);
   }
 
   filterQuotesCountingSyllables(
@@ -342,7 +335,6 @@ export default class HaikuGeneratorService implements IGenerator {
 
     const minQuotesCount = parseInt(process.env.MIN_QUOTES_COUNT) || 12;
 
-    // Exclude filtered lists with less than MIN_QUOTES_COUNT quotes
     if (minQuotesCount && filteredQuotes.length < minQuotesCount) {
       return [];
     }
@@ -360,11 +352,16 @@ export default class HaikuGeneratorService implements IGenerator {
       this.markovMinScore ?? parseFloat(process.env.MARKOV_MIN_SCORE || '0');
 
     const selectedVerses: { quote: string; index: number }[] = [];
+    const usedIndices = new Set<number>();
 
     for (let i = 0; i < syllableCounts.length; i++) {
       const count = syllableCounts[i];
 
       const matchingQuotes = quotes.filter(({ quote, index }) => {
+        if (usedIndices.has(index)) {
+          return false;
+        }
+
         quote = quote.replaceAll(/\n/g, ' ');
 
         if (i === 0 && this.naturalLanguage.startWithConjunction(quote)) {
@@ -395,7 +392,6 @@ export default class HaikuGeneratorService implements IGenerator {
           const lastVerseIndex =
             selectedVerses[selectedVerses.length - 1].index;
 
-          // Ensure that the selected verse follows the last selected verse in the original text
           if (index <= lastVerseIndex) {
             return false;
           }
@@ -424,14 +420,11 @@ export default class HaikuGeneratorService implements IGenerator {
         return [];
       }
 
-      // Select a random quote
       const randomIndex = Math.floor(Math.random() * matchingQuotes.length);
       const selectedQuote = matchingQuotes[randomIndex];
 
       selectedVerses.push(selectedQuote);
-
-      // Remove the selected quote from the original quotes array
-      quotes = quotes.filter(({ index }) => index !== selectedQuote.index);
+      usedIndices.add(selectedQuote.index);
     }
 
     return selectedVerses.map(({ quote }) => quote);

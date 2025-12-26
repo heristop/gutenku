@@ -28,4 +28,9 @@ const HaikuSchema = new Schema({
   },
 });
 
+// Indexes for faster queries and TTL-based expiration
+HaikuSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 }); // TTL auto-delete
+HaikuSchema.index({ book: 1, chapter: 1 });
+HaikuSchema.index({ createdAt: -1 });
+
 export default mongoose.model('Haiku', HaikuSchema);

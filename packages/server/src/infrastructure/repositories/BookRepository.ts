@@ -2,22 +2,30 @@ import { injectable } from 'tsyringe';
 import { BookValue } from '../../shared/types';
 import { IBookRepository } from '../../domain/repositories/IBookRepository';
 import BookModel from '../models/BookModel';
+import ChapterModel from '../models/ChapterModel';
 
 @injectable()
 export default class BookRepository implements IBookRepository {
   async getAllBooks(filter: string | null) {
-    const query = {};
-
     if (filter) {
-      // Use text search if available, fallback to regex
-      query['chapters.content'] = { $regex: filter, $options: 'i' };
+      // Find chapters matching filter via text search, then get their books
+      const bookIds = await ChapterModel.find({ $text: { $search: filter } })
+        .distinct('book')
+        .exec();
+
+      return await BookModel.find({ _id: { $in: bookIds } })
+        .populate('chapters')
+        .select('title author reference chapters')
+        .limit(100)
+        .lean()
+        .exec();
     }
 
-    // Optimize query with proper projection and limits
-    return await BookModel.find(query)
+    return await BookModel.find()
       .populate('chapters')
-      .select('title author reference chapters') // Only select needed fields
-      .limit(100) // Add reasonable limit to prevent memory issues
+      .select('title author reference chapters')
+      .limit(100)
+      .lean()
       .exec();
   }
 
