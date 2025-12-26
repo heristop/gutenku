@@ -452,9 +452,9 @@ function resetAdvancedConfig(): void {
   }
 }
 
-// Enhanced dark mode fix - comprehensive text visibility with maximum specificity
+// Dark mode text visibility overrides
 [data-theme='dark'] .config-panel {
-  // Fix title text that appears black with !important for override
+  // Override title text color
   &__title {
     color: var(--gutenku-text-primary) !important;
   }
@@ -467,7 +467,7 @@ function resetAdvancedConfig(): void {
     color: var(--gutenku-text-primary) !important;
   }
 
-  // Fix subtitle and secondary text with !important
+  // Override subtitle and secondary text
   &__subtitle {
     color: var(--gutenku-text-muted) !important;
   }
@@ -476,7 +476,7 @@ function resetAdvancedConfig(): void {
     color: var(--gutenku-text-muted) !important;
   }
 
-  // Fix Vuetify utility classes with maximum specificity
+  // Override Vuetify utility classes
   .text-subtitle-1 {
     color: var(--gutenku-text-primary) !important;
   }
@@ -489,7 +489,7 @@ function resetAdvancedConfig(): void {
     color: var(--gutenku-text-muted) !important;
   }
 
-  // Fix combined utility classes
+  // Override combined utility classes
   :deep(.text-body-2.text-medium-emphasis) {
     color: var(--gutenku-text-muted) !important;
   }

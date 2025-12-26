@@ -29,7 +29,7 @@
 }
 
 .footer-button {
-  // Enhanced button styling for better contrast
+  // Button styling
   font-family: 'JMH Typewriter', monospace !important;
   letter-spacing: 0.5px;
 
@@ -42,7 +42,7 @@
   }
 }
 
-// Comprehensive dark mode button fixes
+// Dark mode button overrides
 [data-theme='dark'] .footer-card {
   .footer-button {
     // Override all button text with high contrast
@@ -53,7 +53,7 @@
       color: var(--gutenku-text-primary) !important;
     }
 
-    // Enhanced hover state for dark mode
+    // Hover state for dark mode
     &:hover {
       color: var(--gutenku-zen-accent) !important;
       background: rgba(var(--v-theme-primary), 0.15) !important;
@@ -84,7 +84,7 @@
     }
   }
 
-  // Nuclear option: ensure all text in footer is visible
+  // Force text visibility in footer
   * {
     &:not(.v-icon):not(.mdi):not([class*='mdi-']) {
       color: var(--gutenku-text-primary) !important;
