@@ -1,4 +1,4 @@
-import { BookValue } from '../../shared/types';
+import type { BookValue } from '../../shared/types';
 
 export interface IBookRepository {
   getAllBooks(filter: string | null): Promise<BookValue[]>;

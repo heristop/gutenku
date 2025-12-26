@@ -3,22 +3,22 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const ChapterSchema = new Schema({
-  title: {
-    type: String,
-    required: true,
+  book: {
+    type: Schema.Types.ObjectId,
+    ref: 'Book',
   },
   content: {
     type: String,
     required: true,
   },
-  book: {
-    type: Schema.Types.ObjectId,
-    ref: 'Book',
+  title: {
+    type: String,
+    required: true,
   },
 });
 
-// Indexes for faster queries
+// Indexes
 ChapterSchema.index({ book: 1 });
-ChapterSchema.index({ content: 'text' }); // Text index for efficient search
+ChapterSchema.index({ content: 'text' }); // Text search index
 
 export default mongoose.model('Chapter', ChapterSchema);

@@ -1,11 +1,11 @@
-import { injectable, inject } from 'tsyringe';
-import { IEventBus } from '../../domain/events/IEventBus';
-import { DomainEvent } from '../../domain/events/DomainEvent';
+import { inject, injectable } from 'tsyringe';
+import type { IEventBus } from '~/domain/events/IEventBus';
+import type { DomainEvent } from '~/domain/events/DomainEvent';
 import {
-  IMessagePublisher,
+  type IMessagePublisher,
   IMessagePublisherToken,
-} from '../messaging/IMessagePublisher';
-import { QuoteGeneratedEvent } from '../../domain/events/QuoteGeneratedEvent';
+} from '~/application/messaging/IMessagePublisher';
+import { QuoteGeneratedEvent } from '~/domain/events/QuoteGeneratedEvent';
 
 @injectable()
 export class GraphQLEventBus implements IEventBus {
@@ -20,7 +20,6 @@ export class GraphQLEventBus implements IEventBus {
       await this.publisher.publish(event.type, {
         quoteGenerated: event.payload.quote,
       });
-      return;
     }
   }
 }
