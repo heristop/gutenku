@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import log from 'loglevel';
 import fetch from 'node-fetch';
-import { HaikuResponseData } from '../src/shared/types';
+import type { HaikuResponseData } from '~/shared/types';
 
 dotenv.config();
 log.enableAll();
@@ -34,9 +34,9 @@ const query = `
 `;
 
 const variables = {
+  appendImg: false,
   useAi: false,
   useCache: false,
-  appendImg: false,
 };
 
 const body = {
@@ -45,15 +45,15 @@ const body = {
 };
 
 fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify(body),
+  headers: { 'Content-Type': 'application/json' },
+  method: 'POST',
 })
   .then((response) => response.json())
   .then(async (response: { data: HaikuResponseData }) => {
     const haiku = response.data?.haiku;
 
-    if (null === haiku) {
+    if (haiku === null) {
       console.error(response);
 
       throw new Error('Haiku fetch error');
