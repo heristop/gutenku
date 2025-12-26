@@ -85,7 +85,7 @@
   --gutenku-text-accent: #9bb6b4;
   --gutenku-text-zen: #5a8a8f;
 
-  // Button Theme Colors for Dark Mode (Better Contrast)
+  // Button theme colors for dark mode
   --gutenku-btn-generate: rgba(90, 138, 143, 0.8);
   --gutenku-btn-generate-hover: rgba(90, 138, 143, 1);
   --gutenku-btn-generate-bg: rgba(90, 138, 143, 0.2);
@@ -730,12 +730,12 @@ body {
 }
 
 // ====================================
-// COMPREHENSIVE DARK MODE TEXT FIXES
+// DARK MODE TEXT OVERRIDES
 // ====================================
 
-// Global Vuetify utility class overrides for dark mode
+// Vuetify utility class overrides for dark mode
 [data-theme='dark'] {
-  // Fix all Vuetify text utility classes with high specificity
+  // Override Vuetify text utility classes
   .text-h1,
   .text-h2,
   .text-h3,
@@ -764,7 +764,7 @@ body {
     color: var(--gutenku-text-primary) !important;
   }
 
-  // Fix emphasis and semantic text classes
+  // Override emphasis and semantic text classes
   .text-medium-emphasis {
     color: var(--gutenku-text-muted) !important;
   }
@@ -777,7 +777,7 @@ body {
     color: rgba(var(--gutenku-text-muted), 0.6) !important;
   }
 
-  // Fix combined utility classes with higher specificity
+  // Override combined utility classes
   .text-body-2.text-medium-emphasis {
     color: var(--gutenku-text-muted) !important;
   }
@@ -794,7 +794,7 @@ body {
     color: var(--gutenku-text-muted) !important;
   }
 
-  // Fix Vuetify component text colors
+  // Override Vuetify component text colors
   .v-card-title {
     color: var(--gutenku-text-primary) !important;
   }
@@ -807,7 +807,7 @@ body {
     color: var(--gutenku-text-secondary) !important;
   }
 
-  // Enhanced button text fixes for dark mode
+  // Override button text for dark mode
   .v-btn {
     color: var(--gutenku-text-primary) !important;
 
@@ -939,30 +939,24 @@ body {
       content-visibility: auto;
 
       mark {
-        // Enhanced stabilo (highlighter) effect - precise text-only highlighting
+        // Highlighter effect for marked text
         padding: 3px 5px;
-        background: rgba(var(--v-theme-accent), 0.6); // Semi-transparent
-        border-radius: 4px; // Rounded highlighter tip effect
-        box-decoration-break: clone; // Handle line breaks properly
+        background: rgba(var(--v-theme-accent), 0.6);
+        border-radius: 4px;
+        box-decoration-break: clone;
 
-        // Override text line with highlighting
         position: relative;
-        z-index: 3; // High z-index to override dark theme lines
+        z-index: 3;
         display: inline;
-        line-height: 1.2; // Precise line height to avoid bleeding
+        line-height: 1.2;
 
-        // Add subtle shadow for depth and realism
+        // Shadow for depth
         box-shadow:
           0 1px 3px rgba(var(--v-theme-accent), 0.3),
           inset 0 1px 0 rgba(255, 255, 255, 0.2);
 
-        // Blend mode for realistic highlighter effect
         mix-blend-mode: multiply;
-
-        // Smooth transitions for interactive states
         transition: all 0.2s ease;
-
-        // Enhanced hover effect
         &:hover {
           background: rgba(var(--v-theme-accent), 0.8);
           transform: translateY(-1px);

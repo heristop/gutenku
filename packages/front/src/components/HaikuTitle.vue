@@ -90,7 +90,7 @@ onUnmounted(() => {
     variant="tonal"
   >
     <div class="theme-actions">
-      <!-- Elegant Theme Toggle -->
+      <!-- Theme Toggle -->
       <v-tooltip
         :text="
           systemPreferenceEnabled

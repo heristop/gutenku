@@ -324,7 +324,7 @@ watch(
   transition: all 0.3s ease;
   cursor: pointer;
 
-  // Enhanced hover effect for entire card
+  // Hover effect for card
   &:hover {
     transform: translateY(-3px) scale(1.01);
     box-shadow:
