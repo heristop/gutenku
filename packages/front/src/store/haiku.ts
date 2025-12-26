@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import type { HaikuValue } from '@/types';
+import type { HaikuValue } from '@gutenku/shared';
 import { gql } from '@apollo/client/core';
 import { apolloClient } from '@/client';
 import type { ApolloError } from '@apollo/client/errors';

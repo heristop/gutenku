@@ -14,6 +14,7 @@
   "dependencies": {
     "@apollo/client": "^3.11.8",
     "@fingerprintjs/botd": "^1.9.1",
+    "@gutenku/shared": "workspace:*",
     "@mdi/font": "^7.4.47",
     "@vue/apollo-composable": "^4.2.1",
     "@vue/apollo-option": "^4.0.0",
