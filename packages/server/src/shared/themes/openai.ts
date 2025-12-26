@@ -60,7 +60,7 @@ async function generateImageWithGPTImage1(haiku: HaikuValue): Promise<Buffer> {
     apiKey: process.env.OPENAI_API_KEY,
   });
 
-  // Prompt optimized for GPT-Image-1 instruction processing
+  // Prompt for GPT-Image-1
   const prompt = `Create a serene traditional Japanese landscape inspired by this haiku: "${haiku.verses.join(' / ')}"
 
 Style: Traditional Japanese art, peaceful atmosphere, soft colors, minimalist composition
