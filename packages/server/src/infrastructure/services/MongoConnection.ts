@@ -13,16 +13,14 @@ export default class MongoConnection {
 
     try {
       await mongoose.connect(`${uri}/${database}`, {
-        // Connection timeout settings
-        serverSelectionTimeoutMS: 5000, // 5 seconds
-        connectTimeoutMS: 10000, // 10 seconds
-        socketTimeoutMS: 45000, // 45 seconds
-        maxPoolSize: 10, // Connection pool size
+        serverSelectionTimeoutMS: 5000,
+        connectTimeoutMS: 10000,
+        socketTimeoutMS: 45000,
+        maxPoolSize: 10,
       });
 
       this.db = mongoose.connection;
 
-      // Set up connection event handlers
       this.db.on('connected', () => {
         log.info(`Connected to MongoDB at ${uri}/${database}`);
       });
@@ -38,8 +36,6 @@ export default class MongoConnection {
       log.error(`Error connecting to ${uri}/${database}: ${error}`);
       log.warn('MongoDB connection failed - some features may be limited');
 
-      // Don't throw error - allow graceful degradation
-      // The application can still work without MongoDB for basic functionality
       this.db = null;
     }
 

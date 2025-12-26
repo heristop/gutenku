@@ -5,12 +5,16 @@
     "lib": ["es2022"],
     "target": "es2022",
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "types": ["node"]
+    "types": ["node"],
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": false
   },
+  "include": ["src/**/*", "scripts/**/*"],
+  "exclude": ["tests/**/*", "node_modules", "dist"],
   "ts-node": {
     "esm": true,
     "experimentalSpecifierResolution": "node"
