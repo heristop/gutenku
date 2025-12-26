@@ -1,4 +1,4 @@
-import { HaikuValue } from '../../shared/types';
+import type { HaikuValue } from '../../shared/types';
 
 export interface ICanvasService {
   useTheme(theme: string): void;

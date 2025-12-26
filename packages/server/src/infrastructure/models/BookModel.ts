@@ -3,14 +3,6 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const BookSchema = new Schema({
-  reference: {
-    type: String,
-    required: true,
-  },
-  title: {
-    type: String,
-    required: true,
-  },
   author: {
     type: String,
     required: true,
@@ -22,9 +14,17 @@ const BookSchema = new Schema({
       ref: 'Chapter',
     },
   ],
+  reference: {
+    type: String,
+    required: true,
+  },
+  title: {
+    type: String,
+    required: true,
+  },
 });
 
-// Indexes for faster queries
+// Indexes
 BookSchema.index({ reference: 1 });
 
 export default mongoose.model('Book', BookSchema);

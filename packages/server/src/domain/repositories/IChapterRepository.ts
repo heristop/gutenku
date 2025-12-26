@@ -1,4 +1,4 @@
-import { ChapterValue } from '../../shared/types';
+import type { ChapterValue } from '../../shared/types';
 
 export interface IChapterRepository {
   getAllChapters(filter: string | null): Promise<ChapterValue[]>;

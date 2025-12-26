@@ -1,5 +1,5 @@
 import log from 'loglevel';
-import mongoose, { Connection } from 'mongoose';
+import mongoose, { type Connection } from 'mongoose';
 import { singleton } from 'tsyringe';
 
 @singleton()
@@ -13,10 +13,10 @@ export default class MongoConnection {
 
     try {
       await mongoose.connect(`${uri}/${database}`, {
-        serverSelectionTimeoutMS: 5000,
         connectTimeoutMS: 10000,
-        socketTimeoutMS: 45000,
         maxPoolSize: 10,
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
       });
 
       this.db = mongoose.connection;

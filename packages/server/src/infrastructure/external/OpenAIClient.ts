@@ -1,10 +1,10 @@
 import OpenAI from 'openai';
 import type { ChatCompletionCreateParamsNonStreaming } from 'openai/resources/chat/completions.js';
-import {
+import type {
   ChatCompletionParams,
   ChatCompletionResult,
   IOpenAIClient,
-} from '../../domain/gateways/IOpenAIClient.js';
+} from '~/domain/gateways/IOpenAIClient.js';
 import { injectable } from 'tsyringe';
 
 @injectable()
@@ -18,7 +18,9 @@ export default class OpenAIClient implements IOpenAIClient {
   async chatCompletionsCreate(
     params: ChatCompletionParams,
   ): Promise<ChatCompletionResult> {
-    if (!this.client) throw new Error('OpenAI client not configured');
+    if (!this.client) {
+      throw new Error('OpenAI client not configured');
+    }
     const completion = await this.client.chat.completions.create(
       params as ChatCompletionCreateParamsNonStreaming,
     );

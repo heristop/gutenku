@@ -1,8 +1,8 @@
 import { injectable } from 'tsyringe';
-import { BookValue } from '../../shared/types';
-import { IBookRepository } from '../../domain/repositories/IBookRepository';
-import BookModel from '../models/BookModel';
-import ChapterModel from '../models/ChapterModel';
+import type { BookValue } from '~/shared/types';
+import type { IBookRepository } from '~/domain/repositories/IBookRepository';
+import BookModel from '~/infrastructure/models/BookModel';
+import ChapterModel from '~/infrastructure/models/ChapterModel';
 
 @injectable()
 export default class BookRepository implements IBookRepository {
@@ -34,7 +34,7 @@ export default class BookRepository implements IBookRepository {
   }
 
   async selectRandomBook(): Promise<BookValue> {
-    // Use MongoDB aggregation pipeline for efficient random selection
+    // MongoDB aggregation for random selection
     const randomBooks = await BookModel.aggregate([
       // Match books that have chapters
       { $match: { 'chapters.0': { $exists: true } } },
@@ -43,10 +43,10 @@ export default class BookRepository implements IBookRepository {
       // Lookup the chapters
       {
         $lookup: {
+          as: 'chapters',
+          foreignField: '_id',
           from: 'chapters',
           localField: 'chapters',
-          foreignField: '_id',
-          as: 'chapters',
         },
       },
     ]);

@@ -1,13 +1,13 @@
 import log from 'loglevel';
-import fs from 'fs';
+import fs from 'node:fs';
 import Canvas from 'canvas';
-import { promisify } from 'util';
+import { promisify } from 'node:util';
 import { singleton } from 'tsyringe';
-import { HaikuValue } from '../../shared/types';
-import colored from '../../shared/themes/colored';
-import greentea from '../../shared/themes/greentea';
-import watermark from '../../shared/themes/watermark';
-import openai from '../../shared/themes/openai';
+import type { HaikuValue } from '~/shared/types';
+import colored from '~/shared/themes/colored';
+import greentea from '~/shared/themes/greentea';
+import watermark from '~/shared/themes/watermark';
+import openai from '~/shared/themes/openai';
 
 @singleton()
 export default class CanvasService {
@@ -23,7 +23,7 @@ export default class CanvasService {
 
     log.info(`Creating image with theme: ${this.theme}`);
 
-    if ('random' === this.theme) {
+    if (this.theme === 'random') {
       const themes = ['colored', 'greentea', 'watermark'];
       const randomIndex = Math.floor(Math.random() * themes.length);
       this.theme = themes[randomIndex];
@@ -82,8 +82,8 @@ export default class CanvasService {
     const data = await readFile(imagePath);
 
     return {
-      data: data,
       contentType: 'image/jpeg',
+      data: data,
     };
   }
 }

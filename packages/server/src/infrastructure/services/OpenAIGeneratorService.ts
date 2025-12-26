@@ -1,12 +1,12 @@
 import log from 'loglevel';
 import { inject, singleton } from 'tsyringe';
-import { HaikuValue, OpenAIOptions } from '../../shared/types';
-import HaikuGeneratorService from '../../domain/services/HaikuGeneratorService';
-import { IGenerator } from '../../domain/interfaces/IGenerator';
+import type { HaikuValue, OpenAIOptions } from '~/shared/types';
+import HaikuGeneratorService from '~/domain/services/HaikuGeneratorService';
+import type { IGenerator } from '~/domain/interfaces/IGenerator';
 import {
-  IOpenAIClient,
+  type IOpenAIClient,
   IOpenAIClientToken,
-} from '../../domain/gateways/IOpenAIClient';
+} from '~/domain/gateways/IOpenAIClient';
 
 @singleton()
 export default class OpenAIGeneratorService implements IGenerator {
@@ -30,7 +30,7 @@ export default class OpenAIGeneratorService implements IGenerator {
     const { apiKey, selectionCount, temperature } = options;
 
     if (undefined === selectionCount) {
-      this.selectionCount = parseInt(process.env.OPENAI_SELECTION_COUNT);
+      this.selectionCount = Number.parseInt(process.env.OPENAI_SELECTION_COUNT);
     }
 
     if (selectionCount > 0) {
@@ -39,7 +39,7 @@ export default class OpenAIGeneratorService implements IGenerator {
 
     temperature.description =
       temperature.description ??
-      parseFloat(process.env.OPENAI_DESCRIPTION_TEMPERATURE || '0.3');
+      Number.parseFloat(process.env.OPENAI_DESCRIPTION_TEMPERATURE || '0.3');
     log.info('temperature', temperature);
 
     this.descriptionTemperature = temperature.description;
@@ -56,8 +56,6 @@ export default class OpenAIGeneratorService implements IGenerator {
       const prompt = await this.generateSelectionPrompt();
 
       const completion = await this.openai.chatCompletionsCreate({
-        model: process.env.OPENAI_GPT_MODEL || 'gpt-4o-mini',
-        temperature: 0.7,
         max_completion_tokens: 1200,
         messages: [
           {
@@ -65,6 +63,8 @@ export default class OpenAIGeneratorService implements IGenerator {
             content: prompt,
           },
         ],
+        model: process.env.OPENAI_GPT_MODEL || 'gpt-4o-mini',
+        temperature: 0.7,
       });
 
       const answer = completion.choices[0].message.content;
@@ -75,7 +75,7 @@ export default class OpenAIGeneratorService implements IGenerator {
       haiku = this.haikuSelection[index];
       this.haikuSelection = [];
 
-      // Run OpenAI calls in parallel for ~3x faster generation
+      // Parallel OpenAI API calls
       const [descResult, transResult, emojisResult] = await Promise.allSettled([
         this.generateDescription(haiku.verses),
         this.generateTranslations(haiku.verses),
@@ -97,11 +97,11 @@ export default class OpenAIGeneratorService implements IGenerator {
         haiku.translations = transResult.value;
       } else {
         haiku.translations = {
-          fr: haiku.verses.join(' / '),
-          jp: haiku.verses.join(' / '),
-          es: haiku.verses.join(' / '),
-          it: haiku.verses.join(' / '),
           de: haiku.verses.join(' / '),
+          es: haiku.verses.join(' / '),
+          fr: haiku.verses.join(' / '),
+          it: haiku.verses.join(' / '),
+          jp: haiku.verses.join(' / '),
         };
       }
 
@@ -138,8 +138,6 @@ export default class OpenAIGeneratorService implements IGenerator {
       '{"title":"<Give a creative short title to describe the haiku>","description":"<Describe and explain the haiku>","hashtags":"<Give 6 lowercase hashtags>"}';
 
     const completion = await this.openai.chatCompletionsCreate({
-      model: process.env.OPENAI_GPT_MODEL || 'gpt-4o-mini',
-      temperature: 0.7,
       max_completion_tokens: 1000,
       messages: [
         {
@@ -147,6 +145,8 @@ export default class OpenAIGeneratorService implements IGenerator {
           content: `${prompt} (Use the following format: ${outputFormat})`,
         },
       ],
+      model: process.env.OPENAI_GPT_MODEL || 'gpt-4o-mini',
+      temperature: 0.7,
     });
 
     const answer = completion.choices[0].message.content;
@@ -170,8 +170,6 @@ export default class OpenAIGeneratorService implements IGenerator {
     prompt = `${prompt} (Use the following format: {${outputFormat}})`;
 
     const completion = await this.openai.chatCompletionsCreate({
-      model: process.env.OPENAI_GPT_MODEL || 'gpt-4o-mini',
-      temperature: 0.7,
       max_completion_tokens: 1000,
       messages: [
         {
@@ -179,6 +177,8 @@ export default class OpenAIGeneratorService implements IGenerator {
           content: prompt,
         },
       ],
+      model: process.env.OPENAI_GPT_MODEL || 'gpt-4o-mini',
+      temperature: 0.7,
     });
 
     const answer = completion.choices[0].message.content;
@@ -189,8 +189,6 @@ export default class OpenAIGeneratorService implements IGenerator {
     const prompt = `Generate 3-5 emoticons that represent the book "${bookTitle}". Respond with only the emoticons, no text or explanation.`;
 
     const completion = await this.openai.chatCompletionsCreate({
-      model: process.env.OPENAI_GPT_MODEL || 'gpt-4o-mini',
-      temperature: 0.7,
       max_completion_tokens: 20,
       messages: [
         {
@@ -198,9 +196,11 @@ export default class OpenAIGeneratorService implements IGenerator {
           content: prompt,
         },
       ],
+      model: process.env.OPENAI_GPT_MODEL || 'gpt-4o-mini',
+      temperature: 0.7,
     });
 
-    return completion.choices[0].message.content.replace(/[\n\s]+/g, '');
+    return completion.choices[0].message.content.replaceAll(/[\n\s]+/g, '');
   }
 
   private async fetchHaikus(): Promise<string[]> {

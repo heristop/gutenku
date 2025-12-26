@@ -1,8 +1,8 @@
-import { createRequire } from 'module';
+import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const OpenAI = require('openai').default;
 import Canvas from 'canvas';
-import { HaikuValue } from '../types';
+import type { HaikuValue } from '~/shared/types';
 
 export default {
   async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
@@ -43,7 +43,7 @@ export default {
     let y = canvas.height / 3.6;
     verses.map((verse) => {
       ctx.fillText(verse, x, y);
-      y = y + 440;
+      y += 440;
     });
 
     // Draw signature
@@ -60,7 +60,7 @@ async function generateImageWithGPTImage1(haiku: HaikuValue): Promise<Buffer> {
     apiKey: process.env.OPENAI_API_KEY,
   });
 
-  // Enhanced prompt for GPT-Image-1's better instruction following
+  // Prompt optimized for GPT-Image-1 instruction processing
   const prompt = `Create a serene traditional Japanese landscape inspired by this haiku: "${haiku.verses.join(' / ')}"
 
 Style: Traditional Japanese art, peaceful atmosphere, soft colors, minimalist composition
@@ -68,12 +68,12 @@ Elements: Nature scenes that reflect the mood and imagery of the haiku
 Quality: High artistic quality with attention to traditional Japanese aesthetics`;
 
   const response = await openai.images.generate({
-    model: process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1',
-    prompt: prompt,
+    model: process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1.5',
     n: 1,
-    size: '1024x1024',
-    quality: process.env.OPENAI_IMAGE_QUALITY || 'high',
     output_format: 'png',
+    prompt: prompt,
+    quality: process.env.OPENAI_IMAGE_QUALITY || 'high',
+    size: '1024x1024',
     user: 'gutenku-haiku-generator',
   });
 

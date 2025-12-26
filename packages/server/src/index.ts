@@ -9,15 +9,15 @@ import { container } from 'tsyringe';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@as-integrations/express5';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
-import { createServer } from 'http';
+import { createServer } from 'node:http';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { WebSocketServer } from 'ws';
 import { useServer } from 'graphql-ws/use/ws';
-import { Connection } from 'mongoose';
-import resolvers from './presentation/graphql/resolvers';
-import typeDefs from './presentation/graphql/typeDefs';
-import MongoConnection from './infrastructure/services/MongoConnection';
-import './infrastructure/di/container';
+import type { Connection } from 'mongoose';
+import resolvers from '~/presentation/graphql/resolvers';
+import typeDefs from '~/presentation/graphql/typeDefs';
+import MongoConnection from '~/infrastructure/services/MongoConnection';
+import '~/infrastructure/di/container';
 
 dotenv.config();
 log.enableAll();
@@ -30,17 +30,16 @@ async function listen(port: number) {
   const app = express();
   const httpServer = createServer(app);
 
-  const schema = makeExecutableSchema({ typeDefs, resolvers });
+  const schema = makeExecutableSchema({ resolvers, typeDefs });
 
   const wsServer = new WebSocketServer({
-    server: httpServer,
     path: '/graphql-ws',
+    server: httpServer,
   });
 
   const serverCleanup = useServer({ schema }, wsServer);
 
   const server = new ApolloServer<MyContext>({
-    schema,
     introspection: true,
     persistedQueries: false,
     plugins: [
@@ -55,6 +54,7 @@ async function listen(port: number) {
         },
       },
     ],
+    schema,
   });
 
   await server.start();
@@ -94,7 +94,7 @@ async function listen(port: number) {
 
 async function main() {
   try {
-    const port = parseInt(process.env.SERVER_PORT) || 4000;
+    const port = Number.parseInt(process.env.SERVER_PORT) || 4000;
 
     await listen(port);
 

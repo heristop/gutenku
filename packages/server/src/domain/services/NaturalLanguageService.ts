@@ -1,7 +1,7 @@
 import natural, {
-  SentenceTokenizer,
-  SentimentAnalyzer,
-  WordTokenizer,
+  type SentenceTokenizer,
+  type SentimentAnalyzer,
+  type WordTokenizer,
 } from 'natural';
 import { syllable } from 'syllable';
 import { singleton } from 'tsyringe';
@@ -85,8 +85,6 @@ export default class NaturalLanguageService {
       return 0;
     }
 
-    return words.reduce((count, word) => {
-      return count + syllable(word);
-    }, 0);
+    return words.reduce((count, word) => count + syllable(word), 0);
   }
 }

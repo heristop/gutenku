@@ -1,8 +1,8 @@
-import { readdir } from 'fs/promises';
-import { join } from 'path';
+import { readdir } from 'node:fs/promises';
+import { join } from 'node:path';
 import Canvas from 'canvas';
-import { HaikuValue } from '../types';
-import HaikuContextHelper from '../helpers/HaikuHelper';
+import type { HaikuValue } from '~/shared/types';
+import { extractContextVerses } from '~/shared/helpers/HaikuHelper';
 
 export default {
   async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
@@ -36,10 +36,7 @@ export default {
     const baseY = (canvas.height - lineHeight * verses.length) / 1.7;
 
     if (!context) {
-      context = HaikuContextHelper.extractContextVerses(
-        rawVerses,
-        chapter.content,
-      );
+      context = extractContextVerses(rawVerses, chapter.content);
     }
 
     // Draw context lines
@@ -110,7 +107,7 @@ export default {
     // Draw decor
     const decor = new Canvas.Image();
     decor.src = './src/shared/assets/themes/greentea/decoration/torn_paper.png';
-    ctx.globalAlpha = 1.0;
+    ctx.globalAlpha = 1;
     ctx.drawImage(decor, 0, 0, canvas.width, canvas.height);
 
     // Draw signature

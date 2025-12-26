@@ -17,12 +17,12 @@ export class PubSubService {
   public iterator<T = unknown>(
     triggers: string | readonly string[],
   ): AsyncIterableIterator<T> {
-    type Compat<T> = {
+    interface Compat<T> {
       asyncIterableIterator?: (
         t: string | readonly string[],
       ) => AsyncIterableIterator<T>;
       asyncIterator?: (t: string | readonly string[]) => AsyncIterator<T>;
-    };
+    }
 
     const compat = this.pubSub as unknown as Compat<T>;
 

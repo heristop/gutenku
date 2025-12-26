@@ -1,7 +1,7 @@
 import { injectable } from 'tsyringe';
-import { ChapterValue } from '../../shared/types';
-import { IChapterRepository } from '../../domain/repositories/IChapterRepository';
-import ChapterModel from '../models/ChapterModel';
+import type { ChapterValue } from '~/shared/types';
+import type { IChapterRepository } from '~/domain/repositories/IChapterRepository';
+import ChapterModel from '~/infrastructure/models/ChapterModel';
 
 @injectable()
 export default class ChapterRepository implements IChapterRepository {

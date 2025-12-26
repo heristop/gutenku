@@ -1,6 +1,6 @@
 import log from 'loglevel';
-import fs from 'fs/promises';
-import NaturalLanguageService from './NaturalLanguageService';
+import fs from 'node:fs/promises';
+import NaturalLanguageService from '~/domain/services/NaturalLanguageService';
 import { inject, singleton } from 'tsyringe';
 
 const FANBOYS_LIST = ['for', 'and', 'nor', 'but', 'or', 'yet', 'so'];
@@ -16,12 +16,11 @@ export class MarkovChainService {
   ) {
     this.bigrams = new Map();
     this.totalBigrams = 0;
-    this.naturalLanguage = naturalLanguage;
   }
 
   public train(text: string): void {
     const sentences = this.naturalLanguage.extractSentences(
-      text.replaceAll(/\n/g, ' '),
+      text.replaceAll('\n', ' '),
     );
 
     for (const sentence of sentences) {
@@ -61,7 +60,7 @@ export class MarkovChainService {
       return 0;
     }
 
-    const lastWordFrom = fromWords[fromWords.length - 1];
+    const lastWordFrom = fromWords.at(-1);
     const firstWordTo = toWords[0];
 
     const transitions = this.bigrams.get(lastWordFrom);
@@ -104,10 +103,7 @@ export class MarkovChainService {
 
   public async saveModel(): Promise<void> {
     const data = JSON.stringify({
-      bigrams: Array.from(this.bigrams, ([key, value]) => [
-        key,
-        Array.from(value),
-      ]),
+      bigrams: Array.from(this.bigrams, ([key, value]) => [key, [...value]]),
       totalBigrams: this.totalBigrams,
     });
 

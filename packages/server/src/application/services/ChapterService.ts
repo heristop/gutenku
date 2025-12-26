@@ -1,5 +1,5 @@
 import { inject, injectable } from 'tsyringe';
-import { IChapterRepository } from '../../domain/repositories/IChapterRepository';
+import type { IChapterRepository } from '~/domain/repositories/IChapterRepository';
 
 @injectable()
 export default class ChapterService {
