@@ -7,9 +7,9 @@ export default defineConfig({
   viewportWidth: 1280,
   viewportHeight: 800,
   e2e: {
-    baseUrl: 'http://localhost:3333',
+    baseUrl: 'http://localhost:4444',
     supportFile: 'cypress/support/e2e.ts',
-    setupNodeEvents(on, config) {
+    setupNodeEvents(_on, _config) {
       // implement node event listeners here
     },
   },

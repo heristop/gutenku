@@ -59,11 +59,16 @@ const onImageLoad = () => {
     <!-- Paper Frame with Aged Edges -->
     <div class="paper-frame">
       <!-- Loading Skeleton with Zen Brush Strokes -->
-      <div v-if="loading" class="zen-loading-skeleton">
-        <div class="brush-stroke brush-stroke-1"></div>
-        <div class="brush-stroke brush-stroke-2"></div>
-        <div class="brush-stroke brush-stroke-3"></div>
-        <div class="loading-text">Painting your haiku...</div>
+      <div
+        v-if="loading"
+        class="zen-loading-skeleton"
+      >
+        <div class="brush-stroke brush-stroke-1" />
+        <div class="brush-stroke brush-stroke-2" />
+        <div class="brush-stroke brush-stroke-3" />
+        <div class="loading-text">
+          Painting your haiku...
+        </div>
       </div>
 
       <!-- Canvas Container -->
@@ -86,17 +91,17 @@ const onImageLoad = () => {
           />
 
           <!-- Canvas Focus Overlay -->
-          <div class="canvas-focus-overlay"></div>
+          <div class="canvas-focus-overlay" />
 
           <!-- Paper Texture Overlay -->
-          <div class="paper-overlay"></div>
+          <div class="paper-overlay" />
 
           <!-- Aged Paper Edges -->
           <div class="aged-edges">
-            <div class="edge edge-top"></div>
-            <div class="edge edge-right"></div>
-            <div class="edge edge-bottom"></div>
-            <div class="edge edge-left"></div>
+            <div class="edge edge-top" />
+            <div class="edge edge-right" />
+            <div class="edge edge-bottom" />
+            <div class="edge edge-left" />
           </div>
         </div>
       </v-sheet>
@@ -116,7 +121,12 @@ const onImageLoad = () => {
         density="compact"
       >
         <template #prepend-inner>
-          <v-icon color="primary" size="small">mdi-palette</v-icon>
+          <v-icon
+            color="primary"
+            size="small"
+          >
+            mdi-palette
+          </v-icon>
         </template>
       </v-select>
 
@@ -131,9 +141,11 @@ const onImageLoad = () => {
         :loading="downloadInProgress"
         :disabled="loading"
       >
-        <v-icon>{{
-          downloadInProgress ? 'mdi-loading mdi-spin' : 'mdi-download'
-        }}</v-icon>
+        <v-icon>
+          {{
+            downloadInProgress ? 'mdi-loading mdi-spin' : 'mdi-download'
+          }}
+        </v-icon>
         <span class="btn-text">{{
           downloadInProgress ? 'Saving...' : 'Download'
         }}</span>

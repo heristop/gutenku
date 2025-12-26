@@ -70,13 +70,17 @@ const MESSAGE_POOLS = {
 
 export function useLoadingMessages(options: UseLoadingMessagesOptions = {}) {
   const poolSource = (() => {
-    if (options.messages && options.messages.length) return options.messages;
+    if (options.messages && options.messages.length) {
+      return options.messages;
+    }
     const ctx = options.context as keyof typeof MESSAGE_POOLS | undefined;
-    if (ctx && MESSAGE_POOLS[ctx]) return MESSAGE_POOLS[ctx];
+    if (ctx && MESSAGE_POOLS[ctx]) {
+      return MESSAGE_POOLS[ctx];
+    }
     return MESSAGE_POOLS.default;
   })();
 
-  const pool = poolSource.slice();
+  const pool = [...poolSource];
 
   // Shuffle for non-repeating pleasant rotation
   for (let i = pool.length - 1; i > 0; i--) {
@@ -97,7 +101,9 @@ export function useLoadingMessages(options: UseLoadingMessagesOptions = {}) {
   const start = () => {
     stop();
 
-    if (pool.length <= 1) return;
+    if (pool.length <= 1) {
+      return;
+    }
 
     timer = window.setInterval(next, intervalMs);
   };

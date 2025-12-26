@@ -36,8 +36,11 @@ const handleClick = (url: string) => {
     aria-label="About GutenKu"
   >
     <!-- Classic Solid Bookmark -->
-    <div class="bookmark-3d" aria-hidden="true">
-      <div class="bookmark-ribbon"></div>
+    <div
+      class="bookmark-3d"
+      aria-hidden="true"
+    >
+      <div class="bookmark-ribbon" />
     </div>
 
     <v-card-title class="about-card__header ma-2">
@@ -49,7 +52,10 @@ const handleClick = (url: string) => {
       />
     </v-card-title>
 
-    <div class="about-card__text text-primary" role="article">
+    <div
+      class="about-card__text text-primary"
+      role="article"
+    >
       <p>
         <strong>GutenKu</strong> is a Haiku generator based on a selection of
         books from <span class="visually-hidden">the</span> Project Gutenberg, a

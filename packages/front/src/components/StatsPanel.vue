@@ -51,10 +51,13 @@ onMounted(() => {
         size="large"
         color="primary"
         class="stats-panel__icon stats-panel__icon--main mr-2"
-        >mdi-book-open-page-variant</v-icon
       >
+        mdi-book-open-page-variant
+      </v-icon>
       <div class="stats-panel__header-content flex-grow-1">
-        <div class="stats-panel__title text-subtitle-1">Your Zen Journey</div>
+        <div class="stats-panel__title text-subtitle-1">
+          Your Zen Journey
+        </div>
         <div class="stats-panel__subtitle text-body-2 text-medium-emphasis">
           Reading the wind of words
         </div>
@@ -69,10 +72,16 @@ onMounted(() => {
     </div>
 
     <v-expand-transition>
-      <div v-show="expanded" class="stats-panel__content">
+      <div
+        v-show="expanded"
+        class="stats-panel__content"
+      >
         <div class="stats-panel__inner gutenku-book-page pa-3 mb-2">
           <v-row dense>
-            <v-col cols="6" class="text-center">
+            <v-col
+              cols="6"
+              class="text-center"
+            >
               <div
                 class="stats-panel__metric-label text-caption text-medium-emphasis"
               >
@@ -84,7 +93,10 @@ onMounted(() => {
                 {{ stats.haikusGenerated }}
               </div>
             </v-col>
-            <v-col cols="6" class="text-center">
+            <v-col
+              cols="6"
+              class="text-center"
+            >
               <div
                 class="stats-panel__metric-label text-caption text-medium-emphasis"
               >
@@ -96,7 +108,10 @@ onMounted(() => {
                 {{ stats.booksBrowsed }}
               </div>
             </v-col>
-            <v-col cols="6" class="text-center mt-2">
+            <v-col
+              cols="6"
+              class="text-center mt-2"
+            >
               <div
                 class="stats-panel__metric-label text-caption text-medium-emphasis"
               >
@@ -108,7 +123,10 @@ onMounted(() => {
                 {{ stats.cachedHaikus }}
               </div>
             </v-col>
-            <v-col cols="6" class="text-center mt-2">
+            <v-col
+              cols="6"
+              class="text-center mt-2"
+            >
               <div
                 class="stats-panel__metric-label text-caption text-medium-emphasis"
               >
@@ -151,11 +169,10 @@ onMounted(() => {
               size="small"
               class="stats-panel__books-icon mr-2"
               color="primary"
-              >mdi-star-circle</v-icon
             >
-            <span class="stats-panel__books-title"
-              >Top books inspiring your haiku</span
-            >
+              mdi-star-circle
+            </v-icon>
+            <span class="stats-panel__books-title">Top books inspiring your haiku</span>
           </div>
           <v-row dense>
             <v-col
@@ -172,8 +189,9 @@ onMounted(() => {
                     color="accent"
                     variant="elevated"
                     size="small"
-                    >#{{ idx + 1 }}</v-chip
                   >
+                    #{{ idx + 1 }}
+                  </v-chip>
                   <span class="stats-panel__book-title">{{ name }}</span>
                 </div>
                 <div
