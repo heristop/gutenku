@@ -119,7 +119,7 @@ const httpLink = new HttpLink({
   uri: `${envServerHost}/graphql`,
 });
 
-const timeoutHttpLink = timeoutLink.concat(httpLink);
+const timeoutHttpLink = ApolloLink.from([timeoutLink, httpLink]);
 
 const wsLink = new GraphQLWsLink(
   createClient({

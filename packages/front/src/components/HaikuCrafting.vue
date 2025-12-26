@@ -20,10 +20,16 @@ const { message: craftingMessage } = useLoadingMessages({
   <v-card class="book-page gutenku-card haiku-crafting">
     <!-- Book Header Style for Crafting -->
     <div class="book-header">
-      <div class="crafting-text">{{ craftingMessage }}</div>
+      <div class="crafting-text">
+        {{ craftingMessage }}
+      </div>
 
       <div class="header-controls">
-        <v-icon class="craft-icon" color="primary" size="large">
+        <v-icon
+          class="craft-icon"
+          color="primary"
+          size="large"
+        >
           mdi-creation
         </v-icon>
       </div>
@@ -32,7 +38,9 @@ const { message: craftingMessage } = useLoadingMessages({
     <!-- Book Content Style for Messages -->
     <div class="book-content">
       <!-- Crafting Title -->
-      <h1 class="craft-title">Crafting Your Haiku</h1>
+      <h1 class="craft-title">
+        Crafting Your Haiku
+      </h1>
 
       <!-- Real-time Message Feed -->
       <div class="chapter-content">
@@ -75,14 +83,18 @@ const { message: craftingMessage } = useLoadingMessages({
               height="4"
               class="craft-progress"
             />
-            <div class="progress-text">Generation in progress...</div>
+            <div class="progress-text">
+              Generation in progress...
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Page number style -->
-    <div class="page-number">— Crafting —</div>
+    <div class="page-number">
+      — Crafting —
+    </div>
   </v-card>
 </template>
 

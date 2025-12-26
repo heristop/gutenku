@@ -2,7 +2,6 @@
 import vue from '@vitejs/plugin-vue';
 import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
 import viteCompression from 'vite-plugin-compression';
-import { splitVendorChunkPlugin } from 'vite';
 import viteImagemin from 'vite-plugin-imagemin';
 import webfontDownload from 'vite-plugin-webfont-dl';
 
@@ -24,7 +23,6 @@ export default defineConfig({
       },
     }),
     viteCompression(),
-    splitVendorChunkPlugin(),
     viteImagemin(),
     webfontDownload(),
   ],
@@ -43,6 +41,6 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3333,
+    port: 4444,
   },
 });

@@ -181,7 +181,11 @@ watch(
 </script>
 
 <template>
-  <v-card v-if="haiku" :loading="loading" class="book-page gutenku-card">
+  <v-card
+    v-if="haiku"
+    :loading="loading"
+    class="book-page gutenku-card"
+  >
     <!-- Book Header with Toggles -->
     <div class="book-header">
       <div class="disclosure-text">
@@ -244,7 +248,10 @@ watch(
     </div>
 
     <!-- Book Content -->
-    <div class="book-content" @click="toggle()">
+    <div
+      class="book-content"
+      @click="toggle()"
+    >
       <!-- Book Title -->
       <h1
         :class="{
@@ -268,8 +275,14 @@ watch(
       </div>
 
       <!-- Chapter Content -->
-      <div class="chapter-content" :class="{ expandable: !isCompacted }">
-        <div v-if="haiku.chapter.content" class="chapter-sheet">
+      <div
+        class="chapter-content"
+        :class="{ expandable: !isCompacted }"
+      >
+        <div
+          v-if="haiku.chapter.content"
+          class="chapter-sheet"
+        >
           <p
             :class="{
               'stabilo-hidden': blackMarker,
@@ -287,7 +300,9 @@ watch(
     </div>
 
     <!-- Optional page number -->
-    <div class="page-number">— {{ pageNumber }} —</div>
+    <div class="page-number">
+      — {{ pageNumber }} —
+    </div>
   </v-card>
 </template>
 
