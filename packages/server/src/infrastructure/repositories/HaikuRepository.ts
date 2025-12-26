@@ -33,50 +33,38 @@ export default class HaikuRepository implements IHaikuRepository {
     size: number,
     minCachedDocs: number,
   ): Promise<HaikuValue[]> {
-    if (false === !!this.db) {
+    if (!this.db) {
       return [];
     }
 
     try {
       const haikusCollection = this.db.collection('haikus');
 
-      // Add timeout for countDocuments operation
-      const countPromise = haikusCollection.countDocuments();
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Database operation timeout')), 5000),
-      );
+      // Single aggregation with $facet to get count and sample in one query
+      const result = await haikusCollection
+        .aggregate(
+          [
+            {
+              $facet: {
+                count: [{ $count: 'total' }],
+                sample: [{ $sample: { size } }],
+              },
+            },
+          ],
+          { maxTimeMS: 5000 },
+        )
+        .toArray();
 
-      const documentCount = (await Promise.race([
-        countPromise,
-        timeoutPromise,
-      ])) as number;
+      const count = result[0]?.count[0]?.total || 0;
 
-      if (documentCount < minCachedDocs) {
-        log.info(
-          `Not enough cached documents: ${documentCount} < ${minCachedDocs}`,
-        );
+      if (count < minCachedDocs) {
+        log.info(`Not enough cached documents: ${count} < ${minCachedDocs}`);
         return [];
       }
 
       log.info('Extract from cache');
 
-      // Add timeout for aggregation operation
-      const aggregatePromise = haikusCollection
-        .aggregate([{ $sample: { size } }])
-        .toArray();
-      const aggregateTimeoutPromise = new Promise((_, reject) =>
-        setTimeout(
-          () => reject(new Error('Database aggregation timeout')),
-          5000,
-        ),
-      );
-
-      const sampledHaikus = (await Promise.race([
-        aggregatePromise,
-        aggregateTimeoutPromise,
-      ])) as HaikuDocument[];
-
-      return this.mapCachedHaikuValue(sampledHaikus);
+      return this.mapCachedHaikuValue(result[0].sample as HaikuDocument[]);
     } catch (error) {
       log.warn(
         'Cache extraction failed, falling back to generation:',
