@@ -6,12 +6,19 @@ defineProps<{
 </script>
 
 <template>
-  <div class="zen-skeleton" :class="[`zen-skeleton--${variant || 'text'}`]">
+  <div
+    class="zen-skeleton"
+    :class="[`zen-skeleton--${variant || 'text'}`]"
+    role="status"
+    aria-busy="true"
+    aria-label="Loading content"
+  >
     <div
       v-for="n in lines || 3"
       :key="n"
       class="zen-skeleton__stroke"
       :style="{ '--delay': `${n * 0.15}s` }"
+      aria-hidden="true"
     />
   </div>
 </template>

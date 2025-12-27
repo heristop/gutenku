@@ -27,7 +27,7 @@ const socialLinks = computed(() =>
     name: t(`social.links.${link.key}.name`),
     url: link.url,
     icon: link.icon,
-    label: t(`social.links.${link.key}.label`),
+    label: `${t(`social.links.${link.key}.label`)} (${t('common.opensInNewTab')})`,
   })),
 );
 

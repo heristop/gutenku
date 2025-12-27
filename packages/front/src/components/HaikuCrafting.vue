@@ -82,7 +82,7 @@ const { message: craftingMessage } = useLoadingMessages({
                   'fade-message': index > 2,
                 }"
               >
-                <span class="message-emoji">
+                <span class="message-emoji" aria-hidden="true">
                   <PenTool
                     v-if="message.emoji === '✨'"
                     :size="18"
@@ -382,6 +382,17 @@ const { message: craftingMessage } = useLoadingMessages({
     font-size: 1rem;
     min-width: 1.5rem;
     margin-right: 0.5rem;
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .book-header .craft-icon-container {
+    animation: none;
+  }
+
+  .craft-message.latest-message .message-emoji {
+    animation: none;
   }
 }
 </style>

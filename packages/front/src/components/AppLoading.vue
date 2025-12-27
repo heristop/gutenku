@@ -52,8 +52,6 @@ onUnmounted(() => {
 
 const { message: randomMessage } = useLoadingMessages({ context: 'default' });
 const displayText = computed(() => props.text || randomMessage);
-
-// Theme integration
 const { isDarkMode } = useTheme();
 </script>
 
@@ -66,7 +64,6 @@ const { isDarkMode } = useTheme();
     aria-busy="true"
     aria-labelledby="loading-text"
   >
-    <!-- Theme-aware backdrop -->
     <div
       v-motion
       :initial="{ opacity: 0 }"
@@ -105,7 +102,6 @@ const { isDarkMode } = useTheme();
       </div>
 
       <div v-if="displayText" class="loading-splash">
-        <!-- Logo with theme-aware background -->
         <div class="logo-container" aria-hidden="true">
           <v-img
             :style="{ viewTransitionName: 'gutenku-logo' }"
@@ -158,7 +154,6 @@ const { isDarkMode } = useTheme();
   justify-content: center;
   z-index: 1000;
 
-  // Theme-aware backdrop
   .loading-backdrop {
     position: absolute;
     top: 0;
@@ -216,13 +211,11 @@ const { isDarkMode } = useTheme();
     border-top-right-radius: var(--gutenku-radius-md);
   }
 
-  // Progress bar with rounded bottom corners
   .loading-progress {
     border-bottom-left-radius: var(--gutenku-radius-lg);
     border-bottom-right-radius: var(--gutenku-radius-lg);
     overflow: hidden;
 
-    // Progress fill inherits rounded corners
     :deep(.v-progress-linear__determinate) {
       border-bottom-left-radius: var(--gutenku-radius-lg);
       border-bottom-right-radius: var(--gutenku-radius-lg);
@@ -256,7 +249,6 @@ const { isDarkMode } = useTheme();
   }
 }
 
-// Robot-only mode styling (no splash)
 .loading:not(.loading-splash) {
   position: absolute;
   top: 40%;
