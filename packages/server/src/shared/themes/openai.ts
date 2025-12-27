@@ -32,11 +32,8 @@ export default {
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Set the font
     ctx.font = '130px IndieFlower';
     ctx.fillStyle = '#2F5D62';
-
-    // Draw the text
     ctx.globalAlpha = 1;
 
     const x = 244;
@@ -46,7 +43,6 @@ export default {
       y += 440;
     });
 
-    // Draw signature
     ctx.font = '134px IndieFlower';
     ctx.globalAlpha = 0.6;
     ctx.fillText('- GutenKu', canvas.width - 784, canvas.height - 240);
@@ -60,7 +56,6 @@ async function generateImageWithGPTImage1(haiku: HaikuValue): Promise<Buffer> {
     apiKey: process.env.OPENAI_API_KEY,
   });
 
-  // Prompt for GPT-Image-1
   const prompt = `Create a serene traditional Japanese landscape inspired by this haiku: "${haiku.verses.join(' / ')}"
 
 Style: Traditional Japanese art, peaceful atmosphere, soft colors, minimalist composition
@@ -77,13 +72,11 @@ Quality: High artistic quality with attention to traditional Japanese aesthetics
     user: 'gutenku-haiku-generator',
   });
 
-  // GPT-Image-1 always returns base64-encoded images
   const imageBase64 = response.data[0].b64_json;
 
   if (!imageBase64) {
     throw new Error('No image data returned from GPT-Image-1 API');
   }
 
-  // Convert base64 to Buffer for Canvas.loadImage
   return Buffer.from(imageBase64, 'base64');
 }

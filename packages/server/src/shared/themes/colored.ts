@@ -24,11 +24,10 @@ export default {
     background.src = imagePath;
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-    // Load the logo
     const logo = new Canvas.Image();
     logo.src = './src/shared/assets/themes/paper/logo/gutenku_white.png';
 
-    // Draw the logo
+    ctx.globalAlpha = 0.2;
     ctx.globalAlpha = 0.25;
     ctx.drawImage(
       logo,
@@ -39,11 +38,8 @@ export default {
     );
     ctx.globalAlpha = 1;
 
-    // Set the font and background color
     ctx.font = '130px Yomogi';
     ctx.fillStyle = '#fff';
-
-    // Draw the text
     ctx.globalAlpha = 0.8;
 
     const x = 244;

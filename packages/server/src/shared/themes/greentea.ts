@@ -26,11 +26,8 @@ export default {
 
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-    // Set the font and background color
     ctx.font = '180px NanumBrushScript';
     ctx.fillStyle = '#2F5D62';
-
-    // Draw the text
     ctx.globalAlpha = 0.84;
 
     const x = 244;
@@ -40,19 +37,15 @@ export default {
       y += 440;
     });
 
-    // Load decor
     const decor = new Canvas.Image();
     decor.src = './src/shared/assets/themes/greentea/decoration/torn_paper.png';
 
-    // Draw decor
     ctx.globalAlpha = 1;
     ctx.drawImage(decor, 0, 0, canvas.width, canvas.height);
 
-    // Load pic
     const pic = new Canvas.Image();
     pic.src = await catchNaturePic();
 
-    // Draw pic
     ctx.globalAlpha = 0.92;
     ctx.drawImage(
       pic,
@@ -62,7 +55,6 @@ export default {
       pic.height,
     );
 
-    // Draw signature
     ctx.font = '154px NanumBrushScript';
     ctx.globalAlpha = 0.6;
     ctx.fillText('- GutenKu', canvas.width - 784, canvas.height - 240);
