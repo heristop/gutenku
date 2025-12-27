@@ -1,7 +1,8 @@
 {
   "common": {
     "close": "Close",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "opensInNewTab": "opens in new tab"
   },
   "layout": {
     "skipLink": "Skip to main content"
@@ -18,8 +19,8 @@
       "years": "2023-{year}",
       "github": "GitHub",
       "portfolio": "Portfolio",
-      "githubLabel": "Visit heristop on GitHub",
-      "portfolioLabel": "Visit heristop portfolio"
+      "githubLabel": "Visit heristop on GitHub (opens in new tab)",
+      "portfolioLabel": "Visit heristop portfolio (opens in new tab)"
     }
   },
   "haikuTitle": {
@@ -45,7 +46,8 @@
     },
     "discloseHide": "Disclose / Hide",
     "showFull": "Show Full Chapter",
-    "showCompacted": "Show Compacted View"
+    "showCompacted": "Show Compacted View",
+    "swipeHint": "Swipe for new haiku"
   },
   "haikuProcess": {
     "steps": {
