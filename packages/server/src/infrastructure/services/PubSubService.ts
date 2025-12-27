@@ -13,7 +13,6 @@ export class PubSubService {
     return this.pubSub;
   }
 
-  // Returns an AsyncIterableIterator compatible with graphql-subscriptions v2/v3
   public iterator<T = unknown>(
     triggers: string | readonly string[],
   ): AsyncIterableIterator<T> {
@@ -43,7 +42,6 @@ export class PubSubService {
       return asyncIter;
     }
 
-    // Should not happen, but keep a safe fallback
     throw new Error('PubSub does not expose an async iterator method');
   }
 }

@@ -8,7 +8,6 @@ import ChapterModel from '~/infrastructure/models/ChapterModel';
 export default class BookRepository implements IBookRepository {
   async getAllBooks(filter: string | null) {
     if (filter) {
-      // Find chapters matching filter via text search, then get their books
       const bookIds = await ChapterModel.find({ $text: { $search: filter } })
         .distinct('book')
         .exec();
@@ -34,13 +33,9 @@ export default class BookRepository implements IBookRepository {
   }
 
   async selectRandomBook(): Promise<BookValue> {
-    // MongoDB aggregation for random selection
     const randomBooks = await BookModel.aggregate([
-      // Match books that have chapters
       { $match: { 'chapters.0': { $exists: true } } },
-      // Randomly sample one book
       { $sample: { size: 1 } },
-      // Lookup the chapters
       {
         $lookup: {
           as: 'chapters',
@@ -58,8 +53,6 @@ export default class BookRepository implements IBookRepository {
     const randomBook = randomBooks[0];
 
     if (!randomBook.chapters || randomBook.chapters.length === 0) {
-      // If somehow we got a book without chapters, try again
-      // This should be rare with the aggregation pipeline
       return this.selectRandomBook();
     }
 

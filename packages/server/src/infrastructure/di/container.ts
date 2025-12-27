@@ -50,3 +50,6 @@ container.register(IOpenAIClientToken, {
 container.register(IMessagePublisherToken, {
   useClass: PubSubMessagePublisher,
 });
+
+// Import CQRS registrations
+import './cqrs-registrations';

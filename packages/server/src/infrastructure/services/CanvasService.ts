@@ -51,7 +51,6 @@ export default class CanvasService {
 
       Canvas.deregisterAllFonts();
 
-      // Save the image
       return this.save(canvas);
     } catch (err) {
       log.error(err);
