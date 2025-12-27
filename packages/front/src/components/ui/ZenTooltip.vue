@@ -18,6 +18,7 @@ const props = withDefaults(
 );
 
 const isVisible = ref(false);
+const isTouchDevice = ref(false);
 const triggerId = `zen-tooltip-trigger-${Math.random().toString(36).slice(2, 9)}`;
 const tooltipId = `zen-tooltip-${Math.random().toString(36).slice(2, 9)}`;
 const triggerRef = ref<HTMLElement | null>(null);
@@ -50,6 +51,32 @@ function hide() {
   hideTimeout = setTimeout(() => {
     isVisible.value = false;
   }, 100);
+}
+
+function handleTouchStart(event: TouchEvent) {
+  if (props.disabled) {return;}
+
+  // Toggle visibility on touch
+  if (isVisible.value) {
+    isVisible.value = false;
+  } else {
+    isVisible.value = true;
+    nextTick(updatePosition);
+  }
+}
+
+function handleClickOutside(event: MouseEvent | TouchEvent) {
+  if (!isTouchDevice.value || !isVisible.value) {return;}
+
+  const target = event.target as Node;
+  if (
+    triggerRef.value &&
+    !triggerRef.value.contains(target) &&
+    tooltipRef.value &&
+    !tooltipRef.value.contains(target)
+  ) {
+    isVisible.value = false;
+  }
 }
 
 function updatePosition() {
@@ -108,13 +135,21 @@ function handleFocusOut() {
 }
 
 onMounted(() => {
+  isTouchDevice.value = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
   window.addEventListener('scroll', updatePosition, { passive: true });
   window.addEventListener('resize', updatePosition, { passive: true });
+
+  // Click outside listener for mobile dismiss
+  document.addEventListener('touchstart', handleClickOutside, { passive: true });
+  document.addEventListener('click', handleClickOutside);
 });
 
 onUnmounted(() => {
   window.removeEventListener('scroll', updatePosition);
   window.removeEventListener('resize', updatePosition);
+  document.removeEventListener('touchstart', handleClickOutside);
+  document.removeEventListener('click', handleClickOutside);
   if (showTimeout) {clearTimeout(showTimeout);}
   if (hideTimeout) {clearTimeout(hideTimeout);}
 });
@@ -126,8 +161,9 @@ onUnmounted(() => {
     ref="triggerRef"
     class="zen-tooltip-trigger"
     :aria-describedby="isVisible && !disabled ? tooltipId : undefined"
-    @mouseenter="show"
-    @mouseleave="hide"
+    @mouseenter="!isTouchDevice && show()"
+    @mouseleave="!isTouchDevice && hide()"
+    @touchstart.prevent="handleTouchStart"
     @focusin="handleFocusIn"
     @focusout="handleFocusOut"
     @keydown="handleKeydown"
@@ -423,6 +459,43 @@ onUnmounted(() => {
 
   &__arrow {
     background: var(--gutenku-paper-bg);
+  }
+}
+
+// Mobile responsive
+@media (max-width: 480px) {
+  .zen-tooltip {
+    max-width: calc(100vw - 2rem);
+
+    &__content {
+      font-size: 0.75rem;
+      padding: 0.4rem 0.6rem;
+    }
+
+    &__arrow {
+      width: 6px;
+      height: 6px;
+    }
+
+    &--top .zen-tooltip__arrow {
+      bottom: -3px;
+      margin-left: -3px;
+    }
+
+    &--bottom .zen-tooltip__arrow {
+      top: -3px;
+      margin-left: -3px;
+    }
+
+    &--left .zen-tooltip__arrow {
+      right: -3px;
+      margin-top: -3px;
+    }
+
+    &--right .zen-tooltip__arrow {
+      left: -3px;
+      margin-top: -3px;
+    }
   }
 }
 
