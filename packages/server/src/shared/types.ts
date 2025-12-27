@@ -39,6 +39,10 @@ export interface HaikuVariables {
   filter: string;
   sentimentMinScore: number;
   markovMinScore: number;
+  posMinScore: number;
+  trigramMinScore: number;
+  tfidfMinScore: number;
+  phoneticsMinScore: number;
   descriptionTemperature: number;
 }
 
@@ -46,20 +50,6 @@ export interface OpenAIOptions {
   apiKey: string;
   selectionCount?: number;
   temperature: {
-    prompt?: number;
     description?: number;
   };
-}
-
-export interface ProcessedChapter {
-  quotes: { quote: string; index: number; syllableCount: number }[];
-  sentimentScores: Map<string, number>;
-  processedAt: Date;
-  chapterId: string;
-}
-
-export interface HaikuProcessingCache {
-  chapters: Map<string, ProcessedChapter>;
-  maxCacheSize: number;
-  ttlMs: number;
 }
