@@ -1,18 +1,21 @@
 <script lang="ts" setup>
-import { computed, ref, useTemplateRef } from 'vue';
+import { computed, ref, useTemplateRef, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useMediaQuery } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
 import { Loader2, Sparkles, Check, Copy } from 'lucide-vue-next';
 import { useHaikuStore } from '@/store/haiku';
 import { useClipboard } from '@/composables/clipboard';
 import { useInView } from '@/composables/in-view';
 import { useToast } from '@/composables/toast';
+import { useLongPress } from '@/composables/touch-gestures';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
 
 const { t } = useI18n();
 const { success, error } = useToast();
 
 const cardRef = useTemplateRef<HTMLElement>('cardRef');
+const generateBtnRef = ref<HTMLElement | null>(null);
 const { isInView } = useInView(cardRef, { delay: 0 });
 
 const haikuStore = useHaikuStore();
@@ -20,6 +23,29 @@ const { fetchNewHaiku } = haikuStore;
 const { haiku, loading, firstLoaded } = storeToRefs(haikuStore);
 
 const { copy, copied } = useClipboard();
+
+// Touch device detection
+const hasCoarsePointer = useMediaQuery('(pointer: coarse)');
+const isTouchDevice = ref(false);
+
+onMounted(() => {
+  isTouchDevice.value = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+});
+
+// Long press for touch devices
+const longPressProgress = ref(0);
+const { isPressed: isLongPressing } = useLongPress(generateBtnRef, {
+  delay: 350,
+  onLongPress: () => {
+    if (!loading.value) {
+      fetchNewHaiku();
+    }
+  },
+  onProgress: (progress) => {
+    longPressProgress.value = progress;
+  },
+  vibrate: true,
+});
 
 const buttonLabel = computed<string>(() => {
   if (loading.value) {
@@ -62,29 +88,53 @@ async function copyHaiku(): Promise<void> {
     <div class="toolbar-panel__buttons">
       <!-- Extract/Generate Button -->
       <ZenTooltip :text="generateTooltip" position="top">
-        <v-btn
-          :loading="loading"
-          :disabled="loading"
-          :aria-busy="loading"
-          :aria-label="generateTooltip"
-          class="zen-btn gutenku-btn gutenku-btn-generate toolbar-panel__button toolbar-panel__button--generate"
-          :class="{
-            'toolbar-panel__button--loading': loading,
-            'toolbar-panel__button--pulse': showPulse,
-          }"
-          data-cy="fetch-btn"
-          variant="outlined"
-          size="default"
-          @click="extractGenerate"
+        <div
+          ref="generateBtnRef"
+          class="generate-btn-wrapper"
+          :class="{ 'is-pressing': isLongPressing }"
         >
-          <Loader2
-            v-if="loading"
-            :size="20"
-            class="toolbar-panel__icon animate-spin"
-          />
-          <Sparkles v-else :size="20" class="toolbar-panel__icon" />
-          <span class="toolbar-panel__button-text">{{ buttonLabel }}</span>
-        </v-btn>
+          <v-btn
+            :loading="loading"
+            :disabled="loading"
+            :aria-busy="loading"
+            :aria-label="generateTooltip"
+            class="zen-btn gutenku-btn gutenku-btn-generate toolbar-panel__button toolbar-panel__button--generate"
+            :class="{
+              'toolbar-panel__button--loading': loading,
+              'toolbar-panel__button--pulse': showPulse && !isTouchDevice,
+            }"
+            data-cy="fetch-btn"
+            variant="outlined"
+            size="default"
+            @click="!isTouchDevice && extractGenerate()"
+          >
+            <Loader2
+              v-if="loading"
+              :size="20"
+              class="toolbar-panel__icon animate-spin"
+            />
+            <Sparkles v-else :size="20" class="toolbar-panel__icon" />
+            <span class="toolbar-panel__button-text">{{ buttonLabel }}</span>
+          </v-btn>
+
+          <!-- Long press progress ring (touch only) -->
+          <svg
+            v-if="isTouchDevice && isLongPressing"
+            class="long-press-progress"
+            viewBox="0 0 44 44"
+          >
+            <circle
+              class="progress-ring"
+              cx="22"
+              cy="22"
+              r="20"
+              fill="none"
+              stroke-width="2"
+              :stroke-dasharray="125.6"
+              :stroke-dashoffset="125.6 - (longPressProgress / 100) * 125.6"
+            />
+          </svg>
+        </div>
       </ZenTooltip>
 
       <!-- Copy Button -->
@@ -115,6 +165,39 @@ async function copyHaiku(): Promise<void> {
 </template>
 
 <style lang="scss" scoped>
+// Long press wrapper styles
+.generate-btn-wrapper {
+  position: relative;
+  display: inline-flex;
+
+  &.is-pressing {
+    .toolbar-panel__button--generate {
+      transform: scale(0.95);
+      transition: transform 0.15s ease-out;
+    }
+  }
+}
+
+.long-press-progress {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.progress-ring {
+  stroke: var(--gutenku-zen-accent);
+  transition: stroke-dashoffset 0.05s linear;
+
+  [data-theme='dark'] & {
+    stroke: oklch(0.8 0.15 145);
+  }
+}
+
 .toolbar-panel {
   &__buttons {
     display: flex;
@@ -254,6 +337,31 @@ async function copyHaiku(): Promise<void> {
     &__button {
       min-height: 2.75rem;  // 44px
       padding: 0 1rem;
+    }
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .toolbar-panel {
+    &__button {
+      transition: none;
+
+      &--pulse {
+        animation: none;
+      }
+
+      &--ripple::after {
+        animation: none;
+      }
+
+      &:hover {
+        transform: none;
+      }
+    }
+
+    &__icon.animate-spin {
+      animation: none;
     }
   }
 }

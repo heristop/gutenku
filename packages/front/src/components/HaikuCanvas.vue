@@ -2,12 +2,13 @@
 import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
-import { Palette, Loader2, Download } from 'lucide-vue-next';
+import { Palette, Loader2, Download, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import { useHaikuStore } from '@/store/haiku';
 import { useImageDownload } from '@/composables/image-download';
 import { useInView } from '@/composables/in-view';
 import { useDebouncedCallback } from '@/composables/debounce';
 import { useToast } from '@/composables/toast';
+import { useTouchGestures } from '@/composables/touch-gestures';
 import HankoStamp from '@/components/HankoStamp.vue';
 import EnsoLoader from '@/components/EnsoLoader.vue';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
@@ -19,9 +20,30 @@ const { success } = useToast();
 
 const cardRef = useTemplateRef<HTMLElement>('cardRef');
 const canvasRef = useTemplateRef<HTMLElement>('canvasRef');
+const swipeRef = useTemplateRef<HTMLElement>('swipeRef');
 const { isInView } = useInView(cardRef, { delay: 100 });
 
 const { fetchNewHaiku } = useHaikuStore();
+
+// Swipe to generate new haiku
+const showSwipeHint = ref(true);
+const { isSwiping, isTouchDevice } = useTouchGestures(swipeRef, {
+  threshold: 60,
+  onSwipeLeft: () => {
+    if (!loading.value) {
+      showSwipeHint.value = false;
+      fetchNewHaiku();
+    }
+  },
+  onSwipeRight: () => {
+    if (!loading.value) {
+      showSwipeHint.value = false;
+      fetchNewHaiku();
+    }
+  },
+  vibrate: true,
+  vibrationPattern: [20],
+});
 const { haiku, loading, optionTheme, themeOptions } =
   storeToRefs(useHaikuStore());
 
@@ -93,7 +115,7 @@ const downloadImage = async () => {
     });
     success(t('haikuCanvas.downloadSuccess'));
   } catch {
-    // Download failed silently - browser handles most errors
+    // Error already handled by toast composable
   }
 };
 
@@ -117,13 +139,15 @@ const onImageLoad = () => {
       color="accent"
       variant="tonal"
     >
-      <!-- Screen reader announcement for theme changes -->
       <div class="sr-only" aria-live="polite" aria-atomic="true">
         {{ themeChangeAnnouncement }}
       </div>
 
-      <div class="paper-frame">
-        <!-- Enso Loading State -->
+      <div
+        ref="swipeRef"
+        class="paper-frame"
+        :class="{ 'is-swiping': isSwiping }"
+      >
         <div
           v-if="loading"
           v-motion
@@ -171,10 +195,10 @@ const onImageLoad = () => {
           >
             <v-img
               :src="haikuImage"
-              :lazy-src="haikuImage"
               :alt="haiku.verses.join(', ')"
               aspect-ratio="1/1"
               cover
+              eager
               class="haiku-image"
               :class="{ 'haiku-image--reveal': imageLoaded }"
               @load="onImageLoad"
@@ -207,6 +231,29 @@ const onImageLoad = () => {
               <div class="edge edge-bottom" />
               <div class="edge edge-left" />
             </div>
+
+            <!-- Swipe hint for touch devices -->
+            <Transition name="swipe-hint-fade">
+              <div
+                v-if="isTouchDevice && showSwipeHint && !loading"
+                class="swipe-hint-overlay"
+              >
+                <div class="swipe-hint">
+                  <ChevronLeft
+                    :size="16"
+                    class="swipe-arrow swipe-arrow--left"
+                  />
+                  <span
+                    class="swipe-text"
+                    >{{ t('haikuChapter.swipeHint') }}</span
+                  >
+                  <ChevronRight
+                    :size="16"
+                    class="swipe-arrow swipe-arrow--right"
+                  />
+                </div>
+              </div>
+            </Transition>
           </div>
         </v-sheet>
       </div>
@@ -284,6 +331,7 @@ const onImageLoad = () => {
   max-width: 25rem;
   margin: 0 auto 1rem;
   position: relative;
+  aspect-ratio: 1/1;
 }
 
 .zen-loading-skeleton {
@@ -371,6 +419,7 @@ const onImageLoad = () => {
   transition: var(--gutenku-transition-zen);
   border-radius: 4px;
   clip-path: inset(100% 0 0 0);
+  -webkit-clip-path: inset(100% 0 0 0);
 
   &--reveal {
     animation: paint-in-reveal 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
@@ -380,9 +429,22 @@ const onImageLoad = () => {
 @keyframes paint-in-reveal {
   0% {
     clip-path: inset(100% 0 0 0);
+    -webkit-clip-path: inset(100% 0 0 0);
   }
   100% {
     clip-path: inset(0 0 0 0);
+    -webkit-clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .haiku-image {
+    clip-path: none;
+    -webkit-clip-path: none;
+
+    &--reveal {
+      animation: none;
+    }
   }
 }
 
@@ -625,6 +687,101 @@ const onImageLoad = () => {
     opacity: 0;
     transform: translate(-50%, -50%) scale(1);
   }
+}
+
+// Swipe feedback
+.paper-frame {
+  transition: transform 0.2s ease-out;
+
+  &.is-swiping {
+    transform: scale(0.98);
+  }
+}
+
+// Swipe hint overlay
+.swipe-hint-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0.75rem;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.swipe-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  background: oklch(0 0 0 / 0.6);
+  backdrop-filter: blur(4px);
+  border-radius: 1rem;
+  color: oklch(1 0 0 / 0.9);
+  font-size: 0.75rem;
+  animation: swipe-hint-pulse 2s ease-in-out infinite;
+}
+
+.swipe-text {
+  font-weight: 500;
+}
+
+.swipe-arrow {
+  opacity: 0.8;
+
+  &--left {
+    animation: swipe-arrow-left 1.5s ease-in-out infinite;
+  }
+
+  &--right {
+    animation: swipe-arrow-right 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes swipe-hint-pulse {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes swipe-arrow-left {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-3px);
+  }
+}
+
+@keyframes swipe-arrow-right {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(3px);
+  }
+}
+
+// Swipe hint fade transition
+.swipe-hint-fade-enter-active {
+  transition: opacity 0.3s ease-out;
+}
+
+.swipe-hint-fade-leave-active {
+  transition: opacity 0.2s ease-in;
+}
+
+.swipe-hint-fade-enter-from,
+.swipe-hint-fade-leave-to {
+  opacity: 0;
 }
 
 @media (max-width: 768px) {
