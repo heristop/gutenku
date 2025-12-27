@@ -3,30 +3,51 @@ import { onMounted, ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { load } from '@fingerprintjs/botd';
 import { storeToRefs } from 'pinia';
-import { Lightbulb, LightbulbOff, ChevronsUpDown, ChevronsDownUp } from 'lucide-vue-next';
+import { Lightbulb, LightbulbOff, ChevronsUpDown, ChevronsDownUp, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import { useHaikuStore } from '@/store/haiku';
 import { useHaikuHighlighter } from '@/composables/haiku-highlighter';
 import { useTextCompacting } from '@/composables/text-compacting';
+import { useTouchGestures } from '@/composables/touch-gestures';
 import HighLightText from '@/components/HighLightText.vue';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
 
 const { t } = useI18n();
 
-const { haiku, loading } = storeToRefs(useHaikuStore());
+const haikuStore = useHaikuStore();
+const { fetchNewHaiku } = haikuStore;
+const { haiku, loading } = storeToRefs(haikuStore);
 
 const blackMarker = ref(true);
 const isCompacted = ref(true);
+const chapterRef = ref<HTMLElement | null>(null);
+const showSwipeHint = ref(true);
+
+const { isSwiping, isTouchDevice } = useTouchGestures(chapterRef, {
+  threshold: 60,
+  onSwipeLeft: () => {
+    if (!loading.value) {
+      showSwipeHint.value = false;
+      fetchNewHaiku();
+    }
+  },
+  onSwipeRight: () => {
+    if (!loading.value) {
+      showSwipeHint.value = false;
+      fetchNewHaiku();
+    }
+  },
+  vibrate: true,
+  vibrationPattern: [20],
+});
 
 const { applyToAllHighlights } = useHaikuHighlighter();
 
-// Disclosure text based on marker state
 const disclosureText = computed(() =>
   blackMarker.value
     ? t('haikuChapter.disclosure.hidden')
     : t('haikuChapter.disclosure.visible'),
 );
 
-// Compacted view tooltip
 const compactedTooltip = computed(() =>
   isCompacted.value
     ? t('haikuChapter.showFull')
@@ -42,7 +63,6 @@ function toggleCompactedView(): void {
   isCompacted.value = !isCompacted.value;
 }
 
-// Deterministic page number from book and chapter
 const pageNumber = computed(() => {
   if (!haiku.value?.book?.title || !haiku.value?.chapter?.title) {return 1;}
 
@@ -84,14 +104,23 @@ watch(
 </script>
 
 <template>
-  <v-card v-if="haiku" :loading="loading" class="book-page gutenku-card">
-    <!-- Book Header with Toggles -->
+  <v-card
+    v-if="haiku"
+    ref="chapterRef"
+    :loading="loading"
+    class="book-page gutenku-card"
+    :class="{ 'is-swiping': isSwiping }"
+  >
+    <!-- Screen reader announcement for toggle state -->
+    <div class="sr-only" aria-live="polite" aria-atomic="true">
+      {{ disclosureText }}
+    </div>
+
     <div class="book-header">
-      <div class="disclosure-text">
+      <div class="disclosure-text" aria-hidden="true">
         {{ disclosureText }}
       </div>
       <div class="header-controls">
-        <!-- Stabilo Toggle -->
         <ZenTooltip
           :text="t('haikuChapter.discloseHide')"
           position="bottom"
@@ -110,7 +139,6 @@ watch(
           </v-btn>
         </ZenTooltip>
 
-        <!-- Compacted View Toggle -->
         <ZenTooltip :text="compactedTooltip" position="bottom">
           <v-btn
             :class="{
@@ -130,7 +158,6 @@ watch(
       </div>
     </div>
 
-    <!-- Book Content -->
     <div
       class="book-content"
       role="button"
@@ -141,7 +168,6 @@ watch(
       @keydown.enter="toggle()"
       @keydown.space.prevent="toggle()"
     >
-      <!-- Book Title -->
       <h2
         :class="{
           'stabilo-hidden': blackMarker,
@@ -163,7 +189,6 @@ watch(
         {{ haiku.book.author }}
       </div>
 
-      <!-- Chapter Content -->
       <div class="chapter-content" :class="{ expandable: !isCompacted }">
         <div v-if="haiku.chapter.content" class="chapter-sheet">
           <p
@@ -182,8 +207,19 @@ watch(
       </div>
     </div>
 
-    <!-- Optional page number -->
     <div class="page-number">— {{ pageNumber }} —</div>
+
+    <Transition name="fade">
+      <div
+        v-if="isTouchDevice && showSwipeHint && !loading"
+        class="swipe-hint"
+        aria-hidden="true"
+      >
+        <ChevronLeft :size="16" class="swipe-icon swipe-icon--left" />
+        <span class="swipe-text">{{ t('haikuChapter.swipeHint') }}</span>
+        <ChevronRight :size="16" class="swipe-icon swipe-icon--right" />
+      </div>
+    </Transition>
   </v-card>
 </template>
 
@@ -198,24 +234,21 @@ watch(
   position: relative;
   padding: 3rem 2rem 2rem 3rem;
   margin-bottom: 1.5rem;
-  min-height: 31.25rem;  // 500px
+  min-height: 31.25rem;
   border-radius: var(--gutenku-radius-sm);
   overflow: visible;
   transition: all 0.3s ease;
   cursor: pointer;
 
-  // Hover effect for card
   &:hover {
     transform: translateY(-3px) scale(1.01);
     box-shadow:
       0 8px 25px oklch(0 0 0 / 0.3),
       0 4px 10px oklch(0 0 0 / 0.2);
 
-    // Light mode hover brightening
     background: color-mix(in oklch, var(--gutenku-paper-bg) 92%, white 8%);
   }
 
-  // Active state for entire card
   &:active {
     transform: translateY(-1px) scale(0.99);
     transition: all 0.1s ease;
@@ -307,7 +340,6 @@ watch(
         border-color: var(--gutenku-border-visible-hover);
       }
 
-      // Dynamic icon colors based on stabilo mode
       &.icon-white .v-icon {
         color: #ffffff !important;
         text-shadow: 0 1px 2px oklch(0 0 0 / 0.8);
@@ -337,14 +369,12 @@ watch(
   transition: all 0.3s ease;
   border-radius: var(--gutenku-radius-sm);
 
-  // Theme-aware cursor colors
   &:hover {
     cursor:
       url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>'),
       auto;
   }
 
-  // Dark mode cursor
   [data-theme='dark'] & {
     &:hover {
       cursor:
@@ -416,14 +446,12 @@ watch(
   max-width: 100%;
   margin: 0 auto;
 
-  // Compacted mode: natural content flow, no scrollbar
   &:not(.expandable) {
     overflow: visible;
   }
 
-  // Expanded mode: fixed height with scrollbar
   &.expandable {
-    height: 25rem;  // 400px
+    height: 25rem;
     overflow-y: auto;
     scroll-behavior: smooth;
   }
@@ -444,12 +472,9 @@ watch(
       transition: opacity 0.3s ease;
 
       &.stabilo-hidden {
-        // Restore original stabilo effect with direct text masking
         position: relative;
         transition: all 0.5s ease;
 
-        // Apply stabilo effect with straight lines + irregular edge mask for handwritten appearance
-        // Exclude highlighted elements (mark, .highlight) from mask application so they appear above black lines
         :deep(*:not(br):not(:empty):not(mark):not(.highlight)) {
           background: repeating-linear-gradient(
             transparent,
@@ -471,7 +496,6 @@ watch(
           display: inline;
         }
 
-        // Hidden mode - haiku verses with theme-aware background (prevents truncation)
         :deep(mark) {
           background: var(--gutenku-paper-bg) !important;
           background-image: none !important;
@@ -504,13 +528,11 @@ watch(
           display: inline-block;
         }
 
-        // Empty elements have no styling
         :deep(br),
         :deep(:empty) {
           background: none !important;
         }
 
-        // Hide overlay to prevent black lines
         &::before {
           display: none !important;
         }
@@ -525,7 +547,6 @@ watch(
           display: none;
         }
 
-        // Revealed mode - haiku verses with hand-drawn highlighter effect
         :deep(mark) {
           background: var(--unique-highlighter-bg, #ffd700) !important;
           background-size: 100% 100% !important;
@@ -596,5 +617,106 @@ watch(
     font-size: 0.9rem;
     line-height: 1.6;
   }
+}
+
+// Swipe visual feedback
+.book-page.is-swiping {
+  transform: scale(0.98);
+  opacity: 0.9;
+  transition: all 0.15s ease;
+}
+
+// Swipe hint indicator
+.swipe-hint {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  background: oklch(0 0 0 / 0.06);
+  border-radius: 2rem;
+  font-size: 0.7rem;
+  color: var(--gutenku-text-muted);
+  z-index: 10;
+  pointer-events: none;
+
+  .swipe-text {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .swipe-icon {
+    opacity: 0.6;
+
+    &--left {
+      animation: swipe-bounce-left 1.5s ease-in-out infinite;
+    }
+
+    &--right {
+      animation: swipe-bounce-right 1.5s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes swipe-bounce-left {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-4px);
+  }
+}
+
+@keyframes swipe-bounce-right {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+// Fade transition
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+// Dark theme swipe hint
+[data-theme='dark'] .swipe-hint {
+  background: oklch(1 0 0 / 0.08);
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .swipe-icon--left,
+  .swipe-icon--right {
+    animation: none;
+  }
+
+  .book-page.is-swiping {
+    transform: none;
+  }
+}
+
+// Screen reader only
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 </style>

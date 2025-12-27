@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref, watch, useTemplateRef, type Component } from 'vue';
+import { computed, ref, watch, useTemplateRef, nextTick, onUnmounted, onMounted, type Component, type Ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import {
@@ -21,11 +21,15 @@ import {
 import { useHaikuStore } from '@/store/haiku';
 import { useExpandedState } from '@/composables/local-storage';
 import { useInView } from '@/composables/in-view';
+import { useTouchGestures } from '@/composables/touch-gestures';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
+
+const PULSE_DURATION = 200;
 
 const { t } = useI18n();
 
 const cardRef = useTemplateRef<HTMLElement>('cardRef');
+const configContentRef = useTemplateRef<HTMLElement>('configContentRef');
 const { isInView } = useInView(cardRef, { delay: 200 });
 
 const haikuStore = useHaikuStore();
@@ -43,53 +47,76 @@ const {
 const { value: expanded, toggle: toggleConfig } = useExpandedState('appConfig-expanded');
 const { value: showAdvanced, toggle: toggleAdvanced } = useExpandedState('appConfig-advanced', false);
 
-const sentimentPulse = ref(false);
-const markovPulse = ref(false);
-const posPulse = ref(false);
-const trigramPulse = ref(false);
-const tfidfPulse = ref(false);
-const phoneticsPulse = ref(false);
-
-watch(optionMinSentimentScore, () => {
-  sentimentPulse.value = true;
-  setTimeout(() => {
-    sentimentPulse.value = false;
-  }, 200);
+// Swipe gestures for touch devices
+const headerRef = ref<HTMLElement | null>(null);
+const { isTouchDevice, isSwiping: isHeaderSwiping } = useTouchGestures(headerRef, {
+  threshold: 40,
+  onSwipeDown: () => {
+    if (!expanded.value) {
+      expanded.value = true;
+    }
+  },
+  onSwipeUp: () => {
+    if (expanded.value) {
+      expanded.value = false;
+    }
+  },
+  vibrate: true,
+  vibrationPattern: [10],
 });
 
-watch(optionMinMarkovScore, () => {
-  markovPulse.value = true;
-  setTimeout(() => {
-    markovPulse.value = false;
-  }, 200);
+// Swipe on advanced toggle
+const advancedRef = ref<HTMLElement | null>(null);
+useTouchGestures(advancedRef, {
+  threshold: 40,
+  onSwipeDown: () => {
+    if (!showAdvanced.value) {
+      showAdvanced.value = true;
+    }
+  },
+  onSwipeUp: () => {
+    if (showAdvanced.value) {
+      showAdvanced.value = false;
+    }
+  },
+  vibrate: true,
+  vibrationPattern: [10],
 });
 
-watch(optionMinPosScore, () => {
-  posPulse.value = true;
-  setTimeout(() => {
-    posPulse.value = false;
-  }, 200);
+watch(expanded, (isExpanded) => {
+  if (isExpanded) {
+    nextTick(() => {
+      const firstFocusable = configContentRef.value?.querySelector<HTMLElement>(
+        'input, [tabindex]:not([tabindex="-1"])',
+      );
+      firstFocusable?.focus();
+    });
+  }
 });
 
-watch(optionMinTrigramScore, () => {
-  trigramPulse.value = true;
-  setTimeout(() => {
-    trigramPulse.value = false;
-  }, 200);
-});
+const pulseTimeouts: ReturnType<typeof setTimeout>[] = [];
 
-watch(optionMinTfidfScore, () => {
-  tfidfPulse.value = true;
-  setTimeout(() => {
-    tfidfPulse.value = false;
-  }, 200);
-});
+function createPulseWatcher(source: Ref<number>) {
+  const pulse = ref(false);
+  watch(source, () => {
+    pulse.value = true;
+    const timeout = setTimeout(() => {
+      pulse.value = false;
+    }, PULSE_DURATION);
+    pulseTimeouts.push(timeout);
+  });
+  return pulse;
+}
 
-watch(optionMinPhoneticsScore, () => {
-  phoneticsPulse.value = true;
-  setTimeout(() => {
-    phoneticsPulse.value = false;
-  }, 200);
+const sentimentPulse = createPulseWatcher(optionMinSentimentScore);
+const markovPulse = createPulseWatcher(optionMinMarkovScore);
+const posPulse = createPulseWatcher(optionMinPosScore);
+const trigramPulse = createPulseWatcher(optionMinTrigramScore);
+const tfidfPulse = createPulseWatcher(optionMinTfidfScore);
+const phoneticsPulse = createPulseWatcher(optionMinPhoneticsScore);
+
+onUnmounted(() => {
+  pulseTimeouts.forEach(clearTimeout);
 });
 
 const DEFAULT_CONFIG = {
@@ -140,7 +167,9 @@ function resetAdvancedConfig(): void {
     rounded
   >
     <div
+      ref="headerRef"
       class="config-panel__header"
+      :class="{ 'is-swiping': isHeaderSwiping }"
       role="button"
       tabindex="0"
       :aria-expanded="expanded"
@@ -208,6 +237,7 @@ function resetAdvancedConfig(): void {
     <v-expand-transition>
       <div
         v-show="expanded"
+        ref="configContentRef"
         id="config-panel-content"
         class="config-panel__content"
       >
@@ -247,6 +277,7 @@ function resetAdvancedConfig(): void {
 
           <ZenTooltip :text="t('config.advancedTooltip')" position="bottom">
             <div
+              ref="advancedRef"
               class="config-panel__advanced-toggle"
               role="button"
               tabindex="0"
@@ -447,6 +478,12 @@ function resetAdvancedConfig(): void {
       outline: 2px solid var(--gutenku-zen-primary);
       outline-offset: 2px;
     }
+
+    // Swipe feedback
+    &.is-swiping {
+      transform: scale(0.98);
+      background: color-mix(in oklch, var(--gutenku-theme-primary-oklch) 8%, transparent);
+    }
   }
 
   &__title {
@@ -508,6 +545,9 @@ function resetAdvancedConfig(): void {
   }
 
   &__toggle-icon {
+    padding: 0.5rem;
+    margin: -0.5rem;
+    cursor: pointer;
     transition: transform 0.2s ease;
 
     &--rotated {
