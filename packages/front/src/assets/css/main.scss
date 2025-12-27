@@ -2,8 +2,6 @@
 
 // ====================================
 // GUTENKU GLOBAL DESIGN SYSTEM
-// Modern CSS Features: @layer, View Transitions,
-// Container Queries, :has(), Scroll-Driven Animations
 // ====================================
 
 // CSS Cascade Layers - Define order (lowest to highest priority)
@@ -335,11 +333,10 @@
 }
 
 // ====================================
-// PHASE 4: SUBTLE WOW EFFECTS
+// VISUAL EFFECTS
 // ====================================
 
-// -------------------------------------
-// 4.1 LIGHT BEAM OVERLAY
+// Light beam overlay
 // -------------------------------------
 @layer utilities {
   // CSS @property for smooth gradient animation
@@ -415,8 +412,7 @@
   }
 }
 
-// -------------------------------------
-// 4.3 WATER RIPPLE CLICK EFFECT
+// Water ripple click effect
 // -------------------------------------
 @layer components {
   .water-ripple-container {
@@ -463,8 +459,7 @@
   }
 }
 
-// -------------------------------------
-// 4.4 BOOKMARK RIBBON
+// Bookmark ribbon
 // -------------------------------------
 @layer components {
   .bookmark-ribbon {
@@ -518,8 +513,7 @@
   }
 }
 
-// -------------------------------------
-// 4.5 FLOATING PARTICLES (Dust Motes)
+// Floating particles
 // -------------------------------------
 @layer utilities {
   .floating-particles {
@@ -540,7 +534,6 @@
       border-radius: 50%;
       opacity: 0;
 
-      // Pre-calculated positions for variety
       &:nth-child(1) {
         left: 12%;
         top: 8%;
@@ -608,7 +601,6 @@
     }
   }
 
-  // Unique float paths for each particle
   @keyframes particle-float-1 {
     0%,
     100% {
@@ -812,6 +804,7 @@
   --gutenku-canvas-overlay: oklch(1 0 0 / 0.05);
   --gutenku-backdrop-overlay: oklch(0 0 0 / 0.02);
   --gutenku-app-bg: #fefcf7;
+  --gutenku-app-bg-image: url('@/assets/img/zen-bg-light.webp');
 
   --gutenku-btn-subtle-bg: oklch(0.42 0.09 55 / 0.1);
   --gutenku-btn-subtle-hover: oklch(0.42 0.09 55 / 0.2);
@@ -823,8 +816,7 @@
   --gutenku-theme-secondary-oklch: oklch(0.62 0.05 180);
   --gutenku-theme-accent-oklch: oklch(0.76 0.04 175);
 
-  // ====================================
-  // E1: Icon Size Scale (Zen-inspired)
+  // Icon sizes
   // ====================================
   --gutenku-icon-sm: 1.125rem; // 18px - Button icons, compact contexts
   --gutenku-icon-md: 1.25rem; // 20px - Standard action icons (DEFAULT)
@@ -832,8 +824,7 @@
   --gutenku-icon-xl: 1.75rem; // 28px - Panel header icons
   --gutenku-icon-hero: 3rem; // 48px - Splash/loading screens
 
-  // ====================================
-  // E4: Border Radius Scale
+  // Border radius scale
   // ====================================
   --gutenku-radius-xs: 0.125rem; // 2px
   --gutenku-radius-sm: 0.25rem; // 4px
@@ -842,16 +833,14 @@
   --gutenku-radius-xl: 1rem; // 16px
   --gutenku-radius-full: 50%;
 
-  // ====================================
-  // E2: Animation Timing System (Seijaku - Tranquility)
+  // Animation timing
   // ====================================
   --gutenku-duration-swift: 200ms; // Hover states, toggles
   --gutenku-duration-gentle: 400ms; // Standard transitions (DEFAULT)
   --gutenku-duration-calm: 600ms; // Reveals, major state changes
-  --gutenku-duration-serene: 800ms; // Page entrances, paint-in effects
+  --gutenku-duration-serene: 800ms;
 
-  // ====================================
-  // E3: Button Text Color Variables
+  // Button text colors
   // ====================================
   --gutenku-btn-generate-text: #2e7d32;
   --gutenku-btn-copy-text: #455a78;
@@ -916,6 +905,7 @@
   ); // Reduced from 0.3 for subtler effect
   --gutenku-backdrop-overlay: oklch(1 0 0 / 0.03);
   --gutenku-app-bg: #0f0d09;
+  --gutenku-app-bg-image: url('@/assets/img/zen-bg-dark.webp');
 
   --gutenku-btn-subtle-bg: oklch(0.58 0.07 192 / 0.15);
   --gutenku-btn-subtle-hover: oklch(0.58 0.07 192 / 0.25);
@@ -932,14 +922,13 @@
   --gutenku-theme-secondary-oklch: oklch(0.72 0.04 178);
   --gutenku-theme-accent-oklch: oklch(0.82 0.03 175);
 
-  // E3: Button Text Colors (Dark Mode)
+  // Button text colors (dark mode)
   --gutenku-btn-generate-text: var(--gutenku-zen-accent);
   --gutenku-btn-copy-text: var(--gutenku-zen-secondary);
   --gutenku-btn-success-text: var(--gutenku-zen-accent);
 }
 
-// ====================================
-// G1: Text Selection Styling (Zen aesthetics)
+// Text selection styling
 // ====================================
 ::selection {
   background: var(--gutenku-zen-accent);
@@ -1649,8 +1638,7 @@ body {
   }
 }
 
-// ====================================
-// G3: Form Element Hover States
+// Form element hover states
 // ====================================
 .v-field {
   transition: var(--gutenku-transition-zen);
