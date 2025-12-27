@@ -7,9 +7,7 @@ import type {
   BookValue,
   BookValueWithChapters,
   ChapterValue,
-  HaikuProcessingCache,
   HaikuValue,
-  ProcessedChapter,
 } from '~/shared/types';
 import { MarkovEvaluatorService } from '~/domain/services/MarkovEvaluatorService';
 import NaturalLanguageService from '~/domain/services/NaturalLanguageService';
@@ -41,7 +39,7 @@ class MaxAttemptsError extends Error {
 export default class HaikuGeneratorService implements IGenerator {
   private readonly maxAttempts = 500;
   private readonly maxAttemptsInBook = 50;
-  private readonly chunkSize = 10; // Process 10 attempts before yielding
+  private readonly chunkSize = 10;
 
   private minCachedDocs: number;
   private ttl: number;
@@ -52,8 +50,10 @@ export default class HaikuGeneratorService implements IGenerator {
   private filterWordsRegex: RegExp | null = null;
   private sentimentMinScore: number;
   private markovMinScore: number;
-
-  private processingCache: HaikuProcessingCache;
+  private posMinScore: number;
+  private trigramMinScore: number;
+  private tfidfMinScore: number;
+  private phoneticsMinScore: number;
 
   constructor(
     @inject('IHaikuRepository')
@@ -71,12 +71,6 @@ export default class HaikuGeneratorService implements IGenerator {
     @inject(IEventBusToken) private readonly eventBus: IEventBus,
   ) {
     this.filterWords = [];
-
-    this.processingCache = {
-      chapters: new Map<string, ProcessedChapter>(),
-      maxCacheSize: 100,
-      ttlMs: 60 * 60 * 1000,
-    };
   }
 
   configure(options?: {
@@ -88,6 +82,10 @@ export default class HaikuGeneratorService implements IGenerator {
     score: {
       sentiment: number;
       markovChain: number;
+      pos: number;
+      trigram: number;
+      tfidf: number;
+      phonetics: number;
     };
     theme: string;
   }): HaikuGeneratorService {
@@ -98,6 +96,10 @@ export default class HaikuGeneratorService implements IGenerator {
     this.filterWords = [];
     this.sentimentMinScore = options?.score.sentiment ?? null;
     this.markovMinScore = options?.score.markovChain ?? null;
+    this.posMinScore = options?.score.pos ?? null;
+    this.trigramMinScore = options?.score.trigram ?? null;
+    this.tfidfMinScore = options?.score.tfidf ?? null;
+    this.phoneticsMinScore = options?.score.phonetics ?? null;
 
     return this;
   }
@@ -359,6 +361,17 @@ export default class HaikuGeneratorService implements IGenerator {
     const markovMinScore =
       this.markovMinScore ??
       Number.parseFloat(process.env.MARKOV_MIN_SCORE || '0');
+    const posMinScore =
+      this.posMinScore ?? Number.parseFloat(process.env.POS_MIN_SCORE || '0');
+    const trigramMinScore =
+      this.trigramMinScore ??
+      Number.parseFloat(process.env.TRIGRAM_MIN_SCORE || '0');
+    const tfidfMinScore =
+      this.tfidfMinScore ??
+      Number.parseFloat(process.env.TFIDF_MIN_SCORE || '0');
+    const phoneticsMinScore =
+      this.phoneticsMinScore ??
+      Number.parseFloat(process.env.PHONETICS_MIN_SCORE || '0');
 
     const selectedVerses: { quote: string; index: number }[] = [];
     const usedIndices = new Set<number>();
@@ -397,6 +410,26 @@ export default class HaikuGeneratorService implements IGenerator {
 
         log.info('sentiment_score', sentimentScore, 'min', sentimentMinScore);
 
+        if (posMinScore > 0) {
+          const grammarAnalysis = this.naturalLanguage.analyzeGrammar(quote);
+
+          if (grammarAnalysis.score < posMinScore) {
+            return false;
+          }
+
+          log.info('pos_score', grammarAnalysis.score, 'min', posMinScore);
+        }
+
+        if (tfidfMinScore > 0) {
+          const tfidfScore = this.naturalLanguage.scoreDistinctiveness(quote);
+
+          if (tfidfScore < tfidfMinScore) {
+            return false;
+          }
+
+          log.info('tfidf_score', tfidfScore, 'min', tfidfMinScore);
+        }
+
         if (selectedVerses.length > 0) {
           const lastVerseIndex = selectedVerses.at(-1).index;
 
@@ -417,6 +450,33 @@ export default class HaikuGeneratorService implements IGenerator {
           }
 
           log.info('markov_score', markovScore, 'min', markovMinScore);
+
+          if (trigramMinScore > 0) {
+            const trigramScore =
+              this.markovEvaluator.evaluateHaikuTrigrams(quotesToEvaluate);
+
+            if (trigramScore < trigramMinScore) {
+              return false;
+            }
+
+            log.info('trigram_score', trigramScore, 'min', trigramMinScore);
+          }
+
+          if (phoneticsMinScore > 0 && selectedVerses.length === 2) {
+            const phoneticsAnalysis =
+              this.naturalLanguage.analyzePhonetics(quotesToEvaluate);
+
+            if (phoneticsAnalysis.alliterationScore < phoneticsMinScore) {
+              return false;
+            }
+
+            log.info(
+              'phonetics_score',
+              phoneticsAnalysis.alliterationScore,
+              'min',
+              phoneticsMinScore,
+            );
+          }
 
           this.eventBus.publish(new QuoteGeneratedEvent({ quote }));
         }

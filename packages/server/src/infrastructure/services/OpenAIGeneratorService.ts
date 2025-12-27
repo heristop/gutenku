@@ -16,7 +16,6 @@ export default class OpenAIGeneratorService implements IGenerator {
   private openai: IOpenAIClient;
 
   private selectionCount: number;
-  private descriptionTemperature: number;
 
   constructor(
     @inject(HaikuGeneratorService)
@@ -41,8 +40,6 @@ export default class OpenAIGeneratorService implements IGenerator {
       temperature.description ??
       Number.parseFloat(process.env.OPENAI_DESCRIPTION_TEMPERATURE || '0.3');
     log.info('temperature', temperature);
-
-    this.descriptionTemperature = temperature.description;
 
     this.openai.configure(apiKey);
 

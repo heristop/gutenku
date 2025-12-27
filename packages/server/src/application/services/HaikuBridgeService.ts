@@ -24,6 +24,10 @@ export default class HaikuBridgeService {
       score: {
         markovChain: args.markovMinScore,
         sentiment: args.sentimentMinScore,
+        pos: args.posMinScore,
+        trigram: args.trigramMinScore,
+        tfidf: args.tfidfMinScore,
+        phonetics: args.phoneticsMinScore,
       },
       theme: args.theme,
     });
