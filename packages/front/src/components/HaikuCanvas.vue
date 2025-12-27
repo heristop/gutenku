@@ -1,14 +1,77 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { computed, ref, useTemplateRef, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
+import { Palette, Loader2, Download } from 'lucide-vue-next';
 import { useHaikuStore } from '@/store/haiku';
+import { useImageDownload } from '@/composables/image-download';
+import { useInView } from '@/composables/in-view';
+import { useDebouncedCallback } from '@/composables/debounce';
+import { useToast } from '@/composables/toast';
+import HankoStamp from '@/components/HankoStamp.vue';
+import EnsoLoader from '@/components/EnsoLoader.vue';
+import ZenTooltip from '@/components/ui/ZenTooltip.vue';
+
+const { t } = useI18n();
+
+const themeChangeAnnouncement = ref('');
+const { success } = useToast();
+
+const cardRef = useTemplateRef<HTMLElement>('cardRef');
+const canvasRef = useTemplateRef<HTMLElement>('canvasRef');
+const { isInView } = useInView(cardRef, { delay: 100 });
 
 const { fetchNewHaiku } = useHaikuStore();
 const { haiku, loading, optionTheme, themeOptions } =
   storeToRefs(useHaikuStore());
 
+watch(optionTheme, (newTheme) => {
+  if (newTheme) {
+    themeChangeAnnouncement.value = t('haikuCanvas.themeChanged', { theme: newTheme });
+    setTimeout(() => {
+      themeChangeAnnouncement.value = '';
+    }, 1000);
+  }
+});
+
+const { debouncedFn: debouncedFetchHaiku, isPending: isThemeChangePending } =
+  useDebouncedCallback(fetchNewHaiku, 500);
+
 const imageLoaded = ref(false);
-const downloadInProgress = ref(false);
+const showHanko = ref(false);
+const { inProgress: downloadInProgress, download } = useImageDownload();
+
+const ripples = ref<Array<{ id: number; x: number; y: number }>>([]);
+let rippleId = 0;
+watch(imageLoaded, (loaded) => {
+  if (loaded) {
+    setTimeout(() => {
+      showHanko.value = true;
+    }, 800);
+  }
+});
+
+watch(loading, (isLoading) => {
+  if (isLoading) {
+    showHanko.value = false;
+    imageLoaded.value = false;
+  }
+});
+
+const createRipple = (event: MouseEvent) => {
+  if (!canvasRef.value) {return;}
+
+  const rect = canvasRef.value.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  const id = ++rippleId;
+  ripples.value.push({ id, x, y });
+
+  setTimeout(() => {
+    ripples.value = ripples.value.filter((r) => r.id !== id);
+  }, 1000);
+};
 
 const haikuImage = computed(() => {
   if (!haiku.value) {
@@ -19,27 +82,18 @@ const haikuImage = computed(() => {
 });
 
 const downloadImage = async () => {
-  downloadInProgress.value = true;
+  if (!haikuImage.value || !haiku.value) {return;}
+
+  const bookTitle = haiku.value.book.title;
+  const chapterTitle = haiku.value.chapter.title;
 
   try {
-    const imageData = haikuImage.value as string;
-    const downloadLink = document.createElement('a');
-    const bookTitle = haiku.value.book.title;
-    const chapterTitle = haiku.value.chapter.title;
-
-    downloadLink.href = imageData;
-    downloadLink.download = `${bookTitle}_${chapterTitle}`
-      .toLowerCase()
-      .replace(/[ ;.,]/g, '_');
-    downloadLink.target = '_blank';
-    downloadLink.click();
-
-    // Brief delay for ink splash effect
-    setTimeout(() => {
-      downloadInProgress.value = false;
-    }, 1000);
+    await download(haikuImage.value, {
+      filename: `${bookTitle}_${chapterTitle}`,
+    });
+    success(t('haikuCanvas.downloadSuccess'));
   } catch {
-    downloadInProgress.value = false;
+    // Download failed silently - browser handles most errors
   }
 };
 
@@ -49,112 +103,173 @@ const onImageLoad = () => {
 </script>
 
 <template>
-  <v-card
-    v-if="haiku"
-    :loading="loading"
-    class="gutenku-card haiku-canvas-card pa-4 mb-6 align-center justify-center"
-    color="accent"
-    variant="tonal"
+  <div
+    ref="cardRef"
+    class="animate-in haiku-canvas-wrapper"
+    :class="{ 'is-visible': isInView }"
   >
-    <!-- Paper Frame with Aged Edges -->
-    <div class="paper-frame">
-      <!-- Loading Skeleton with Zen Brush Strokes -->
-      <div
-        v-if="loading"
-        class="zen-loading-skeleton"
-      >
-        <div class="brush-stroke brush-stroke-1" />
-        <div class="brush-stroke brush-stroke-2" />
-        <div class="brush-stroke brush-stroke-3" />
-        <div class="loading-text">
-          Painting your haiku...
-        </div>
+    <v-card
+      v-if="haiku"
+      :loading="loading"
+      :aria-busy="loading"
+      :aria-label="t('haikuCanvas.ariaLabel')"
+      class="gutenku-card haiku-canvas-card haiku-canvas-container pa-4 mb-6 align-center justify-center"
+      color="accent"
+      variant="tonal"
+    >
+      <!-- Screen reader announcement for theme changes -->
+      <div class="sr-only" aria-live="polite" aria-atomic="true">
+        {{ themeChangeAnnouncement }}
       </div>
 
-      <!-- Canvas Container -->
-      <v-sheet
-        v-else
-        class="canvas-container pa-2"
-        elevation="0"
-        :class="{ 'image-loaded': imageLoaded }"
-      >
-        <div class="canvas">
-          <v-img
-            :src="haikuImage"
-            :lazy-src="haikuImage"
-            :alt="haiku.verses.join(', ')"
-            aspect-ratio="1/1"
-            cover
-            class="haiku-image"
-            @load="onImageLoad"
-            @contextmenu.prevent
-          />
-
-          <!-- Canvas Focus Overlay -->
-          <div class="canvas-focus-overlay" />
-
-          <!-- Paper Texture Overlay -->
-          <div class="paper-overlay" />
-
-          <!-- Aged Paper Edges -->
-          <div class="aged-edges">
-            <div class="edge edge-top" />
-            <div class="edge edge-right" />
-            <div class="edge edge-bottom" />
-            <div class="edge edge-left" />
+      <div class="paper-frame">
+        <!-- Enso Loading State -->
+        <div
+          v-if="loading"
+          v-motion
+          :initial="{ opacity: 0, scale: 0.95 }"
+          :enter="{
+            opacity: 1,
+            scale: 1,
+            transition: { duration: 400, ease: [0.25, 0.8, 0.25, 1] },
+          }"
+          :leave="{
+            opacity: 0,
+            scale: 0.98,
+            transition: { duration: 200, ease: [0.4, 0, 1, 1] },
+          }"
+          class="zen-loading-skeleton"
+        >
+          <EnsoLoader :size="100" />
+          <div class="loading-text">
+            {{ t('haikuCanvas.loading') }}
           </div>
         </div>
-      </v-sheet>
-    </div>
 
-    <!-- Controls -->
-    <v-card-actions class="canvas-actions justify-between">
-      <!-- Theme Selector -->
-      <v-select
-        v-model="optionTheme"
-        @update:model-value="fetchNewHaiku()"
-        label="Artistic Theme"
-        :items="themeOptions"
-        variant="underlined"
-        class="text-primary theme-selector"
-        hide-details
-        density="compact"
-      >
-        <template #prepend-inner>
-          <v-icon
-            color="primary"
-            size="small"
+        <v-sheet
+          v-else
+          v-motion
+          :initial="{ opacity: 0, scale: 0.95, rotateY: 5 }"
+          :enter="{
+            opacity: 1,
+            scale: 1,
+            rotateY: 0,
+            transition: { duration: 600, ease: [0.4, 0, 0.2, 1] },
+          }"
+          :leave="{
+            opacity: 0,
+            scale: 0.98,
+            transition: { duration: 200, ease: [0.4, 0, 1, 1] },
+          }"
+          class="canvas-container pa-2"
+          elevation="0"
+        >
+          <div
+            ref="canvasRef"
+            class="canvas water-ripple-container"
+            @click="createRipple"
           >
-            mdi-palette
-          </v-icon>
-        </template>
-      </v-select>
+            <v-img
+              :src="haikuImage"
+              :lazy-src="haikuImage"
+              :alt="haiku.verses.join(', ')"
+              aspect-ratio="1/1"
+              cover
+              class="haiku-image"
+              :class="{ 'haiku-image--reveal': imageLoaded }"
+              @load="onImageLoad"
+              @contextmenu.prevent
+            />
 
-      <!-- Download Button with Ink Splash -->
-      <v-btn
-        @click="downloadImage"
-        data-cy="download-btn"
-        class="download-btn gutenku-btn"
-        color="primary"
-        variant="outlined"
-        size="small"
-        :loading="downloadInProgress"
-        :disabled="loading"
-      >
-        <v-icon>
-          {{
-            downloadInProgress ? 'mdi-loading mdi-spin' : 'mdi-download'
-          }}
-        </v-icon>
-        <span class="btn-text">{{
-          downloadInProgress ? 'Saving...' : 'Download'
-        }}</span>
-      </v-btn>
-    </v-card-actions>
-  </v-card>
+            <div
+              v-for="ripple in ripples"
+              :key="ripple.id"
+              class="water-ripple water-ripple--active"
+              :style="{
+                left: `${ripple.x}px`,
+                top: `${ripple.y}px`,
+                width: '100px',
+                height: '100px',
+                marginLeft: '-50px',
+                marginTop: '-50px',
+              }"
+            />
+
+            <HankoStamp :show="showHanko" :size="42" />
+
+            <div class="canvas-focus-overlay" />
+
+            <div class="paper-overlay" />
+
+            <div class="aged-edges">
+              <div class="edge edge-top" />
+              <div class="edge edge-right" />
+              <div class="edge edge-bottom" />
+              <div class="edge edge-left" />
+            </div>
+          </div>
+        </v-sheet>
+      </div>
+
+      <v-card-actions class="canvas-actions justify-between">
+        <v-select
+          v-model="optionTheme"
+          :label="t('haikuCanvas.themeLabel')"
+          :items="themeOptions"
+          :loading="isThemeChangePending"
+          variant="underlined"
+          class="text-primary theme-selector"
+          hide-details
+          density="compact"
+          :menu-props="{ contentClass: 'theme-selector-menu' }"
+          @update:model-value="debouncedFetchHaiku()"
+        >
+          <template #prepend-inner>
+            <Palette :size="18" class="text-primary" />
+          </template>
+        </v-select>
+
+        <ZenTooltip :text="t('haikuCanvas.downloadTooltip')" position="bottom">
+          <v-btn
+            data-cy="download-btn"
+            class="download-btn gutenku-btn"
+            color="primary"
+            variant="outlined"
+            size="small"
+            :loading="downloadInProgress"
+            :disabled="loading"
+            @click="downloadImage"
+          >
+            <Loader2
+              v-if="downloadInProgress"
+              :size="18"
+              class="animate-spin"
+            />
+            <Download v-else :size="18" />
+            <span class="btn-text">{{
+              downloadInProgress ? t('haikuCanvas.saving') : t('haikuCanvas.download')
+            }}</span>
+          </v-btn>
+        </ZenTooltip>
+      </v-card-actions>
+    </v-card>
+  </div>
 </template>
 
 <style lang="scss" scoped>
+// Screen reader only utility
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .haiku-canvas-card {
   background: linear-gradient(
     135deg,
@@ -164,15 +279,13 @@ const onImageLoad = () => {
   transition: var(--gutenku-transition-zen);
 }
 
-// Paper Frame Container
 .paper-frame {
   width: 100%;
-  max-width: 400px;
+  max-width: 25rem;
   margin: 0 auto 1rem;
   position: relative;
 }
 
-// Zen Loading Skeleton
 .zen-loading-skeleton {
   aspect-ratio: 1/1;
   background: var(--gutenku-paper-bg-aged);
@@ -191,7 +304,6 @@ const onImageLoad = () => {
   }
 }
 
-// Brush Stroke Animations
 .brush-stroke {
   position: absolute;
   background: linear-gradient(
@@ -230,27 +342,17 @@ const onImageLoad = () => {
   animation-delay: 1.4s;
 }
 
-// Canvas Container
 .canvas-container {
   background: transparent;
-  transition: var(--gutenku-transition-slow);
-  opacity: 0;
-  transform: scale(0.95) rotateY(5deg);
-
-  &.image-loaded {
-    opacity: 1;
-    transform: scale(1) rotateY(0deg);
-  }
 }
 
-// Canvas with Paper Effects
 .canvas {
   position: relative;
   border-radius: 4px;
   overflow: hidden;
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    0 4px 12px oklch(0 0 0 / 0.15),
+    inset 0 1px 0 oklch(1 0 0 / 0.2);
 
   &:hover {
     transition: var(--gutenku-transition-zen);
@@ -265,13 +367,25 @@ const onImageLoad = () => {
   }
 }
 
-// Haiku Image
 .haiku-image {
   transition: var(--gutenku-transition-zen);
   border-radius: 4px;
+  clip-path: inset(100% 0 0 0);
+
+  &--reveal {
+    animation: paint-in-reveal 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
 }
 
-// Canvas Focus Overlay - Improves contrast and focus
+@keyframes paint-in-reveal {
+  0% {
+    clip-path: inset(100% 0 0 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
 .canvas-focus-overlay {
   position: absolute;
   top: 0;
@@ -285,7 +399,6 @@ const onImageLoad = () => {
   transition: var(--gutenku-transition-zen);
   z-index: 1;
 
-  // Subtle breathing effect for zen atmosphere
   &::before {
     content: '';
     position: absolute;
@@ -316,7 +429,6 @@ const onImageLoad = () => {
   }
 }
 
-// Paper Texture Overlay
 .paper-overlay {
   position: absolute;
   top: 0;
@@ -347,7 +459,6 @@ const onImageLoad = () => {
   border-radius: 4px;
 }
 
-// Aged Paper Edges
 .aged-edges {
   position: absolute;
   top: 0;
@@ -415,7 +526,6 @@ const onImageLoad = () => {
   }
 }
 
-// Controls
 .canvas-actions {
   gap: 1rem;
   padding: 0.5rem 0 0;
@@ -423,7 +533,7 @@ const onImageLoad = () => {
 
 .theme-selector {
   flex: 1;
-  max-width: 200px;
+  max-width: 12.5rem;
 
   :deep(.v-field__input) {
     font-size: 0.85rem;
@@ -431,7 +541,11 @@ const onImageLoad = () => {
 }
 
 .download-btn {
-  min-width: 120px;
+  min-width: 7.5rem;
+
+  &--celebrate {
+    animation: download-celebrate 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
 
   &:hover {
     transform: translateY(-2px) scale(1.05);
@@ -444,7 +558,6 @@ const onImageLoad = () => {
     }
   }
 
-  // Ink splash effect on download
   &::before {
     content: '';
     position: absolute;
@@ -470,7 +583,24 @@ const onImageLoad = () => {
   }
 }
 
-// Animations
+@keyframes download-celebrate {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.15);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  70% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 @keyframes brush-draw {
   0% {
     transform: scaleX(0);
@@ -497,7 +627,6 @@ const onImageLoad = () => {
   }
 }
 
-// Mobile Optimizations
 @media (max-width: 768px) {
   .paper-frame {
     max-width: 100%;

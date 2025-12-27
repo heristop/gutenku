@@ -1,8 +1,23 @@
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import { useTheme } from '@/composables/useTheme';
+import { computed, onMounted } from 'vue';
+import { useMediaQuery } from '@vueuse/core';
+import { useI18n } from 'vue-i18n';
+import { Sun, Moon, Monitor } from 'lucide-vue-next';
+import { useTheme } from '@/composables/theme';
+import { useTypewriter } from '@/composables/typewriter';
+import { useQuoteRotation } from '@/composables/quote-rotation';
+import ZenTooltip from '@/components/ui/ZenTooltip.vue';
 
-// Theme toggle functionality
+const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+
+const { t } = useI18n();
+
+// Use direct translation calls instead of tm() to avoid slot invocation warnings
+const QUOTE_COUNT = 5;
+const poetryQuotes = Array.from({ length: QUOTE_COUNT }, (_, i) =>
+  t(`haikuTitle.quotes.${i}`),
+);
+
 const {
   isDarkMode,
   toggleTheme,
@@ -11,20 +26,16 @@ const {
   setTheme,
 } = useTheme();
 
-// Toggle following system preference and align theme accordingly
 const toggleSystemPreference = () => {
   const next = !systemPreferenceEnabled.value;
   saveSystemPreferenceEnabled(next);
   if (next) {
-    // Enable system-driven theme
     setTheme('system');
   } else {
-    // Disable system preference, keep current visual theme as explicit
     setTheme(isDarkMode.value ? 'dark' : 'light');
   }
 };
 
-// Manual theme selection should disable system preference
 const toggleThemeManually = () => {
   if (systemPreferenceEnabled.value) {
     saveSystemPreferenceEnabled(false);
@@ -32,55 +43,38 @@ const toggleThemeManually = () => {
   toggleTheme();
 };
 
-const poetryQuotes = [
-  'Where words fail, poetry speaks',
-  'In seventeen syllables, infinite worlds',
-  'Every haiku holds a season of the soul',
-  'Literature breathes life into silence',
-  'From classic books to modern verse',
-];
+const {
+  currentIndex: currentQuote,
+  showQuote,
+  start: startQuoteRotation,
+} = useQuoteRotation(poetryQuotes, { intervalMs: 4000, startDelay: 800 });
 
-const currentQuote = ref(0);
-const showQuote = ref(false);
-const typewriterText = ref('');
-const showCursor = ref(true);
-const fullTitle = 'GutenKu';
-
-let quoteInterval: NodeJS.Timeout | null = null;
-let typewriterTimeout: NodeJS.Timeout | null = null;
-
-const startTypewriter = () => {
-  let i = 0;
-  const typeNextChar = () => {
-    if (i < fullTitle.length) {
-      typewriterText.value += fullTitle.charAt(i);
-      i++;
-      typewriterTimeout = setTimeout(typeNextChar, 150);
-    } else {
-      showCursor.value = false;
-      setTimeout(() => {
-        showQuote.value = true;
-        startQuoteRotation();
-      }, 800);
-    }
-  };
-  typeNextChar();
-};
-
-const startQuoteRotation = () => {
-  quoteInterval = setInterval(() => {
-    currentQuote.value = (currentQuote.value + 1) % poetryQuotes.length;
-  }, 4000);
-};
-
-onMounted(() => {
-  setTimeout(startTypewriter, 300);
+const themeToggleTooltip = computed(() => {
+  if (systemPreferenceEnabled.value) {
+    return t('haikuTitle.theme.systemDisableHint');
+  }
+  return isDarkMode.value
+    ? t('haikuTitle.theme.switchToLight')
+    : t('haikuTitle.theme.switchToDark');
 });
 
-onUnmounted(() => {
-  if (quoteInterval) clearInterval(quoteInterval);
-  if (typewriterTimeout) clearTimeout(typewriterTimeout);
+const systemThemeTooltip = computed(() =>
+  systemPreferenceEnabled.value
+    ? t('haikuTitle.theme.disableSystem')
+    : t('haikuTitle.theme.enableSystem'),
+);
+
+const {
+  displayText: typewriterText,
+  showCursor,
+  start: startTypewriter,
+} = useTypewriter('GutenKu', {
+  speed: 150,
+  startDelay: 300,
+  onComplete: startQuoteRotation,
 });
+
+onMounted(startTypewriter);
 </script>
 
 <template>
@@ -91,67 +85,42 @@ onUnmounted(() => {
   >
     <div class="theme-actions">
       <!-- Theme Toggle -->
-      <v-tooltip
-        :text="
-          systemPreferenceEnabled
-            ? 'Disable System Theme to change manually'
-            : isDarkMode
-              ? 'Switch to Light Mode'
-              : 'Switch to Dark Mode'
-        "
-        location="bottom"
+      <ZenTooltip
+        :text="themeToggleTooltip"
+        position="bottom"
+        :disabled="systemPreferenceEnabled"
       >
-        <template #activator="{ props }">
-          <v-btn
-            v-bind="props"
-            @click="toggleThemeManually"
-            class="theme-icon-btn theme-toggle-btn"
-            :class="{ 'is-disabled': systemPreferenceEnabled }"
-            :disabled="systemPreferenceEnabled"
-            :icon="isDarkMode ? 'mdi-weather-sunny' : 'mdi-weather-night'"
-            size="small"
-            variant="text"
-            :elevation="0"
-            :ripple="false"
-            :aria-label="
-              systemPreferenceEnabled
-                ? 'Disable System Theme to change manually'
-                : isDarkMode
-                  ? 'Switch to Light Mode'
-                  : 'Switch to Dark Mode'
-            "
-          />
-        </template>
-      </v-tooltip>
+        <v-btn
+          class="theme-icon-btn theme-toggle-btn"
+          :class="{ 'is-disabled': systemPreferenceEnabled }"
+          :disabled="systemPreferenceEnabled"
+          size="small"
+          variant="text"
+          :elevation="0"
+          :ripple="false"
+          :aria-label="themeToggleTooltip"
+          @click="toggleThemeManually"
+        >
+          <Sun v-if="isDarkMode" :size="20" />
+          <Moon v-else :size="20" />
+        </v-btn>
+      </ZenTooltip>
 
       <!-- System Preference Toggle (Settings) -->
-      <v-tooltip
-        :text="
-          systemPreferenceEnabled
-            ? 'Disable System Theme'
-            : 'Enable System Theme'
-        "
-        location="bottom"
-      >
-        <template #activator="{ props }">
-          <v-btn
-            v-bind="props"
-            @click="toggleSystemPreference"
-            class="theme-icon-btn theme-settings-btn"
-            :class="{ active: systemPreferenceEnabled }"
-            icon="mdi-laptop"
-            size="small"
-            variant="text"
-            :elevation="0"
-            :ripple="false"
-            :aria-label="
-              systemPreferenceEnabled
-                ? 'Disable System Theme'
-                : 'Enable System Theme'
-            "
-          />
-        </template>
-      </v-tooltip>
+      <ZenTooltip :text="systemThemeTooltip" position="bottom">
+        <v-btn
+          class="theme-icon-btn theme-settings-btn"
+          :class="{ active: systemPreferenceEnabled }"
+          size="small"
+          variant="text"
+          :elevation="0"
+          :ripple="false"
+          :aria-label="systemThemeTooltip"
+          @click="toggleSystemPreference"
+        >
+          <Monitor :size="20" />
+        </v-btn>
+      </ZenTooltip>
     </div>
 
     <div class="title-container">
@@ -159,18 +128,21 @@ onUnmounted(() => {
         <span class="typewriter-text">{{ typewriterText }}</span>
       </h1>
 
-      <transition
-        name="quote-fade"
-        mode="out-in"
+      <p
+        v-if="showQuote"
+        :key="currentQuote"
+        v-motion
+        :initial="prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 10, filter: 'blur(2px)' }"
+        :enter="prefersReducedMotion
+          ? { opacity: 0.8, transition: { duration: 0 } }
+          : { opacity: 0.8, y: 0, filter: 'blur(0px)', transition: { duration: 600, ease: [0.25, 0.8, 0.25, 1] } }"
+        :leave="prefersReducedMotion
+          ? { opacity: 0, transition: { duration: 0 } }
+          : { opacity: 0, y: -10, filter: 'blur(2px)', transition: { duration: 300, ease: [0.4, 0, 1, 1] } }"
+        class="poetry-quote"
       >
-        <p
-          v-if="showQuote"
-          :key="currentQuote"
-          class="poetry-quote"
-        >
-          {{ poetryQuotes[currentQuote] }}
-        </p>
-      </transition>
+        {{ poetryQuotes[currentQuote] }}
+      </p>
     </div>
   </v-card>
 </template>
@@ -219,12 +191,12 @@ onUnmounted(() => {
     background-image:
       radial-gradient(
         ellipse at 20% 30%,
-        var(--gutenku-zen-water, rgba(47, 93, 98, 0.05)) 0%,
+        var(--gutenku-zen-water, oklch(0.45 0.08 195 / 0.05)) 0%,
         transparent 50%
       ),
       radial-gradient(
         ellipse at 80% 70%,
-        var(--gutenku-zen-mist, rgba(167, 196, 188, 0.1)) 0%,
+        var(--gutenku-zen-mist, oklch(0.76 0.04 175 / 0.1)) 0%,
         transparent 50%
       );
     border-radius: 8px;
@@ -248,8 +220,8 @@ onUnmounted(() => {
   letter-spacing: 0.2em;
   color: var(--gutenku-text-primary, #2c1810);
   text-shadow:
-    1px 1px 2px rgba(0, 0, 0, 0.1),
-    0 0 4px rgba(47, 93, 98, 0.2);
+    1px 1px 2px oklch(0 0 0 / 0.1),
+    0 0 4px oklch(0.45 0.08 195 / 0.2);
   margin: 0;
   position: relative;
   cursor: default !important;
@@ -284,23 +256,6 @@ onUnmounted(() => {
   }
 }
 
-.quote-fade-enter-active,
-.quote-fade-leave-active {
-  transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.quote-fade-enter-from {
-  opacity: 0;
-  transform: translateY(10px);
-  filter: blur(2px);
-}
-
-.quote-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-  filter: blur(1px);
-}
-
 // Actions container to align buttons with consistent spacing
 .theme-actions {
   position: absolute;
@@ -318,16 +273,19 @@ onUnmounted(() => {
   background: var(--gutenku-btn-subtle-bg) !important;
   color: var(--gutenku-text-contrast) !important;
   border: 1px solid var(--gutenku-border-visible);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  border-radius: 50% !important;
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  min-width: 2.5rem !important;
+  min-height: 2.5rem !important;
+  max-width: 2.5rem !important;
+  max-height: 2.5rem !important;
+  padding: 0 !important;
   cursor: pointer !important;
   transition: var(--gutenku-transition-zen);
   box-shadow: none;
 
-  // No special base shadow in dark mode; keep flat for consistency
-
-  // Ensure pointer cursor works on all elements within the button
+  // Pointer cursor on all button elements
   &,
   *,
   .v-icon,
@@ -342,7 +300,7 @@ onUnmounted(() => {
     transform: translateY(-2px) scale(1.05);
     box-shadow: var(--gutenku-shadow-ink);
 
-    // Ensure hover state also has pointer cursor
+    // Maintain pointer cursor on hover
     &,
     *,
     .v-icon,
@@ -362,7 +320,7 @@ onUnmounted(() => {
     outline-offset: 2px;
 
     [data-theme='dark'] & {
-      outline-color: rgba(255, 255, 255, 0.8);
+      outline-color: oklch(1 0 0 / 0.8);
     }
   }
 
@@ -413,13 +371,11 @@ onUnmounted(() => {
   color: var(--gutenku-text-contrast) !important;
   border: 1px solid var(--gutenku-border-visible);
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 2.5rem;
+  height: 2.5rem;
   cursor: pointer !important;
   transition: var(--gutenku-transition-zen);
   box-shadow: none;
-
-  // No special base shadow in dark mode; keep flat for consistency
 
   &,
   *,
@@ -463,10 +419,9 @@ onUnmounted(() => {
     ) !important;
     color: #fff !important;
     border-color: var(--gutenku-zen-accent);
-    /* Softer, thinner accent ring and reduced elevation */
     box-shadow:
-      0 0 0 2px rgba(47, 93, 98, 0.15),
-      0 4px 12px rgba(0, 0, 0, 0.18);
+      0 0 0 2px oklch(0.45 0.08 195 / 0.15),
+      0 4px 12px oklch(0 0 0 / 0.18);
 
     .v-icon {
       color: #fff !important;
@@ -482,12 +437,16 @@ onUnmounted(() => {
   .theme-actions {
     top: 0.75rem;
     right: 0.75rem;
-    gap: 0.75rem;
+    gap: 0.5rem;
   }
 
   .theme-icon-btn {
-    width: 36px;
-    height: 36px;
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+    min-width: 2.75rem !important;
+    min-height: 2.75rem !important;
+    max-width: 2.75rem !important;
+    max-height: 2.75rem !important;
   }
 }
 </style>
