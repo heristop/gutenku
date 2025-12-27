@@ -213,7 +213,10 @@ const { message: craftingMessage } = useLoadingMessages({
     border-radius: 50%;
     padding: 1.5rem;
     animation: craft-pulse 2s ease-in-out infinite;
-    color: oklch(0.65 0.18 145);
+    color: #2f8a5a;
+
+    // Force stroke color on SVG paths (Lucide uses stroke="currentColor")
+    stroke: #2f8a5a;
   }
 }
 
