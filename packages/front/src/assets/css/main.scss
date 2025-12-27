@@ -1288,8 +1288,10 @@ body {
 }
 
 .typewriter-text {
-  overflow: hidden;
+  display: inline-block;
   white-space: nowrap;
+  max-width: 0;
+  overflow: hidden;
   animation: typewriter 2s steps(20) forwards;
 
   &::after {
@@ -1301,10 +1303,10 @@ body {
 
 @keyframes typewriter {
   0% {
-    width: 0;
+    max-width: 0;
   }
   100% {
-    width: 100%;
+    max-width: 100%;
   }
 }
 
