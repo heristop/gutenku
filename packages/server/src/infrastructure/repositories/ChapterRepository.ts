@@ -7,7 +7,6 @@ import ChapterModel from '~/infrastructure/models/ChapterModel';
 export default class ChapterRepository implements IChapterRepository {
   async getAllChapters(filter: string | null) {
     if (filter) {
-      // Use MongoDB text search (requires text index on content field)
       return await ChapterModel.find(
         { $text: { $search: filter } },
         { score: { $meta: 'textScore' } },
@@ -25,7 +24,6 @@ export default class ChapterRepository implements IChapterRepository {
   }
 
   async getFilteredChapters(filterWords: string[]): Promise<ChapterValue[]> {
-    // Use text search with limit to prevent OOM
     const searchTerms = filterWords.join(' ');
 
     return await ChapterModel.find(

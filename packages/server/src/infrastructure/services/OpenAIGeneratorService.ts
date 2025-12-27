@@ -72,14 +72,12 @@ export default class OpenAIGeneratorService implements IGenerator {
       haiku = this.haikuSelection[index];
       this.haikuSelection = [];
 
-      // Parallel OpenAI API calls
       const [descResult, transResult, emojisResult] = await Promise.allSettled([
         this.generateDescription(haiku.verses),
         this.generateTranslations(haiku.verses),
         this.generateBookmojis(haiku.book.title),
       ]);
 
-      // Apply results from parallel calls
       if (descResult.status === 'fulfilled') {
         haiku.title = descResult.value.title;
         haiku.description = descResult.value.description;
@@ -203,20 +201,17 @@ export default class OpenAIGeneratorService implements IGenerator {
   private async fetchHaikus(): Promise<string[]> {
     const haikus: string[] = [];
 
-    // Fetch haikus from the cache using the service
     this.haikuSelection = await this.haikuGeneratorService.extractFromCache(
       this.selectionCount,
     );
 
     if (this.haikuSelection.length === 0) {
-      // Generate new haikus if cache is empty
       for (let i = 0; i < this.selectionCount; i++) {
         const haiku = await this.haikuGeneratorService.buildFromDb();
         this.haikuSelection.push(haiku);
       }
     }
 
-    // Format haikus for selection prompt (single pass)
     this.haikuSelection.forEach((haiku, i: number) => {
       const verses = `[Id]: ${i}\n[Verses]: ${haiku.verses.join('\n')}\n`;
       log.info(verses);
