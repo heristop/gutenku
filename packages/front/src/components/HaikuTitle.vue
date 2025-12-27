@@ -99,7 +99,8 @@ onMounted(startTypewriter);
           :elevation="0"
           :ripple="false"
           :aria-label="themeToggleTooltip"
-          @click="toggleThemeManually"
+          @click.stop="toggleThemeManually"
+          @touchend.stop.prevent="toggleThemeManually"
         >
           <Sun v-if="isDarkMode" :size="20" />
           <Moon v-else :size="20" />
@@ -116,7 +117,8 @@ onMounted(startTypewriter);
           :elevation="0"
           :ripple="false"
           :aria-label="systemThemeTooltip"
-          @click="toggleSystemPreference"
+          @click.stop="toggleSystemPreference"
+          @touchend.stop.prevent="toggleSystemPreference"
         >
           <Monitor :size="20" />
         </v-btn>
@@ -442,16 +444,19 @@ onMounted(startTypewriter);
 
   .theme-icon-btn,
   .theme-settings-btn {
-    width: 2rem !important;
-    height: 2rem !important;
-    min-width: 2rem !important;
-    min-height: 2rem !important;
-    max-width: 2rem !important;
-    max-height: 2rem !important;
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+    min-width: 2.75rem !important;
+    min-height: 2.75rem !important;
+    max-width: 2.75rem !important;
+    max-height: 2.75rem !important;
+    touch-action: manipulation;
+    pointer-events: auto !important;
+    -webkit-tap-highlight-color: transparent;
 
     svg {
-      width: 16px !important;
-      height: 16px !important;
+      width: 18px !important;
+      height: 18px !important;
     }
   }
 }
