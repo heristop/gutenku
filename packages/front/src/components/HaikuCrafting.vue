@@ -34,7 +34,9 @@ const { message: craftingMessage } = useLoadingMessages({
       </div>
 
       <div class="header-controls" aria-hidden="true">
-        <Sparkles :size="32" class="craft-icon" />
+        <div class="craft-icon-container">
+          <Sparkles :size="32" class="craft-icon-svg" />
+        </div>
       </div>
     </div>
 
@@ -207,16 +209,20 @@ const { message: craftingMessage } = useLoadingMessages({
     align-items: center;
   }
 
-  .craft-icon {
+  .craft-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 4rem;
+    height: 4rem;
     background: oklch(0.65 0.18 145 / 0.1);
     border: 1px solid oklch(0.65 0.18 145 / 0.3);
     border-radius: 50%;
-    padding: 1.5rem;
     animation: craft-pulse 2s ease-in-out infinite;
-    color: #2f8a5a;
+  }
 
-    // Force stroke color on SVG paths (Lucide uses stroke="currentColor")
-    stroke: #2f8a5a;
+  .craft-icon-svg {
+    color: #2f8a5a;
   }
 }
 
