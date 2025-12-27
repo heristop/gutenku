@@ -38,13 +38,9 @@ export class MarkovEvaluatorService {
       totalScore += score;
     }
 
-    // Scale probability to align with sentiment score range (0.1 threshold)
     return (totalScore / (haiku.length - 1)) * 10;
   }
 
-  /**
-   * Evaluate haiku using trigram transitions for better phrase flow
-   */
   public evaluateHaikuTrigrams(haiku: string[]): number {
     if (haiku.length < 2) {
       return 0;
@@ -61,7 +57,6 @@ export class MarkovEvaluatorService {
       totalScore += score;
     }
 
-    // Scale probability to align with sentiment score range (0.1 threshold)
     return (totalScore / (haiku.length - 1)) * 10;
   }
 }
