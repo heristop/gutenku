@@ -1,0 +1,87 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":enableVulnerabilityAlerts",
+    ":semanticCommits"
+  ],
+  "schedule": ["before 9am on the first day of the month"],
+  "timezone": "Europe/Paris",
+  "labels": ["dependencies", "renovate"],
+  "automerge": true,
+  "automergeType": "pr",
+  "platformAutomerge": true,
+  "major": {
+    "automerge": false
+  },
+  "packageRules": [
+    {
+      "description": "Lint tools",
+      "groupName": "lint tools",
+      "matchPackageNames": ["oxlint", "eslint", "prettier"],
+      "matchPackagePatterns": ["^eslint-", "^@eslint/", "^prettier-"]
+    },
+    {
+      "description": "Test tools",
+      "groupName": "test tools",
+      "matchPackageNames": ["vitest", "cypress"],
+      "matchPackagePatterns": ["^@vitest/", "^@cypress/"]
+    },
+    {
+      "description": "TypeScript tooling",
+      "groupName": "typescript",
+      "matchPackageNames": [
+        "typescript",
+        "ts-node",
+        "tsx",
+        "vue-tsc",
+        "tsc-alias"
+      ]
+    },
+    {
+      "description": "Vue ecosystem",
+      "groupName": "vue ecosystem",
+      "matchPackageNames": ["vue", "vue-router", "pinia", "vuetify", "vite"],
+      "matchPackagePatterns": ["^@vue/", "^@vitejs/", "^pinia-"]
+    },
+    {
+      "description": "GraphQL ecosystem",
+      "groupName": "graphql ecosystem",
+      "matchPackageNames": ["graphql"],
+      "matchPackagePatterns": ["^@apollo/", "^@graphql/", "^@urql/", "^urql"]
+    },
+    {
+      "description": "Build tools",
+      "groupName": "build tools",
+      "matchPackageNames": ["esbuild", "rollup", "sass-embedded", "sass"],
+      "matchPackagePatterns": ["^@rollup/", "^rollup-"]
+    },
+    {
+      "description": "Node.js types",
+      "groupName": "node types",
+      "matchPackagePatterns": ["^@types/"]
+    },
+    {
+      "description": "Native dependencies - no automerge",
+      "groupName": "native dependencies",
+      "matchPackageNames": ["canvas", "sharp"],
+      "automerge": false
+    },
+    {
+      "description": "GitHub Actions",
+      "groupName": "github actions",
+      "matchManagers": ["github-actions"]
+    },
+    {
+      "description": "Docker images",
+      "groupName": "docker images",
+      "matchManagers": ["docker-compose"]
+    },
+    {
+      "description": "pnpm version",
+      "matchPackageNames": ["pnpm"],
+      "matchManagers": ["npm"],
+      "groupName": "pnpm"
+    }
+  ]
+}
