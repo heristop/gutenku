@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { describe, expect, it, vi } from 'vitest';
+import { IQueryBusToken } from '../src/application/cqrs';
 
 vi.mock('tsyringe', async (importOriginal) => {
   const actual = await importOriginal<typeof import('tsyringe')>();
@@ -22,31 +23,41 @@ vi.mock('tsyringe', async (importOriginal) => {
     ),
   };
 
-  const bookServiceMock = {
-    getAllBooks: vi.fn().mockResolvedValue([]),
-    getBookById: vi.fn().mockResolvedValue({ id: '1' }),
+  const queryBusMock = {
+    execute: vi.fn().mockImplementation(async (query) => {
+      const queryName = query.constructor.name;
+      switch (queryName) {
+        case 'GetAllBooksQuery':
+          return [];
+        case 'GetBookByIdQuery':
+          return { id: '1' };
+        case 'GetAllChaptersQuery':
+          return [];
+        case 'GetChapterByIdQuery':
+          return { id: 'c1' };
+        case 'GenerateHaikuQuery':
+          return { verses: ['a', 'b', 'c'] };
+        default:
+          return null;
+      }
+    }),
   };
 
-  const chapterServiceMock = {
-    getAllChapters: vi.fn().mockResolvedValue([]),
-    getChapterById: vi.fn().mockResolvedValue({ id: 'c1' }),
-  };
-
-  const haikuBridgeServiceMock = {
-    generate: vi.fn().mockResolvedValue({ verses: ['a', 'b', 'c'] }),
-  };
-
-  const resolve = vi.fn((cls: { name?: string }) => {
-    const name = cls?.name;
+  const resolve = vi.fn((tokenOrCls: string | { name?: string }) => {
+    // Handle token-based resolution
+    if (typeof tokenOrCls === 'string') {
+      switch (tokenOrCls) {
+        case IQueryBusToken:
+          return queryBusMock;
+        default:
+          return {};
+      }
+    }
+    // Handle class-based resolution
+    const name = tokenOrCls?.name;
     switch (name) {
       case 'PubSubService':
         return pubSubMock;
-      case 'BookService':
-        return bookServiceMock;
-      case 'ChapterService':
-        return chapterServiceMock;
-      case 'HaikuBridgeService':
-        return haikuBridgeServiceMock;
       default:
         return {};
     }
@@ -59,7 +70,7 @@ vi.mock('tsyringe', async (importOriginal) => {
 import resolvers from '../src/presentation/graphql/resolvers';
 
 describe('GraphQL resolvers', () => {
-  it('books queries resolve via BookService', async () => {
+  it('books queries resolve via QueryBus', async () => {
     const result = await resolvers.Query.books(undefined, {
       filter: undefined,
     });
@@ -68,7 +79,7 @@ describe('GraphQL resolvers', () => {
     expect(byId).toEqual({ id: '1' });
   });
 
-  it('chapters queries resolve via ChapterService', async () => {
+  it('chapters queries resolve via QueryBus', async () => {
     const list = await resolvers.Query.chapters(undefined, {
       filter: undefined,
     });
@@ -77,7 +88,7 @@ describe('GraphQL resolvers', () => {
     expect(byId).toEqual({ id: 'c1' });
   });
 
-  it('haiku query resolves via HaikuBridgeService', async () => {
+  it('haiku query resolves via QueryBus', async () => {
     const h = await resolvers.Query.haiku(undefined, {
       appendImg: false,
       descriptionTemperature: 0.5,
@@ -97,14 +108,14 @@ describe('GraphQL resolvers', () => {
     expect(typeof sub[Symbol.asyncIterator]).toBe('function');
   });
 
-  it('books query with filter passes filter to service', async () => {
+  it('books query with filter passes filter to QueryBus', async () => {
     const result = await resolvers.Query.books(undefined, {
       filter: 'whale',
     });
     expect(result).toEqual([]);
   });
 
-  it('chapters query with filter passes filter to service', async () => {
+  it('chapters query with filter passes filter to QueryBus', async () => {
     const result = await resolvers.Query.chapters(undefined, {
       filter: 'ocean',
     });
