@@ -40,7 +40,6 @@ export default class HaikuRepository implements IHaikuRepository {
     try {
       const haikusCollection = this.db.collection('haikus');
 
-      // Single aggregation with $facet to get count and sample in one query
       const result = await haikusCollection
         .aggregate(
           [
