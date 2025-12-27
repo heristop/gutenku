@@ -1,53 +1,803 @@
-@import '@/assets/css/fonts.css';
+@use '@/assets/css/fonts.css';
 
 // ====================================
 // GUTENKU GLOBAL DESIGN SYSTEM
+// Modern CSS Features: @layer, View Transitions,
+// Container Queries, :has(), Scroll-Driven Animations
 // ====================================
+
+// CSS Cascade Layers - Define order (lowest to highest priority)
+@layer base, components, utilities, theme;
+
+// ====================================
+// VIEW TRANSITION API STYLES
+// ====================================
+@layer utilities {
+  // View transition for theme switching (ink wash effect)
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: var(--gutenku-duration-calm, 600ms);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  ::view-transition-old(root) {
+    animation-name: zen-fade-out;
+  }
+
+  ::view-transition-new(root) {
+    animation-name: zen-fade-in;
+  }
+
+  @keyframes zen-fade-out {
+    from {
+      opacity: 1;
+      filter: blur(0);
+    }
+    to {
+      opacity: 0;
+      filter: blur(4px);
+    }
+  }
+
+  @keyframes zen-fade-in {
+    from {
+      opacity: 0;
+      filter: blur(4px);
+    }
+    to {
+      opacity: 1;
+      filter: blur(0);
+    }
+  }
+
+  // Haiku canvas specific transition
+  .haiku-canvas-container {
+    view-transition-name: haiku-canvas;
+  }
+
+  ::view-transition-old(haiku-canvas),
+  ::view-transition-new(haiku-canvas) {
+    animation-duration: var(--gutenku-duration-gentle, 400ms);
+  }
+
+  ::view-transition-old(haiku-canvas) {
+    animation: ink-dissolve-out 400ms ease-out forwards;
+  }
+
+  ::view-transition-new(haiku-canvas) {
+    animation: ink-dissolve-in 400ms ease-out forwards;
+  }
+
+  @keyframes ink-dissolve-out {
+    from {
+      opacity: 1;
+      transform: scale(1);
+      filter: blur(0) saturate(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.98);
+      filter: blur(8px) saturate(0.5);
+    }
+  }
+
+  @keyframes ink-dissolve-in {
+    from {
+      opacity: 0;
+      transform: scale(1.02);
+      filter: blur(8px) saturate(0.5);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+      filter: blur(0) saturate(1);
+    }
+  }
+
+  // Logo morph transition (loading -> about card)
+  ::view-transition-old(gutenku-logo),
+  ::view-transition-new(gutenku-logo) {
+    animation-duration: var(--gutenku-duration-calm, 600ms);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  ::view-transition-old(gutenku-logo) {
+    animation-name: logo-morph-out;
+  }
+
+  ::view-transition-new(gutenku-logo) {
+    animation-name: logo-morph-in;
+  }
+
+  @keyframes logo-morph-out {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+  }
+
+  @keyframes logo-morph-in {
+    from {
+      opacity: 0;
+      transform: scale(1.1);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(gutenku-logo),
+    ::view-transition-new(gutenku-logo) {
+      animation: none;
+    }
+  }
+}
+
+// ====================================
+// SCROLL-DRIVEN ANIMATIONS
+// ====================================
+@layer utilities {
+  // Scroll progress indicator
+  @supports (animation-timeline: scroll()) {
+    .scroll-progress-container {
+      scroll-timeline: --scroll-progress block;
+    }
+
+    .scroll-progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(
+        90deg,
+        var(--gutenku-zen-primary) 0%,
+        var(--gutenku-zen-accent) 100%
+      );
+      transform-origin: left;
+      animation: scroll-progress linear;
+      animation-timeline: scroll();
+      z-index: 1000;
+    }
+
+    @keyframes scroll-progress {
+      from {
+        transform: scaleX(0);
+      }
+      to {
+        transform: scaleX(1);
+      }
+    }
+
+    // Fade in on scroll for verses
+    .scroll-fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: scroll-reveal linear forwards;
+      animation-timeline: view();
+      animation-range: entry 0% entry 100%;
+    }
+
+    @keyframes scroll-reveal {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    // Parallax effect for decorative elements
+    .scroll-parallax {
+      animation: parallax-shift linear;
+      animation-timeline: scroll();
+    }
+
+    @keyframes parallax-shift {
+      from {
+        transform: translateY(0);
+      }
+      to {
+        transform: translateY(-20%);
+      }
+    }
+  }
+}
+
+// ====================================
+// CSS :has() SELECTORS
+// ====================================
+@layer components {
+  // Form group with focused input
+  @supports selector(:has(*)) {
+    .form-group:has(input:focus, .v-field--focused) {
+      background: var(--gutenku-zen-water);
+      border-radius: var(--gutenku-radius-md);
+      transition: background var(--gutenku-duration-swift);
+    }
+
+    // Toolbar with active button
+    .toolbar-panel:has(.gutenku-btn:active, .gutenku-btn:focus) {
+      box-shadow: var(--gutenku-shadow-ink);
+    }
+
+    // Panel with loading state
+    .gutenku-paper:has(.zen-loading) {
+      opacity: 0.85;
+      pointer-events: none;
+    }
+
+    // Card with expanded content
+    .gutenku-card:has(.expanded) {
+      box-shadow: var(--gutenku-shadow-zen);
+    }
+
+    // Button group with checked radio/checkbox
+    .btn-group:has(input:checked) {
+      border-color: var(--gutenku-zen-accent);
+    }
+
+    // Stats panel with empty state
+    .stats-panel:has(.empty-state) {
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+// ====================================
+// CONTAINER QUERIES
+// ====================================
+@layer components {
+  // Config panel container
+  .config-panel-container {
+    container-type: inline-size;
+    container-name: config-panel;
+  }
+
+  @container config-panel (max-width: 300px) {
+    .config-panel__controls {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .config-panel__label {
+      font-size: 0.875rem;
+    }
+  }
+
+  @container config-panel (min-width: 400px) {
+    .config-panel__controls {
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+
+  // Stats panel container
+  .stats-panel-container {
+    container-type: inline-size;
+    container-name: stats-panel;
+  }
+
+  @container stats-panel (max-width: 250px) {
+    .stats-panel__book-item {
+      font-size: 0.875rem;
+      padding: 0.5rem;
+    }
+
+    .stats-panel__title {
+      font-size: 1rem;
+    }
+  }
+
+  @container stats-panel (min-width: 350px) {
+    .stats-panel__book-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+  }
+
+  // Haiku canvas container
+  .haiku-canvas-wrapper {
+    container-type: inline-size;
+    container-name: haiku-canvas;
+  }
+
+  @container haiku-canvas (max-width: 350px) {
+    .haiku-action-buttons {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
+
+  // Toolbar container
+  .toolbar-container {
+    container-type: inline-size;
+    container-name: toolbar;
+  }
+
+  @container toolbar (max-width: 280px) {
+    .toolbar__btn-text {
+      display: none;
+    }
+
+    .toolbar__btn {
+      min-width: auto;
+      padding: 0.5rem;
+    }
+  }
+}
+
+// ====================================
+// PHASE 4: SUBTLE WOW EFFECTS
+// ====================================
+
+// -------------------------------------
+// 4.1 LIGHT BEAM OVERLAY
+// -------------------------------------
+@layer utilities {
+  // CSS @property for smooth gradient animation
+  @property --beam-position {
+    syntax: '<percentage>';
+    inherits: false;
+    initial-value: -50%;
+  }
+
+  .light-beam-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: var(--beam-position);
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        115deg,
+        transparent 0%,
+        transparent 40%,
+        rgba(255, 248, 230, 0.08) 45%,
+        rgba(255, 248, 230, 0.12) 50%,
+        rgba(255, 248, 230, 0.08) 55%,
+        transparent 60%,
+        transparent 100%
+      );
+      animation: light-beam-drift 20s ease-in-out infinite;
+      transform: rotate(-15deg);
+    }
+  }
+
+  [data-theme='dark'] .light-beam-overlay::before {
+    background: linear-gradient(
+      115deg,
+      transparent 0%,
+      transparent 40%,
+      rgba(200, 200, 180, 0.03) 45%,
+      rgba(200, 200, 180, 0.05) 50%,
+      rgba(200, 200, 180, 0.03) 55%,
+      transparent 60%,
+      transparent 100%
+    );
+  }
+
+  @keyframes light-beam-drift {
+    0%,
+    100% {
+      --beam-position: -30%;
+      opacity: 0.6;
+    }
+    50% {
+      --beam-position: 30%;
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .light-beam-overlay::before {
+      animation: none;
+      --beam-position: 0%;
+      opacity: 0.5;
+    }
+  }
+}
+
+// -------------------------------------
+// 4.3 WATER RIPPLE CLICK EFFECT
+// -------------------------------------
+@layer components {
+  .water-ripple-container {
+    position: relative;
+    overflow: hidden;
+
+    .water-ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle,
+        var(--gutenku-zen-accent) 0%,
+        transparent 70%
+      );
+      transform: scale(0);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 5;
+
+      &--active {
+        animation: water-ripple-expand 1s cubic-bezier(0, 0.5, 0.5, 1) forwards;
+      }
+    }
+  }
+
+  @keyframes water-ripple-expand {
+    0% {
+      transform: scale(0);
+      opacity: 0.4;
+    }
+    50% {
+      opacity: 0.2;
+    }
+    100% {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .water-ripple--active {
+      animation: none;
+    }
+  }
+}
+
+// -------------------------------------
+// 4.4 BOOKMARK RIBBON
+// -------------------------------------
+@layer components {
+  .bookmark-ribbon {
+    position: absolute;
+    top: -5px;
+    right: 20px;
+    width: 24px;
+    height: 50px;
+    z-index: 15;
+    pointer-events: none;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        180deg,
+        #c41e3a 0%,
+        #a01830 50%,
+        #8b1528 100%
+      );
+      clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
+      box-shadow:
+        2px 2px 4px rgba(0, 0, 0, 0.2),
+        inset -2px 0 4px rgba(255, 255, 255, 0.1);
+    }
+
+    // Gold stripe detail
+    &::after {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 12px;
+      height: 2px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 215, 0, 0.6),
+        transparent
+      );
+    }
+  }
+
+  [data-theme='dark'] .bookmark-ribbon::before {
+    background: linear-gradient(180deg, #d4536a 0%, #b84058 50%, #a03048 100%);
+  }
+}
+
+// -------------------------------------
+// 4.5 FLOATING PARTICLES (Dust Motes)
+// -------------------------------------
+@layer utilities {
+  .floating-particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+
+    &__particle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: var(--gutenku-zen-mist);
+      border-radius: 50%;
+      opacity: 0;
+
+      // Pre-calculated positions for variety
+      &:nth-child(1) {
+        left: 12%;
+        top: 8%;
+        animation:
+          particle-float-1 18s ease-in-out infinite,
+          particle-fade 9s ease-in-out infinite;
+        animation-delay: 0.8s;
+      }
+      &:nth-child(2) {
+        left: 45%;
+        top: 23%;
+        animation:
+          particle-float-2 21s ease-in-out infinite,
+          particle-fade 10s ease-in-out infinite;
+        animation-delay: 1.6s;
+      }
+      &:nth-child(3) {
+        left: 78%;
+        top: 15%;
+        animation:
+          particle-float-3 17s ease-in-out infinite,
+          particle-fade 11s ease-in-out infinite;
+        animation-delay: 2.4s;
+      }
+      &:nth-child(4) {
+        left: 25%;
+        top: 67%;
+        animation:
+          particle-float-4 23s ease-in-out infinite,
+          particle-fade 8s ease-in-out infinite;
+        animation-delay: 3.2s;
+      }
+      &:nth-child(5) {
+        left: 88%;
+        top: 45%;
+        animation:
+          particle-float-5 19s ease-in-out infinite,
+          particle-fade 12s ease-in-out infinite;
+        animation-delay: 4s;
+      }
+      &:nth-child(6) {
+        left: 55%;
+        top: 82%;
+        animation:
+          particle-float-6 22s ease-in-out infinite,
+          particle-fade 9s ease-in-out infinite;
+        animation-delay: 4.8s;
+      }
+      &:nth-child(7) {
+        left: 33%;
+        top: 38%;
+        animation:
+          particle-float-7 16s ease-in-out infinite,
+          particle-fade 10s ease-in-out infinite;
+        animation-delay: 5.6s;
+      }
+      &:nth-child(8) {
+        left: 70%;
+        top: 72%;
+        animation:
+          particle-float-8 20s ease-in-out infinite,
+          particle-fade 11s ease-in-out infinite;
+        animation-delay: 6.4s;
+      }
+    }
+  }
+
+  // Unique float paths for each particle
+  @keyframes particle-float-1 {
+    0%,
+    100% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    25% {
+      transform: translate(15px, -25px) rotate(90deg);
+    }
+    50% {
+      transform: translate(-20px, 10px) rotate(180deg);
+    }
+    75% {
+      transform: translate(8px, -18px) rotate(270deg);
+    }
+  }
+  @keyframes particle-float-2 {
+    0%,
+    100% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    25% {
+      transform: translate(-12px, 20px) rotate(90deg);
+    }
+    50% {
+      transform: translate(25px, -15px) rotate(180deg);
+    }
+    75% {
+      transform: translate(-18px, 12px) rotate(270deg);
+    }
+  }
+  @keyframes particle-float-3 {
+    0%,
+    100% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    25% {
+      transform: translate(20px, 15px) rotate(90deg);
+    }
+    50% {
+      transform: translate(-15px, -22px) rotate(180deg);
+    }
+    75% {
+      transform: translate(12px, 18px) rotate(270deg);
+    }
+  }
+  @keyframes particle-float-4 {
+    0%,
+    100% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    25% {
+      transform: translate(-25px, -10px) rotate(90deg);
+    }
+    50% {
+      transform: translate(18px, 25px) rotate(180deg);
+    }
+    75% {
+      transform: translate(-8px, -20px) rotate(270deg);
+    }
+  }
+  @keyframes particle-float-5 {
+    0%,
+    100% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    25% {
+      transform: translate(10px, 22px) rotate(90deg);
+    }
+    50% {
+      transform: translate(-22px, -8px) rotate(180deg);
+    }
+    75% {
+      transform: translate(15px, 15px) rotate(270deg);
+    }
+  }
+  @keyframes particle-float-6 {
+    0%,
+    100% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    25% {
+      transform: translate(-18px, -18px) rotate(90deg);
+    }
+    50% {
+      transform: translate(12px, 20px) rotate(180deg);
+    }
+    75% {
+      transform: translate(-20px, -5px) rotate(270deg);
+    }
+  }
+  @keyframes particle-float-7 {
+    0%,
+    100% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    25% {
+      transform: translate(22px, -12px) rotate(90deg);
+    }
+    50% {
+      transform: translate(-10px, 18px) rotate(180deg);
+    }
+    75% {
+      transform: translate(5px, -25px) rotate(270deg);
+    }
+  }
+  @keyframes particle-float-8 {
+    0%,
+    100% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    25% {
+      transform: translate(-15px, 8px) rotate(90deg);
+    }
+    50% {
+      transform: translate(20px, -20px) rotate(180deg);
+    }
+    75% {
+      transform: translate(-12px, 22px) rotate(270deg);
+    }
+  }
+
+  @keyframes particle-fade {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    20%,
+    80% {
+      opacity: 0.4;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }
+
+  [data-theme='dark'] .floating-particles__particle {
+    background: var(--gutenku-zen-water);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .floating-particles {
+      display: none;
+    }
+  }
+}
 
 // CSS Variables for Design System
 :root {
   // Colors - Book/Paper Theme (Light Mode)
   --gutenku-paper-bg: #f8f6f0;
-  --gutenku-paper-border: rgba(139, 69, 19, 0.2);
-  --gutenku-paper-border-hover: rgba(139, 69, 19, 0.6);
+  --gutenku-paper-border: oklch(0.42 0.09 55 / 0.2);
+  --gutenku-paper-border-hover: oklch(0.42 0.09 55 / 0.6);
   --gutenku-text-primary: #2c1810;
   --gutenku-text-secondary: #4a4a4a;
   --gutenku-text-muted: #5a5a5a;
   --gutenku-text-accent: #6b4423;
 
   // Button Theme Colors
-  --gutenku-btn-generate: rgba(46, 125, 50, 0.4);
-  --gutenku-btn-generate-hover: rgba(46, 125, 50, 0.6);
-  --gutenku-btn-generate-bg: rgba(46, 125, 50, 0.1);
-  --gutenku-btn-copy: rgba(69, 90, 120, 0.4);
-  --gutenku-btn-copy-hover: rgba(69, 90, 120, 0.6);
-  --gutenku-btn-copy-bg: rgba(69, 90, 120, 0.1);
-  --gutenku-btn-success: rgba(46, 125, 50, 0.6);
-  --gutenku-btn-success-bg: rgba(46, 125, 50, 0.1);
+  --gutenku-btn-generate: oklch(0.55 0.15 145 / 0.4);
+  --gutenku-btn-generate-hover: oklch(0.55 0.15 145 / 0.6);
+  --gutenku-btn-generate-bg: oklch(0.55 0.15 145 / 0.1);
+  --gutenku-btn-copy: oklch(0.43 0.05 250 / 0.4);
+  --gutenku-btn-copy-hover: oklch(0.43 0.05 250 / 0.6);
+  --gutenku-btn-copy-bg: oklch(0.43 0.05 250 / 0.1);
+  --gutenku-btn-success: oklch(0.55 0.15 145 / 0.6);
+  --gutenku-btn-success-bg: oklch(0.55 0.15 145 / 0.1);
 
   // Shadows
-  --gutenku-shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
-  --gutenku-shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --gutenku-shadow-light: 0 2px 4px oklch(0 0 0 / 0.1);
+  --gutenku-shadow-medium: 0 4px 8px oklch(0 0 0 / 0.15);
   --gutenku-shadow-book:
-    0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14),
-    0 1px 10px 0 rgba(0, 0, 0, 0.12);
-  --gutenku-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 2px 4px -1px oklch(0 0 0 / 0.2), 0 4px 5px 0 oklch(0 0 0 / 0.14),
+    0 1px 10px 0 oklch(0 0 0 / 0.12);
+  --gutenku-shadow-inset: inset 0 1px 0 oklch(1 0 0 / 0.1);
 
   // Transitions
   --gutenku-transition: all 0.3s ease;
   --gutenku-transition-fast: all 0.2s ease;
 
-  // Zen Variables (Referenced throughout CSS but not defined)
   --gutenku-paper-bg-warm: #faf8f2;
   --gutenku-paper-bg-aged: #f5f2e8;
   --gutenku-text-zen: #2f5d62;
   --gutenku-zen-primary: #2f5d62;
   --gutenku-zen-secondary: #7d9d9c;
   --gutenku-zen-accent: #a7c4bc;
-  --gutenku-zen-mist: rgba(167, 196, 188, 0.1);
-  --gutenku-zen-water: rgba(47, 93, 98, 0.05);
-  --gutenku-shadow-zen: 0 8px 32px rgba(47, 93, 98, 0.1);
-  --gutenku-shadow-ink: 0 2px 8px rgba(47, 93, 98, 0.15);
+  --gutenku-zen-mist: oklch(0.76 0.04 175 / 0.1);
+  --gutenku-zen-water: oklch(0.45 0.08 195 / 0.05);
+  --gutenku-shadow-zen: 0 8px 32px oklch(0.45 0.08 195 / 0.1);
+  --gutenku-shadow-ink: 0 2px 8px oklch(0.45 0.08 195 / 0.15);
   --gutenku-transition-zen: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   --gutenku-transition-slow: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   --gutenku-space-5: 0.5rem;
@@ -56,96 +806,159 @@
   --gutenku-space-golden-sm: 1rem;
   --gutenku-space-golden-md: 1.618rem;
 
-  // Contrast and opacity variables (light mode)
   --gutenku-text-contrast: #000000;
-  --gutenku-border-visible: rgba(0, 0, 0, 0.2);
-  --gutenku-border-visible-hover: rgba(0, 0, 0, 0.4);
-  --gutenku-canvas-overlay: rgba(255, 255, 255, 0.05);
-  --gutenku-backdrop-overlay: rgba(0, 0, 0, 0.02);
+  --gutenku-border-visible: oklch(0 0 0 / 0.2);
+  --gutenku-border-visible-hover: oklch(0 0 0 / 0.4);
+  --gutenku-canvas-overlay: oklch(1 0 0 / 0.05);
+  --gutenku-backdrop-overlay: oklch(0 0 0 / 0.02);
   --gutenku-app-bg: #fefcf7;
 
-  // Button contrast variables
-  --gutenku-btn-subtle-bg: rgba(139, 69, 19, 0.1);
-  --gutenku-btn-subtle-hover: rgba(139, 69, 19, 0.2);
-  --gutenku-btn-expand-bg: rgba(34, 139, 34, 0.1);
-  --gutenku-btn-expand-hover: rgba(34, 139, 34, 0.2);
+  --gutenku-btn-subtle-bg: oklch(0.42 0.09 55 / 0.1);
+  --gutenku-btn-subtle-hover: oklch(0.42 0.09 55 / 0.2);
+  --gutenku-btn-expand-bg: oklch(0.55 0.18 140 / 0.1);
+  --gutenku-btn-expand-hover: oklch(0.55 0.18 140 / 0.2);
+
+  // OKLCH theme colors for Vuetify variable replacement
+  --gutenku-theme-primary-oklch: oklch(0.45 0.08 195);
+  --gutenku-theme-secondary-oklch: oklch(0.62 0.05 180);
+  --gutenku-theme-accent-oklch: oklch(0.76 0.04 175);
+
+  // ====================================
+  // E1: Icon Size Scale (Zen-inspired)
+  // ====================================
+  --gutenku-icon-sm: 1.125rem; // 18px - Button icons, compact contexts
+  --gutenku-icon-md: 1.25rem; // 20px - Standard action icons (DEFAULT)
+  --gutenku-icon-lg: 1.5rem; // 24px - Section headers, toggle icons
+  --gutenku-icon-xl: 1.75rem; // 28px - Panel header icons
+  --gutenku-icon-hero: 3rem; // 48px - Splash/loading screens
+
+  // ====================================
+  // E4: Border Radius Scale
+  // ====================================
+  --gutenku-radius-xs: 0.125rem; // 2px
+  --gutenku-radius-sm: 0.25rem; // 4px
+  --gutenku-radius-md: 0.5rem; // 8px
+  --gutenku-radius-lg: 0.75rem; // 12px
+  --gutenku-radius-xl: 1rem; // 16px
+  --gutenku-radius-full: 50%;
+
+  // ====================================
+  // E2: Animation Timing System (Seijaku - Tranquility)
+  // ====================================
+  --gutenku-duration-swift: 200ms; // Hover states, toggles
+  --gutenku-duration-gentle: 400ms; // Standard transitions (DEFAULT)
+  --gutenku-duration-calm: 600ms; // Reveals, major state changes
+  --gutenku-duration-serene: 800ms; // Page entrances, paint-in effects
+
+  // ====================================
+  // E3: Button Text Color Variables
+  // ====================================
+  --gutenku-btn-generate-text: #2e7d32;
+  --gutenku-btn-copy-text: #455a78;
+  --gutenku-btn-success-text: #2e7d32;
 }
 
-// Dark Mode - Moonlit Library Theme
 [data-theme='dark'] {
-  // Colors - Moonlit Library Theme
   --gutenku-paper-bg: #232019;
   --gutenku-paper-bg-warm: #1d1814;
-  --gutenku-paper-bg-aged: rgba(26, 22, 17, 0.8);
-  --gutenku-paper-border: rgba(167, 196, 188, 0.2);
-  --gutenku-paper-border-hover: rgba(167, 196, 188, 0.4);
+  --gutenku-paper-bg-aged: oklch(0.15 0.02 60 / 0.8);
+  --gutenku-paper-border: oklch(0.76 0.04 175 / 0.2);
+  --gutenku-paper-border-hover: oklch(0.76 0.04 175 / 0.4);
   --gutenku-text-primary: #e8e3d8;
   --gutenku-text-secondary: #c4bfb4;
-  --gutenku-text-muted: rgba(168, 163, 149, 0.8);
+  --gutenku-text-muted: oklch(0.68 0.02 85 / 0.8);
   --gutenku-text-accent: #9bb6b4;
   --gutenku-text-zen: #5a8a8f;
 
-  // Button theme colors for dark mode
-  --gutenku-btn-generate: rgba(90, 138, 143, 0.8);
-  --gutenku-btn-generate-hover: rgba(90, 138, 143, 1);
-  --gutenku-btn-generate-bg: rgba(90, 138, 143, 0.2);
-  --gutenku-btn-copy: rgba(155, 182, 180, 0.8);
-  --gutenku-btn-copy-hover: rgba(155, 182, 180, 1);
-  --gutenku-btn-copy-bg: rgba(155, 182, 180, 0.2);
-  --gutenku-btn-success: rgba(90, 138, 143, 0.8);
-  --gutenku-btn-success-bg: rgba(90, 138, 143, 0.2);
+  --gutenku-btn-generate: oklch(0.58 0.07 192 / 0.8);
+  --gutenku-btn-generate-hover: oklch(0.58 0.07 192);
+  --gutenku-btn-generate-bg: oklch(0.58 0.07 192 / 0.2);
+  --gutenku-btn-copy: oklch(0.72 0.04 178 / 0.8);
+  --gutenku-btn-copy-hover: oklch(0.72 0.04 178);
+  --gutenku-btn-copy-bg: oklch(0.72 0.04 178 / 0.2);
+  --gutenku-btn-success: oklch(0.58 0.07 192 / 0.8);
+  --gutenku-btn-success-bg: oklch(0.58 0.07 192 / 0.2);
 
-  // Dark Mode Shadows
-  --gutenku-shadow-light: 0 2px 4px rgba(0, 0, 0, 0.4);
-  --gutenku-shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.5);
+  --gutenku-shadow-light: 0 2px 4px oklch(0 0 0 / 0.4);
+  --gutenku-shadow-medium: 0 4px 8px oklch(0 0 0 / 0.5);
   --gutenku-shadow-book:
-    0 2px 4px -1px rgba(0, 0, 0, 0.6), 0 4px 5px 0 rgba(0, 0, 0, 0.4),
-    0 1px 10px 0 rgba(0, 0, 0, 0.3);
-  --gutenku-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  --gutenku-shadow-zen: 0 8px 32px rgba(0, 0, 0, 0.4);
-  --gutenku-shadow-ink: 0 2px 8px rgba(90, 138, 143, 0.3);
+    0 2px 4px -1px oklch(0 0 0 / 0.6), 0 4px 5px 0 oklch(0 0 0 / 0.4),
+    0 1px 10px 0 oklch(0 0 0 / 0.3);
+  --gutenku-shadow-inset: inset 0 1px 0 oklch(1 0 0 / 0.05);
+  --gutenku-shadow-zen: 0 8px 32px oklch(0 0 0 / 0.4);
+  --gutenku-shadow-ink: 0 2px 8px oklch(0.58 0.07 192 / 0.3);
 
-  // Zen Variables for Dark Mode
   --gutenku-zen-primary: #5a8a8f;
   --gutenku-zen-secondary: #9bb6b4;
   --gutenku-zen-accent: #bfd4d0;
-  --gutenku-zen-mist: rgba(191, 212, 208, 0.1);
-  --gutenku-zen-water: rgba(90, 138, 143, 0.05);
+  --gutenku-zen-mist: oklch(0.82 0.03 175 / 0.1);
+  --gutenku-zen-water: oklch(0.58 0.07 192 / 0.05);
 
-  // Dark mode specific paper textures
   .gutenku-paper::before {
     background-image:
       radial-gradient(
         circle at 20% 30%,
-        rgba(90, 138, 143, 0.08) 0%,
+        oklch(0.58 0.07 192 / 0.08) 0%,
         transparent 50%
       ),
       radial-gradient(
         circle at 80% 70%,
-        rgba(90, 138, 143, 0.08) 0%,
+        oklch(0.58 0.07 192 / 0.08) 0%,
         transparent 50%
       );
   }
 
-  // Contrast and opacity variables
   --gutenku-text-contrast: #ffffff;
-  --gutenku-border-visible: rgba(255, 255, 255, 0.2);
-  --gutenku-border-visible-hover: rgba(255, 255, 255, 0.4);
-  --gutenku-canvas-overlay: rgba(0, 0, 0, 0.3);
-  --gutenku-backdrop-overlay: rgba(255, 255, 255, 0.03);
+  --gutenku-border-visible: oklch(1 0 0 / 0.2);
+  --gutenku-border-visible-hover: oklch(1 0 0 / 0.4);
+  --gutenku-canvas-overlay: oklch(
+    0 0 0 / 0.15
+  ); // Reduced from 0.3 for subtler effect
+  --gutenku-backdrop-overlay: oklch(1 0 0 / 0.03);
   --gutenku-app-bg: #0f0d09;
 
-  // Dark mode button contrast variables
-  --gutenku-btn-subtle-bg: rgba(90, 138, 143, 0.15);
-  --gutenku-btn-subtle-hover: rgba(90, 138, 143, 0.25);
-  --gutenku-btn-expand-bg: rgba(155, 182, 180, 0.15);
-  --gutenku-btn-expand-hover: rgba(155, 182, 180, 0.25);
+  --gutenku-btn-subtle-bg: oklch(0.58 0.07 192 / 0.15);
+  --gutenku-btn-subtle-hover: oklch(0.58 0.07 192 / 0.25);
+  --gutenku-btn-expand-bg: oklch(0.72 0.04 178 / 0.15);
+  --gutenku-btn-expand-hover: oklch(0.72 0.04 178 / 0.25);
 
-  // Dark backdrop
   .zen-backdrop {
     backdrop-filter: blur(8px);
-    background: rgba(26, 22, 17, 0.8);
+    background: oklch(0.15 0.02 60 / 0.8);
   }
+
+  // OKLCH theme colors for dark mode
+  --gutenku-theme-primary-oklch: oklch(0.58 0.07 192);
+  --gutenku-theme-secondary-oklch: oklch(0.72 0.04 178);
+  --gutenku-theme-accent-oklch: oklch(0.82 0.03 175);
+
+  // E3: Button Text Colors (Dark Mode)
+  --gutenku-btn-generate-text: var(--gutenku-zen-accent);
+  --gutenku-btn-copy-text: var(--gutenku-zen-secondary);
+  --gutenku-btn-success-text: var(--gutenku-zen-accent);
+}
+
+// ====================================
+// G1: Text Selection Styling (Zen aesthetics)
+// ====================================
+::selection {
+  background: var(--gutenku-zen-accent);
+  color: var(--gutenku-text-primary);
+}
+
+::-moz-selection {
+  background: var(--gutenku-zen-accent);
+  color: var(--gutenku-text-primary);
+}
+
+[data-theme='dark'] ::selection {
+  background: var(--gutenku-zen-secondary);
+  color: var(--gutenku-paper-bg);
+}
+
+[data-theme='dark'] ::-moz-selection {
+  background: var(--gutenku-zen-secondary);
+  color: var(--gutenku-paper-bg);
 }
 
 // Typography System
@@ -160,7 +973,6 @@ body {
   }
 
   .text-h5 {
-    // Inherits JMH Typewriter from Vuetify global config
   }
 }
 
@@ -181,9 +993,7 @@ body {
   font-family: 'JMH Typewriter', monospace !important;
 }
 
-// Typography Classes
 .gutenku-font-typewriter {
-  // This class is now redundant - JMH Typewriter is the global default
 }
 
 .gutenku-text-primary {
@@ -202,10 +1012,9 @@ body {
 .gutenku-paper {
   background: var(--gutenku-paper-bg);
   border: 1px solid var(--gutenku-paper-border);
-  border-radius: 8px;
+  border-radius: var(--gutenku-radius-md);
   position: relative;
 
-  // Subtle paper texture
   &::before {
     content: '';
     position: absolute;
@@ -216,15 +1025,15 @@ body {
     background-image:
       radial-gradient(
         circle at 20% 30%,
-        rgba(139, 69, 19, 0.05) 0%,
+        oklch(0.42 0.09 55 / 0.05) 0%,
         transparent 50%
       ),
       radial-gradient(
         circle at 80% 70%,
-        rgba(139, 69, 19, 0.05) 0%,
+        oklch(0.42 0.09 55 / 0.05) 0%,
         transparent 50%
       );
-    border-radius: 8px;
+    border-radius: var(--gutenku-radius-md);
     pointer-events: none;
     z-index: 1;
   }
@@ -235,15 +1044,13 @@ body {
   z-index: 2;
 }
 
-// Button System with Zen Interactions
 .gutenku-btn {
-  border-radius: 6px;
+  border-radius: var(--gutenku-radius-md);
   transition: var(--gutenku-transition-zen);
   border-width: 1.5px;
   position: relative;
   overflow: hidden;
 
-  // Zen ink effect background
   &::before {
     content: '';
     position: absolute;
@@ -262,7 +1069,6 @@ body {
     border-radius: 50%;
   }
 
-  // Hover with zen breathing
   &:hover {
     transform: translateY(-2px) scale(1.02);
     box-shadow: var(--gutenku-shadow-ink);
@@ -274,19 +1080,17 @@ body {
     }
   }
 
-  // Active state with zen pulse
   &:active {
     transform: translateY(0) scale(0.98);
     transition: var(--gutenku-transition-fast);
   }
 
-  // Focus state for accessibility
   &:focus-visible {
     outline: 2px solid var(--gutenku-zen-accent);
     outline-offset: 2px;
     box-shadow:
       var(--gutenku-shadow-ink),
-      0 0 0 4px rgba(167, 196, 188, 0.2);
+      0 0 0 4px oklch(0.76 0.04 175 / 0.2);
   }
 
   .btn-text {
@@ -298,7 +1102,6 @@ body {
     transition: var(--gutenku-transition-zen);
   }
 
-  // Icon styling
   .v-icon {
     position: relative;
     z-index: 1;
@@ -310,7 +1113,6 @@ body {
   }
 }
 
-// Ink ripple animation
 @keyframes ink-ripple {
   0% {
     opacity: 1;
@@ -324,7 +1126,7 @@ body {
 
 .gutenku-btn-generate {
   border-color: var(--gutenku-btn-generate);
-  color: #2e7d32;
+  color: var(--gutenku-btn-generate-text);
 
   &:hover {
     background: var(--gutenku-btn-generate-bg);
@@ -334,7 +1136,7 @@ body {
 
 .gutenku-btn-copy {
   border-color: var(--gutenku-btn-copy);
-  color: #455a78;
+  color: var(--gutenku-btn-copy-text);
 
   &:hover {
     background: var(--gutenku-btn-copy-bg);
@@ -344,19 +1146,17 @@ body {
   &.success {
     border-color: var(--gutenku-btn-success);
     background: var(--gutenku-btn-success-bg);
-    color: #2e7d32;
+    color: var(--gutenku-btn-success-text);
   }
 }
 
-// Book Page System
 .gutenku-book-page {
   @extend .gutenku-paper;
-  padding: 3rem 2rem 2rem 3rem; // More left margin for binding
+  padding: 3rem 2rem 2rem 3rem;
   margin-bottom: 1.5rem;
-  min-height: 500px;
+  min-height: 31.25rem; // 500px
   box-shadow: var(--gutenku-shadow-book);
 
-  // Book binding shadow
   &::after {
     content: '';
     position: absolute;
@@ -366,11 +1166,11 @@ body {
     height: 100%;
     background: linear-gradient(
       to bottom,
-      rgba(0, 0, 0, 0.1) 0%,
-      rgba(0, 0, 0, 0.05) 50%,
-      rgba(0, 0, 0, 0.1) 100%
+      oklch(0 0 0 / 0.1) 0%,
+      oklch(0 0 0 / 0.05) 50%,
+      oklch(0 0 0 / 0.1) 100%
     );
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 5px oklch(0 0 0 / 0.2);
     z-index: 1;
   }
 }
@@ -383,7 +1183,7 @@ body {
   margin: 2rem 0 1rem 0;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  text-shadow: 1px 1px 2px oklch(0 0 0 / 0.1);
 
   &.dark-theme {
     opacity: 0.3;
@@ -436,25 +1236,24 @@ body {
 
 .gutenku-btn-toggle {
   @extend .gutenku-btn;
-  background: rgba(139, 69, 19, 0.1) !important;
-  border: 1px solid rgba(139, 69, 19, 0.3);
+  background: oklch(0.42 0.09 55 / 0.1) !important;
+  border: 1px solid oklch(0.42 0.09 55 / 0.3);
 
   &:hover {
-    background: rgba(139, 69, 19, 0.2) !important;
+    background: oklch(0.42 0.09 55 / 0.2) !important;
     transform: scale(1.05) translateY(-1px);
   }
 
   &.expand-toggle {
-    background: rgba(34, 139, 34, 0.1) !important;
-    border: 1px solid rgba(34, 139, 34, 0.3);
+    background: oklch(0.55 0.18 140 / 0.1) !important;
+    border: 1px solid oklch(0.55 0.18 140 / 0.3);
 
     &:hover {
-      background: rgba(34, 139, 34, 0.2) !important;
+      background: oklch(0.55 0.18 140 / 0.2) !important;
     }
   }
 }
 
-// Layout Components
 .gutenku-card {
   @extend .gutenku-paper;
   padding: 1rem 1.5rem;
@@ -472,46 +1271,11 @@ body {
 
   .zen-btn {
     @extend .gutenku-btn;
-    min-width: 100px;
-    height: 36px;
+    min-width: 6.25rem; // 100px
+    height: 2.25rem; // 36px
   }
 }
 
-// Zen Transitions and Animations
-.gutenku-fade-enter-active,
-.gutenku-fade-leave-active {
-  transition: var(--gutenku-transition-zen);
-}
-
-.gutenku-fade-enter-from,
-.gutenku-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-10px) scale(0.95);
-  filter: blur(2px);
-}
-
-// Zen page transitions
-.zen-page-enter-active {
-  transition: var(--gutenku-transition-slow);
-}
-
-.zen-page-leave-active {
-  transition: var(--gutenku-transition-fast);
-}
-
-.zen-page-enter-from {
-  opacity: 0;
-  transform: translateX(30px) scale(0.95);
-  filter: blur(4px);
-}
-
-.zen-page-leave-to {
-  opacity: 0;
-  transform: translateX(-30px) scale(1.05);
-  filter: blur(2px);
-}
-
-// Poetry typing effect
 @keyframes typewriter-cursor {
   0%,
   50% {
@@ -544,7 +1308,6 @@ body {
   }
 }
 
-// Zen loading states
 .zen-loading {
   position: relative;
 
@@ -553,9 +1316,9 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 20px;
-    height: 20px;
-    margin: -10px 0 0 -10px;
+    width: 1.25rem; // 20px
+    height: 1.25rem; // 20px
+    margin: -0.625rem 0 0 -0.625rem; // -10px
     border: 2px solid var(--gutenku-zen-mist);
     border-top-color: var(--gutenku-zen-primary);
     border-radius: 50%;
@@ -572,7 +1335,11 @@ body {
   }
 }
 
-// Zen floating animation for decorative elements
+// Spin animation utility for Lucide icons
+.animate-spin {
+  animation: zen-spin 1s linear infinite;
+}
+
 @keyframes zen-float {
   0%,
   100% {
@@ -593,18 +1360,17 @@ body {
   animation: zen-float 4s ease-in-out infinite;
 }
 
-// Zen pulse for important elements
 @keyframes zen-pulse {
   0% {
     box-shadow: 0 0 0 0 var(--gutenku-zen-accent);
     opacity: 1;
   }
   70% {
-    box-shadow: 0 0 0 10px rgba(167, 196, 188, 0);
+    box-shadow: 0 0 0 10px oklch(0.76 0.04 175 / 0);
     opacity: 0.8;
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(167, 196, 188, 0);
+    box-shadow: 0 0 0 0 oklch(0.76 0.04 175 / 0);
     opacity: 1;
   }
 }
@@ -613,7 +1379,6 @@ body {
   animation: zen-pulse 2s infinite;
 }
 
-// Zen Utility Classes
 .zen-center {
   display: flex;
   align-items: center;
@@ -629,12 +1394,12 @@ body {
 }
 
 .zen-text-shadow {
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 1px 2px oklch(0 0 0 / 0.1);
 }
 
 .zen-backdrop {
   backdrop-filter: blur(8px);
-  background: rgba(248, 246, 240, 0.8);
+  background: oklch(0.97 0.01 85 / 0.8);
 }
 
 .zen-divider {
@@ -649,7 +1414,6 @@ body {
   opacity: 0.6;
 }
 
-// Zen brush stroke divider
 .zen-brush-divider {
   height: 3px;
   background: url("data:image/svg+xml,%3Csvg width='100' height='3' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,1.5 Q25,0 50,1.5 T100,1.5' stroke='%232F5D62' stroke-width='1' fill='none' opacity='0.6'/%3E%3C/svg%3E")
@@ -657,7 +1421,6 @@ body {
   margin: var(--gutenku-space-golden-md) 0;
 }
 
-// Reading focus mode
 .reading-focus {
   .gutenku-text-muted,
   .zen-decorative {
@@ -671,7 +1434,6 @@ body {
   }
 }
 
-// Responsive Design
 @media (max-width: 768px) {
   .gutenku-card {
     padding: var(--gutenku-space-7) var(--gutenku-space-golden-sm);
@@ -684,14 +1446,14 @@ body {
       .gutenku-btn {
         width: 100%;
         min-width: unset;
-        min-height: 44px; // Touch target size
+        min-height: 2.75rem; // 44px - Touch target size
       }
     }
   }
 
   .gutenku-book-page {
     padding: var(--gutenku-space-golden-md) var(--gutenku-space-golden-sm);
-    min-height: 400px;
+    min-height: 25rem; // 400px
     margin-bottom: var(--gutenku-space-golden-md);
   }
 
@@ -710,12 +1472,10 @@ body {
     line-height: 1.6;
   }
 
-  // Mobile zen interactions
   .gutenku-btn:hover {
     transform: scale(1.02);
   }
 
-  // Reduce motion for mobile users who prefer it
   @media (prefers-reduced-motion: reduce) {
     .zen-float,
     .zen-pulse,
@@ -729,13 +1489,7 @@ body {
   }
 }
 
-// ====================================
-// DARK MODE TEXT OVERRIDES
-// ====================================
-
-// Vuetify utility class overrides for dark mode
 [data-theme='dark'] {
-  // Override Vuetify text utility classes
   .text-h1,
   .text-h2,
   .text-h3,
@@ -764,7 +1518,6 @@ body {
     color: var(--gutenku-text-primary) !important;
   }
 
-  // Override emphasis and semantic text classes
   .text-medium-emphasis {
     color: var(--gutenku-text-muted) !important;
   }
@@ -774,10 +1527,13 @@ body {
   }
 
   .text-disabled {
-    color: rgba(var(--gutenku-text-muted), 0.6) !important;
+    color: color-mix(
+      in oklch,
+      var(--gutenku-text-muted) 60%,
+      transparent
+    ) !important;
   }
 
-  // Override combined utility classes
   .text-body-2.text-medium-emphasis {
     color: var(--gutenku-text-muted) !important;
   }
@@ -794,7 +1550,6 @@ body {
     color: var(--gutenku-text-muted) !important;
   }
 
-  // Override Vuetify component text colors
   .v-card-title {
     color: var(--gutenku-text-primary) !important;
   }
@@ -807,7 +1562,6 @@ body {
     color: var(--gutenku-text-secondary) !important;
   }
 
-  // Override button text for dark mode
   .v-btn {
     color: var(--gutenku-text-primary) !important;
 
@@ -815,7 +1569,6 @@ body {
       color: var(--gutenku-text-primary) !important;
     }
 
-    // Primary button specific fixes
     &.v-btn--variant-text {
       color: var(--gutenku-text-primary) !important;
 
@@ -832,7 +1585,6 @@ body {
       }
     }
 
-    // Elevated and contained buttons
     &.v-btn--variant-elevated,
     &.v-btn--variant-contained {
       .v-btn__content {
@@ -840,7 +1592,6 @@ body {
       }
     }
 
-    // Outlined buttons
     &.v-btn--variant-outlined {
       color: var(--gutenku-text-primary) !important;
       border-color: var(--gutenku-border-visible) !important;
@@ -861,14 +1612,12 @@ body {
     color: var(--gutenku-text-primary) !important;
   }
 
-  // Fix any remaining black text
   * {
     &:not(.v-icon):not(.mdi):not([class*='mdi-']) {
       color: var(--gutenku-text-primary);
     }
   }
 
-  // Specific fix for text that might still appear black
   span,
   div,
   p,
@@ -886,21 +1635,9 @@ body {
   }
 }
 
-// Dark mode enhancements (disabled for now - will be managed later)
-// @media (prefers-color-scheme: dark) {
-//   :root {
-//     --gutenku-paper-bg: #2a2520;
-//     --gutenku-paper-bg-warm: #2d2722;
-//     --gutenku-text-primary: #e8e3d8;
-//     --gutenku-text-secondary: #c4bfb4;
-//     --gutenku-zen-water: rgba(167, 196, 188, 0.05);
-//   }
-// }
-
-// High contrast mode for accessibility
 @media (prefers-contrast: high) {
   :root {
-    --gutenku-paper-border: rgba(0, 0, 0, 0.8);
+    --gutenku-paper-border: oklch(0 0 0 / 0.8);
     --gutenku-text-primary: #000000;
     --gutenku-text-secondary: #333333;
   }
@@ -910,7 +1647,30 @@ body {
   }
 }
 
-// Legacy Support (maintain existing classes)
+// ====================================
+// G3: Form Element Hover States
+// ====================================
+.v-field {
+  transition: var(--gutenku-transition-zen);
+
+  &:hover:not(.v-field--disabled):not(.v-field--focused) {
+    border-color: var(--gutenku-border-visible-hover);
+    background: var(--gutenku-zen-water);
+  }
+}
+
+.v-input:hover:not(.v-input--disabled) {
+  .v-field__outline {
+    border-color: var(--gutenku-border-visible-hover);
+  }
+}
+
+.v-slider:hover:not(.v-input--disabled) {
+  .v-slider-track__background {
+    opacity: 0.5;
+  }
+}
+
 .v-btn {
   text-transform: none;
 }
@@ -918,13 +1678,13 @@ body {
 .book {
   color: #2c3e50;
   text-align: justify;
-  background: rgba(255, 255, 255, 1);
+  background: oklch(1 0 0);
   padding: 0px;
   border-radius: 0px;
   box-shadow:
-    0px 2px 1px -1px var(--v-shadow-key-umbra-opacity, rgba(0, 0, 0, 0.2)),
-    0px 1px 1px 0px var(--v-shadow-key-penumbra-opacity, rgba(0, 0, 0, 0.14)),
-    0px 1px 3px 0px var(--v-shadow-key-penumbra-opacity, rgba(0, 0, 0, 0.12));
+    0px 2px 1px -1px var(--v-shadow-key-umbra-opacity, oklch(0 0 0 / 0.2)),
+    0px 1px 1px 0px var(--v-shadow-key-penumbra-opacity, oklch(0 0 0 / 0.14)),
+    0px 1px 3px 0px var(--v-shadow-key-penumbra-opacity, oklch(0 0 0 / 0.12));
 
   h1,
   .author {
@@ -939,10 +1699,13 @@ body {
       content-visibility: auto;
 
       mark {
-        // Highlighter effect for marked text
-        padding: 3px 5px;
-        background: rgba(var(--v-theme-accent), 0.6);
-        border-radius: 4px;
+        padding: 0.1875rem 0.3125rem; // 3px 5px
+        background: color-mix(
+          in oklch,
+          var(--gutenku-theme-accent-oklch) 60%,
+          transparent
+        );
+        border-radius: var(--gutenku-radius-sm);
         box-decoration-break: clone;
 
         position: relative;
@@ -950,19 +1713,32 @@ body {
         display: inline;
         line-height: 1.2;
 
-        // Shadow for depth
         box-shadow:
-          0 1px 3px rgba(var(--v-theme-accent), 0.3),
-          inset 0 1px 0 rgba(255, 255, 255, 0.2);
+          0 1px 3px
+            color-mix(
+              in oklch,
+              var(--gutenku-theme-accent-oklch) 30%,
+              transparent
+            ),
+          inset 0 1px 0 oklch(1 0 0 / 0.2);
 
         mix-blend-mode: multiply;
         transition: all 0.2s ease;
         &:hover {
-          background: rgba(var(--v-theme-accent), 0.8);
+          background: color-mix(
+            in oklch,
+            var(--gutenku-theme-accent-oklch) 80%,
+            transparent
+          );
           transform: translateY(-1px);
           box-shadow:
-            0 2px 6px rgba(var(--v-theme-accent), 0.4),
-            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            0 2px 6px
+              color-mix(
+                in oklch,
+                var(--gutenku-theme-accent-oklch) 40%,
+                transparent
+              ),
+            inset 0 1px 0 oklch(1 0 0 / 0.3);
         }
       }
 
@@ -977,24 +1753,223 @@ body {
 }
 
 .v-tooltip.v-overlay > .v-overlay__content {
-  background: rgba(var(--v-theme-secondary), 0.9);
-  max-width: 400px !important;
+  background: color-mix(
+    in oklch,
+    var(--gutenku-theme-secondary-oklch) 90%,
+    transparent
+  );
+  max-width: 25rem !important; // 400px
 }
 
 // Tooltips for dark mode
 [data-theme='dark'] .v-tooltip.v-overlay > .v-overlay__content {
-  background: var(--gutenku-paper-bg-dark);
+  background: var(--gutenku-paper-bg-warm);
   color: var(--gutenku-text-primary);
   border: 1px solid var(--gutenku-border-visible);
   box-shadow: var(--gutenku-shadow-zen);
   font-size: 0.85rem;
+  backdrop-filter: blur(8px);
 }
 
-// Light mode tooltip enhancement
 :root .v-tooltip.v-overlay > .v-overlay__content {
   background: var(--gutenku-paper-bg-warm);
   color: var(--gutenku-text-primary);
   border: 1px solid var(--gutenku-border-visible);
   box-shadow: var(--gutenku-shadow-light);
   font-size: 0.85rem;
+}
+
+// Theme selector dropdown menu
+.theme-selector-menu {
+  background: oklch(1 0 0 / 0.92) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--gutenku-paper-border);
+  box-shadow: var(--gutenku-shadow-zen);
+}
+
+[data-theme='dark'] .theme-selector-menu {
+  background: oklch(0.15 0.02 60 / 0.92) !important;
+  border: 1px solid var(--gutenku-border-visible);
+}
+
+// Screen reader only utility class
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.animate-in {
+  opacity: 0;
+  transform: translateY(1.875rem); // 30px
+  transition:
+    opacity 0.5s cubic-bezier(0.25, 0.8, 0.25, 1),
+    transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  &.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Respect user preference for reduced motion
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-in {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+// Print stylesheet
+@media print {
+  // Hide non-essential UI elements
+  .toolbar-panel,
+  .config-panel,
+  .stats-panel,
+  .social-network-panel,
+  .app-footer,
+  .haiku-title,
+  .haiku-process,
+  .haiku-crafting,
+  .light-beam-overlay,
+  .floating-particles,
+  .v-snackbar,
+  .v-tooltip,
+  .v-overlay,
+  nav,
+  header,
+  footer {
+    display: none !important;
+  }
+
+  // Reset page styles
+  body,
+  html {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt !important;
+  }
+
+  // Main content container
+  .v-container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  // Book page (haiku chapter)
+  .book-page {
+    box-shadow: none !important;
+    border: none !important;
+    background: white !important;
+    padding: 2cm !important;
+    margin: 0 !important;
+    min-height: auto !important;
+    page-break-inside: avoid;
+
+    &::before,
+    &::after {
+      display: none !important;
+    }
+  }
+
+  .book-title {
+    font-size: 18pt !important;
+    color: black !important;
+    margin-bottom: 0.5cm !important;
+    filter: none !important;
+    opacity: 1 !important;
+  }
+
+  .book-author {
+    font-size: 12pt !important;
+    color: #333 !important;
+    margin-bottom: 1cm !important;
+    filter: none !important;
+    opacity: 1 !important;
+  }
+
+  .chapter-text {
+    font-size: 11pt !important;
+    line-height: 1.6 !important;
+    color: black !important;
+    filter: none !important;
+    opacity: 1 !important;
+    background: none !important;
+  }
+
+  // Haiku highlights
+  mark,
+  .highlight {
+    background: #fffacd !important;
+    color: black !important;
+    padding: 2px 4px !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  // Haiku canvas (image)
+  .haiku-canvas {
+    page-break-before: always;
+    text-align: center !important;
+    padding: 1cm !important;
+    background: white !important;
+    box-shadow: none !important;
+    border: none !important;
+
+    &::before,
+    &::after {
+      display: none !important;
+    }
+  }
+
+  .haiku-image {
+    max-width: 80% !important;
+    height: auto !important;
+    margin: 0 auto !important;
+    display: block !important;
+  }
+
+  // Hide interactive elements
+  .download-btn,
+  .theme-selector,
+  .canvas-focus-overlay,
+  .hanko-stamp,
+  .enso-loader,
+  .water-ripple,
+  button,
+  .v-btn {
+    display: none !important;
+  }
+
+  // Page number
+  .page-number {
+    position: fixed !important;
+    bottom: 1cm !important;
+    right: 1cm !important;
+    font-size: 10pt !important;
+    color: #666 !important;
+  }
+
+  // Page setup
+  @page {
+    size: A4;
+    margin: 1.5cm;
+  }
 }

@@ -1,7 +1,7 @@
 <script lang="ts" setup />
 
 <template>
-  <v-main class="gutenku-app-background">
+  <v-main id="main-content" class="gutenku-app-background" tabindex="-1">
     <router-view />
   </v-main>
 </template>
