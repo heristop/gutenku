@@ -232,3 +232,77 @@ describe('NaturalLanguageService - tokenization and sentiment', () => {
     expect(typeof sentiment).toBe('number');
   });
 });
+
+describe('NaturalLanguageService - POS tagging', () => {
+  it('analyzes grammar with noun and verb', () => {
+    const result = naturalLanguage.analyzeGrammar('The cat runs fast');
+    expect(result.hasNoun).toBeTruthy();
+    expect(result.hasVerb).toBeTruthy();
+    expect(result.score).toBe(1);
+  });
+
+  it('analyzes grammar with noun only', () => {
+    const result = naturalLanguage.analyzeGrammar('The old pond');
+    expect(result.hasNoun).toBeTruthy();
+    expect(result.score).toBeGreaterThanOrEqual(0.5);
+  });
+
+  it('returns zero score for empty input', () => {
+    const result = naturalLanguage.analyzeGrammar('');
+    expect(result.score).toBe(0);
+  });
+
+  it('detects adjectives', () => {
+    const result = naturalLanguage.analyzeGrammar('The beautiful garden');
+    expect(result.hasAdjective).toBeTruthy();
+  });
+});
+
+describe('NaturalLanguageService - TF-IDF', () => {
+  it('initializes TF-IDF with corpus', () => {
+    naturalLanguage.initTfIdf([
+      'the old pond a frog jumps in',
+      'autumn moonlight a worm digs silently',
+      'lightning flash what I thought were faces',
+    ]);
+    expect(naturalLanguage.scoreDistinctiveness('frog')).toBeGreaterThan(0);
+  });
+
+  it('returns 0 when TF-IDF not initialized', () => {
+    const freshService = new NaturalLanguageService();
+    expect(freshService.scoreDistinctiveness('test')).toBe(0);
+  });
+
+  it('scores distinctive words higher than common words', () => {
+    naturalLanguage.initTfIdf([
+      'the old pond a frog jumps in',
+      'the autumn moonlight worm digs silently',
+      'the lightning flash faces',
+    ]);
+    const frogScore = naturalLanguage.scoreDistinctiveness('frog');
+    const theScore = naturalLanguage.scoreDistinctiveness('the');
+    expect(frogScore).toBeGreaterThan(theScore);
+  });
+});
+
+describe('NaturalLanguageService - phonetics', () => {
+  it('detects alliteration in verses', () => {
+    const result = naturalLanguage.analyzePhonetics([
+      'Silent snow softly',
+      'Settles on the sleeping',
+      'Serene silver hills',
+    ]);
+    expect(result.alliterationScore).toBeGreaterThan(0);
+  });
+
+  it('returns zero for single word', () => {
+    const result = naturalLanguage.analyzePhonetics(['word']);
+    expect(result.alliterationScore).toBe(0);
+  });
+
+  it('counts unique sounds', () => {
+    const result = naturalLanguage.analyzePhonetics(['Apple banana cherry']);
+    expect(result.uniqueSounds).toBeGreaterThan(0);
+    expect(result.totalWords).toBe(3);
+  });
+});

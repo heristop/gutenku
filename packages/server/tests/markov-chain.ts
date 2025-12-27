@@ -32,8 +32,8 @@ describe('MarkovChainService - training and evaluation', () => {
     expect(score).toBeGreaterThanOrEqual(0);
   });
 
-  it('evaluates words pair score across groups', () => {
-    const s = markov.evaluateWords('quick fox', 'lazy dog');
+  it('evaluates transition score across word pairs', () => {
+    const s = markov.evaluateTransition('quick fox', 'lazy dog');
     expect(s).toBeGreaterThanOrEqual(0);
   });
 
@@ -58,11 +58,11 @@ describe('MarkovChainService - training and evaluation', () => {
     expect(m.evaluateTransition('unknown', 'words')).toBe(0);
   });
 
-  it('returns 0 for evaluateWords with no matches', () => {
+  it('returns 0 for evaluateTransition with no matches', () => {
     const nl2 = new NaturalLanguageService();
     const m = new MarkovChainService(nl2);
     m.train('Hello world.');
-    expect(m.evaluateWords('xyz', 'abc')).toBe(0);
+    expect(m.evaluateTransition('xyz', 'abc')).toBe(0);
   });
 
   it('filters out FANBOYS conjunctions during training', () => {
@@ -78,14 +78,14 @@ describe('MarkovChainService - training and evaluation', () => {
     const nl2 = new NaturalLanguageService();
     const m = new MarkovChainService(nl2);
     m.train('First line.\nSecond line.\nThird line.');
-    expect(m.evaluateWords('First', 'line')).toBeGreaterThanOrEqual(0);
+    expect(m.evaluateTransition('First', 'line')).toBeGreaterThanOrEqual(0);
   });
 
   it('handles empty text', () => {
     const nl2 = new NaturalLanguageService();
     const m = new MarkovChainService(nl2);
     m.train('');
-    expect(m.evaluateWords('any', 'word')).toBe(0);
+    expect(m.evaluateTransition('any', 'word')).toBe(0);
   });
 });
 
@@ -96,57 +96,106 @@ describe('MarkovChainService - persistence', () => {
     markovA.train('Alpha beta gamma. Alpha beta.');
 
     // Act: save and then load into a fresh instance
-    await markovA.saveModel();
+    const saveResult = await markovA.saveModel();
+    expect(saveResult).toBeTruthy();
 
     const markovB = new MarkovChainService(nl);
-    await markovB.loadModel();
+    const loadResult = await markovB.loadModel();
+    expect(loadResult).toBeTruthy();
 
     // Assert: transitions known to the model return a numeric score
-    const s = markovB.evaluateWords('Alpha', 'beta');
+    const s = markovB.evaluateTransition('Alpha', 'beta');
     expect(s).toBeGreaterThanOrEqual(0);
   });
 
-  it('handles load error gracefully', async () => {
+  it('caches model and skips reload on subsequent calls', async () => {
     const nl = new NaturalLanguageService();
-    const m = new MarkovChainService(nl);
-    // Loading without saving should not throw
-    await expect(m.loadModel()).resolves.not.toThrow();
+    const markovA = new MarkovChainService(nl);
+    markovA.train('Test caching.');
+    await markovA.saveModel();
+
+    const markovB = new MarkovChainService(nl);
+    const firstLoad = await markovB.loadModel();
+    expect(firstLoad).toBeTruthy();
+
+    // Second load should return true immediately (cached)
+    const secondLoad = await markovB.loadModel();
+    expect(secondLoad).toBeTruthy();
   });
 
-  it('handles save error gracefully', async () => {
+  it('handles load error gracefully and returns false', async () => {
+    const nl = new NaturalLanguageService();
+    const m = new MarkovChainService(nl);
+
+    // Use the mocked module and make readFile reject
+    const { readFile } = await import('node:fs/promises');
+    vi.mocked(readFile).mockRejectedValueOnce(new Error('File not found'));
+
+    const result = await m.loadModel();
+    expect(result).toBeFalsy();
+  });
+
+  it('handles save error gracefully and returns false', async () => {
     const nl = new NaturalLanguageService();
     const m = new MarkovChainService(nl);
     m.train('Test text.');
 
-    // Mock fs.writeFile to throw an error
-    const fs = await import('node:fs/promises');
-    const originalWriteFile = fs.writeFile;
-    (fs as { writeFile: typeof fs.writeFile }).writeFile = vi
-      .fn()
-      .mockRejectedValueOnce(new Error('Write failed'));
+    // Use the mocked module and make writeFile reject
+    const { writeFile } = await import('node:fs/promises');
+    vi.mocked(writeFile).mockRejectedValueOnce(new Error('Write failed'));
 
-    // Should not throw - error is logged
-    await expect(m.saveModel()).resolves.not.toThrow();
-
-    // Restore
-    (fs as { writeFile: typeof fs.writeFile }).writeFile = originalWriteFile;
+    const result = await m.saveModel();
+    expect(result).toBeFalsy();
   });
 
-  it('handles load error with corrupted JSON', async () => {
+  it('handles load error with corrupted JSON and returns false', async () => {
     const nl = new NaturalLanguageService();
     const m = new MarkovChainService(nl);
 
-    // Mock fs.readFile to return invalid JSON
-    const fs = await import('node:fs/promises');
-    const originalReadFile = fs.readFile;
-    (fs as { readFile: typeof fs.readFile }).readFile = vi
-      .fn()
-      .mockRejectedValueOnce(new Error('Read failed'));
+    // Use the mocked module and make readFile return invalid JSON
+    const { readFile } = await import('node:fs/promises');
+    vi.mocked(readFile).mockResolvedValueOnce('invalid json{{{');
 
-    // Should not throw - error is logged
-    await expect(m.loadModel()).resolves.not.toThrow();
+    const result = await m.loadModel();
+    expect(result).toBeFalsy();
+  });
+});
 
-    // Restore
-    (fs as { readFile: typeof fs.readFile }).readFile = originalReadFile;
+describe('MarkovChainService - trigrams', () => {
+  it('trains and evaluates trigram transitions', () => {
+    const nl = new NaturalLanguageService();
+    const m = new MarkovChainService(nl);
+    m.train('The quick brown fox jumps over the lazy dog.');
+
+    // "brown fox" -> "jumps" should have a trigram score
+    const score = m.evaluateTrigramTransition('quick brown', 'fox jumps');
+    expect(score).toBeGreaterThanOrEqual(0);
+  });
+
+  it('returns 0 for trigram with insufficient words in from', () => {
+    const nl = new NaturalLanguageService();
+    const m = new MarkovChainService(nl);
+    m.train('Hello world again.');
+
+    // From has only 1 word, need at least 2 for trigrams
+    const score = m.evaluateTrigramTransition('hello', 'world');
+    expect(score).toBe(0);
+  });
+
+  it('returns 0 for unknown trigram transitions', () => {
+    const nl = new NaturalLanguageService();
+    const m = new MarkovChainService(nl);
+    m.train('The cat sat on the mat.');
+
+    const score = m.evaluateTrigramTransition('unknown words', 'here');
+    expect(score).toBe(0);
+  });
+
+  it('returns 0 for empty to string in trigram evaluation', () => {
+    const nl = new NaturalLanguageService();
+    const m = new MarkovChainService(nl);
+    m.train('Hello world again.');
+
+    expect(m.evaluateTrigramTransition('Hello world', '')).toBe(0);
   });
 });
