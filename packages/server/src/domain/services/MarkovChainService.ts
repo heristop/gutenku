@@ -38,7 +38,6 @@ export class MarkovChainService {
         }
       });
 
-      // Train bigrams
       for (let i = 0; i < wordList.length - 1; i++) {
         const from = wordList[i];
         const to = wordList[i + 1];
@@ -56,7 +55,6 @@ export class MarkovChainService {
         this.totalBigrams++;
       }
 
-      // Train trigrams
       for (let i = 0; i < wordList.length - 2; i++) {
         const key = `${wordList[i]} ${wordList[i + 1]}`;
         const next = wordList[i + 2];
@@ -104,9 +102,6 @@ export class MarkovChainService {
     return 0;
   }
 
-  /**
-   * Trigram transition probability (last 2 words + first word of next verse)
-   */
   public evaluateTrigramTransition(from: string, to: string): number {
     const fromWords = this.naturalLanguage.extractWords(from);
     const toWords = this.naturalLanguage.extractWords(to);
@@ -170,7 +165,6 @@ export class MarkovChainService {
       );
       this.totalBigrams = jsonData.totalBigrams;
 
-      // Load trigrams if available (backward compatible)
       if (jsonData.trigrams) {
         this.trigrams = new Map(
           jsonData.trigrams.map(

@@ -26,14 +26,7 @@ import {
   extractContextVerses,
   cleanVerses,
 } from '~/shared/helpers/HaikuHelper';
-
-class MaxAttemptsError extends Error {
-  constructor(message?: string) {
-    super(message);
-
-    this.name = 'MaxAttemptsError';
-  }
-}
+import { MaxAttemptsException } from '~/domain/exceptions';
 
 @singleton()
 export default class HaikuGeneratorService implements IGenerator {
@@ -210,7 +203,11 @@ export default class HaikuGeneratorService implements IGenerator {
     }
 
     if (verses.length < 3) {
-      throw new MaxAttemptsError('max-attempts-error');
+      throw new MaxAttemptsException({
+        maxAttempts: this.maxAttempts,
+        versesFound: verses.length,
+        filterWords: this.filterWords.length > 0 ? this.filterWords : undefined,
+      });
     }
 
     return this.buildHaiku(book, chapter, verses);
