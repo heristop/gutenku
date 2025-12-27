@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia';
 import type { HaikuValue } from '@gutenku/shared';
-import { gql } from '@apollo/client/core';
-import { apolloClient } from '@/client';
-import type { ApolloError } from '@apollo/client/errors';
+import { gql, type CombinedError } from '@urql/vue';
+import { urqlClient } from '@/client';
 
 const THEME_OPTIONS = ['random', 'colored', 'greentea', 'watermark'];
 
@@ -21,6 +20,10 @@ export const useHaikuStore = defineStore({
     optionFilter: '' as string,
     optionMinSentimentScore: 0.1 as number,
     optionMinMarkovScore: 0.1 as number,
+    optionMinPosScore: 0 as number,
+    optionMinTrigramScore: 0 as number,
+    optionMinTfidfScore: 0 as number,
+    optionMinPhoneticsScore: 0 as number,
     optionDescriptionTemperature: 0.3 as number,
     stats: {
       haikusGenerated: 0 as number,
@@ -32,13 +35,17 @@ export const useHaikuStore = defineStore({
     },
   }),
   persist: {
-    storage: sessionStorage,
+    storage: localStorage,
     paths: [
       'optionDrawerOpened',
       'optionUseAI',
       'optionTheme',
       'optionMinSentimentScore',
       'optionMinMarkovScore',
+      'optionMinPosScore',
+      'optionMinTrigramScore',
+      'optionMinTfidfScore',
+      'optionMinPhoneticsScore',
       'optionDescriptionTemperature',
       'stats',
     ],
@@ -68,6 +75,10 @@ export const useHaikuStore = defineStore({
             $filter: String
             $sentimentMinScore: Float
             $markovMinScore: Float
+            $posMinScore: Float
+            $trigramMinScore: Float
+            $tfidfMinScore: Float
+            $phoneticsMinScore: Float
             $descriptionTemperature: Float
           ) {
             haiku(
@@ -77,6 +88,10 @@ export const useHaikuStore = defineStore({
               filter: $filter
               sentimentMinScore: $sentimentMinScore
               markovMinScore: $markovMinScore
+              posMinScore: $posMinScore
+              trigramMinScore: $trigramMinScore
+              tfidfMinScore: $tfidfMinScore
+              phoneticsMinScore: $phoneticsMinScore
               descriptionTemperature: $descriptionTemperature
             ) {
               book {
@@ -105,23 +120,26 @@ export const useHaikuStore = defineStore({
           filter: this.optionFilter,
           sentimentMinScore: this.optionMinSentimentScore,
           markovMinScore: this.optionMinMarkovScore,
+          posMinScore: this.optionMinPosScore,
+          trigramMinScore: this.optionMinTrigramScore,
+          tfidfMinScore: this.optionMinTfidfScore,
+          phoneticsMinScore: this.optionMinPhoneticsScore,
           descriptionTemperature: this.optionDescriptionTemperature,
           appendImg: true,
         };
 
-        const { data } = await apolloClient.query<{ haiku: HaikuValue | null }>(
-          {
-            query: queryHaiku,
-            variables: variables,
-            fetchPolicy: 'no-cache',
-          },
-        );
+        const result = await urqlClient
+          .query<{ haiku: HaikuValue | null }>(queryHaiku, variables)
+          .toPromise();
 
-        const haiku = data?.haiku ?? null;
+        if (result.error) {
+          throw result.error;
+        }
+
+        const haiku = result.data?.haiku ?? null;
 
         this.haiku = (haiku ?? (null as unknown as HaikuValue)) as HaikuValue;
 
-        // Update stats
         if (haiku) {
           this.stats.haikusGenerated += 1;
           if (true === haiku.cacheUsed) {
@@ -132,12 +150,10 @@ export const useHaikuStore = defineStore({
           }
           const bookTitle = haiku.book?.title?.trim();
           if (bookTitle) {
-            // Unique tracking for browsed
             if (!this.stats.books.includes(bookTitle)) {
               this.stats.books.push(bookTitle);
               this.stats.booksBrowsed = this.stats.books.length;
             }
-            // Frequency tracking for top 3
             this.stats.bookCounts[bookTitle] =
               (this.stats.bookCounts[bookTitle] || 0) + 1;
           }
@@ -147,13 +163,13 @@ export const useHaikuStore = defineStore({
 
         const applyMaxAttemptsMessage = () => {
           this.error =
-            '🤖 I could not find a haiku that matches your filters after maximum attempts. ';
+            'No haiku found matching your filters after maximum attempts. ';
           this.error +=
             'Please try again with a different filter or try several words.';
         };
 
-        const apolloError = error as ApolloError;
-        const graphErrors = apolloError?.graphQLErrors || null;
+        const combinedError = error as CombinedError;
+        const graphErrors = combinedError?.graphQLErrors || null;
 
         if (
           graphErrors &&
