@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import HaikuBridgeService from '~/application/services/HaikuBridgeService';
-import type HaikuGeneratorService from '~/domain/services/HaikuGeneratorService';
-import type OpenAIGeneratorService from '~/infrastructure/services/OpenAIGeneratorService';
+import type { IQueryBus } from '~/application/cqrs';
+import { GenerateHaikuQuery } from '~/application/queries/haiku';
 import type { HaikuValue, HaikuVariables } from '~/shared/types';
 
 describe('HaikuBridgeService', () => {
@@ -28,34 +28,15 @@ describe('HaikuBridgeService', () => {
     verses: ['Verse one', 'Verse two', 'Verse three'],
   });
 
-  const createMockGeneratorService = (): HaikuGeneratorService =>
-    ({
-      configure: vi.fn().mockReturnThis(),
-      filter: vi.fn().mockReturnThis(),
-      generate: vi.fn().mockResolvedValue(createMockHaiku()),
-      appendImg: vi.fn().mockImplementation((haiku) => ({
-        ...haiku,
-        image: 'base64data',
-        imagePath: '/tmp/test.jpg',
-      })),
-    }) as unknown as HaikuGeneratorService;
-
-  const createMockOpenAIService = (): OpenAIGeneratorService =>
-    ({
-      configure: vi.fn().mockReturnThis(),
-      generate: vi.fn().mockResolvedValue(createMockHaiku()),
-    }) as unknown as OpenAIGeneratorService;
-
   beforeEach(() => {
     vi.clearAllMocks();
-    delete process.env.OPENAI_API_KEY;
-    process.env.MIN_CACHED_DOCS = '10';
   });
 
-  it('configures HaikuGeneratorService with provided options', async () => {
-    const generator = createMockGeneratorService();
-    const openai = createMockOpenAIService();
-    const service = new HaikuBridgeService(generator, openai);
+  it('delegates to QueryBus with GenerateHaikuQuery', async () => {
+    const mockQueryBus: IQueryBus = {
+      execute: vi.fn().mockResolvedValue(createMockHaiku()),
+    };
+    const service = new HaikuBridgeService(mockQueryBus);
 
     const args: HaikuVariables = {
       appendImg: false,
@@ -71,24 +52,17 @@ describe('HaikuBridgeService', () => {
 
     await service.generate(args);
 
-    expect(generator.configure).toHaveBeenCalledWith({
-      cache: {
-        minCachedDocs: 10,
-        ttl: 24 * 60 * 60 * 1000,
-        enabled: true,
-      },
-      score: {
-        markovChain: 0.5,
-        sentiment: 0.3,
-      },
-      theme: 'greentea',
-    });
+    expect(mockQueryBus.execute).toHaveBeenCalledWith(
+      expect.any(GenerateHaikuQuery),
+    );
   });
 
-  it('uses HaikuGeneratorService when useAI is false', async () => {
-    const generator = createMockGeneratorService();
-    const openai = createMockOpenAIService();
-    const service = new HaikuBridgeService(generator, openai);
+  it('returns haiku from QueryBus', async () => {
+    const expectedHaiku = createMockHaiku();
+    const mockQueryBus: IQueryBus = {
+      execute: vi.fn().mockResolvedValue(expectedHaiku),
+    };
+    const service = new HaikuBridgeService(mockQueryBus);
 
     const args: HaikuVariables = {
       appendImg: false,
@@ -102,51 +76,78 @@ describe('HaikuBridgeService', () => {
       useCache: false,
     };
 
-    await service.generate(args);
+    const result = await service.generate(args);
 
-    expect(generator.filter).toHaveBeenCalledWith([]);
-    expect(generator.generate).toHaveBeenCalled();
-    expect(openai.generate).not.toHaveBeenCalled();
+    expect(result).toEqual(expectedHaiku);
   });
 
-  it('uses OpenAIGeneratorService when useAI is true and API key is set', async () => {
-    const generator = createMockGeneratorService();
-    const openai = createMockOpenAIService();
-    const service = new HaikuBridgeService(generator, openai);
-
-    process.env.OPENAI_API_KEY = 'test-api-key';
+  it('passes all arguments to GenerateHaikuQuery', async () => {
+    const mockQueryBus: IQueryBus = {
+      execute: vi.fn().mockResolvedValue(createMockHaiku()),
+    };
+    const service = new HaikuBridgeService(mockQueryBus);
 
     const args: HaikuVariables = {
-      appendImg: false,
+      appendImg: true,
       descriptionTemperature: 0.8,
-      filter: '',
-      markovMinScore: 0,
+      filter: 'whale ocean sea',
+      markovMinScore: 0.5,
       selectionCount: 3,
-      sentimentMinScore: 0,
-      theme: 'default',
+      sentimentMinScore: 0.3,
+      theme: 'greentea',
       useAI: true,
-      useCache: false,
+      useCache: true,
+      posMinScore: 0.4,
+      trigramMinScore: 0.2,
+      tfidfMinScore: 0.1,
+      phoneticsMinScore: 0.15,
     };
 
     await service.generate(args);
 
-    expect(openai.configure).toHaveBeenCalledWith({
-      apiKey: 'test-api-key',
-      selectionCount: 3,
-      temperature: {
-        description: 0.8,
-      },
-    });
-    expect(openai.generate).toHaveBeenCalled();
+    const executedQuery = (mockQueryBus.execute as ReturnType<typeof vi.fn>)
+      .mock.calls[0][0] as GenerateHaikuQuery;
+
+    expect(executedQuery.useAI).toBeTruthy();
+    expect(executedQuery.useCache).toBeTruthy();
+    expect(executedQuery.appendImg).toBeTruthy();
+    expect(executedQuery.theme).toBe('greentea');
+    expect(executedQuery.filter).toBe('whale ocean sea');
+    expect(executedQuery.selectionCount).toBe(3);
+    expect(executedQuery.markovMinScore).toBe(0.5);
+    expect(executedQuery.sentimentMinScore).toBe(0.3);
+    expect(executedQuery.descriptionTemperature).toBe(0.8);
   });
 
-  it('falls back to HaikuGeneratorService when OpenAI returns null', async () => {
-    const generator = createMockGeneratorService();
-    const openai = createMockOpenAIService();
-    (openai.generate as ReturnType<typeof vi.fn>).mockResolvedValueOnce(null);
-    const service = new HaikuBridgeService(generator, openai);
+  it('handles different variable configurations', async () => {
+    const mockQueryBus: IQueryBus = {
+      execute: vi.fn().mockResolvedValue(createMockHaiku()),
+    };
+    const service = new HaikuBridgeService(mockQueryBus);
 
-    process.env.OPENAI_API_KEY = 'test-api-key';
+    // Test with minimal args
+    const minimalArgs: HaikuVariables = {
+      appendImg: false,
+      descriptionTemperature: 0.5,
+      filter: '',
+      markovMinScore: 0,
+      selectionCount: 1,
+      sentimentMinScore: 0,
+      theme: 'default',
+      useAI: false,
+      useCache: false,
+    };
+
+    await service.generate(minimalArgs);
+
+    expect(mockQueryBus.execute).toHaveBeenCalledTimes(1);
+  });
+
+  it('propagates errors from QueryBus', async () => {
+    const mockQueryBus: IQueryBus = {
+      execute: vi.fn().mockRejectedValue(new Error('Generation failed')),
+    };
+    const service = new HaikuBridgeService(mockQueryBus);
 
     const args: HaikuVariables = {
       appendImg: false,
@@ -156,20 +157,23 @@ describe('HaikuBridgeService', () => {
       selectionCount: 1,
       sentimentMinScore: 0,
       theme: 'default',
-      useAI: true,
+      useAI: false,
       useCache: false,
     };
 
-    await service.generate(args);
-
-    expect(openai.generate).toHaveBeenCalled();
-    expect(generator.generate).toHaveBeenCalled();
+    await expect(service.generate(args)).rejects.toThrow('Generation failed');
   });
 
-  it('appends image when appendImg is true', async () => {
-    const generator = createMockGeneratorService();
-    const openai = createMockOpenAIService();
-    const service = new HaikuBridgeService(generator, openai);
+  it('handles haiku with image result', async () => {
+    const haikuWithImage = {
+      ...createMockHaiku(),
+      image: 'base64data',
+      imagePath: '/tmp/test.jpg',
+    };
+    const mockQueryBus: IQueryBus = {
+      execute: vi.fn().mockResolvedValue(haikuWithImage),
+    };
+    const service = new HaikuBridgeService(mockQueryBus);
 
     const args: HaikuVariables = {
       appendImg: true,
@@ -185,14 +189,19 @@ describe('HaikuBridgeService', () => {
 
     const result = await service.generate(args);
 
-    expect(generator.appendImg).toHaveBeenCalled();
     expect(result.image).toBe('base64data');
+    expect(result.imagePath).toBe('/tmp/test.jpg');
   });
 
-  it('skips image append when appendImg is false', async () => {
-    const generator = createMockGeneratorService();
-    const openai = createMockOpenAIService();
-    const service = new HaikuBridgeService(generator, openai);
+  it('handles cached haiku result', async () => {
+    const cachedHaiku = {
+      ...createMockHaiku(),
+      cacheUsed: true,
+    };
+    const mockQueryBus: IQueryBus = {
+      execute: vi.fn().mockResolvedValue(cachedHaiku),
+    };
+    const service = new HaikuBridgeService(mockQueryBus);
 
     const args: HaikuVariables = {
       appendImg: false,
@@ -203,58 +212,11 @@ describe('HaikuBridgeService', () => {
       sentimentMinScore: 0,
       theme: 'default',
       useAI: false,
-      useCache: false,
+      useCache: true,
     };
 
-    await service.generate(args);
+    const result = await service.generate(args);
 
-    expect(generator.appendImg).not.toHaveBeenCalled();
-  });
-
-  it('passes filter words to HaikuGeneratorService', async () => {
-    const generator = createMockGeneratorService();
-    const openai = createMockOpenAIService();
-    const service = new HaikuBridgeService(generator, openai);
-
-    const args: HaikuVariables = {
-      appendImg: false,
-      descriptionTemperature: 0.5,
-      filter: 'whale ocean sea',
-      markovMinScore: 0,
-      selectionCount: 1,
-      sentimentMinScore: 0,
-      theme: 'default',
-      useAI: false,
-      useCache: false,
-    };
-
-    await service.generate(args);
-
-    expect(generator.filter).toHaveBeenCalledWith(['whale', 'ocean', 'sea']);
-  });
-
-  it('does not use OpenAI when API key is undefined', async () => {
-    const generator = createMockGeneratorService();
-    const openai = createMockOpenAIService();
-    const service = new HaikuBridgeService(generator, openai);
-
-    delete process.env.OPENAI_API_KEY;
-
-    const args: HaikuVariables = {
-      appendImg: false,
-      descriptionTemperature: 0.5,
-      filter: '',
-      markovMinScore: 0,
-      selectionCount: 1,
-      sentimentMinScore: 0,
-      theme: 'default',
-      useAI: true,
-      useCache: false,
-    };
-
-    await service.generate(args);
-
-    expect(openai.generate).not.toHaveBeenCalled();
-    expect(generator.generate).toHaveBeenCalled();
+    expect(result.cacheUsed).toBeTruthy();
   });
 });

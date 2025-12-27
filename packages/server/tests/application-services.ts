@@ -3,137 +3,131 @@ import { describe, expect, it, vi } from 'vitest';
 import BookService from '../src/application/services/BookService';
 import ChapterService from '../src/application/services/ChapterService';
 import { PubSubService } from '../src/infrastructure/services/PubSubService';
-import BookRepository from '../src/infrastructure/repositories/BookRepository';
-import ChapterRepository from '../src/infrastructure/repositories/ChapterRepository';
+import type { IQueryBus } from '../src/application/cqrs';
+import {
+  GetAllBooksQuery,
+  GetBookByIdQuery,
+  SelectRandomBookQuery,
+} from '../src/application/queries/books';
+import {
+  GetAllChaptersQuery,
+  GetChapterByIdQuery,
+} from '../src/application/queries/chapters';
 
 describe('Application services', () => {
   describe('BookService', () => {
-    it('forwards getAllBooks to repository', async () => {
-      class StubBookRepository extends BookRepository {
-        getAllBooks = vi.fn(async (_filter: string | null) => ['b1']);
-        getBookById = vi.fn(async (_id: string) => ({ id: '1' }));
-        selectRandomBook = vi.fn(async () => ({ id: 'r1' }) as unknown);
-      }
-      const repo = new StubBookRepository();
-      const svc = new BookService(repo);
+    it('forwards getAllBooks to QueryBus', async () => {
+      const mockQueryBus: IQueryBus = {
+        execute: vi.fn(async () => ['b1']),
+      };
+      const svc = new BookService(mockQueryBus);
       expect(await svc.getAllBooks(null)).toEqual(['b1']);
-      expect(repo.getAllBooks).toHaveBeenCalledWith(null);
+      expect(mockQueryBus.execute).toHaveBeenCalledWith(
+        expect.any(GetAllBooksQuery),
+      );
     });
 
-    it('forwards getBookById to repository', async () => {
-      class StubBookRepository extends BookRepository {
-        getAllBooks = vi.fn(async () => []);
-        getBookById = vi.fn(async (_id: string) => ({ id: '1' }));
-        selectRandomBook = vi.fn(async () => ({ id: 'r1' }) as unknown);
-      }
-      const repo = new StubBookRepository();
-      const svc = new BookService(repo);
+    it('forwards getBookById to QueryBus', async () => {
+      const mockQueryBus: IQueryBus = {
+        execute: vi.fn(async () => ({ id: '1' })),
+      };
+      const svc = new BookService(mockQueryBus);
       expect(await svc.getBookById('1')).toEqual({ id: '1' });
-      expect(repo.getBookById).toHaveBeenCalledWith('1');
+      expect(mockQueryBus.execute).toHaveBeenCalledWith(
+        expect.any(GetBookByIdQuery),
+      );
     });
 
-    it('forwards selectRandomBook to repository', async () => {
-      class StubBookRepository extends BookRepository {
-        getAllBooks = vi.fn(async () => []);
-        getBookById = vi.fn(async () => null);
-        selectRandomBook = vi.fn(async () => ({ id: 'r1' }) as unknown);
-      }
-      const repo = new StubBookRepository();
-      const svc = new BookService(repo);
+    it('forwards selectRandomBook to QueryBus', async () => {
+      const mockQueryBus: IQueryBus = {
+        execute: vi.fn(async () => ({ id: 'r1' })),
+      };
+      const svc = new BookService(mockQueryBus);
       expect(await svc.selectRandomBook()).toEqual({ id: 'r1' });
-      expect(repo.selectRandomBook).toHaveBeenCalled();
+      expect(mockQueryBus.execute).toHaveBeenCalledWith(
+        expect.any(SelectRandomBookQuery),
+      );
     });
 
     it('passes filter to getAllBooks', async () => {
-      class StubBookRepository extends BookRepository {
-        getAllBooks = vi.fn(async (filter: string | null) =>
-          filter ? ['filtered'] : ['all'],
-        );
-        getBookById = vi.fn(async () => null);
-        selectRandomBook = vi.fn(async () => null);
-      }
-      const repo = new StubBookRepository();
-      const svc = new BookService(repo);
+      const mockQueryBus: IQueryBus = {
+        execute: vi.fn(async (query) => {
+          if (query instanceof GetAllBooksQuery && query.filter) {
+            return ['filtered'];
+          }
+          return ['all'];
+        }),
+      };
+      const svc = new BookService(mockQueryBus);
       expect(await svc.getAllBooks('whale')).toEqual(['filtered']);
-      expect(repo.getAllBooks).toHaveBeenCalledWith('whale');
     });
 
     it('handles null result from getBookById', async () => {
-      class StubBookRepository extends BookRepository {
-        getAllBooks = vi.fn(async () => []);
-        getBookById = vi.fn(async () => null);
-        selectRandomBook = vi.fn(async () => null);
-      }
-      const repo = new StubBookRepository();
-      const svc = new BookService(repo);
+      const mockQueryBus: IQueryBus = {
+        execute: vi.fn(async () => null),
+      };
+      const svc = new BookService(mockQueryBus);
       expect(await svc.getBookById('nonexistent')).toBeNull();
     });
 
     it('handles empty array from getAllBooks', async () => {
-      class StubBookRepository extends BookRepository {
-        getAllBooks = vi.fn(async () => []);
-        getBookById = vi.fn(async () => null);
-        selectRandomBook = vi.fn(async () => null);
-      }
-      const repo = new StubBookRepository();
-      const svc = new BookService(repo);
+      const mockQueryBus: IQueryBus = {
+        execute: vi.fn(async () => []),
+      };
+      const svc = new BookService(mockQueryBus);
       expect(await svc.getAllBooks(null)).toEqual([]);
     });
   });
 
   describe('ChapterService', () => {
-    it('forwards getAllChapters to repository', async () => {
-      class StubChapterRepository extends ChapterRepository {
-        getAllChapters = vi.fn(async (_filter: string | null) => ['c1']);
-        getChapterById = vi.fn(async (_id: string) => ({ id: 'c1' }));
-      }
-      const repo = new StubChapterRepository();
-      const svc = new ChapterService(repo);
+    it('forwards getAllChapters to QueryBus', async () => {
+      const mockQueryBus: IQueryBus = {
+        execute: vi.fn(async () => ['c1']),
+      };
+      const svc = new ChapterService(mockQueryBus);
       expect(await svc.getAllChapters(null)).toEqual(['c1']);
-      expect(repo.getAllChapters).toHaveBeenCalledWith(null);
+      expect(mockQueryBus.execute).toHaveBeenCalledWith(
+        expect.any(GetAllChaptersQuery),
+      );
     });
 
-    it('forwards getChapterById to repository', async () => {
-      class StubChapterRepository extends ChapterRepository {
-        getAllChapters = vi.fn(async () => []);
-        getChapterById = vi.fn(async (_id: string) => ({ id: 'c1' }));
-      }
-      const repo = new StubChapterRepository();
-      const svc = new ChapterService(repo);
+    it('forwards getChapterById to QueryBus', async () => {
+      const mockQueryBus: IQueryBus = {
+        execute: vi.fn(async () => ({ id: 'c1' })),
+      };
+      const svc = new ChapterService(mockQueryBus);
       expect(await svc.getChapterById('c1')).toEqual({ id: 'c1' });
-      expect(repo.getChapterById).toHaveBeenCalledWith('c1');
+      expect(mockQueryBus.execute).toHaveBeenCalledWith(
+        expect.any(GetChapterByIdQuery),
+      );
     });
 
     it('passes filter to getAllChapters', async () => {
-      class StubChapterRepository extends ChapterRepository {
-        getAllChapters = vi.fn(async (filter: string | null) =>
-          filter ? ['filtered-chapter'] : ['all-chapters'],
-        );
-        getChapterById = vi.fn(async () => null);
-      }
-      const repo = new StubChapterRepository();
-      const svc = new ChapterService(repo);
+      const mockQueryBus: IQueryBus = {
+        execute: vi.fn(async (query) => {
+          if (query instanceof GetAllChaptersQuery && query.filter) {
+            return ['filtered-chapter'];
+          }
+          return ['all-chapters'];
+        }),
+      };
+      const svc = new ChapterService(mockQueryBus);
       expect(await svc.getAllChapters('ocean')).toEqual(['filtered-chapter']);
-      expect(repo.getAllChapters).toHaveBeenCalledWith('ocean');
     });
 
     it('handles null result from getChapterById', async () => {
-      class StubChapterRepository extends ChapterRepository {
-        getAllChapters = vi.fn(async () => []);
-        getChapterById = vi.fn(async () => null);
-      }
-      const repo = new StubChapterRepository();
-      const svc = new ChapterService(repo);
+      const mockQueryBus: IQueryBus = {
+        execute: vi.fn(async () => null),
+      };
+      const svc = new ChapterService(mockQueryBus);
       expect(await svc.getChapterById('nonexistent')).toBeNull();
     });
 
     it('handles empty array from getAllChapters', async () => {
-      class StubChapterRepository extends ChapterRepository {
-        getAllChapters = vi.fn(async () => []);
-        getChapterById = vi.fn(async () => null);
-      }
-      const repo = new StubChapterRepository();
-      const svc = new ChapterService(repo);
+      const mockQueryBus: IQueryBus = {
+        execute: vi.fn(async () => []),
+      };
+      const svc = new ChapterService(mockQueryBus);
       expect(await svc.getAllChapters(null)).toEqual([]);
     });
   });
