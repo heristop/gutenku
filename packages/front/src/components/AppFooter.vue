@@ -1,11 +1,14 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import type ZenCreditsModal from '@/components/ui/ZenCreditsModal.vue';
+import ZenCreditsModal from '@/components/ui/ZenCreditsModal.vue';
 
 const { t } = useI18n();
 const currentYear = new Date().getFullYear();
 const creditsModal = ref<InstanceType<typeof ZenCreditsModal> | null>(null);
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _ZenCreditsModal = ZenCreditsModal;
 
 function openCredits() {
   creditsModal.value?.open();
