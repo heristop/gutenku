@@ -1,11 +1,5 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 
-export interface UseLoadingMessagesOptions {
-  messages?: string[];
-  intervalMs?: number;
-  context?: keyof typeof MESSAGE_POOLS | string;
-}
-
 const DEFAULT_MESSAGES: string[] = [
   '🔍 Our poetic robots are diving into classic literature...',
   '📚 Scanning through the greatest works ever written...',
@@ -68,21 +62,28 @@ const MESSAGE_POOLS = {
   craft: CRAFT_MESSAGES,
 };
 
+type MessagePoolKey = keyof typeof MESSAGE_POOLS;
+
+export interface UseLoadingMessagesOptions {
+  messages?: string[];
+  intervalMs?: number;
+  context?: MessagePoolKey;
+}
+
 export function useLoadingMessages(options: UseLoadingMessagesOptions = {}) {
   const poolSource = (() => {
     if (options.messages && options.messages.length) {
       return options.messages;
     }
-    const ctx = options.context as keyof typeof MESSAGE_POOLS | undefined;
-    if (ctx && MESSAGE_POOLS[ctx]) {
-      return MESSAGE_POOLS[ctx];
+    if (options.context && MESSAGE_POOLS[options.context]) {
+      return MESSAGE_POOLS[options.context];
     }
     return MESSAGE_POOLS.default;
   })();
 
   const pool = [...poolSource];
 
-  // Shuffle for non-repeating pleasant rotation
+  // Shuffle to avoid repetition
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -118,5 +119,5 @@ export function useLoadingMessages(options: UseLoadingMessagesOptions = {}) {
   onMounted(start);
   onUnmounted(stop);
 
-  return { message, next, start, stop };
+  return { message };
 }
