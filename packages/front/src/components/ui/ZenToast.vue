@@ -178,7 +178,7 @@ function handleKeydown(event: KeyboardEvent, toastId: number) {
     animation: zen-breathe 3s ease-in-out infinite;
   }
 
-  // Success state - zen garden feel
+  // Success state
   &--success {
     .zen-toast__spine {
       background: linear-gradient(90deg,
@@ -201,7 +201,7 @@ function handleKeydown(event: KeyboardEvent, toastId: number) {
     }
   }
 
-  // Error state - urgent but elegant
+  // Error state
   &--error {
     .zen-toast__spine {
       background: linear-gradient(90deg,
@@ -224,7 +224,7 @@ function handleKeydown(event: KeyboardEvent, toastId: number) {
     }
   }
 
-  // Info state - scholarly
+  // Info state
   &--info {
     .zen-toast__spine {
       background: linear-gradient(90deg,

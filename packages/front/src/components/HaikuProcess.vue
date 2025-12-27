@@ -74,7 +74,11 @@ const steps = computed(() =>
           class="haiku-process__connector"
           aria-hidden="true"
         >
-          <ChevronRight :size="20" class="haiku-process__arrow" />
+          <ChevronRight
+            :size="28"
+            :stroke-width="2.5"
+            class="haiku-process__arrow"
+          />
         </div>
       </li>
     </ol>
@@ -133,6 +137,13 @@ const steps = computed(() =>
     box-shadow: 0 4px 12px oklch(0 0 0 / 0.1);
     transition: var(--gutenku-transition-zen);
 
+    [data-theme='dark'] & {
+      background: linear-gradient(135deg, #8fbcb5 0%, #5a9a96 100%);
+      box-shadow:
+        0 4px 12px oklch(0 0 0 / 0.3),
+        0 0 20px oklch(0.7 0.08 180 / 0.2);
+    }
+
     .haiku-process__step:hover & {
       transform: translateY(-2px);
       box-shadow: 0 6px 16px oklch(0 0 0 / 0.15);
@@ -141,6 +152,10 @@ const steps = computed(() =>
 
   &__icon {
     color: var(--gutenku-paper-bg);
+
+    [data-theme='dark'] & {
+      color: #1a1a18;
+    }
   }
 
   &__title {
@@ -161,8 +176,8 @@ const steps = computed(() =>
   &__connector {
     position: absolute;
     right: -0.75rem;
-    top: 50%;
-    transform: translateY(-100%);
+    top: calc(1rem + 2rem); // padding-top + half icon height
+    transform: translateY(-50%);
 
     @media (max-width: 600px) {
       display: none;
@@ -172,6 +187,11 @@ const steps = computed(() =>
   &__arrow {
     color: var(--gutenku-zen-secondary);
     opacity: 0.6;
+
+    [data-theme='dark'] & {
+      color: #9ac5c0;
+      opacity: 0.9;
+    }
   }
 }
 </style>

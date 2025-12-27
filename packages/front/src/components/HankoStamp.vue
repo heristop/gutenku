@@ -51,7 +51,7 @@ watch(
         fill="none"
         stroke-width="1.5"
       />
-      <!-- Kanji-style character (simplified "句" for haiku) -->
+      <!-- Kanji "句" for haiku -->
       <g class="hanko-stamp__character">
         <!-- Top horizontal stroke -->
         <path d="M30 30 L70 30" stroke-width="4" stroke-linecap="round" />
