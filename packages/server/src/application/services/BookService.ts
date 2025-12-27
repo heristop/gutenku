@@ -1,21 +1,24 @@
 import { inject, injectable } from 'tsyringe';
-import type { IBookRepository } from '~/domain/repositories/IBookRepository';
+import { type IQueryBus, IQueryBusToken } from '~/application/cqrs';
+import {
+  GetAllBooksQuery,
+  GetBookByIdQuery,
+  SelectRandomBookQuery,
+} from '~/application/queries/books';
 
 @injectable()
 export default class BookService {
-  constructor(
-    @inject('IBookRepository') private readonly bookRepository: IBookRepository,
-  ) {}
+  constructor(@inject(IQueryBusToken) private readonly queryBus: IQueryBus) {}
 
   async getAllBooks(filter: string | null) {
-    return await this.bookRepository.getAllBooks(filter);
+    return this.queryBus.execute(new GetAllBooksQuery(filter));
   }
 
   async getBookById(id: string) {
-    return await this.bookRepository.getBookById(id);
+    return this.queryBus.execute(new GetBookByIdQuery(id));
   }
 
   async selectRandomBook() {
-    return this.bookRepository.selectRandomBook();
+    return this.queryBus.execute(new SelectRandomBookQuery());
   }
 }
