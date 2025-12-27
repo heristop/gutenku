@@ -6,10 +6,9 @@ import ZenToast from '@/components/ui/ZenToast.vue';
 <template>
   <v-app>
     <ZenToast />
-    <!-- Light Beam Overlay (ambient atmosphere) -->
     <div class="light-beam-overlay" aria-hidden="true" />
 
-    <!-- Floating Particles (dust motes) -->
+    <!-- Floating particles -->
     <div class="floating-particles" aria-hidden="true">
       <div class="floating-particles__particle" />
       <div class="floating-particles__particle" />

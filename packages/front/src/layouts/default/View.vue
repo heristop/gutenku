@@ -8,7 +8,12 @@
 
 <style lang="scss" scoped>
 .gutenku-app-background {
-  background: var(--gutenku-app-bg);
+  background-color: var(--gutenku-app-bg);
+  background-image: var(--gutenku-app-bg-image);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   transition: var(--gutenku-transition-zen);
   min-height: 100vh;
 }
