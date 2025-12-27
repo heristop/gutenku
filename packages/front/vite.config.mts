@@ -4,10 +4,12 @@ import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
 import viteCompression from 'vite-plugin-compression';
 import viteImagemin from 'vite-plugin-imagemin';
 import webfontDownload from 'vite-plugin-webfont-dl';
+import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
 
 // Utilities
 import { defineConfig } from 'vite';
 import { fileURLToPath, URL } from 'node:url';
+import { resolve, dirname } from 'node:path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -22,6 +24,14 @@ export default defineConfig({
         configFile: 'src/styles/settings.scss',
       },
     }),
+    // Vue I18n plugin for pre-compiling locale messages
+    VueI18nPlugin({
+      include: resolve(
+        dirname(fileURLToPath(import.meta.url)),
+        './src/locales/*.json',
+      ),
+      strictMessage: false,
+    }),
     viteCompression(),
     viteImagemin(),
     webfontDownload(),
@@ -35,8 +45,11 @@ export default defineConfig({
   },
   css: {
     preprocessorOptions: {
+      sass: {
+        api: 'modern-compiler',
+      },
       scss: {
-        api: 'modern',
+        api: 'modern-compiler',
       },
     },
   },
