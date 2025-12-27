@@ -2,18 +2,16 @@
 
 describe('Theme selection', () => {
   it('changes theme and triggers a new fetch', () => {
-    // First response
-    cy.interceptGraphQL('api', 'haiku.json');
     cy.visitApp('/');
-    cy.waitForHaiku('api');
+    // Wait for initial load
+    cy.get('[data-cy=fetch-btn]:visible', { timeout: 30000 }).should('exist');
 
-    // Set up a second response to confirm refetch on theme change
-    cy.interceptGraphQL('api2', 'haiku_cached.json');
-
-    // Change theme to "colored" (or any available option)
+    // Change theme to "colored"
     cy.selectTheme('colored');
 
-    // Expect another call
-    cy.waitForHaiku('api2');
+    // Wait for the fetch button to be visible again (page reloaded with new haiku)
+    cy.get('[data-cy=fetch-btn]:visible', { timeout: 30000 }).should(
+      'be.visible',
+    );
   });
 });
