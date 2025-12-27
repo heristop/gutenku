@@ -15,7 +15,6 @@ export class GraphQLEventBus implements IEventBus {
   ) {}
 
   async publish<E extends DomainEvent<unknown>>(event: E): Promise<void> {
-    // Map known domain events to GraphQL payloads explicitly
     if (event instanceof QuoteGeneratedEvent) {
       await this.publisher.publish(event.type, {
         quoteGenerated: event.payload.quote,

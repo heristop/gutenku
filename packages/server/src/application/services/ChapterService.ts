@@ -1,18 +1,19 @@
 import { inject, injectable } from 'tsyringe';
-import type { IChapterRepository } from '~/domain/repositories/IChapterRepository';
+import { type IQueryBus, IQueryBusToken } from '~/application/cqrs';
+import {
+  GetAllChaptersQuery,
+  GetChapterByIdQuery,
+} from '~/application/queries/chapters';
 
 @injectable()
 export default class ChapterService {
-  constructor(
-    @inject('IChapterRepository')
-    private readonly chapterRepository: IChapterRepository,
-  ) {}
+  constructor(@inject(IQueryBusToken) private readonly queryBus: IQueryBus) {}
 
   async getAllChapters(filter: string | null) {
-    return await this.chapterRepository.getAllChapters(filter);
+    return this.queryBus.execute(new GetAllChaptersQuery(filter));
   }
 
   async getChapterById(id: string) {
-    return await this.chapterRepository.getChapterById(id);
+    return this.queryBus.execute(new GetChapterByIdQuery(id));
   }
 }
