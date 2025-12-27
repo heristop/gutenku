@@ -15,7 +15,7 @@ defineProps<{
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <!-- Imperfect zen circle (enso) path -->
+      <!-- Enso circle path -->
       <path
         class="enso-loader__circle"
         d="M50 10
@@ -27,7 +27,7 @@ defineProps<{
         stroke-linecap="round"
         stroke-linejoin="round"
       />
-      <!-- Small ink dot at the end (signature) -->
+      <!-- Ink dot -->
       <circle class="enso-loader__dot" cx="45" cy="10" r="2" />
     </svg>
     <span class="sr-only">Loading...</span>

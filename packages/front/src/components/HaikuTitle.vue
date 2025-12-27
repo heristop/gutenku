@@ -78,11 +78,7 @@ onMounted(startTypewriter);
 </script>
 
 <template>
-  <v-card
-    class="gutenku-card text-center mb-6 haiku-title-card"
-    color="secondary"
-    variant="tonal"
-  >
+  <v-card class="gutenku-card text-center mb-6 haiku-title-card" variant="flat">
     <div class="theme-actions">
       <!-- Theme Toggle -->
       <ZenTooltip
@@ -159,6 +155,11 @@ onMounted(startTypewriter);
     var(--gutenku-paper-bg, #f8f6f0) 0%,
     var(--gutenku-paper-bg-warm, #faf8f2) 100%
   );
+
+  [data-theme='dark'] & {
+    background: oklch(0.18 0.02 70 / 0.5) !important;
+    backdrop-filter: blur(12px);
+  }
   cursor: default !important;
   user-select: none !important;
   -webkit-user-select: none !important;
@@ -183,29 +184,6 @@ onMounted(startTypewriter);
     caret-color: transparent !important;
   }
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image:
-      radial-gradient(
-        ellipse at 20% 30%,
-        var(--gutenku-zen-water, oklch(0.45 0.08 195 / 0.05)) 0%,
-        transparent 50%
-      ),
-      radial-gradient(
-        ellipse at 80% 70%,
-        var(--gutenku-zen-mist, oklch(0.76 0.04 175 / 0.1)) 0%,
-        transparent 50%
-      );
-    border-radius: 8px;
-    pointer-events: none;
-    z-index: 1;
-    opacity: 0.6;
-  }
 }
 
 .title-container {
