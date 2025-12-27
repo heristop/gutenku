@@ -1,0 +1,285 @@
+{
+  "common": {
+    "close": "Close",
+    "refresh": "Refresh"
+  },
+  "layout": {
+    "skipLink": "Skip to main content"
+  },
+  "footer": {
+    "copyright": "heristop \u00a9 2023-{year}",
+    "visitPage": "Visit heristop on his page",
+    "openCredits": "Open credits",
+    "credits": {
+      "ariaLabel": "Credits haiku",
+      "line1": "Code flows like water",
+      "line2": "heristop crafts each pixel",
+      "line3": "Haiku born from books",
+      "years": "2023-{year}",
+      "github": "GitHub",
+      "portfolio": "Portfolio",
+      "githubLabel": "Visit heristop on GitHub",
+      "portfolioLabel": "Visit heristop portfolio"
+    }
+  },
+  "haikuTitle": {
+    "quotes": {
+      "0": "Where words fail, poetry speaks",
+      "1": "In seventeen syllables, infinite worlds",
+      "2": "Every haiku holds a season of the soul",
+      "3": "Literature breathes life into silence",
+      "4": "From classic books to modern verse"
+    },
+    "theme": {
+      "systemDisableHint": "Disable System Theme to change manually",
+      "switchToLight": "Switch to Light Mode",
+      "switchToDark": "Switch to Dark Mode",
+      "disableSystem": "Disable System Theme",
+      "enableSystem": "Enable System Theme"
+    }
+  },
+  "haikuChapter": {
+    "disclosure": {
+      "hidden": "Click anywhere on the text to reveal content",
+      "visible": "Click anywhere to hide content"
+    },
+    "discloseHide": "Disclose / Hide",
+    "showFull": "Show Full Chapter",
+    "showCompacted": "Show Compacted View"
+  },
+  "haikuProcess": {
+    "steps": {
+      "literature": {
+        "title": "Classic Literature",
+        "description": "Dive into Project Gutenberg's timeless classics"
+      },
+      "haiku": {
+        "title": "AI Haiku",
+        "description": "Transform passages into seventeen syllables"
+      },
+      "visual": {
+        "title": "Visual Art",
+        "description": "Generate artwork inspired by your poem"
+      }
+    }
+  },
+  "haikuCrafting": {
+    "title": "Crafting Your Haiku",
+    "progress": "Generation in progress...",
+    "pageNumber": "— Crafting —"
+  },
+  "haikuCanvas": {
+    "loading": "Painting your haiku...",
+    "themeLabel": "Artistic Theme",
+    "ariaLabel": "Haiku artwork display",
+    "download": "Download",
+    "downloadTooltip": "Save haiku as image",
+    "saving": "Saving...",
+    "downloadSuccess": "Image saved successfully!",
+    "themeChanged": "Artistic theme changed to {theme}"
+  },
+  "highlightText": {
+    "ariaDescription": "Text with {count} highlighted haiku verses"
+  },
+  "toolbar": {
+    "generate": "Generate",
+    "extract": "Extract",
+    "generating": "Generating",
+    "extracting": "Extracting",
+    "generateTooltip": "{action} a new haiku",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "copyTooltip": "Copy haiku to clipboard",
+    "copySuccess": "Haiku copied to clipboard!",
+    "copyError": "Could not copy to clipboard. Please try again.",
+    "copiedLabel": "Haiku copied to clipboard",
+    "horizontal": "Horizontal text",
+    "vertical": "Vertical text (Tategaki)",
+    "horizontalJp": "横書き",
+    "verticalJp": "縦書き"
+  },
+  "stats": {
+    "title": "Your Zen Journey",
+    "subtitle": "Reading the wind of words",
+    "ariaLabel": "Your Zen Journey statistics, toggle to expand",
+    "metrics": {
+      "haikuForged": "Haiku forged",
+      "booksBrowsed": "Books browsed",
+      "fromCache": "From cache",
+      "avgTime": "Avg time"
+    },
+    "cacheUsage": "Calm waters (cache usage)",
+    "topBooks": "Top books inspiring your haiku",
+    "times": "{count} time | {count} times",
+    "emptyState": "Awaiting your first poems..."
+  },
+  "config": {
+    "title": "Configuration",
+    "subtitle": "Fine-tune your haiku generation",
+    "ariaLabel": "Configuration, toggle to expand",
+    "generateTooltip": "Generate with current settings",
+    "resetTooltip": "Reset to defaults",
+    "advancedTooltip": "Fine-tune generation filters",
+    "showAdvanced": "Show advanced",
+    "hideAdvanced": "Hide advanced",
+    "filters": {
+      "sentiment": "Sentiment",
+      "markov": "Markov Chain",
+      "grammar": "Grammar (POS)",
+      "trigram": "Trigram Flow",
+      "tfidf": "Word Uniqueness",
+      "phonetics": "Alliteration"
+    }
+  },
+  "social": {
+    "ariaLabel": "About GutenKu",
+    "linksAriaLabel": "Social links",
+    "description": "<strong>GutenKu</strong> is a Haiku generator based on a selection of books from <span class=\"visually-hidden\">the</span> Project Gutenberg, a vast online library of free eBooks, and then process this data to extract quotes and generate unique <strong>5</strong>-<strong>7</strong>-<strong>5</strong> haiku",
+    "links": {
+      "instagram": {
+        "name": "Instagram",
+        "label": "See published haikus on Instagram"
+      },
+      "gutenberg": {
+        "name": "Gutenberg",
+        "label": "Visit Project Gutenberg website"
+      },
+      "github": {
+        "name": "GitHub",
+        "label": "View source code on GitHub"
+      }
+    }
+  },
+  "home": {
+    "networkError": "Cannot connect to the server :(",
+    "haikuReady": "Haiku ready",
+    "readyMessage": "Ready to create poetry",
+    "haikuContentLabel": "Haiku content",
+    "loadingMessages": {
+      "0": "🔍 Our poetic robots are diving into classic literature...",
+      "1": "📚 Scanning through the greatest works ever written...",
+      "2": "🎭 Absorbing the emotional essence of timeless stories...",
+      "3": "✨ Weaving seventeen syllables of pure magic...",
+      "4": "🎨 Selecting the perfect artistic theme for your poem...",
+      "5": "🖼️ Creating a visual masterpiece for your haiku...",
+      "6": "📝 Adding the final touches to your literary art..."
+    }
+  },
+  "errors": {
+    "maxAttempts": "No haiku found matching your filters after maximum attempts. Please try again with a different filter or try several words."
+  },
+  "loadingMessages": {
+    "default": {
+      "0": "Our poetic robots are diving into classic literature...",
+      "1": "Scanning through the greatest works ever written...",
+      "2": "Absorbing the emotional essence of timeless stories...",
+      "3": "Weaving seventeen syllables of pure magic...",
+      "4": "Selecting the perfect artistic theme for your poem...",
+      "5": "Creating a visual masterpiece for your haiku...",
+      "6": "Adding the final touches to your literary art...",
+      "7": "Shuffling cherry blossoms for seasonal vibes...",
+      "8": "Zen mode: in 5, out 7, in 5...",
+      "9": "Brewing green tea for the muse...",
+      "10": "Borrowing metaphors from Gutenberg's stacks...",
+      "11": "Waiting for the page to whisper back...",
+      "12": "Stitching syllables with tiny needles...",
+      "13": "Trimming adjectives with bonsai scissors...",
+      "14": "Counting syllables with monk-like patience...",
+      "15": "Polishing a pause until it shines...",
+      "16": "Asking Bash\u014d for a quick peer review...",
+      "17": "Raking the sand garden for line breaks...",
+      "18": "Listening for the wind to turn the page...",
+      "19": "Navigating by the North Star of nouns...",
+      "20": "Aligning moonlight for a perfect kireji...",
+      "21": "Binding a tiny book in your browser...",
+      "22": "Fitting quiet between two thoughts...",
+      "23": "Lo-fi beats to write haiku to...",
+      "24": "Running a vibe check on verbs...",
+      "25": "Dusting off a public-domain masterpiece...",
+      "26": "Finding the right reflection in a puddle...",
+      "27": "Leafing through a century in a second...",
+      "28": "Watering the bonsai of language...",
+      "29": "Teaching commas to bow politely...",
+      "30": "Unfolding origami stanzas...",
+      "31": "Turning silence into syllables...",
+      "32": "Choosing the one precise word...",
+      "33": "Cooling hot metaphors to room temperature...",
+      "34": "Catching a small idea with gentle hands..."
+    },
+    "craft": {
+      "0": "Your haiku is being crafted in real-time...",
+      "1": "Weaving syllables into poetry...",
+      "2": "Blending imagery and emotion...",
+      "3": "Sourcing inspiration from timeless pages...",
+      "4": "Shaping verses with subtle rhythm...",
+      "5": "Finding calm between the lines...",
+      "6": "Placing a single petal in the right place...",
+      "7": "Breathing a pause into the poem...",
+      "8": "Serving the first line warm, the last line cool...",
+      "9": "Letting silence land between words...",
+      "10": "Raking line breaks into the sand...",
+      "11": "Folding a thought into seventeen beats...",
+      "12": "Testing the weight of a whisper...",
+      "13": "Borrowing a page from Bash\u014d's notebook...",
+      "14": "Balancing moonlight on a comma...",
+      "15": "Training the verse like bamboo: straight and calm..."
+    },
+    "emojis": {
+      "default": [
+        "\ud83d\udd0d",
+        "\ud83d\udcda",
+        "\ud83c\udfad",
+        "\u2728",
+        "\ud83c\udfa8",
+        "\ud83d\uddbc\ufe0f",
+        "\ud83d\udcdd",
+        "\ud83c\udf38",
+        "\ud83e\uddd8",
+        "\ud83c\udf75",
+        "\ud83d\udcd6",
+        "\ud83d\udd6f\ufe0f",
+        "\ud83e\uddf5",
+        "\u2702\ufe0f",
+        "\ud83e\uddee",
+        "\ud83c\udf00",
+        "\ud83e\udeb6",
+        "\ud83c\udfef",
+        "\ud83c\udf2c\ufe0f",
+        "\ud83e\udded",
+        "\ud83c\udf19",
+        "\ud83d\udcce",
+        "\ud83e\udde9",
+        "\ud83c\udfb6",
+        "\ud83e\udde0",
+        "\ud83d\udd16",
+        "\ud83e\ude9e",
+        "\ud83d\uddfa\ufe0f",
+        "\ud83c\udf3f",
+        "\ud83d\udcd0",
+        "\ud83d\udcdc",
+        "\ud83d\udd4a\ufe0f",
+        "\ud83c\udfaf",
+        "\ud83e\uddca",
+        "\ud83d\udca1"
+      ],
+      "craft": [
+        "\u2728",
+        "\ud83e\uddf5",
+        "\ud83c\udfa8",
+        "\ud83d\udcd6",
+        "\ud83d\udd2e",
+        "\ud83c\udf3f",
+        "\ud83c\udf38",
+        "\ud83e\uddd8",
+        "\ud83c\udf75",
+        "\ud83d\udd4a\ufe0f",
+        "\ud83c\udfef",
+        "\ud83d\udcdd",
+        "\ud83e\udeb6",
+        "\ud83d\udd16",
+        "\ud83c\udf19",
+        "\ud83c\udf8b"
+      ]
+    }
+  }
+}
