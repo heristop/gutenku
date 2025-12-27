@@ -16,7 +16,7 @@ function openCredits() {
 </script>
 
 <template>
-  <div class="app-footer">
+  <footer class="app-footer" role="contentinfo">
     <v-card class="gutenku-card footer-card mx-auto order-4 mb-6">
       <v-btn
         color="primary"
@@ -31,11 +31,10 @@ function openCredits() {
     </v-card>
 
     <ZenCreditsModal ref="creditsModal" />
-  </div>
+  </footer>
 </template>
 
 <style scoped lang="scss">
-// Footer card styling
 .footer-card {
   display: flex;
   align-items: center;

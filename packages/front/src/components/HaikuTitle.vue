@@ -440,13 +440,19 @@ onMounted(startTypewriter);
     gap: 0.5rem;
   }
 
-  .theme-icon-btn {
-    width: 2.75rem !important;
-    height: 2.75rem !important;
-    min-width: 2.75rem !important;
-    min-height: 2.75rem !important;
-    max-width: 2.75rem !important;
-    max-height: 2.75rem !important;
+  .theme-icon-btn,
+  .theme-settings-btn {
+    width: 2rem !important;
+    height: 2rem !important;
+    min-width: 2rem !important;
+    min-height: 2rem !important;
+    max-width: 2rem !important;
+    max-height: 2rem !important;
+
+    svg {
+      width: 16px !important;
+      height: 16px !important;
+    }
   }
 }
 </style>
