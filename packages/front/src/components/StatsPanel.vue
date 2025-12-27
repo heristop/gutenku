@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, useTemplateRef } from 'vue';
+import { computed, ref, watch, useTemplateRef, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import { BookOpenText, ChevronUp, Star } from 'lucide-vue-next';
@@ -10,6 +10,7 @@ import { useInView } from '@/composables/in-view';
 const { t } = useI18n();
 
 const cardRef = useTemplateRef<HTMLElement>('cardRef');
+const statsContentRef = useTemplateRef<HTMLElement>('statsContentRef');
 const { isInView } = useInView(cardRef, { delay: 300 });
 
 const store = useHaikuStore();
@@ -103,6 +104,12 @@ watch(
   (isExpanded) => {
     if (isExpanded) {
       triggerAnimations();
+      nextTick(() => {
+        const firstFocusable = statsContentRef.value?.querySelector<HTMLElement>(
+          '[tabindex]:not([tabindex="-1"]), button, a',
+        );
+        firstFocusable?.focus();
+      });
     }
   },
   { immediate: true },
@@ -174,6 +181,7 @@ watch(progress, (val) => {
     <v-expand-transition>
       <div
         v-show="expanded"
+        ref="statsContentRef"
         id="stats-panel-content"
         class="stats-panel__content"
       >
@@ -248,6 +256,11 @@ watch(progress, (val) => {
           rounded
           height="6"
           class="stats-panel__progress-bar"
+          role="progressbar"
+          :aria-valuenow="Math.round(animatedProgress)"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          :aria-label="t('stats.cacheUsage')"
         />
 
         <div class="stats-panel__books-section mt-2">
@@ -397,6 +410,16 @@ watch(progress, (val) => {
 
   &__progress-percentage {
     color: var(--gutenku-text-secondary);
+  }
+
+  &__progress-bar {
+    :deep(.v-progress-linear__determinate) {
+      background: linear-gradient(
+        90deg,
+        rgb(var(--v-theme-primary)) 0%,
+        rgb(var(--v-theme-secondary)) 100%
+      );
+    }
   }
 }
 
