@@ -7,17 +7,14 @@ import type { HaikuValue } from '~/shared/types';
 export async function post(haiku: HaikuValue) {
   const bookTitle = haiku.book.title;
   const vowels = 'aeiouyAEIOUY';
-
   let nonMaskedVowel: string;
 
-  // Find a random vowel in the title
   do {
     nonMaskedVowel = bookTitle.charAt(
       Math.floor(Math.random() * bookTitle.length),
     );
   } while (!vowels.includes(nonMaskedVowel));
 
-  // Mask all letters except the random vowel
   const maskedTitle = bookTitle.replaceAll(
     new RegExp(`[^ ${nonMaskedVowel}]`, 'gi'),
     '*',
@@ -75,13 +72,9 @@ export async function publish(
     throw new Error('Caption cannot be empty');
   }
 
-  // Read the image file into a buffer
   const imageBuffer = await fs.readFile(haiku.imagePath);
-
-  // Create a FormData instance
   const form = new FormData();
 
-  // Append image file with filename and content type
   const formattedTitle = haiku.title.replaceAll(/\s/g, '_').toLowerCase();
   form.append('file', imageBuffer, {
     contentType: 'image/jpeg',
@@ -89,10 +82,8 @@ export async function publish(
     knownLength: imageBuffer.length,
   });
 
-  // Append the caption (content of the message)
   form.append('content', caption);
 
-  // Get multipart form headers
   const formHeaders = form.getHeaders();
 
   try {
