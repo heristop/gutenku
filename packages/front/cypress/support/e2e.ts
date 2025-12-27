@@ -18,7 +18,7 @@ declare global {
 Cypress.Commands.add(
   'interceptGraphQL',
   (alias = 'api', fixture = 'haiku.json') => {
-    cy.intercept('POST', /\/graphql$/, { fixture }).as(alias);
+    cy.intercept('POST', '**/graphql', { fixture }).as(alias);
   },
 );
 
