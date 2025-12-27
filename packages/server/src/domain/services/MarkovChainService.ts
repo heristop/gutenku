@@ -8,14 +8,19 @@ const FANBOYS_LIST = ['for', 'and', 'nor', 'but', 'or', 'yet', 'so'];
 @singleton()
 export class MarkovChainService {
   private bigrams: Map<string, Map<string, number>>;
+  private trigrams: Map<string, Map<string, number>>;
   private totalBigrams: number;
+  private totalTrigrams: number;
+  private loaded = false;
 
   constructor(
     @inject(NaturalLanguageService)
     private readonly naturalLanguage: NaturalLanguageService,
   ) {
     this.bigrams = new Map();
+    this.trigrams = new Map();
     this.totalBigrams = 0;
+    this.totalTrigrams = 0;
   }
 
   public train(text: string): void {
@@ -26,13 +31,14 @@ export class MarkovChainService {
     for (const sentence of sentences) {
       const words = this.naturalLanguage.extractWords(sentence);
 
-      const wordList = [];
+      const wordList: string[] = [];
       words.forEach((word: string) => {
         if (!FANBOYS_LIST.includes(word.toLowerCase())) {
           wordList.push(word);
         }
       });
 
+      // Train bigrams
       for (let i = 0; i < wordList.length - 1; i++) {
         const from = wordList[i];
         const to = wordList[i + 1];
@@ -48,6 +54,24 @@ export class MarkovChainService {
         }
 
         this.totalBigrams++;
+      }
+
+      // Train trigrams
+      for (let i = 0; i < wordList.length - 2; i++) {
+        const key = `${wordList[i]} ${wordList[i + 1]}`;
+        const next = wordList[i + 2];
+
+        if (!this.trigrams.has(key)) {
+          this.trigrams.set(key, new Map());
+        }
+
+        const transitions = this.trigrams.get(key);
+
+        if (transitions) {
+          transitions.set(next, (transitions.get(next) || 0) + 1);
+        }
+
+        this.totalTrigrams++;
       }
     }
   }
@@ -69,53 +93,71 @@ export class MarkovChainService {
       const count = transitions.get(firstWordTo);
 
       if (count) {
-        return count / (lastWordFrom.length + toWords.length);
+        const totalTransitions = [...transitions.values()].reduce(
+          (a, b) => a + b,
+          0,
+        );
+        return count / totalTransitions;
       }
     }
 
     return 0;
   }
 
-  public evaluateWords(from: string, to: string): number {
+  /**
+   * Trigram transition probability (last 2 words + first word of next verse)
+   */
+  public evaluateTrigramTransition(from: string, to: string): number {
     const fromWords = this.naturalLanguage.extractWords(from);
     const toWords = this.naturalLanguage.extractWords(to);
 
-    let totalScore = 0;
-    let totalCount = 0;
+    if (fromWords.length < 2 || toWords.length === 0) {
+      return 0;
+    }
 
-    for (const fromWord of fromWords) {
-      for (const toWord of toWords) {
-        const transitions = this.bigrams.get(fromWord);
+    const key = `${fromWords.at(-2)} ${fromWords.at(-1)}`;
+    const firstWordTo = toWords[0];
 
-        if (transitions) {
-          const count = transitions.get(toWord);
+    const transitions = this.trigrams.get(key);
 
-          if (count) {
-            totalScore += count / 1000;
-            totalCount++;
-          }
-        }
+    if (transitions) {
+      const count = transitions.get(firstWordTo);
+
+      if (count) {
+        const totalTransitions = [...transitions.values()].reduce(
+          (a, b) => a + b,
+          0,
+        );
+        return count / totalTransitions;
       }
     }
 
-    return totalCount > 0 ? totalScore / totalCount : 0;
+    return 0;
   }
 
-  public async saveModel(): Promise<void> {
+  public async saveModel(): Promise<boolean> {
     const data = JSON.stringify({
       bigrams: Array.from(this.bigrams, ([key, value]) => [key, [...value]]),
+      trigrams: Array.from(this.trigrams, ([key, value]) => [key, [...value]]),
       totalBigrams: this.totalBigrams,
+      totalTrigrams: this.totalTrigrams,
     });
 
     try {
       await fs.writeFile('./data/markov_model.json', data, 'utf8');
       log.info('Model saved with success.');
+      return true;
     } catch (error) {
       log.error(`Error on model save: ${error}`);
+      return false;
     }
   }
 
-  public async loadModel(): Promise<void> {
+  public async loadModel(): Promise<boolean> {
+    if (this.loaded && this.bigrams.size > 0) {
+      return true;
+    }
+
     try {
       const data = await fs.readFile('./data/markov_model.json', 'utf8');
       const jsonData = JSON.parse(data);
@@ -127,8 +169,25 @@ export class MarkovChainService {
         ]),
       );
       this.totalBigrams = jsonData.totalBigrams;
+
+      // Load trigrams if available (backward compatible)
+      if (jsonData.trigrams) {
+        this.trigrams = new Map(
+          jsonData.trigrams.map(
+            ([key, value]: [string, [string, number][]]) => [
+              key,
+              new Map(value),
+            ],
+          ),
+        );
+        this.totalTrigrams = jsonData.totalTrigrams || 0;
+      }
+
+      this.loaded = true;
+      return true;
     } catch (error) {
       log.error(`Error on model load: ${error}`);
+      return false;
     }
   }
 }

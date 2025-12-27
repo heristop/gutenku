@@ -53,6 +53,10 @@ const typeDefs = `#graphql
             filter: String,
             sentimentMinScore: Float,
             markovMinScore: Float,
+            posMinScore: Float,
+            trigramMinScore: Float,
+            tfidfMinScore: Float,
+            phoneticsMinScore: Float,
             descriptionTemperature: Float
         ): Haiku
     }
