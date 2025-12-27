@@ -1,5 +1,8 @@
 <script lang="ts" setup>
-import { useLoadingMessages } from '@/composables/useLoadingMessages';
+import { Sparkles, PenTool } from 'lucide-vue-next';
+import { useI18n } from 'vue-i18n';
+import { useLoadingMessages } from '@/composables/loading-messages';
+
 interface Message {
   text: string;
   timestamp: number;
@@ -10,6 +13,8 @@ defineProps<{
   messages: Message[];
 }>();
 
+const { t } = useI18n();
+
 const { message: craftingMessage } = useLoadingMessages({
   context: 'craft',
   intervalMs: 3000,
@@ -17,43 +22,58 @@ const { message: craftingMessage } = useLoadingMessages({
 </script>
 
 <template>
-  <v-card class="book-page gutenku-card haiku-crafting">
+  <v-card
+    class="book-page gutenku-card haiku-crafting"
+    :aria-label="t('haikuCrafting.title')"
+    aria-busy="true"
+  >
     <!-- Book Header Style for Crafting -->
     <div class="book-header">
       <div class="crafting-text">
         {{ craftingMessage }}
       </div>
 
-      <div class="header-controls">
-        <v-icon
-          class="craft-icon"
-          color="primary"
-          size="large"
-        >
-          mdi-creation
-        </v-icon>
+      <div class="header-controls" aria-hidden="true">
+        <Sparkles :size="32" class="craft-icon" />
       </div>
     </div>
 
     <!-- Book Content Style for Messages -->
     <div class="book-content">
       <!-- Crafting Title -->
-      <h1 class="craft-title">
-        Crafting Your Haiku
-      </h1>
+      <h2 class="craft-title">
+        {{ t('haikuCrafting.title') }}
+      </h2>
 
       <!-- Real-time Message Feed -->
       <div class="chapter-content">
         <div class="chapter-sheet">
-          <div class="message-feed">
-            <TransitionGroup
-              name="craft-message"
-              tag="div"
-              class="message-container"
-            >
+          <div
+            class="message-feed"
+            role="log"
+            aria-live="polite"
+            aria-relevant="additions"
+          >
+            <div class="message-container">
               <div
                 v-for="(message, index) in messages"
                 :key="`${message.timestamp}-${index}`"
+                v-motion
+                :initial="{ opacity: 0, y: -20 }"
+                :enter="{
+                  opacity: index > 2 ? 0.6 : 1,
+                  y: 0,
+                  transition: {
+                    duration: 400,
+                    delay: index * 50,
+                    ease: [0.4, 0, 0.2, 1],
+                  },
+                }"
+                :leave="{
+                  opacity: 0,
+                  y: 10,
+                  transition: { duration: 200, ease: [0.4, 0, 1, 1] },
+                }"
                 class="craft-message"
                 :class="{
                   'latest-message': index === 0,
@@ -61,18 +81,16 @@ const { message: craftingMessage } = useLoadingMessages({
                 }"
               >
                 <span class="message-emoji">
-                  <v-icon
+                  <PenTool
                     v-if="message.emoji === '✨'"
-                    size="small"
-                    color="primary"
-                  >
-                    mdi-fountain-pen-tip
-                  </v-icon>
+                    :size="18"
+                    class="text-primary"
+                  />
                   <span v-else>{{ message.emoji }}</span>
                 </span>
                 <span class="message-text">{{ message.text }}</span>
               </div>
-            </TransitionGroup>
+            </div>
           </div>
 
           <!-- Progress Bar -->
@@ -82,9 +100,10 @@ const { message: craftingMessage } = useLoadingMessages({
               color="primary"
               height="4"
               class="craft-progress"
+              :aria-label="t('haikuCrafting.progress')"
             />
             <div class="progress-text">
-              Generation in progress...
+              {{ t('haikuCrafting.progress') }}
             </div>
           </div>
         </div>
@@ -93,28 +112,28 @@ const { message: craftingMessage } = useLoadingMessages({
 
     <!-- Page number style -->
     <div class="page-number">
-      — Crafting —
+      {{ t('haikuCrafting.pageNumber') }}
     </div>
   </v-card>
 </template>
 
 <style lang="scss" scoped>
 .haiku-crafting.book-page {
-  // Same book page styling as HaikuChapter
+  // Book page styling
   box-shadow:
-    0 2px 4px -1px rgba(0, 0, 0, 0.2),
-    0 4px 5px 0 rgba(0, 0, 0, 0.14),
-    0 1px 10px 0 rgba(0, 0, 0, 0.12);
+    0 2px 4px -1px oklch(0 0 0 / 0.2),
+    0 4px 5px 0 oklch(0 0 0 / 0.14),
+    0 1px 10px 0 oklch(0 0 0 / 0.12);
 
   background: var(--gutenku-paper-bg);
   position: relative;
   padding: 3rem 2rem 2rem 3rem;
   margin-bottom: 1.5rem;
-  min-height: 500px;
+  min-height: 31.25rem;
   border-radius: 4px;
   overflow: visible;
 
-  // Same book binding effect
+  // Book binding effect
   &::after {
     content: '';
     position: absolute;
@@ -124,15 +143,15 @@ const { message: craftingMessage } = useLoadingMessages({
     height: 100%;
     background: linear-gradient(
       to bottom,
-      rgba(0, 0, 0, 0.1) 0%,
-      rgba(0, 0, 0, 0.05) 50%,
-      rgba(0, 0, 0, 0.1) 100%
+      oklch(0 0 0 / 0.1) 0%,
+      oklch(0 0 0 / 0.05) 50%,
+      oklch(0 0 0 / 0.1) 100%
     );
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 5px oklch(0 0 0 / 0.2);
     z-index: 1;
   }
 
-  // Same page texture
+  // Page texture
   &::before {
     content: '';
     position: absolute;
@@ -143,17 +162,17 @@ const { message: craftingMessage } = useLoadingMessages({
     background-image:
       radial-gradient(
         circle at 20% 50%,
-        rgba(120, 119, 108, 0.3) 0%,
+        oklch(0.51 0.02 85 / 0.3) 0%,
         transparent 50%
       ),
       radial-gradient(
         circle at 80% 20%,
-        rgba(120, 119, 108, 0.3) 0%,
+        oklch(0.51 0.02 85 / 0.3) 0%,
         transparent 50%
       ),
       radial-gradient(
         circle at 40% 80%,
-        rgba(120, 119, 108, 0.3) 0%,
+        oklch(0.51 0.02 85 / 0.3) 0%,
         transparent 50%
       );
     opacity: 0.1;
@@ -172,7 +191,7 @@ const { message: craftingMessage } = useLoadingMessages({
   z-index: 2;
   text-align: center;
   margin-bottom: 2rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid oklch(0 0 0 / 0.1);
   padding-bottom: 1rem;
 
   .crafting-text {
@@ -189,11 +208,12 @@ const { message: craftingMessage } = useLoadingMessages({
   }
 
   .craft-icon {
-    background: rgba(76, 175, 80, 0.1);
-    border: 1px solid rgba(76, 175, 80, 0.3);
+    background: oklch(0.65 0.18 145 / 0.1);
+    border: 1px solid oklch(0.65 0.18 145 / 0.3);
     border-radius: 50%;
     padding: 1.5rem;
     animation: craft-pulse 2s ease-in-out infinite;
+    color: oklch(0.65 0.18 145);
   }
 }
 
@@ -210,7 +230,7 @@ const { message: craftingMessage } = useLoadingMessages({
   margin: 2rem 0 1rem 0;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  text-shadow: 1px 1px 2px oklch(0 0 0 / 0.1);
 }
 
 .chapter-content {
@@ -225,7 +245,7 @@ const { message: craftingMessage } = useLoadingMessages({
 }
 
 .message-feed {
-  height: 340px;
+  height: 21.25rem;
   overflow: hidden;
   padding: 1.5rem 0;
   display: flex;
@@ -243,7 +263,7 @@ const { message: craftingMessage } = useLoadingMessages({
   align-items: flex-start;
   padding: 0.75rem 1rem;
   margin: 0;
-  background: rgba(255, 255, 255, 0.3);
+  background: oklch(1 0 0 / 0.3);
   border-radius: 8px;
   border-left: 3px solid transparent;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -254,9 +274,9 @@ const { message: craftingMessage } = useLoadingMessages({
   box-sizing: border-box;
 
   &.latest-message {
-    background: rgba(76, 175, 80, 0.15);
-    border-left-color: rgb(76, 175, 80);
-    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+    background: oklch(0.65 0.18 145 / 0.15);
+    border-left-color: oklch(0.65 0.18 145);
+    box-shadow: 0 2px 8px oklch(0.65 0.18 145 / 0.2);
 
     .message-emoji {
       animation: craft-pulse 1.5s ease-in-out infinite;
@@ -328,30 +348,10 @@ const { message: craftingMessage } = useLoadingMessages({
   }
 }
 
-// Transition animations for top-entry messages
-.craft-message-enter-active {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.craft-message-leave-active {
-  transition: all 0.3s ease-in;
-}
-
-.craft-message-enter-from {
-  opacity: 0;
-  transform: translateY(-20px);
-}
-
-.craft-message-leave-to {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-// Responsive adjustments (same as HaikuChapter)
 @media (max-width: 768px) {
   .haiku-crafting.book-page {
     padding: 2rem 1.5rem 1.5rem 2rem;
-    min-height: 400px;
+    min-height: 25rem;
   }
 
   .craft-title {
@@ -359,7 +359,7 @@ const { message: craftingMessage } = useLoadingMessages({
   }
 
   .message-feed {
-    height: 180px;
+    height: 11.25rem;
   }
 
   .craft-message {

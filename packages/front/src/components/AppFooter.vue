@@ -1,27 +1,39 @@
+<script lang="ts" setup>
+import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import type ZenCreditsModal from '@/components/ui/ZenCreditsModal.vue';
+
+const { t } = useI18n();
+const currentYear = new Date().getFullYear();
+const creditsModal = ref<InstanceType<typeof ZenCreditsModal> | null>(null);
+
+function openCredits() {
+  creditsModal.value?.open();
+}
+</script>
+
 <template>
-  <v-card class="gutenku-card footer-card mx-auto order-4 mb-6">
-    <v-btn
-      color="primary"
-      size="small"
-      variant="text"
-      href="https://heristop.vercel.app"
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="Visit heristop on his page"
-      class="footer-button"
-    >
-      heristop © 2023-{{ new Date().getFullYear() }}
-    </v-btn>
-  </v-card>
+  <div class="app-footer">
+    <v-card class="gutenku-card footer-card mx-auto order-4 mb-6">
+      <v-btn
+        color="primary"
+        size="small"
+        variant="text"
+        :aria-label="t('footer.openCredits')"
+        class="footer-button"
+        @click="openCredits"
+      >
+        {{ t('footer.copyright', { year: currentYear }) }}
+      </v-btn>
+    </v-card>
+
+    <ZenCreditsModal ref="creditsModal" />
+  </div>
 </template>
 
 <style scoped lang="scss">
-// ====================================
-// FOOTER COMPONENT - DARK MODE FIXES
-// ====================================
-
+// Footer card styling
 .footer-card {
-  // Footer card specific styling
   display: flex;
   align-items: center;
   justify-content: center;
@@ -29,41 +41,33 @@
 }
 
 .footer-button {
-  // Button styling
   font-family: 'JMH Typewriter', monospace !important;
   letter-spacing: 0.5px;
-
-  // Light mode button styling
   color: rgb(var(--v-theme-primary)) !important;
 
   &:hover {
     color: var(--gutenku-text-primary) !important;
-    background: rgba(var(--v-theme-primary), 0.1) !important;
+    background: color-mix(in oklch, var(--gutenku-theme-primary-oklch) 10%, transparent) !important;
   }
 }
 
-// Dark mode button overrides
 [data-theme='dark'] .footer-card {
   .footer-button {
-    // Override all button text with high contrast
     color: var(--gutenku-text-primary) !important;
 
-    // Fix button content specifically
     :deep(.v-btn__content) {
       color: var(--gutenku-text-primary) !important;
     }
 
-    // Hover state for dark mode
     &:hover {
       color: var(--gutenku-zen-accent) !important;
-      background: rgba(var(--v-theme-primary), 0.15) !important;
+      background: color-mix(in oklch, var(--gutenku-theme-primary-oklch) 15%, transparent) !important;
 
       :deep(.v-btn__content) {
         color: var(--gutenku-zen-accent) !important;
       }
     }
 
-    // Active state
     &:active {
       color: var(--gutenku-text-primary) !important;
 
@@ -72,7 +76,6 @@
       }
     }
 
-    // Focus state for accessibility
     &:focus-visible {
       color: var(--gutenku-text-primary) !important;
       outline: 2px solid var(--gutenku-zen-accent);
@@ -84,14 +87,12 @@
     }
   }
 
-  // Force text visibility in footer
   * {
     &:not(.v-icon):not(.mdi):not([class*='mdi-']) {
       color: var(--gutenku-text-primary) !important;
     }
   }
 
-  // Specific targeting for any nested elements
   span,
   div,
   p,
@@ -102,7 +103,6 @@
   }
 }
 
-// Responsive footer adjustments
 @media (max-width: 768px) {
   .footer-card {
     padding: 1rem !important;
@@ -111,7 +111,7 @@
 
   .footer-button {
     font-size: 0.85rem;
-    min-height: 44px; // Touch target size
+    min-height: 44px;
   }
 }
 </style>

@@ -1,14 +1,38 @@
 <script lang="ts" setup>
-import { onMounted, ref, computed, nextTick, watch } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { load } from '@fingerprintjs/botd';
 import { storeToRefs } from 'pinia';
+import { Lightbulb, LightbulbOff, ChevronsUpDown, ChevronsDownUp } from 'lucide-vue-next';
 import { useHaikuStore } from '@/store/haiku';
+import { useHaikuHighlighter } from '@/composables/haiku-highlighter';
+import { useTextCompacting } from '@/composables/text-compacting';
 import HighLightText from '@/components/HighLightText.vue';
+import ZenTooltip from '@/components/ui/ZenTooltip.vue';
+
+const { t } = useI18n();
 
 const { haiku, loading } = storeToRefs(useHaikuStore());
 
 const blackMarker = ref(true);
 const isCompacted = ref(true);
+
+const { applyToAllHighlights } = useHaikuHighlighter();
+
+// Disclosure text based on marker state
+const disclosureText = computed(() =>
+  blackMarker.value
+    ? t('haikuChapter.disclosure.hidden')
+    : t('haikuChapter.disclosure.visible'),
+);
+
+// Compacted view tooltip
+const compactedTooltip = computed(() =>
+  isCompacted.value
+    ? t('haikuChapter.showFull')
+    : t('haikuChapter.showCompacted'),
+);
+const { compactText } = useTextCompacting();
 
 function toggle(): void {
   blackMarker.value = !blackMarker.value;
@@ -18,11 +42,11 @@ function toggleCompactedView(): void {
   isCompacted.value = !isCompacted.value;
 }
 
-// Generate consistent page number based on haiku data
+// Deterministic page number from book and chapter
 const pageNumber = computed(() => {
-  if (!haiku.value?.book?.title || !haiku.value?.chapter?.title) return 1;
+  if (!haiku.value?.book?.title || !haiku.value?.chapter?.title) {return 1;}
 
-  // Create a simple hash from book and chapter titles for consistency
+  // Hash book and chapter titles
   const combined = haiku.value.book.title + haiku.value.chapter.title;
   let hash = 0;
   for (let i = 0; i < combined.length; i++) {
@@ -34,127 +58,8 @@ const pageNumber = computed(() => {
 });
 
 function getCompactedText(): string {
-  if (!haiku.value?.chapter.content || !haiku.value?.rawVerses) return '';
-
-  const content = haiku.value.chapter.content;
-  const verses = haiku.value.rawVerses;
-
-  // Split content into sentences preserving punctuation
-  const sentences = content
-    .split(/(?<=[.!?])\s+/)
-    .filter((sentence) => sentence.trim().length > 0);
-
-  let compactedSections: string[] = [];
-
-  verses.forEach((verse) => {
-    // Find the sentence containing this verse
-    const verseSentenceIndex = sentences.findIndex((sentence) =>
-      sentence.includes(verse.trim()),
-    );
-
-    if (verseSentenceIndex !== -1) {
-      // Get sentence before, verse sentence, and sentence after
-      const prevSentence =
-        verseSentenceIndex > 0 ? sentences[verseSentenceIndex - 1].trim() : '';
-      const verseSentence = sentences[verseSentenceIndex].trim();
-      const nextSentence =
-        verseSentenceIndex < sentences.length - 1
-          ? sentences[verseSentenceIndex + 1].trim()
-          : '';
-
-      // Create compacted section with proper punctuation
-      let section = '';
-      if (prevSentence) {
-        section += prevSentence;
-        if (!prevSentence.match(/[.!?]$/)) section += '.';
-        section += ' ';
-      }
-      section += verseSentence;
-      if (!verseSentence.match(/[.!?]$/)) section += '.';
-      if (nextSentence) {
-        section += ' ' + nextSentence;
-        if (!nextSentence.match(/[.!?]$/)) section += '.';
-      }
-
-      compactedSections.push(section);
-    }
-  });
-
-  return compactedSections.join('\n\n');
-}
-
-// Generate unique hand-drawn highlighter SVG for each instance
-function generateHandDrawnHighlighter(): string {
-  const width = 100;
-  const height = 20;
-  const baseY = height / 2 - 3;
-
-  // Random parameters for this specific highlight
-  const waveIntensity = 1 + Math.random() * 2;
-  const strokeWidth = 8 + Math.random() * 4;
-  const opacity1 = 0.4 + Math.random() * 0.3;
-  const opacity2 = 0.2 + Math.random() * 0.3;
-  const rotation = -2 + Math.random() * 4;
-
-  // Generate wavy path with random control points
-  const path1 = `M0,${baseY + Math.random() * 2 - 1}
-    Q${width * 0.25},${baseY + (Math.random() - 0.5) * waveIntensity}
-    ${width * 0.5},${baseY + (Math.random() - 0.5) * waveIntensity}
-    T${width},${baseY + Math.random() * 2 - 1}
-    L${width},${baseY + strokeWidth + Math.random() * 2}
-    Q${width * 0.75},${baseY + strokeWidth + (Math.random() - 0.5) * waveIntensity}
-    ${width * 0.5},${baseY + strokeWidth + (Math.random() - 0.5) * waveIntensity}
-    T0,${baseY + strokeWidth + Math.random() * 2 - 1} Z`;
-
-  // Second overlapping stroke for depth
-  const path2 = `M0,${baseY + Math.random() * 1.5 - 0.75}
-    Q${width * 0.3},${baseY + (Math.random() - 0.5) * waveIntensity * 0.8}
-    ${width * 0.6},${baseY + (Math.random() - 0.5) * waveIntensity * 0.8}
-    T${width},${baseY + Math.random() * 1.5 - 0.75}
-    L${width},${baseY + strokeWidth * 0.8 + Math.random() * 1.5}
-    Q${width * 0.7},${baseY + strokeWidth * 0.8 + (Math.random() - 0.5) * waveIntensity * 0.8}
-    ${width * 0.4},${baseY + strokeWidth * 0.8 + (Math.random() - 0.5) * waveIntensity * 0.8}
-    T0,${baseY + strokeWidth * 0.8 + Math.random() * 1.5 - 0.75} Z`;
-
-  // Create SVG with unique patterns
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
-    <defs>
-      <filter id="roughPaper${Math.random().toString(36).substr(2, 9)}">
-        <feTurbulence baseFrequency="0.04" numOctaves="3" result="noise" seed="${Math.random() * 100}"/>
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.5"/>
-      </filter>
-    </defs>
-    <g transform="rotate(${rotation} ${width / 2} ${height / 2})">
-      <path d="${path1}" fill="#ffd700" opacity="${opacity1}" filter="url(#roughPaper${Math.random().toString(36).substr(2, 9)})"/>
-      <path d="${path2}" fill="#ffed4e" opacity="${opacity2}"/>
-    </g>
-  </svg>`;
-
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-}
-
-// Apply unique highlighter patterns to all highlight elements
-function applyHandDrawnHighlighters(): void {
-  nextTick(() => {
-    const highlights = document.querySelectorAll(
-      '.chapter-text mark, .chapter-text .highlight',
-    );
-    highlights.forEach((element: Element) => {
-      const htmlElement = element as HTMLElement;
-      const uniquePattern = generateHandDrawnHighlighter();
-      const randomTranslateY = -0.5 + Math.random() * 1;
-      const randomRotation = -1 + Math.random() * 2;
-
-      htmlElement.style.setProperty(
-        '--unique-highlighter-bg',
-        `url("${uniquePattern}")`,
-      );
-      htmlElement.style.setProperty(
-        '--unique-transform',
-        `translateY(${randomTranslateY}px) rotate(${randomRotation}deg)`,
-      );
-    });
-  });
+  if (!haiku.value?.chapter.content || !haiku.value?.rawVerses) {return '';}
+  return compactText(haiku.value.chapter.content, haiku.value.rawVerses);
 }
 
 onMounted(() => {
@@ -166,94 +71,78 @@ onMounted(() => {
     }
   });
 
-  // Apply hand-drawn highlighters after component mounts
-  applyHandDrawnHighlighters();
+  applyToAllHighlights();
 });
 
-// Reapply patterns when content changes
 watch(
   [haiku, isCompacted],
   () => {
-    applyHandDrawnHighlighters();
+    applyToAllHighlights();
   },
   { flush: 'post' },
 );
 </script>
 
 <template>
-  <v-card
-    v-if="haiku"
-    :loading="loading"
-    class="book-page gutenku-card"
-  >
+  <v-card v-if="haiku" :loading="loading" class="book-page gutenku-card">
     <!-- Book Header with Toggles -->
     <div class="book-header">
       <div class="disclosure-text">
-        {{
-          blackMarker
-            ? 'Click anywhere on the text to reveal content'
-            : 'Click anywhere to hide content'
-        }}
+        {{ disclosureText }}
       </div>
       <div class="header-controls">
         <!-- Stabilo Toggle -->
-        <v-tooltip
+        <ZenTooltip
+          :text="t('haikuChapter.discloseHide')"
+          position="bottom"
           :disabled="!blackMarker"
-          text="Disclose / Hide"
-          location="bottom"
-          aria-label="Disclose / Hide"
         >
-          <template #activator="{ props }">
-            <v-btn
-              v-bind="props"
-              :icon="blackMarker ? 'mdi-lightbulb-on' : 'mdi-lightbulb-off'"
-              @click="toggle()"
-              class="toggle-btn stabilo-toggle"
-              alt="Disclose / Hide"
-              aria-label="Disclose / Hide"
-              title="Disclose / Hide"
-              data-cy="light-toggle-btn"
-              size="small"
-              variant="outlined"
-            />
-          </template>
-        </v-tooltip>
+          <v-btn
+            class="toggle-btn stabilo-toggle"
+            :aria-label="t('haikuChapter.discloseHide')"
+            data-cy="light-toggle-btn"
+            icon
+            variant="outlined"
+            @click="toggle()"
+          >
+            <Lightbulb v-if="blackMarker" :size="20" />
+            <LightbulbOff v-else :size="20" />
+          </v-btn>
+        </ZenTooltip>
 
         <!-- Compacted View Toggle -->
-        <v-tooltip
-          :text="isCompacted ? 'Show Full Chapter' : 'Show Compacted View'"
-          location="bottom"
-        >
-          <template #activator="{ props }">
-            <v-btn
-              v-bind="props"
-              :icon="
-                isCompacted
-                  ? 'mdi-unfold-more-horizontal'
-                  : 'mdi-unfold-less-horizontal'
-              "
-              @click="toggleCompactedView()"
-              :class="{
-                'icon-white': blackMarker,
-                'icon-black': !blackMarker,
-              }"
-              class="toggle-btn expand-toggle"
-              :title="isCompacted ? 'Show Full Chapter' : 'Show Compacted View'"
-              size="small"
-              variant="outlined"
-            />
-          </template>
-        </v-tooltip>
+        <ZenTooltip :text="compactedTooltip" position="bottom">
+          <v-btn
+            :class="{
+              'icon-white': blackMarker,
+              'icon-black': !blackMarker,
+            }"
+            class="toggle-btn expand-toggle"
+            :aria-label="compactedTooltip"
+            icon
+            variant="outlined"
+            @click="toggleCompactedView()"
+          >
+            <ChevronsUpDown v-if="isCompacted" :size="20" />
+            <ChevronsDownUp v-else :size="20" />
+          </v-btn>
+        </ZenTooltip>
       </div>
     </div>
 
     <!-- Book Content -->
     <div
       class="book-content"
+      role="button"
+      tabindex="0"
+      :aria-expanded="!blackMarker"
+      :aria-label="disclosureText"
       @click="toggle()"
+      @keydown.enter="toggle()"
+      @keydown.space.prevent="toggle()"
     >
       <!-- Book Title -->
-      <h1
+      <h2
         :class="{
           'stabilo-hidden': blackMarker,
           'stabilo-visible': !blackMarker,
@@ -261,7 +150,7 @@ watch(
         class="book-title"
       >
         {{ haiku.book.title }}
-      </h1>
+      </h2>
 
       <!-- Book Author -->
       <div
@@ -275,14 +164,8 @@ watch(
       </div>
 
       <!-- Chapter Content -->
-      <div
-        class="chapter-content"
-        :class="{ expandable: !isCompacted }"
-      >
-        <div
-          v-if="haiku.chapter.content"
-          class="chapter-sheet"
-        >
+      <div class="chapter-content" :class="{ expandable: !isCompacted }">
+        <div v-if="haiku.chapter.content" class="chapter-sheet">
           <p
             :class="{
               'stabilo-hidden': blackMarker,
@@ -300,26 +183,23 @@ watch(
     </div>
 
     <!-- Optional page number -->
-    <div class="page-number">
-      — {{ pageNumber }} —
-    </div>
+    <div class="page-number">— {{ pageNumber }} —</div>
   </v-card>
 </template>
 
 <style lang="scss" scoped>
 .book-page {
   box-shadow:
-    0 2px 4px -1px rgba(0, 0, 0, 0.2),
-    0 4px 5px 0 rgba(0, 0, 0, 0.14),
-    0 1px 10px 0 rgba(0, 0, 0, 0.12);
+    0 2px 4px -1px oklch(0 0 0 / 0.2),
+    0 4px 5px 0 oklch(0 0 0 / 0.14),
+    0 1px 10px 0 oklch(0 0 0 / 0.12);
 
-  // Book page background - solid color eliminates highlighting interference
   background: var(--gutenku-paper-bg);
   position: relative;
   padding: 3rem 2rem 2rem 3rem;
   margin-bottom: 1.5rem;
-  min-height: 500px;
-  border-radius: 4px;
+  min-height: 31.25rem;  // 500px
+  border-radius: var(--gutenku-radius-sm);
   overflow: visible;
   transition: all 0.3s ease;
   cursor: pointer;
@@ -328,11 +208,11 @@ watch(
   &:hover {
     transform: translateY(-3px) scale(1.01);
     box-shadow:
-      0 8px 25px rgba(0, 0, 0, 0.3),
-      0 4px 10px rgba(0, 0, 0, 0.2);
+      0 8px 25px oklch(0 0 0 / 0.3),
+      0 4px 10px oklch(0 0 0 / 0.2);
 
     // Light mode hover brightening
-    background: color-mix(in srgb, var(--gutenku-paper-bg) 92%, white 8%);
+    background: color-mix(in oklch, var(--gutenku-paper-bg) 92%, white 8%);
   }
 
   // Active state for entire card
@@ -341,68 +221,15 @@ watch(
     transition: all 0.1s ease;
   }
 
-  // Dark mode specific enhancements
   [data-theme='dark'] & {
     &:hover {
-      background: color-mix(in srgb, var(--gutenku-paper-bg) 88%, white 12%);
+      background: color-mix(in oklch, var(--gutenku-paper-bg) 88%, white 12%);
       box-shadow:
-        0 12px 35px rgba(0, 0, 0, 0.4),
-        0 6px 15px rgba(0, 0, 0, 0.3);
+        0 12px 35px oklch(0 0 0 / 0.4),
+        0 6px 15px oklch(0 0 0 / 0.3);
     }
   }
 
-  // Page curl effect at bottom-right corner
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 2px;
-    height: 100%;
-    background: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0.1) 0%,
-      rgba(0, 0, 0, 0.05) 50%,
-      rgba(0, 0, 0, 0.1) 100%
-    );
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-    z-index: 1;
-  }
-
-  // Page curl corner fold
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image:
-      radial-gradient(
-        circle at 20% 50%,
-        rgba(120, 119, 108, 0.3) 0%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle at 80% 20%,
-        rgba(120, 119, 108, 0.3) 0%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle at 40% 80%,
-        rgba(120, 119, 108, 0.3) 0%,
-        transparent 50%
-      );
-    opacity: 0.1;
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  // Subtle page curl at bottom-right
-  &:hover::before {
-    opacity: 0.15;
-    transition: opacity 0.3s ease;
-  }
 }
 
 .book-header {
@@ -432,8 +259,8 @@ watch(
     border: 1px solid var(--gutenku-border-visible);
     color: var(--gutenku-text-contrast) !important;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 2.5rem;   // 40px
+    height: 2.5rem;  // 40px
     box-shadow: var(--gutenku-shadow-light);
     transition: var(--gutenku-transition-zen);
     cursor: pointer !important;
@@ -483,12 +310,12 @@ watch(
       // Dynamic icon colors based on stabilo mode
       &.icon-white .v-icon {
         color: #ffffff !important;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+        text-shadow: 0 1px 2px oklch(0 0 0 / 0.8);
       }
 
       &.icon-black .v-icon {
         color: #000000 !important;
-        text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+        text-shadow: 0 1px 2px oklch(1 0 0 / 0.8);
       }
     }
   }
@@ -497,8 +324,8 @@ watch(
 @media (max-width: 768px) {
   .book-header {
     .toggle-btn {
-      width: 36px;
-      height: 36px;
+      width: 2.25rem;   // 36px
+      height: 2.25rem;  // 36px
     }
   }
 }
@@ -508,7 +335,7 @@ watch(
   z-index: 2;
   cursor: pointer;
   transition: all 0.3s ease;
-  border-radius: 4px;
+  border-radius: var(--gutenku-radius-sm);
 
   // Theme-aware cursor colors
   &:hover {
@@ -529,6 +356,11 @@ watch(
   &:focus {
     outline: none;
   }
+
+  &:focus-visible {
+    outline: 2px solid var(--gutenku-zen-accent);
+    outline-offset: 4px;
+  }
 }
 
 .book-title {
@@ -539,7 +371,7 @@ watch(
   margin: 2rem 0 1rem 0;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  text-shadow: 1px 1px 2px oklch(0 0 0 / 0.1);
 
   &.stabilo-hidden {
     opacity: 0.3;
@@ -591,7 +423,7 @@ watch(
 
   // Expanded mode: fixed height with scrollbar
   &.expandable {
-    height: 400px;
+    height: 25rem;  // 400px
     overflow-y: auto;
     scroll-behavior: smooth;
   }
@@ -622,8 +454,8 @@ watch(
           background: repeating-linear-gradient(
             transparent,
             transparent 0.1em,
-            rgba(0, 0, 0, 0.7) 0.1em,
-            rgba(0, 0, 0, 0.7) 1.1em,
+            oklch(0 0 0 / 0.7) 0.1em,
+            oklch(0 0 0 / 0.7) 1.1em,
             transparent 1.1em,
             transparent 1.2em
           );
@@ -645,13 +477,13 @@ watch(
           background-image: none !important;
           background-clip: border-box !important;
           color: var(--gutenku-text-primary) !important;
-          padding: 4px 8px;
-          border-radius: 4px;
+          padding: 0.25rem 0.5rem;  // 4px 8px
+          border-radius: var(--gutenku-radius-sm);
           font-weight: bold;
           position: relative;
           z-index: 20;
           text-shadow: none !important;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 2px 4px oklch(0 0 0 / 0.1);
           isolation: isolate;
           display: inline-block;
         }
@@ -661,24 +493,24 @@ watch(
           background-image: none !important;
           background-clip: border-box !important;
           color: var(--gutenku-text-primary) !important;
-          padding: 4px 8px;
-          border-radius: 4px;
+          padding: 0.25rem 0.5rem;  // 4px 8px
+          border-radius: var(--gutenku-radius-sm);
           font-weight: bold;
           position: relative;
           z-index: 20;
           text-shadow: none !important;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 2px 4px oklch(0 0 0 / 0.1);
           isolation: isolate;
           display: inline-block;
         }
 
-        // Ensure empty elements get no styling
+        // Empty elements have no styling
         :deep(br),
         :deep(:empty) {
           background: none !important;
         }
 
-        // Remove the overlay that creates black lines everywhere
+        // Hide overlay to prevent black lines
         &::before {
           display: none !important;
         }
@@ -705,7 +537,7 @@ watch(
           font-weight: bold;
           position: relative;
           z-index: 20;
-          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+          text-shadow: 0 1px 2px oklch(0 0 0 / 0.1) !important;
           box-shadow: none;
           isolation: isolate;
           display: inline-block;
@@ -724,7 +556,7 @@ watch(
           font-weight: bold;
           position: relative;
           z-index: 20;
-          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+          text-shadow: 0 1px 2px oklch(0 0 0 / 0.1) !important;
           box-shadow: none;
           isolation: isolate;
           display: inline-block;
@@ -746,11 +578,10 @@ watch(
   z-index: 3;
 }
 
-// Responsive adjustments
 @media (max-width: 768px) {
   .book-page {
     padding: 2rem 1.5rem 1.5rem 2rem;
-    min-height: 400px;
+    min-height: 25rem;  // 400px
   }
 
   .book-title {
