@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import { useSubscription, gql } from '@urql/vue';
@@ -12,20 +12,31 @@ import { useClipboard } from '@/composables/clipboard';
 import { useImageDownload } from '@/composables/image-download';
 import { useToast } from '@/composables/toast';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
-
-const { t, tm } = useI18n();
-const { error: showError } = useToast();
 import AppFooter from '@/components/AppFooter.vue';
-import ConfigPanel from '@/components/ConfigPanel.vue';
 import HaikuCanvas from '@/components/HaikuCanvas.vue';
 import HaikuChapter from '@/components/HaikuChapter.vue';
 import HaikuCrafting from '@/components/HaikuCrafting.vue';
 import HaikuProcess from '@/components/HaikuProcess.vue';
 import HaikuTitle from '@/components/HaikuTitle.vue';
-import ToolbarPanel from '@/components/ToolbarPanel.vue';
 import SocialNetworkPanel from '@/components/SocialNetworkPanel.vue';
-import StatsPanel from '@/components/StatsPanel.vue';
 import AppLoading from '@/components/AppLoading.vue';
+import ZenSkeleton from '@/components/ZenSkeleton.vue';
+
+const ConfigPanel = defineAsyncComponent({
+  loader: () => import('@/components/ConfigPanel.vue'),
+  loadingComponent: ZenSkeleton,
+});
+const StatsPanel = defineAsyncComponent({
+  loader: () => import('@/components/StatsPanel.vue'),
+  loadingComponent: ZenSkeleton,
+});
+const ToolbarPanel = defineAsyncComponent({
+  loader: () => import('@/components/ToolbarPanel.vue'),
+  loadingComponent: ZenSkeleton,
+});
+
+const { t, tm } = useI18n();
+const { error: showError } = useToast();
 
 const haikuStore = useHaikuStore();
 const { fetchNewHaiku } = haikuStore;
@@ -85,34 +96,33 @@ const subscriptionResult = useSubscription<{ quoteGenerated: string }>({
   `,
 });
 
-const quotesReceived = ref<string[]>([]);
+const quotesReceivedSet = ref(new Set<string>());
 const latestMessage = ref<string>('');
 const messageHistory = ref<
   Array<{ text: string; timestamp: number; emoji: string }>
 >([]);
 
+const MAX_HISTORY = 5;
+const MAX_QUOTES = 10;
+
 watch(
   () => subscriptionResult.data.value,
   (data) => {
-    if (
-      data?.quoteGenerated &&
-      !quotesReceived.value.includes(data.quoteGenerated)
-    ) {
-      quotesReceived.value.push(data.quoteGenerated);
-      latestMessage.value = data.quoteGenerated;
+    const quote = data?.quoteGenerated;
+    if (quote && !quotesReceivedSet.value.has(quote)) {
+      quotesReceivedSet.value.add(quote);
+      latestMessage.value = quote;
 
-      messageHistory.value.unshift({
-        text: data.quoteGenerated,
+      const newEntry = {
+        text: quote,
         timestamp: Date.now(),
-        emoji: getEmoji(data.quoteGenerated),
-      });
+        emoji: getEmoji(quote),
+      };
+      messageHistory.value = [newEntry, ...messageHistory.value].slice(0, MAX_HISTORY);
 
-      while (messageHistory.value.length > 5) {
-        messageHistory.value.pop();
-      }
-
-      while (quotesReceived.value.length > 10) {
-        quotesReceived.value.shift();
+      if (quotesReceivedSet.value.size > MAX_QUOTES) {
+        const iterator = quotesReceivedSet.value.values();
+        quotesReceivedSet.value.delete(iterator.next().value as string);
       }
     }
   },
@@ -127,9 +137,8 @@ const literaryLoadingMessages = computed(() => {
 
 const loadingLabel = computed(() => {
   if (!firstLoaded.value || loading.value) {
-    if (loading.value && quotesReceived.value.length > 0) {
-      const latestLog = quotesReceived.value.at(-1);
-      return latestLog ? formatWithEmoji(latestLog) : '';
+    if (loading.value && quotesReceivedSet.value.size > 0) {
+      return latestMessage.value ? formatWithEmoji(latestMessage.value) : '';
     }
 
     const messages = literaryLoadingMessages.value;
@@ -188,11 +197,11 @@ onMounted(fetchNewHaiku);
         <app-loading :splash="true" error :text="t('home.networkError')" />
       </v-sheet>
 
-      <div
+      <main
+        id="main-content"
         v-if="showContent && false === networkError"
         class="w-100"
         :aria-busy="loading"
-        role="region"
         :aria-label="t('home.haikuContentLabel')"
       >
         <v-row justify="center" no-gutters>
@@ -223,13 +232,14 @@ onMounted(fetchNewHaiku);
 
                 <haiku-process class="d-none d-sm-block" />
 
-                <haiku-crafting
-                  v-if="loading && messageHistory.length > 0"
-                  :messages="messageHistory"
-                  class="d-none d-sm-block"
-                />
+                <div class="chapter-container d-none d-sm-block">
+                  <haiku-crafting
+                    v-if="loading && messageHistory.length > 0"
+                    :messages="messageHistory"
+                  />
 
-                <haiku-chapter v-else class="d-none d-sm-block" />
+                  <haiku-chapter v-else />
+                </div>
               </v-col>
 
               <v-col
@@ -249,24 +259,29 @@ onMounted(fetchNewHaiku);
 
                 <stats-panel class="mb-6" />
 
-                <haiku-crafting
-                  v-if="loading && messageHistory.length > 0"
-                  :messages="messageHistory"
-                  class="d-sm-none mb-2"
-                />
+                <div class="chapter-container d-sm-none mb-2">
+                  <haiku-crafting
+                    v-if="loading && messageHistory.length > 0"
+                    :messages="messageHistory"
+                  />
 
-                <haiku-chapter v-else class="d-sm-none mb-2" />
+                  <haiku-chapter v-else />
+                </div>
 
                 <app-footer class="mt-6" />
               </v-col>
             </v-row>
           </v-col>
         </v-row>
-      </div>
+      </main>
     </div>
   </v-container>
 </template>
 
 <style lang="scss">
 @use '@/assets/css/main.scss';
+
+.chapter-container {
+  min-height: 22rem;
+}
 </style>
