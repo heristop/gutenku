@@ -1,7 +1,16 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, watch, useTemplateRef } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
+import { BookOpenText, ChevronUp, Star } from 'lucide-vue-next';
 import { useHaikuStore } from '@/store/haiku';
+import { useExpandedState } from '@/composables/local-storage';
+import { useInView } from '@/composables/in-view';
+
+const { t } = useI18n();
+
+const cardRef = useTemplateRef<HTMLElement>('cardRef');
+const { isInView } = useInView(cardRef, { delay: 300 });
 
 const store = useHaikuStore();
 const { stats } = storeToRefs(store);
@@ -17,125 +26,205 @@ const topBooks = computed(() => {
   return entries.slice(0, 3);
 });
 
-// Collapsible functionality
-const expanded = ref(true);
+const { value: expanded, toggle: toggleStats } = useExpandedState('statsPanel-expanded');
 
-const toggleStats = () => {
-  expanded.value = !expanded.value;
-  localStorage.setItem('statsPanel-expanded', expanded.value.toString());
-};
+const animatedHaikus = ref(0);
+const animatedCached = ref(0);
+const animatedBooks = ref(0);
+const animatedTime = ref(0);
+const animatedProgress = ref(0);
+const hasAnimated = ref(false);
 
-onMounted(() => {
-  const savedState = localStorage.getItem('statsPanel-expanded');
-  if (savedState !== null) {
-    expanded.value = savedState === 'true';
+function easeOutQuart(t: number): number {
+  return 1 - Math.pow(1 - t, 4);
+}
+
+function animateValue(
+  start: number,
+  end: number,
+  duration: number,
+  callback: (value: number) => void,
+) {
+  const startTime = performance.now();
+
+  function update(currentTime: number) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const easedProgress = easeOutQuart(progress);
+    const current = start + (end - start) * easedProgress;
+
+    callback(current);
+
+    if (progress < 1) {
+      requestAnimationFrame(update);
+    }
   }
+
+  requestAnimationFrame(update);
+}
+
+function triggerAnimations() {
+  if (hasAnimated.value) {return;}
+  hasAnimated.value = true;
+
+  setTimeout(() => {
+    animateValue(0, stats.value.haikusGenerated, 800, (v) => {
+      animatedHaikus.value = Math.round(v);
+    });
+  }, 100);
+
+  setTimeout(() => {
+    animateValue(0, stats.value.booksBrowsed, 800, (v) => {
+      animatedBooks.value = Math.round(v);
+    });
+  }, 200);
+
+  setTimeout(() => {
+    animateValue(0, stats.value.cachedHaikus, 800, (v) => {
+      animatedCached.value = Math.round(v);
+    });
+  }, 300);
+
+  setTimeout(() => {
+    animateValue(0, Number.parseFloat(avgTime.value), 800, (v) => {
+      animatedTime.value = v;
+    });
+  }, 400);
+
+  setTimeout(() => {
+    animateValue(0, progress.value, 600, (v) => {
+      animatedProgress.value = v;
+    });
+  }, 500);
+}
+
+watch(
+  expanded,
+  (isExpanded) => {
+    if (isExpanded) {
+      triggerAnimations();
+    }
+  },
+  { immediate: true },
+);
+
+watch(
+  () => stats.value.haikusGenerated,
+  (val) => {
+    if (hasAnimated.value) {animatedHaikus.value = val;}
+  },
+);
+watch(
+  () => stats.value.booksBrowsed,
+  (val) => {
+    if (hasAnimated.value) {animatedBooks.value = val;}
+  },
+);
+watch(
+  () => stats.value.cachedHaikus,
+  (val) => {
+    if (hasAnimated.value) {animatedCached.value = val;}
+  },
+);
+watch(avgTime, (val) => {
+  if (hasAnimated.value) {animatedTime.value = Number.parseFloat(val);}
+});
+watch(progress, (val) => {
+  if (hasAnimated.value) {animatedProgress.value = val;}
 });
 </script>
 
 <template>
   <v-card
-    class="gutenku-card stats-panel stats-panel--card pa-5 mb-4 w-100"
+    ref="cardRef"
+    class="gutenku-card stats-panel stats-panel--card stats-panel-container pa-5 mb-4 w-100 animate-in"
+    :class="{ 'is-visible': isInView }"
     rounded
   >
     <div
       class="stats-panel__header d-flex align-center mb-2"
-      @click="toggleStats"
       role="button"
       tabindex="0"
       :aria-expanded="expanded"
+      aria-controls="stats-panel-content"
+      :aria-label="t('stats.ariaLabel')"
+      @click="toggleStats"
       @keydown.enter="toggleStats"
-      @keydown.space="toggleStats"
+      @keydown.space.prevent="toggleStats"
     >
-      <v-icon
-        size="large"
-        color="primary"
-        class="stats-panel__icon stats-panel__icon--main mr-2"
-      >
-        mdi-book-open-page-variant
-      </v-icon>
+      <BookOpenText
+        :size="28"
+        class="stats-panel__icon stats-panel__icon--main mr-2 text-primary"
+      />
       <div class="stats-panel__header-content flex-grow-1">
         <div class="stats-panel__title text-subtitle-1">
-          Your Zen Journey
+          {{ t('stats.title') }}
         </div>
         <div class="stats-panel__subtitle text-body-2 text-medium-emphasis">
-          Reading the wind of words
+          {{ t('stats.subtitle') }}
         </div>
       </div>
-      <v-icon
-        color="primary"
-        class="stats-panel__toggle-icon"
+      <ChevronUp
+        :size="24"
+        class="stats-panel__toggle-icon text-primary"
         :class="{ 'stats-panel__toggle-icon--rotated': !expanded }"
-      >
-        mdi-chevron-up
-      </v-icon>
+      />
     </div>
 
     <v-expand-transition>
       <div
         v-show="expanded"
+        id="stats-panel-content"
         class="stats-panel__content"
       >
         <div class="stats-panel__inner gutenku-book-page pa-3 mb-2">
           <v-row dense>
-            <v-col
-              cols="6"
-              class="text-center"
-            >
+            <v-col cols="6" class="text-center">
               <div
                 class="stats-panel__metric-label text-caption text-medium-emphasis"
               >
-                Haiku forged
+                {{ t('stats.metrics.haikuForged') }}
               </div>
               <div
                 class="stats-panel__metric-value text-subtitle-1 font-weight-bold"
               >
-                {{ stats.haikusGenerated }}
+                {{ animatedHaikus }}
               </div>
             </v-col>
-            <v-col
-              cols="6"
-              class="text-center"
-            >
+            <v-col cols="6" class="text-center">
               <div
                 class="stats-panel__metric-label text-caption text-medium-emphasis"
               >
-                Books browsed
+                {{ t('stats.metrics.booksBrowsed') }}
               </div>
               <div
                 class="stats-panel__metric-value text-subtitle-1 font-weight-bold"
               >
-                {{ stats.booksBrowsed }}
+                {{ animatedBooks }}
               </div>
             </v-col>
-            <v-col
-              cols="6"
-              class="text-center mt-2"
-            >
+            <v-col cols="6" class="text-center mt-2">
               <div
                 class="stats-panel__metric-label text-caption text-medium-emphasis"
               >
-                From cache
+                {{ t('stats.metrics.fromCache') }}
               </div>
               <div
                 class="stats-panel__metric-value text-subtitle-1 font-weight-bold"
               >
-                {{ stats.cachedHaikus }}
+                {{ animatedCached }}
               </div>
             </v-col>
-            <v-col
-              cols="6"
-              class="text-center mt-2"
-            >
+            <v-col cols="6" class="text-center mt-2">
               <div
                 class="stats-panel__metric-label text-caption text-medium-emphasis"
               >
-                Avg time
+                {{ t('stats.metrics.avgTime') }}
               </div>
               <div
                 class="stats-panel__metric-value text-subtitle-1 font-weight-bold"
               >
-                {{ avgTime }}s
+                {{ animatedTime.toFixed(2) }}s
               </div>
             </v-col>
           </v-row>
@@ -147,14 +236,14 @@ onMounted(() => {
           <div
             class="stats-panel__progress-label text-caption text-medium-emphasis"
           >
-            Calm waters (cache usage)
+            {{ t('stats.cacheUsage') }}
           </div>
           <div class="stats-panel__progress-percentage text-caption">
-            {{ progress }}%
+            {{ Math.round(animatedProgress) }}%
           </div>
         </div>
         <v-progress-linear
-          :model-value="progress"
+          :model-value="animatedProgress"
           color="primary"
           rounded
           height="6"
@@ -165,20 +254,36 @@ onMounted(() => {
           <div
             class="stats-panel__books-header text-subtitle-2 mb-2 d-flex align-center"
           >
-            <v-icon
-              size="small"
-              class="stats-panel__books-icon mr-2"
-              color="primary"
+            <Star
+              :size="18"
+              class="stats-panel__books-icon mr-2 text-primary"
+            />
+            <span
+              class="stats-panel__books-title"
+              >{{ t('stats.topBooks') }}</span
             >
-              mdi-star-circle
-            </v-icon>
-            <span class="stats-panel__books-title">Top books inspiring your haiku</span>
           </div>
           <v-row dense>
             <v-col
               v-for="([name, count], idx) in topBooks"
               :key="name"
+              v-motion
               cols="12"
+              :initial="{ opacity: 0, x: -20 }"
+              :enter="{
+                opacity: 1,
+                x: 0,
+                transition: {
+                  delay: 600 + idx * 100,
+                  duration: 400,
+                  ease: [0.25, 0.8, 0.25, 1],
+                },
+              }"
+              :leave="{
+                opacity: 0,
+                x: -10,
+                transition: { duration: 200, ease: [0.4, 0, 1, 1] },
+              }"
             >
               <div
                 class="stats-panel__book d-flex align-center justify-space-between"
@@ -197,7 +302,7 @@ onMounted(() => {
                 <div
                   class="stats-panel__book-count text-caption text-medium-emphasis"
                 >
-                  {{ count }} time{{ count > 1 ? 's' : '' }}
+                  {{ t('stats.times', { count }, count) }}
                 </div>
               </div>
             </v-col>
@@ -206,7 +311,7 @@ onMounted(() => {
               cols="12"
               class="stats-panel__empty-state text-center text-medium-emphasis text-caption"
             >
-              Awaiting your first poems...
+              {{ t('stats.emptyState') }}
             </v-col>
           </v-row>
         </div>
@@ -216,53 +321,27 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-// ====================================
-// STATS PANEL - BEM STRUCTURE
-// ====================================
-
 .stats-panel {
   position: relative;
 
-  // Modifiers
-  &--card {
-    // Inherits from global gutenku-card styles
-  }
-
-  // Elements
   &__header {
     cursor: pointer;
     transition: all 0.2s ease;
-    border-radius: 4px;
+    border-radius: var(--gutenku-radius-sm);
 
     &:hover {
-      background: rgba(var(--v-theme-primary), 0.05);
+      background: color-mix(in oklch, var(--gutenku-theme-primary-oklch) 5%, transparent);
     }
 
-    &:focus {
-      outline: 2px solid rgba(var(--v-theme-primary), 0.3);
+    &:focus-visible {
+      outline: 2px solid var(--gutenku-zen-primary);
       outline-offset: 2px;
     }
-  }
-
-  &__header-content {
-    // Uses flex-grow-1 utility class
   }
 
   &__title {
     font-family: 'JMH Typewriter', monospace !important;
     letter-spacing: 0.5px;
-  }
-
-  &__subtitle {
-    // Uses Vuetify utility classes
-  }
-
-  &__icon {
-    // Icon styles
-
-    &--main {
-      // Main stats icon styling
-    }
   }
 
   &__toggle-icon {
@@ -279,188 +358,48 @@ onMounted(() => {
 
   &__inner {
     background: var(--gutenku-paper-bg-aged);
-    border-radius: 8px;
+    border-radius: var(--gutenku-radius-md);
     box-shadow: var(--gutenku-shadow-book);
     border: 1px solid var(--gutenku-paper-border);
     min-height: auto !important;
-    padding: 12px !important;
-  }
-
-  &__metric-label {
-    // Metric label styles
-  }
-
-  &__metric-value {
-    // Metric value styles
-  }
-
-  &__progress-wrapper {
-    // Progress section container
-  }
-
-  &__progress-label {
-    // Progress label styles
-  }
-
-  &__progress-percentage {
-    // Progress percentage display
-  }
-
-  &__progress-bar {
-    // Progress bar styles
-  }
-
-  &__books-section {
-    // Books section container
-  }
-
-  &__books-header {
-    // Books section header
-  }
-
-  &__books-icon {
-    // Books section icon
-  }
-
-  &__books-title {
-    // Books section title
+    padding: 0.75rem !important;  // 12px
   }
 
   &__book {
     padding: 4px 0;
-
-    // Book modifiers can be added here if needed
-  }
-
-  &__book-info {
-    // Book info container
-  }
-
-  &__book-rank {
-    // Book ranking chip
   }
 
   &__book-title {
     font-family: 'JMH Typewriter', monospace !important;
-    font-size: 0.8rem; /* smaller than text-body-2 */
+    font-size: 0.8rem;
     line-height: 1.2;
     color: var(--gutenku-text-primary);
     letter-spacing: 0.2px;
   }
 
-  &__book-count {
-    // Book usage count
-  }
-
-  &__empty-state {
-    // Empty state message
-  }
 }
 
-// Dark mode text visibility overrides
 [data-theme='dark'] .stats-panel {
-  // Override title text color
-  &__title {
-    color: var(--gutenku-text-primary) !important;
-  }
-
-  &__books-title {
-    color: var(--gutenku-text-primary) !important;
-  }
-
-  &__book-title {
-    color: var(--gutenku-text-primary) !important;
-  }
-
+  &__title,
+  &__books-title,
+  &__book-title,
   &__metric-value {
-    color: var(--gutenku-text-primary) !important;
+    color: var(--gutenku-text-primary);
   }
 
-  // Override subtitle and secondary text
-  &__subtitle {
-    color: var(--gutenku-text-muted) !important;
-  }
-
-  &__metric-label {
-    color: var(--gutenku-text-muted) !important;
-  }
-
-  &__progress-label {
-    color: var(--gutenku-text-muted) !important;
-  }
-
-  &__book-count {
-    color: var(--gutenku-text-muted) !important;
-  }
-
+  &__subtitle,
+  &__metric-label,
+  &__progress-label,
+  &__book-count,
   &__empty-state {
-    color: var(--gutenku-text-muted) !important;
+    color: var(--gutenku-text-muted);
   }
 
   &__progress-percentage {
-    color: var(--gutenku-text-secondary) !important;
-  }
-
-  // Override Vuetify utility classes
-  .text-subtitle-1 {
-    color: var(--gutenku-text-primary) !important;
-  }
-
-  .text-subtitle-2 {
-    color: var(--gutenku-text-primary) !important;
-  }
-
-  .text-body-2 {
-    color: var(--gutenku-text-muted) !important;
-  }
-
-  .text-caption {
-    color: var(--gutenku-text-muted) !important;
-  }
-
-  .text-medium-emphasis {
-    color: var(--gutenku-text-muted) !important;
-  }
-
-  // Fix combined utility classes with higher specificity using :deep()
-  :deep(.text-body-2.text-medium-emphasis) {
-    color: var(--gutenku-text-muted) !important;
-  }
-
-  :deep(.text-caption.text-medium-emphasis) {
-    color: var(--gutenku-text-muted) !important;
-  }
-
-  :deep(.text-subtitle-1.text-medium-emphasis) {
-    color: var(--gutenku-text-muted) !important;
-  }
-
-  :deep(.text-subtitle-2.text-medium-emphasis) {
-    color: var(--gutenku-text-muted) !important;
-  }
-
-  // Nuclear option: fix any remaining text elements
-  * {
-    &:not(.v-icon):not(.mdi):not([class*='mdi-']) {
-      &:not(.v-btn):not(.v-chip) {
-        color: var(--gutenku-text-primary);
-      }
-    }
-  }
-
-  // Specific element targeting for stubborn text
-  span,
-  div,
-  p {
-    &:not(.v-icon):not(.mdi):not([class*='mdi-']) {
-      &:not(.v-btn__content):not(.v-chip__content) {
-        color: var(--gutenku-text-primary);
-      }
-    }
+    color: var(--gutenku-text-secondary);
   }
 }
 
-// Responsive improvements using BEM modifiers
 @media (max-width: 768px) {
   .stats-panel {
     &--card {
@@ -484,11 +423,10 @@ onMounted(() => {
     }
   }
 
-  // Dark mode responsive adjustments
   [data-theme='dark'] .stats-panel {
     &__inner {
-      background: rgba(26, 22, 17, 0.8);
-      border: 1px solid rgba(155, 182, 180, 0.3);
+      background: oklch(0.12 0.02 60 / 0.8);
+      border: 1px solid oklch(0.72 0.04 178 / 0.3);
     }
   }
 }

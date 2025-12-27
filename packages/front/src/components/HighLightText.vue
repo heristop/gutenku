@@ -1,6 +1,7 @@
 <script lang="ts">
-import { defineComponent, PropType, ref, watchEffect } from 'vue';
+import { defineComponent, ref, watchEffect, computed, type PropType } from 'vue';
 import { storeToRefs } from 'pinia';
+import { useI18n } from 'vue-i18n';
 import { useHaikuStore } from '@/store/haiku';
 
 export default defineComponent({
@@ -15,20 +16,24 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const { t } = useI18n();
     const { error } = storeToRefs(useHaikuStore());
 
-    // Initialize ref for formattedText
     const formattedText = ref('');
 
-    // Use watchEffect to observe changes
+    const highlightCount = computed(() => props.lines.filter((l) => l && l.trim()).length);
+    const ariaDescription = computed(() =>
+      t('highlightText.ariaDescription', { count: highlightCount.value }),
+    );
+
     watchEffect(() => {
-      let rawText = props.text.trim().replace(/"/g, ' ');
+      let rawText = props.text.trim().replaceAll('"', ' ');
 
       try {
         props.lines.forEach((line) => {
           // Filter out empty strings, whitespace-only strings, and newlines
           if (line && line.trim() && line.trim().length > 0) {
-            rawText = rawText.replace(
+            rawText = rawText.replaceAll(
               new RegExp(line.toString(), 'g'),
               (match) => {
                 return `<mark>${match}</mark>`;
@@ -37,8 +42,8 @@ export default defineComponent({
           }
         });
 
-        // Update the formattedText without causing a side effect in a computed property
-        formattedText.value = rawText.replace(/\n\n/g, '<br /><br />');
+        // Replace line breaks with HTML breaks
+        formattedText.value = rawText.replaceAll('\n\n', '<br /><br />');
       } catch (err) {
         error.value = err as string;
       }
@@ -46,11 +51,16 @@ export default defineComponent({
 
     return {
       formattedText,
+      ariaDescription,
     };
   },
 });
 </script>
 
 <template>
-  <span v-html="formattedText" />
+  <span
+    role="text"
+    :aria-description="ariaDescription"
+    v-html="formattedText"
+  />
 </template>

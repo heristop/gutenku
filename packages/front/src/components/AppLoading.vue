@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import { ref, computed, onBeforeMount, onMounted, onUnmounted } from 'vue';
-import { useLoadingMessages } from '@/composables/useLoadingMessages';
-import { useTheme } from '@/composables/useTheme';
+import { ref, computed, onMounted, onUnmounted, type Component } from 'vue';
+import { Sparkles, PartyPopper, Zap, Heart, AlertTriangle } from 'lucide-vue-next';
+import { useLoadingMessages } from '@/composables/loading-messages';
+import { useTheme } from '@/composables/theme';
 
 const props = defineProps({
   splash: {
@@ -26,32 +27,19 @@ const props = defineProps({
   },
 });
 
-const icons = ref<string[]>([]);
+const loadingIcons: Component[] = [Sparkles, PartyPopper, Zap, Heart];
+const activeIconIndex = ref(0);
 
 const flipIcons = computed(() => {
-  return false === props.error && icons.value.length > 0;
+  return false === props.error && loadingIcons.length > 0;
 });
 
 let iconInterval: NodeJS.Timeout | null = null;
 
-onBeforeMount(() => {
-  icons.value.push('mdi-robot-outline');
-  icons.value.push('mdi-robot-happy-outline');
-  icons.value.push('mdi-robot-excited-outline');
-  icons.value.push('mdi-robot-love-outline');
-});
-
 onMounted(() => {
-  const iconsElements = document.querySelectorAll('.loading i.flip');
-  let index = 0;
-
-  if (iconsElements.length > 0) {
-    iconsElements[index].classList.add('active');
-
+  if (loadingIcons.length > 0) {
     iconInterval = setInterval(() => {
-      iconsElements[index].classList.remove('active');
-      index = (index + 1) % iconsElements.length;
-      iconsElements[index].classList.add('active');
+      activeIconIndex.value = (activeIconIndex.value + 1) % loadingIcons.length;
     }, 500);
   }
 });
@@ -73,44 +61,56 @@ const { isDarkMode } = useTheme();
   <div
     class="loading"
     :class="{ 'loading--dark': isDarkMode }"
+    role="dialog"
+    aria-modal="true"
+    aria-busy="true"
+    aria-labelledby="loading-text"
   >
     <!-- Theme-aware backdrop -->
-    <div class="loading-backdrop" />
+    <div
+      v-motion
+      :initial="{ opacity: 0 }"
+      :enter="{
+        opacity: 1,
+        transition: { duration: 400, ease: 'easeOut' },
+      }"
+      class="loading-backdrop"
+      aria-hidden="true"
+    />
 
-    <div class="loading-content">
-      <div
-        v-if="false === splash"
-        class="robot"
-      >
-        <v-icon
-          v-show="error"
-          :color="color"
-          :class="['icon', 'active']"
-        >
-          mdi-robot-dead-outline
-        </v-icon>
+    <div
+      v-motion
+      :initial="{ opacity: 0, y: 20, scale: 0.95 }"
+      :enter="{
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: { duration: 500, delay: 100, ease: [0.25, 0.8, 0.25, 1] },
+      }"
+      class="loading-content"
+    >
+      <div v-if="false === splash" class="robot" aria-hidden="true">
+        <AlertTriangle
+          v-if="error"
+          :size="48"
+          class="icon active text-primary"
+        />
 
-        <div>
-          <v-icon
-            v-for="(icon, index) in icons"
-            :key="index"
-            :class="['flip', 'icon']"
-            :color="color"
-          >
-            {{ icon }}
-          </v-icon>
-        </div>
+        <component
+          :is="loadingIcons[activeIconIndex]"
+          v-else
+          :size="48"
+          class="icon active text-primary"
+        />
       </div>
 
-      <div
-        v-if="displayText"
-        class="loading-splash"
-      >
+      <div v-if="displayText" class="loading-splash">
         <!-- Logo with theme-aware background -->
-        <div class="logo-container">
+        <div class="logo-container" aria-hidden="true">
           <v-img
+            :style="{ viewTransitionName: 'gutenku-logo' }"
             src="@/assets/img/logo/gutenku-logo-300.png"
-            alt="Logo"
+            alt=""
             height="60"
           />
         </div>
@@ -118,6 +118,7 @@ const { isDarkMode } = useTheme();
         <v-spacer class="pa-10" />
 
         <v-sheet
+          id="loading-text"
           class="loading-text px-4 py-1"
           :color="error ? 'error' : 'primary'"
           :style="{
@@ -128,6 +129,8 @@ const { isDarkMode } = useTheme();
               ? 'var(--v-theme-on-error)'
               : 'var(--v-theme-on-primary)',
           }"
+          role="status"
+          aria-live="polite"
         >
           {{ displayText }}
         </v-sheet>
@@ -136,6 +139,7 @@ const { isDarkMode } = useTheme();
           :indeterminate="flipIcons"
           color="primary"
           class="mb-0 loading-progress"
+          aria-label="Loading progress"
         />
       </div>
     </div>
@@ -173,17 +177,17 @@ const { isDarkMode } = useTheme();
 
   .loading-splash {
     background: var(--gutenku-paper-bg);
-    border-radius: 12px;
+    border-radius: var(--gutenku-radius-lg);
     padding: 2rem;
     box-shadow: var(--gutenku-shadow-zen);
     border: 1px solid var(--gutenku-border-visible);
-    min-width: 300px;
+    min-width: 18.75rem;  // 300px
     backdrop-filter: blur(10px);
   }
 
   .logo-container {
     background: var(--gutenku-paper-bg-warm);
-    border-radius: 8px;
+    border-radius: var(--gutenku-radius-md);
     padding: 1rem;
     margin-bottom: 1rem;
     border: 1px solid var(--gutenku-border-visible);
@@ -197,7 +201,7 @@ const { isDarkMode } = useTheme();
   .icon {
     position: absolute;
     transform: translate(-50%, -50%);
-    font-size: 48px;
+    font-size: 3rem;  // 48px
     margin: 0 auto;
     animation: slide-in 1s ease-out infinite;
     opacity: 0;
@@ -205,37 +209,36 @@ const { isDarkMode } = useTheme();
   }
 
   .loading-text {
-    font-size: 18px;
+    font-size: 1.125rem;  // 18px
     opacity: 0.9;
     font-weight: 500;
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
+    border-top-left-radius: var(--gutenku-radius-md);
+    border-top-right-radius: var(--gutenku-radius-md);
   }
 
   // Progress bar with rounded bottom corners
   .loading-progress {
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
+    border-bottom-left-radius: var(--gutenku-radius-lg);
+    border-bottom-right-radius: var(--gutenku-radius-lg);
     overflow: hidden;
 
-    // Ensure the progress fill follows the rounded corners
+    // Progress fill inherits rounded corners
     :deep(.v-progress-linear__determinate) {
-      border-bottom-left-radius: 12px;
-      border-bottom-right-radius: 12px;
+      border-bottom-left-radius: var(--gutenku-radius-lg);
+      border-bottom-right-radius: var(--gutenku-radius-lg);
     }
 
     :deep(.v-progress-linear__indeterminate) {
-      border-bottom-left-radius: 12px;
-      border-bottom-right-radius: 12px;
+      border-bottom-left-radius: var(--gutenku-radius-lg);
+      border-bottom-right-radius: var(--gutenku-radius-lg);
     }
 
     :deep(.v-progress-linear__background) {
-      border-bottom-left-radius: 12px;
-      border-bottom-right-radius: 12px;
+      border-bottom-left-radius: var(--gutenku-radius-lg);
+      border-bottom-right-radius: var(--gutenku-radius-lg);
     }
   }
 
-  // Dark mode specific adjustments
   &.loading--dark {
     .loading-backdrop {
       background: var(--gutenku-app-bg);

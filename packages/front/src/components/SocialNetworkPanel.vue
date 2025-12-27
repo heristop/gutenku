@@ -1,28 +1,35 @@
 <script lang="ts" setup>
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { Instagram, BookOpen, Github, type LucideIcon } from 'lucide-vue-next';
+import ZenTooltip from '@/components/ui/ZenTooltip.vue';
+
+const { t } = useI18n();
+
 const INSTAGRAM_URL = 'https://instagram.com/gutenku.poem';
 const GITHUB_URL = 'https://github.com/heristop/gutenku';
 const GUTENBERG_URL = 'https://gutenberg.org';
 
-const socialLinks = [
-  {
-    name: 'Instagram',
-    url: INSTAGRAM_URL,
-    icon: 'mdi-instagram',
-    label: 'See published haikus on Instagram',
-  },
-  {
-    name: 'Project Gutenberg',
-    url: GUTENBERG_URL,
-    icon: 'mdi-book-open',
-    label: 'Visit Project Gutenberg website',
-  },
-  {
-    name: 'GitHub',
-    url: GITHUB_URL,
-    icon: 'mdi-github',
-    label: 'View source code on GitHub',
-  },
+interface SocialLinkDef {
+  key: string;
+  url: string;
+  icon: LucideIcon;
+}
+
+const linkDefinitions: SocialLinkDef[] = [
+  { key: 'instagram', url: INSTAGRAM_URL, icon: Instagram },
+  { key: 'gutenberg', url: GUTENBERG_URL, icon: BookOpen },
+  { key: 'github', url: GITHUB_URL, icon: Github },
 ];
+
+const socialLinks = computed(() =>
+  linkDefinitions.map((link) => ({
+    name: t(`social.links.${link.key}.name`),
+    url: link.url,
+    icon: link.icon,
+    label: t(`social.links.${link.key}.label`),
+  })),
+);
 
 const handleClick = (url: string) => {
   window.open(url, '_blank', 'noopener,noreferrer');
@@ -33,18 +40,22 @@ const handleClick = (url: string) => {
   <v-card
     class="gutenku-card about-card pa-4 mb-sm-6 mb-0"
     role="complementary"
-    aria-label="About GutenKu"
+    :aria-label="t('social.ariaLabel')"
   >
-    <!-- Classic Solid Bookmark -->
-    <div
-      class="bookmark-3d"
+    <div class="bookmark-ribbon" aria-hidden="true" />
+
+    <svg
+      class="border-stretch"
+      viewBox="0 0 100 10"
+      preserveAspectRatio="none"
       aria-hidden="true"
     >
-      <div class="bookmark-ribbon" />
-    </div>
+      <path class="border-path" d="M 0,1 L 100,1" />
+    </svg>
 
     <v-card-title class="about-card__header ma-2">
       <v-img
+        :style="{ viewTransitionName: 'gutenku-logo' }"
         height="56"
         alt="GutenKu Logo"
         src="@/assets/img/logo/gutenku-logo-300.png"
@@ -52,114 +63,155 @@ const handleClick = (url: string) => {
       />
     </v-card-title>
 
-    <div
-      class="about-card__text text-primary"
-      role="article"
-    >
-      <p>
-        <strong>GutenKu</strong> is a Haiku generator based on a selection of
-        books from <span class="visually-hidden">the</span> Project Gutenberg, a
-        vast online library of free eBooks, and then process this data to
-        extract quotes and generate unique
-        <strong>5</strong>-<strong>7</strong>-<strong>5</strong>
-        haiku
-      </p>
+    <div class="about-card__text text-primary" role="article">
+      <!-- eslint-disable-next-line vue/no-v-html -->
+      <p v-html="t('social.description')" />
     </div>
 
-    <v-card-actions
-      class="about-card__actions justify-center"
+    <nav
+      class="social-links"
       role="navigation"
-      aria-label="Social links"
+      :aria-label="t('social.linksAriaLabel')"
     >
-      <v-tooltip
-        v-for="link in socialLinks"
+      <ZenTooltip
+        v-for="(link, index) in socialLinks"
         :key="link.url"
         :text="link.name"
-        location="bottom"
-        :aria-label="link.name"
+        position="bottom"
       >
-        <template #activator="{ props }">
-          <v-btn
-            v-bind="props"
-            color="accent"
-            class="ms-2"
-            :icon="link.icon"
-            :variant="'text'"
-            :aria-label="link.label"
-            @click="handleClick(link.url)"
-          />
-        </template>
-      </v-tooltip>
-    </v-card-actions>
+        <button
+          type="button"
+          class="social-link"
+          :class="`social-link--${linkDefinitions[index].key}`"
+          :style="{ '--delay': `${index * 0.1}s` }"
+          :aria-label="link.label"
+          @click="handleClick(link.url)"
+        >
+          <span class="social-link__bg" aria-hidden="true" />
+          <span class="social-link__icon">
+            <component :is="link.icon" :size="20" :stroke-width="1.5" />
+          </span>
+          <span class="social-link__name">{{ link.name }}</span>
+        </button>
+      </ZenTooltip>
+    </nav>
   </v-card>
 </template>
 
 <style lang="scss" scoped>
-// Classic Solid Bookmark - simple and clearly visible
-.bookmark-3d {
-  position: absolute;
-  top: -15px;
-  right: 20px;
-  pointer-events: none;
-  z-index: 15;
+.bookmark-ribbon {
+  animation: bookmark-entrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+}
 
-  .bookmark-ribbon {
-    position: relative;
-    width: 24px;
-    height: 45px;
-    background: #8b4513; // Solid brown color
-    border-radius: 3px 3px 0 0;
-    box-shadow:
-      0 2px 8px rgba(0, 0, 0, 0.3),
-      inset 1px 1px 2px rgba(255, 255, 255, 0.2),
-      inset -1px -1px 2px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-
-    // Classic bookmark V-notch at bottom
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 12px solid #8b4513;
-      border-right: 12px solid #8b4513;
-      border-bottom: 8px solid transparent;
-    }
-
-    // Bookmark hole for string (optional detail)
-    &::before {
-      content: '';
-      position: absolute;
-      top: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 4px;
-      height: 4px;
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 50%;
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
-    }
-
-    // Hover effect
-    &:hover {
-      background: #a0522d; // Slightly lighter brown on hover
-      transform: translateY(-2px);
-      box-shadow:
-        0 4px 12px rgba(0, 0, 0, 0.4),
-        inset 1px 1px 2px rgba(255, 255, 255, 0.3),
-        inset -1px -1px 2px rgba(0, 0, 0, 0.1);
-    }
+@keyframes bookmark-entrance {
+  0% {
+    opacity: 0;
+    transform: translateY(-100%) rotate(-8deg);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(0.25rem) rotate(2deg);
+  }
+  80% {
+    transform: translateY(-0.125rem) rotate(-1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
   }
 }
 
-// Component-specific styles only (shadow handled by global .gutenku-card)
+@keyframes border-dent {
+  0%, 10% {
+    transform: perspective(50rem) rotateX(0deg);
+  }
+  20% {
+    transform: perspective(50rem) rotateX(1.5deg);
+  }
+  60% {
+    transform: perspective(50rem) rotateX(0deg);
+  }
+  80% {
+    transform: perspective(50rem) rotateX(-0.3deg);
+  }
+  100% {
+    transform: perspective(50rem) rotateX(0deg);
+  }
+}
+
+.border-stretch {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 100%;
+  height: 0.75rem;
+  z-index: 13;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.border-path {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.15);
+  stroke-width: 1;
+  stroke-linecap: round;
+  opacity: 0;
+  animation: path-stretch 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+}
+
+@keyframes path-stretch {
+  0%, 10% {
+    d: path("M 83,1 L 97,1");
+    opacity: 0;
+  }
+  20%, 60% {
+    d: path("M 83,1 Q 90,8 97,1");
+    opacity: 1;
+  }
+  80%, 100% {
+    d: path("M 83,1 L 97,1");
+    opacity: 0;
+  }
+}
+
+:deep(.v-theme--dark) .border-path {
+  stroke: rgba(255, 255, 255, 0.08);
+}
+
+.about-card::before {
+  content: '';
+  position: absolute;
+  top: -0.75rem;
+  right: 0.5rem;
+  left: auto;
+  width: 2.25rem;
+  height: 0;
+  background: rgb(var(--v-theme-background));
+  z-index: 12;
+  pointer-events: none;
+  animation: mask-stretch 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+}
+
+@keyframes mask-stretch {
+  0%, 10% {
+    height: 0;
+    opacity: 0;
+  }
+  15%, 65% {
+    height: 1.25rem;
+    opacity: 1;
+  }
+  75%, 100% {
+    height: 0;
+    opacity: 0;
+  }
+}
+
 .about-card {
-  // Ensure the card has relative positioning for the bookmark and allows overflow
   position: relative;
-  overflow: visible; // Allow 3D bookmark to extend beyond card boundaries
+  overflow: visible;
+  animation: border-dent 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+  transform-origin: top center;
 
   &__header {
     display: flex;
@@ -182,9 +234,6 @@ const handleClick = (url: string) => {
     }
   }
 
-  &__actions {
-    margin-top: 1rem;
-  }
 }
 
 .visually-hidden {
@@ -199,45 +248,214 @@ const handleClick = (url: string) => {
   border: 0;
 }
 
-// Responsive bookmark sizing
-@media (max-width: 768px) {
-  .bookmark-3d {
-    top: -12px;
-    right: 16px;
+// Social Links
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  padding: 0.25rem 0;
+}
 
-    .bookmark-ribbon {
-      width: 20px;
-      height: 38px;
+.social-link {
+  --link-color: var(--gutenku-zen-primary);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.625rem 0.5rem 0.5rem;
+  flex: 1;
+  max-width: 5.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  animation: social-link-enter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: calc(0.4s + var(--delay, 0s));
 
-      &::after {
-        border-left: 10px solid #8b4513;
-        border-right: 10px solid #8b4513;
-        border-bottom: 6px solid transparent;
+  &__bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at center, oklch(0.55 0.08 170 / 0.03) 0%, transparent 70%),
+      var(--gutenku-paper-bg-aged);
+    border: 1px solid var(--gutenku-paper-border);
+    border-radius: var(--gutenku-radius-sm);
+    box-shadow:
+      0 2px 4px oklch(0 0 0 / 0.04),
+      inset 0 1px 0 oklch(1 0 0 / 0.5);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: 0.02;
+      border-radius: inherit;
+      pointer-events: none;
+    }
+  }
+
+  &__icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    color: var(--link-color);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    svg {
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  }
+
+  &__name {
+    position: relative;
+    font-family: 'JMH Typewriter', monospace;
+    font-size: 0.6rem;
+    color: var(--gutenku-text-muted);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  // Hover state
+  &:hover {
+    .social-link__bg {
+      border-color: var(--link-color);
+      box-shadow:
+        0 4px 12px oklch(0.55 0.08 170 / 0.15),
+        0 2px 4px oklch(0 0 0 / 0.06),
+        inset 0 1px 0 oklch(1 0 0 / 0.6);
+      transform: translateY(-2px);
+    }
+
+    .social-link__icon {
+      color: var(--link-color);
+
+      svg {
+        transform: scale(1.1);
       }
+    }
+
+    .social-link__name {
+      color: var(--link-color);
+    }
+  }
+
+  // Focus state
+  &:focus-visible {
+    outline: none;
+
+    .social-link__bg {
+      outline: 2px solid var(--gutenku-zen-primary);
+      outline-offset: 2px;
+    }
+  }
+
+  // Active state
+  &:active {
+    .social-link__bg {
+      transform: translateY(0);
+      box-shadow:
+        0 1px 2px oklch(0 0 0 / 0.08),
+        inset 0 1px 0 oklch(1 0 0 / 0.4);
+    }
+
+    .social-link__icon svg {
+      transform: scale(0.95);
+    }
+  }
+
+  // Platform-specific colors
+  &--instagram {
+    --link-color: oklch(0.55 0.15 350);
+  }
+
+  &--gutenberg {
+    --link-color: var(--gutenku-zen-primary);
+  }
+
+  &--github {
+    --link-color: var(--gutenku-text-secondary);
+  }
+}
+
+@keyframes social-link-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// Dark theme
+[data-theme='dark'] .social-link {
+  &__bg {
+    background:
+      radial-gradient(ellipse at center, oklch(0.5 0.06 170 / 0.05) 0%, transparent 70%),
+      var(--gutenku-paper-bg);
+    box-shadow:
+      0 2px 6px oklch(0 0 0 / 0.2),
+      inset 0 1px 0 oklch(1 0 0 / 0.06);
+
+    &::before {
+      opacity: 0.03;
+    }
+  }
+
+  &:hover .social-link__bg {
+    box-shadow:
+      0 6px 16px oklch(0.5 0.06 170 / 0.2),
+      0 2px 6px oklch(0 0 0 / 0.15),
+      inset 0 1px 0 oklch(1 0 0 / 0.08);
+  }
+
+  &--github {
+    --link-color: var(--gutenku-text-primary);
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .social-link {
+    animation: none;
+    opacity: 1;
+
+    &__bg,
+    &__icon,
+    &__icon svg,
+    &__name {
+      transition: none;
     }
   }
 }
 
+// Mobile
 @media (max-width: 480px) {
-  .bookmark-3d {
-    top: -10px;
-    right: 12px;
+  .social-links {
+    gap: 0.375rem;
+  }
 
-    .bookmark-ribbon {
-      width: 18px;
-      height: 32px;
+  .social-link {
+    padding: 0.5rem 0.375rem 0.375rem;
 
-      &::after {
-        border-left: 9px solid #8b4513;
-        border-right: 9px solid #8b4513;
-        border-bottom: 5px solid transparent;
-      }
+    &__icon {
+      width: 1.75rem;
+      height: 1.75rem;
+    }
 
-      &::before {
-        top: 6px;
-        width: 3px;
-        height: 3px;
-      }
+    &__name {
+      font-size: 0.55rem;
     }
   }
 }
