@@ -1,11 +1,57 @@
 <script lang="ts" setup>
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+import { useHead } from '@unhead/vue';
 import DefaultView from './View.vue';
 import ZenToast from '@/components/ui/ZenToast.vue';
+import ThemeToggle from '@/components/ThemeToggle.vue';
+import AppFooter from '@/components/AppFooter.vue';
+
+const route = useRoute();
+
+useHead({
+  title: computed(() => (route.meta.title as string) || 'GutenKu'),
+  meta: [
+    {
+      name: 'description',
+      content: computed(
+        () =>
+          (route.meta.description as string) ||
+          'AI Haiku Generator & Literary Games'
+      ),
+    },
+    {
+      property: 'og:title',
+      content: computed(() => (route.meta.title as string) || 'GutenKu'),
+    },
+    {
+      property: 'og:description',
+      content: computed(
+        () =>
+          (route.meta.description as string) ||
+          'AI Haiku Generator & Literary Games'
+      ),
+    },
+    {
+      name: 'twitter:title',
+      content: computed(() => (route.meta.title as string) || 'GutenKu'),
+    },
+    {
+      name: 'twitter:description',
+      content: computed(
+        () =>
+          (route.meta.description as string) ||
+          'AI Haiku Generator & Literary Games'
+      ),
+    },
+  ],
+});
 </script>
 
 <template>
   <v-app>
     <ZenToast />
+    <ThemeToggle />
     <div class="light-beam-overlay" aria-hidden="true" />
 
     <!-- Floating particles -->
@@ -24,10 +70,20 @@ import ZenToast from '@/components/ui/ZenToast.vue';
       {{ $t('layout.skipLink') }}
     </a>
     <default-view />
+    <footer role="contentinfo">
+      <AppFooter />
+    </footer>
   </v-app>
 </template>
 
 <style lang="scss" scoped>
+:deep(.v-application__wrap) {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
 .skip-link {
   position: absolute;
   top: -100%;

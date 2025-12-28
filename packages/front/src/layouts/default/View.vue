@@ -15,6 +15,8 @@
   background-attachment: fixed;
   background-repeat: no-repeat;
   transition: var(--gutenku-transition-zen);
-  min-height: 100vh;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 </style>

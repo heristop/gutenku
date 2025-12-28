@@ -1,6 +1,8 @@
+import '@/assets/css/main.scss';
 import App from './App.vue';
 import { createApp, h } from 'vue';
 import urql from '@urql/vue';
+import { createHead } from '@unhead/vue/client';
 import { urqlClient } from './client';
 import { MotionPlugin } from '@vueuse/motion';
 import { registerPlugins } from '@/plugins';
@@ -8,6 +10,10 @@ import { registerPlugins } from '@/plugins';
 const app = createApp({
   render: () => h(App),
 });
+
+// Head management for dynamic SEO meta tags
+const head = createHead();
+app.use(head);
 
 app.use(urql, urqlClient);
 

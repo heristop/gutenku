@@ -1,5 +1,5 @@
 import { ref, computed, onMounted, onUnmounted, type Ref } from 'vue';
-import { useVibrate, useMediaQuery } from '@vueuse/core';
+import { useVibrate } from '@vueuse/core';
 
 // Chrome requires a tap before vibrate() works
 let hasUserTapped = false;
@@ -38,13 +38,16 @@ function getElement(ref: ComponentOrElement): HTMLElement | Document {
   return document;
 }
 
+function getClientY(e: TouchEvent | MouseEvent): number {
+  return 'touches' in e ? e.touches[0].clientY : e.clientY;
+}
+
 export function usePullToRefresh(
   containerRef: Ref<ComponentOrElement>,
   options: UsePullToRefreshOptions,
 ) {
   const { threshold = 80, maxPull = 120, onRefresh, disabled } = options;
 
-  const isMobile = useMediaQuery('(max-width: 600px)');
   const isPulling = ref(false);
   const pullDistance = ref(0);
   const isRefreshing = ref(false);
@@ -69,30 +72,25 @@ export function usePullToRefresh(
 
   let hasVibratedAtThreshold = false;
 
-  function handleTouchStart(e: TouchEvent) {
-    if (!isMobile.value || disabled?.value || isRefreshing.value) {
+  function handlePointerStart(e: TouchEvent | MouseEvent) {
+    if (disabled?.value || isRefreshing.value) {
       return;
     }
 
     // Only allow pull when at top of page
     if (globalThis.scrollY <= 0) {
       canPull.value = true;
-      startY.value = e.touches[0].clientY;
+      startY.value = getClientY(e);
       hasVibratedAtThreshold = false;
     }
   }
 
-  function handleTouchMove(e: TouchEvent) {
-    if (
-      !canPull.value ||
-      !isMobile.value ||
-      disabled?.value ||
-      isRefreshing.value
-    ) {
+  function handlePointerMove(e: TouchEvent | MouseEvent) {
+    if (!canPull.value || disabled?.value || isRefreshing.value) {
       return;
     }
 
-    const currentY = e.touches[0].clientY;
+    const currentY = getClientY(e);
     const diff = currentY - startY.value;
 
     // Only pull down, not up
@@ -116,7 +114,7 @@ export function usePullToRefresh(
     }
   }
 
-  async function handleTouchEnd() {
+  async function handlePointerEnd() {
     if (!isPulling.value) {
       return;
     }
@@ -142,33 +140,62 @@ export function usePullToRefresh(
   onMounted(() => {
     const container = getElement(containerRef.value);
 
+    // Touch events (mobile)
     container.addEventListener(
       'touchstart',
-      handleTouchStart as EventListener,
-      {
-        passive: true,
-      },
+      handlePointerStart as EventListener,
+      { passive: true },
     );
-    container.addEventListener('touchmove', handleTouchMove as EventListener, {
-      passive: false,
-    });
-    container.addEventListener('touchend', handleTouchEnd as EventListener, {
+    container.addEventListener(
+      'touchmove',
+      handlePointerMove as EventListener,
+      { passive: false },
+    );
+    container.addEventListener('touchend', handlePointerEnd as EventListener, {
       passive: true,
     });
+
+    // Mouse events (desktop)
+    container.addEventListener(
+      'mousedown',
+      handlePointerStart as EventListener,
+    );
+    container.addEventListener('mousemove', handlePointerMove as EventListener);
+    container.addEventListener('mouseup', handlePointerEnd as EventListener);
+    container.addEventListener('mouseleave', handlePointerEnd as EventListener);
   });
 
   onUnmounted(() => {
     const container = getElement(containerRef.value);
 
+    // Touch events
     container.removeEventListener(
       'touchstart',
-      handleTouchStart as EventListener,
+      handlePointerStart as EventListener,
     );
     container.removeEventListener(
       'touchmove',
-      handleTouchMove as EventListener,
+      handlePointerMove as EventListener,
     );
-    container.removeEventListener('touchend', handleTouchEnd as EventListener);
+    container.removeEventListener(
+      'touchend',
+      handlePointerEnd as EventListener,
+    );
+
+    // Mouse events
+    container.removeEventListener(
+      'mousedown',
+      handlePointerStart as EventListener,
+    );
+    container.removeEventListener(
+      'mousemove',
+      handlePointerMove as EventListener,
+    );
+    container.removeEventListener('mouseup', handlePointerEnd as EventListener);
+    container.removeEventListener(
+      'mouseleave',
+      handlePointerEnd as EventListener,
+    );
   });
 
   return {
@@ -177,6 +204,5 @@ export function usePullToRefresh(
     isRefreshing,
     progress,
     shouldRelease,
-    isMobile,
   };
 }
