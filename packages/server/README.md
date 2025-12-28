@@ -10,7 +10,7 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 
 - Node.js (v22)
-- Python (for scraping eBooks)
+- Docker (for MongoDB)
 
 ### Installation
 
@@ -26,97 +26,35 @@ git clone https://github.com/heristop/gutenku.git
 cp gutenku/packages/server/.env.dist gutenku/packages/server/.env
 ```
 
-4. Install NPM dependencies:
+3. Install dependencies and start:
 
 ```bash
-pnpm i
-```
-
-5. Install Python dependencies:
-
-```bash
-python3 -m pip install --upgrade pip
-pip3 install -r packages/server/requirements.txt
-```
-
-6. Install MongoDB:
-
-_Using Docker:_
-
-With Docker Desktop / Docker Compose V2 command:
-
-```bash
-docker compose up -d
-```
-
-Or with Docker Compose V1:
-
-```bash
-docker-compose up -d
-```
-
-4. Start server and front
-
-```bash
-pnpm dev
+make install
+make dev
 ```
 
 ## Usage
 
-### Fetch
+Run `make help` for all available commands.
 
-Fetch and store books:
-
-```bash
-pnpm run setup [--delete]
-```
-
-### Run
-
-```bash
-pnpm run dev
-```
-
-### Train
-
-Uses Markov Chain to evaluate transitions:
-
-```bash
-pnpm train
-```
-
-### Generate
-
-Generate Haiku:
-
-```bash
-pnpm extract
-```
-
-### Post
-
-Send Instagram Post:
-
-```bash
-pnpm post [--selection-count=50] [--no-interaction] [--no-openai]
-```
-
-## Test
-
-To run the test suite, execute the following command:
-
-```bash
-pnpm test
-```
+| Command            | Description                      |
+| ------------------ | -------------------------------- |
+| `make dev`         | Start Docker + server + frontend |
+| `make server`      | Start only API server            |
+| `make setup`       | Import books                     |
+| `make setup-reset` | Reset and reimport all books     |
+| `make train`       | Train Markov chain model         |
+| `make test`        | Run all tests                    |
+| `make lint`        | Run linters                      |
 
 ## Built With
 
 - Node.js / TypeScript / ESM
-- Apollo Server
-- GraphQL
+- Apollo Server / GraphQL
+- MongoDB
 - Tsyringe (DI)
-- Python (for eBook scraping)
 - Natural Language Processing (NLP)
+- OpenAI
 
 ## Architecture & DI (DDD)
 
