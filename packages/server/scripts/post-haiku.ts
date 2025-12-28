@@ -73,7 +73,7 @@ const query = `
 
 const variables = {
   appendImg: true,
-  selectionCount: Number.parseInt(options.selectionCount),
+  selectionCount: Number.parseInt(options.selectionCount, 10),
   theme: options.theme,
   useAi: options.openai,
   useCache: true,
