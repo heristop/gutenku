@@ -9,6 +9,7 @@ export interface ChatCompletionParams {
   max_completion_tokens: number;
   stop?: string[];
   messages: ChatMessage[];
+  reasoning_effort?: 'none' | 'low' | 'medium' | 'high';
 }
 
 export interface ChatCompletionChoice {
