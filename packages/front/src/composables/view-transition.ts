@@ -1,6 +1,4 @@
-/**
- * View Transition API support detection (respects user motion preferences)
- */
+// Check if View Transition API is supported and user allows motion
 export const supportsViewTransition = (): boolean => {
   return (
     typeof document !== 'undefined' &&
@@ -9,9 +7,7 @@ export const supportsViewTransition = (): boolean => {
   );
 };
 
-/**
- * Runs callback with View Transition API when available
- */
+// Run callback with View Transition API if available
 export const withViewTransition = (callback: () => void): void => {
   if (supportsViewTransition()) {
     (

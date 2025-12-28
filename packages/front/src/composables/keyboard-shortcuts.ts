@@ -4,6 +4,10 @@ interface KeyboardShortcutsOptions {
   onGenerate?: () => void;
   onCopy?: () => void;
   onDownload?: () => void;
+  onShare?: () => void;
+  onPrevious?: () => void;
+  onNext?: () => void;
+  onHelp?: () => void;
 }
 
 export function useKeyboardShortcuts(options: KeyboardShortcutsOptions) {
@@ -36,6 +40,23 @@ export function useKeyboardShortcuts(options: KeyboardShortcutsOptions) {
         event.preventDefault();
         options.onDownload?.();
         break;
+      case 'KeyS':
+        event.preventDefault();
+        options.onShare?.();
+        break;
+      case 'ArrowLeft':
+        event.preventDefault();
+        options.onPrevious?.();
+        break;
+      case 'ArrowRight':
+        event.preventDefault();
+        options.onNext?.();
+        break;
+    }
+
+    if (event.key === '?' || (event.shiftKey && event.code === 'Slash')) {
+      event.preventDefault();
+      options.onHelp?.();
     }
   };
 
