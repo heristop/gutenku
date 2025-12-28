@@ -2,6 +2,11 @@ import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import Canvas from 'canvas';
 import type { HaikuValue } from '~/shared/types';
+import {
+  CANVAS_WIDTH,
+  CANVAS_HEIGHT,
+  drawImageCover,
+} from '~/shared/constants/canvas';
 
 export default {
   async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
@@ -10,7 +15,7 @@ export default {
       family: 'Yomogi',
     });
 
-    const canvas = Canvas.createCanvas(2400, 2400);
+    const canvas = Canvas.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
     const ctx = canvas.getContext('2d');
 
     const folderPath = './src/shared/assets/themes/paper/backgrounds';
@@ -22,31 +27,31 @@ export default {
 
     const background = new Canvas.Image();
     background.src = imagePath;
-    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+    drawImageCover(ctx, background, canvas.width, canvas.height);
 
     const logo = new Canvas.Image();
     logo.src = './src/shared/assets/themes/paper/logo/gutenku_white.png';
 
-    ctx.globalAlpha = 0.2;
     ctx.globalAlpha = 0.25;
     ctx.drawImage(
       logo,
-      canvas.width - logo.width + 20,
-      canvas.height - logo.height - 10,
-      logo.width * 0.85,
-      logo.height * 0.85,
+      canvas.width - logo.width * 0.8 - 120,
+      canvas.height - logo.height * 0.8 - 180,
+      logo.width * 0.8,
+      logo.height * 0.8,
     );
     ctx.globalAlpha = 1;
 
-    ctx.font = '130px Yomogi';
+    ctx.font = 'bold 120px Yomogi';
     ctx.fillStyle = '#fff';
+    ctx.lineWidth = 2;
     ctx.globalAlpha = 0.8;
 
-    const x = 244;
-    let y = canvas.height / 3.5;
-    verses.map((verse) => {
+    const x = 220;
+    let y = canvas.height / 4;
+    verses.forEach((verse) => {
       ctx.fillText(verse, x, y);
-      y += 440;
+      y += 480;
     });
 
     return canvas;

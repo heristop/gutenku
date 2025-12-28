@@ -1,5 +1,4 @@
 import 'reflect-metadata';
-import log from 'loglevel';
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import cors from 'cors';
@@ -17,10 +16,12 @@ import type { Connection } from 'mongoose';
 import resolvers from '~/presentation/graphql/resolvers';
 import typeDefs from '~/presentation/graphql/typeDefs';
 import MongoConnection from '~/infrastructure/services/MongoConnection';
+import { createLogger } from '~/infrastructure/services/Logger';
 import '~/infrastructure/di/container';
 
 dotenv.config();
-log.enableAll();
+
+const log = createLogger('server');
 
 interface MyContext {
   db?: Connection;
@@ -64,12 +65,12 @@ async function listen(port: number) {
   const db = await mongoConnection.connect();
 
   if (db) {
-    db.on('error', log.error.bind(console, 'connection error:'));
-    db.once('open', function () {
-      log.info('Connected to MongoDB!');
+    db.on('error', (err) => log.error({ err }, 'MongoDB connection error'));
+    db.once('open', () => {
+      log.info('Connected to MongoDB');
     });
   } else {
-    log.warn('MongoDB not available. Continuing without a DB connection.');
+    log.warn('MongoDB not available, continuing without DB connection');
   }
 
   app.use(compression());
@@ -98,12 +99,18 @@ async function main() {
 
     await listen(port);
 
-    log.info(`🚀 Query endpoint ready at http://localhost:${port}/graphql`);
     log.info(
-      `🚀 Subscription endpoint ready at ws://localhost:${port}/graphql-ws`,
+      { port },
+      'Query endpoint ready at http://localhost:%d/graphql',
+      port,
+    );
+    log.info(
+      { port },
+      'Subscription endpoint ready at ws://localhost:%d/graphql-ws',
+      port,
     );
   } catch (err) {
-    log.error('🤖 Error starting the node server', err);
+    log.error({ err }, 'Error starting the node server');
   }
 }
 

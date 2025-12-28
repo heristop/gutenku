@@ -3,6 +3,11 @@ import { join } from 'node:path';
 import Canvas from 'canvas';
 import type { HaikuValue } from '~/shared/types';
 import { extractContextVerses } from '~/shared/helpers/HaikuHelper';
+import {
+  CANVAS_WIDTH,
+  CANVAS_HEIGHT,
+  drawImageCover,
+} from '~/shared/constants/canvas';
 
 export default {
   async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
@@ -13,7 +18,7 @@ export default {
       family: 'Typewriter',
     });
 
-    const canvas = Canvas.createCanvas(2400, 2400);
+    const canvas = Canvas.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
     const ctx = canvas.getContext('2d');
 
     const folderPath = './src/shared/assets/themes/greentea/backgrounds';
@@ -22,14 +27,14 @@ export default {
     const imagePath = join(folderPath, randomFile);
     const background = new Canvas.Image();
     background.src = imagePath;
-    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+    drawImageCover(ctx, background, canvas.width, canvas.height);
 
     ctx.font = '112px Typewriter';
     ctx.globalAlpha = 0.2;
 
-    const lineHeight = 380;
-    const baseX = 244;
-    const baseY = (canvas.height - lineHeight * verses.length) / 1.7;
+    const lineHeight = 420;
+    const baseX = 220;
+    const baseY = (canvas.height - lineHeight * verses.length) / 2;
 
     if (!context) {
       context = extractContextVerses(rawVerses, chapter.content);
@@ -50,14 +55,14 @@ export default {
 
       ctx.fillText(
         beforeVerse,
-        ctx.measureText(beforeVerse).width * -1 + 192,
+        ctx.measureText(beforeVerse).width * -1 + 172,
         y,
       );
 
       ctx.fillStyle = 'rgba(0, 0, 0, 0.0)';
       ctx.fillText(
         ghostVerse,
-        ctx.measureText(beforeVerse).width * -1 + 240 + beforeVerseWidth,
+        ctx.measureText(beforeVerse).width * -1 + 220 + beforeVerseWidth,
         y,
       );
 
@@ -65,7 +70,7 @@ export default {
       ctx.fillText(
         afterVerse,
         ctx.measureText(beforeVerse).width * -1 +
-          250 +
+          230 +
           beforeVerseWidth +
           ctx.measureText(ghostVerse).width,
         y,
@@ -98,11 +103,11 @@ export default {
     const decor = new Canvas.Image();
     decor.src = './src/shared/assets/themes/greentea/decoration/torn_paper.png';
     ctx.globalAlpha = 1;
-    ctx.drawImage(decor, 0, 0, canvas.width, canvas.height);
+    drawImageCover(ctx, decor, canvas.width, canvas.height);
 
     ctx.font = '110px Typewriter';
     ctx.globalAlpha = 0.7;
-    ctx.fillText('- GutenKu', canvas.width - 700, canvas.height - 160);
+    ctx.fillText('- GutenKu', canvas.width - 680, canvas.height - 200);
 
     return canvas;
   },

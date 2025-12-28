@@ -3,6 +3,11 @@ const require = createRequire(import.meta.url);
 const OpenAI = require('openai').default;
 import Canvas from 'canvas';
 import type { HaikuValue } from '~/shared/types';
+import {
+  CANVAS_WIDTH,
+  CANVAS_HEIGHT,
+  drawImageCover,
+} from '~/shared/constants/canvas';
 
 export default {
   async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
@@ -11,7 +16,7 @@ export default {
       family: 'IndieFlower',
     });
 
-    const canvas = Canvas.createCanvas(2400, 2400);
+    const canvas = Canvas.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
     const ctx = canvas.getContext('2d');
 
     const backgroundImageData = await generateImageWithGPTImage1(haiku);
@@ -22,7 +27,7 @@ export default {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.globalAlpha = 0.7;
-    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+    drawImageCover(ctx, background, canvas.width, canvas.height);
 
     ctx.globalAlpha = 0.6;
     ctx.fillStyle = '#DFEEEA';
@@ -36,16 +41,16 @@ export default {
     ctx.fillStyle = '#2F5D62';
     ctx.globalAlpha = 1;
 
-    const x = 244;
-    let y = canvas.height / 3.6;
+    const x = 220;
+    let y = canvas.height / 4;
     verses.map((verse) => {
       ctx.fillText(verse, x, y);
-      y += 440;
+      y += 480;
     });
 
     ctx.font = '134px IndieFlower';
     ctx.globalAlpha = 0.6;
-    ctx.fillText('- GutenKu', canvas.width - 784, canvas.height - 240);
+    ctx.fillText('- GutenKu', canvas.width - 720, canvas.height - 280);
 
     return canvas;
   },
