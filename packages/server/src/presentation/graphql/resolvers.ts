@@ -10,6 +10,11 @@ import {
   GetAllChaptersQuery,
 } from '~/application/queries/chapters';
 import { GenerateHaikuQuery } from '~/application/queries/haiku';
+import {
+  GetDailyPuzzleQuery,
+  SubmitGuessQuery,
+} from '~/application/queries/puzzle';
+import { GetGlobalStatsQuery } from '~/application/queries/stats';
 import { PubSubService } from '~/infrastructure/services/PubSubService';
 
 // Instantiate PubSub singleton
@@ -36,6 +41,30 @@ const resolvers = {
     haiku: async (_, args: HaikuVariables): Promise<HaikuValue> => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
       return queryBus.execute(new GenerateHaikuQuery(args));
+    },
+    dailyPuzzle: async (
+      _,
+      { date, revealedRounds }: { date: string; revealedRounds?: number[] },
+    ) => {
+      const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
+      return queryBus.execute(new GetDailyPuzzleQuery(date, revealedRounds));
+    },
+    submitGuess: async (
+      _,
+      {
+        date,
+        guessedBookId,
+        currentRound,
+      }: { date: string; guessedBookId: string; currentRound: number },
+    ) => {
+      const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
+      return queryBus.execute(
+        new SubmitGuessQuery(date, guessedBookId, currentRound),
+      );
+    },
+    globalStats: async () => {
+      const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
+      return queryBus.execute(new GetGlobalStatsQuery());
     },
   },
   Subscription: {
