@@ -2,6 +2,11 @@ import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import Canvas from 'canvas';
 import type { HaikuValue } from '~/shared/types';
+import {
+  CANVAS_WIDTH,
+  CANVAS_HEIGHT,
+  drawImageCover,
+} from '~/shared/constants/canvas';
 
 export default {
   async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
@@ -11,7 +16,7 @@ export default {
       { family: 'NanumBrushScript' },
     );
 
-    const canvas = Canvas.createCanvas(2400, 2400);
+    const canvas = Canvas.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
     const ctx = canvas.getContext('2d');
 
     const folderPath = './src/shared/assets/themes/greentea/backgrounds';
@@ -23,25 +28,24 @@ export default {
 
     const background = new Canvas.Image();
     background.src = imagePath;
-
-    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+    drawImageCover(ctx, background, canvas.width, canvas.height);
 
     ctx.font = '180px NanumBrushScript';
     ctx.fillStyle = '#2F5D62';
     ctx.globalAlpha = 0.84;
 
-    const x = 244;
-    let y = canvas.height / 3.6;
+    const x = 220;
+    let y = canvas.height / 4;
     verses.map((verse) => {
       ctx.fillText(verse, x, y);
-      y += 440;
+      y += 480;
     });
 
     const decor = new Canvas.Image();
     decor.src = './src/shared/assets/themes/greentea/decoration/torn_paper.png';
 
     ctx.globalAlpha = 1;
-    ctx.drawImage(decor, 0, 0, canvas.width, canvas.height);
+    drawImageCover(ctx, decor, canvas.width, canvas.height);
 
     const pic = new Canvas.Image();
     pic.src = await catchNaturePic();
@@ -49,15 +53,15 @@ export default {
     ctx.globalAlpha = 0.92;
     ctx.drawImage(
       pic,
-      canvas.width - pic.width - 150,
-      canvas.height - pic.height - 380,
+      canvas.width - pic.width - 120,
+      canvas.height - pic.height - 420,
       pic.width,
       pic.height,
     );
 
     ctx.font = '154px NanumBrushScript';
     ctx.globalAlpha = 0.6;
-    ctx.fillText('- GutenKu', canvas.width - 784, canvas.height - 240);
+    ctx.fillText('- GutenKu', canvas.width - 720, canvas.height - 280);
 
     return canvas;
   },

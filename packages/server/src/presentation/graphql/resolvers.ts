@@ -40,7 +40,9 @@ const resolvers = {
   },
   Subscription: {
     quoteGenerated: {
-      subscribe: () => pubSubService.iterator<string>(['QUOTE_GENERATED']),
+      subscribe: () =>
+        pubSubService.iterator<{ quoteGenerated: string }>(['QUOTE_GENERATED']),
+      resolve: (payload: { quoteGenerated: string }) => payload.quoteGenerated,
     },
   },
 };
