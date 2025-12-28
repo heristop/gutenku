@@ -4,19 +4,29 @@ on: [push]
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
         with:
-          version: 8
-      - uses: actions/setup-node@v3
+          version: 10
+
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - name: api
-        run: |
-          cp packages/server/.env.dist packages/server/.env
-          pnpm --filter ./packages/server install
-          pnpm --filter ./packages/server lint
-          pnpm --filter ./packages/server test
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Copy env
+        run: cp packages/server/.env.dist packages/server/.env
+
+      - name: Install dependencies
+        run: pnpm --filter @gutenku/server install
+
+      - name: Lint
+        run: pnpm --filter @gutenku/server lint
+
+      - name: Test
+        run: pnpm --filter @gutenku/server test
