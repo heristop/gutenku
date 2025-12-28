@@ -2,17 +2,17 @@
 
 describe('Cache usage progress', () => {
   it('reflects cached haikus when API returns cacheUsed', () => {
-    cy.visitApp('/');
+    cy.visitApp('/haiku');
     // Wait for the page to load
-    cy.get('[data-cy=fetch-btn]:visible', { timeout: 30000 }).should('exist');
+    cy.get('[data-cy=fetch-btn]', { timeout: 30000 })
+      .should('exist')
+      .and('not.be.disabled');
 
     // Generate a few haikus to build up cache stats
-    cy.get('[data-cy=fetch-btn]:visible').click();
-    cy.get('[data-cy=fetch-btn]:visible', { timeout: 30000 }).should(
-      'be.visible',
-    );
+    cy.get('[data-cy=fetch-btn]').click();
+    cy.get('[data-cy=fetch-btn]', { timeout: 30000 }).should('not.be.disabled');
 
     // Check that the stats panel shows cache info
-    cy.contains('Calm waters').should('exist');
+    cy.contains('Cache usage').should('exist');
   });
 });

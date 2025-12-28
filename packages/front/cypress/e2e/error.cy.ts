@@ -2,14 +2,12 @@
 
 describe('Error handling', () => {
   it('shows error state when server is unavailable', () => {
-    // This test verifies the toast notification container exists
-    // The actual error testing would require mocking which is not possible with cross-origin
-    cy.visitApp('/');
+    // Note: Full error testing requires mocking, blocked by cross-origin restrictions
+    cy.visitApp('/haiku');
 
-    // Wait for page to load successfully
-    cy.get('[data-cy=fetch-btn]:visible', { timeout: 30000 }).should('exist');
-
-    // Verify zen-toast notification container is present (used for errors)
+    cy.get('[data-cy=fetch-btn]', { timeout: 30000 })
+      .should('exist')
+      .and('not.be.disabled');
     cy.get('.zen-toast-container').should('exist');
   });
 });

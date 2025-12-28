@@ -1,4 +1,5 @@
 @use '@/assets/css/fonts.css';
+@use '@/assets/css/buttons';
 
 // ====================================
 // GUTENKU GLOBAL DESIGN SYSTEM
@@ -464,7 +465,7 @@
 @layer components {
   .bookmark-ribbon {
     position: absolute;
-    top: -5px;
+    top: -18px;
     right: 20px;
     width: 24px;
     height: 50px;
@@ -1004,7 +1005,7 @@ body {
 .gutenku-paper {
   background: var(--gutenku-paper-bg);
   border: 1px solid var(--gutenku-paper-border);
-  border-radius: var(--gutenku-radius-md);
+  border-radius: var(--gutenku-radius-xl);
   position: relative;
 
   &::before {
@@ -1025,7 +1026,7 @@ body {
         oklch(0.42 0.09 55 / 0.05) 0%,
         transparent 50%
       );
-    border-radius: var(--gutenku-radius-md);
+    border-radius: var(--gutenku-radius-xl);
     pointer-events: none;
     z-index: 1;
   }
@@ -1038,70 +1039,26 @@ body {
 
 .gutenku-btn {
   border-radius: var(--gutenku-radius-md);
-  transition: var(--gutenku-transition-zen);
-  border-width: 1.5px;
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background: radial-gradient(
-      circle,
-      var(--gutenku-zen-mist) 0%,
-      transparent 70%
-    );
-    transition: var(--gutenku-transition-zen);
-    transform: translate(-50%, -50%);
-    z-index: 0;
-    border-radius: 50%;
-  }
+  transition: all 0.2s ease;
+  border: none;
 
   &:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: var(--gutenku-shadow-ink);
-
-    &::before {
-      width: 200%;
-      height: 200%;
-      animation: ink-ripple 0.6s ease-out;
-    }
+    transform: translateY(-1px);
   }
 
   &:active {
-    transform: translateY(0) scale(0.98);
-    transition: var(--gutenku-transition-fast);
+    transform: translateY(0);
   }
 
   &:focus-visible {
     outline: 2px solid var(--gutenku-zen-accent);
     outline-offset: 2px;
-    box-shadow:
-      var(--gutenku-shadow-ink),
-      0 0 0 4px oklch(0.76 0.04 175 / 0.2);
   }
 
   .btn-text {
     margin-left: var(--gutenku-space-5);
     font-size: 0.85rem;
     font-weight: 500;
-    position: relative;
-    z-index: 1;
-    transition: var(--gutenku-transition-zen);
-  }
-
-  .v-icon {
-    position: relative;
-    z-index: 1;
-    transition: var(--gutenku-transition-zen);
-  }
-
-  &:hover .v-icon {
-    transform: scale(1.1);
   }
 }
 
@@ -1117,28 +1074,49 @@ body {
 }
 
 .gutenku-btn-generate {
-  border-color: var(--gutenku-btn-generate);
-  color: var(--gutenku-btn-generate-text);
+  background: oklch(0.94 0.02 145 / 0.6);
+  color: oklch(0.35 0.08 155);
+  border: none;
 
   &:hover {
-    background: var(--gutenku-btn-generate-bg);
-    border-color: var(--gutenku-btn-generate-hover);
+    background: oklch(0.92 0.03 145 / 0.75);
+  }
+
+  [data-theme='dark'] & {
+    background: oklch(0.25 0.03 175 / 0.5);
+    color: oklch(0.85 0.04 175);
+
+    &:hover {
+      background: oklch(0.3 0.04 175 / 0.6);
+    }
   }
 }
 
 .gutenku-btn-copy {
-  border-color: var(--gutenku-btn-copy);
+  background: oklch(0.9 0.02 250 / 0.1);
   color: var(--gutenku-btn-copy-text);
+  box-shadow: 0 1px 3px oklch(0 0 0 / 0.08);
 
   &:hover {
-    background: var(--gutenku-btn-copy-bg);
-    border-color: var(--gutenku-btn-copy-hover);
+    background: oklch(0.85 0.03 250 / 0.2);
+    box-shadow: 0 2px 8px oklch(0 0 0 / 0.12);
   }
 
   &.success {
-    border-color: var(--gutenku-btn-success);
-    background: var(--gutenku-btn-success-bg);
+    background: oklch(0.6 0.12 145 / 0.15);
     color: var(--gutenku-btn-success-text);
+  }
+
+  [data-theme='dark'] & {
+    background: oklch(0.3 0.02 250 / 0.2);
+
+    &:hover {
+      background: oklch(0.35 0.03 250 / 0.3);
+    }
+
+    &.success {
+      background: oklch(0.5 0.1 165 / 0.25);
+    }
   }
 }
 
@@ -1638,8 +1616,40 @@ body {
     --gutenku-text-secondary: #333333;
   }
 
-  .gutenku-btn {
+  .gutenku-btn,
+  .zen-btn {
     border-width: 2px;
+  }
+
+  :focus-visible {
+    outline-width: 3px !important;
+    outline-style: solid !important;
+    outline-offset: 2px !important;
+  }
+}
+
+// Windows High Contrast Mode support
+@media (forced-colors: active) {
+  .gutenku-btn,
+  .zen-btn {
+    border: 2px solid ButtonText;
+  }
+
+  mark,
+  .highlight {
+    background: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+
+  :focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  .stats-panel__book-rank,
+  .v-chip {
+    border: 1px solid ButtonText;
   }
 }
 
@@ -1798,6 +1808,21 @@ body {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+
+  // Focusable variant - becomes visible on focus
+  &-focusable {
+    &:focus,
+    &:active {
+      position: static;
+      width: auto;
+      height: auto;
+      padding: inherit;
+      margin: inherit;
+      overflow: visible;
+      clip: auto;
+      white-space: normal;
+    }
+  }
 }
 
 .animate-in {
