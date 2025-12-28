@@ -20,34 +20,35 @@ These instructions will get you a copy of the project up and running on your loc
 git clone https://github.com/heristop/gutenku.git
 ```
 
-2. Install NPM dependencies:
-
-```bash
-pnpm i
-```
-
-3. Copy env variables (optional):
+2. Copy env variables (optional):
 
 ```bash
 cp gutenku/packages/front/.env.dist gutenku/packages/front/.env
 ```
 
-4. Start server and front
+3. Install dependencies and start:
 
 ```bash
-pnpm run dev
+make install
+make dev
 ```
+
+## Built With
+
+- Vue 3 (Composition API)
+- Tailwind CSS
+- Pinia
+- Apollo Client / GraphQL
+- Vitest / Cypress
 
 ## Tests
 
-Prerequisites:
+```bash
+make test
+```
+
+Linux prerequisites for Cypress:
 
 ```bash
 apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
-```
-
-Cypress:
-
-```bash
-pnpm add cypress --dev -g
 ```
