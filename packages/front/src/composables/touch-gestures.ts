@@ -1,7 +1,39 @@
 import { ref, onMounted, onUnmounted, type Ref } from 'vue';
 import { useSwipe, useVibrate, useMediaQuery } from '@vueuse/core';
 
+// Chrome requires a tap before vibrate() works
+let hasUserTapped = false;
+if (typeof document !== 'undefined') {
+  document.addEventListener(
+    'click',
+    () => {
+      hasUserTapped = true;
+    },
+    { once: true, capture: true },
+  );
+}
+
 export type SwipeDirection = 'up' | 'down' | 'left' | 'right' | 'none';
+
+interface VibrationContext {
+  enableVibration: boolean;
+  vibrationSupported: { value: boolean };
+  isTouchDevice: { value: boolean };
+  vibrate: () => void;
+}
+
+function createVibrationTrigger(context: VibrationContext) {
+  return () => {
+    if (
+      hasUserTapped &&
+      context.enableVibration &&
+      context.vibrationSupported.value &&
+      context.isTouchDevice.value
+    ) {
+      context.vibrate();
+    }
+  };
+}
 
 interface UseTouchGesturesOptions {
   threshold?: number;
@@ -35,11 +67,12 @@ export function useTouchGestures(
     pattern: vibrationPattern,
   });
 
-  function triggerVibration() {
-    if (enableVibration && vibrationSupported.value && isTouchDevice.value) {
-      vibrate();
-    }
-  }
+  const triggerVibration = createVibrationTrigger({
+    enableVibration,
+    vibrationSupported,
+    isTouchDevice,
+    vibrate,
+  });
 
   // Swipe detection
   const { direction, isSwiping, lengthX, lengthY } = useSwipe(elementRef, {
@@ -64,7 +97,7 @@ export function useTouchGestures(
 
   onMounted(() => {
     isTouchDevice.value =
-      'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      'ontouchstart' in globalThis || navigator.maxTouchPoints > 0;
   });
 
   return {
@@ -105,15 +138,16 @@ export function useLongPress(
     pattern: [25],
   });
 
+  const triggerVibration = createVibrationTrigger({
+    enableVibration,
+    vibrationSupported,
+    isTouchDevice,
+    vibrate,
+  });
+
   let pressTimer: ReturnType<typeof setTimeout> | null = null;
   let progressInterval: ReturnType<typeof setInterval> | null = null;
   let startTime = 0;
-
-  function triggerVibration() {
-    if (enableVibration && vibrationSupported.value && isTouchDevice.value) {
-      vibrate();
-    }
-  }
 
   function startPress() {
     isPressed.value = true;
@@ -154,23 +188,18 @@ export function useLongPress(
     }
   }
 
-  function handlePointerUp() {
-    cancelPress();
-  }
-
-  function handlePointerLeave() {
-    cancelPress();
-  }
+  // Single handler for all pointer end events (up, leave, cancel)
+  const handlePointerEnd = () => cancelPress();
 
   onMounted(() => {
     isTouchDevice.value =
-      'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      'ontouchstart' in globalThis || navigator.maxTouchPoints > 0;
 
     if (elementRef.value) {
       elementRef.value.addEventListener('pointerdown', handlePointerDown);
-      elementRef.value.addEventListener('pointerup', handlePointerUp);
-      elementRef.value.addEventListener('pointerleave', handlePointerLeave);
-      elementRef.value.addEventListener('pointercancel', handlePointerUp);
+      elementRef.value.addEventListener('pointerup', handlePointerEnd);
+      elementRef.value.addEventListener('pointerleave', handlePointerEnd);
+      elementRef.value.addEventListener('pointercancel', handlePointerEnd);
     }
   });
 
@@ -179,9 +208,9 @@ export function useLongPress(
 
     if (elementRef.value) {
       elementRef.value.removeEventListener('pointerdown', handlePointerDown);
-      elementRef.value.removeEventListener('pointerup', handlePointerUp);
-      elementRef.value.removeEventListener('pointerleave', handlePointerLeave);
-      elementRef.value.removeEventListener('pointercancel', handlePointerUp);
+      elementRef.value.removeEventListener('pointerup', handlePointerEnd);
+      elementRef.value.removeEventListener('pointerleave', handlePointerEnd);
+      elementRef.value.removeEventListener('pointercancel', handlePointerEnd);
     }
   });
 

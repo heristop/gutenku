@@ -60,27 +60,12 @@ const { message: craftingMessage } = useLoadingMessages({
               <div
                 v-for="(message, index) in messages"
                 :key="`${message.timestamp}-${index}`"
-                v-motion
-                :initial="{ opacity: 0, y: -20 }"
-                :enter="{
-                  opacity: index > 2 ? 0.6 : 1,
-                  y: 0,
-                  transition: {
-                    duration: 400,
-                    delay: index * 50,
-                    ease: [0.4, 0, 0.2, 1],
-                  },
-                }"
-                :leave="{
-                  opacity: 0,
-                  y: 10,
-                  transition: { duration: 200, ease: [0.4, 0, 1, 1] },
-                }"
-                class="craft-message"
+                class="craft-message animate-slide-in"
                 :class="{
                   'latest-message': index === 0,
                   'fade-message': index > 2,
                 }"
+                :style="{ animationDelay: `${index * 50}ms` }"
               >
                 <span class="message-emoji" aria-hidden="true">
                   <PenTool
@@ -270,22 +255,21 @@ const { message: craftingMessage } = useLoadingMessages({
 .craft-message {
   display: flex;
   align-items: flex-start;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1rem 0.75rem 1.25rem;
   margin: 0;
   background: oklch(1 0 0 / 0.3);
   border-radius: 8px;
-  border-left: 3px solid transparent;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 0.9rem;
   line-height: 1.8;
   color: var(--gutenku-text-primary);
   width: 100%;
   box-sizing: border-box;
+  overflow: hidden;
 
   &.latest-message {
-    background: oklch(0.65 0.18 145 / 0.15);
-    border-left-color: oklch(0.65 0.18 145);
-    box-shadow: 0 2px 8px oklch(0.65 0.18 145 / 0.2);
+    background: oklch(0.65 0.18 145 / 0.12);
+    box-shadow: 0 2px 12px oklch(0.65 0.18 145 / 0.15);
 
     .message-emoji {
       animation: craft-pulse 1.5s ease-in-out infinite;
@@ -357,6 +341,60 @@ const { message: craftingMessage } = useLoadingMessages({
   }
 }
 
+// Ink appearing on paper animation
+@keyframes ink-appear {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+    filter: blur(2px);
+  }
+  60% {
+    opacity: 0.8;
+    transform: translateY(2px) scale(1.01);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+// Border stroke animation (like a pen drawing down)
+@keyframes stroke-reveal {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+.animate-slide-in {
+  animation: ink-appear 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  position: relative;
+
+  // Pen stroke effect on border
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: oklch(0.65 0.18 145 / 0.6);
+    transform-origin: top;
+    animation: stroke-reveal 0.3s ease-out 0.2s forwards;
+    transform: scaleY(0);
+    border-radius: 2px;
+  }
+
+  &.latest-message::before {
+    background: oklch(0.65 0.18 145);
+    box-shadow: 0 0 8px oklch(0.65 0.18 145 / 0.4);
+  }
+}
+
 @media (max-width: 768px) {
   .haiku-crafting.book-page {
     padding: 2rem 1.5rem 1.5rem 2rem;
@@ -383,6 +421,10 @@ const { message: craftingMessage } = useLoadingMessages({
     min-width: 1.5rem;
     margin-right: 0.5rem;
   }
+
+  .progress-container {
+    margin-bottom: 1.5rem;
+  }
 }
 
 // Reduced motion
@@ -393,6 +435,17 @@ const { message: craftingMessage } = useLoadingMessages({
 
   .craft-message.latest-message .message-emoji {
     animation: none;
+  }
+
+  .animate-slide-in {
+    animation: none;
+    opacity: 1;
+    filter: none;
+
+    &::before {
+      animation: none;
+      transform: scaleY(1);
+    }
   }
 }
 </style>

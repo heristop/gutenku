@@ -32,7 +32,9 @@ export function useImageDownload(defaultDelayMs = 1000) {
       downloadLink.target = '_blank';
       downloadLink.click();
 
-      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      await new Promise((resolve) => {
+        setTimeout(resolve, delayMs);
+      });
       inProgress.value = false;
       return true;
     } catch {

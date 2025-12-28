@@ -102,6 +102,11 @@ watch(
     width: 100%;
     height: 100%;
     filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.2));
+    transition: filter 0.4s ease;
+  }
+
+  &--animate &__svg {
+    animation: hanko-shadow-grow 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
 
   &__border {
@@ -132,21 +137,36 @@ watch(
 @keyframes hanko-stamp {
   0% {
     opacity: 0;
-    transform: scale(1.4) rotate(-8deg);
+    transform: scale(1.5) rotate(-15deg);
   }
-  30% {
+  20% {
     opacity: 1;
-    transform: scale(0.95) rotate(2deg);
+    transform: scale(0.9) rotate(8deg);
   }
-  50% {
-    transform: scale(1.05) rotate(-1deg);
+  40% {
+    transform: scale(1.08) rotate(-4deg);
   }
-  70% {
-    transform: scale(0.98) rotate(0.5deg);
+  60% {
+    transform: scale(0.96) rotate(2deg);
+  }
+  80% {
+    transform: scale(1.02) rotate(-0.5deg);
   }
   100% {
     opacity: 0.85;
     transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes hanko-shadow-grow {
+  0% {
+    filter: drop-shadow(0 0 0 oklch(0.45 0.2 15 / 0));
+  }
+  30% {
+    filter: drop-shadow(2px 2px 4px oklch(0.45 0.2 15 / 0.3));
+  }
+  100% {
+    filter: drop-shadow(1px 1px 3px oklch(0 0 0 / 0.25));
   }
 }
 
@@ -170,6 +190,11 @@ watch(
     animation: none;
     opacity: 0.85;
     transform: scale(1) rotate(0deg);
+
+    .hanko-stamp__svg {
+      animation: none;
+      filter: drop-shadow(1px 1px 3px oklch(0 0 0 / 0.25));
+    }
   }
 }
 </style>

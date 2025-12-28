@@ -35,15 +35,12 @@ function handleKeydown(event: KeyboardEvent, toastId: number) {
 
     <div class="zen-toast-container" role="region" aria-label="Notifications">
       <TransitionGroup name="zen-toast">
-        <div
+        <output
           v-for="toast in toasts"
           :key="toast.id"
           class="zen-toast"
           :class="`zen-toast--${toast.type}`"
-          role="status"
           :aria-label="`${iconLabels[toast.type]}: ${toast.message}`"
-          tabindex="0"
-          @keydown="(e) => toast.closable && handleKeydown(e, toast.id)"
         >
           <!-- Book spine accent -->
           <div class="zen-toast__spine" aria-hidden="true" />
@@ -67,7 +64,7 @@ function handleKeydown(event: KeyboardEvent, toastId: number) {
           >
             <X :size="16" aria-hidden="true" />
           </button>
-        </div>
+        </output>
       </TransitionGroup>
     </div>
   </Teleport>

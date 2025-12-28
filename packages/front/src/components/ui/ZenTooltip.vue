@@ -98,8 +98,8 @@ function updatePosition() {
 
   // Keep tooltip within viewport
   const padding = 8;
-  left = Math.max(padding, Math.min(left, window.innerWidth - tooltipRect.width - padding));
-  top = Math.max(padding, Math.min(top, window.innerHeight - tooltipRect.height - padding));
+  left = Math.max(padding, Math.min(left, globalThis.innerWidth - tooltipRect.width - padding));
+  top = Math.max(padding, Math.min(top, globalThis.innerHeight - tooltipRect.height - padding));
 
   tooltipStyle.value = {
     top: `${top}px`,
@@ -123,10 +123,10 @@ function handleFocusOut() {
 }
 
 onMounted(() => {
-  isTouchDevice.value = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  isTouchDevice.value = 'ontouchstart' in globalThis || navigator.maxTouchPoints > 0;
 
-  window.addEventListener('scroll', updatePosition, { passive: true });
-  window.addEventListener('resize', updatePosition, { passive: true });
+  globalThis.addEventListener('scroll', updatePosition, { passive: true });
+  globalThis.addEventListener('resize', updatePosition, { passive: true });
 
   // Click outside listener for mobile dismiss
   document.addEventListener('touchstart', handleClickOutside, { passive: true });
@@ -134,8 +134,8 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', updatePosition);
-  window.removeEventListener('resize', updatePosition);
+  globalThis.removeEventListener('scroll', updatePosition);
+  globalThis.removeEventListener('resize', updatePosition);
   document.removeEventListener('touchstart', handleClickOutside);
   document.removeEventListener('click', handleClickOutside);
   if (showTimeout) {clearTimeout(showTimeout);}

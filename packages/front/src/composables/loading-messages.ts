@@ -91,7 +91,7 @@ export function useLoadingMessages(options: UseLoadingMessagesOptions = {}) {
   const intervalMs = options.intervalMs ?? 2500;
   const message = ref<string>(pool[0] ?? '');
   let idx = 0;
-  let timer: number | null = null;
+  let timer: ReturnType<typeof setInterval> | null = null;
 
   const next = () => {
     idx = (idx + 1) % pool.length;
@@ -105,7 +105,7 @@ export function useLoadingMessages(options: UseLoadingMessagesOptions = {}) {
       return;
     }
 
-    timer = window.setInterval(next, intervalMs);
+    timer = globalThis.setInterval(next, intervalMs);
   };
 
   const stop = () => {

@@ -1,10 +1,15 @@
 import { useIntervalFn } from '@vueuse/core';
-import { ref } from 'vue';
+import { ref, type Ref } from 'vue';
 
 export interface QuoteRotationOptions {
   intervalMs?: number;
   startDelay?: number;
   onRotate?: (index: number) => void;
+}
+
+function beginRotation(showQuote: Ref<boolean>, resume: () => void) {
+  showQuote.value = true;
+  resume();
 }
 
 export function useQuoteRotation(
@@ -30,15 +35,10 @@ export function useQuoteRotation(
       return;
     }
 
-    const beginRotation = () => {
-      showQuote.value = true;
-      resume();
-    };
-
     if (startDelay > 0) {
-      setTimeout(beginRotation, startDelay);
+      setTimeout(() => beginRotation(showQuote, resume), startDelay);
     } else {
-      beginRotation();
+      beginRotation(showQuote, resume);
     }
   };
 

@@ -1,9 +1,11 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useTheme as useVuetifyTheme } from 'vuetify';
 
+export type ThemePreference = 'light' | 'dark' | 'system';
+
 const isDarkMode = ref(false);
 const isSystemDark = ref(false);
-const themePreference = ref<'light' | 'dark' | 'system'>('light');
+const themePreference = ref<ThemePreference>('light');
 const systemPreferenceEnabled = ref(false);
 
 const THEME_STORAGE_KEY = 'gutenku-theme-preference';
@@ -13,12 +15,14 @@ const supportsViewTransition = (): boolean => {
   return (
     typeof document !== 'undefined' &&
     'startViewTransition' in document &&
-    !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    !globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches
   );
 };
 
+type Theme = 'light' | 'dark';
+
 const applyThemeChange = (
-  newTheme: 'light' | 'dark',
+  newTheme: Theme,
   vuetifyTheme: ReturnType<typeof useVuetifyTheme>,
 ) => {
   const themeName = newTheme === 'dark' ? 'gutenkuDarkTheme' : 'gutenkuTheme';
@@ -46,7 +50,7 @@ export function useTheme() {
   const vuetifyTheme = useVuetifyTheme();
 
   const updateSystemTheme = () => {
-    isSystemDark.value = window.matchMedia(
+    isSystemDark.value = globalThis.matchMedia(
       '(prefers-color-scheme: dark)',
     ).matches;
   };
@@ -76,7 +80,7 @@ export function useTheme() {
     { immediate: true },
   );
 
-  const saveThemePreference = (preference: 'light' | 'dark' | 'system') => {
+  const saveThemePreference = (preference: ThemePreference) => {
     themePreference.value = preference;
     localStorage.setItem(THEME_STORAGE_KEY, preference);
   };
@@ -87,11 +91,9 @@ export function useTheme() {
   };
 
   const loadThemePreference = () => {
-    const saved = localStorage.getItem(THEME_STORAGE_KEY) as
-      | 'light'
-      | 'dark'
-      | 'system'
-      | null;
+    const saved = localStorage.getItem(
+      THEME_STORAGE_KEY,
+    ) as ThemePreference | null;
     if (saved && ['light', 'dark', 'system'].includes(saved)) {
       themePreference.value = saved;
     }
@@ -109,7 +111,7 @@ export function useTheme() {
     saveThemePreference(newPreference);
   };
 
-  const setTheme = (theme: 'light' | 'dark' | 'system') => {
+  const setTheme = (theme: ThemePreference) => {
     saveThemePreference(theme);
   };
 
@@ -119,7 +121,7 @@ export function useTheme() {
 
     updateSystemTheme();
 
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const mediaQuery = globalThis.matchMedia('(prefers-color-scheme: dark)');
     mediaQuery.addEventListener('change', updateSystemTheme);
 
     return () => {

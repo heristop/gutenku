@@ -3,13 +3,14 @@ import { onMounted, ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { load } from '@fingerprintjs/botd';
 import { storeToRefs } from 'pinia';
-import { Lightbulb, LightbulbOff, ChevronsUpDown, ChevronsDownUp, ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { Lightbulb, LightbulbOff, ChevronsUpDown, ChevronsDownUp } from 'lucide-vue-next';
 import { useHaikuStore } from '@/store/haiku';
 import { useHaikuHighlighter } from '@/composables/haiku-highlighter';
 import { useTextCompacting } from '@/composables/text-compacting';
 import { useTouchGestures } from '@/composables/touch-gestures';
 import HighLightText from '@/components/HighLightText.vue';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
+import SwipeHint from '@/components/ui/SwipeHint.vue';
 
 const { t } = useI18n();
 
@@ -158,15 +159,12 @@ watch(
       </div>
     </div>
 
-    <div
+    <button
+      type="button"
       class="book-content"
-      role="button"
-      tabindex="0"
       :aria-expanded="!blackMarker"
       :aria-label="disclosureText"
       @click="toggle()"
-      @keydown.enter="toggle()"
-      @keydown.space.prevent="toggle()"
     >
       <h2
         :class="{
@@ -205,19 +203,17 @@ watch(
           </p>
         </div>
       </div>
-    </div>
+    </button>
 
     <div class="page-number">— {{ pageNumber }} —</div>
 
     <Transition name="fade">
       <div
         v-if="isTouchDevice && showSwipeHint && !loading"
-        class="swipe-hint"
+        class="swipe-hint-wrapper"
         aria-hidden="true"
       >
-        <ChevronLeft :size="16" class="swipe-icon swipe-icon--left" />
-        <span class="swipe-text">{{ t('haikuChapter.swipeHint') }}</span>
-        <ChevronRight :size="16" class="swipe-icon swipe-icon--right" />
+        <SwipeHint variant="pill" />
       </div>
     </Transition>
   </v-card>
@@ -363,6 +359,15 @@ watch(
 }
 
 .book-content {
+  // Reset button styles
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  text-align: inherit;
+  width: 100%;
+  display: block;
+
   position: relative;
   z-index: 2;
   cursor: pointer;
@@ -381,10 +386,6 @@ watch(
         url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>'),
         auto;
     }
-  }
-
-  &:focus {
-    outline: none;
   }
 
   &:focus-visible {
@@ -626,57 +627,14 @@ watch(
   transition: all 0.15s ease;
 }
 
-// Swipe hint indicator
-.swipe-hint {
+// Swipe hint wrapper positioning
+.swipe-hint-wrapper {
   position: absolute;
   bottom: 2.5rem;
   left: 50%;
   transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.75rem;
-  background: oklch(0 0 0 / 0.06);
-  border-radius: 2rem;
-  font-size: 0.7rem;
-  color: var(--gutenku-text-muted);
   z-index: 10;
   pointer-events: none;
-
-  .swipe-text {
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .swipe-icon {
-    opacity: 0.6;
-
-    &--left {
-      animation: swipe-bounce-left 1.5s ease-in-out infinite;
-    }
-
-    &--right {
-      animation: swipe-bounce-right 1.5s ease-in-out infinite;
-    }
-  }
-}
-
-@keyframes swipe-bounce-left {
-  0%, 100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(-4px);
-  }
-}
-
-@keyframes swipe-bounce-right {
-  0%, 100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(4px);
-  }
 }
 
 // Fade transition
@@ -690,18 +648,8 @@ watch(
   opacity: 0;
 }
 
-// Dark theme swipe hint
-[data-theme='dark'] .swipe-hint {
-  background: oklch(1 0 0 / 0.08);
-}
-
 // Reduced motion
 @media (prefers-reduced-motion: reduce) {
-  .swipe-icon--left,
-  .swipe-icon--right {
-    animation: none;
-  }
-
   .book-page.is-swiping {
     transform: none;
   }

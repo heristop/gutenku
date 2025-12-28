@@ -1,6 +1,18 @@
 import { ref, computed, onMounted, onUnmounted, type Ref } from 'vue';
 import { useVibrate, useMediaQuery } from '@vueuse/core';
 
+// Chrome requires a tap before vibrate() works
+let hasUserTapped = false;
+if (typeof document !== 'undefined') {
+  document.addEventListener(
+    'click',
+    () => {
+      hasUserTapped = true;
+    },
+    { once: true, capture: true },
+  );
+}
+
 interface UsePullToRefreshOptions {
   threshold?: number;
   maxPull?: number;
@@ -50,7 +62,7 @@ export function usePullToRefresh(
   const shouldRelease = computed(() => pullDistance.value >= threshold);
 
   function triggerVibration() {
-    if (vibrationSupported.value) {
+    if (hasUserTapped && vibrationSupported.value) {
       vibrate();
     }
   }
@@ -63,7 +75,7 @@ export function usePullToRefresh(
     }
 
     // Only allow pull when at top of page
-    if (window.scrollY <= 0) {
+    if (globalThis.scrollY <= 0) {
       canPull.value = true;
       startY.value = e.touches[0].clientY;
       hasVibratedAtThreshold = false;
@@ -84,7 +96,7 @@ export function usePullToRefresh(
     const diff = currentY - startY.value;
 
     // Only pull down, not up
-    if (diff > 0 && window.scrollY <= 0) {
+    if (diff > 0 && globalThis.scrollY <= 0) {
       isPulling.value = true;
       // Apply 0.5 resistance factor
       pullDistance.value = Math.min(diff * 0.5, maxPull);

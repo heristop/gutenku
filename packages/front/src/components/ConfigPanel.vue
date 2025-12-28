@@ -175,19 +175,16 @@ function resetAdvancedConfig(): void {
     :class="{ 'is-visible': isInView }"
     rounded
   >
-    <div
+    <button
       ref="headerRef"
+      type="button"
       class="config-panel__header"
       :class="{ 'is-swiping': isHeaderSwiping }"
-      role="button"
-      tabindex="0"
       :aria-expanded="expanded"
       aria-controls="config-panel-content"
       :aria-label="t('config.ariaLabel')"
       data-cy="menu-btn"
       @click="toggleConfig"
-      @keydown.enter="toggleConfig"
-      @keydown.space.prevent="toggleConfig"
     >
       <SlidersHorizontal
         :size="28"
@@ -241,7 +238,7 @@ function resetAdvancedConfig(): void {
         class="config-panel__toggle-icon text-primary"
         :class="{ 'config-panel__toggle-icon--rotated': !expanded }"
       />
-    </div>
+    </button>
 
     <v-expand-transition>
       <div
@@ -370,15 +367,12 @@ function resetAdvancedConfig(): void {
           </div>
 
           <ZenTooltip :text="t('config.advancedTooltip')" position="bottom">
-            <div
+            <button
               ref="advancedRef"
+              type="button"
               class="config-panel__advanced-toggle"
-              role="button"
-              tabindex="0"
               :aria-expanded="showAdvanced"
               @click="toggleAdvanced"
-              @keydown.enter="toggleAdvanced"
-              @keydown.space.prevent="toggleAdvanced"
             >
               <Settings2 :size="16" class="config-panel__advanced-icon" />
               <span class="config-panel__advanced-text">
@@ -389,7 +383,7 @@ function resetAdvancedConfig(): void {
                 :size="16"
                 class="config-panel__advanced-chevron"
               />
-            </div>
+            </button>
           </ZenTooltip>
 
           <v-expand-transition>
@@ -565,6 +559,14 @@ function resetAdvancedConfig(): void {
   position: relative;
 
   &__header {
+    // Reset button styles
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    text-align: left;
+    width: 100%;
+
     display: flex;
     align-items: center;
     margin-bottom: 0.5rem;

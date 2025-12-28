@@ -32,7 +32,7 @@ const socialLinks = computed(() =>
 );
 
 const handleClick = (url: string) => {
-  window.open(url, '_blank', 'noopener,noreferrer');
+  globalThis.open(url, '_blank', 'noopener,noreferrer');
 };
 </script>
 

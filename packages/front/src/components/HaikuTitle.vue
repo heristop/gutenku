@@ -1,14 +1,11 @@
 <script lang="ts" setup>
 import { computed, onMounted } from 'vue';
-import { useMediaQuery } from '@vueuse/core';
 import { useI18n } from 'vue-i18n';
 import { Sun, Moon, Monitor } from 'lucide-vue-next';
 import { useTheme } from '@/composables/theme';
 import { useTypewriter } from '@/composables/typewriter';
 import { useQuoteRotation } from '@/composables/quote-rotation';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
-
-const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
 
 const { t } = useI18n();
 
@@ -129,15 +126,7 @@ onMounted(startTypewriter);
       <p
         v-if="showQuote"
         :key="currentQuote"
-        v-motion
-        :initial="prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 10, filter: 'blur(2px)' }"
-        :enter="prefersReducedMotion
-          ? { opacity: 0.8, transition: { duration: 0 } }
-          : { opacity: 0.8, y: 0, filter: 'blur(0px)', transition: { duration: 600, ease: [0.25, 0.8, 0.25, 1] } }"
-        :leave="prefersReducedMotion
-          ? { opacity: 0, transition: { duration: 0 } }
-          : { opacity: 0, y: -10, filter: 'blur(2px)', transition: { duration: 300, ease: [0.4, 0, 1, 1] } }"
-        class="poetry-quote"
+        class="poetry-quote poetry-quote--animate"
       >
         {{ poetryQuotes[currentQuote] }}
       </p>
@@ -230,9 +219,45 @@ onMounted(startTypewriter);
   margin: 1rem 0 0 0;
   opacity: 0.8;
   line-height: 1.4;
+  perspective: 800px;
+  transform-style: preserve-3d;
+
+  &--animate {
+    animation: quote-page-flip 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
 
   @media (max-width: 768px) {
     font-size: 0.8rem;
+  }
+}
+
+@keyframes quote-page-flip {
+  0% {
+    opacity: 0;
+    transform: rotateX(45deg) translateY(15px);
+    filter: blur(3px);
+  }
+  40% {
+    opacity: 0.6;
+    transform: rotateX(-5deg) translateY(-3px);
+    filter: blur(0);
+  }
+  70% {
+    transform: rotateX(2deg) translateY(1px);
+  }
+  100% {
+    opacity: 0.8;
+    transform: rotateX(0) translateY(0);
+    filter: blur(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poetry-quote--animate {
+    animation: none;
+    opacity: 0.8;
+    transform: none;
+    filter: none;
   }
 }
 
@@ -422,19 +447,19 @@ onMounted(startTypewriter);
 
   .theme-icon-btn,
   .theme-settings-btn {
-    width: 2.75rem !important;
-    height: 2.75rem !important;
-    min-width: 2.75rem !important;
-    min-height: 2.75rem !important;
-    max-width: 2.75rem !important;
-    max-height: 2.75rem !important;
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    min-width: 2.25rem !important;
+    min-height: 2.25rem !important;
+    max-width: 2.25rem !important;
+    max-height: 2.25rem !important;
     touch-action: manipulation;
     pointer-events: auto !important;
     -webkit-tap-highlight-color: transparent;
 
     svg {
-      width: 18px !important;
-      height: 18px !important;
+      width: 16px !important;
+      height: 16px !important;
     }
   }
 }

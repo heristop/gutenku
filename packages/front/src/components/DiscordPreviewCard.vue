@@ -97,16 +97,13 @@ function copyCaption() {
     :class="{ 'is-visible': isInView }"
     rounded
   >
-    <div
+    <button
+      type="button"
       class="discord-panel__header d-flex align-center mb-2"
-      role="button"
-      tabindex="0"
       :aria-expanded="expanded"
       aria-controls="discord-panel-content"
       aria-label="Discord Preview"
       @click="togglePanel"
-      @keydown.enter="togglePanel"
-      @keydown.space.prevent="togglePanel"
     >
       <MessageSquare
         :size="28"
@@ -123,7 +120,7 @@ function copyCaption() {
         class="discord-panel__toggle-icon text-primary"
         :class="{ 'discord-panel__toggle-icon--rotated': !expanded }"
       />
-    </div>
+    </button>
 
     <v-expand-transition>
       <div

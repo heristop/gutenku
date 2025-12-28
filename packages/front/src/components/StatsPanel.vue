@@ -27,7 +27,7 @@ const topBooks = computed(() => {
   return entries.slice(0, 3);
 });
 
-const { value: expanded, toggle: toggleStats } = useExpandedState('statsPanel-expanded');
+const { value: expanded, toggle: toggleStats } = useExpandedState('statsPanel-expanded', true);
 
 const animatedHaikus = ref(0);
 const animatedCached = ref(0);
@@ -35,6 +35,19 @@ const animatedBooks = ref(0);
 const animatedTime = ref(0);
 const animatedProgress = ref(0);
 const hasAnimated = ref(false);
+
+// Pulse states for value updates
+const pulsingHaikus = ref(false);
+const pulsingBooks = ref(false);
+const pulsingCached = ref(false);
+const pulsingTime = ref(false);
+
+function triggerPulse(pulseRef: typeof pulsingHaikus) {
+  pulseRef.value = true;
+  setTimeout(() => {
+    pulseRef.value = false;
+  }, 400);
+}
 
 function easeOutQuart(t: number): number {
   return 1 - Math.pow(1 - t, 4);
@@ -117,24 +130,36 @@ watch(
 
 watch(
   () => stats.value.haikusGenerated,
-  (val) => {
-    if (hasAnimated.value) {animatedHaikus.value = val;}
+  (val, oldVal) => {
+    if (hasAnimated.value) {
+      animatedHaikus.value = val;
+      if (val !== oldVal) {triggerPulse(pulsingHaikus);}
+    }
   },
 );
 watch(
   () => stats.value.booksBrowsed,
-  (val) => {
-    if (hasAnimated.value) {animatedBooks.value = val;}
+  (val, oldVal) => {
+    if (hasAnimated.value) {
+      animatedBooks.value = val;
+      if (val !== oldVal) {triggerPulse(pulsingBooks);}
+    }
   },
 );
 watch(
   () => stats.value.cachedHaikus,
-  (val) => {
-    if (hasAnimated.value) {animatedCached.value = val;}
+  (val, oldVal) => {
+    if (hasAnimated.value) {
+      animatedCached.value = val;
+      if (val !== oldVal) {triggerPulse(pulsingCached);}
+    }
   },
 );
-watch(avgTime, (val) => {
-  if (hasAnimated.value) {animatedTime.value = Number.parseFloat(val);}
+watch(avgTime, (val, oldVal) => {
+  if (hasAnimated.value) {
+    animatedTime.value = Number.parseFloat(val);
+    if (val !== oldVal) {triggerPulse(pulsingTime);}
+  }
 });
 watch(progress, (val) => {
   if (hasAnimated.value) {animatedProgress.value = val;}
@@ -148,16 +173,13 @@ watch(progress, (val) => {
     :class="{ 'is-visible': isInView }"
     rounded
   >
-    <div
+    <button
+      type="button"
       class="stats-panel__header d-flex align-center mb-2"
-      role="button"
-      tabindex="0"
       :aria-expanded="expanded"
       aria-controls="stats-panel-content"
       :aria-label="t('stats.ariaLabel')"
       @click="toggleStats"
-      @keydown.enter="toggleStats"
-      @keydown.space.prevent="toggleStats"
     >
       <BookOpenText
         :size="28"
@@ -176,7 +198,7 @@ watch(progress, (val) => {
         class="stats-panel__toggle-icon text-primary"
         :class="{ 'stats-panel__toggle-icon--rotated': !expanded }"
       />
-    </div>
+    </button>
 
     <v-expand-transition>
       <div
@@ -195,6 +217,7 @@ watch(progress, (val) => {
               </div>
               <div
                 class="stats-panel__metric-value text-subtitle-1 font-weight-bold"
+                :class="{ 'stats-panel__metric-value--pulse': pulsingHaikus }"
               >
                 {{ animatedHaikus }}
               </div>
@@ -207,6 +230,7 @@ watch(progress, (val) => {
               </div>
               <div
                 class="stats-panel__metric-value text-subtitle-1 font-weight-bold"
+                :class="{ 'stats-panel__metric-value--pulse': pulsingBooks }"
               >
                 {{ animatedBooks }}
               </div>
@@ -219,6 +243,7 @@ watch(progress, (val) => {
               </div>
               <div
                 class="stats-panel__metric-value text-subtitle-1 font-weight-bold"
+                :class="{ 'stats-panel__metric-value--pulse': pulsingCached }"
               >
                 {{ animatedCached }}
               </div>
@@ -231,6 +256,7 @@ watch(progress, (val) => {
               </div>
               <div
                 class="stats-panel__metric-value text-subtitle-1 font-weight-bold"
+                :class="{ 'stats-panel__metric-value--pulse': pulsingTime }"
               >
                 {{ animatedTime.toFixed(2) }}s
               </div>
@@ -280,23 +306,9 @@ watch(progress, (val) => {
             <v-col
               v-for="([name, count], idx) in topBooks"
               :key="name"
-              v-motion
               cols="12"
-              :initial="{ opacity: 0, x: -20 }"
-              :enter="{
-                opacity: 1,
-                x: 0,
-                transition: {
-                  delay: 600 + idx * 100,
-                  duration: 400,
-                  ease: [0.25, 0.8, 0.25, 1],
-                },
-              }"
-              :leave="{
-                opacity: 0,
-                x: -10,
-                transition: { duration: 200, ease: [0.4, 0, 1, 1] },
-              }"
+              class="stats-panel__book-item"
+              :style="{ '--book-index': idx }"
             >
               <div
                 class="stats-panel__book d-flex align-center justify-space-between"
@@ -338,6 +350,14 @@ watch(progress, (val) => {
   position: relative;
 
   &__header {
+    // Reset button styles
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    text-align: left;
+    width: 100%;
+
     cursor: pointer;
     transition: all 0.2s ease;
     border-radius: var(--gutenku-radius-sm);
@@ -378,6 +398,20 @@ watch(progress, (val) => {
     padding: 0.75rem !important;  // 12px
   }
 
+  &__metric-value {
+    transition: transform 0.2s ease, color 0.2s ease;
+
+    &--pulse {
+      animation: value-pulse 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+  }
+
+  &__book-item {
+    animation: book-slide-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: calc(600ms + var(--book-index, 0) * 100ms);
+    opacity: 0;
+  }
+
   &__book {
     padding: 4px 0;
   }
@@ -389,7 +423,45 @@ watch(progress, (val) => {
     color: var(--gutenku-text-primary);
     letter-spacing: 0.2px;
   }
+}
 
+@keyframes value-pulse {
+  0% {
+    transform: scale(1);
+    color: inherit;
+  }
+  50% {
+    transform: scale(1.1);
+    color: oklch(0.65 0.18 145);
+  }
+  100% {
+    transform: scale(1);
+    color: inherit;
+  }
+}
+
+@keyframes book-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stats-panel {
+    &__metric-value--pulse {
+      animation: none;
+    }
+
+    &__book-item {
+      animation: none;
+      opacity: 1;
+    }
+  }
 }
 
 [data-theme='dark'] .stats-panel {
