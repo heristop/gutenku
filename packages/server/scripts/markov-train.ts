@@ -1,5 +1,8 @@
+#!/usr/bin/env node
 import 'reflect-metadata';
 import fetch from 'node-fetch';
+import pc from 'picocolors';
+import ora from 'ora';
 import cliProgress from 'cli-progress';
 import { container } from 'tsyringe';
 import { MarkovEvaluatorService } from '~/domain/services/MarkovEvaluatorService';
@@ -17,38 +20,73 @@ const body = {
   query: query,
 };
 
-fetch(process.env.SERVER_URI || 'http://localhost:4000/graphql', {
-  body: JSON.stringify(body),
-  headers: { 'Content-Type': 'application/json' },
-  method: 'POST',
-})
-  .then((response) => response.json())
-  .then(async (response: { data: ChapterResponseData }) => {
-    const chapters = response.data.chapters;
+try {
+  console.log(pc.bold('\n🧠 Markov Chain Training\n'));
 
-    if (chapters === null) {
-      console.error(response);
+  // Fetch chapters with spinner
+  const fetchSpinner = ora('Fetching chapters from server...').start();
 
-      throw new Error('Chapters fetch error');
-    }
+  const response = await fetch(
+    process.env.SERVER_URI || 'http://localhost:4000/graphql',
+    {
+      body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+    },
+  );
 
-    const markovEvaluator = container.resolve(MarkovEvaluatorService);
+  const data = (await response.json()) as { data: ChapterResponseData };
+  const chapters = data.data?.chapters;
 
-    const bar = new cliProgress.SingleBar({
-      barCompleteChar: '\u2588',
-      barIncompleteChar: '\u2591',
-      format: 'Chapters | {bar} | {percentage}% || {value}/{total}',
-      hideCursor: true,
-    });
+  if (!chapters) {
+    fetchSpinner.fail(pc.red('Failed to fetch chapters'));
+    console.error(pc.red('\nError response:'), data);
+    process.exit(1);
+  }
 
-    bar.start(chapters.length, 0);
+  fetchSpinner.succeed(
+    pc.green(`Fetched ${pc.cyan(String(chapters.length))} chapters`),
+  );
 
-    for (const chapter of chapters) {
-      markovEvaluator.trainMarkovChain(chapter.content);
-      bar.increment();
-    }
+  // Train with progress bar
+  console.log(pc.dim(`\nTraining on ${chapters.length} chapters...\n`));
 
-    bar.stop();
+  const markovEvaluator = container.resolve(MarkovEvaluatorService);
 
-    markovEvaluator.save();
+  const progressBar = new cliProgress.SingleBar({
+    format: `Training ${pc.cyan('{bar}')} ${pc.yellow('{percentage}%')} | {value}/{total}`,
+    barCompleteChar: '\u2588',
+    barIncompleteChar: '\u2591',
+    hideCursor: true,
   });
+
+  progressBar.start(chapters.length, 0);
+
+  for (const chapter of chapters) {
+    markovEvaluator.trainMarkovChain(chapter.content);
+    progressBar.increment();
+  }
+
+  progressBar.stop();
+
+  // Save model with spinner
+  const saveSpinner = ora('Saving model...').start();
+  const saved = await markovEvaluator.save();
+
+  if (saved) {
+    saveSpinner.succeed(pc.green('Model saved successfully'));
+  } else {
+    saveSpinner.warn(pc.yellow('Model save returned false'));
+  }
+
+  // Summary
+  console.log(pc.bold('\n═══ Training Summary ═══\n'));
+  console.log(pc.green(`✓ Chapters processed: ${chapters.length}`));
+  console.log(pc.green(`✓ Model saved: ${saved ? 'yes' : 'no'}`));
+
+  console.log(pc.bold(pc.green('\n✨ Done!\n')));
+  process.exit(0);
+} catch (error) {
+  console.error(pc.red('\n✗ Fatal error:'), error);
+  process.exit(1);
+}
