@@ -97,4 +97,73 @@ describe('MarkovEvaluatorService', () => {
     expect(loadSpy).toHaveBeenCalled();
     expect(typeof result).toBe('boolean');
   });
+
+  describe('evaluateHaikuTrigrams', () => {
+    it('returns normalized trigram score for valid haiku', () => {
+      const markovChain = new MarkovChainService(nl);
+      const evaluator = new MarkovEvaluatorService(markovChain);
+
+      evaluator.trainMarkovChain(
+        'The quick brown fox jumps over the lazy dog. The fox runs fast.',
+      );
+
+      const score = evaluator.evaluateHaikuTrigrams([
+        'The quick brown',
+        'fox jumps over',
+        'the lazy dog',
+      ]);
+
+      expect(typeof score).toBe('number');
+      expect(score).toBeGreaterThanOrEqual(0);
+    });
+
+    it('returns 0 for single verse haiku', () => {
+      const markovChain = new MarkovChainService(nl);
+      const evaluator = new MarkovEvaluatorService(markovChain);
+
+      evaluator.trainMarkovChain('Test text.');
+
+      const score = evaluator.evaluateHaikuTrigrams(['single verse']);
+      expect(score).toBe(0);
+    });
+
+    it('returns 0 for empty haiku', () => {
+      const markovChain = new MarkovChainService(nl);
+      const evaluator = new MarkovEvaluatorService(markovChain);
+
+      const score = evaluator.evaluateHaikuTrigrams([]);
+      expect(score).toBe(0);
+    });
+
+    it('handles two verse haiku correctly', () => {
+      const markovChain = new MarkovChainService(nl);
+      const evaluator = new MarkovEvaluatorService(markovChain);
+
+      evaluator.trainMarkovChain('The quick fox runs fast over the hill.');
+
+      const score = evaluator.evaluateHaikuTrigrams([
+        'The quick fox',
+        'runs fast over',
+      ]);
+      expect(typeof score).toBe('number');
+    });
+
+    it('calculates average score across all transitions', () => {
+      const markovChain = new MarkovChainService(nl);
+      const evaluator = new MarkovEvaluatorService(markovChain);
+
+      evaluator.trainMarkovChain(
+        'Autumn leaves fall. Fall brings the cold. Cold winds blow.',
+      );
+
+      const score = evaluator.evaluateHaikuTrigrams([
+        'Autumn leaves fall',
+        'Fall brings cold',
+        'Cold winds blow',
+      ]);
+
+      expect(score).toBeGreaterThanOrEqual(0);
+      expect(score).toBeLessThanOrEqual(10);
+    });
+  });
 });
