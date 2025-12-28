@@ -201,7 +201,9 @@ export default class HaikuGeneratorService implements IGenerator {
         break;
       }
 
-      await new Promise((resolve) => setImmediate(resolve));
+      await new Promise<void>((resolve) => {
+        setImmediate(resolve);
+      });
     }
 
     if (verses.length < 3) {
@@ -342,7 +344,8 @@ export default class HaikuGeneratorService implements IGenerator {
       return syllableCount === 5 || syllableCount === 7;
     });
 
-    const minQuotesCount = Number.parseInt(process.env.MIN_QUOTES_COUNT) || 12;
+    const minQuotesCount =
+      Number.parseInt(process.env.MIN_QUOTES_COUNT, 10) || 12;
 
     if (minQuotesCount && filteredQuotes.length < minQuotesCount) {
       return [];
@@ -515,7 +518,9 @@ export default class HaikuGeneratorService implements IGenerator {
       return true;
     }
 
-    if (quote.length >= Number.parseInt(process.env.VERSE_MAX_LENGTH || '30')) {
+    if (
+      quote.length >= Number.parseInt(process.env.VERSE_MAX_LENGTH || '30', 10)
+    ) {
       return true;
     }
 
