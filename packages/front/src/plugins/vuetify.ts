@@ -1,21 +1,12 @@
-/**
- * plugins/vuetify.ts
- *
- * Framework documentation: https://vuetifyjs.com`
- */
-
-// Styles
 import 'vuetify/styles';
-
-// Composables
 import { createVuetify } from 'vuetify';
 
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 const gutenkuTheme = {
   dark: false,
   colors: {
-    background: '#FFFFFF',
-    surface: '#FFFFFF',
+    background: '#fbf3ea',
+    surface: '#fdf8f3',
     // https://colorhunt.co/palette/2f5d625e8b7ea7c4bcdfeeea
     // https://colorhunt.co/palette/f0ebe3e4dccf7d9d9c576f72
     primary: '#2F5D62',
@@ -24,18 +15,18 @@ const gutenkuTheme = {
   },
 };
 
-// Moonlit Library - Dark theme maintaining zen/book aesthetic
+// Dark theme with zen/book colors
 const gutenkuDarkTheme = {
   dark: true,
   colors: {
-    background: '#1a1611',
-    surface: '#1d1814',
+    background: '#272523',
+    surface: '#2d2b29',
     primary: '#5a8a8f', // Lighter zen teal for dark mode visibility
     secondary: '#9bb6b4', // Adapted secondary for dark mode
     accent: '#bfd4d0', // Gentle accent for dark mode
-    'surface-bright': '#2a251f',
-    'surface-light': '#232019',
-    'surface-variant': '#2a251f',
+    'surface-bright': '#353331',
+    'surface-light': '#302e2c',
+    'surface-variant': '#353331',
     'on-surface-variant': '#c4bfb4',
   },
 };
