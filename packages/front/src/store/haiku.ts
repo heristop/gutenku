@@ -5,6 +5,8 @@ import { urqlClient } from '@/client';
 
 const THEME_OPTIONS = ['random', 'colored', 'greentea', 'watermark'];
 
+const MAX_HISTORY_SIZE = 10;
+
 export const useHaikuStore = defineStore({
   id: 'haiku',
   state: () => ({
@@ -12,6 +14,8 @@ export const useHaikuStore = defineStore({
     loading: false as boolean,
     firstLoaded: false as boolean,
     error: '' as string,
+    history: [] as HaikuValue[],
+    historyIndex: -1 as number,
     optionDrawerOpened: false as boolean,
     optionUseCache: true as boolean,
     optionUseAI: false as boolean,
@@ -25,6 +29,7 @@ export const useHaikuStore = defineStore({
     optionMinTfidfScore: 0 as number,
     optionMinPhoneticsScore: 0 as number,
     optionDescriptionTemperature: 0.3 as number,
+    optionSelectionCount: 1 as number,
     stats: {
       haikusGenerated: 0 as number,
       cachedHaikus: 0 as number,
@@ -38,7 +43,6 @@ export const useHaikuStore = defineStore({
     storage: localStorage,
     paths: [
       'optionDrawerOpened',
-      'optionUseAI',
       'optionTheme',
       'optionMinSentimentScore',
       'optionMinMarkovScore',
@@ -46,7 +50,6 @@ export const useHaikuStore = defineStore({
       'optionMinTrigramScore',
       'optionMinTfidfScore',
       'optionMinPhoneticsScore',
-      'optionDescriptionTemperature',
       'stats',
     ],
   },
@@ -54,12 +57,18 @@ export const useHaikuStore = defineStore({
     networkError: (state) => 'network-error' === state.error,
     notificationError: (state) => '' !== state.error,
     themeOptions: (state) =>
-      state.optionImageAI ? [...THEME_OPTIONS, 'openai'] : THEME_OPTIONS,
+      state.optionImageAI && import.meta.env.DEV
+        ? ['openai', ...THEME_OPTIONS]
+        : THEME_OPTIONS,
     shouldUseCache: (state) => !state.firstLoaded,
     avgExecutionTime: (state) =>
       state.stats.haikusGenerated > 0
         ? state.stats.totalExecutionTime / state.stats.haikusGenerated
         : 0,
+    canGoBack: (state) => state.historyIndex > 0,
+    canGoForward: (state) => state.historyIndex < state.history.length - 1,
+    historyLength: (state) => state.history.length,
+    historyPosition: (state) => state.historyIndex + 1,
   },
   actions: {
     async fetchNewHaiku(): Promise<void> {
@@ -80,6 +89,7 @@ export const useHaikuStore = defineStore({
             $tfidfMinScore: Float
             $phoneticsMinScore: Float
             $descriptionTemperature: Float
+            $selectionCount: Int
           ) {
             haiku(
               useAI: $useAi
@@ -93,10 +103,12 @@ export const useHaikuStore = defineStore({
               tfidfMinScore: $tfidfMinScore
               phoneticsMinScore: $phoneticsMinScore
               descriptionTemperature: $descriptionTemperature
+              selectionCount: $selectionCount
             ) {
               book {
                 title
                 author
+                emoticons
               }
               chapter {
                 content
@@ -107,6 +119,12 @@ export const useHaikuStore = defineStore({
               image
               title
               description
+              hashtags
+              translations {
+                fr
+                jp
+                es
+              }
               cacheUsed
               executionTime
             }
@@ -125,6 +143,9 @@ export const useHaikuStore = defineStore({
           tfidfMinScore: this.optionMinTfidfScore,
           phoneticsMinScore: this.optionMinPhoneticsScore,
           descriptionTemperature: this.optionDescriptionTemperature,
+          selectionCount: import.meta.env.DEV
+            ? this.optionSelectionCount
+            : undefined,
           appendImg: true,
         };
 
@@ -141,6 +162,15 @@ export const useHaikuStore = defineStore({
         this.haiku = (haiku ?? (null as unknown as HaikuValue)) as HaikuValue;
 
         if (haiku) {
+          if (this.historyIndex < this.history.length - 1) {
+            this.history = this.history.slice(0, this.historyIndex + 1);
+          }
+          this.history.push(haiku);
+          if (this.history.length > MAX_HISTORY_SIZE) {
+            this.history.shift();
+          }
+          this.historyIndex = this.history.length - 1;
+
           this.stats.haikusGenerated += 1;
           if (true === haiku.cacheUsed) {
             this.stats.cachedHaikus += 1;
@@ -189,6 +219,22 @@ export const useHaikuStore = defineStore({
         this.firstLoaded = true;
         this.loading = false;
       }
+    },
+    goBack(): boolean {
+      if (this.historyIndex <= 0) {
+        return false;
+      }
+      this.historyIndex--;
+      this.haiku = this.history[this.historyIndex];
+      return true;
+    },
+    goForward(): boolean {
+      if (this.historyIndex >= this.history.length - 1) {
+        return false;
+      }
+      this.historyIndex++;
+      this.haiku = this.history[this.historyIndex];
+      return true;
     },
   },
 });
