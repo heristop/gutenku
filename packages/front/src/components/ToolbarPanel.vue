@@ -3,9 +3,20 @@ import { computed, ref, useTemplateRef, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useMediaQuery } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
-import { Loader2, Sparkles, Check, Copy } from 'lucide-vue-next';
+import {
+  Loader2,
+  Sparkles,
+  Check,
+  Copy,
+  Share2,
+  Download,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-vue-next';
 import { useHaikuStore } from '@/store/haiku';
 import { useClipboard } from '@/composables/clipboard';
+import { useShare } from '@/composables/share';
+import { useImageDownload } from '@/composables/image-download';
 import { useInView } from '@/composables/in-view';
 import { useToast } from '@/composables/toast';
 import { useLongPress } from '@/composables/touch-gestures';
@@ -19,12 +30,18 @@ const generateBtnRef = ref<HTMLElement | null>(null);
 const { isInView } = useInView(cardRef, { delay: 0 });
 
 const haikuStore = useHaikuStore();
-const { fetchNewHaiku } = haikuStore;
+const { fetchNewHaiku, goBack, goForward } = haikuStore;
 const { haiku, loading, firstLoaded } = storeToRefs(haikuStore);
 
-const { copy, copied } = useClipboard();
+const historyLength = computed(() => haikuStore.historyLength);
+const historyPosition = computed(() => haikuStore.historyPosition);
+const canGoBack = computed(() => haikuStore.canGoBack);
+const canGoForward = computed(() => haikuStore.canGoForward);
 
-// Touch device detection
+const { copy, copied } = useClipboard();
+const { share, shared } = useShare();
+const { inProgress: downloadInProgress, download } = useImageDownload();
+
 const hasCoarsePointer = useMediaQuery('(pointer: coarse)');
 const isTouchDevice = ref(false);
 
@@ -32,7 +49,6 @@ onMounted(() => {
   isTouchDevice.value = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 });
 
-// Long press for touch devices
 const longPressProgress = ref(0);
 const { isPressed: isLongPressing } = useLongPress(generateBtnRef, {
   delay: 350,
@@ -54,19 +70,19 @@ const buttonLabel = computed<string>(() => {
   return firstLoaded.value ? t('toolbar.generate') : t('toolbar.extract');
 });
 
-// Tooltip texts
 const generateTooltip = computed(() => t('toolbar.generateTooltip', { action: buttonLabel.value }));
-const copyTooltip = computed(() => t('toolbar.copyTooltip'));
+const copyTooltip = computed(() => `${t('toolbar.copyTooltip')} (C)`);
+const shareTooltip = computed(() => `${t('toolbar.shareTooltip')} (S)`);
+const downloadTooltip = computed(() => `${t('toolbar.downloadTooltip')} (D)`);
+const previousTooltip = computed(() => `${t('toolbar.previousTooltip')} (\u2190)`);
+const nextTooltip = computed(() => `${t('toolbar.nextTooltip')} (\u2192)`);
 
-// Show pulse when ready for next haiku
 const showPulse = computed(() => firstLoaded.value && !loading.value && haiku.value?.verses?.length);
 
-// Haiku generation
 async function extractGenerate(): Promise<void> {
   await fetchNewHaiku();
 }
 
-// Copy haiku to clipboard
 async function copyHaiku(): Promise<void> {
   if (!haiku.value?.verses) {return;}
   const copySuccess = await copy(haiku.value.verses.join('\n'));
@@ -74,6 +90,42 @@ async function copyHaiku(): Promise<void> {
     success(t('toolbar.copySuccess'));
   } else {
     error(t('toolbar.copyError'));
+  }
+}
+
+async function shareHaiku(): Promise<void> {
+  if (!haiku.value) {return;}
+  const shareSuccess = await share(haiku.value);
+  if (shareSuccess) {
+    success(t('toolbar.shareSuccess'));
+  }
+}
+
+async function downloadImage(): Promise<void> {
+  if (!haiku.value?.image) {return;}
+
+  const bookTitle = haiku.value.book?.title || 'haiku';
+  const chapterTitle = haiku.value.chapter?.title || '';
+
+  try {
+    await download(`data:image/png;base64,${haiku.value.image}`, {
+      filename: `${bookTitle}_${chapterTitle}`,
+    });
+    success(t('toolbar.downloadSuccess'));
+  } catch {
+    error(t('toolbar.downloadError'));
+  }
+}
+
+function navigateBack(): void {
+  if (canGoBack.value) {
+    goBack();
+  }
+}
+
+function navigateForward(): void {
+  if (canGoForward.value) {
+    goForward();
   }
 }
 </script>
@@ -84,9 +136,8 @@ async function copyHaiku(): Promise<void> {
     class="gutenku-card toolbar-panel toolbar-panel--card toolbar-container mt-2 mt-sm-0 mb-6 animate-in"
     :class="{ 'is-visible': isInView }"
   >
-    <!-- Action Buttons -->
-    <div class="toolbar-panel__buttons">
-      <!-- Extract/Generate Button -->
+    <!-- Primary: Generate Button (full width) -->
+    <div class="toolbar-panel__primary">
       <ZenTooltip :text="generateTooltip" position="top">
         <div
           ref="generateBtnRef"
@@ -105,8 +156,9 @@ async function copyHaiku(): Promise<void> {
             }"
             data-cy="fetch-btn"
             variant="outlined"
-            size="default"
-            @click="!isTouchDevice && extractGenerate()"
+            size="large"
+            block
+            @click="extractGenerate"
           >
             <Loader2
               v-if="loading"
@@ -117,7 +169,6 @@ async function copyHaiku(): Promise<void> {
             <span class="toolbar-panel__button-text">{{ buttonLabel }}</span>
           </v-btn>
 
-          <!-- Long press progress ring (touch only) -->
           <svg
             v-if="isTouchDevice && isLongPressing"
             class="long-press-progress"
@@ -136,43 +187,124 @@ async function copyHaiku(): Promise<void> {
           </svg>
         </div>
       </ZenTooltip>
+    </div>
+
+    <!-- Secondary: Action Buttons Row -->
+    <div class="toolbar-panel__secondary">
+      <!-- Previous Button -->
+      <ZenTooltip :text="previousTooltip" position="bottom">
+        <v-btn
+          class="zen-btn toolbar-panel__action-btn"
+          :class="{ 'toolbar-panel__action-btn--disabled': !canGoBack }"
+          variant="text"
+          size="small"
+          icon
+          :disabled="!canGoBack || loading"
+          :aria-label="previousTooltip"
+          @click="navigateBack"
+        >
+          <ChevronLeft :size="20" />
+        </v-btn>
+      </ZenTooltip>
 
       <!-- Copy Button -->
-      <ZenTooltip :text="copyTooltip" position="top">
+      <ZenTooltip :text="copyTooltip" position="bottom">
         <v-btn
-          class="zen-btn gutenku-btn gutenku-btn-copy toolbar-panel__button toolbar-panel__button--copy"
-          :class="{
-            'toolbar-panel__button--success': copied,
-            'toolbar-panel__button--ripple': copied,
-            success: copied,
-          }"
+          class="zen-btn toolbar-panel__action-btn"
+          :class="{ 'toolbar-panel__action-btn--success': copied, 'success': copied }"
           data-cy="copy-btn"
-          variant="outlined"
+          variant="text"
           size="small"
+          icon
           :disabled="!haiku?.verses?.length"
           :aria-label="copied ? t('toolbar.copiedLabel') : copyTooltip"
           @click="copyHaiku"
         >
-          <Check v-if="copied" :size="18" class="toolbar-panel__icon" />
-          <Copy v-else :size="18" class="toolbar-panel__icon" />
-          <span class="toolbar-panel__button-text">{{
-            copied ? t('toolbar.copied') : t('toolbar.copy')
-          }}</span>
+          <Check v-if="copied" :size="18" />
+          <Copy v-else :size="18" />
         </v-btn>
       </ZenTooltip>
+
+      <!-- Share Button -->
+      <ZenTooltip :text="shareTooltip" position="bottom">
+        <v-btn
+          class="zen-btn toolbar-panel__action-btn"
+          :class="{ 'toolbar-panel__action-btn--success': shared }"
+          data-cy="share-btn"
+          variant="text"
+          size="small"
+          icon
+          :disabled="!haiku?.verses?.length"
+          :aria-label="shareTooltip"
+          @click="shareHaiku"
+        >
+          <Check v-if="shared" :size="18" />
+          <Share2 v-else :size="18" />
+        </v-btn>
+      </ZenTooltip>
+
+      <!-- Download Button -->
+      <ZenTooltip :text="downloadTooltip" position="bottom">
+        <v-btn
+          class="zen-btn toolbar-panel__action-btn"
+          data-cy="download-btn"
+          variant="text"
+          size="small"
+          icon
+          :loading="downloadInProgress"
+          :disabled="!haiku?.image || loading"
+          :aria-label="downloadTooltip"
+          @click="downloadImage"
+        >
+          <Loader2 v-if="downloadInProgress" :size="18" class="animate-spin" />
+          <Download v-else :size="18" />
+        </v-btn>
+      </ZenTooltip>
+
+      <!-- Next Button -->
+      <ZenTooltip :text="nextTooltip" position="bottom">
+        <v-btn
+          class="zen-btn toolbar-panel__action-btn"
+          :class="{ 'toolbar-panel__action-btn--disabled': !canGoForward }"
+          variant="text"
+          size="small"
+          icon
+          :disabled="!canGoForward || loading"
+          :aria-label="nextTooltip"
+          @click="navigateForward"
+        >
+          <ChevronRight :size="20" />
+        </v-btn>
+      </ZenTooltip>
+    </div>
+
+    <!-- History Indicator Dots -->
+    <div
+      v-if="historyLength > 0"
+      class="toolbar-panel__history"
+      role="navigation"
+      :aria-label="t('toolbar.historyLabel')"
+    >
+      <span
+        v-for="n in historyLength"
+        :key="n"
+        class="toolbar-panel__history-dot"
+        :class="{ 'toolbar-panel__history-dot--active': n === historyPosition }"
+        :aria-current="n === historyPosition ? 'step' : undefined"
+      />
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-// Long press wrapper styles
 .generate-btn-wrapper {
   position: relative;
-  display: inline-flex;
+  display: block;
+  width: 100%;
 
   &.is-pressing {
     .toolbar-panel__button--generate {
-      transform: scale(0.95);
+      transform: scale(0.98);
       transition: transform 0.15s ease-out;
     }
   }
@@ -199,57 +331,95 @@ async function copyHaiku(): Promise<void> {
 }
 
 .toolbar-panel {
-  &__buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  padding: 1.25rem 0;
+
+  &__primary {
+    width: 100%;
+  }
+
+  &__secondary {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.5rem;
     align-items: center;
     justify-content: center;
-    flex-wrap: wrap;
+    padding: 0.75rem 0;
+  }
+
+  &__action-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    min-width: 2.5rem;
+    border-radius: var(--gutenku-radius-md);
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: color-mix(in oklch, var(--gutenku-zen-primary) 10%, transparent);
+      transform: translateY(-1px);
+    }
+
+    &--success {
+      color: oklch(0.65 0.18 145) !important;
+    }
+
+    &--disabled {
+      opacity: 0.3;
+    }
+
+    [data-theme='dark'] & {
+      color: oklch(1 0 0 / 0.8);
+
+      &:hover:not(:disabled) {
+        background: oklch(1 0 0 / 0.1);
+        color: oklch(1 0 0);
+      }
+
+      &--success {
+        color: oklch(0.75 0.18 145) !important;
+      }
+    }
+  }
+
+  &__history {
+    display: flex;
+    gap: 0.35rem;
+    justify-content: center;
+  }
+
+  &__history-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gutenku-zen-secondary);
+    transition: all 0.2s ease;
+
+    &--active {
+      background: var(--gutenku-zen-primary);
+      transform: scale(1.2);
+    }
+
+    [data-theme='dark'] & {
+      background: oklch(0.4 0.02 60);
+
+      &--active {
+        background: oklch(0.7 0.1 145);
+      }
+    }
   }
 
   &__button {
     border-width: 1.5px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-    // Generate button pulse animation when ready
+    &--generate {
+      font-size: 1rem;
+      padding: 0.75rem 1.5rem;
+    }
+
     &--pulse {
       animation: generate-pulse 2.5s ease-in-out infinite;
-    }
-
-    &--success {
-      [data-theme='dark'] & {
-        background: oklch(0.65 0.18 145 / 0.2) !important;
-        border-color: oklch(0.65 0.18 145 / 0.6);
-        color: oklch(1 0 0) !important;
-
-        .toolbar-panel__icon,
-        .toolbar-panel__button-text {
-          color: oklch(1 0 0) !important;
-        }
-      }
-    }
-
-    // Copy success ripple effect
-    &--ripple {
-      position: relative;
-      overflow: hidden;
-
-      &::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        background: radial-gradient(
-          circle,
-          oklch(0.65 0.18 145 / 0.4) 0%,
-          transparent 70%
-        );
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-        animation: copy-ripple 0.6s ease-out forwards;
-      }
     }
 
     [data-theme='dark'] & {
@@ -304,7 +474,6 @@ async function copyHaiku(): Promise<void> {
   }
 }
 
-// Generate button pulse animation
 @keyframes generate-pulse {
   0%,
   100% {
@@ -312,36 +481,25 @@ async function copyHaiku(): Promise<void> {
     box-shadow: 0 0 0 0 oklch(0.55 0.15 145 / 0.4);
   }
   50% {
-    transform: scale(1.02);
+    transform: scale(1.01);
     box-shadow: 0 0 0 6px oklch(0.55 0.15 145 / 0);
   }
 }
 
-// Copy success ripple animation
-@keyframes copy-ripple {
-  0% {
-    width: 0;
-    height: 0;
-    opacity: 1;
-  }
-  100% {
-    width: 300%;
-    height: 300%;
-    opacity: 0;
-  }
-}
-
-// Responsive touch targets (44px minimum)
 @media (max-width: 768px) {
   .toolbar-panel {
     &__button {
-      min-height: 2.75rem;  // 44px
-      padding: 0 1rem;
+      min-height: 2.75rem;
+    }
+
+    &__action-btn {
+      width: 2.75rem;
+      height: 2.75rem;
+      min-width: 2.75rem;
     }
   }
 }
 
-// Reduced motion support
 @media (prefers-reduced-motion: reduce) {
   .toolbar-panel {
     &__button {
@@ -351,9 +509,13 @@ async function copyHaiku(): Promise<void> {
         animation: none;
       }
 
-      &--ripple::after {
-        animation: none;
+      &:hover {
+        transform: none;
       }
+    }
+
+    &__action-btn {
+      transition: none;
 
       &:hover {
         transform: none;
