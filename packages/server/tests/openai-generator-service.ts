@@ -34,7 +34,7 @@ describe('OpenAIGeneratorService', () => {
       ...originalEnv,
       OPENAI_SELECTION_COUNT: '5',
       OPENAI_DESCRIPTION_TEMPERATURE: '0.3',
-      OPENAI_GPT_MODEL: 'gpt-4o-mini',
+      OPENAI_GPT_MODEL: 'gpt-5.2',
     };
 
     mockHaikuGenerator = {
