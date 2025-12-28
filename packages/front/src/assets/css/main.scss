@@ -848,8 +848,8 @@
 }
 
 [data-theme='dark'] {
-  --gutenku-paper-bg: #232019;
-  --gutenku-paper-bg-warm: #1d1814;
+  --gutenku-paper-bg: #272523;
+  --gutenku-paper-bg-warm: #2d2b29;
   --gutenku-paper-bg-aged: oklch(0.15 0.02 60 / 0.8);
   --gutenku-paper-border: oklch(0.76 0.04 175 / 0.2);
   --gutenku-paper-border-hover: oklch(0.76 0.04 175 / 0.4);
@@ -900,9 +900,7 @@
   --gutenku-text-contrast: #ffffff;
   --gutenku-border-visible: oklch(1 0 0 / 0.2);
   --gutenku-border-visible-hover: oklch(1 0 0 / 0.4);
-  --gutenku-canvas-overlay: oklch(
-    0 0 0 / 0.15
-  ); // Reduced from 0.3 for subtler effect
+  --gutenku-canvas-overlay: oklch(0 0 0 / 0.15);
   --gutenku-backdrop-overlay: oklch(1 0 0 / 0.03);
   --gutenku-app-bg: #0f0d09;
   --gutenku-app-bg-image: url('@/assets/img/zen-bg-dark.webp');
@@ -948,6 +946,15 @@
 [data-theme='dark'] ::-moz-selection {
   background: var(--gutenku-zen-secondary);
   color: var(--gutenku-paper-bg);
+}
+
+// Overscroll background (mobile pull-to-refresh area)
+html {
+  background-color: #fbf3ea;
+
+  &[data-theme='dark'] {
+    background-color: #272523;
+  }
 }
 
 // Typography System
