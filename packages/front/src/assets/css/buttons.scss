@@ -1,0 +1,162 @@
+// Zen Button System
+// Two variants: CTA (primary) and Ghost (secondary/back)
+
+// Base button reset
+.zen-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:focus-visible {
+    outline: 2px solid var(--gutenku-zen-accent);
+    outline-offset: 2px;
+  }
+
+  &:disabled,
+  &[aria-disabled='true'] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// CTA Variant - Primary actions (Generate, Play, Submit)
+// Soft gradient with zen colors, no harsh borders
+.zen-btn--cta {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(
+    135deg,
+    oklch(0.55 0.12 145 / 0.9) 0%,
+    oklch(0.5 0.1 155 / 0.85) 100%
+  );
+  border: none;
+  border-radius: var(--gutenku-radius-lg);
+  color: oklch(0.98 0.01 145);
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow:
+    0 2px 8px oklch(0.5 0.1 145 / 0.25),
+    inset 0 1px 0 oklch(1 0 0 / 0.15);
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(
+      135deg,
+      oklch(0.58 0.14 145 / 0.95) 0%,
+      oklch(0.52 0.12 155 / 0.9) 100%
+    );
+    transform: translateY(-2px);
+    box-shadow:
+      0 4px 16px oklch(0.5 0.1 145 / 0.35),
+      inset 0 1px 0 oklch(1 0 0 / 0.2);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow:
+      0 1px 4px oklch(0.5 0.1 145 / 0.2),
+      inset 0 1px 0 oklch(1 0 0 / 0.1);
+  }
+
+  // Loading state
+  &[aria-busy='true'] {
+    opacity: 0.8;
+    cursor: wait;
+  }
+
+  // Dark mode
+  [data-theme='dark'] & {
+    background: linear-gradient(
+      135deg,
+      oklch(0.45 0.08 165 / 0.9) 0%,
+      oklch(0.4 0.06 175 / 0.85) 100%
+    );
+    color: oklch(0.95 0.02 165);
+    box-shadow:
+      0 2px 12px oklch(0 0 0 / 0.4),
+      inset 0 1px 0 oklch(1 0 0 / 0.1);
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(
+        135deg,
+        oklch(0.5 0.1 165 / 0.95) 0%,
+        oklch(0.45 0.08 175 / 0.9) 100%
+      );
+      box-shadow:
+        0 6px 20px oklch(0 0 0 / 0.5),
+        inset 0 1px 0 oklch(1 0 0 / 0.15);
+    }
+  }
+}
+
+// Ghost Variant - Secondary actions (Back, Cancel)
+// Subtle frosted glass effect
+.zen-btn--ghost {
+  padding: 0.5rem 0.875rem;
+  background: oklch(0.97 0.01 85 / 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid oklch(0.7 0.02 85 / 0.3);
+  border-radius: var(--gutenku-radius-md);
+  color: var(--gutenku-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 1px 3px oklch(0 0 0 / 0.05);
+
+  &:hover:not(:disabled) {
+    background: oklch(0.95 0.01 85 / 0.9);
+    border-color: oklch(0.6 0.03 85 / 0.4);
+    color: var(--gutenku-text-primary);
+    box-shadow: 0 2px 8px oklch(0 0 0 / 0.08);
+  }
+
+  &:active:not(:disabled) {
+    background: oklch(0.93 0.01 85 / 0.95);
+    transform: translateY(0);
+  }
+
+  svg {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &:hover:not(:disabled) svg {
+    transform: translateX(-3px);
+  }
+
+  // Dark mode
+  [data-theme='dark'] & {
+    background: oklch(0.2 0.01 85 / 0.6);
+    border-color: oklch(0.4 0.02 85 / 0.3);
+    color: var(--gutenku-text-secondary);
+
+    &:hover:not(:disabled) {
+      background: oklch(0.25 0.01 85 / 0.8);
+      border-color: oklch(0.5 0.02 85 / 0.4);
+      color: var(--gutenku-text-primary);
+    }
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .zen-btn,
+  .zen-btn--cta,
+  .zen-btn--ghost {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+
+    svg {
+      transition: none;
+    }
+
+    &:hover svg {
+      transform: none;
+    }
+  }
+}

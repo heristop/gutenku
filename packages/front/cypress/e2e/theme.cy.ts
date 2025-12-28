@@ -2,16 +2,16 @@
 
 describe('Theme selection', () => {
   it('changes theme and triggers a new fetch', () => {
-    cy.visitApp('/');
+    cy.visitApp('/haiku');
     // Wait for initial load
-    cy.get('[data-cy=fetch-btn]:visible', { timeout: 30000 }).should('exist');
+    cy.get('[data-cy=fetch-btn]', { timeout: 30000 })
+      .should('exist')
+      .and('not.be.disabled');
 
     // Change theme to "colored"
     cy.selectTheme('colored');
 
-    // Wait for the fetch button to be visible again (page reloaded with new haiku)
-    cy.get('[data-cy=fetch-btn]:visible', { timeout: 30000 }).should(
-      'be.visible',
-    );
+    // Wait for the fetch button to be enabled again (page reloaded with new haiku)
+    cy.get('[data-cy=fetch-btn]', { timeout: 30000 }).should('not.be.disabled');
   });
 });

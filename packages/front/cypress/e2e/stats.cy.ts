@@ -2,29 +2,25 @@
 
 describe('Stats panel', () => {
   beforeEach(() => {
-    cy.visitApp('/');
-    cy.get('[data-cy=fetch-btn]:visible', { timeout: 30000 }).should('exist');
+    cy.visitApp('/haiku');
+    cy.get('[data-cy=fetch-btn]', { timeout: 30000 })
+      .should('exist')
+      .and('not.be.disabled');
   });
 
   it('shows core metrics and updates after generation', () => {
-    // Scroll stats panel into view to trigger animate-in visibility
-    cy.get('.gutenku-card.stats-panel').scrollIntoView();
-    // Wait for animation to complete (is-visible class added)
-    cy.get('.gutenku-card.stats-panel.is-visible', { timeout: 5000 }).should(
-      'exist',
-    );
+    // Trigger visibility animation
+    cy.get('.stats-panel').scrollIntoView();
+    cy.get('.stats-panel.is-visible', { timeout: 5000 }).should('exist');
 
-    cy.contains('Haiku forged').should('exist');
-    cy.contains('Books browsed').should('exist');
+    cy.contains('Haikus created').should('exist');
+    cy.contains('Books used').should('exist');
 
-    // trigger another generation
-    cy.get('[data-cy=fetch-btn]:visible').click();
-    cy.get('[data-cy=fetch-btn]:visible', { timeout: 30000 }).should(
-      'be.visible',
-    );
+    cy.get('[data-cy=fetch-btn]').click();
+    cy.get('[data-cy=fetch-btn]', { timeout: 30000 }).should('not.be.disabled');
 
-    // forged count should be >= 1
-    cy.contains('.gutenku-book-page .font-weight-bold', /\d+/)
+    // Verify haiku count incremented
+    cy.get('.stats-panel__metric-value')
       .first()
       .invoke('text')
       .then((txt) => {
