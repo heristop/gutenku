@@ -1,0 +1,369 @@
+<script lang="ts" setup>
+import { ref, computed } from 'vue';
+import { Check, X } from 'lucide-vue-next';
+import { useHapticFeedback } from '@/composables/haptic-feedback';
+import type { BookValue } from '@gutenku/shared';
+
+export type CardState = 'normal' | 'eliminated' | 'selected' | 'correct' | 'wrong';
+
+const props = withDefaults(defineProps<{
+  book: BookValue;
+  state?: CardState;
+  disabled?: boolean;
+}>(), {
+  state: 'normal',
+  disabled: false,
+});
+
+const emit = defineEmits<{
+  select: [book: BookValue];
+  eliminate: [book: BookValue];
+}>();
+
+const { vibrateSelect, vibrateEliminate } = useHapticFeedback();
+
+const hasError = ref(false);
+
+const coverUrl = computed(() => {
+  if (hasError.value) {
+    return '/covers/default.webp';
+  }
+  return `/covers/${props.book.reference}.webp`;
+});
+
+function handleImageError() {
+  hasError.value = true;
+}
+
+const cardClasses = computed(() => [
+  'book-card',
+  `book-card--${props.state}`,
+  {
+    'book-card--disabled': props.disabled,
+  },
+]);
+
+function handleClick() {
+  if (props.disabled || props.state === 'correct' || props.state === 'wrong') {
+    return;
+  }
+  vibrateSelect();
+  emit('select', props.book);
+}
+
+function handleContextMenu(event: MouseEvent) {
+  event.preventDefault();
+  if (props.disabled || props.state === 'correct' || props.state === 'wrong') {
+    return;
+  }
+  vibrateEliminate();
+  emit('eliminate', props.book);
+}
+</script>
+
+<template>
+  <button
+    :class="cardClasses"
+    :disabled="disabled"
+    :title="book.title"
+    :aria-label="`${book.title} by ${book.author}`"
+    @click="handleClick"
+    @contextmenu="handleContextMenu"
+  >
+    <!-- Cover image -->
+    <div class="book-card__cover">
+      <img
+        :src="coverUrl"
+        :alt="book.title"
+        class="book-card__image"
+        loading="lazy"
+        @error="handleImageError"
+      />
+
+      <!-- Sepia tint overlay -->
+      <div class="book-card__tint" aria-hidden="true" />
+
+      <!-- State overlays -->
+      <Transition name="overlay">
+        <div
+          v-if="state === 'eliminated'"
+          class="book-card__overlay book-card__overlay--eliminated"
+        >
+          <span class="book-card__eliminated-text">X</span>
+        </div>
+      </Transition>
+
+      <Transition name="overlay">
+        <div
+          v-if="state === 'correct'"
+          class="book-card__overlay book-card__overlay--correct"
+        >
+          <Check :size="32" :stroke-width="3" />
+        </div>
+      </Transition>
+
+      <Transition name="overlay">
+        <div
+          v-if="state === 'wrong'"
+          class="book-card__overlay book-card__overlay--wrong"
+        >
+          <X :size="32" :stroke-width="3" />
+        </div>
+      </Transition>
+
+      <!-- Selection indicator -->
+      <div v-if="state === 'selected'" class="book-card__selection-ring" />
+    </div>
+
+    <!-- Title (visible on mobile, tooltip on desktop) -->
+    <div class="book-card__title">
+      {{ book.title }}
+    </div>
+  </button>
+</template>
+
+<style lang="scss" scoped>
+.book-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0;
+  padding-bottom: 0.25rem;
+  width: 70px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+
+  @media (min-width: 400px) {
+    width: 80px;
+  }
+
+  @media (min-width: 600px) {
+    width: 100px;
+    padding-bottom: 0.375rem;
+  }
+
+  &:focus-visible {
+    .book-card__cover {
+      box-shadow:
+        0 0 0 2px var(--gutenku-zen-accent),
+        var(--gutenku-shadow-zen);
+    }
+  }
+
+  &:hover:not(:disabled):not(.book-card--disabled) {
+    transform: translateY(-2px);
+
+    .book-card__cover {
+      box-shadow:
+        0 4px 12px oklch(0 0 0 / 0.15),
+        0 2px 4px oklch(0 0 0 / 0.1);
+    }
+  }
+
+  &:active:not(:disabled):not(.book-card--disabled) {
+    transform: translateY(-1px) scale(0.98);
+  }
+}
+
+.book-card__cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--gutenku-radius-sm);
+  overflow: hidden;
+  background: var(--gutenku-zen-water);
+  box-shadow: 0 1px 3px oklch(0 0 0 / 0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+.book-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// Warm sepia tint overlay for vintage zen aesthetic
+.book-card__tint {
+  position: absolute;
+  inset: 0;
+  background: oklch(0.6 0.06 55 / 0.18);
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+[data-theme='dark'] .book-card__tint {
+  background: oklch(0.45 0.05 50 / 0.18);
+  mix-blend-mode: multiply;
+}
+
+.book-card__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+}
+
+.book-card__overlay--eliminated {
+  background: oklch(0.3 0 0 / 0.7);
+}
+
+.book-card__eliminated-text {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: oklch(0.7 0 0);
+}
+
+.book-card__overlay--correct {
+  background: oklch(0.5 0.2 145 / 0.85);
+  color: white;
+  animation: celebrate 0.5s ease-out;
+}
+
+.book-card__overlay--wrong {
+  background: oklch(0.5 0.2 25 / 0.85);
+  color: white;
+  animation: shake 0.4s ease-out;
+}
+
+.book-card__selection-ring {
+  position: absolute;
+  inset: -2px;
+  border: 2px solid var(--gutenku-zen-accent);
+  border-radius: calc(var(--gutenku-radius-sm) + 2px);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.book-card__title {
+  font-size: 0.55rem;
+  font-weight: 500;
+  color: var(--gutenku-text-primary);
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+  word-wrap: break-word;
+  hyphens: auto;
+  opacity: 0.75;
+
+  @media (min-width: 600px) {
+    font-size: 0.6rem;
+  }
+}
+
+// States
+.book-card--eliminated {
+  .book-card__cover {
+    filter: grayscale(1);
+    opacity: 0.5;
+  }
+
+  .book-card__title {
+    opacity: 0.4;
+    text-decoration: line-through;
+  }
+}
+
+.book-card--selected {
+  transform: translateY(-4px);
+
+  .book-card__cover {
+    box-shadow:
+      0 0 0 3px var(--gutenku-zen-accent),
+      0 8px 20px oklch(0 0 0 / 0.15);
+  }
+}
+
+.book-card--correct {
+  cursor: default;
+}
+
+.book-card--wrong {
+  cursor: default;
+}
+
+.book-card--disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+// Animations
+@keyframes celebrate {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-4px);
+  }
+  40%, 80% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.02);
+  }
+}
+
+// Overlay transitions
+.overlay-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.overlay-leave-active {
+  transition: all 0.2s ease-in;
+}
+
+.overlay-enter-from,
+.overlay-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .book-card {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+
+  .book-card__overlay--correct,
+  .book-card__overlay--wrong,
+  .book-card__selection-ring {
+    animation: none;
+  }
+
+  .overlay-enter-active,
+  .overlay-leave-active {
+    transition: none;
+  }
+}
+</style>
