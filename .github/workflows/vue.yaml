@@ -4,24 +4,38 @@ on: [push]
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
         with:
-          version: 8
-      - uses: actions/setup-node@v3
+          version: 10
+
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - name: vue
-        run: |
-          cp packages/front/.env.dist packages/front/.env
-          pnpm --filter ./packages/front install
-          pnpm --filter ./packages/front lint
-          pnpm --filter ./packages/front build
-      - uses: cypress-io/github-action@v6
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm --filter @gutenku/front install
+
+      - name: Copy env
+        run: cp packages/front/.env.dist packages/front/.env
+
+      - name: Lint
+        run: pnpm --filter @gutenku/front lint
+
+      - name: Build
+        run: pnpm --filter @gutenku/front build
+
+      - name: E2E Tests
+        uses: cypress-io/github-action@v6
         with:
           working-directory: packages/front
           install: false
-          start: pnpm start
+          start: pnpm preview --port 4444
+          wait-on: 'http://localhost:4444'
+          wait-on-timeout: 120
