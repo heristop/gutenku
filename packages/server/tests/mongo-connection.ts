@@ -156,7 +156,7 @@ describe('MongoConnection - event handlers', () => {
     await mongoConnection.connect();
 
     expect(eventHandlers.connected).toBeDefined();
-    // Call the handler to ensure it doesn't throw
+    // Verify handler executes without throwing
     expect(() => eventHandlers.connected()).not.toThrow();
   });
 
@@ -168,7 +168,7 @@ describe('MongoConnection - event handlers', () => {
     await mongoConnection.connect();
 
     expect(eventHandlers.error).toBeDefined();
-    // Call the handler with an error to ensure it doesn't throw
+    // Verify handler executes without throwing
     expect(() => eventHandlers.error(new Error('test error'))).not.toThrow();
   });
 
@@ -180,7 +180,7 @@ describe('MongoConnection - event handlers', () => {
     await mongoConnection.connect();
 
     expect(eventHandlers.disconnected).toBeDefined();
-    // Call the handler to ensure it doesn't throw
+    // Verify handler executes without throwing
     expect(() => eventHandlers.disconnected()).not.toThrow();
   });
 });
