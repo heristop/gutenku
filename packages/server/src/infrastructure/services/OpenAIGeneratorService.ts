@@ -1,5 +1,7 @@
-import log from 'loglevel';
 import { inject, singleton } from 'tsyringe';
+import { createLogger } from '~/infrastructure/services/Logger';
+
+const log = createLogger('openai');
 import type { HaikuValue, OpenAIOptions } from '~/shared/types';
 import HaikuGeneratorService from '~/domain/services/HaikuGeneratorService';
 import type { IGenerator } from '~/domain/interfaces/IGenerator';
@@ -39,7 +41,7 @@ export default class OpenAIGeneratorService implements IGenerator {
     temperature.description =
       temperature.description ??
       Number.parseFloat(process.env.OPENAI_DESCRIPTION_TEMPERATURE || '0.3');
-    log.info('temperature', temperature);
+    log.info({ temperature }, 'OpenAI temperature settings');
 
     this.openai.configure(apiKey);
 
@@ -108,7 +110,7 @@ export default class OpenAIGeneratorService implements IGenerator {
 
       return haiku;
     } catch (error) {
-      log.error('OpenAI API error:', error);
+      log.error({ err: error }, 'OpenAI API error');
     } finally {
       this.haikuSelection = [];
       haiku = null;
@@ -214,7 +216,7 @@ export default class OpenAIGeneratorService implements IGenerator {
 
     this.haikuSelection.forEach((haiku, i: number) => {
       const verses = `[Id]: ${i}\n[Verses]: ${haiku.verses.join('\n')}\n`;
-      log.info(verses);
+      log.debug({ id: i, verses: haiku.verses }, 'Haiku candidate');
       haikus.push(verses);
     });
 

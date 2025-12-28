@@ -1,6 +1,8 @@
-import log from 'loglevel';
 import fs from 'node:fs';
 import Canvas from 'canvas';
+import { createLogger } from '~/infrastructure/services/Logger';
+
+const log = createLogger('canvas');
 import { promisify } from 'node:util';
 import { singleton } from 'tsyringe';
 import type { HaikuValue } from '~/shared/types';
@@ -21,7 +23,7 @@ export default class CanvasService {
   async create(haiku: HaikuValue): Promise<string> {
     let createCanvas = null;
 
-    log.info(`Creating image with theme: ${this.theme}`);
+    log.info({ theme: this.theme }, 'Creating image');
 
     if (this.theme === 'random') {
       const themes = ['colored', 'greentea', 'watermark'];
@@ -53,7 +55,7 @@ export default class CanvasService {
 
       return this.save(canvas);
     } catch (err) {
-      log.error(err);
+      log.error({ err }, 'Failed to create canvas');
       throw err;
     }
   }
@@ -67,7 +69,7 @@ export default class CanvasService {
 
       stream.pipe(out);
       out.on('finish', () => {
-        log.info(`Image ${imagePath} created!`);
+        log.info({ imagePath }, 'Image created');
 
         resolve(imagePath);
       });

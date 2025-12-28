@@ -22,6 +22,10 @@ import { IOpenAIClientToken } from '~/domain/gateways/IOpenAIClient';
 import OpenAIClient from '~/infrastructure/external/OpenAIClient';
 import { IMessagePublisherToken } from '~/application/messaging/IMessagePublisher';
 import { PubSubMessagePublisher } from '~/infrastructure/messaging/PubSubMessagePublisher';
+import { IGutenbergClientToken } from '~/domain/gateways/IGutenbergClient';
+import { GutenbergClient } from '~/infrastructure/external/GutenbergClient';
+import { IFileSystemServiceToken } from '~/domain/gateways/IFileSystemService';
+import { FileSystemService } from '~/infrastructure/services/FileSystemService';
 
 container.register<IBookRepository>(IBookRepositoryToken, {
   useClass: BookRepository,
@@ -49,6 +53,14 @@ container.register(IOpenAIClientToken, {
 
 container.register(IMessagePublisherToken, {
   useClass: PubSubMessagePublisher,
+});
+
+container.register(IGutenbergClientToken, {
+  useClass: GutenbergClient,
+});
+
+container.register(IFileSystemServiceToken, {
+  useClass: FileSystemService,
 });
 
 // Import CQRS registrations
