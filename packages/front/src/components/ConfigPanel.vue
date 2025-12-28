@@ -26,6 +26,7 @@ import { useExpandedState } from '@/composables/local-storage';
 import { useInView } from '@/composables/in-view';
 import { useTouchGestures } from '@/composables/touch-gestures';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
+import ZenCard from '@/components/ui/ZenCard.vue';
 
 const PULSE_DURATION = 200;
 
@@ -169,12 +170,15 @@ function resetAdvancedConfig(): void {
 </script>
 
 <template>
-  <v-card
+  <ZenCard
     ref="cardRef"
-    class="gutenku-card config-panel config-panel--card config-panel-container pa-5 mb-4 w-100 animate-in"
+    variant="panel"
+    :aria-label="t('config.ariaLabel')"
+    class="config-panel config-panel--card config-panel-container pa-5 mb-6 animate-in"
     :class="{ 'is-visible': isInView }"
-    rounded
   >
+    <h2 class="sr-only">{{ t('config.title') }}</h2>
+
     <button
       ref="headerRef"
       type="button"
@@ -285,6 +289,7 @@ function resetAdvancedConfig(): void {
                     <ListFilter
                       :size="18"
                       class="config-panel__icon text-primary"
+                      aria-hidden="true"
                     />
                     <span class="config-panel__label-text">Selection</span>
                     <span
@@ -301,6 +306,8 @@ function resetAdvancedConfig(): void {
                     color="primary"
                     thumb-size="12"
                     class="config-panel__slider config-panel__slider--compact"
+                    aria-label="Selection count"
+                    :aria-valuetext="`${optionSelectionCount} selections`"
                   />
                 </div>
 
@@ -311,6 +318,7 @@ function resetAdvancedConfig(): void {
                     <Thermometer
                       :size="18"
                       class="config-panel__icon text-primary"
+                      aria-hidden="true"
                     />
                     <span class="config-panel__label-text">Temperature</span>
                     <span
@@ -327,6 +335,8 @@ function resetAdvancedConfig(): void {
                     color="primary"
                     thumb-size="12"
                     class="config-panel__slider config-panel__slider--compact"
+                    aria-label="Temperature"
+                    :aria-valuetext="`Temperature: ${optionDescriptionTemperature.toFixed(1)}`"
                   />
                 </div>
               </div>
@@ -339,6 +349,7 @@ function resetAdvancedConfig(): void {
                 :is="sentimentIcon"
                 :size="20"
                 class="config-panel__icon text-primary"
+                aria-hidden="true"
               />
               <span
                 class="config-panel__label-text"
@@ -361,30 +372,32 @@ function resetAdvancedConfig(): void {
               color="primary"
               thumb-size="14"
               class="config-panel__slider"
-              aria-label="Sentiment score"
-              :aria-valuetext="`Sentiment: ${optionMinSentimentScore.toFixed(2)}`"
+              :aria-label="t('config.filters.sentiment')"
+              :aria-valuetext="t('config.sliderValue', { label: t('config.filters.sentiment'), value: optionMinSentimentScore.toFixed(2) })"
             />
           </div>
 
-          <ZenTooltip :text="t('config.advancedTooltip')" position="bottom">
-            <button
-              ref="advancedRef"
-              type="button"
-              class="config-panel__advanced-toggle"
-              :aria-expanded="showAdvanced"
-              @click="toggleAdvanced"
-            >
-              <Settings2 :size="16" class="config-panel__advanced-icon" />
-              <span class="config-panel__advanced-text">
-                {{ showAdvanced ? t('config.hideAdvanced') : t('config.showAdvanced') }}
-              </span>
-              <component
-                :is="showAdvanced ? ChevronUp : ChevronDown"
-                :size="16"
-                class="config-panel__advanced-chevron"
-              />
-            </button>
-          </ZenTooltip>
+          <div class="config-panel__advanced-wrapper">
+            <ZenTooltip :text="t('config.advancedTooltip')" position="bottom">
+              <button
+                ref="advancedRef"
+                type="button"
+                class="config-panel__advanced-toggle"
+                :aria-expanded="showAdvanced"
+                @click="toggleAdvanced"
+              >
+                <Settings2 :size="16" class="config-panel__advanced-icon" />
+                <span class="config-panel__advanced-text">
+                  {{ showAdvanced ? t('config.hideAdvanced') : t('config.showAdvanced') }}
+                </span>
+                <component
+                  :is="showAdvanced ? ChevronUp : ChevronDown"
+                  :size="16"
+                  class="config-panel__advanced-chevron"
+                />
+              </button>
+            </ZenTooltip>
+          </div>
 
           <v-expand-transition>
             <div v-show="showAdvanced">
@@ -415,8 +428,8 @@ function resetAdvancedConfig(): void {
                   color="primary"
                   thumb-size="14"
                   class="config-panel__slider"
-                  aria-label="Markov chain score"
-                  :aria-valuetext="`Markov chain: ${optionMinMarkovScore.toFixed(2)}`"
+                  :aria-label="t('config.filters.markov')"
+                  :aria-valuetext="t('config.sliderValue', { label: t('config.filters.markov'), value: optionMinMarkovScore.toFixed(2) })"
                 />
               </div>
 
@@ -448,8 +461,8 @@ function resetAdvancedConfig(): void {
                     color="primary"
                     thumb-size="14"
                     class="config-panel__slider"
-                    aria-label="Grammar POS score"
-                    :aria-valuetext="`Grammar: ${optionMinPosScore.toFixed(2)}`"
+                    :aria-label="t('config.filters.grammar')"
+                    :aria-valuetext="t('config.sliderValue', { label: t('config.filters.grammar'), value: optionMinPosScore.toFixed(2) })"
                   />
                 </div>
 
@@ -480,8 +493,8 @@ function resetAdvancedConfig(): void {
                     color="primary"
                     thumb-size="14"
                     class="config-panel__slider"
-                    aria-label="Trigram flow score"
-                    :aria-valuetext="`Trigram: ${optionMinTrigramScore.toFixed(2)}`"
+                    :aria-label="t('config.filters.trigram')"
+                    :aria-valuetext="t('config.sliderValue', { label: t('config.filters.trigram'), value: optionMinTrigramScore.toFixed(2) })"
                   />
                 </div>
 
@@ -509,8 +522,8 @@ function resetAdvancedConfig(): void {
                     color="primary"
                     thumb-size="14"
                     class="config-panel__slider"
-                    aria-label="TF-IDF word uniqueness score"
-                    :aria-valuetext="`Word uniqueness: ${optionMinTfidfScore.toFixed(2)}`"
+                    :aria-label="t('config.filters.tfidf')"
+                    :aria-valuetext="t('config.sliderValue', { label: t('config.filters.tfidf'), value: optionMinTfidfScore.toFixed(2) })"
                   />
                 </div>
 
@@ -541,8 +554,8 @@ function resetAdvancedConfig(): void {
                     color="primary"
                     thumb-size="14"
                     class="config-panel__slider"
-                    aria-label="Phonetics alliteration score"
-                    :aria-valuetext="`Alliteration: ${optionMinPhoneticsScore.toFixed(2)}`"
+                    :aria-label="t('config.filters.phonetics')"
+                    :aria-valuetext="t('config.sliderValue', { label: t('config.filters.phonetics'), value: optionMinPhoneticsScore.toFixed(2) })"
                   />
                 </div>
               </template>
@@ -551,7 +564,7 @@ function resetAdvancedConfig(): void {
         </div>
       </div>
     </v-expand-transition>
-  </v-card>
+  </ZenCard>
 </template>
 
 <style scoped lang="scss">
@@ -678,6 +691,11 @@ function resetAdvancedConfig(): void {
     &--last {
       margin-bottom: 0;
     }
+  }
+
+  &__advanced-wrapper {
+    display: flex;
+    justify-content: center;
   }
 
   &__advanced-toggle {
@@ -914,6 +932,10 @@ function resetAdvancedConfig(): void {
 
   &__slider {
     margin: 0.5rem 0;
+
+    :deep(.v-slider-thumb__ripple) {
+      display: none;
+    }
 
     :deep(.v-slider-track) {
       height: 0.5rem;

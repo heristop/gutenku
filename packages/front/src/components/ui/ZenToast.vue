@@ -119,7 +119,7 @@ function handleKeydown(event: KeyboardEvent, toastId: number) {
     oklch(0.94 0.01 85) 100%
   );
   border: none;
-  border-radius: 3px;
+  border-radius: var(--gutenku-radius-sm);
   font-family: 'JMH Typewriter', monospace;
   font-size: 0.9rem;
   color: var(--gutenku-text-primary);
@@ -171,7 +171,7 @@ function handleKeydown(event: KeyboardEvent, toastId: number) {
       url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     opacity: 0.03;
     pointer-events: none;
-    border-radius: 3px;
+    border-radius: var(--gutenku-radius-sm);
     animation: zen-breathe 3s ease-in-out infinite;
   }
 

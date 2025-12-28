@@ -171,7 +171,7 @@ const { isDarkMode } = useTheme();
 
   .loading-splash {
     background: var(--gutenku-paper-bg);
-    border-radius: var(--gutenku-radius-lg);
+    border-radius: var(--gutenku-radius-xl);
     padding: 2rem;
     box-shadow: var(--gutenku-shadow-zen);
     border: 1px solid var(--gutenku-border-visible);

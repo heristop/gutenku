@@ -2,6 +2,7 @@
 import { Sparkles, PenTool } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 import { useLoadingMessages } from '@/composables/loading-messages';
+import ZenCard from '@/components/ui/ZenCard.vue';
 
 interface Message {
   text: string;
@@ -22,10 +23,11 @@ const { message: craftingMessage } = useLoadingMessages({
 </script>
 
 <template>
-  <v-card
-    class="book-page gutenku-card haiku-crafting"
+  <ZenCard
+    variant="book"
+    class="haiku-crafting"
     :aria-label="t('haikuCrafting.title')"
-    aria-busy="true"
+    :loading="true"
   >
     <!-- Book Header Style for Crafting -->
     <div class="book-header">
@@ -101,73 +103,15 @@ const { message: craftingMessage } = useLoadingMessages({
     <div class="page-number">
       {{ t('haikuCrafting.pageNumber') }}
     </div>
-  </v-card>
+  </ZenCard>
 </template>
 
 <style lang="scss" scoped>
-.haiku-crafting.book-page {
-  // Book page styling
-  box-shadow:
-    0 2px 4px -1px oklch(0 0 0 / 0.2),
-    0 4px 5px 0 oklch(0 0 0 / 0.14),
-    0 1px 10px 0 oklch(0 0 0 / 0.12);
-
-  background: var(--gutenku-paper-bg);
-  position: relative;
-  padding: 3rem 2rem 2rem 3rem;
+// Component-specific styles (base styling handled by ZenCard variant="book")
+.haiku-crafting {
   margin-bottom: 1.5rem;
-  min-height: 31.25rem;
-  border-radius: 4px;
-  overflow: visible;
 
-  // Book binding effect
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 2px;
-    height: 100%;
-    background: linear-gradient(
-      to bottom,
-      oklch(0 0 0 / 0.1) 0%,
-      oklch(0 0 0 / 0.05) 50%,
-      oklch(0 0 0 / 0.1) 100%
-    );
-    box-shadow: 0 0 5px oklch(0 0 0 / 0.2);
-    z-index: 1;
-  }
-
-  // Page texture
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image:
-      radial-gradient(
-        circle at 20% 50%,
-        oklch(0.51 0.02 85 / 0.3) 0%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle at 80% 20%,
-        oklch(0.51 0.02 85 / 0.3) 0%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle at 40% 80%,
-        oklch(0.51 0.02 85 / 0.3) 0%,
-        transparent 50%
-      );
-    opacity: 0.1;
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  &:hover::before {
+  &:hover :deep(.zen-card__paper) {
     opacity: 0.15;
     transition: opacity 0.3s ease;
   }
@@ -258,7 +202,7 @@ const { message: craftingMessage } = useLoadingMessages({
   padding: 0.75rem 1rem 0.75rem 1.25rem;
   margin: 0;
   background: oklch(1 0 0 / 0.3);
-  border-radius: 8px;
+  border-radius: var(--gutenku-radius-md);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 0.9rem;
   line-height: 1.8;
@@ -311,7 +255,7 @@ const { message: craftingMessage } = useLoadingMessages({
 
   .craft-progress {
     margin: 1rem 0;
-    border-radius: 2px;
+    border-radius: var(--gutenku-radius-xs);
   }
 
   .progress-text {
@@ -386,7 +330,7 @@ const { message: craftingMessage } = useLoadingMessages({
     transform-origin: top;
     animation: stroke-reveal 0.3s ease-out 0.2s forwards;
     transform: scaleY(0);
-    border-radius: 2px;
+    border-radius: var(--gutenku-radius-xs);
   }
 
   &.latest-message::before {

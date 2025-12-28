@@ -9,6 +9,7 @@ import { useDebouncedCallback } from '@/composables/debounce';
 import { useTouchGestures } from '@/composables/touch-gestures';
 import HankoStamp from '@/components/HankoStamp.vue';
 import EnsoLoader from '@/components/EnsoLoader.vue';
+import ZenCard from '@/components/ui/ZenCard.vue';
 
 const { t } = useI18n();
 
@@ -75,12 +76,21 @@ watch(loading, (isLoading) => {
   }
 });
 
-const createRipple = (event: MouseEvent) => {
+const createRipple = (event?: MouseEvent | KeyboardEvent) => {
   if (!canvasRef.value) {return;}
 
   const rect = canvasRef.value.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
+  let x: number;
+  let y: number;
+
+  if (event && 'clientX' in event) {
+    x = event.clientX - rect.left;
+    y = event.clientY - rect.top;
+  } else {
+    // Center ripple for keyboard activation
+    x = rect.width / 2;
+    y = rect.height / 2;
+  }
 
   const id = ++rippleId;
   ripples.value.push({ id, x, y });
@@ -109,14 +119,12 @@ const onImageLoad = () => {
     class="animate-in haiku-canvas-wrapper"
     :class="{ 'is-visible': isInView }"
   >
-    <v-card
+    <ZenCard
       v-if="haiku"
+      variant="default"
       :loading="loading"
-      :aria-busy="loading"
       :aria-label="t('haikuCanvas.ariaLabel')"
-      class="gutenku-card haiku-canvas-card haiku-canvas-container pa-4 mb-6 align-center justify-center"
-      color="accent"
-      variant="tonal"
+      class="haiku-canvas-card haiku-canvas-container pa-4 mb-6 align-center justify-center"
     >
       <div class="sr-only" aria-live="polite" aria-atomic="true">
         {{ themeChangeAnnouncement }}
@@ -170,8 +178,12 @@ const onImageLoad = () => {
           <div
             ref="canvasRef"
             class="canvas water-ripple-container"
-            role="presentation"
+            role="img"
+            :aria-label="t('haikuCanvas.imageLabel', { verses: haiku.verses.join(', ') })"
+            tabindex="0"
             @click="createRipple"
+            @keydown.enter="createRipple"
+            @keydown.space.prevent="createRipple"
           >
             <v-img
               :src="haikuImage"
@@ -238,7 +250,7 @@ const onImageLoad = () => {
         </v-sheet>
       </div>
 
-      <v-card-actions class="canvas-actions justify-center">
+      <div class="canvas-actions justify-center">
         <v-select
           v-model="optionTheme"
           :label="t('haikuCanvas.themeLabel')"
@@ -255,8 +267,8 @@ const onImageLoad = () => {
             <Palette :size="18" class="text-primary" />
           </template>
         </v-select>
-      </v-card-actions>
-    </v-card>
+      </div>
+    </ZenCard>
   </div>
 </template>
 
@@ -294,7 +306,7 @@ const onImageLoad = () => {
 .zen-loading-skeleton {
   aspect-ratio: 1/1;
   background: var(--gutenku-paper-bg-aged);
-  border-radius: 4px;
+  border-radius: var(--gutenku-radius-sm);
   position: relative;
   display: flex;
   align-items: center;
@@ -316,7 +328,7 @@ const onImageLoad = () => {
     var(--gutenku-zen-primary),
     var(--gutenku-zen-accent)
   );
-  border-radius: 2px;
+  border-radius: var(--gutenku-radius-xs);
   opacity: 0.3;
 }
 
@@ -353,11 +365,16 @@ const onImageLoad = () => {
 
 .canvas {
   position: relative;
-  border-radius: 4px;
+  border-radius: var(--gutenku-radius-sm);
   overflow: hidden;
   box-shadow:
     0 4px 12px oklch(0 0 0 / 0.15),
     inset 0 1px 0 oklch(1 0 0 / 0.2);
+
+  &:focus-visible {
+    outline: 2px solid var(--gutenku-zen-primary);
+    outline-offset: 2px;
+  }
 
   &:hover {
     transition: var(--gutenku-transition-zen);
@@ -374,7 +391,7 @@ const onImageLoad = () => {
 
 .haiku-image {
   transition: var(--gutenku-transition-zen);
-  border-radius: 4px;
+  border-radius: var(--gutenku-radius-sm);
   clip-path: inset(100% 0 0 0);
   -webkit-clip-path: inset(100% 0 0 0);
 
@@ -413,7 +430,7 @@ const onImageLoad = () => {
   bottom: 0;
   background: var(--gutenku-canvas-overlay);
   pointer-events: none;
-  border-radius: 4px;
+  border-radius: var(--gutenku-radius-sm);
   opacity: 0.8;
   transition: var(--gutenku-transition-zen);
   z-index: 1;
@@ -475,7 +492,7 @@ const onImageLoad = () => {
   pointer-events: none;
   opacity: 0.6;
   transition: var(--gutenku-transition-zen);
-  border-radius: 4px;
+  border-radius: var(--gutenku-radius-sm);
 }
 
 .aged-edges {
@@ -485,7 +502,7 @@ const onImageLoad = () => {
   right: 0;
   bottom: 0;
   pointer-events: none;
-  border-radius: 4px;
+  border-radius: var(--gutenku-radius-sm);
 }
 
 .edge {
@@ -606,7 +623,7 @@ const onImageLoad = () => {
   padding: 0.4rem 0.75rem;
   background: oklch(0 0 0 / 0.6);
   backdrop-filter: blur(4px);
-  border-radius: 1rem;
+  border-radius: var(--gutenku-radius-xl);
   color: oklch(1 0 0 / 0.9);
   font-size: 0.75rem;
   animation: swipe-hint-pulse 2s ease-in-out infinite;

@@ -6,6 +6,7 @@ import { BookOpenText, ChevronUp, Star } from 'lucide-vue-next';
 import { useHaikuStore } from '@/store/haiku';
 import { useExpandedState } from '@/composables/local-storage';
 import { useInView } from '@/composables/in-view';
+import ZenCard from '@/components/ui/ZenCard.vue';
 
 const { t } = useI18n();
 
@@ -167,11 +168,12 @@ watch(progress, (val) => {
 </script>
 
 <template>
-  <v-card
+  <ZenCard
     ref="cardRef"
-    class="gutenku-card stats-panel stats-panel--card stats-panel-container pa-5 mb-4 w-100 animate-in"
+    variant="panel"
+    :aria-label="t('stats.ariaLabel')"
+    class="stats-panel stats-panel--card stats-panel-container pa-5 mb-4 animate-in"
     :class="{ 'is-visible': isInView }"
-    rounded
   >
     <button
       type="button"
@@ -342,7 +344,7 @@ watch(progress, (val) => {
         </div>
       </div>
     </v-expand-transition>
-  </v-card>
+  </ZenCard>
 </template>
 
 <style scoped lang="scss">
@@ -499,6 +501,7 @@ watch(progress, (val) => {
   .stats-panel {
     &--card {
       padding: 1.25rem !important;
+      margin-bottom: 1.5rem !important;
     }
 
     &__content {

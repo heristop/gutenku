@@ -10,6 +10,7 @@ import { useTextCompacting } from '@/composables/text-compacting';
 import { useTouchGestures } from '@/composables/touch-gestures';
 import HighLightText from '@/components/HighLightText.vue';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
+import ZenCard from '@/components/ui/ZenCard.vue';
 import SwipeHint from '@/components/ui/SwipeHint.vue';
 
 const { t } = useI18n();
@@ -105,11 +106,13 @@ watch(
 </script>
 
 <template>
-  <v-card
+  <ZenCard
     v-if="haiku"
     ref="chapterRef"
+    variant="book"
     :loading="loading"
-    class="book-page gutenku-card"
+    :aria-label="t('haikuChapter.ariaLabel')"
+    class="book-page"
     :class="{ 'is-swiping': isSwiping }"
   >
     <!-- Screen reader announcement for toggle state -->
@@ -216,32 +219,22 @@ watch(
         <SwipeHint variant="pill" />
       </div>
     </Transition>
-  </v-card>
+  </ZenCard>
 </template>
 
 <style lang="scss" scoped>
+// Component-specific styles (base styling handled by ZenCard variant="book")
 .book-page {
-  box-shadow:
-    0 2px 4px -1px oklch(0 0 0 / 0.2),
-    0 4px 5px 0 oklch(0 0 0 / 0.14),
-    0 1px 10px 0 oklch(0 0 0 / 0.12);
-
-  background: var(--gutenku-paper-bg);
-  position: relative;
-  padding: 3rem 2rem 2rem 3rem;
   margin-bottom: 1.5rem;
-  min-height: 31.25rem;
-  border-radius: var(--gutenku-radius-sm);
-  overflow: visible;
   transition: all 0.3s ease;
   cursor: pointer;
+  border-radius: var(--gutenku-radius-sm);
 
   &:hover {
     transform: translateY(-3px) scale(1.01);
     box-shadow:
       0 8px 25px oklch(0 0 0 / 0.3),
       0 4px 10px oklch(0 0 0 / 0.2);
-
     background: color-mix(in oklch, var(--gutenku-paper-bg) 92%, white 8%);
   }
 
@@ -258,7 +251,6 @@ watch(
         0 6px 15px oklch(0 0 0 / 0.3);
     }
   }
-
 }
 
 .book-header {

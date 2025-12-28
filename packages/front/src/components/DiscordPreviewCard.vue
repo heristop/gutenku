@@ -6,6 +6,7 @@ import { useHaikuStore } from '@/store/haiku';
 import { useExpandedState } from '@/composables/local-storage';
 import { useInView } from '@/composables/in-view';
 import { useClipboard } from '@/composables/clipboard';
+import ZenCard from '@/components/ui/ZenCard.vue';
 
 const cardRef = useTemplateRef<HTMLElement>('cardRef');
 const { isInView } = useInView(cardRef, { delay: 300 });
@@ -91,11 +92,12 @@ function copyCaption() {
 </script>
 
 <template>
-  <v-card
+  <ZenCard
     ref="cardRef"
-    class="gutenku-card discord-panel discord-panel--card pa-5 mb-4 w-100 animate-in"
+    variant="panel"
+    aria-label="Discord Preview"
+    class="discord-panel discord-panel--card pa-5 mb-6 animate-in"
     :class="{ 'is-visible': isInView }"
-    rounded
   >
     <button
       type="button"
@@ -145,7 +147,7 @@ function copyCaption() {
         </div>
       </div>
     </v-expand-transition>
-  </v-card>
+  </ZenCard>
 </template>
 
 <style scoped lang="scss">
