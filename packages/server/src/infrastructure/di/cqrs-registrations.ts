@@ -14,6 +14,11 @@ import { GetAllChaptersHandler } from '~/application/queries/chapters/GetAllChap
 import { GetChapterByIdHandler } from '~/application/queries/chapters/GetChapterByIdHandler';
 import { GenerateHaikuHandler } from '~/application/queries/haiku/GenerateHaikuHandler';
 import { CacheHaikuHandler } from '~/application/commands/haiku/CacheHaikuHandler';
+import { FetchBookHandler } from '~/application/commands/book/FetchBookHandler';
+import { DeleteBookHandler } from '~/application/commands/book/DeleteBookHandler';
+import { SaveBookHandler } from '~/application/commands/book/SaveBookHandler';
+import { ImportBookHandler } from '~/application/commands/book/ImportBookHandler';
+import { BatchImportBooksHandler } from '~/application/commands/book/BatchImportBooksHandler';
 
 container.register(IQueryBusToken, { useClass: QueryBus });
 container.register(ICommandBusToken, { useClass: CommandBus });
@@ -39,4 +44,24 @@ container.register(createQueryHandlerToken('GenerateHaikuQuery'), {
 
 container.register(createCommandHandlerToken('CacheHaikuCommand'), {
   useClass: CacheHaikuHandler,
+});
+
+container.register(createCommandHandlerToken('FetchBookCommand'), {
+  useClass: FetchBookHandler,
+});
+
+container.register(createCommandHandlerToken('DeleteBookCommand'), {
+  useClass: DeleteBookHandler,
+});
+
+container.register(createCommandHandlerToken('SaveBookCommand'), {
+  useClass: SaveBookHandler,
+});
+
+container.register(createCommandHandlerToken('ImportBookCommand'), {
+  useClass: ImportBookHandler,
+});
+
+container.register(createCommandHandlerToken('BatchImportBooksCommand'), {
+  useClass: BatchImportBooksHandler,
 });

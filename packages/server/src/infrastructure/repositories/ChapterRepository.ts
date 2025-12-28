@@ -1,6 +1,9 @@
 import { injectable } from 'tsyringe';
 import type { ChapterValue } from '~/shared/types';
-import type { IChapterRepository } from '~/domain/repositories/IChapterRepository';
+import type {
+  IChapterRepository,
+  CreateChapterInput,
+} from '~/domain/repositories/IChapterRepository';
 import ChapterModel from '~/infrastructure/models/ChapterModel';
 
 @injectable()
@@ -34,5 +37,22 @@ export default class ChapterRepository implements IChapterRepository {
       .limit(100)
       .populate('book')
       .exec();
+  }
+
+  async createMany(chapters: CreateChapterInput[]): Promise<string[]> {
+    const createdChapters = await ChapterModel.insertMany(
+      chapters.map((ch) => ({
+        title: ch.title,
+        content: ch.content,
+        book: ch.bookId,
+      })),
+    );
+
+    return createdChapters.map((ch) => ch._id.toString());
+  }
+
+  async deleteByBookId(bookId: string): Promise<number> {
+    const result = await ChapterModel.deleteMany({ book: bookId }).exec();
+    return result.deletedCount ?? 0;
   }
 }

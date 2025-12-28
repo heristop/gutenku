@@ -1,5 +1,7 @@
-import log from 'loglevel';
 import { inject, injectable } from 'tsyringe';
+import { createLogger } from '~/infrastructure/services/Logger';
+
+const log = createLogger('haiku-repo');
 import type { HaikuDocument, HaikuValue } from '~/shared/types';
 import type { IHaikuRepository } from '~/domain/repositories/IHaikuRepository';
 import MongoConnection from '~/infrastructure/services/MongoConnection';
@@ -57,17 +59,17 @@ export default class HaikuRepository implements IHaikuRepository {
       const count = result[0]?.count[0]?.total || 0;
 
       if (count < minCachedDocs) {
-        log.info(`Not enough cached documents: ${count} < ${minCachedDocs}`);
+        log.info({ count, minCachedDocs }, 'Not enough cached documents');
         return [];
       }
 
-      log.info('Extract from cache');
+      log.debug('Extracting from cache');
 
       return this.mapCachedHaikuValue(result[0].sample as HaikuDocument[]);
     } catch (error) {
       log.warn(
-        'Cache extraction failed, falling back to generation:',
-        error.message,
+        { err: error },
+        'Cache extraction failed, falling back to generation',
       );
       return [];
     }

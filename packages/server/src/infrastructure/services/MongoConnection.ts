@@ -1,6 +1,8 @@
-import log from 'loglevel';
 import mongoose, { type Connection } from 'mongoose';
 import { singleton } from 'tsyringe';
+import { createLogger } from '~/infrastructure/services/Logger';
+
+const log = createLogger('mongo');
 
 @singleton()
 export default class MongoConnection {
@@ -22,18 +24,18 @@ export default class MongoConnection {
       this.db = mongoose.connection;
 
       this.db.on('connected', () => {
-        log.info(`Connected to MongoDB at ${uri}/${database}`);
+        log.info({ uri, database }, 'Connected to MongoDB');
       });
 
       this.db.on('error', (error) => {
-        log.error('MongoDB connection error:', error);
+        log.error({ err: error }, 'MongoDB connection error');
       });
 
       this.db.on('disconnected', () => {
         log.warn('MongoDB disconnected');
       });
     } catch (error) {
-      log.error(`Error connecting to ${uri}/${database}: ${error}`);
+      log.error({ err: error, uri, database }, 'Error connecting to MongoDB');
       log.warn('MongoDB connection failed - some features may be limited');
 
       this.db = null;
