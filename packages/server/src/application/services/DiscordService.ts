@@ -1,8 +1,10 @@
-import log from 'loglevel';
 import { promises as fs } from 'node:fs';
 import FormData from 'form-data';
 import axios from 'axios';
 import type { HaikuValue } from '~/shared/types';
+import { createLogger } from '~/infrastructure/services/Logger';
+
+const log = createLogger('discord');
 
 export async function post(haiku: HaikuValue) {
   const bookTitle = haiku.book.title;
@@ -57,7 +59,7 @@ ${haiku.translations?.es}
 ---
 `;
 
-  log.info(caption);
+  log.debug({ caption }, 'Discord caption prepared');
 
   if (process.env.DISCORD_WEBHOOK_URL) {
     await publish(haiku, caption);
@@ -93,6 +95,6 @@ export async function publish(
 
     log.info('Message posted successfully');
   } catch (error) {
-    log.error('Failed to send message:', error);
+    log.error({ err: error }, 'Failed to send message');
   }
 }

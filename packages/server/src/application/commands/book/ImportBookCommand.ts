@@ -1,0 +1,21 @@
+import { Command } from '~/application/cqrs/ICommand';
+
+export interface ImportBookResult {
+  bookId: number;
+  fetched: boolean;
+  deleted: boolean;
+  saved: boolean;
+  chaptersCount: number;
+  title?: string;
+  error?: string;
+}
+
+export class ImportBookCommand extends Command<ImportBookResult> {
+  constructor(
+    public readonly bookId: number,
+    public readonly deleteFirst: boolean = false,
+    public readonly dataDirectory: string = './data',
+  ) {
+    super();
+  }
+}

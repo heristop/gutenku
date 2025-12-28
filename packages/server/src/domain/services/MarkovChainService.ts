@@ -1,6 +1,8 @@
-import log from 'loglevel';
 import fs from 'node:fs/promises';
 import NaturalLanguageService from '~/domain/services/NaturalLanguageService';
+import { createLogger } from '~/infrastructure/services/Logger';
+
+const log = createLogger('markov');
 import { inject, singleton } from 'tsyringe';
 
 const FANBOYS_LIST = ['for', 'and', 'nor', 'but', 'or', 'yet', 'so'];
@@ -140,10 +142,10 @@ export class MarkovChainService {
 
     try {
       await fs.writeFile('./data/markov_model.json', data, 'utf8');
-      log.info('Model saved with success.');
+      log.info('Model saved successfully');
       return true;
     } catch (error) {
-      log.error(`Error on model save: ${error}`);
+      log.error({ err: error }, 'Error saving model');
       return false;
     }
   }
@@ -180,7 +182,7 @@ export class MarkovChainService {
       this.loaded = true;
       return true;
     } catch (error) {
-      log.error(`Error on model load: ${error}`);
+      log.error({ err: error }, 'Error loading model');
       return false;
     }
   }
