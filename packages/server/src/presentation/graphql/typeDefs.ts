@@ -39,6 +39,35 @@ const typeDefs = `#graphql
         executionTime: Float
     }
 
+    type PuzzleHint {
+        round: Int!
+        type: String!
+        content: String!
+    }
+
+    type DailyPuzzle {
+        date: String!
+        puzzleNumber: Int!
+        hints: [PuzzleHint!]!
+    }
+
+    type DailyPuzzleResponse {
+        puzzle: DailyPuzzle!
+        availableBooks: [Book!]!
+    }
+
+    type GuessResult {
+        isCorrect: Boolean!
+        correctBook: Book
+        nextHint: PuzzleHint
+    }
+
+    type GlobalStats {
+        totalHaikusGenerated: Int!
+        totalGamesPlayed: Int!
+        totalGamesWon: Int!
+    }
+
     type Query {
         books(filter: String): [Book]
         book(id: ID!): Book!
@@ -59,6 +88,9 @@ const typeDefs = `#graphql
             phoneticsMinScore: Float,
             descriptionTemperature: Float
         ): Haiku
+        dailyPuzzle(date: String!, revealedRounds: [Int!]): DailyPuzzleResponse!
+        submitGuess(date: String!, guessedBookId: ID!, currentRound: Int!): GuessResult!
+        globalStats: GlobalStats!
     }
 
     type Subscription {
