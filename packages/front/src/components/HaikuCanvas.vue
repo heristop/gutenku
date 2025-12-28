@@ -2,21 +2,17 @@
 import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
-import { Palette, Loader2, Download, ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { Palette, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import { useHaikuStore } from '@/store/haiku';
-import { useImageDownload } from '@/composables/image-download';
 import { useInView } from '@/composables/in-view';
 import { useDebouncedCallback } from '@/composables/debounce';
-import { useToast } from '@/composables/toast';
 import { useTouchGestures } from '@/composables/touch-gestures';
 import HankoStamp from '@/components/HankoStamp.vue';
 import EnsoLoader from '@/components/EnsoLoader.vue';
-import ZenTooltip from '@/components/ui/ZenTooltip.vue';
 
 const { t } = useI18n();
 
 const themeChangeAnnouncement = ref('');
-const { success } = useToast();
 
 const cardRef = useTemplateRef<HTMLElement>('cardRef');
 const canvasRef = useTemplateRef<HTMLElement>('canvasRef');
@@ -61,7 +57,6 @@ const { debouncedFn: debouncedFetchHaiku, isPending: isThemeChangePending } =
 
 const imageLoaded = ref(false);
 const showHanko = ref(false);
-const { inProgress: downloadInProgress, download } = useImageDownload();
 
 const ripples = ref<Array<{ id: number; x: number; y: number }>>([]);
 let rippleId = 0;
@@ -102,22 +97,6 @@ const haikuImage = computed(() => {
 
   return `data:image/png;base64,${haiku.value.image}`;
 });
-
-const downloadImage = async () => {
-  if (!haikuImage.value || !haiku.value) {return;}
-
-  const bookTitle = haiku.value.book.title;
-  const chapterTitle = haiku.value.chapter.title;
-
-  try {
-    await download(haikuImage.value, {
-      filename: `${bookTitle}_${chapterTitle}`,
-    });
-    success(t('haikuCanvas.downloadSuccess'));
-  } catch {
-    // Error already handled by toast composable
-  }
-};
 
 const onImageLoad = () => {
   imageLoaded.value = true;
@@ -258,7 +237,7 @@ const onImageLoad = () => {
         </v-sheet>
       </div>
 
-      <v-card-actions class="canvas-actions justify-between">
+      <v-card-actions class="canvas-actions justify-center">
         <v-select
           v-model="optionTheme"
           :label="t('haikuCanvas.themeLabel')"
@@ -275,29 +254,6 @@ const onImageLoad = () => {
             <Palette :size="18" class="text-primary" />
           </template>
         </v-select>
-
-        <ZenTooltip :text="t('haikuCanvas.downloadTooltip')" position="bottom">
-          <v-btn
-            data-cy="download-btn"
-            class="download-btn gutenku-btn"
-            color="primary"
-            variant="outlined"
-            size="small"
-            :loading="downloadInProgress"
-            :disabled="loading"
-            @click="downloadImage"
-          >
-            <Loader2
-              v-if="downloadInProgress"
-              :size="18"
-              class="animate-spin"
-            />
-            <Download v-else :size="18" />
-            <span class="btn-text">{{
-              downloadInProgress ? t('haikuCanvas.saving') : t('haikuCanvas.download')
-            }}</span>
-          </v-btn>
-        </ZenTooltip>
       </v-card-actions>
     </v-card>
   </div>
@@ -594,72 +550,14 @@ const onImageLoad = () => {
 }
 
 .theme-selector {
-  flex: 1;
   max-width: 12.5rem;
 
   :deep(.v-field__input) {
     font-size: 0.85rem;
   }
-}
 
-.download-btn {
-  min-width: 7.5rem;
-
-  &--celebrate {
-    animation: download-celebrate 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  }
-
-  &:hover {
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: var(--gutenku-shadow-ink);
-
-    &::before {
-      width: 200%;
-      height: 200%;
-      animation: ink-splash 0.6s ease-out;
-    }
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background: radial-gradient(
-      circle,
-      var(--gutenku-zen-mist) 0%,
-      transparent 70%
-    );
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    z-index: 0;
-    transition: var(--gutenku-transition-zen);
-  }
-
-  .btn-text,
-  .v-icon {
-    position: relative;
-    z-index: 1;
-  }
-}
-
-@keyframes download-celebrate {
-  0% {
-    transform: scale(1);
-  }
-  30% {
-    transform: scale(1.15);
-  }
-  50% {
-    transform: scale(0.95);
-  }
-  70% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
+  :deep(.v-field) {
+    padding-top: 1rem;
   }
 }
 
@@ -675,17 +573,6 @@ const onImageLoad = () => {
   100% {
     transform: scaleX(0);
     opacity: 0;
-  }
-}
-
-@keyframes ink-splash {
-  0% {
-    opacity: 0.8;
-    transform: translate(-50%, -50%) scale(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(1);
   }
 }
 

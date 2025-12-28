@@ -53,18 +53,6 @@ function hide() {
   }, 100);
 }
 
-function handleTouchStart(event: TouchEvent) {
-  if (props.disabled) {return;}
-
-  // Toggle visibility on touch
-  if (isVisible.value) {
-    isVisible.value = false;
-  } else {
-    isVisible.value = true;
-    nextTick(updatePosition);
-  }
-}
-
 function handleClickOutside(event: MouseEvent | TouchEvent) {
   if (!isTouchDevice.value || !isVisible.value) {return;}
 
@@ -163,7 +151,6 @@ onUnmounted(() => {
     :aria-describedby="isVisible && !disabled ? tooltipId : undefined"
     @mouseenter="!isTouchDevice && show()"
     @mouseleave="!isTouchDevice && hide()"
-    @touchstart.prevent="handleTouchStart"
     @focusin="handleFocusIn"
     @focusout="handleFocusOut"
     @keydown="handleKeydown"

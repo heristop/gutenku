@@ -1,9 +1,17 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, ref, useTemplateRef } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useMediaQuery } from '@vueuse/core';
 import { BookOpenText, Feather, Palette, ChevronRight, type LucideIcon } from 'lucide-vue-next';
+import { useTouchGestures } from '@/composables/touch-gestures';
+import SwipeHint from '@/components/ui/SwipeHint.vue';
 
 const { t } = useI18n();
+
+// Mobile carousel state
+const currentIndex = ref(0);
+const isMobile = useMediaQuery('(max-width: 600px)');
+const carouselRef = useTemplateRef<HTMLElement>('carouselRef');
 
 interface ProcessStep {
   icon: LucideIcon;
@@ -36,13 +44,34 @@ const steps = computed(() =>
     description: t(step.descriptionKey),
   })),
 );
+
+// Swipe handlers for mobile carousel
+useTouchGestures(carouselRef, {
+  threshold: 50,
+  onSwipeLeft: () => {
+    if (currentIndex.value < steps.value.length - 1) {
+      currentIndex.value++;
+    }
+  },
+  onSwipeRight: () => {
+    if (currentIndex.value > 0) {
+      currentIndex.value--;
+    }
+  },
+  vibrate: true,
+});
 </script>
 
 <template>
-  <section class="haiku-process" aria-label="Haiku creation process">
+  <section
+    ref="carouselRef"
+    class="haiku-process"
+    aria-label="Haiku creation process"
+  >
     <ol class="haiku-process__container" role="list">
       <li
         v-for="(step, index) in steps"
+        v-show="!isMobile || index === currentIndex"
         :key="index"
         v-motion
         class="haiku-process__step"
@@ -82,6 +111,22 @@ const steps = computed(() =>
         </div>
       </li>
     </ol>
+
+    <!-- Mobile navigation -->
+    <div v-if="isMobile" class="haiku-process__nav">
+      <SwipeHint />
+      <div class="haiku-process__dots" aria-label="Step navigation">
+        <button
+          v-for="(_, idx) in steps"
+          :key="idx"
+          class="haiku-process__dot"
+          :class="{ 'haiku-process__dot--active': idx === currentIndex }"
+          :aria-label="`Go to step ${idx + 1}`"
+          :aria-current="idx === currentIndex ? 'step' : undefined"
+          @click="currentIndex = idx"
+        />
+      </div>
+    </div>
   </section>
 </template>
 
@@ -98,12 +143,6 @@ const steps = computed(() =>
     list-style: none;
     padding: 0;
     margin: 0;
-
-    @media (max-width: 600px) {
-      flex-direction: column;
-      align-items: center;
-      gap: 1.5rem;
-    }
   }
 
   &__step {
@@ -117,7 +156,7 @@ const steps = computed(() =>
     max-width: 11.25rem;
 
     @media (max-width: 600px) {
-      max-width: 17.5rem;
+      max-width: 80%;
     }
   }
 
@@ -191,6 +230,40 @@ const steps = computed(() =>
     [data-theme='dark'] & {
       color: #9ac5c0;
       opacity: 0.9;
+    }
+  }
+
+  &__nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+
+  &__dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gutenku-zen-secondary);
+    opacity: 0.3;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: var(--gutenku-transition-zen);
+
+    &--active {
+      opacity: 1;
+    }
+
+    &:hover {
+      opacity: 0.7;
     }
   }
 }
