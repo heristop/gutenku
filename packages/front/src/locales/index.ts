@@ -1,9 +1,3 @@
-/**
- * locales/index.ts
- *
- * Vue I18n configuration for internationalization
- */
-
 import { createI18n } from 'vue-i18n';
 
 import en from './en.json';

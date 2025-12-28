@@ -2,14 +2,19 @@
   "common": {
     "close": "Close",
     "refresh": "Refresh",
-    "opensInNewTab": "opens in new tab"
+    "opensInNewTab": "opens in new tab",
+    "swipe": "Swipe"
+  },
+  "pullToRefresh": {
+    "pull": "Pull to refresh",
+    "release": "Release to refresh",
+    "refreshing": "Refreshing..."
   },
   "layout": {
     "skipLink": "Skip to main content"
   },
   "footer": {
     "copyright": "heristop \u00a9 2023-{year}",
-    "visitPage": "Visit heristop on his page",
     "openCredits": "Open credits",
     "credits": {
       "ariaLabel": "Credits haiku",
@@ -74,10 +79,6 @@
     "loading": "Painting your haiku...",
     "themeLabel": "Artistic Theme",
     "ariaLabel": "Haiku artwork display",
-    "download": "Download",
-    "downloadTooltip": "Save haiku as image",
-    "saving": "Saving...",
-    "downloadSuccess": "Image saved successfully!",
     "themeChanged": "Artistic theme changed to {theme}"
   },
   "highlightText": {
@@ -89,16 +90,18 @@
     "generating": "Generating",
     "extracting": "Extracting",
     "generateTooltip": "{action} a new haiku",
-    "copy": "Copy",
-    "copied": "Copied!",
     "copyTooltip": "Copy haiku to clipboard",
     "copySuccess": "Haiku copied to clipboard!",
     "copyError": "Could not copy to clipboard. Please try again.",
     "copiedLabel": "Haiku copied to clipboard",
-    "horizontal": "Horizontal text",
-    "vertical": "Vertical text (Tategaki)",
-    "horizontalJp": "横書き",
-    "verticalJp": "縦書き"
+    "shareTooltip": "Share haiku",
+    "shareSuccess": "Haiku shared!",
+    "downloadTooltip": "Download as image",
+    "downloadSuccess": "Image saved!",
+    "downloadError": "Could not save image. Please try again.",
+    "previousTooltip": "Previous haiku",
+    "nextTooltip": "Next haiku",
+    "historyLabel": "Haiku history navigation"
   },
   "stats": {
     "title": "Your Zen Journey",
@@ -166,9 +169,6 @@
       "5": "🖼️ Creating a visual masterpiece for your haiku...",
       "6": "📝 Adding the final touches to your literary art..."
     }
-  },
-  "errors": {
-    "maxAttempts": "No haiku found matching your filters after maximum attempts. Please try again with a different filter or try several words."
   },
   "loadingMessages": {
     "default": {

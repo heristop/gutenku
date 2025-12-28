@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
+import { computed, defineAsyncComponent, onMounted, ref, useTemplateRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import { useSubscription, gql } from '@urql/vue';
@@ -9,8 +9,10 @@ import { useEmojiMapping } from '@/composables/emoji-mapping';
 import { withViewTransition } from '@/composables/view-transition';
 import { useKeyboardShortcuts } from '@/composables/keyboard-shortcuts';
 import { useClipboard } from '@/composables/clipboard';
+import { useShare } from '@/composables/share';
 import { useImageDownload } from '@/composables/image-download';
 import { useToast } from '@/composables/toast';
+import { usePullToRefresh } from '@/composables/pull-to-refresh';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
 import AppFooter from '@/components/AppFooter.vue';
 import HaikuCanvas from '@/components/HaikuCanvas.vue';
@@ -21,6 +23,8 @@ import HaikuTitle from '@/components/HaikuTitle.vue';
 import SocialNetworkPanel from '@/components/SocialNetworkPanel.vue';
 import AppLoading from '@/components/AppLoading.vue';
 import ZenSkeleton from '@/components/ZenSkeleton.vue';
+import PullToRefresh from '@/components/PullToRefresh.vue';
+import KeyboardHelp from '@/components/KeyboardHelp.vue';
 
 const ConfigPanel = defineAsyncComponent({
   loader: () => import('@/components/ConfigPanel.vue'),
@@ -34,14 +38,22 @@ const ToolbarPanel = defineAsyncComponent({
   loader: () => import('@/components/ToolbarPanel.vue'),
   loadingComponent: ZenSkeleton,
 });
+const DiscordPreviewCard = defineAsyncComponent({
+  loader: () => import('@/components/DiscordPreviewCard.vue'),
+  loadingComponent: ZenSkeleton,
+});
+
+const isDev = import.meta.env.DEV;
 
 const { t, tm } = useI18n();
 const { error: showError } = useToast();
 
 const haikuStore = useHaikuStore();
-const { fetchNewHaiku } = haikuStore;
-const { haiku, error, firstLoaded, networkError, loading } =
+const { fetchNewHaiku, goBack, goForward } = haikuStore;
+const { haiku, error, firstLoaded, networkError, loading, optionUseAI } =
   storeToRefs(haikuStore);
+
+const showKeyboardHelp = ref(false);
 
 // Watch for errors and show toast
 watch(error, (newError) => {
@@ -54,6 +66,7 @@ watch(error, (newError) => {
 const { getEmoji, formatWithEmoji } = useEmojiMapping();
 
 const { copy } = useClipboard();
+const { share } = useShare();
 const { download } = useImageDownload();
 
 useKeyboardShortcuts({
@@ -75,6 +88,20 @@ useKeyboardShortcuts({
         filename: `${bookTitle}_${chapterTitle}`,
       });
     }
+  },
+  onShare: () => {
+    if (haiku.value) {
+      share(haiku.value);
+    }
+  },
+  onPrevious: () => {
+    goBack();
+  },
+  onNext: () => {
+    goForward();
+  },
+  onHelp: () => {
+    showKeyboardHelp.value = true;
   },
 });
 
@@ -101,9 +128,26 @@ const latestMessage = ref<string>('');
 const messageHistory = ref<
   Array<{ text: string; timestamp: number; emoji: string }>
 >([]);
+const recentlyReceivedMessage = ref(false);
+let recentMessageTimeout: ReturnType<typeof setTimeout> | null = null;
 
 const MAX_HISTORY = 5;
 const MAX_QUOTES = 10;
+const MESSAGE_DISPLAY_DELAY = 2000;
+
+// Clear message history when loading starts (new generation)
+watch(loading, (isLoading) => {
+  if (isLoading) {
+    messageHistory.value = [];
+    quotesReceivedSet.value.clear();
+    latestMessage.value = '';
+    recentlyReceivedMessage.value = false;
+    if (recentMessageTimeout) {
+      clearTimeout(recentMessageTimeout);
+      recentMessageTimeout = null;
+    }
+  }
+});
 
 watch(
   () => subscriptionResult.data.value,
@@ -112,6 +156,15 @@ watch(
     if (quote && !quotesReceivedSet.value.has(quote)) {
       quotesReceivedSet.value.add(quote);
       latestMessage.value = quote;
+      recentlyReceivedMessage.value = true;
+
+      // Keep showing crafting messages briefly after receiving
+      if (recentMessageTimeout) {
+        clearTimeout(recentMessageTimeout);
+      }
+      recentMessageTimeout = setTimeout(() => {
+        recentlyReceivedMessage.value = false;
+      }, MESSAGE_DISPLAY_DELAY);
 
       const newEntry = {
         text: quote,
@@ -127,6 +180,12 @@ watch(
     }
   },
 );
+
+// Show crafting when loading with messages OR recently received messages
+const showCrafting = computed(() => {
+  const hasMessages = messageHistory.value.length > 0;
+  return hasMessages && (loading.value || recentlyReceivedMessage.value);
+});
 
 const literaryLoadingMessages = computed(() => {
   const messages = tm('home.loadingMessages');
@@ -149,6 +208,20 @@ const loadingLabel = computed(() => {
 });
 
 onMounted(fetchNewHaiku);
+
+// Pull-to-refresh for mobile
+const pageRef = useTemplateRef<HTMLElement>('pageRef');
+const {
+  isPulling,
+  pullDistance,
+  isRefreshing,
+  progress,
+  shouldRelease,
+  isMobile,
+} = usePullToRefresh(pageRef, {
+  onRefresh: fetchNewHaiku,
+  disabled: loading,
+});
 </script>
 
 <template>
@@ -181,7 +254,16 @@ onMounted(fetchNewHaiku);
     </ZenTooltip>
   </v-container>
 
-  <v-container class="fill-height pa-2 pa-sm-4">
+  <v-container ref="pageRef" class="fill-height pa-2 pa-sm-4">
+    <!-- Pull-to-refresh indicator (mobile only) -->
+    <PullToRefresh
+      v-if="isMobile"
+      :pull-distance="pullDistance"
+      :is-refreshing="isRefreshing"
+      :should-release="shouldRelease"
+      :progress="progress"
+    />
+
     <div class="d-flex text-center fill-height justify-center align-center">
       <!-- Screen reader announcements for loading states -->
       <div class="sr-only" aria-live="polite" aria-atomic="true">
@@ -216,10 +298,9 @@ onMounted(fetchNewHaiku);
 
                 <haiku-process class="d-sm-none" />
 
-                <!-- Mobile: Toolbar moved up for visibility -->
-                <toolbar-panel class="d-sm-none mb-3" />
+                <social-network-panel class="d-sm-none mb-6" />
 
-                <social-network-panel class="mb-sm-3 mb-0" />
+                <toolbar-panel class="d-sm-none mb-0" />
               </v-col>
 
               <v-col
@@ -234,12 +315,17 @@ onMounted(fetchNewHaiku);
 
                 <div class="chapter-container d-none d-sm-block">
                   <haiku-crafting
-                    v-if="loading && messageHistory.length > 0"
+                    v-if="showCrafting"
                     :messages="messageHistory"
                   />
 
                   <haiku-chapter v-else />
                 </div>
+
+                <discord-preview-card
+                  v-if="isDev && optionUseAI"
+                  class="d-none d-sm-block mt-6"
+                />
               </v-col>
 
               <v-col
@@ -253,15 +339,15 @@ onMounted(fetchNewHaiku);
                 <!-- Desktop only: Toolbar (mobile version is in order-0 column) -->
                 <toolbar-panel class="d-none d-sm-block mb-3 mb-sm-6" />
 
-                <haiku-canvas class="mb-3" />
-
-                <config-panel class="mb-6" />
+                <haiku-canvas class="mt-n4 mt-sm-0 mb-3" />
 
                 <stats-panel class="mb-6" />
 
+                <config-panel class="mb-6" />
+
                 <div class="chapter-container d-sm-none mb-2">
                   <haiku-crafting
-                    v-if="loading && messageHistory.length > 0"
+                    v-if="showCrafting"
                     :messages="messageHistory"
                   />
 
@@ -275,6 +361,9 @@ onMounted(fetchNewHaiku);
         </v-row>
       </main>
     </div>
+
+    <!-- Keyboard shortcuts help modal -->
+    <KeyboardHelp v-model="showKeyboardHelp" />
   </v-container>
 </template>
 
