@@ -48,3 +48,66 @@ export interface HaikuResponseData {
 export interface ChapterResponseData {
   chapters: ChapterValue[];
 }
+
+// GutenGuess Game Types
+export type HintType =
+  | 'emoticons'
+  | 'haiku'
+  | 'genre_era'
+  | 'quote'
+  | 'letter_author'
+  | 'author_name';
+
+export interface PuzzleHint {
+  round: number;
+  type: HintType;
+  content: string;
+}
+
+export interface DailyPuzzle {
+  date: string;
+  puzzleNumber: number;
+  hints: PuzzleHint[];
+}
+
+export interface GameGuess {
+  bookId: string;
+  bookTitle: string;
+  isCorrect: boolean;
+  round: number;
+}
+
+export interface GameState {
+  puzzleNumber: number;
+  date: string;
+  guesses: GameGuess[];
+  currentRound: number;
+  isComplete: boolean;
+  isWon: boolean;
+}
+
+export interface GameStats {
+  gamesPlayed: number;
+  gamesWon: number;
+  currentStreak: number;
+  maxStreak: number;
+  lastPlayedDate: string | null;
+  guessDistribution: Record<number, number>;
+}
+
+export interface GuessResult {
+  isCorrect: boolean;
+  correctBook?: BookValue;
+  nextHint?: PuzzleHint;
+}
+
+export interface DailyPuzzleResponse {
+  puzzle: DailyPuzzle;
+  availableBooks: BookValue[];
+}
+
+export interface GlobalStats {
+  totalHaikusGenerated: number;
+  totalGamesPlayed: number;
+  totalGamesWon: number;
+}
