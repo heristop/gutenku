@@ -22,6 +22,7 @@ import { useToast } from '@/composables/toast';
 import { useLongPress, useTouchGestures } from '@/composables/touch-gestures';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
 import SwipeHint from '@/components/ui/SwipeHint.vue';
+import ZenCard from '@/components/ui/ZenCard.vue';
 
 const { t } = useI18n();
 const { success, error } = useToast();
@@ -148,11 +149,15 @@ function navigateForward(): void {
 </script>
 
 <template>
-  <div
+  <ZenCard
     ref="cardRef"
-    class="gutenku-card toolbar-panel toolbar-panel--card toolbar-container mt-2 mt-sm-0 mb-6 animate-in"
+    variant="default"
+    :aria-label="t('toolbar.ariaLabel')"
+    class="toolbar-panel toolbar-panel--card toolbar-container mb-6 animate-in"
     :class="{ 'is-visible': isInView }"
   >
+    <h2 class="sr-only">{{ t('toolbar.title') }}</h2>
+
     <!-- Primary: Generate Button (full width) -->
     <div class="toolbar-panel__primary">
       <ZenTooltip :text="generateTooltip" position="top">
@@ -172,7 +177,7 @@ function navigateForward(): void {
               'toolbar-panel__button--pulse': showPulse && !isTouchDevice,
             }"
             data-cy="fetch-btn"
-            variant="outlined"
+            variant="flat"
             size="large"
             block
             @click="extractGenerate"
@@ -304,20 +309,23 @@ function navigateForward(): void {
     <div
       v-if="historyLength > 0"
       class="toolbar-panel__history"
-      role="navigation"
+      role="group"
       :aria-label="t('toolbar.historyLabel')"
     >
+      <span class="sr-only">
+        {{ t('toolbar.historyPosition', { current: historyPosition, total: historyLength }) }}
+      </span>
       <span
         v-for="n in historyLength"
         :key="n"
         class="toolbar-panel__history-dot"
         :class="{ 'toolbar-panel__history-dot--active': n === historyPosition }"
-        :aria-current="n === historyPosition ? 'step' : undefined"
+        aria-hidden="true"
       />
     </div>
 
     <SwipeHint v-if="isTouchDevice" />
-  </div>
+  </ZenCard>
 </template>
 
 <style lang="scss" scoped>
@@ -357,11 +365,15 @@ function navigateForward(): void {
 .toolbar-panel {
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
-  padding: 1.25rem 0;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
 
   &__primary {
     width: 100%;
+    max-width: 280px;
+    display: flex;
+    justify-content: center;
   }
 
   &__secondary {
@@ -415,6 +427,7 @@ function navigateForward(): void {
         color: oklch(0.75 0.18 145) !important;
       }
     }
+
   }
 
   &__history {
@@ -455,12 +468,21 @@ function navigateForward(): void {
   }
 
   &__button {
-    border-width: 1.5px;
+    border: none !important;
+    outline: none !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     &--generate {
       font-size: 1rem;
       padding: 0.75rem 1.5rem;
+      background: oklch(0.94 0.02 145 / 0.6) !important;
+      border: 1px solid oklch(0.6 0.08 145 / 0.25) !important;
+      color: oklch(0.35 0.08 155) !important;
+
+      &:hover {
+        background: oklch(0.92 0.03 145 / 0.75) !important;
+        border-color: oklch(0.55 0.1 145 / 0.35) !important;
+      }
     }
 
     &--pulse {
@@ -468,35 +490,24 @@ function navigateForward(): void {
     }
 
     [data-theme='dark'] & {
-      background: oklch(1 0 0 / 0.12) !important;
-      color: oklch(1 0 0 / 0.95) !important;
-      border-color: oklch(1 0 0 / 0.25);
-      box-shadow:
-        0 2px 8px oklch(0 0 0 / 0.3),
-        0 1px 3px oklch(0 0 0 / 0.2),
-        inset 0 1px 0 oklch(1 0 0 / 0.15);
+      background: oklch(0.25 0.03 175 / 0.5) !important;
+      border: 1px solid oklch(0.5 0.04 175 / 0.3) !important;
+      color: oklch(0.85 0.04 175) !important;
     }
 
     &:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px oklch(0 0 0 / 0.15);
 
       [data-theme='dark'] & {
-        background: oklch(1 0 0 / 0.18) !important;
-        border-color: oklch(1 0 0 / 0.4);
-        box-shadow:
-          0 4px 16px oklch(0 0 0 / 0.4),
-          0 2px 6px oklch(0 0 0 / 0.3),
-          inset 0 1px 0 oklch(1 0 0 / 0.2);
+        background: oklch(0.3 0.04 175 / 0.6) !important;
+        border-color: oklch(0.55 0.05 175 / 0.4) !important;
 
         .toolbar-panel__icon {
-          color: oklch(1 0 0) !important;
-          filter: drop-shadow(0 2px 3px oklch(0 0 0 / 0.5));
+          color: oklch(0.9 0.05 175) !important;
         }
 
         .toolbar-panel__button-text {
-          color: oklch(1 0 0) !important;
-          text-shadow: 0 1px 3px oklch(0 0 0 / 0.5);
+          color: oklch(0.9 0.05 175) !important;
         }
       }
     }

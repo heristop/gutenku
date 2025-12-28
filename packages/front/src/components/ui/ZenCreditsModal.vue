@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue';
-import { X, Github, ExternalLink } from 'lucide-vue-next';
+import { ref, watch, onUnmounted, nextTick } from 'vue';
+import { X, ExternalLink } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -161,23 +161,13 @@ defineExpose({ open, close });
             </svg>
           </div>
 
-          <!-- Links -->
+          <!-- Portfolio Link -->
           <div class="zen-credits-modal__links">
-            <a
-              href="https://github.com/heristop"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="zen-credits-modal__link"
-              :aria-label="t('footer.credits.githubLabel')"
-            >
-              <Github :size="18" aria-hidden="true" />
-              <span>{{ t('footer.credits.github') }}</span>
-            </a>
             <a
               href="https://heristop.vercel.app"
               target="_blank"
               rel="noopener noreferrer"
-              class="zen-credits-modal__link"
+              class="zen-btn zen-btn--cta zen-credits-modal__link"
               :aria-label="t('footer.credits.portfolioLabel')"
             >
               <ExternalLink :size="18" aria-hidden="true" />
@@ -331,7 +321,7 @@ defineExpose({ open, close });
 
   &__hanko {
     position: absolute;
-    bottom: 5.5rem;
+    bottom: 4rem;
     right: 1.5rem;
     width: 40px;
     height: 40px;
@@ -360,30 +350,8 @@ defineExpose({ open, close });
   }
 
   &__link {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    font-family: 'JMH Typewriter', monospace;
-    font-size: 0.85rem;
-    color: var(--gutenku-text-secondary);
-    text-decoration: none;
-    background: oklch(0 0 0 / 0.03);
-    border: 1px solid var(--gutenku-paper-border);
-    border-radius: var(--gutenku-radius-sm);
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-
-    &:hover {
-      color: var(--gutenku-zen-primary);
-      background: oklch(0.55 0.08 170 / 0.08);
-      border-color: var(--gutenku-zen-primary);
-      transform: translateY(-2px);
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--gutenku-zen-primary);
-      outline-offset: 2px;
-    }
+    padding: 0.875rem 2rem !important;
+    font-size: 1rem !important;
   }
 }
 
@@ -514,14 +482,6 @@ defineExpose({ open, close });
   .zen-credits-modal__close:hover {
     background: oklch(1 0 0 / 0.1);
   }
-
-  .zen-credits-modal__link {
-    background: oklch(1 0 0 / 0.03);
-
-    &:hover {
-      background: oklch(0.5 0.06 170 / 0.12);
-    }
-  }
 }
 
 // Reduced motion
@@ -567,19 +527,10 @@ defineExpose({ open, close });
     }
 
     &__hanko {
-      bottom: 5rem;
+      bottom: 3.5rem;
       right: 1rem;
       width: 32px;
       height: 32px;
-    }
-
-    &__links {
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    &__link {
-      justify-content: center;
     }
   }
 }

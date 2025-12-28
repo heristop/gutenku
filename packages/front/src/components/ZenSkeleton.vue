@@ -60,7 +60,7 @@ defineProps<{
     .zen-skeleton__stroke {
       position: absolute;
       height: 3px;
-      border-radius: 2px;
+      border-radius: var(--gutenku-radius-xs);
 
       &:nth-child(1) {
         width: 60%;
@@ -92,7 +92,7 @@ defineProps<{
       var(--gutenku-zen-mist) 100%
     );
     background-size: 200% 100%;
-    border-radius: 2px;
+    border-radius: var(--gutenku-radius-xs);
     animation: zen-shimmer 2s ease-in-out infinite;
     animation-delay: var(--delay);
   }
