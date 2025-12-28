@@ -1,4 +1,4 @@
-.PHONY: help install dev start stop docker-up docker-down server front build test lint clean logs
+.PHONY: help install dev start stop docker-up docker-down server front build test lint clean logs setup setup-reset train
 
 # Default target
 help:
@@ -23,9 +23,12 @@ help:
 	@echo "  test          Run all tests"
 	@echo "  lint          Run linters on all packages"
 	@echo ""
-	@echo "Utilities:"
-	@echo "  setup         Setup books database"
+	@echo "Data Setup:"
+	@echo "  setup         Import books (skip existing)"
+	@echo "  setup-reset   Reset database and reimport all books"
 	@echo "  train         Train Markov chain model"
+	@echo ""
+	@echo "Utilities:"
 	@echo "  clean         Stop Docker and clean up"
 
 # Install dependencies
@@ -71,12 +74,15 @@ test:
 lint:
 	pnpm lint
 
-# Setup and training
+# Data setup and training
 setup:
-	pnpm setup
+	pnpm run setup
+
+setup-reset:
+	pnpm run setup:reset
 
 train:
-	pnpm train
+	pnpm run train
 
 # Clean up
 clean: docker-down
