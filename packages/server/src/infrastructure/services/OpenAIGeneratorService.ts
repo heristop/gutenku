@@ -10,6 +10,8 @@ import {
   IOpenAIClientToken,
 } from '~/domain/gateways/IOpenAIClient';
 
+type ReasoningEffort = 'none' | 'low' | 'medium' | 'high';
+
 @singleton()
 export default class OpenAIGeneratorService implements IGenerator {
   private readonly MAX_SELECTION_COUNT: number = 100;
@@ -18,6 +20,10 @@ export default class OpenAIGeneratorService implements IGenerator {
   private openai: IOpenAIClient;
 
   private selectionCount: number;
+
+  private get reasoningEffort(): ReasoningEffort {
+    return (process.env.OPENAI_REASONING_EFFORT as ReasoningEffort) || 'low';
+  }
 
   constructor(
     @inject(HaikuGeneratorService)
@@ -31,7 +37,10 @@ export default class OpenAIGeneratorService implements IGenerator {
     const { apiKey, selectionCount, temperature } = options;
 
     if (undefined === selectionCount) {
-      this.selectionCount = Number.parseInt(process.env.OPENAI_SELECTION_COUNT);
+      this.selectionCount = Number.parseInt(
+        process.env.OPENAI_SELECTION_COUNT,
+        10,
+      );
     }
 
     if (selectionCount > 0) {
@@ -62,8 +71,9 @@ export default class OpenAIGeneratorService implements IGenerator {
             content: prompt,
           },
         ],
-        model: process.env.OPENAI_GPT_MODEL || 'gpt-4o-mini',
+        model: process.env.OPENAI_GPT_MODEL || 'gpt-5.2',
         temperature: 0.7,
+        reasoning_effort: this.reasoningEffort,
       });
 
       const answer = completion.choices[0].message.content;
@@ -142,8 +152,9 @@ export default class OpenAIGeneratorService implements IGenerator {
           content: `${prompt} (Use the following format: ${outputFormat})`,
         },
       ],
-      model: process.env.OPENAI_GPT_MODEL || 'gpt-4o-mini',
+      model: process.env.OPENAI_GPT_MODEL || 'gpt-5.2',
       temperature: 0.7,
+      reasoning_effort: this.reasoningEffort,
     });
 
     const answer = completion.choices[0].message.content;
@@ -174,8 +185,9 @@ export default class OpenAIGeneratorService implements IGenerator {
           content: prompt,
         },
       ],
-      model: process.env.OPENAI_GPT_MODEL || 'gpt-4o-mini',
+      model: process.env.OPENAI_GPT_MODEL || 'gpt-5.2',
       temperature: 0.7,
+      reasoning_effort: this.reasoningEffort,
     });
 
     const answer = completion.choices[0].message.content;
@@ -193,8 +205,9 @@ export default class OpenAIGeneratorService implements IGenerator {
           content: prompt,
         },
       ],
-      model: process.env.OPENAI_GPT_MODEL || 'gpt-4o-mini',
+      model: process.env.OPENAI_GPT_MODEL || 'gpt-5.2',
       temperature: 0.7,
+      reasoning_effort: this.reasoningEffort,
     });
 
     return completion.choices[0].message.content.replaceAll(/[\n\s]+/g, '');

@@ -13,6 +13,9 @@ import { SelectRandomBookHandler } from '~/application/queries/books/SelectRando
 import { GetAllChaptersHandler } from '~/application/queries/chapters/GetAllChaptersHandler';
 import { GetChapterByIdHandler } from '~/application/queries/chapters/GetChapterByIdHandler';
 import { GenerateHaikuHandler } from '~/application/queries/haiku/GenerateHaikuHandler';
+import { GetDailyPuzzleHandler } from '~/application/queries/puzzle/GetDailyPuzzleHandler';
+import { SubmitGuessHandler } from '~/application/queries/puzzle/SubmitGuessHandler';
+import { GetGlobalStatsHandler } from '~/application/queries/stats/GetGlobalStatsHandler';
 import { CacheHaikuHandler } from '~/application/commands/haiku/CacheHaikuHandler';
 import { FetchBookHandler } from '~/application/commands/book/FetchBookHandler';
 import { DeleteBookHandler } from '~/application/commands/book/DeleteBookHandler';
@@ -40,6 +43,15 @@ container.register(createQueryHandlerToken('GetChapterByIdQuery'), {
 });
 container.register(createQueryHandlerToken('GenerateHaikuQuery'), {
   useClass: GenerateHaikuHandler,
+});
+container.register(createQueryHandlerToken('GetDailyPuzzleQuery'), {
+  useClass: GetDailyPuzzleHandler,
+});
+container.register(createQueryHandlerToken('SubmitGuessQuery'), {
+  useClass: SubmitGuessHandler,
+});
+container.register(createQueryHandlerToken('GetGlobalStatsQuery'), {
+  useClass: GetGlobalStatsHandler,
 });
 
 container.register(createCommandHandlerToken('CacheHaikuCommand'), {
