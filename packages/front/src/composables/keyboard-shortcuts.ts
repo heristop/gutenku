@@ -8,6 +8,7 @@ interface KeyboardShortcutsOptions {
   onPrevious?: () => void;
   onNext?: () => void;
   onHelp?: () => void;
+  onEscape?: () => void;
 }
 
 export function useKeyboardShortcuts(options: KeyboardShortcutsOptions) {
@@ -51,6 +52,9 @@ export function useKeyboardShortcuts(options: KeyboardShortcutsOptions) {
       case 'ArrowRight':
         event.preventDefault();
         options.onNext?.();
+        break;
+      case 'Escape':
+        options.onEscape?.();
         break;
     }
 

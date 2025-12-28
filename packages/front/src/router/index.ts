@@ -9,11 +9,45 @@ const routes = [
       {
         path: '',
         name: 'Home',
-        // route level code-splitting
-        // this generates a separate chunk (about.[hash].js) for this route
-        // which is lazy-loaded when the route is visited.
         component: () =>
           import(/* webpackChunkName: "home" */ '@/views/Home.vue'),
+        meta: {
+          title: 'GutenKu - AI Haiku Generator & Literary Games',
+          description:
+            'Generate beautiful haikus from classic literature using AI. Play GutenGuess daily!',
+        },
+      },
+      {
+        path: 'game',
+        name: 'Game',
+        component: () =>
+          import(/* webpackChunkName: "game" */ '@/views/Game.vue'),
+        meta: {
+          title: 'GutenGuess - Daily Book Guessing Game',
+          description:
+            'Guess the classic book from emoji hints. A daily literary puzzle similar to Wordle.',
+        },
+      },
+      {
+        path: 'haiku',
+        name: 'Haiku',
+        component: () =>
+          import(/* webpackChunkName: "haiku" */ '@/views/Haiku.vue'),
+        meta: {
+          title: 'Haiku Generator - GutenKu',
+          description:
+            'Create haikus inspired by classic literature from Project Gutenberg.',
+        },
+      },
+      {
+        path: ':pathMatch(.*)*',
+        name: 'NotFound',
+        component: () =>
+          import(/* webpackChunkName: "not-found" */ '@/views/NotFound.vue'),
+        meta: {
+          title: 'Page Not Found - GutenKu',
+          description: 'The requested page was not found.',
+        },
       },
     ],
   },

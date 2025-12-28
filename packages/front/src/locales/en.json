@@ -1,9 +1,96 @@
 {
   "common": {
+    "back": "Back",
     "close": "Close",
+    "cancel": "Cancel",
     "refresh": "Refresh",
+    "retry": "Try Again",
     "opensInNewTab": "opens in new tab",
     "swipe": "Swipe"
+  },
+  "nav": {
+    "pageNavigation": "Page navigation"
+  },
+  "haiku": {
+    "articleLabel": "Generated haiku and source text",
+    "controlsLabel": "Haiku controls and settings"
+  },
+  "notFound": {
+    "verse1": "The page you seek",
+    "verse2": "has wandered beyond the scroll—",
+    "verse3": "return to begin.",
+    "returnHome": "Return Home"
+  },
+  "theme": {
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode",
+    "systemPreference": "Use system theme"
+  },
+  "game": {
+    "loading": "Loading today's puzzle...",
+    "searchPlaceholder": "Search for a book...",
+    "searchLabel": "Search books by title or author",
+    "submit": "Submit guess",
+    "noResults": "No matching books found",
+    "guessHistory": "Your guesses",
+    "share": "Share Result",
+    "currentStreak": "Current streak",
+    "howToPlay": "How to play",
+    "statistics": "Statistics",
+    "playGutenGuess": "Play GutenGuess",
+    "playToday": "Play Today",
+    "tagline": "Daily literary guessing game",
+    "resetGame": "Reset game (dev)",
+    "help": {
+      "title": "How to Play",
+      "intro": "Guess the classic book from Project Gutenberg in 6 tries or less!",
+      "rulesTitle": "Rules",
+      "rule1": "Each day features a new book to guess",
+      "rule2": "You get 6 attempts to find the correct book",
+      "rule3": "After each wrong guess, you receive a new hint",
+      "hintsTitle": "Hints (in order)",
+      "footer": "A new puzzle every day!",
+      "examples": {
+        "emoticons": "e.g., 🐋🚢⚓ → Moby Dick",
+        "haiku": "e.g., \"White whale in the deep / Captain hunts with obsession / Sea claims all it takes\"",
+        "genreEra": "e.g., Adventure, 19th century",
+        "quote": "e.g., \"Call me Ishmael...\"",
+        "letterAuthor": "e.g., Starts with \"M\", American author",
+        "authorName": "e.g., Herman"
+      }
+    },
+    "hints": {
+      "emoticons": "Emoticons",
+      "haiku": "Haiku",
+      "genreEra": "Genre & Era",
+      "quote": "Famous Quote",
+      "letterAuthor": "First Letter & Nationality",
+      "authorName": "Author's First Name",
+      "unknown": "Hint",
+      "firstLetter": "First Letter",
+      "authorFirstName": "Author's First Name"
+    },
+    "result": {
+      "won": "Well done!",
+      "lost": "Try again tomorrow!",
+      "wonSubtitle": "You found it in {attempts} attempt | You found it in {attempts} attempts",
+      "lostSubtitle": "The book has been revealed"
+    },
+    "stats": {
+      "played": "Played",
+      "winRate": "Win %",
+      "streak": "Streak",
+      "maxStreak": "Max Streak",
+      "distribution": "Guess Distribution"
+    },
+    "shareCopied": "Result copied to clipboard!",
+    "attemptsRemaining": "{count} attempt remaining | {count} attempts remaining",
+    "nextPuzzle": "Next puzzle in",
+    "bookGrid": "Book selection grid",
+    "eliminateHint": "Right-click or long-press to eliminate books",
+    "resetEliminated": "Reset eliminated",
+    "confirmGuessQuestion": "Is this your final answer?",
+    "confirmGuess": "Confirm Guess"
   },
   "pullToRefresh": {
     "pull": "Pull to refresh",
@@ -14,8 +101,21 @@
     "skipLink": "Skip to main content"
   },
   "footer": {
-    "copyright": "heristop \u00a9 2023-{year}",
+    "copyright": "heristop © 2023-{year}",
     "openCredits": "Open credits",
+    "ariaLabel": "Site footer",
+    "navAriaLabel": "Footer navigation",
+    "socialAriaLabel": "Social links",
+    "nav": {
+      "home": "Home",
+      "gutenku": "GutenKu",
+      "gutenguess": "GutenGuess"
+    },
+    "social": {
+      "instagram": "Instagram",
+      "gutenberg": "Gutenberg",
+      "github": "GitHub"
+    },
     "credits": {
       "ariaLabel": "Credits haiku",
       "line1": "Code flows like water",
@@ -27,6 +127,10 @@
       "githubLabel": "Visit heristop on GitHub (opens in new tab)",
       "portfolioLabel": "Visit heristop portfolio (opens in new tab)"
     }
+  },
+  "introduction": {
+    "ariaLabel": "About GutenKu",
+    "description": "Poetry from prose. <strong>GutenKu</strong> generates unique haikus from classic literature, drawing from Project Gutenberg's free eBook library."
   },
   "haikuTitle": {
     "quotes": {
@@ -45,6 +149,7 @@
     }
   },
   "haikuChapter": {
+    "ariaLabel": "Book chapter excerpt with highlighted haiku verses",
     "disclosure": {
       "hidden": "Click anywhere on the text to reveal content",
       "visible": "Click anywhere to hide content"
@@ -58,33 +163,36 @@
     "steps": {
       "literature": {
         "title": "Classic Literature",
-        "description": "Dive into Project Gutenberg's timeless classics"
+        "description": "Source from Project Gutenberg library"
       },
       "haiku": {
         "title": "AI Haiku",
-        "description": "Transform passages into seventeen syllables"
+        "description": "Convert passages to 5-7-5 syllables"
       },
       "visual": {
         "title": "Visual Art",
-        "description": "Generate artwork inspired by your poem"
+        "description": "Generate artwork for haiku"
       }
     }
   },
   "haikuCrafting": {
-    "title": "Crafting Your Haiku",
+    "title": "Generating Haiku",
     "progress": "Generation in progress...",
     "pageNumber": "— Crafting —"
   },
   "haikuCanvas": {
-    "loading": "Painting your haiku...",
+    "loading": "Generating artwork...",
     "themeLabel": "Artistic Theme",
     "ariaLabel": "Haiku artwork display",
+    "imageLabel": "Haiku artwork: {verses}",
     "themeChanged": "Artistic theme changed to {theme}"
   },
   "highlightText": {
     "ariaDescription": "Text with {count} highlighted haiku verses"
   },
   "toolbar": {
+    "title": "Haiku Actions",
+    "ariaLabel": "Haiku toolbar actions",
     "generate": "Generate",
     "extract": "Extract",
     "generating": "Generating",
@@ -101,32 +209,42 @@
     "downloadError": "Could not save image. Please try again.",
     "previousTooltip": "Previous haiku",
     "nextTooltip": "Next haiku",
-    "historyLabel": "Haiku history navigation"
+    "historyLabel": "Haiku history navigation",
+    "historyPosition": "Haiku {current} of {total}"
   },
   "stats": {
-    "title": "Your Zen Journey",
-    "subtitle": "Reading the wind of words",
-    "ariaLabel": "Your Zen Journey statistics, toggle to expand",
+    "title": "Your Statistics",
+    "subtitle": "Generation history",
+    "ariaLabel": "Statistics, toggle to expand",
+    "haikusGenerated": "{count} haiku generated | {count} haikus generated",
+    "you": "You",
+    "global": "Global",
     "metrics": {
-      "haikuForged": "Haiku forged",
-      "booksBrowsed": "Books browsed",
+      "haikuForged": "Haikus created",
+      "booksBrowsed": "Books used",
       "fromCache": "From cache",
       "avgTime": "Avg time"
     },
-    "cacheUsage": "Calm waters (cache usage)",
-    "topBooks": "Top books inspiring your haiku",
+    "cacheUsage": "Cache usage",
+    "topBooks": "Most used books",
     "times": "{count} time | {count} times",
-    "emptyState": "Awaiting your first poems..."
+    "emptyState": "No haikus generated yet",
+    "tableHeaders": {
+      "rank": "Rank",
+      "book": "Book Title",
+      "count": "Times Used"
+    }
   },
   "config": {
     "title": "Configuration",
-    "subtitle": "Fine-tune your haiku generation",
+    "subtitle": "Adjust haiku generation settings",
     "ariaLabel": "Configuration, toggle to expand",
     "generateTooltip": "Generate with current settings",
     "resetTooltip": "Reset to defaults",
-    "advancedTooltip": "Fine-tune generation filters",
+    "advancedTooltip": "Adjust generation filters",
     "showAdvanced": "Show advanced",
     "hideAdvanced": "Hide advanced",
+    "sliderValue": "{label}: {value}",
     "filters": {
       "sentiment": "Sentiment",
       "markov": "Markov Chain",
@@ -156,131 +274,135 @@
     }
   },
   "home": {
+    "tagline": "Haiku from classic literature",
+    "haikusCrafted": "{count} haikus crafted",
+    "gamesPlayed": "{count} games",
+    "winRate": "{rate}% won",
     "networkError": "Cannot connect to the server :(",
     "haikuReady": "Haiku ready",
     "readyMessage": "Ready to create poetry",
     "haikuContentLabel": "Haiku content",
     "loadingMessages": {
-      "0": "🔍 Our poetic robots are diving into classic literature...",
-      "1": "📚 Scanning through the greatest works ever written...",
-      "2": "🎭 Absorbing the emotional essence of timeless stories...",
-      "3": "✨ Weaving seventeen syllables of pure magic...",
-      "4": "🎨 Selecting the perfect artistic theme for your poem...",
-      "5": "🖼️ Creating a visual masterpiece for your haiku...",
-      "6": "📝 Adding the final touches to your literary art..."
+      "0": "🔍 Searching classic literature...",
+      "1": "📚 Scanning book passages...",
+      "2": "🎭 Analyzing text sentiment...",
+      "3": "✨ Composing seventeen syllables...",
+      "4": "🎨 Selecting artistic theme...",
+      "5": "🖼️ Generating haiku artwork...",
+      "6": "📝 Finalizing your haiku..."
     }
   },
   "loadingMessages": {
     "default": {
-      "0": "Our poetic robots are diving into classic literature...",
-      "1": "Scanning through the greatest works ever written...",
-      "2": "Absorbing the emotional essence of timeless stories...",
-      "3": "Weaving seventeen syllables of pure magic...",
-      "4": "Selecting the perfect artistic theme for your poem...",
-      "5": "Creating a visual masterpiece for your haiku...",
-      "6": "Adding the final touches to your literary art...",
-      "7": "Shuffling cherry blossoms for seasonal vibes...",
-      "8": "Zen mode: in 5, out 7, in 5...",
-      "9": "Brewing green tea for the muse...",
-      "10": "Borrowing metaphors from Gutenberg's stacks...",
-      "11": "Waiting for the page to whisper back...",
-      "12": "Stitching syllables with tiny needles...",
-      "13": "Trimming adjectives with bonsai scissors...",
-      "14": "Counting syllables with monk-like patience...",
-      "15": "Polishing a pause until it shines...",
-      "16": "Asking Bash\u014d for a quick peer review...",
-      "17": "Raking the sand garden for line breaks...",
-      "18": "Listening for the wind to turn the page...",
-      "19": "Navigating by the North Star of nouns...",
-      "20": "Aligning moonlight for a perfect kireji...",
-      "21": "Binding a tiny book in your browser...",
-      "22": "Fitting quiet between two thoughts...",
-      "23": "Lo-fi beats to write haiku to...",
-      "24": "Running a vibe check on verbs...",
-      "25": "Dusting off a public-domain masterpiece...",
-      "26": "Finding the right reflection in a puddle...",
-      "27": "Leafing through a century in a second...",
-      "28": "Watering the bonsai of language...",
-      "29": "Teaching commas to bow politely...",
-      "30": "Unfolding origami stanzas...",
-      "31": "Turning silence into syllables...",
-      "32": "Choosing the one precise word...",
-      "33": "Cooling hot metaphors to room temperature...",
-      "34": "Catching a small idea with gentle hands..."
+      "0": "Searching classic literature...",
+      "1": "Scanning book passages...",
+      "2": "Analyzing text sentiment...",
+      "3": "Composing seventeen syllables...",
+      "4": "Selecting artistic theme...",
+      "5": "Generating haiku artwork...",
+      "6": "Finalizing your haiku...",
+      "7": "Processing seasonal imagery...",
+      "8": "Counting syllables: 5-7-5...",
+      "9": "Loading text sources...",
+      "10": "Fetching from Gutenberg library...",
+      "11": "Parsing chapter content...",
+      "12": "Assembling verse structure...",
+      "13": "Filtering word candidates...",
+      "14": "Validating syllable count...",
+      "15": "Refining line breaks...",
+      "16": "Checking haiku constraints...",
+      "17": "Formatting output...",
+      "18": "Building verse sequence...",
+      "19": "Analyzing word patterns...",
+      "20": "Applying kireji placement...",
+      "21": "Rendering in browser...",
+      "22": "Calculating spacing...",
+      "23": "Loading audio assets...",
+      "24": "Processing text grammar...",
+      "25": "Accessing public domain texts...",
+      "26": "Selecting imagery...",
+      "27": "Indexing source material...",
+      "28": "Processing language patterns...",
+      "29": "Adjusting punctuation...",
+      "30": "Structuring stanzas...",
+      "31": "Converting text to verses...",
+      "32": "Selecting vocabulary...",
+      "33": "Normalizing metaphors...",
+      "34": "Capturing text fragments..."
     },
     "craft": {
-      "0": "Your haiku is being crafted in real-time...",
-      "1": "Weaving syllables into poetry...",
-      "2": "Blending imagery and emotion...",
-      "3": "Sourcing inspiration from timeless pages...",
-      "4": "Shaping verses with subtle rhythm...",
-      "5": "Finding calm between the lines...",
-      "6": "Placing a single petal in the right place...",
-      "7": "Breathing a pause into the poem...",
-      "8": "Serving the first line warm, the last line cool...",
-      "9": "Letting silence land between words...",
-      "10": "Raking line breaks into the sand...",
-      "11": "Folding a thought into seventeen beats...",
-      "12": "Testing the weight of a whisper...",
-      "13": "Borrowing a page from Bash\u014d's notebook...",
-      "14": "Balancing moonlight on a comma...",
-      "15": "Training the verse like bamboo: straight and calm..."
+      "0": "Generating your haiku...",
+      "1": "Assembling syllables...",
+      "2": "Processing imagery...",
+      "3": "Analyzing source text...",
+      "4": "Building verse rhythm...",
+      "5": "Formatting lines...",
+      "6": "Positioning elements...",
+      "7": "Adding line breaks...",
+      "8": "Structuring verses...",
+      "9": "Placing word pauses...",
+      "10": "Formatting stanzas...",
+      "11": "Counting syllables...",
+      "12": "Adjusting word weight...",
+      "13": "Referencing haiku rules...",
+      "14": "Applying punctuation...",
+      "15": "Finalizing structure..."
     },
     "emojis": {
       "default": [
-        "\ud83d\udd0d",
-        "\ud83d\udcda",
-        "\ud83c\udfad",
-        "\u2728",
-        "\ud83c\udfa8",
-        "\ud83d\uddbc\ufe0f",
-        "\ud83d\udcdd",
-        "\ud83c\udf38",
-        "\ud83e\uddd8",
-        "\ud83c\udf75",
-        "\ud83d\udcd6",
-        "\ud83d\udd6f\ufe0f",
-        "\ud83e\uddf5",
-        "\u2702\ufe0f",
-        "\ud83e\uddee",
-        "\ud83c\udf00",
-        "\ud83e\udeb6",
-        "\ud83c\udfef",
-        "\ud83c\udf2c\ufe0f",
-        "\ud83e\udded",
-        "\ud83c\udf19",
-        "\ud83d\udcce",
-        "\ud83e\udde9",
-        "\ud83c\udfb6",
-        "\ud83e\udde0",
-        "\ud83d\udd16",
-        "\ud83e\ude9e",
-        "\ud83d\uddfa\ufe0f",
-        "\ud83c\udf3f",
-        "\ud83d\udcd0",
-        "\ud83d\udcdc",
-        "\ud83d\udd4a\ufe0f",
-        "\ud83c\udfaf",
-        "\ud83e\uddca",
-        "\ud83d\udca1"
+        "🔍",
+        "📚",
+        "🎭",
+        "✨",
+        "🎨",
+        "🖼️",
+        "📝",
+        "🌸",
+        "🧘",
+        "🍵",
+        "📖",
+        "🕯️",
+        "🧵",
+        "✂️",
+        "🧮",
+        "🌀",
+        "🪶",
+        "🏯",
+        "🌬️",
+        "🧭",
+        "🌙",
+        "📎",
+        "🧩",
+        "🎶",
+        "🧠",
+        "🔖",
+        "🪞",
+        "🗺️",
+        "🌿",
+        "📐",
+        "📜",
+        "🕊️",
+        "🎯",
+        "🧊",
+        "💡"
       ],
       "craft": [
-        "\u2728",
-        "\ud83e\uddf5",
-        "\ud83c\udfa8",
-        "\ud83d\udcd6",
-        "\ud83d\udd2e",
-        "\ud83c\udf3f",
-        "\ud83c\udf38",
-        "\ud83e\uddd8",
-        "\ud83c\udf75",
-        "\ud83d\udd4a\ufe0f",
-        "\ud83c\udfef",
-        "\ud83d\udcdd",
-        "\ud83e\udeb6",
-        "\ud83d\udd16",
-        "\ud83c\udf19",
-        "\ud83c\udf8b"
+        "✨",
+        "🧵",
+        "🎨",
+        "📖",
+        "🔮",
+        "🌿",
+        "🌸",
+        "🧘",
+        "🍵",
+        "🕊️",
+        "🏯",
+        "📝",
+        "🪶",
+        "🔖",
+        "🌙",
+        "🎋"
       ]
     }
   }
