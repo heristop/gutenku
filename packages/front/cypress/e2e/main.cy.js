@@ -17,9 +17,13 @@ describe('Landing page test', () => {
       'be.visible',
     );
     cy.get('[data-cy=copy-btn]:visible').click();
-    // Copy button shows success state with .success class
-    cy.get('[data-cy=copy-btn].success', { timeout: 4000 }).should('exist');
-    cy.get('[data-cy=copy-btn].success', { timeout: 5000 }).should('not.exist');
+    // Copy button shows success state with --success class modifier
+    cy.get('[data-cy=copy-btn].toolbar-panel__action-btn--success', {
+      timeout: 4000,
+    }).should('exist');
+    cy.get('[data-cy=copy-btn].toolbar-panel__action-btn--success', {
+      timeout: 5000,
+    }).should('not.exist');
     cy.get('[data-cy=light-toggle-btn]:visible').first().click();
     cy.get('[data-cy=download-btn]:visible').should('be.visible').click();
   });
