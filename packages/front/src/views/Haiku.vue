@@ -1,0 +1,176 @@
+<script lang="ts" setup>
+import { computed, onMounted, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { storeToRefs } from 'pinia';
+import { ChevronLeft } from 'lucide-vue-next';
+import { useHaikuStore } from '@/store/haiku';
+import { withViewTransition } from '@/composables/view-transition';
+import { useToast } from '@/composables/toast';
+import { useKeyboardShortcuts } from '@/composables/keyboard-shortcuts';
+import HaikuTitle from '@/components/HaikuTitle.vue';
+import HaikuCanvas from '@/components/HaikuCanvas.vue';
+import HaikuChapter from '@/components/HaikuChapter.vue';
+import ToolbarPanel from '@/components/ToolbarPanel.vue';
+import ConfigPanel from '@/components/ConfigPanel.vue';
+import StatsPanel from '@/components/StatsPanel.vue';
+import AppLoading from '@/components/AppLoading.vue';
+
+const { t, tm } = useI18n();
+const { error: showError } = useToast();
+
+const haikuStore = useHaikuStore();
+const { fetchNewHaiku } = haikuStore;
+const { haiku, error, firstLoaded, networkError, loading } = storeToRefs(haikuStore);
+
+// Watch for errors and show toast
+watch(error, (newError) => {
+  if (newError && newError !== 'network-error') {
+    showError(newError);
+    haikuStore.error = '';
+  }
+});
+
+// Keyboard shortcuts for the full experience
+useKeyboardShortcuts({
+  onGenerate: fetchNewHaiku,
+});
+
+const literaryLoadingMessages = computed(() => {
+  const messages = tm('home.loadingMessages');
+  return Object.keys(messages)
+    .filter((key) => !Number.isNaN(Number(key)))
+    .map((key) => t(`home.loadingMessages.${key}`));
+});
+
+const loadingLabel = computed(() => {
+  if (!firstLoaded.value || loading.value) {
+    const messages = literaryLoadingMessages.value;
+    const index = Math.floor(Date.now() / 2500) % messages.length;
+    return messages[index];
+  }
+  return t('home.readyMessage');
+});
+
+onMounted(fetchNewHaiku);
+</script>
+
+<template>
+  <v-container class="haiku-page pa-2 pa-sm-4">
+    <!-- Back Navigation -->
+    <nav :aria-label="t('nav.pageNavigation')">
+      <RouterLink
+        to="/"
+        class="zen-btn zen-btn--ghost haiku-page__back-wrapper"
+        :aria-label="t('common.back')"
+      >
+        <ChevronLeft :size="18" />
+        <span>{{ t('common.back') }}</span>
+      </RouterLink>
+    </nav>
+
+    <!-- Loading State -->
+    <div v-if="!firstLoaded && !networkError" class="haiku-page__loading">
+      <AppLoading :text="loadingLabel" :splash="true" />
+    </div>
+
+    <!-- Network Error State -->
+    <div v-else-if="networkError" class="haiku-page__error" role="alert">
+      <AppLoading :splash="true" error :text="t('home.networkError')" />
+    </div>
+
+    <!-- Main Content -->
+    <main
+      v-else
+      id="main-content"
+      class="haiku-page__content"
+      :aria-busy="loading"
+      :aria-label="t('home.haikuContentLabel')"
+    >
+      <v-row>
+        <!-- Left Column: Title + Chapter -->
+        <v-col cols="12" md="7" lg="8" order="1" order-md="1">
+          <article :aria-label="t('haiku.articleLabel')">
+            <HaikuTitle class="mb-4" />
+
+            <HaikuChapter v-if="haiku" class="mb-4" />
+          </article>
+        </v-col>
+
+        <!-- Right Column: Canvas + Toolbar + Settings -->
+        <v-col cols="12" md="5" lg="4" order="2" order-md="2">
+          <aside
+            :aria-label="t('haiku.controlsLabel')"
+            class="haiku-page__sidebar"
+          >
+            <HaikuCanvas class="mb-0" />
+
+            <ToolbarPanel class="mb-4" />
+
+            <StatsPanel class="mb-4" />
+
+            <ConfigPanel />
+          </aside>
+        </v-col>
+      </v-row>
+    </main>
+  </v-container>
+</template>
+
+<style lang="scss" scoped>
+.haiku-page {
+  min-height: 100vh;
+  padding-bottom: 2rem;
+  view-transition-name: haiku-page;
+}
+
+.haiku-page__back-wrapper {
+  margin-bottom: 1.5rem;
+  margin-left: 0.5rem;
+  margin-top: 0.25rem;
+
+  @media (min-width: 600px) {
+    margin-left: 0;
+    margin-top: 0;
+  }
+}
+
+.haiku-page__loading,
+.haiku-page__error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.haiku-page__content {
+  animation: fade-in 0.4s ease-out;
+}
+
+.haiku-page__sidebar {
+  position: sticky;
+  top: 1rem;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 960px) {
+  .haiku-page__sidebar {
+    position: static;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .haiku-page__content {
+    animation: none;
+  }
+}
+</style>
