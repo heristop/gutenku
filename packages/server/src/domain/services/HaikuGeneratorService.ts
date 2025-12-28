@@ -1,5 +1,5 @@
-import log from 'loglevel';
 import { promisify } from 'node:util';
+import { createLogger } from '~/infrastructure/services/Logger';
 import { unlink } from 'node:fs';
 import { syllable } from 'syllable';
 import { singleton, inject } from 'tsyringe';
@@ -27,6 +27,8 @@ import {
   cleanVerses,
 } from '~/shared/helpers/HaikuHelper';
 import { MaxAttemptsException } from '~/domain/exceptions';
+
+const log = createLogger('haiku');
 
 @singleton()
 export default class HaikuGeneratorService implements IGenerator {
@@ -397,7 +399,7 @@ export default class HaikuGeneratorService implements IGenerator {
           return false;
         }
 
-        log.info('quote', quote.split(' '));
+        log.debug({ quote: quote.split(' ') }, 'Evaluating quote');
 
         const sentimentScore = this.naturalLanguage.analyzeSentiment(quote);
 
@@ -405,7 +407,10 @@ export default class HaikuGeneratorService implements IGenerator {
           return false;
         }
 
-        log.info('sentiment_score', sentimentScore, 'min', sentimentMinScore);
+        log.debug(
+          { sentimentScore, min: sentimentMinScore },
+          'Sentiment score',
+        );
 
         if (posMinScore > 0) {
           const grammarAnalysis = this.naturalLanguage.analyzeGrammar(quote);
@@ -414,7 +419,10 @@ export default class HaikuGeneratorService implements IGenerator {
             return false;
           }
 
-          log.info('pos_score', grammarAnalysis.score, 'min', posMinScore);
+          log.debug(
+            { posScore: grammarAnalysis.score, min: posMinScore },
+            'POS score',
+          );
         }
 
         if (tfidfMinScore > 0) {
@@ -424,7 +432,7 @@ export default class HaikuGeneratorService implements IGenerator {
             return false;
           }
 
-          log.info('tfidf_score', tfidfScore, 'min', tfidfMinScore);
+          log.debug({ tfidfScore, min: tfidfMinScore }, 'TF-IDF score');
         }
 
         if (selectedVerses.length > 0) {
@@ -446,7 +454,7 @@ export default class HaikuGeneratorService implements IGenerator {
             return false;
           }
 
-          log.info('markov_score', markovScore, 'min', markovMinScore);
+          log.debug({ markovScore, min: markovMinScore }, 'Markov score');
 
           if (trigramMinScore > 0) {
             const trigramScore =
@@ -456,7 +464,7 @@ export default class HaikuGeneratorService implements IGenerator {
               return false;
             }
 
-            log.info('trigram_score', trigramScore, 'min', trigramMinScore);
+            log.debug({ trigramScore, min: trigramMinScore }, 'Trigram score');
           }
 
           if (phoneticsMinScore > 0 && selectedVerses.length === 2) {
@@ -467,11 +475,12 @@ export default class HaikuGeneratorService implements IGenerator {
               return false;
             }
 
-            log.info(
-              'phonetics_score',
-              phoneticsAnalysis.alliterationScore,
-              'min',
-              phoneticsMinScore,
+            log.debug(
+              {
+                phoneticsScore: phoneticsAnalysis.alliterationScore,
+                min: phoneticsMinScore,
+              },
+              'Phonetics score',
             );
           }
 
