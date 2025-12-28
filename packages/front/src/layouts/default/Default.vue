@@ -35,7 +35,7 @@ import ZenToast from '@/components/ui/ZenToast.vue';
   transform: translateX(-50%);
   z-index: 9999;
   padding: 0.75rem 1.5rem;
-  background: var(--gutenku-zen-primary, #2d4a3e);
+  background: var(--gutenku-zen-primary);
   color: #fff;
   text-decoration: none;
   border-radius: 0 0 8px 8px;
@@ -44,7 +44,7 @@ import ZenToast from '@/components/ui/ZenToast.vue';
 
   &:focus {
     top: 0;
-    outline: 2px solid var(--gutenku-zen-accent, #8b9a6d);
+    outline: 2px solid var(--gutenku-zen-accent);
     outline-offset: 2px;
   }
 }

@@ -114,7 +114,6 @@ const { isDarkMode } = useTheme();
         <v-spacer class="pa-10" />
 
         <v-sheet
-          id="loading-text"
           class="loading-text px-4 py-1"
           :color="error ? 'error' : 'primary'"
           :style="{
@@ -125,10 +124,10 @@ const { isDarkMode } = useTheme();
               ? 'var(--v-theme-on-error)'
               : 'var(--v-theme-on-primary)',
           }"
-          role="status"
-          aria-live="polite"
         >
-          {{ displayText }}
+          <output id="loading-text" aria-live="polite">
+            {{ displayText }}
+          </output>
         </v-sheet>
 
         <v-progress-linear

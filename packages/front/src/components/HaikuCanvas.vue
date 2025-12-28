@@ -170,6 +170,7 @@ const onImageLoad = () => {
           <div
             ref="canvasRef"
             class="canvas water-ripple-container"
+            role="presentation"
             @click="createRipple"
           >
             <v-img

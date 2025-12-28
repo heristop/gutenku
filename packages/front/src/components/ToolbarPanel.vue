@@ -19,8 +19,9 @@ import { useShare } from '@/composables/share';
 import { useImageDownload } from '@/composables/image-download';
 import { useInView } from '@/composables/in-view';
 import { useToast } from '@/composables/toast';
-import { useLongPress } from '@/composables/touch-gestures';
+import { useLongPress, useTouchGestures } from '@/composables/touch-gestures';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
+import SwipeHint from '@/components/ui/SwipeHint.vue';
 
 const { t } = useI18n();
 const { success, error } = useToast();
@@ -46,7 +47,7 @@ const hasCoarsePointer = useMediaQuery('(pointer: coarse)');
 const isTouchDevice = ref(false);
 
 onMounted(() => {
-  isTouchDevice.value = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  isTouchDevice.value = 'ontouchstart' in globalThis || navigator.maxTouchPoints > 0;
 });
 
 const longPressProgress = ref(0);
@@ -59,6 +60,22 @@ const { isPressed: isLongPressing } = useLongPress(generateBtnRef, {
   },
   onProgress: (progress) => {
     longPressProgress.value = progress;
+  },
+  vibrate: true,
+});
+
+// Swipe gestures for history navigation
+useTouchGestures(cardRef, {
+  threshold: 60,
+  onSwipeLeft: () => {
+    if (!loading.value && canGoForward.value) {
+      goForward();
+    }
+  },
+  onSwipeRight: () => {
+    if (!loading.value && canGoBack.value) {
+      goBack();
+    }
   },
   vibrate: true,
 });
@@ -194,8 +211,9 @@ function navigateForward(): void {
       <!-- Previous Button -->
       <ZenTooltip :text="previousTooltip" position="bottom">
         <v-btn
-          class="zen-btn toolbar-panel__action-btn"
+          class="zen-btn toolbar-panel__action-btn toolbar-panel__action-btn--stagger"
           :class="{ 'toolbar-panel__action-btn--disabled': !canGoBack }"
+          :style="{ '--stagger-index': 0 }"
           variant="text"
           size="small"
           icon
@@ -210,8 +228,9 @@ function navigateForward(): void {
       <!-- Copy Button -->
       <ZenTooltip :text="copyTooltip" position="bottom">
         <v-btn
-          class="zen-btn toolbar-panel__action-btn"
-          :class="{ 'toolbar-panel__action-btn--success': copied, 'success': copied }"
+          class="zen-btn toolbar-panel__action-btn toolbar-panel__action-btn--stagger"
+          :class="{ 'toolbar-panel__action-btn--success': copied }"
+          :style="{ '--stagger-index': 1 }"
           data-cy="copy-btn"
           variant="text"
           size="small"
@@ -220,7 +239,7 @@ function navigateForward(): void {
           :aria-label="copied ? t('toolbar.copiedLabel') : copyTooltip"
           @click="copyHaiku"
         >
-          <Check v-if="copied" :size="18" />
+          <Check v-if="copied" :size="18" class="success-checkmark" />
           <Copy v-else :size="18" />
         </v-btn>
       </ZenTooltip>
@@ -228,8 +247,9 @@ function navigateForward(): void {
       <!-- Share Button -->
       <ZenTooltip :text="shareTooltip" position="bottom">
         <v-btn
-          class="zen-btn toolbar-panel__action-btn"
+          class="zen-btn toolbar-panel__action-btn toolbar-panel__action-btn--stagger"
           :class="{ 'toolbar-panel__action-btn--success': shared }"
+          :style="{ '--stagger-index': 2 }"
           data-cy="share-btn"
           variant="text"
           size="small"
@@ -238,7 +258,7 @@ function navigateForward(): void {
           :aria-label="shareTooltip"
           @click="shareHaiku"
         >
-          <Check v-if="shared" :size="18" />
+          <Check v-if="shared" :size="18" class="success-checkmark" />
           <Share2 v-else :size="18" />
         </v-btn>
       </ZenTooltip>
@@ -246,7 +266,8 @@ function navigateForward(): void {
       <!-- Download Button -->
       <ZenTooltip :text="downloadTooltip" position="bottom">
         <v-btn
-          class="zen-btn toolbar-panel__action-btn"
+          class="zen-btn toolbar-panel__action-btn toolbar-panel__action-btn--stagger"
+          :style="{ '--stagger-index': 3 }"
           data-cy="download-btn"
           variant="text"
           size="small"
@@ -264,8 +285,9 @@ function navigateForward(): void {
       <!-- Next Button -->
       <ZenTooltip :text="nextTooltip" position="bottom">
         <v-btn
-          class="zen-btn toolbar-panel__action-btn"
+          class="zen-btn toolbar-panel__action-btn toolbar-panel__action-btn--stagger"
           :class="{ 'toolbar-panel__action-btn--disabled': !canGoForward }"
+          :style="{ '--stagger-index': 4 }"
           variant="text"
           size="small"
           icon
@@ -293,6 +315,8 @@ function navigateForward(): void {
         :aria-current="n === historyPosition ? 'step' : undefined"
       />
     </div>
+
+    <SwipeHint v-if="isTouchDevice" />
   </div>
 </template>
 
@@ -355,6 +379,12 @@ function navigateForward(): void {
     border-radius: var(--gutenku-radius-md);
     transition: all 0.2s ease;
 
+    &--stagger {
+      animation: btn-stagger-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      animation-delay: calc(var(--stagger-index, 0) * 50ms);
+      opacity: 0;
+    }
+
     &:hover:not(:disabled) {
       background: color-mix(in oklch, var(--gutenku-zen-primary) 10%, transparent);
       transform: translateY(-1px);
@@ -362,6 +392,11 @@ function navigateForward(): void {
 
     &--success {
       color: oklch(0.65 0.18 145) !important;
+      animation: success-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+      .success-checkmark {
+        animation: checkmark-spring 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
     }
 
     &--disabled {
@@ -394,10 +429,20 @@ function navigateForward(): void {
     border-radius: 50%;
     background: var(--gutenku-zen-secondary);
     transition: all 0.2s ease;
+    animation: dot-bounce-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    opacity: 0;
+
+    @for $i from 1 through 10 {
+      &:nth-child(#{$i}) {
+        animation-delay: calc(#{$i - 1} * 40ms);
+      }
+    }
 
     &--active {
-      background: var(--gutenku-zen-primary);
-      transform: scale(1.2);
+      background: var(--gutenku-zen-primary) !important;
+      transform: scale(1.2) !important;
+      opacity: 1 !important;
+      animation: dot-active-pulse 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     [data-theme='dark'] & {
@@ -486,6 +531,70 @@ function navigateForward(): void {
   }
 }
 
+@keyframes btn-stagger-in {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes success-pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes checkmark-spring {
+  0% {
+    transform: scale(0) rotate(-45deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.3) rotate(10deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes dot-bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  60% {
+    transform: scale(1.3);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes dot-active-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1.2);
+  }
+}
+
 @media (max-width: 768px) {
   .toolbar-panel {
     &__button {
@@ -517,8 +626,30 @@ function navigateForward(): void {
     &__action-btn {
       transition: none;
 
+      &--stagger {
+        animation: none;
+        opacity: 1;
+      }
+
+      &--success {
+        animation: none;
+
+        .success-checkmark {
+          animation: none;
+        }
+      }
+
       &:hover {
         transform: none;
+      }
+    }
+
+    &__history-dot {
+      animation: none;
+      opacity: 1;
+
+      &--active {
+        animation: none;
       }
     }
 

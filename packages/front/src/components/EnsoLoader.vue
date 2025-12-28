@@ -6,7 +6,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="enso-loader" role="status" aria-label="Loading">
+  <output class="enso-loader" aria-label="Loading">
     <svg
       class="enso-loader__svg"
       :width="size || 80"
@@ -31,7 +31,7 @@ defineProps<{
       <circle class="enso-loader__dot" cx="45" cy="10" r="2" />
     </svg>
     <span class="sr-only">Loading...</span>
-  </div>
+  </output>
 </template>
 
 <style scoped lang="scss">
