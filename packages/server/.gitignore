@@ -1,5 +1,3 @@
 /dist
-
-# Instagram Publisher
-cookies.json
 coverage/
+src/cli/gutenguess-books-source.ts
