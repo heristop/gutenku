@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import { onMounted, ref, computed, watch, onUnmounted, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { load } from '@fingerprintjs/botd';
 import { storeToRefs } from 'pinia';
 import { Lightbulb, LightbulbOff, ChevronsUpDown, ChevronsDownUp } from 'lucide-vue-next';
 import { useHaikuStore } from '@/store/haiku';
 import { useHaikuHighlighter } from '@/composables/haiku-highlighter';
 import { useTextCompacting } from '@/composables/text-compacting';
 import { useTouchGestures } from '@/composables/touch-gestures';
+import { useBotDetection } from '@/composables/bot-detection';
 import HighLightText from '@/components/HighLightText.vue';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
 import ZenCard from '@/components/ui/ZenCard.vue';
@@ -25,10 +25,7 @@ const isCompacted = ref(true);
 const chapterRef = ref<{ $el: HTMLElement } | null>(null);
 const showSwipeHint = ref(true);
 
-// Track card position for teleported crafting messages
 const cardRect = ref<DOMRect | null>(null);
-
-// Extract DOM element from component ref for composables that need HTMLElement
 const chapterEl = computed(() => chapterRef.value?.$el as HTMLElement | null);
 
 function updateCardRect() {
@@ -49,14 +46,12 @@ const craftingStyle = computed(() => {
   };
 });
 
-// Update position when loading starts or when crafting messages appear
 watch(loading, (isLoading) => {
   if (isLoading) {
     nextTick(updateCardRect);
   }
 });
 
-// Also update rect when crafting messages first appear
 watch(craftingMessages, (messages) => {
   if (messages.length > 0 && !cardRect.value) {
     nextTick(updateCardRect);
@@ -109,13 +104,12 @@ function toggleCompactedView(): void {
 const pageNumber = computed(() => {
   if (!haiku.value?.book?.title || !haiku.value?.chapter?.title) {return 1;}
 
-  // Hash book and chapter titles
   const combined = haiku.value.book.title + haiku.value.chapter.title;
   let hash = 0;
   for (let i = 0; i < combined.length; i++) {
     const char = combined.charCodeAt(i);
     hash = (hash << 5) - hash + char;
-    hash = hash & hash; // Convert to 32-bit integer
+    hash = hash & hash;
   }
   return Math.abs(hash % 200) + 1;
 });
@@ -125,18 +119,18 @@ function getCompactedText(): string {
   return compactText(haiku.value.chapter.content, haiku.value.rawVerses);
 }
 
+const { isBot, detectBot } = useBotDetection();
+
+watch(isBot, (botDetected) => {
+  if (botDetected) {
+    blackMarker.value = false;
+  }
+});
+
 onMounted(() => {
-  const botdPromise = load();
-
-  botdPromise.then((botd) => {
-    if (true === botd.detect().bot) {
-      blackMarker.value = false;
-    }
-  });
-
+  detectBot();
   applyToAllHighlights();
 
-  // Scroll listener for teleported crafting messages positioning
   scrollListener = () => {
     if (loading.value) {
       updateCardRect();
@@ -154,7 +148,6 @@ watch(
   { flush: 'post' },
 );
 
-// Clear crafting messages when loading ends
 watch(loading, (isLoading) => {
   if (!isLoading && craftingMessages.value.length > 0) {
     haikuStore.craftingMessages = [];
@@ -162,7 +155,6 @@ watch(loading, (isLoading) => {
 });
 
 onUnmounted(() => {
-  // Clean up scroll/resize listeners
   if (scrollListener) {
     window.removeEventListener('scroll', scrollListener);
     window.removeEventListener('resize', scrollListener);
@@ -313,7 +305,6 @@ onUnmounted(() => {
 </template>
 
 <style lang="scss" scoped>
-// Component-specific styles (base styling handled by ZenCard variant="book")
 .book-page {
   position: relative;
   margin-bottom: 1.5rem;
@@ -432,7 +423,6 @@ onUnmounted(() => {
 }
 
 .book-content {
-  // Reset button styles
   background: none;
   border: none;
   padding: 0;
@@ -659,7 +649,6 @@ onUnmounted(() => {
   }
 }
 
-// Page number
 .page-number {
   position: absolute;
   bottom: 1rem;
@@ -690,14 +679,12 @@ onUnmounted(() => {
   }
 }
 
-// Swipe visual feedback
 .book-page.is-swiping {
   transform: scale(0.98);
   opacity: 0.9;
   transition: all 0.15s ease;
 }
 
-// Swipe hint wrapper positioning
 .swipe-hint-wrapper {
   position: absolute;
   bottom: 2.5rem;
@@ -707,7 +694,6 @@ onUnmounted(() => {
   pointer-events: none;
 }
 
-// Fade transition
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;
@@ -718,14 +704,12 @@ onUnmounted(() => {
   opacity: 0;
 }
 
-// Reduced motion
 @media (prefers-reduced-motion: reduce) {
   .book-page.is-swiping {
     transform: none;
   }
 }
 
-// Screen reader only
 .sr-only {
   position: absolute;
   width: 1px;
@@ -739,7 +723,6 @@ onUnmounted(() => {
 }
 </style>
 
-<!-- Global styles for teleported crafting messages -->
 <style lang="scss">
 .crafting-messages-teleported {
   padding: 0.75rem 1rem;
@@ -786,7 +769,6 @@ onUnmounted(() => {
   }
 }
 
-// Crafting transitions (global for teleported elements)
 .crafting-fade-enter-active,
 .crafting-fade-leave-active {
   transition: all 0.3s ease;
@@ -820,7 +802,6 @@ onUnmounted(() => {
   transition: transform 0.3s ease;
 }
 
-// Dark theme
 [data-theme='dark'] .crafting-messages-teleported {
   background: var(--gutenku-paper-bg, #2a2520);
   box-shadow: 0 4px 20px oklch(0 0 0 / 0.4);

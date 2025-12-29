@@ -34,7 +34,12 @@ onMounted(() => {
   >
     <div class="preview-card__header">
       <img
-        src="@/assets/img/sumi-e-books.webp"
+        src="@/assets/img/sumi-e-books-320.webp"
+        srcset="
+          @/assets/img/sumi-e-books-320.webp 320w,
+          @/assets/img/sumi-e-books-640.webp 640w
+        "
+        sizes="(max-width: 600px) 320px, 640px"
         alt=""
         class="preview-card__illustration"
         loading="lazy"
