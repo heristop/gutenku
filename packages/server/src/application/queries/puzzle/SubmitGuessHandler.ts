@@ -73,15 +73,15 @@ function generateHintForRound(book: GutenGuessBook, round: number): PuzzleHint {
   const hints: Record<number, PuzzleHint> = {
     1: {
       round: 1,
-      type: 'emoticons',
-      content: book.emoticons,
-    },
-    2: {
-      round: 2,
       type: 'haiku',
       content:
         haikus[book.genre] ||
         'Pages turn with care\nStories waiting to be read\nFind the hidden tale',
+    },
+    2: {
+      round: 2,
+      type: 'emoticons',
+      content: book.emoticons,
     },
     3: {
       round: 3,
