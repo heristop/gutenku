@@ -25,6 +25,18 @@ export interface ContextVerses {
   sentenceAfter?: string;
 }
 
+export interface SelectionInfo {
+  requestedCount: number;
+  generatedCount: number;
+  selectedIndex: number;
+  reason?: string;
+}
+
+export interface HaikuCandidate {
+  verses: string[];
+  book: { title: string; author: string };
+}
+
 export interface HaikuValue {
   book: BookValue;
   chapter: ChapterValue;
@@ -39,6 +51,8 @@ export interface HaikuValue {
   translations?: Translations;
   cacheUsed: boolean;
   executionTime?: number;
+  selectionInfo?: SelectionInfo;
+  candidates?: HaikuCandidate[];
 }
 
 export interface HaikuResponseData {
@@ -142,7 +156,6 @@ export function generateSocialCaption(
   haiku: HaikuValue,
   options?: SocialCaptionOptions,
 ): string {
-  // Guard: Return empty string if required OpenAI fields are missing
   if (!haiku.title || !haiku.book?.emoticons) {
     return '';
   }

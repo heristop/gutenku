@@ -2,7 +2,7 @@ import type { HaikuValue } from '../../shared/types';
 
 export interface ICanvasService {
   useTheme(theme: string): void;
-  create(haiku: HaikuValue): Promise<string>;
+  create(haiku: HaikuValue, useImageAI?: boolean): Promise<string>;
   read(imagePath: string): Promise<{ data: Buffer; contentType: string }>;
 }
 

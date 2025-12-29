@@ -74,13 +74,28 @@ const query = `
                 it
                 de
             }
+            selectionInfo {
+                requestedCount
+                generatedCount
+                selectedIndex
+                reason
+            }
+            candidates {
+                verses
+                book {
+                    title
+                    author
+                }
+            }
         }
     }
 `;
 
 const variables = {
   appendImg: true,
-  selectionCount: Number.parseInt(options.selectionCount, 10),
+  selectionCount: options.selectionCount
+    ? Number.parseInt(options.selectionCount, 10)
+    : undefined,
   theme: options.theme,
   useAi: options.aiDescription,
   useImageAI: options.withImageAi,
@@ -104,6 +119,9 @@ try {
   );
   console.log(pc.dim(`ImageAI: ${options.withImageAi ? 'yes' : 'no'}`));
   console.log(pc.dim(`Interactive: ${options.interaction ? 'yes' : 'no'}`));
+  console.log(
+    pc.dim(`Selection Count: ${variables.selectionCount ?? 'default'}`),
+  );
 
   // Generate haiku with spinner
   const generateSpinner = ora('Generating haiku with image...').start();
@@ -126,7 +144,17 @@ try {
     process.exit(1);
   }
 
-  generateSpinner.succeed(pc.green('Haiku generated'));
+  if (haiku.selectionInfo) {
+    const { generatedCount, selectedIndex } = haiku.selectionInfo;
+    generateSpinner.succeed(
+      pc.green(`Haiku generated`) +
+        pc.dim(
+          ` (${generatedCount} candidates, selected #${selectedIndex + 1})`,
+        ),
+    );
+  } else {
+    generateSpinner.succeed(pc.green('Haiku generated'));
+  }
 
   // Process image
   const imageSpinner = ora('Processing image...').start();
@@ -154,8 +182,37 @@ try {
 
   imageSpinner.succeed(pc.green('Image processed'));
 
+  // Display all candidates if available
+  if (haiku.candidates && haiku.candidates.length > 1 && haiku.selectionInfo) {
+    console.log(pc.bold('\n═══ All Candidates ═══\n'));
+    const selectedIndex = haiku.selectionInfo.selectedIndex;
+
+    haiku.candidates.forEach((candidate, i) => {
+      const isSelected = i === selectedIndex;
+      const marker = isSelected ? pc.green('★ SELECTED') : '';
+      const indexStr = isSelected
+        ? pc.green(pc.bold(`#${i + 1}`))
+        : pc.dim(`#${i + 1}`);
+      const bookInfo = pc.dim(`(${candidate.book.title})`);
+
+      console.log(`${indexStr} ${marker} ${bookInfo}`);
+      candidate.verses.forEach((verse) => {
+        const verseText = isSelected
+          ? pc.cyan(`  ${verse}`)
+          : pc.dim(`  ${verse}`);
+        console.log(verseText);
+      });
+      console.log();
+    });
+
+    if (haiku.selectionInfo.reason) {
+      console.log(pc.yellow('💡 Selection reason:'));
+      console.log(pc.italic(`   ${haiku.selectionInfo.reason}\n`));
+    }
+  }
+
   // Display preview
-  console.log(pc.bold('\n═══ Generated Haiku ═══\n'));
+  console.log(pc.bold('═══ Generated Haiku ═══\n'));
 
   // Terminal image preview
   try {

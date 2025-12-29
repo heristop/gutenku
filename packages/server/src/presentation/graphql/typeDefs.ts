@@ -23,6 +23,23 @@ const typeDefs = `#graphql
         de: String
     }
 
+    type SelectionInfo {
+        requestedCount: Int!
+        generatedCount: Int!
+        selectedIndex: Int!
+        reason: String
+    }
+
+    type CandidateBook {
+        title: String!
+        author: String!
+    }
+
+    type HaikuCandidate {
+        verses: [String!]!
+        book: CandidateBook!
+    }
+
     type Haiku {
         book: Book!
         chapter: Chapter!
@@ -37,6 +54,8 @@ const typeDefs = `#graphql
         translations: Translations
         cacheUsed: Boolean
         executionTime: Float
+        selectionInfo: SelectionInfo
+        candidates: [HaikuCandidate!]
     }
 
     type PuzzleHint {
