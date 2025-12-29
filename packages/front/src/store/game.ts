@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
 import type {
   BookValue,
   DailyPuzzle,
@@ -33,73 +34,84 @@ function isYesterday(dateStr: string | null): boolean {
   return dateStr === yesterday.toISOString().split('T')[0];
 }
 
-export const useGameStore = defineStore({
-  id: 'game',
-  state: () => ({
-    puzzle: null as DailyPuzzle | null,
-    availableBooks: [] as BookValue[],
-    currentGame: null as GameState | null,
-    stats: {
+export const useGameStore = defineStore(
+  'game',
+  () => {
+    // State
+    const puzzle = ref<DailyPuzzle | null>(null);
+    const availableBooks = ref<BookValue[]>([]);
+    const currentGame = ref<GameState | null>(null);
+    const stats = ref<GameStats>({
       gamesPlayed: 0,
       gamesWon: 0,
       currentStreak: 0,
       maxStreak: 0,
       lastPlayedDate: null,
       guessDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 },
-    } as GameStats,
-    loading: false,
-    error: '' as string,
-    showStats: false,
-    showResult: false,
-  }),
-  persist: {
-    storage: localStorage,
-    paths: ['currentGame', 'stats'],
-  },
-  getters: {
-    todayDate: () => getTodayDate(),
-    puzzleNumber: (state) =>
-      state.puzzle?.puzzleNumber ?? calculatePuzzleNumber(getTodayDate()),
-    currentRound: (state) => state.currentGame?.currentRound ?? 1,
-    revealedHints: (state): PuzzleHint[] => {
-      if (!state.puzzle || !state.currentGame) {
+    });
+    const loading = ref(false);
+    const error = ref('');
+    const showStats = ref(false);
+    const showResult = ref(false);
+
+    // Getters
+    const todayDate = computed(() => getTodayDate());
+    const puzzleNumber = computed(
+      () => puzzle.value?.puzzleNumber ?? calculatePuzzleNumber(getTodayDate()),
+    );
+    const currentRound = computed(() => currentGame.value?.currentRound ?? 1);
+    const revealedHints = computed((): PuzzleHint[] => {
+      if (!puzzle.value || !currentGame.value) {
         return [];
       }
-      return state.puzzle.hints.filter(
-        (h) => h.round <= state.currentGame!.currentRound,
+      return puzzle.value.hints.filter(
+        (h) => h.round <= currentGame.value!.currentRound,
       );
-    },
-    isGameComplete: (state) => state.currentGame?.isComplete ?? false,
-    isGameWon: (state) => state.currentGame?.isWon ?? false,
-    guesses: (state): GameGuess[] => state.currentGame?.guesses ?? [],
-    attemptsRemaining: (state) => 6 - (state.currentGame?.guesses.length ?? 0),
-    winRate: (state) =>
-      state.stats.gamesPlayed > 0
-        ? Math.round((state.stats.gamesWon / state.stats.gamesPlayed) * 100)
+    });
+    const isGameComplete = computed(
+      () => currentGame.value?.isComplete ?? false,
+    );
+    const isGameWon = computed(() => currentGame.value?.isWon ?? false);
+    const guesses = computed(
+      (): GameGuess[] => currentGame.value?.guesses ?? [],
+    );
+    const attemptsRemaining = computed(
+      () => 6 - (currentGame.value?.guesses.length ?? 0),
+    );
+    const winRate = computed(() =>
+      stats.value.gamesPlayed > 0
+        ? Math.round((stats.value.gamesWon / stats.value.gamesPlayed) * 100)
         : 0,
-    hasPlayedToday: (state) =>
-      state.currentGame?.date === getTodayDate() &&
-      state.currentGame?.isComplete,
-  },
-  actions: {
-    async fetchDailyPuzzle(): Promise<void> {
+    );
+    const hasPlayedToday = computed(
+      () =>
+        currentGame.value?.date === getTodayDate() &&
+        currentGame.value?.isComplete,
+    );
+
+    // Actions
+    async function fetchDailyPuzzle(): Promise<void> {
       const today = getTodayDate();
 
-      if (this.currentGame && this.currentGame.date === today && this.puzzle) {
+      if (
+        currentGame.value &&
+        currentGame.value.date === today &&
+        puzzle.value
+      ) {
         return;
       }
 
-      if (this.currentGame && this.currentGame.date !== today) {
-        this.currentGame = null;
+      if (currentGame.value && currentGame.value.date !== today) {
+        currentGame.value = null;
       }
 
       try {
-        this.loading = true;
-        this.error = '';
+        loading.value = true;
+        error.value = '';
 
-        const revealedRounds = this.currentGame
+        const revealedRounds = currentGame.value
           ? Array.from(
-              { length: this.currentGame.currentRound },
+              { length: currentGame.value.currentRound },
               (_, i) => i + 1,
             )
           : [1];
@@ -139,11 +151,11 @@ export const useGameStore = defineStore({
 
         const data = result.data?.dailyPuzzle;
         if (data) {
-          this.puzzle = data.puzzle;
-          this.availableBooks = data.availableBooks;
+          puzzle.value = data.puzzle;
+          availableBooks.value = data.availableBooks;
 
-          if (!this.currentGame) {
-            this.currentGame = {
+          if (!currentGame.value) {
+            currentGame.value = {
               puzzleNumber: data.puzzle.puzzleNumber,
               date: today,
               guesses: [],
@@ -154,19 +166,22 @@ export const useGameStore = defineStore({
           }
         }
       } catch {
-        this.error = 'Failed to load puzzle';
+        error.value = 'Failed to load puzzle';
       } finally {
-        this.loading = false;
+        loading.value = false;
       }
-    },
+    }
 
-    async submitGuess(bookId: string, bookTitle: string): Promise<boolean> {
-      if (!this.currentGame || this.currentGame.isComplete) {
+    async function submitGuess(
+      bookId: string,
+      bookTitle: string,
+    ): Promise<boolean> {
+      if (!currentGame.value || currentGame.value.isComplete) {
         return false;
       }
 
       try {
-        this.loading = true;
+        loading.value = true;
 
         const mutation = gql`
           query SubmitGuess(
@@ -197,9 +212,9 @@ export const useGameStore = defineStore({
 
         const result = await urqlClient
           .query<{ submitGuess: GuessResult }>(mutation, {
-            date: this.currentGame.date,
+            date: currentGame.value.date,
             guessedBookId: bookId,
-            currentRound: this.currentGame.currentRound,
+            currentRound: currentGame.value.currentRound,
           })
           .toPromise();
 
@@ -212,70 +227,70 @@ export const useGameStore = defineStore({
           return false;
         }
 
-        const currentRound = this.currentGame.currentRound;
-        this.currentGame.guesses.push({
+        const round = currentGame.value.currentRound;
+        currentGame.value.guesses.push({
           bookId,
           bookTitle,
           isCorrect: guessResult.isCorrect,
-          round: currentRound,
+          round,
         });
 
         if (guessResult.isCorrect) {
-          this.currentGame.isComplete = true;
-          this.currentGame.isWon = true;
-          this.recordWin(this.currentGame.currentRound);
-          this.showResult = true;
+          currentGame.value.isComplete = true;
+          currentGame.value.isWon = true;
+          recordWin(currentGame.value.currentRound);
+          showResult.value = true;
           return true;
         }
 
-        if (guessResult.nextHint && this.puzzle) {
-          this.puzzle.hints.push(guessResult.nextHint);
-          this.currentGame.currentRound = guessResult.nextHint.round;
+        if (guessResult.nextHint && puzzle.value) {
+          puzzle.value.hints.push(guessResult.nextHint);
+          currentGame.value.currentRound = guessResult.nextHint.round;
         } else if (guessResult.correctBook) {
-          this.currentGame.isComplete = true;
-          this.currentGame.isWon = false;
-          this.recordLoss();
-          this.showResult = true;
+          currentGame.value.isComplete = true;
+          currentGame.value.isWon = false;
+          recordLoss();
+          showResult.value = true;
         }
 
         return guessResult.isCorrect;
       } catch {
-        this.error = 'Failed to submit guess';
+        error.value = 'Failed to submit guess';
         return false;
       } finally {
-        this.loading = false;
+        loading.value = false;
       }
-    },
+    }
 
-    recordWin(round: number): void {
-      this.stats.gamesPlayed++;
-      this.stats.gamesWon++;
-      this.stats.guessDistribution[round as 1 | 2 | 3 | 4 | 5 | 6]++;
+    function recordWin(round: number): void {
+      stats.value.gamesPlayed++;
+      stats.value.gamesWon++;
+      stats.value.guessDistribution[round as 1 | 2 | 3 | 4 | 5 | 6]++;
 
       if (
-        isYesterday(this.stats.lastPlayedDate) ||
-        this.stats.lastPlayedDate === null
+        isYesterday(stats.value.lastPlayedDate) ||
+        stats.value.lastPlayedDate === null
       ) {
-        this.stats.currentStreak++;
+        stats.value.currentStreak++;
       } else {
-        this.stats.currentStreak = 1;
+        stats.value.currentStreak = 1;
       }
 
-      this.stats.maxStreak = Math.max(
-        this.stats.maxStreak,
-        this.stats.currentStreak,
+      stats.value.maxStreak = Math.max(
+        stats.value.maxStreak,
+        stats.value.currentStreak,
       );
-      this.stats.lastPlayedDate = getTodayDate();
-    },
+      stats.value.lastPlayedDate = getTodayDate();
+    }
 
-    recordLoss(): void {
-      this.stats.gamesPlayed++;
-      this.stats.currentStreak = 0;
-      this.stats.lastPlayedDate = getTodayDate();
-    },
+    function recordLoss(): void {
+      stats.value.gamesPlayed++;
+      stats.value.currentStreak = 0;
+      stats.value.lastPlayedDate = getTodayDate();
+    }
 
-    generateShareText(): string {
-      if (!this.currentGame) {
+    function generateShareText(): string {
+      if (!currentGame.value) {
         return '';
       }
 
@@ -288,14 +303,14 @@ export const useGameStore = defineStore({
         author_name: '👤',
       };
 
-      const roundCount = this.currentGame.isWon
-        ? this.currentGame.guesses.length
+      const roundCount = currentGame.value.isWon
+        ? currentGame.value.guesses.length
         : 'X';
 
-      let shareText = `GutenGuess #${this.currentGame.puzzleNumber} ${roundCount}/6\n\n`;
+      let shareText = `GutenGuess #${currentGame.value.puzzleNumber} ${roundCount}/6\n\n`;
 
-      this.currentGame.guesses.forEach((guess, index) => {
-        const hint = this.puzzle?.hints.find((h) => h.round === index + 1);
+      currentGame.value.guesses.forEach((guess, index) => {
+        const hint = puzzle.value?.hints.find((h) => h.round === index + 1);
         const hintEmoji = hint ? hintEmojis[hint.type] || '❓' : '❓';
         const resultEmoji = guess.isCorrect ? '🟩' : '🟥';
         shareText += `${hintEmoji} ${resultEmoji}\n`;
@@ -303,10 +318,10 @@ export const useGameStore = defineStore({
 
       shareText += '\ngutenku.xyz/game';
       return shareText;
-    },
+    }
 
-    async shareResult(): Promise<void> {
-      const text = this.generateShareText();
+    async function shareResult(): Promise<void> {
+      const text = generateShareText();
 
       if (navigator.share) {
         try {
@@ -317,13 +332,50 @@ export const useGameStore = defineStore({
       } else {
         await navigator.clipboard.writeText(text);
       }
-    },
+    }
 
-    resetGame(): void {
-      this.currentGame = null;
-      this.puzzle = null;
-      this.showResult = false;
-      this.showStats = false;
+    function resetGame(): void {
+      currentGame.value = null;
+      puzzle.value = null;
+      showResult.value = false;
+      showStats.value = false;
+    }
+
+    return {
+      // State
+      puzzle,
+      availableBooks,
+      currentGame,
+      stats,
+      loading,
+      error,
+      showStats,
+      showResult,
+      // Getters
+      todayDate,
+      puzzleNumber,
+      currentRound,
+      revealedHints,
+      isGameComplete,
+      isGameWon,
+      guesses,
+      attemptsRemaining,
+      winRate,
+      hasPlayedToday,
+      // Actions
+      fetchDailyPuzzle,
+      submitGuess,
+      recordWin,
+      recordLoss,
+      generateShareText,
+      shareResult,
+      resetGame,
+    };
+  },
+  {
+    persist: {
+      storage: localStorage,
+      paths: ['currentGame', 'stats'],
     },
   },
-});
+);
