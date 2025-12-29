@@ -62,7 +62,7 @@ vi.mock('~/shared/themes/watermark', () => ({
   },
 }));
 
-vi.mock('~/shared/themes/openai', () => ({
+vi.mock('~/shared/themes/nihonga', () => ({
   default: {
     create: vi.fn(async () => ({
       createJPEGStream: vi.fn(() => ({ pipe: vi.fn() })),
@@ -99,9 +99,9 @@ describe('CanvasService', () => {
     // @ts-expect-error - accessing private property
     expect(canvasService.theme).toBe('watermark');
 
-    canvasService.useTheme('openai');
+    canvasService.useTheme('nihonga');
     // @ts-expect-error - accessing private property
-    expect(canvasService.theme).toBe('openai');
+    expect(canvasService.theme).toBe('nihonga');
   });
 
   it('read returns buffer and content type', async () => {
@@ -162,8 +162,8 @@ describe('CanvasService - create', () => {
     expect(typeof result).toBe('string');
   });
 
-  it('creates image with openai theme', async () => {
-    canvasService.useTheme('openai');
+  it('creates image with nihonga theme', async () => {
+    canvasService.useTheme('nihonga');
     // @ts-expect-error - test with partial haiku
     const result = await canvasService.create(mockHaiku);
     expect(typeof result).toBe('string');
