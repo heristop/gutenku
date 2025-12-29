@@ -34,6 +34,7 @@ export interface HaikuVariables {
   useAI: boolean;
   useCache: boolean;
   appendImg: boolean;
+  useImageAI: boolean;
   selectionCount: number;
   theme: string;
   filter: string;
