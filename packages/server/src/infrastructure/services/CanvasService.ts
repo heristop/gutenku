@@ -9,7 +9,12 @@ import type { HaikuValue } from '~/shared/types';
 import colored from '~/shared/themes/colored';
 import greentea from '~/shared/themes/greentea';
 import watermark from '~/shared/themes/watermark';
-import openai from '~/shared/themes/openai';
+import nihonga from '~/shared/themes/nihonga';
+import sumie from '~/shared/themes/sumie';
+import ukiyoe from '~/shared/themes/ukiyoe';
+import zengarden from '~/shared/themes/zengarden';
+import wabisabi from '~/shared/themes/wabisabi';
+import bookzen from '~/shared/themes/bookzen';
 
 @singleton()
 export default class CanvasService {
@@ -20,15 +25,31 @@ export default class CanvasService {
     this.theme = theme;
   }
 
-  async create(haiku: HaikuValue): Promise<string> {
+  async create(
+    haiku: HaikuValue,
+    useImageAI: boolean = false,
+  ): Promise<string> {
     let createCanvas = null;
 
-    log.info({ theme: this.theme }, 'Creating image');
+    log.info({ theme: this.theme, useImageAI }, 'Crafting image');
 
     if (this.theme === 'random') {
-      const themes = ['colored', 'greentea', 'watermark'];
+      const staticThemes = ['colored', 'greentea', 'watermark'];
+      const aiThemes = [
+        'nihonga',
+        'sumie',
+        'ukiyoe',
+        'zengarden',
+        'wabisabi',
+        'bookzen',
+      ];
+      const themes = useImageAI ? aiThemes : staticThemes;
       const randomIndex = Math.floor(Math.random() * themes.length);
       this.theme = themes[randomIndex];
+      log.info(
+        { selectedTheme: this.theme, useImageAI },
+        'Random theme selected',
+      );
     }
 
     switch (this.theme) {
@@ -41,8 +62,23 @@ export default class CanvasService {
       case 'watermark':
         createCanvas = watermark.create;
         break;
-      case 'openai':
-        createCanvas = openai.create;
+      case 'nihonga':
+        createCanvas = nihonga.create;
+        break;
+      case 'sumie':
+        createCanvas = sumie.create;
+        break;
+      case 'ukiyoe':
+        createCanvas = ukiyoe.create;
+        break;
+      case 'zengarden':
+        createCanvas = zengarden.create;
+        break;
+      case 'wabisabi':
+        createCanvas = wabisabi.create;
+        break;
+      case 'bookzen':
+        createCanvas = bookzen.create;
         break;
       default:
         throw new Error(`Unsupported theme: ${this.theme}`);
