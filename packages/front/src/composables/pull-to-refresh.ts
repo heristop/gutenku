@@ -82,6 +82,8 @@ export function usePullToRefresh(
       canPull.value = true;
       startY.value = getClientY(e);
       hasVibratedAtThreshold = false;
+      // Disable native pull-to-refresh while custom pull is active
+      document.documentElement.style.overscrollBehaviorY = 'contain';
     }
   }
 
@@ -115,6 +117,9 @@ export function usePullToRefresh(
   }
 
   async function handlePointerEnd() {
+    // Re-enable native pull-to-refresh
+    document.documentElement.style.overscrollBehaviorY = '';
+
     if (!isPulling.value) {
       return;
     }
