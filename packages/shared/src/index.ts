@@ -111,3 +111,84 @@ export interface GlobalStats {
   totalGamesPlayed: number;
   totalGamesWon: number;
 }
+
+// Caption Generator Utilities
+
+export function maskBookTitle(title: string): string {
+  const vowels = 'aeiouyAEIOUY';
+  let nonMaskedVowel = '';
+
+  for (const char of title) {
+    if (vowels.includes(char)) {
+      nonMaskedVowel = char;
+      break;
+    }
+  }
+
+  if (!nonMaskedVowel) return title;
+
+  return title.replaceAll(new RegExp(`[^ ${nonMaskedVowel}]`, 'gi'), '*');
+}
+
+export function formatAuthorHashtag(author: string): string {
+  return author.toLowerCase().replaceAll(/\s|,|-|\.|\(|\)/g, '');
+}
+
+export interface SocialCaptionOptions {
+  extraHashtags?: string;
+}
+
+export function generateSocialCaption(
+  haiku: HaikuValue,
+  options?: SocialCaptionOptions,
+): string {
+  // Guard: Return empty string if required OpenAI fields are missing
+  if (!haiku.title || !haiku.book?.emoticons) {
+    return '';
+  }
+
+  const bookTitle = haiku.book.title;
+  const firstLetter = bookTitle[0].toUpperCase();
+  const authorFirstName = haiku.book.author.split(' ')[0];
+  const hashtagAuthor = formatAuthorHashtag(haiku.book.author);
+  const extraHashtags = options?.extraHashtags
+    ? ` ${options.extraHashtags}`
+    : '';
+
+  return `🌸 “${haiku.title}” 🗻
+
+📚 Guess the book! 👇
+
+~~~
+
+💡 Hint 1 (Bookmoji):
+${haiku.book.emoticons}
+
+💡 Hint 2 (First letter of the book):
+${firstLetter}...
+
+💡 Hint 3 (Author):
+${authorFirstName}...
+
+・
+・
+・
+・
+
+📗 ${bookTitle} by ${haiku.book.author}
+
+~~~
+
+${haiku.verses.join('\n')}
+
+~~~
+
+🇫🇷 ${haiku.translations?.fr || ''}
+
+🇯🇵 ${haiku.translations?.jp || ''}
+
+~~~
+
+#gutenku #bookstagram #guessthebook #${hashtagAuthor}${extraHashtags} ${haiku.hashtags || ''}
+`.trim();
+}
