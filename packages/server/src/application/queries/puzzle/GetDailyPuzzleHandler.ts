@@ -62,13 +62,13 @@ function generateHints(book: GutenGuessBook): PuzzleHint[] {
   return [
     {
       round: 1,
-      type: 'emoticons',
-      content: book.emoticons,
+      type: 'haiku',
+      content: generateHaikuHint(book),
     },
     {
       round: 2,
-      type: 'haiku',
-      content: generateHaikuHint(book),
+      type: 'emoticons',
+      content: book.emoticons,
     },
     {
       round: 3,
