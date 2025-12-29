@@ -77,6 +77,7 @@ const typeDefs = `#graphql
             useAI: Boolean,
             useCache: Boolean,
             appendImg: Boolean,
+            useImageAI: Boolean,
             selectionCount: Int,
             theme: String,
             filter: String,
