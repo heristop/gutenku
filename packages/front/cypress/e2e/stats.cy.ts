@@ -9,9 +9,10 @@ describe('Stats panel', () => {
   });
 
   it('shows core metrics and updates after generation', () => {
-    // Trigger visibility animation
-    cy.get('.stats-panel').scrollIntoView();
-    cy.get('.stats-panel.is-visible', { timeout: 5000 }).should('exist');
+    // Scroll to stats panel and wait for it to be visible
+    cy.get('.stats-panel').scrollIntoView().should('be.visible');
+    // Wait for animation class (IntersectionObserver may have delay)
+    cy.get('.stats-panel.is-visible', { timeout: 10000 }).should('exist');
 
     cy.contains('Haikus created').should('exist');
     cy.contains('Books used').should('exist');
