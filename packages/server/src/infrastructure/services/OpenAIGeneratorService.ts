@@ -14,7 +14,7 @@ type ReasoningEffort = 'none' | 'low' | 'medium' | 'high';
 
 @singleton()
 export default class OpenAIGeneratorService implements IGenerator {
-  private readonly MAX_SELECTION_COUNT: number = 100;
+  private readonly MAX_SELECTION_COUNT: number = 20;
 
   private haikuSelection: HaikuValue[] = [];
   private openai: IOpenAIClient;
@@ -48,16 +48,22 @@ export default class OpenAIGeneratorService implements IGenerator {
   configure(options: OpenAIOptions): OpenAIGeneratorService {
     const { apiKey, selectionCount, temperature } = options;
 
-    if (undefined === selectionCount) {
+    if (selectionCount !== null && selectionCount > 0) {
+      this.selectionCount = Math.min(selectionCount, this.MAX_SELECTION_COUNT);
+    } else {
       this.selectionCount = Number.parseInt(
-        process.env.OPENAI_SELECTION_COUNT,
+        process.env.OPENAI_SELECTION_COUNT || '1',
         10,
       );
     }
 
-    if (selectionCount > 0) {
-      this.selectionCount = Math.min(selectionCount, this.MAX_SELECTION_COUNT);
-    }
+    log.info(
+      {
+        selectionCount: this.selectionCount,
+        inputSelectionCount: selectionCount,
+      },
+      'OpenAI selection configured',
+    );
 
     temperature.description =
       temperature.description ??
@@ -75,6 +81,15 @@ export default class OpenAIGeneratorService implements IGenerator {
     try {
       const prompt = await this.generateSelectionPrompt();
 
+      log.info(
+        {
+          promptLength: prompt.length,
+          haikuCount: this.haikuSelection.length,
+          model: this.model,
+        },
+        'Sending selection prompt to OpenAI',
+      );
+
       const completion = await this.openai.chatCompletionsCreate({
         max_completion_tokens: 1200,
         messages: [
@@ -90,11 +105,36 @@ export default class OpenAIGeneratorService implements IGenerator {
 
       const answer = completion.choices[0].message.content;
 
+      log.info(
+        { responseLength: answer?.length, rawAnswer: answer },
+        'OpenAI selection response received',
+      );
+
       const output = JSON.parse(answer);
       const index = output.id;
+      const reason = output.reason || '';
+
+      log.info({ selectedIndex: index, reason }, 'Selected haiku index');
+
+      const generatedCount = this.haikuSelection.length;
+
+      // Store candidates before clearing
+      const allCandidates = this.haikuSelection.map((h) => ({
+        verses: h.verses,
+        book: { title: h.book.title, author: h.book.author },
+      }));
 
       haiku = this.haikuSelection[index];
       this.haikuSelection = [];
+
+      haiku.selectionInfo = {
+        requestedCount: this.selectionCount,
+        generatedCount,
+        selectedIndex: index,
+        reason,
+      };
+
+      haiku.candidates = allCandidates;
 
       const [descResult, transResult, emojisResult] = await Promise.allSettled([
         this.generateDescription(haiku.verses),
@@ -133,12 +173,9 @@ export default class OpenAIGeneratorService implements IGenerator {
       return haiku;
     } catch (error) {
       log.error({ err: error }, 'OpenAI API error');
-    } finally {
       this.haikuSelection = [];
-      haiku = null;
+      throw error;
     }
-
-    return await this.haikuGeneratorService.generate();
   }
 
   private async generateSelectionPrompt(): Promise<string> {
@@ -146,7 +183,7 @@ export default class OpenAIGeneratorService implements IGenerator {
 
     const haikus = await this.fetchHaikus();
 
-    return `${prompt} (Use the following format: {"id":[Id]})\n${haikus.join('\n')}\nSTOP\n`;
+    return `${prompt} (Use the following format: {"id":[Id],"reason":"<brief explanation of why this haiku instead of others>"})\n${haikus.join('\n')}\nSTOP\n`;
   }
 
   private async generateDescription(
@@ -228,16 +265,36 @@ export default class OpenAIGeneratorService implements IGenerator {
   private async fetchHaikus(): Promise<string[]> {
     const haikus: string[] = [];
 
-    this.haikuSelection = await this.haikuGeneratorService.extractFromCache(
-      this.selectionCount,
+    log.info(
+      { selectionCount: this.selectionCount },
+      'Generating haikus for AI selection',
     );
 
-    if (this.haikuSelection.length === 0) {
-      for (let i = 0; i < this.selectionCount; i++) {
+    for (let i = 0; i < this.selectionCount; i++) {
+      try {
+        log.info(
+          { iteration: i + 1, total: this.selectionCount },
+          'Generating haiku',
+        );
         const haiku = await this.haikuGeneratorService.buildFromDb();
-        this.haikuSelection.push(haiku);
+        if (haiku) {
+          this.haikuSelection.push(haiku);
+          log.info(
+            { iteration: i + 1, verses: haiku.verses },
+            'Haiku generated',
+          );
+        } else {
+          log.warn({ iteration: i + 1 }, 'Haiku generation returned null');
+        }
+      } catch (err) {
+        log.error({ err, iteration: i + 1 }, 'Failed to generate haiku');
       }
     }
+
+    log.info(
+      { totalGenerated: this.haikuSelection.length },
+      'Haiku generation complete',
+    );
 
     this.haikuSelection.forEach((haiku, i: number) => {
       const verses = `[Id]: ${i}\n[Verses]: ${haiku.verses.join('\n')}\n`;
