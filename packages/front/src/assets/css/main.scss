@@ -11,8 +11,7 @@
 // VIEW TRANSITION API STYLES
 // ====================================
 @layer utilities {
-  // View transition for theme switching - Zen Ink Wash Reveal
-  // Creates a circular reveal effect expanding from the toggle button (top-right)
+  // View transition for theme switching - circular reveal from toggle position
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation-duration: 700ms;
@@ -20,19 +19,15 @@
     mix-blend-mode: normal;
   }
 
-  // Old view fades out with subtle blur
   ::view-transition-old(root) {
     animation-name: zen-ink-wash-out;
     z-index: 1;
   }
 
-  // New view reveals with circular clip-path from top-right (toggle position)
   ::view-transition-new(root) {
     animation-name: zen-ink-wash-in;
     z-index: 2;
   }
-
-  // Ink wash out - dissolves like ink in water
   @keyframes zen-ink-wash-out {
     0% {
       opacity: 1;
@@ -50,7 +45,6 @@
     }
   }
 
-  // Ink wash in - circular reveal from top-right corner (toggle button position)
   @keyframes zen-ink-wash-in {
     0% {
       clip-path: circle(0% at calc(100% - 2.5rem) 2.5rem);
@@ -69,7 +63,7 @@
     }
   }
 
-  // Theme toggle button gets its own view transition for smooth morph
+  // Theme toggle button transition
   .theme-toggle-zen {
     view-transition-name: theme-toggle;
   }
@@ -112,7 +106,7 @@
     }
   }
 
-  // Haiku canvas specific transition
+  // Haiku canvas transition
   .haiku-canvas-container {
     view-transition-name: haiku-canvas;
   }
@@ -273,7 +267,7 @@
 // CSS :has() SELECTORS
 // ====================================
 @layer components {
-  // Form group with focused input
+  // Form focus states
   @supports selector(:has(*)) {
     .form-group:has(input:focus, .v-field--focused) {
       background: var(--gutenku-zen-water);
@@ -281,28 +275,28 @@
       transition: background var(--gutenku-duration-swift);
     }
 
-    // Toolbar with active button
+    // Toolbar active state
     .toolbar-panel:has(.gutenku-btn:active, .gutenku-btn:focus) {
       box-shadow: var(--gutenku-shadow-ink);
     }
 
-    // Panel with loading state
+    // Panel loading state
     .gutenku-paper:has(.zen-loading) {
       opacity: 0.85;
       pointer-events: none;
     }
 
-    // Card with expanded content
+    // Card expanded state
     .gutenku-card:has(.expanded) {
       box-shadow: var(--gutenku-shadow-zen);
     }
 
-    // Button group with checked radio/checkbox
+    // Button group checked state
     .btn-group:has(input:checked) {
       border-color: var(--gutenku-zen-accent);
     }
 
-    // Stats panel with empty state
+    // Stats panel empty state
     .stats-panel:has(.empty-state) {
       min-height: 200px;
       display: flex;
@@ -403,7 +397,7 @@
 // Light beam overlay
 // -------------------------------------
 @layer utilities {
-  // CSS @property for smooth gradient animation
+  // CSS @property for gradient animation
   @property --beam-position {
     syntax: '<percentage>';
     inherits: false;
@@ -554,7 +548,7 @@
         inset -2px 0 4px rgba(255, 255, 255, 0.1);
     }
 
-    // Gold stripe detail
+    // Gold stripe
     &::after {
       content: '';
       position: absolute;
@@ -863,7 +857,15 @@
   --gutenku-canvas-overlay: oklch(1 0 0 / 0.05);
   --gutenku-backdrop-overlay: oklch(0 0 0 / 0.02);
   --gutenku-app-bg: #fefcf7;
-  --gutenku-app-bg-image: url('@/assets/img/zen-bg-light.webp');
+  --gutenku-app-bg-image: url('@/assets/img/zen-bg-light-640.webp');
+
+  @media (min-width: 641px) {
+    --gutenku-app-bg-image: url('@/assets/img/zen-bg-light-1024.webp');
+  }
+
+  @media (min-width: 1025px) {
+    --gutenku-app-bg-image: url('@/assets/img/zen-bg-light-1920.webp');
+  }
 
   --gutenku-btn-subtle-bg: oklch(0.42 0.09 55 / 0.1);
   --gutenku-btn-subtle-hover: oklch(0.42 0.09 55 / 0.2);
@@ -962,7 +964,15 @@
   --gutenku-canvas-overlay: oklch(0 0 0 / 0.15);
   --gutenku-backdrop-overlay: oklch(1 0 0 / 0.03);
   --gutenku-app-bg: #0f0d09;
-  --gutenku-app-bg-image: url('@/assets/img/zen-bg-dark.webp');
+  --gutenku-app-bg-image: url('@/assets/img/zen-bg-dark-640.webp');
+
+  @media (min-width: 641px) {
+    --gutenku-app-bg-image: url('@/assets/img/zen-bg-dark-1024.webp');
+  }
+
+  @media (min-width: 1025px) {
+    --gutenku-app-bg-image: url('@/assets/img/zen-bg-dark-1920.webp');
+  }
 
   --gutenku-btn-subtle-bg: oklch(0.58 0.07 192 / 0.15);
   --gutenku-btn-subtle-hover: oklch(0.58 0.07 192 / 0.25);
@@ -1010,7 +1020,6 @@
 // Overscroll background (mobile pull-to-refresh area)
 html {
   background-color: #fbf3ea;
-  overscroll-behavior-y: none;
 
   &[data-theme='dark'] {
     background-color: #272523;
@@ -1030,6 +1039,16 @@ body {
 
   .text-h5 {
   }
+}
+
+// Dialog backdrop blur
+.v-dialog > .v-overlay__scrim {
+  backdrop-filter: blur(20px);
+  background: oklch(0.15 0.02 60 / 0.85) !important;
+}
+
+[data-theme='dark'] .v-dialog > .v-overlay__scrim {
+  background: oklch(0 0 0 / 0.95) !important;
 }
 
 // Vuetify Typography Utility Class Overrides
@@ -1371,7 +1390,7 @@ body {
   }
 }
 
-// Spin animation utility for Lucide icons
+// Spin animation for Lucide icons
 .animate-spin {
   animation: zen-spin 1s linear infinite;
 }
@@ -1846,7 +1865,7 @@ body {
   white-space: nowrap;
   border: 0;
 
-  // Focusable variant - becomes visible on focus
+  // Becomes visible on focus
   &-focusable {
     &:focus,
     &:active {
@@ -1875,7 +1894,7 @@ body {
   }
 }
 
-// Respect user preference for reduced motion
+// Reduced motion preference
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
