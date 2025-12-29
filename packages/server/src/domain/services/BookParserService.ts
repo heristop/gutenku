@@ -129,8 +129,6 @@ export class BookParserService {
       chapters: validationResult.validChapters,
     });
 
-    // Book is valid if it has at least minChapters (from config or default)
-    // This is true since we already checked above and didn't return early
     return {
       parsedBook,
       isValid: true,
