@@ -135,6 +135,12 @@ function close() {
 .game-help {
   border-radius: var(--gutenku-radius-md);
   background: var(--gutenku-paper-bg);
+  max-height: 90vh;
+  overflow-y: auto;
+
+  @media (max-width: 600px) {
+    max-height: 85vh;
+  }
 
   &.modal-appear {
     animation: modal-slide-up 0.35s cubic-bezier(0.22, 1, 0.36, 1);

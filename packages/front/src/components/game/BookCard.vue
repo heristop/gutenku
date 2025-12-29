@@ -131,19 +131,16 @@ function handleContextMenu(event: MouseEvent) {
   gap: 0.25rem;
   padding: 0;
   padding-bottom: 0.25rem;
-  width: 70px;
+  width: 100%;
+  max-width: 90px;
   background: transparent;
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
   outline: none;
 
-  @media (min-width: 400px) {
-    width: 80px;
-  }
-
   @media (min-width: 600px) {
-    width: 100px;
+    max-width: 100px;
     padding-bottom: 0.375rem;
   }
 
@@ -241,18 +238,25 @@ function handleContextMenu(event: MouseEvent) {
 }
 
 .book-card__title {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 500;
   color: var(--gutenku-text-primary);
   text-align: center;
-  line-height: 1.3;
+  line-height: 1.2;
   max-width: 100%;
-  word-wrap: break-word;
-  hyphens: auto;
+  min-height: 2rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   opacity: 0.85;
 
   @media (min-width: 600px) {
     font-size: 0.8rem;
+    line-height: 1.3;
+    min-height: 2.5rem;
+    -webkit-line-clamp: 3;
   }
 }
 
