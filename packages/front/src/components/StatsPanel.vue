@@ -1,21 +1,22 @@
 <script setup lang="ts">
-import { computed, ref, watch, useTemplateRef, nextTick } from 'vue';
+import { computed, ref, watch, useTemplateRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
-import { BookOpenText, ChevronUp, Star } from 'lucide-vue-next';
+import { BookOpenText, Star } from 'lucide-vue-next';
 import { useHaikuStore } from '@/store/haiku';
-import { useExpandedState } from '@/composables/local-storage';
 import { useInView } from '@/composables/in-view';
 import ZenCard from '@/components/ui/ZenCard.vue';
+import ZenChip from '@/components/ui/ZenChip.vue';
+import ZenTooltip from '@/components/ui/ZenTooltip.vue';
+import ZenAccordion from '@/components/ui/ZenAccordion.vue';
 
 const { t } = useI18n();
 
 const cardRef = useTemplateRef<HTMLElement>('cardRef');
-const statsContentRef = useTemplateRef<HTMLElement>('statsContentRef');
 const { isInView } = useInView(cardRef, { delay: 300 });
 
 const store = useHaikuStore();
-const { stats } = storeToRefs(store);
+const { stats, loading } = storeToRefs(store);
 const avgTime = computed(() => store.avgExecutionTime.toFixed(2));
 const progress = computed(() => {
   const total = Math.max(stats.value.haikusGenerated, 1);
@@ -28,7 +29,7 @@ const topBooks = computed(() => {
   return entries.slice(0, 3);
 });
 
-const { value: expanded, toggle: toggleStats } = useExpandedState('statsPanel-expanded', true);
+const expanded = ref(true);
 
 const animatedHaikus = ref(0);
 const animatedCached = ref(0);
@@ -118,12 +119,6 @@ watch(
   (isExpanded) => {
     if (isExpanded) {
       triggerAnimations();
-      nextTick(() => {
-        const firstFocusable = statsContentRef.value?.querySelector<HTMLElement>(
-          '[tabindex]:not([tabindex="-1"]), button, a',
-        );
-        firstFocusable?.focus();
-      });
     }
   },
   { immediate: true },
@@ -171,44 +166,21 @@ watch(progress, (val) => {
   <ZenCard
     ref="cardRef"
     variant="panel"
+    :loading="loading"
     :aria-label="t('stats.ariaLabel')"
     class="stats-panel stats-panel--card stats-panel-container pa-5 mb-4 animate-in"
     :class="{ 'is-visible': isInView }"
   >
-    <button
-      type="button"
-      class="stats-panel__header d-flex align-center mb-2"
-      :aria-expanded="expanded"
-      aria-controls="stats-panel-content"
+    <ZenAccordion
+      v-model="expanded"
+      :icon="BookOpenText"
+      :title="t('stats.title')"
+      :subtitle="t('stats.subtitle')"
+      storage-key="statsPanel-expanded"
+      :default-expanded="true"
       :aria-label="t('stats.ariaLabel')"
-      @click="toggleStats"
     >
-      <BookOpenText
-        :size="28"
-        class="stats-panel__icon stats-panel__icon--main mr-2 text-primary"
-      />
-      <div class="stats-panel__header-content flex-grow-1">
-        <div class="stats-panel__title text-subtitle-1">
-          {{ t('stats.title') }}
-        </div>
-        <div class="stats-panel__subtitle text-body-2 text-medium-emphasis">
-          {{ t('stats.subtitle') }}
-        </div>
-      </div>
-      <ChevronUp
-        :size="24"
-        class="stats-panel__toggle-icon text-primary"
-        :class="{ 'stats-panel__toggle-icon--rotated': !expanded }"
-      />
-    </button>
-
-    <v-expand-transition>
-      <div
-        v-show="expanded"
-        ref="statsContentRef"
-        id="stats-panel-content"
-        class="stats-panel__content"
-      >
+      <div class="stats-panel__content">
         <div class="stats-panel__inner gutenku-book-page pa-3 mb-2">
           <v-row dense>
             <v-col cols="6" class="text-center">
@@ -316,14 +288,16 @@ watch(progress, (val) => {
                 class="stats-panel__book d-flex align-center justify-space-between"
               >
                 <div class="stats-panel__book-info d-flex align-center">
-                  <v-chip
-                    class="stats-panel__book-rank mr-2"
-                    color="accent"
-                    variant="elevated"
-                    size="small"
-                  >
-                    #{{ idx + 1 }}
-                  </v-chip>
+                  <ZenTooltip :text="name" position="top">
+                    <ZenChip
+                      class="stats-panel__book-rank mr-2"
+                      variant="accent"
+                      size="sm"
+                      :ariaLabel="t('stats.bookRank', { rank: idx + 1 })"
+                    >
+                      #{{ idx + 1 }}
+                    </ZenChip>
+                  </ZenTooltip>
                   <span class="stats-panel__book-title">{{ name }}</span>
                 </div>
                 <div
@@ -343,49 +317,13 @@ watch(progress, (val) => {
           </v-row>
         </div>
       </div>
-    </v-expand-transition>
+    </ZenAccordion>
   </ZenCard>
 </template>
 
 <style scoped lang="scss">
 .stats-panel {
   position: relative;
-
-  &__header {
-    // Reset button styles
-    background: none;
-    border: none;
-    padding: 0;
-    font: inherit;
-    text-align: left;
-    width: 100%;
-
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border-radius: var(--gutenku-radius-sm);
-
-    &:hover {
-      background: color-mix(in oklch, var(--gutenku-theme-primary-oklch) 5%, transparent);
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--gutenku-zen-primary);
-      outline-offset: 2px;
-    }
-  }
-
-  &__title {
-    font-family: 'JMH Typewriter', monospace !important;
-    letter-spacing: 0.5px;
-  }
-
-  &__toggle-icon {
-    transition: transform 0.2s ease;
-
-    &--rotated {
-      transform: rotate(180deg);
-    }
-  }
 
   &__content {
     padding-top: 0.5rem;
@@ -418,12 +356,27 @@ watch(progress, (val) => {
     padding: 4px 0;
   }
 
+  &__book-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__book-count {
+    white-space: nowrap;
+    margin-left: 0.5rem;
+    flex-shrink: 0;
+  }
+
   &__book-title {
+    display: block;
     font-family: 'JMH Typewriter', monospace !important;
     font-size: 0.8rem;
     line-height: 1.2;
     color: var(--gutenku-text-primary);
     letter-spacing: 0.2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
@@ -434,7 +387,7 @@ watch(progress, (val) => {
   }
   50% {
     transform: scale(1.1);
-    color: oklch(0.65 0.18 145);
+    color: var(--gutenku-zen-secondary);
   }
   100% {
     transform: scale(1);
@@ -493,6 +446,14 @@ watch(progress, (val) => {
         rgb(var(--v-theme-primary)) 0%,
         rgb(var(--v-theme-secondary)) 100%
       );
+    }
+  }
+}
+
+@media (min-width: 769px) {
+  .stats-panel {
+    &--card {
+      margin-bottom: 1.5rem !important;
     }
   }
 }

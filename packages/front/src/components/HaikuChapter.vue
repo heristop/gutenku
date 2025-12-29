@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, ref, computed, watch } from 'vue';
+import { onMounted, ref, computed, watch, onUnmounted, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { load } from '@fingerprintjs/botd';
 import { storeToRefs } from 'pinia';
@@ -11,20 +11,61 @@ import { useTouchGestures } from '@/composables/touch-gestures';
 import HighLightText from '@/components/HighLightText.vue';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
 import ZenCard from '@/components/ui/ZenCard.vue';
+import ZenButton from '@/components/ui/ZenButton.vue';
 import SwipeHint from '@/components/ui/SwipeHint.vue';
 
 const { t } = useI18n();
 
 const haikuStore = useHaikuStore();
 const { fetchNewHaiku } = haikuStore;
-const { haiku, loading } = storeToRefs(haikuStore);
+const { haiku, loading, craftingMessages } = storeToRefs(haikuStore);
 
 const blackMarker = ref(true);
 const isCompacted = ref(true);
-const chapterRef = ref<HTMLElement | null>(null);
+const chapterRef = ref<{ $el: HTMLElement } | null>(null);
 const showSwipeHint = ref(true);
 
-const { isSwiping, isTouchDevice } = useTouchGestures(chapterRef, {
+// Track card position for teleported crafting messages
+const cardRect = ref<DOMRect | null>(null);
+
+// Extract DOM element from component ref for composables that need HTMLElement
+const chapterEl = computed(() => chapterRef.value?.$el as HTMLElement | null);
+
+function updateCardRect() {
+  if (chapterEl.value) {
+    cardRect.value = chapterEl.value.getBoundingClientRect();
+  }
+}
+
+const craftingStyle = computed(() => {
+  if (!cardRect.value) {return {};}
+  return {
+    position: 'fixed' as const,
+    top: `${cardRect.value.top + 16}px`,
+    left: `${cardRect.value.left + cardRect.value.width / 2}px`,
+    transform: 'translateX(-50%)',
+    width: `${Math.min(cardRect.value.width - 64, 400)}px`,
+    zIndex: 1000,
+  };
+});
+
+// Update position when loading starts or when crafting messages appear
+watch(loading, (isLoading) => {
+  if (isLoading) {
+    nextTick(updateCardRect);
+  }
+});
+
+// Also update rect when crafting messages first appear
+watch(craftingMessages, (messages) => {
+  if (messages.length > 0 && !cardRect.value) {
+    nextTick(updateCardRect);
+  }
+}, { immediate: true });
+
+let scrollListener: (() => void) | null = null;
+
+const { isSwiping, isTouchDevice } = useTouchGestures(chapterEl, {
   threshold: 60,
   onSwipeLeft: () => {
     if (!loading.value) {
@@ -94,6 +135,15 @@ onMounted(() => {
   });
 
   applyToAllHighlights();
+
+  // Scroll listener for teleported crafting messages positioning
+  scrollListener = () => {
+    if (loading.value) {
+      updateCardRect();
+    }
+  };
+  window.addEventListener('scroll', scrollListener, { passive: true });
+  window.addEventListener('resize', scrollListener, { passive: true });
 });
 
 watch(
@@ -103,6 +153,21 @@ watch(
   },
   { flush: 'post' },
 );
+
+// Clear crafting messages when loading ends
+watch(loading, (isLoading) => {
+  if (!isLoading && craftingMessages.value.length > 0) {
+    haikuStore.craftingMessages = [];
+  }
+});
+
+onUnmounted(() => {
+  // Clean up scroll/resize listeners
+  if (scrollListener) {
+    window.removeEventListener('scroll', scrollListener);
+    window.removeEventListener('resize', scrollListener);
+  }
+});
 </script>
 
 <template>
@@ -113,12 +178,37 @@ watch(
     :loading="loading"
     :aria-label="t('haikuChapter.ariaLabel')"
     class="book-page"
-    :class="{ 'is-swiping': isSwiping }"
+    :class="{ 'is-swiping': isSwiping, 'is-loading': loading }"
   >
     <!-- Screen reader announcement for toggle state -->
     <div class="sr-only" aria-live="polite" aria-atomic="true">
       {{ disclosureText }}
     </div>
+
+    <!-- Crafting messages teleported to body to escape stacking context -->
+    <Teleport to="body">
+      <Transition name="crafting-fade">
+        <div
+          v-if="craftingMessages.length > 0 && cardRect"
+          class="crafting-messages-teleported"
+          :style="craftingStyle"
+          role="log"
+          aria-live="polite"
+        >
+          <TransitionGroup name="message-slide" tag="div" class="messages-list">
+            <div
+              v-for="(msg, index) in craftingMessages.slice(0, 6)"
+              :key="msg.timestamp"
+              class="crafting-message"
+              :class="{ 'latest': index === 0 }"
+            >
+              <span class="message-emoji">{{ msg.emoji }}</span>
+              <span class="message-text">{{ msg.text }}</span>
+            </div>
+          </TransitionGroup>
+        </div>
+      </Transition>
+    </Teleport>
 
     <div class="book-header">
       <div class="disclosure-text" aria-hidden="true">
@@ -130,34 +220,34 @@ watch(
           position="bottom"
           :disabled="!blackMarker"
         >
-          <v-btn
+          <ZenButton
+            variant="ghost"
+            size="sm"
             class="toggle-btn stabilo-toggle"
             :aria-label="t('haikuChapter.discloseHide')"
             data-cy="light-toggle-btn"
-            icon
-            variant="outlined"
             @click="toggle()"
           >
-            <Lightbulb v-if="blackMarker" :size="20" />
-            <LightbulbOff v-else :size="20" />
-          </v-btn>
+            <template #icon-left>
+              <Lightbulb v-if="blackMarker" :size="20" />
+              <LightbulbOff v-else :size="20" />
+            </template>
+          </ZenButton>
         </ZenTooltip>
 
         <ZenTooltip :text="compactedTooltip" position="bottom">
-          <v-btn
-            :class="{
-              'icon-white': blackMarker,
-              'icon-black': !blackMarker,
-            }"
+          <ZenButton
+            variant="ghost"
+            size="sm"
             class="toggle-btn expand-toggle"
             :aria-label="compactedTooltip"
-            icon
-            variant="outlined"
             @click="toggleCompactedView()"
           >
-            <ChevronsUpDown v-if="isCompacted" :size="20" />
-            <ChevronsDownUp v-else :size="20" />
-          </v-btn>
+            <template #icon-left>
+              <ChevronsUpDown v-if="isCompacted" :size="20" />
+              <ChevronsDownUp v-else :size="20" />
+            </template>
+          </ZenButton>
         </ZenTooltip>
       </div>
     </div>
@@ -225,17 +315,23 @@ watch(
 <style lang="scss" scoped>
 // Component-specific styles (base styling handled by ZenCard variant="book")
 .book-page {
+  position: relative;
   margin-bottom: 1.5rem;
   transition: all 0.3s ease;
   cursor: pointer;
   border-radius: var(--gutenku-radius-sm);
+  overflow: visible;
+
+  &.is-loading {
+    pointer-events: none;
+    cursor: default;
+  }
 
   &:hover {
-    transform: translateY(-3px) scale(1.01);
+    transform: translateY(-2px);
     box-shadow:
-      0 8px 25px oklch(0 0 0 / 0.3),
-      0 4px 10px oklch(0 0 0 / 0.2);
-    background: color-mix(in oklch, var(--gutenku-paper-bg) 92%, white 8%);
+      0 4px 12px oklch(0 0 0 / 0.15),
+      0 2px 6px oklch(0 0 0 / 0.1);
   }
 
   &:active {
@@ -245,10 +341,9 @@ watch(
 
   [data-theme='dark'] & {
     &:hover {
-      background: color-mix(in oklch, var(--gutenku-paper-bg) 88%, white 12%);
       box-shadow:
-        0 12px 35px oklch(0 0 0 / 0.4),
-        0 6px 15px oklch(0 0 0 / 0.3);
+        0 4px 12px oklch(0 0 0 / 0.25),
+        0 2px 6px oklch(0 0 0 / 0.15);
     }
   }
 }
@@ -275,67 +370,51 @@ watch(
     align-items: center;
   }
 
-  .toggle-btn {
+  .toggle-btn.zen-btn {
     background: var(--gutenku-btn-subtle-bg) !important;
-    border: 1px solid var(--gutenku-border-visible);
+    border: 1px solid var(--gutenku-border-visible) !important;
     color: var(--gutenku-text-contrast) !important;
-    border-radius: 50%;
-    width: 2.5rem;   // 40px
-    height: 2.5rem;  // 40px
+    border-radius: 50% !important;
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    min-width: 2.5rem !important;
+    min-height: 2.5rem !important;
+    padding: 0 !important;
     box-shadow: var(--gutenku-shadow-light);
     transition: var(--gutenku-transition-zen);
     cursor: pointer !important;
 
-    &,
-    *,
-    .v-icon,
-    .v-icon::before,
-    .v-icon::after {
-      cursor: pointer !important;
-    }
-
-    &:hover {
+    &:hover:not(:disabled):not([aria-disabled='true']) {
       background: var(--gutenku-btn-subtle-hover) !important;
-      border-color: var(--gutenku-border-visible-hover);
+      border-color: var(--gutenku-border-visible-hover) !important;
       transform: translateY(-2px) scale(1.05);
       box-shadow: var(--gutenku-shadow-ink);
     }
 
-    &:active {
+    &:active:not(:disabled):not([aria-disabled='true']) {
       transform: translateY(0) scale(0.95);
       transition: var(--gutenku-transition-fast);
     }
 
-    &:focus-visible {
-      outline: 2px solid var(--gutenku-zen-accent);
-      outline-offset: 2px;
-    }
-
-    .v-icon {
+    :deep(svg) {
       transition: var(--gutenku-transition-zen);
     }
 
-    &:hover .v-icon {
+    &:hover:not(:disabled):not([aria-disabled='true']) :deep(svg) {
       transform: rotate(12deg) scale(1.1);
     }
 
     &.expand-toggle {
       background: var(--gutenku-btn-expand-bg) !important;
-      border: 1px solid var(--gutenku-border-visible);
+      border: 1px solid var(--gutenku-border-visible) !important;
 
-      &:hover {
+      &:hover:not(:disabled):not([aria-disabled='true']) {
         background: var(--gutenku-btn-expand-hover) !important;
-        border-color: var(--gutenku-border-visible-hover);
+        border-color: var(--gutenku-border-visible-hover) !important;
       }
 
-      &.icon-white .v-icon {
-        color: #ffffff !important;
-        text-shadow: 0 1px 2px oklch(0 0 0 / 0.8);
-      }
-
-      &.icon-black .v-icon {
-        color: #000000 !important;
-        text-shadow: 0 1px 2px oklch(1 0 0 / 0.8);
+      :deep(svg) {
+        color: var(--gutenku-text-primary) !important;
       }
     }
   }
@@ -343,9 +422,11 @@ watch(
 
 @media (max-width: 768px) {
   .book-header {
-    .toggle-btn {
-      width: 2.25rem;   // 36px
-      height: 2.25rem;  // 36px
+    .toggle-btn.zen-btn {
+      width: 2.25rem !important;
+      height: 2.25rem !important;
+      min-width: 2.25rem !important;
+      min-height: 2.25rem !important;
     }
   }
 }
@@ -398,13 +479,11 @@ watch(
 
   &.stabilo-hidden {
     opacity: 0.3;
-    filter: blur(2px);
     transition: all 0.3s ease;
   }
 
   &.stabilo-visible {
     opacity: 1;
-    filter: blur(0);
     transition: all 0.3s ease;
   }
 }
@@ -424,13 +503,11 @@ watch(
 
   &.stabilo-hidden {
     opacity: 0.3;
-    filter: blur(2px);
     transition: all 0.3s ease;
   }
 
   &.stabilo-visible {
     opacity: 1;
-    filter: blur(0);
     transition: all 0.3s ease;
   }
 }
@@ -494,7 +571,7 @@ watch(
           background-image: none !important;
           background-clip: border-box !important;
           color: var(--gutenku-text-primary) !important;
-          padding: 0.25rem 0.5rem;  // 4px 8px
+          padding: 0.25rem 0.5rem;
           border-radius: var(--gutenku-radius-sm);
           font-weight: bold;
           position: relative;
@@ -510,7 +587,7 @@ watch(
           background-image: none !important;
           background-clip: border-box !important;
           color: var(--gutenku-text-primary) !important;
-          padding: 0.25rem 0.5rem;  // 4px 8px
+          padding: 0.25rem 0.5rem;
           border-radius: var(--gutenku-radius-sm);
           font-weight: bold;
           position: relative;
@@ -594,8 +671,9 @@ watch(
 
 @media (max-width: 768px) {
   .book-page {
-    padding: 2rem 1.5rem 1.5rem 2rem;
-    min-height: 25rem;  // 400px
+    padding: 1.25rem 1.5rem 1.5rem 2rem;
+    min-height: 25rem;
+    margin-top: 0;
   }
 
   .book-title {
@@ -658,5 +736,101 @@ watch(
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+</style>
+
+<!-- Global styles for teleported crafting messages -->
+<style lang="scss">
+.crafting-messages-teleported {
+  padding: 0.75rem 1rem;
+  background: var(--gutenku-paper-bg, #f5f0e8);
+  border-radius: var(--gutenku-radius-md, 8px);
+  border: 1px solid oklch(0.65 0.18 145 / 0.3);
+  box-shadow: 0 4px 16px oklch(0 0 0 / 0.2);
+  pointer-events: none;
+
+  .messages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .crafting-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--gutenku-paper-bg, #f5f0e8);
+    border-radius: var(--gutenku-radius-sm, 4px);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+
+    &.latest {
+      opacity: 1;
+      background: oklch(0.65 0.18 145 / 0.12);
+      box-shadow: 0 2px 8px oklch(0.65 0.18 145 / 0.15);
+    }
+  }
+
+  .message-emoji {
+    flex-shrink: 0;
+    font-size: 1rem;
+  }
+
+  .message-text {
+    flex: 1;
+    color: var(--gutenku-text-primary, #2c2c2c);
+    word-break: break-word;
+  }
+}
+
+// Crafting transitions (global for teleported elements)
+.crafting-fade-enter-active,
+.crafting-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.crafting-fade-enter-from,
+.crafting-fade-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-10px) !important;
+}
+
+.message-slide-enter-active {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.message-slide-leave-active {
+  transition: all 0.2s ease;
+}
+
+.message-slide-enter-from {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.message-slide-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.message-slide-move {
+  transition: transform 0.3s ease;
+}
+
+// Dark theme
+[data-theme='dark'] .crafting-messages-teleported {
+  background: var(--gutenku-paper-bg, #2a2520);
+  box-shadow: 0 4px 20px oklch(0 0 0 / 0.4);
+
+  .crafting-message {
+    background: var(--gutenku-paper-bg, #2a2520);
+  }
+
+  .message-text {
+    color: var(--gutenku-text-primary, #e8e0d0);
+  }
 }
 </style>

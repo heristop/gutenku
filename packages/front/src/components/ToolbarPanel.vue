@@ -20,9 +20,11 @@ import { useImageDownload } from '@/composables/image-download';
 import { useInView } from '@/composables/in-view';
 import { useToast } from '@/composables/toast';
 import { useLongPress, useTouchGestures } from '@/composables/touch-gestures';
+import { useKeyboardShortcuts } from '@/composables/keyboard-shortcuts';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
 import SwipeHint from '@/components/ui/SwipeHint.vue';
 import ZenCard from '@/components/ui/ZenCard.vue';
+import ZenButton from '@/components/ui/ZenButton.vue';
 
 const { t } = useI18n();
 const { success, error } = useToast();
@@ -146,12 +148,22 @@ function navigateForward(): void {
     goForward();
   }
 }
+
+useKeyboardShortcuts({
+  onGenerate: extractGenerate,
+  onCopy: copyHaiku,
+  onDownload: downloadImage,
+  onShare: shareHaiku,
+  onPrevious: navigateBack,
+  onNext: navigateForward,
+});
 </script>
 
 <template>
   <ZenCard
     ref="cardRef"
     variant="default"
+    :loading="loading"
     :aria-label="t('toolbar.ariaLabel')"
     class="toolbar-panel toolbar-panel--card toolbar-container mb-6 animate-in"
     :class="{ 'is-visible': isInView }"
@@ -166,30 +178,24 @@ function navigateForward(): void {
           class="generate-btn-wrapper"
           :class="{ 'is-pressing': isLongPressing }"
         >
-          <v-btn
+          <ZenButton
             :loading="loading"
             :disabled="loading"
-            :aria-busy="loading"
             :aria-label="generateTooltip"
-            class="zen-btn gutenku-btn gutenku-btn-generate toolbar-panel__button toolbar-panel__button--generate"
+            class="toolbar-panel__button toolbar-panel__button--generate"
             :class="{
               'toolbar-panel__button--loading': loading,
               'toolbar-panel__button--pulse': showPulse && !isTouchDevice,
             }"
             data-cy="fetch-btn"
-            variant="flat"
-            size="large"
-            block
+            size="lg"
             @click="extractGenerate"
           >
-            <Loader2
-              v-if="loading"
-              :size="20"
-              class="toolbar-panel__icon animate-spin"
-            />
-            <Sparkles v-else :size="20" class="toolbar-panel__icon" />
-            <span class="toolbar-panel__button-text">{{ buttonLabel }}</span>
-          </v-btn>
+            <template #icon-left>
+              <Sparkles :size="20" />
+            </template>
+            {{ buttonLabel }}
+          </ZenButton>
 
           <svg
             v-if="isTouchDevice && isLongPressing"
@@ -215,93 +221,97 @@ function navigateForward(): void {
     <div class="toolbar-panel__secondary">
       <!-- Previous Button -->
       <ZenTooltip :text="previousTooltip" position="bottom">
-        <v-btn
-          class="zen-btn toolbar-panel__action-btn toolbar-panel__action-btn--stagger"
+        <ZenButton
+          variant="text"
+          size="sm"
+          class="toolbar-panel__action-btn toolbar-panel__action-btn--stagger"
           :class="{ 'toolbar-panel__action-btn--disabled': !canGoBack }"
           :style="{ '--stagger-index': 0 }"
-          variant="text"
-          size="small"
-          icon
           :disabled="!canGoBack || loading"
           :aria-label="previousTooltip"
           @click="navigateBack"
         >
-          <ChevronLeft :size="20" />
-        </v-btn>
+          <template #icon-left>
+            <ChevronLeft :size="20" />
+          </template>
+        </ZenButton>
       </ZenTooltip>
 
       <!-- Copy Button -->
       <ZenTooltip :text="copyTooltip" position="bottom">
-        <v-btn
-          class="zen-btn toolbar-panel__action-btn toolbar-panel__action-btn--stagger"
+        <ZenButton
+          variant="text"
+          size="sm"
+          class="toolbar-panel__action-btn toolbar-panel__action-btn--stagger"
           :class="{ 'toolbar-panel__action-btn--success': copied }"
           :style="{ '--stagger-index': 1 }"
           data-cy="copy-btn"
-          variant="text"
-          size="small"
-          icon
           :disabled="!haiku?.verses?.length"
           :aria-label="copied ? t('toolbar.copiedLabel') : copyTooltip"
           @click="copyHaiku"
         >
-          <Check v-if="copied" :size="18" class="success-checkmark" />
-          <Copy v-else :size="18" />
-        </v-btn>
+          <template #icon-left>
+            <Check v-if="copied" :size="18" class="success-checkmark" />
+            <Copy v-else :size="18" />
+          </template>
+        </ZenButton>
       </ZenTooltip>
 
       <!-- Share Button -->
       <ZenTooltip :text="shareTooltip" position="bottom">
-        <v-btn
-          class="zen-btn toolbar-panel__action-btn toolbar-panel__action-btn--stagger"
+        <ZenButton
+          variant="text"
+          size="sm"
+          class="toolbar-panel__action-btn toolbar-panel__action-btn--stagger"
           :class="{ 'toolbar-panel__action-btn--success': shared }"
           :style="{ '--stagger-index': 2 }"
           data-cy="share-btn"
-          variant="text"
-          size="small"
-          icon
           :disabled="!haiku?.verses?.length"
           :aria-label="shareTooltip"
           @click="shareHaiku"
         >
-          <Check v-if="shared" :size="18" class="success-checkmark" />
-          <Share2 v-else :size="18" />
-        </v-btn>
+          <template #icon-left>
+            <Check v-if="shared" :size="18" class="success-checkmark" />
+            <Share2 v-else :size="18" />
+          </template>
+        </ZenButton>
       </ZenTooltip>
 
       <!-- Download Button -->
       <ZenTooltip :text="downloadTooltip" position="bottom">
-        <v-btn
-          class="zen-btn toolbar-panel__action-btn toolbar-panel__action-btn--stagger"
+        <ZenButton
+          variant="text"
+          size="sm"
+          class="toolbar-panel__action-btn toolbar-panel__action-btn--stagger"
           :style="{ '--stagger-index': 3 }"
           data-cy="download-btn"
-          variant="text"
-          size="small"
-          icon
           :loading="downloadInProgress"
           :disabled="!haiku?.image || loading"
           :aria-label="downloadTooltip"
           @click="downloadImage"
         >
-          <Loader2 v-if="downloadInProgress" :size="18" class="animate-spin" />
-          <Download v-else :size="18" />
-        </v-btn>
+          <template #icon-left>
+            <Download :size="18" />
+          </template>
+        </ZenButton>
       </ZenTooltip>
 
       <!-- Next Button -->
       <ZenTooltip :text="nextTooltip" position="bottom">
-        <v-btn
-          class="zen-btn toolbar-panel__action-btn toolbar-panel__action-btn--stagger"
+        <ZenButton
+          variant="text"
+          size="sm"
+          class="toolbar-panel__action-btn toolbar-panel__action-btn--stagger"
           :class="{ 'toolbar-panel__action-btn--disabled': !canGoForward }"
           :style="{ '--stagger-index': 4 }"
-          variant="text"
-          size="small"
-          icon
           :disabled="!canGoForward || loading"
           :aria-label="nextTooltip"
           @click="navigateForward"
         >
-          <ChevronRight :size="20" />
-        </v-btn>
+          <template #icon-left>
+            <ChevronRight :size="20" />
+          </template>
+        </ZenButton>
       </ZenTooltip>
     </div>
 
@@ -384,10 +394,11 @@ function navigateForward(): void {
     padding: 0.75rem 0;
   }
 
-  &__action-btn {
-    width: 2.5rem;
-    height: 2.5rem;
-    min-width: 2.5rem;
+  &__action-btn.zen-btn {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    min-width: 2.5rem !important;
+    padding: 0 !important;
     border-radius: var(--gutenku-radius-md);
     transition: all 0.2s ease;
 
@@ -467,67 +478,15 @@ function navigateForward(): void {
     }
   }
 
-  &__button {
-    border: none !important;
-    outline: none !important;
+  &__button.zen-btn {
+    width: 100%;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    &--generate {
-      font-size: 1rem;
-      padding: 0.75rem 1.5rem;
-      background: oklch(0.94 0.02 145 / 0.6) !important;
-      border: 1px solid oklch(0.6 0.08 145 / 0.25) !important;
-      color: oklch(0.35 0.08 155) !important;
-
-      &:hover {
-        background: oklch(0.92 0.03 145 / 0.75) !important;
-        border-color: oklch(0.55 0.1 145 / 0.35) !important;
-      }
-    }
 
     &--pulse {
       animation: generate-pulse 2.5s ease-in-out infinite;
     }
-
-    [data-theme='dark'] & {
-      background: oklch(0.25 0.03 175 / 0.5) !important;
-      border: 1px solid oklch(0.5 0.04 175 / 0.3) !important;
-      color: oklch(0.85 0.04 175) !important;
-    }
-
-    &:hover {
-      transform: translateY(-1px);
-
-      [data-theme='dark'] & {
-        background: oklch(0.3 0.04 175 / 0.6) !important;
-        border-color: oklch(0.55 0.05 175 / 0.4) !important;
-
-        .toolbar-panel__icon {
-          color: oklch(0.9 0.05 175) !important;
-        }
-
-        .toolbar-panel__button-text {
-          color: oklch(0.9 0.05 175) !important;
-        }
-      }
-    }
   }
 
-  &__icon {
-    margin-right: 0.5rem;
-
-    [data-theme='dark'] .toolbar-panel__button & {
-      color: oklch(1 0 0 / 0.95) !important;
-      filter: drop-shadow(0 1px 2px oklch(0 0 0 / 0.4));
-    }
-  }
-
-  &__button-text {
-    [data-theme='dark'] .toolbar-panel__button & {
-      color: oklch(1 0 0 / 0.95) !important;
-      text-shadow: 0 1px 2px oklch(0 0 0 / 0.4);
-    }
-  }
 }
 
 @keyframes generate-pulse {
@@ -608,21 +567,21 @@ function navigateForward(): void {
 
 @media (max-width: 768px) {
   .toolbar-panel {
-    &__button {
+    &__button.zen-btn {
       min-height: 2.75rem;
     }
 
-    &__action-btn {
-      width: 2.75rem;
-      height: 2.75rem;
-      min-width: 2.75rem;
+    &__action-btn.zen-btn {
+      width: 2.75rem !important;
+      height: 2.75rem !important;
+      min-width: 2.75rem !important;
     }
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .toolbar-panel {
-    &__button {
+    &__button.zen-btn {
       transition: none;
 
       &--pulse {
@@ -634,7 +593,7 @@ function navigateForward(): void {
       }
     }
 
-    &__action-btn {
+    &__action-btn.zen-btn {
       transition: none;
 
       &--stagger {
@@ -662,10 +621,6 @@ function navigateForward(): void {
       &--active {
         animation: none;
       }
-    }
-
-    &__icon.animate-spin {
-      animation: none;
     }
   }
 }

@@ -72,7 +72,7 @@ function updatePosition() {
 
   const triggerRect = triggerRef.value.getBoundingClientRect();
   const tooltipRect = tooltipRef.value.getBoundingClientRect();
-  const gap = 8;
+  const gap = 12;
 
   let top = 0;
   let left = 0;
