@@ -37,6 +37,10 @@ export default defineConfig({
         'src/infrastructure/services/CanvasService.ts',
         'src/infrastructure/services/MongoConnection.ts',
         'src/infrastructure/services/OpenAIGeneratorService.ts',
+        'src/application/commands/book/**/*.ts',
+        'src/application/queries/books/**/*.ts',
+        'src/application/queries/puzzle/**/*.ts',
+        'src/application/queries/stats/**/*.ts',
       ],
       exclude: ['**/tests/**', '**/dist/**', '**/scripts/**'],
       thresholds: {

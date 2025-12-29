@@ -10,6 +10,7 @@
     "start:dist": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
     "lint": "oxlint --fix",
+    "typecheck": "tsc --noEmit",
     "setup:books": "tsx src/cli/setup-books.ts",
     "setup:books:reset": "tsx src/cli/setup-books.ts --reset",
     "setup:books:py": "python3 scripts/setup.py",

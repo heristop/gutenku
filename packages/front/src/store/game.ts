@@ -375,7 +375,7 @@ export const useGameStore = defineStore(
   {
     persist: {
       storage: localStorage,
-      paths: ['currentGame', 'stats'],
+      pick: ['currentGame', 'stats'],
     },
   },
 );
