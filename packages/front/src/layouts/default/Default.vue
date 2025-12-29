@@ -51,7 +51,9 @@ useHead({
 <template>
   <v-app>
     <ZenToast />
-    <ThemeToggle />
+    <header role="banner" class="site-header">
+      <ThemeToggle />
+    </header>
     <div class="light-beam-overlay" aria-hidden="true" />
 
     <!-- Floating particles -->
@@ -82,6 +84,15 @@ useHead({
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+}
+
+.site-header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 1000;
+  // Let ThemeToggle handle its own positioning
+  display: contents;
 }
 
 .skip-link {

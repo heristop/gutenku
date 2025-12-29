@@ -2,10 +2,11 @@
 import { onMounted, ref, computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
-import { ChevronLeft } from 'lucide-vue-next';
+import { ChevronLeft, RefreshCw } from 'lucide-vue-next';
+import ZenButton from '@/components/ui/ZenButton.vue';
 import { useGameStore } from '@/store/game';
 import { useHapticFeedback } from '@/composables/haptic-feedback';
-import StickyHintPanel from '@/components/game/StickyHintPanel.vue';
+import GameHint from '@/components/game/GameHint.vue';
 import BookBoard from '@/components/game/BookBoard.vue';
 import GuessConfirmModal from '@/components/game/GuessConfirmModal.vue';
 import GuessHistory from '@/components/game/GuessHistory.vue';
@@ -18,7 +19,6 @@ import type { BookValue } from '@gutenku/shared';
 
 const { t } = useI18n();
 const showHelp = ref(false);
-const hintExpanded = ref(true);
 const showConfirmModal = ref(false);
 const selectedBook = ref<BookValue | null>(null);
 const isSubmitting = ref(false);
@@ -33,9 +33,17 @@ const {
   showResult,
   showStats,
   isGameComplete,
+  revealedHints,
 } = storeToRefs(gameStore);
 
 const hasGuesses = computed(() => (currentGame.value?.guesses.length ?? 0) > 0);
+
+const latestHint = computed(() => {
+  const hints = revealedHints.value;
+  return hints.length > 0 ? hints.at(-1)! : null;
+});
+
+const currentRound = computed(() => currentGame.value?.guesses.length ?? 0);
 
 onMounted(() => {
   gameStore.fetchDailyPuzzle();
@@ -58,7 +66,6 @@ async function handleConfirmGuess() {
       selectedBook.value.title || '',
     );
 
-    // Haptic feedback based on result
     if (isCorrect) {
       vibrateSuccess();
     } else {
@@ -82,18 +89,20 @@ function handleCancelGuess() {
 
 <template>
   <v-container class="game-container px-5 py-2 pa-sm-4">
-    <!-- Back Navigation -->
-    <RouterLink
+    <ZenButton
       to="/"
-      class="zen-btn zen-btn--ghost game-page__back-wrapper"
+      variant="ghost"
+      spring
+      class="game-page__back-wrapper"
       :aria-label="t('common.back')"
     >
-      <ChevronLeft :size="18" />
-      <span>{{ t('common.back') }}</span>
-    </RouterLink>
+      <template #icon-left>
+        <ChevronLeft :size="18" />
+      </template>
+      {{ t('common.back') }}
+    </ZenButton>
 
     <div class="game-board gutenku-paper">
-      <!-- Paper texture overlay -->
       <div class="game-board__texture" aria-hidden="true" />
 
       <GameHeader @show-stats="showStats = true" @show-help="showHelp = true" />
@@ -102,21 +111,26 @@ function handleCancelGuess() {
         <AppLoading :text="t('game.loading')" />
       </div>
 
-      <div v-else-if="error" class="game-error">
+      <div
+        v-else-if="error"
+        class="game-error"
+        role="alert"
+        aria-live="assertive"
+      >
         <p class="text-center gutenku-text-primary">{{ error }}</p>
-        <v-btn
-          class="gutenku-btn gutenku-btn-generate mt-4"
-          @click="gameStore.fetchDailyPuzzle()"
-        >
+        <ZenButton class="mt-4" @click="gameStore.fetchDailyPuzzle()">
+          <template #icon-left>
+            <RefreshCw :size="18" />
+          </template>
           {{ t('common.retry') }}
-        </v-btn>
+        </ZenButton>
       </div>
 
       <template v-else-if="puzzle && currentGame">
-        <!-- Sticky Hint Panel -->
-        <StickyHintPanel v-model:expanded="hintExpanded" />
+        <div v-if="latestHint" class="game-board__hint">
+          <GameHint :hint="latestHint" :round="currentRound" />
+        </div>
 
-        <!-- Guess History (collapsed by default, expandable) -->
         <GuessHistory
           v-if="hasGuesses"
           :guesses="currentGame.guesses"
@@ -124,14 +138,12 @@ function handleCancelGuess() {
           class="game-board__history"
         />
 
-        <!-- Book Board (Guess Who style grid) -->
         <div v-if="!isGameComplete" class="game-board__books">
           <BookBoard ref="bookBoardRef" @select="handleBookSelect" />
         </div>
       </template>
     </div>
 
-    <!-- Modals -->
     <GuessConfirmModal
       v-model="showConfirmModal"
       :book="selectedBook"
@@ -175,7 +187,6 @@ function handleCancelGuess() {
     inset 0 1px 0 oklch(1 0 0 / 0.1);
   margin-bottom: 1rem;
 
-  // Paper texture overlay
   &__texture {
     position: absolute;
     inset: 0;
@@ -198,6 +209,20 @@ function handleCancelGuess() {
     position: relative;
     z-index: 1;
   }
+}
+
+.game-board__hint {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--gutenku-paper-border);
+  background: oklch(0.97 0.02 68 / 0.5);
+
+  @media (min-width: 600px) {
+    padding: 0.75rem;
+  }
+}
+
+[data-theme='dark'] .game-board__hint {
+  background: oklch(0.22 0.02 65 / 0.5);
 }
 
 .game-board__history {

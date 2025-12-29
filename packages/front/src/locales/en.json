@@ -3,10 +3,15 @@
     "back": "Back",
     "close": "Close",
     "cancel": "Cancel",
+    "collapse": "Collapse",
+    "expand": "Expand",
     "refresh": "Refresh",
     "retry": "Try Again",
+    "loading": "Loading...",
     "opensInNewTab": "opens in new tab",
-    "swipe": "Swipe"
+    "swipe": "Swipe",
+    "previous": "Previous page",
+    "next": "Next page"
   },
   "nav": {
     "pageNavigation": "Page navigation"
@@ -22,6 +27,9 @@
     "returnHome": "Return Home"
   },
   "theme": {
+    "currentLight": "Light mode - click to use system",
+    "currentSystem": "System mode - click for dark",
+    "currentDark": "Dark mode - click for light",
     "switchToLight": "Switch to light mode",
     "switchToDark": "Switch to dark mode",
     "systemPreference": "Use system theme"
@@ -36,6 +44,7 @@
     "share": "Share Result",
     "currentStreak": "Current streak",
     "howToPlay": "How to play",
+    "puzzleNumber": "Puzzle number {number}",
     "statistics": "Statistics",
     "playGutenGuess": "Play GutenGuess",
     "playToday": "Play Today",
@@ -60,7 +69,7 @@
       }
     },
     "hints": {
-      "emoticons": "Emoticons",
+      "emoticons": "Bookmoji",
       "haiku": "Haiku",
       "genreEra": "Genre & Era",
       "quote": "Famous Quote",
@@ -68,7 +77,8 @@
       "authorName": "Author's First Name",
       "unknown": "Hint",
       "firstLetter": "First Letter",
-      "authorFirstName": "Author's First Name"
+      "authorFirstName": "Author's First Name",
+      "author": "author"
     },
     "result": {
       "won": "Well done!",
@@ -114,7 +124,10 @@
     "social": {
       "instagram": "Instagram",
       "gutenberg": "Gutenberg",
-      "github": "GitHub"
+      "github": "GitHub",
+      "linkedin": "LinkedIn",
+      "x": "X (Twitter)",
+      "bluesky": "Bluesky"
     },
     "credits": {
       "ariaLabel": "Credits haiku",
@@ -125,12 +138,16 @@
       "github": "GitHub",
       "portfolio": "Portfolio",
       "githubLabel": "Visit heristop on GitHub (opens in new tab)",
-      "portfolioLabel": "Visit heristop portfolio (opens in new tab)"
+      "portfolioLabel": "Visit heristop portfolio (opens in new tab)",
+      "feedback": "Questions or ideas? Reach out on social media!"
     }
   },
-  "introduction": {
+  "hero": {
     "ariaLabel": "About GutenKu",
-    "description": "Poetry from prose. <strong>GutenKu</strong> generates unique haikus from classic literature, drawing from Project Gutenberg's free eBook library."
+    "description": "Poetry from prose. <strong>GutenKu</strong> creates haikus from classic literature, drawing from Project Gutenberg's free eBook library.",
+    "stats": {
+      "haikusCrafted": "haikus crafted"
+    }
   },
   "haikuTitle": {
     "quotes": {
@@ -167,21 +184,21 @@
       },
       "haiku": {
         "title": "AI Haiku",
-        "description": "Convert passages to 5-7-5 syllables"
+        "description": "Extract passages as 5-7-5 syllables"
       },
       "visual": {
         "title": "Visual Art",
-        "description": "Generate artwork for haiku"
+        "description": "Create artwork for haiku"
       }
     }
   },
   "haikuCrafting": {
-    "title": "Generating Haiku",
-    "progress": "Generation in progress...",
+    "title": "Crafting Haiku",
+    "progress": "Crafting in progress...",
     "pageNumber": "— Crafting —"
   },
   "haikuCanvas": {
-    "loading": "Generating artwork...",
+    "loading": "Crafting artwork...",
     "themeLabel": "Artistic Theme",
     "ariaLabel": "Haiku artwork display",
     "imageLabel": "Haiku artwork: {verses}",
@@ -193,9 +210,9 @@
   "toolbar": {
     "title": "Haiku Actions",
     "ariaLabel": "Haiku toolbar actions",
-    "generate": "Generate",
+    "generate": "Create",
     "extract": "Extract",
-    "generating": "Generating",
+    "generating": "Crafting",
     "extracting": "Extracting",
     "generateTooltip": "{action} a new haiku",
     "copyTooltip": "Copy haiku to clipboard",
@@ -216,7 +233,7 @@
     "title": "Your Statistics",
     "subtitle": "Generation history",
     "ariaLabel": "Statistics, toggle to expand",
-    "haikusGenerated": "{count} haiku generated | {count} haikus generated",
+    "haikusGenerated": "{count} haiku created | {count} haikus created",
     "you": "You",
     "global": "Global",
     "metrics": {
@@ -228,7 +245,8 @@
     "cacheUsage": "Cache usage",
     "topBooks": "Most used books",
     "times": "{count} time | {count} times",
-    "emptyState": "No haikus generated yet",
+    "bookRank": "Rank {rank}",
+    "emptyState": "No haikus created yet",
     "tableHeaders": {
       "rank": "Rank",
       "book": "Book Title",
@@ -237,9 +255,9 @@
   },
   "config": {
     "title": "Configuration",
-    "subtitle": "Adjust haiku generation settings",
+    "subtitle": "Adjust haiku creation settings",
     "ariaLabel": "Configuration, toggle to expand",
-    "generateTooltip": "Generate with current settings",
+    "generateTooltip": "Create with current settings",
     "resetTooltip": "Reset to defaults",
     "advancedTooltip": "Adjust generation filters",
     "showAdvanced": "Show advanced",
@@ -257,7 +275,7 @@
   "social": {
     "ariaLabel": "About GutenKu",
     "linksAriaLabel": "Social links",
-    "description": "<strong>GutenKu</strong> is a Haiku generator based on a selection of books from <span class=\"visually-hidden\">the</span> Project Gutenberg, a vast online library of free eBooks, and then process this data to extract quotes and generate unique <strong>5</strong>-<strong>7</strong>-<strong>5</strong> haiku",
+    "description": "<strong>GutenKu</strong> is a Haiku generator based on a selection of books from <span class=\"visually-hidden\">the</span> Project Gutenberg, a vast online library of free eBooks, and then processes this data to extract quotes and create <strong>5</strong>-<strong>7</strong>-<strong>5</strong> haiku",
     "links": {
       "instagram": {
         "name": "Instagram",
@@ -288,7 +306,7 @@
       "2": "🎭 Analyzing text sentiment...",
       "3": "✨ Composing seventeen syllables...",
       "4": "🎨 Selecting artistic theme...",
-      "5": "🖼️ Generating haiku artwork...",
+      "5": "🖼️ Crafting haiku artwork...",
       "6": "📝 Finalizing your haiku..."
     }
   },
@@ -299,7 +317,7 @@
       "2": "Analyzing text sentiment...",
       "3": "Composing seventeen syllables...",
       "4": "Selecting artistic theme...",
-      "5": "Generating haiku artwork...",
+      "5": "Crafting haiku artwork...",
       "6": "Finalizing your haiku...",
       "7": "Processing seasonal imagery...",
       "8": "Counting syllables: 5-7-5...",
@@ -331,7 +349,7 @@
       "34": "Capturing text fragments..."
     },
     "craft": {
-      "0": "Generating your haiku...",
+      "0": "Crafting your haiku...",
       "1": "Assembling syllables...",
       "2": "Processing imagery...",
       "3": "Analyzing source text...",
