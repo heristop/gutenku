@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
 import { X } from 'lucide-vue-next';
+import ZenButton from '@/components/ui/ZenButton.vue';
 
 const modelValue = defineModel<boolean>({ default: false });
 
@@ -23,15 +24,16 @@ function close() {
         <h2 class="help-title gutenku-text-primary">
           {{ t('game.help.title') }}
         </h2>
-        <v-btn
-          icon
+        <ZenButton
           variant="text"
-          size="small"
+          size="sm"
           :aria-label="t('common.close')"
           @click="close"
         >
-          <X :size="20" />
-        </v-btn>
+          <template #icon-left>
+            <X :size="20" />
+          </template>
+        </ZenButton>
       </div>
 
       <div class="help-content">

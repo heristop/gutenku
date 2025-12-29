@@ -11,6 +11,7 @@ import GameResult from './GameResult.vue';
 import GameStats from './GameStats.vue';
 import GameHelp from './GameHelp.vue';
 import AppLoading from '@/components/AppLoading.vue';
+import ZenButton from '@/components/ui/ZenButton.vue';
 
 const modelValue = defineModel<boolean>({ default: false });
 
@@ -65,14 +66,16 @@ function close() {
           <AppLoading :text="t('game.loading')" />
         </div>
 
-        <div v-else-if="error" class="game-error gutenku-paper pa-4">
+        <div
+          v-else-if="error"
+          class="game-error gutenku-paper pa-4"
+          role="alert"
+          aria-live="assertive"
+        >
           <p class="text-center gutenku-text-primary">{{ error }}</p>
-          <v-btn
-            class="gutenku-btn gutenku-btn-generate mt-4"
-            @click="gameStore.fetchDailyPuzzle()"
-          >
+          <ZenButton class="mt-4 w-100" @click="gameStore.fetchDailyPuzzle()">
             {{ t('common.retry') }}
-          </v-btn>
+          </ZenButton>
         </div>
 
         <template v-else-if="puzzle && currentGame">

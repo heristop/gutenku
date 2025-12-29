@@ -3,6 +3,7 @@ import { computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import { X } from 'lucide-vue-next';
+import ZenButton from '@/components/ui/ZenButton.vue';
 import { useGameStore } from '@/store/game';
 import { useGlobalStats } from '@/composables/global-stats';
 
@@ -56,15 +57,16 @@ function close() {
         <h2 class="stats-title gutenku-text-primary">
           {{ t('game.statistics') }}
         </h2>
-        <v-btn
-          icon
+        <ZenButton
           variant="text"
-          size="small"
+          size="sm"
           :aria-label="t('common.close')"
           @click="close"
         >
-          <X :size="20" />
-        </v-btn>
+          <template #icon-left>
+            <X :size="20" />
+          </template>
+        </ZenButton>
       </div>
 
       <div class="stats-grid d-flex justify-center ga-4 mb-6">

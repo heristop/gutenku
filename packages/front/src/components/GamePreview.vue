@@ -5,6 +5,7 @@ import { storeToRefs } from 'pinia';
 import { ChevronRight } from 'lucide-vue-next';
 import { useGameStore } from '@/store/game';
 import { useGlobalStats } from '@/composables/global-stats';
+import ZenChip from '@/components/ui/ZenChip.vue';
 
 const { t } = useI18n();
 const gameStore = useGameStore();
@@ -14,6 +15,10 @@ const { globalStats, fetchGlobalStats, formatNumber } = useGlobalStats();
 const winRate = computed(() => {
   if (globalStats.value.totalGamesPlayed === 0) {return 0;}
   return Math.round((globalStats.value.totalGamesWon / globalStats.value.totalGamesPlayed) * 100);
+});
+
+const statsLabel = computed(() => {
+  return `${t('game.puzzleNumber', { number: puzzleNumber.value })}, ${t('home.gamesPlayed', { count: formatNumber(globalStats.value.totalGamesPlayed) })}, ${t('home.winRate', { rate: winRate.value })}`;
 });
 
 onMounted(() => {
@@ -38,14 +43,17 @@ onMounted(() => {
         <div class="preview-card__title-row">
           <div>
             <h2 class="preview-card__title">GutenGuess</h2>
-            <span
+            <ZenChip
               v-if="globalStats.totalGamesPlayed > 0"
               class="preview-card__subtitle"
+              variant="muted"
+              size="sm"
+              :ariaLabel="statsLabel"
             >
               #{{ puzzleNumber }} ·
               {{ t('home.gamesPlayed', { count: formatNumber(globalStats.totalGamesPlayed) }) }}
               · {{ t('home.winRate', { rate: winRate }) }}
-            </span>
+            </ZenChip>
           </div>
         </div>
       </div>
@@ -82,7 +90,7 @@ onMounted(() => {
     }
 
     .preview-card__cta {
-      color: var(--gutenku-zen-accent);
+      color: var(--gutenku-zen-primary);
 
       svg {
         transform: translateX(4px);
@@ -178,18 +186,8 @@ onMounted(() => {
 }
 
 .preview-card__subtitle {
-  display: inline-block;
-  font-size: 0.75rem;
-  color: var(--gutenku-text-secondary);
   margin-top: 0.35rem;
-  padding: 0.2rem 0.5rem;
-  background: oklch(0.95 0.01 85 / 0.7);
   backdrop-filter: blur(4px);
-  border-radius: var(--gutenku-radius-sm);
-
-  [data-theme='dark'] & {
-    background: oklch(0.2 0.01 85 / 0.6);
-  }
 }
 
 .preview-card__body {
