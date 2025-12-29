@@ -14,7 +14,3 @@ node_modules
 *.njsproj
 *.sln
 *.sw?
-coverage/
-
-# GutenGuess plain text source (obfuscated version is committed)
-packages/server/src/cli/gutenguess-books-source.ts
