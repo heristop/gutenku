@@ -21,7 +21,19 @@ export default class OpenAIGeneratorService implements IGenerator {
 
   private selectionCount: number;
 
-  private get reasoningEffort(): ReasoningEffort {
+  private get model(): string {
+    return process.env.OPENAI_GPT_MODEL || 'gpt-4o';
+  }
+
+  private get supportsReasoning(): boolean {
+    // Only o1, o3, and gpt-5 models support reasoning_effort
+    return /^(o1|o3|gpt-5)/.test(this.model);
+  }
+
+  private get reasoningEffort(): ReasoningEffort | undefined {
+    if (!this.supportsReasoning) {
+      return undefined;
+    }
     return (process.env.OPENAI_REASONING_EFFORT as ReasoningEffort) || 'low';
   }
 
@@ -71,9 +83,9 @@ export default class OpenAIGeneratorService implements IGenerator {
             content: prompt,
           },
         ],
-        model: process.env.OPENAI_GPT_MODEL || 'gpt-5.2',
+        model: this.model,
         temperature: 0.7,
-        reasoning_effort: this.reasoningEffort,
+        ...(this.reasoningEffort && { reasoning_effort: this.reasoningEffort }),
       });
 
       const answer = completion.choices[0].message.content;
@@ -152,9 +164,9 @@ export default class OpenAIGeneratorService implements IGenerator {
           content: `${prompt} (Use the following format: ${outputFormat})`,
         },
       ],
-      model: process.env.OPENAI_GPT_MODEL || 'gpt-5.2',
+      model: this.model,
       temperature: 0.7,
-      reasoning_effort: this.reasoningEffort,
+      ...(this.reasoningEffort && { reasoning_effort: this.reasoningEffort }),
     });
 
     const answer = completion.choices[0].message.content;
@@ -185,9 +197,9 @@ export default class OpenAIGeneratorService implements IGenerator {
           content: prompt,
         },
       ],
-      model: process.env.OPENAI_GPT_MODEL || 'gpt-5.2',
+      model: this.model,
       temperature: 0.7,
-      reasoning_effort: this.reasoningEffort,
+      ...(this.reasoningEffort && { reasoning_effort: this.reasoningEffort }),
     });
 
     const answer = completion.choices[0].message.content;
@@ -205,9 +217,9 @@ export default class OpenAIGeneratorService implements IGenerator {
           content: prompt,
         },
       ],
-      model: process.env.OPENAI_GPT_MODEL || 'gpt-5.2',
+      model: this.model,
       temperature: 0.7,
-      reasoning_effort: this.reasoningEffort,
+      ...(this.reasoningEffort && { reasoning_effort: this.reasoningEffort }),
     });
 
     return completion.choices[0].message.content.replaceAll(/[\n\s]+/g, '');
