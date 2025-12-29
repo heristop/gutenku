@@ -8,6 +8,9 @@ import {
   type IGlobalStatsRepository,
   IGlobalStatsRepositoryToken,
 } from '~/domain/repositories/IGlobalStatsRepository';
+import { createLogger } from '~/infrastructure/services/Logger';
+
+const log = createLogger('haiku-handler');
 
 @injectable()
 export class GenerateHaikuHandler implements IQueryHandler<
@@ -46,6 +49,15 @@ export class GenerateHaikuHandler implements IQueryHandler<
     const OPENAI_SELECTION_MODE =
       query.useAI && undefined !== process.env.OPENAI_API_KEY;
 
+    log.info(
+      {
+        useAI: query.useAI,
+        hasApiKey: !!process.env.OPENAI_API_KEY,
+        OPENAI_SELECTION_MODE,
+      },
+      'OpenAI mode check',
+    );
+
     if (OPENAI_SELECTION_MODE === true) {
       this.openAIGenerator.configure({
         apiKey: process.env.OPENAI_API_KEY,
@@ -56,6 +68,14 @@ export class GenerateHaikuHandler implements IQueryHandler<
       });
 
       haiku = await this.openAIGenerator.generate();
+      log.info(
+        {
+          hasTitle: !!haiku?.title,
+          hasEmoticons: !!haiku?.book?.emoticons,
+          hasTranslations: !!haiku?.translations,
+        },
+        'OpenAI generation result',
+      );
     }
 
     if (haiku === null) {
@@ -65,7 +85,7 @@ export class GenerateHaikuHandler implements IQueryHandler<
     }
 
     if (query.appendImg !== false) {
-      haiku = await this.haikuGenerator.appendImg(haiku);
+      haiku = await this.haikuGenerator.appendImg(haiku, query.useImageAI);
     }
 
     if (haiku !== null) {

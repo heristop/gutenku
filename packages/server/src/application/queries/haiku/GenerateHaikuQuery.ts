@@ -5,6 +5,7 @@ export class GenerateHaikuQuery extends Query<HaikuValue> {
   public readonly useAI: boolean;
   public readonly useCache: boolean;
   public readonly appendImg: boolean;
+  public readonly useImageAI: boolean;
   public readonly selectionCount: number;
   public readonly theme: string;
   public readonly filter: string;
@@ -21,6 +22,7 @@ export class GenerateHaikuQuery extends Query<HaikuValue> {
     this.useAI = variables.useAI;
     this.useCache = variables.useCache;
     this.appendImg = variables.appendImg;
+    this.useImageAI = variables.useImageAI;
     this.selectionCount = variables.selectionCount;
     this.theme = variables.theme;
     this.filter = variables.filter;
@@ -38,6 +40,7 @@ export class GenerateHaikuQuery extends Query<HaikuValue> {
       useAI: this.useAI,
       useCache: this.useCache,
       appendImg: this.appendImg,
+      useImageAI: this.useImageAI,
       selectionCount: this.selectionCount,
       theme: this.theme,
       filter: this.filter,
