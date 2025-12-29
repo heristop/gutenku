@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "cypress run",
     "test:gui": "cypress run --headed --no-exit",
-    "lint": "oxlint --fix"
+    "lint": "oxlint --fix",
+    "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
     "@fingerprintjs/botd": "^2.0.0",

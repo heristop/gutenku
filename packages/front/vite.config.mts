@@ -67,10 +67,10 @@ export default defineConfig({
     preprocessorOptions: {
       sass: {
         api: 'modern-compiler',
-      },
+      } as Record<string, unknown>,
       scss: {
         api: 'modern-compiler',
-      },
+      } as Record<string, unknown>,
     },
   },
   server: {

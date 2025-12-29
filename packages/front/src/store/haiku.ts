@@ -351,7 +351,7 @@ export const useHaikuStore = defineStore(
   {
     persist: {
       storage: localStorage,
-      paths: [
+      pick: [
         'optionDrawerOpened',
         'optionTheme',
         'optionMinSentimentScore',

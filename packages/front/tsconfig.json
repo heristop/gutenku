@@ -7,7 +7,7 @@
     "composite": true,
     "module": "esnext",
     "skipLibCheck": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "strict": true,
     "jsx": "preserve",
     "sourceMap": false,
