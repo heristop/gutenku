@@ -3,36 +3,33 @@ import { computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import { ChevronLeft } from 'lucide-vue-next';
+import ZenButton from '@/components/ui/ZenButton.vue';
 import { useHaikuStore } from '@/store/haiku';
 import { withViewTransition } from '@/composables/view-transition';
 import { useToast } from '@/composables/toast';
-import { useKeyboardShortcuts } from '@/composables/keyboard-shortcuts';
 import HaikuTitle from '@/components/HaikuTitle.vue';
 import HaikuCanvas from '@/components/HaikuCanvas.vue';
 import HaikuChapter from '@/components/HaikuChapter.vue';
 import ToolbarPanel from '@/components/ToolbarPanel.vue';
 import ConfigPanel from '@/components/ConfigPanel.vue';
 import StatsPanel from '@/components/StatsPanel.vue';
+import SocialPreviewCard from '@/components/SocialPreviewCard.vue';
 import AppLoading from '@/components/AppLoading.vue';
+
+const isDev = import.meta.env.DEV;
 
 const { t, tm } = useI18n();
 const { error: showError } = useToast();
 
 const haikuStore = useHaikuStore();
 const { fetchNewHaiku } = haikuStore;
-const { haiku, error, firstLoaded, networkError, loading } = storeToRefs(haikuStore);
+const { haiku, error, firstLoaded, networkError, loading, optionUseAI } = storeToRefs(haikuStore);
 
-// Watch for errors and show toast
 watch(error, (newError) => {
   if (newError && newError !== 'network-error') {
     showError(newError);
     haikuStore.error = '';
   }
-});
-
-// Keyboard shortcuts for the full experience
-useKeyboardShortcuts({
-  onGenerate: fetchNewHaiku,
 });
 
 const literaryLoadingMessages = computed(() => {
@@ -56,29 +53,34 @@ onMounted(fetchNewHaiku);
 
 <template>
   <v-container class="haiku-page pa-2 pa-sm-4">
-    <!-- Back Navigation -->
     <nav :aria-label="t('nav.pageNavigation')">
-      <RouterLink
+      <ZenButton
         to="/"
-        class="zen-btn zen-btn--ghost haiku-page__back-wrapper"
+        variant="ghost"
+        spring
+        class="haiku-page__back-wrapper"
         :aria-label="t('common.back')"
       >
-        <ChevronLeft :size="18" />
-        <span>{{ t('common.back') }}</span>
-      </RouterLink>
+        <template #icon-left>
+          <ChevronLeft :size="18" />
+        </template>
+        {{ t('common.back') }}
+      </ZenButton>
     </nav>
 
-    <!-- Loading State -->
     <div v-if="!firstLoaded && !networkError" class="haiku-page__loading">
       <AppLoading :text="loadingLabel" :splash="true" />
     </div>
 
-    <!-- Network Error State -->
     <div v-else-if="networkError" class="haiku-page__error" role="alert">
-      <AppLoading :splash="true" error :text="t('home.networkError')" />
+      <AppLoading
+        :splash="true"
+        error
+        :text="t('home.networkError')"
+        :on-retry="fetchNewHaiku"
+      />
     </div>
 
-    <!-- Main Content -->
     <main
       v-else
       id="main-content"
@@ -87,7 +89,6 @@ onMounted(fetchNewHaiku);
       :aria-label="t('home.haikuContentLabel')"
     >
       <v-row>
-        <!-- Left Column: Title + Chapter -->
         <v-col cols="12" md="7" lg="8" order="1" order-md="1">
           <article :aria-label="t('haiku.articleLabel')">
             <HaikuTitle class="mb-4" />
@@ -96,7 +97,6 @@ onMounted(fetchNewHaiku);
           </article>
         </v-col>
 
-        <!-- Right Column: Canvas + Toolbar + Settings -->
         <v-col cols="12" md="5" lg="4" order="2" order-md="2">
           <aside
             :aria-label="t('haiku.controlsLabel')"
@@ -109,6 +109,8 @@ onMounted(fetchNewHaiku);
             <StatsPanel class="mb-4" />
 
             <ConfigPanel />
+
+            <SocialPreviewCard v-if="isDev && optionUseAI" class="mt-4" />
           </aside>
         </v-col>
       </v-row>
@@ -165,6 +167,7 @@ onMounted(fetchNewHaiku);
 @media (max-width: 960px) {
   .haiku-page__sidebar {
     position: static;
+    margin-top: -1rem;
   }
 }
 

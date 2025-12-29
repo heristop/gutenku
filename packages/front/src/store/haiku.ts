@@ -1,150 +1,216 @@
 import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
 import type { HaikuValue } from '@gutenku/shared';
 import { gql, type CombinedError } from '@urql/vue';
 import { urqlClient } from '@/client';
 
-const THEME_OPTIONS = ['random', 'colored', 'greentea', 'watermark'];
+interface CraftingMessage {
+  text: string;
+  timestamp: number;
+  emoji: string;
+}
 
+interface Stats {
+  haikusGenerated: number;
+  cachedHaikus: number;
+  booksBrowsed: number;
+  totalExecutionTime: number;
+  books: string[];
+  bookCounts: Record<string, number>;
+}
+
+export interface OptionGroup {
+  group: string;
+  options: string[];
+}
+
+const CLASSIC_THEMES = ['colored', 'greentea', 'watermark'];
+const IMAGE_AI_THEMES = [
+  'nihonga',
+  'sumie',
+  'ukiyoe',
+  'zengarden',
+  'wabisabi',
+  'bookzen',
+];
 const MAX_HISTORY_SIZE = 10;
 
-export const useHaikuStore = defineStore({
-  id: 'haiku',
-  state: () => ({
-    haiku: null as unknown as HaikuValue,
-    loading: false as boolean,
-    firstLoaded: false as boolean,
-    error: '' as string,
-    history: [] as HaikuValue[],
-    historyIndex: -1 as number,
-    optionDrawerOpened: false as boolean,
-    optionUseCache: true as boolean,
-    optionUseAI: false as boolean,
-    optionImageAI: false as boolean,
-    optionTheme: 'random' as string,
-    optionFilter: '' as string,
-    optionMinSentimentScore: 0.1 as number,
-    optionMinMarkovScore: 0.1 as number,
-    optionMinPosScore: 0 as number,
-    optionMinTrigramScore: 0 as number,
-    optionMinTfidfScore: 0 as number,
-    optionMinPhoneticsScore: 0 as number,
-    optionDescriptionTemperature: 0.3 as number,
-    optionSelectionCount: 1 as number,
-    stats: {
-      haikusGenerated: 0 as number,
-      cachedHaikus: 0 as number,
-      booksBrowsed: 0 as number,
-      totalExecutionTime: 0 as number,
-      books: [] as string[],
-      bookCounts: {} as Record<string, number>,
-    },
-  }),
-  persist: {
-    storage: localStorage,
-    paths: [
-      'optionDrawerOpened',
-      'optionTheme',
-      'optionMinSentimentScore',
-      'optionMinMarkovScore',
-      'optionMinPosScore',
-      'optionMinTrigramScore',
-      'optionMinTfidfScore',
-      'optionMinPhoneticsScore',
-      'stats',
-    ],
-  },
-  getters: {
-    networkError: (state) => 'network-error' === state.error,
-    notificationError: (state) => '' !== state.error,
-    themeOptions: (state) =>
-      state.optionImageAI && import.meta.env.DEV
-        ? ['openai', ...THEME_OPTIONS]
-        : THEME_OPTIONS,
-    shouldUseCache: (state) => !state.firstLoaded,
-    avgExecutionTime: (state) =>
-      state.stats.haikusGenerated > 0
-        ? state.stats.totalExecutionTime / state.stats.haikusGenerated
+export const useHaikuStore = defineStore(
+  'haiku',
+  () => {
+    // State
+    const haiku = ref<HaikuValue>(null as unknown as HaikuValue);
+    const loading = ref(false);
+    const firstLoaded = ref(false);
+    const error = ref('');
+    const craftingMessages = ref<CraftingMessage[]>([]);
+    const history = ref<HaikuValue[]>([]);
+    const historyIndex = ref(-1);
+
+    // Options state
+    const optionDrawerOpened = ref(false);
+    const optionUseCache = ref(true);
+    const optionUseAI = ref(false);
+    const optionImageAI = ref(false);
+    const optionTheme = ref('random');
+    const optionFilter = ref('');
+    const optionMinSentimentScore = ref(0.1);
+    const optionMinMarkovScore = ref(0.1);
+    const optionMinPosScore = ref(0);
+    const optionMinTrigramScore = ref(0);
+    const optionMinTfidfScore = ref(0);
+    const optionMinPhoneticsScore = ref(0);
+    const optionDescriptionTemperature = ref(0.3);
+    const optionSelectionCount = ref(1);
+
+    const stats = ref<Stats>({
+      haikusGenerated: 0,
+      cachedHaikus: 0,
+      booksBrowsed: 0,
+      totalExecutionTime: 0,
+      books: [],
+      bookCounts: {},
+    });
+
+    // Getters
+    const networkError = computed(() => error.value === 'network-error');
+    const notificationError = computed(() => error.value !== '');
+
+    const themeOptions = computed<OptionGroup[]>(() =>
+      optionImageAI.value && import.meta.env.DEV
+        ? [
+            { group: 'random', options: ['random'] },
+            { group: 'ai', options: IMAGE_AI_THEMES },
+            { group: 'classic', options: CLASSIC_THEMES },
+          ]
+        : [
+            { group: 'random', options: ['random'] },
+            { group: 'classic', options: CLASSIC_THEMES },
+          ],
+    );
+
+    const imageAIThemes = computed(() => IMAGE_AI_THEMES);
+    const shouldUseCache = computed(() => !firstLoaded.value);
+
+    const avgExecutionTime = computed(() =>
+      stats.value.haikusGenerated > 0
+        ? stats.value.totalExecutionTime / stats.value.haikusGenerated
         : 0,
-    canGoBack: (state) => state.historyIndex > 0,
-    canGoForward: (state) => state.historyIndex < state.history.length - 1,
-    historyLength: (state) => state.history.length,
-    historyPosition: (state) => state.historyIndex + 1,
-  },
-  actions: {
-    async fetchNewHaiku(): Promise<void> {
+    );
+
+    const canGoBack = computed(() => historyIndex.value > 0);
+    const canGoForward = computed(
+      () => historyIndex.value < history.value.length - 1,
+    );
+    const historyLength = computed(() => history.value.length);
+    const historyPosition = computed(() => historyIndex.value + 1);
+
+    // Actions
+    async function fetchNewHaiku(): Promise<void> {
+      let subscriptionCleanup: (() => void) | null = null;
+
       try {
-        this.loading = true;
-        this.error = '';
+        loading.value = true;
+        error.value = '';
+        craftingMessages.value = [];
+
+        // Subscribe to crafting messages
+        const subscriptionQuery = gql`
+        subscription QuoteGenerated {
+          quoteGenerated
+        }
+      `;
+
+        const { unsubscribe } = urqlClient
+          .subscription(subscriptionQuery, {})
+          .subscribe((result) => {
+            if (result.data?.quoteGenerated) {
+              craftingMessages.value = [
+                {
+                  text: result.data.quoteGenerated,
+                  timestamp: Date.now(),
+                  emoji: '✨',
+                },
+                ...craftingMessages.value,
+              ];
+            }
+          });
+
+        subscriptionCleanup = unsubscribe;
 
         const queryHaiku = gql`
-          query Query(
-            $useAi: Boolean
-            $useCache: Boolean
-            $theme: String
-            $filter: String
-            $sentimentMinScore: Float
-            $markovMinScore: Float
-            $posMinScore: Float
-            $trigramMinScore: Float
-            $tfidfMinScore: Float
-            $phoneticsMinScore: Float
-            $descriptionTemperature: Float
-            $selectionCount: Int
+        query Query(
+          $useAi: Boolean
+          $useCache: Boolean
+          $useImageAI: Boolean
+          $theme: String
+          $filter: String
+          $sentimentMinScore: Float
+          $markovMinScore: Float
+          $posMinScore: Float
+          $trigramMinScore: Float
+          $tfidfMinScore: Float
+          $phoneticsMinScore: Float
+          $descriptionTemperature: Float
+          $selectionCount: Int
+        ) {
+          haiku(
+            useAI: $useAi
+            useCache: $useCache
+            useImageAI: $useImageAI
+            theme: $theme
+            filter: $filter
+            sentimentMinScore: $sentimentMinScore
+            markovMinScore: $markovMinScore
+            posMinScore: $posMinScore
+            trigramMinScore: $trigramMinScore
+            tfidfMinScore: $tfidfMinScore
+            phoneticsMinScore: $phoneticsMinScore
+            descriptionTemperature: $descriptionTemperature
+            selectionCount: $selectionCount
           ) {
-            haiku(
-              useAI: $useAi
-              useCache: $useCache
-              theme: $theme
-              filter: $filter
-              sentimentMinScore: $sentimentMinScore
-              markovMinScore: $markovMinScore
-              posMinScore: $posMinScore
-              trigramMinScore: $trigramMinScore
-              tfidfMinScore: $tfidfMinScore
-              phoneticsMinScore: $phoneticsMinScore
-              descriptionTemperature: $descriptionTemperature
-              selectionCount: $selectionCount
-            ) {
-              book {
-                title
-                author
-                emoticons
-              }
-              chapter {
-                content
-                title
-              }
-              verses
-              rawVerses
-              image
+            book {
               title
-              description
-              hashtags
-              translations {
-                fr
-                jp
-                es
-              }
-              cacheUsed
-              executionTime
+              author
+              emoticons
             }
+            chapter {
+              content
+              title
+            }
+            verses
+            rawVerses
+            image
+            title
+            description
+            hashtags
+            translations {
+              fr
+              jp
+              es
+            }
+            cacheUsed
+            executionTime
           }
-        `;
+        }
+      `;
 
         const variables = {
-          useAi: this.optionUseAI,
-          useCache: this.shouldUseCache,
-          theme: this.optionTheme,
-          filter: this.optionFilter,
-          sentimentMinScore: this.optionMinSentimentScore,
-          markovMinScore: this.optionMinMarkovScore,
-          posMinScore: this.optionMinPosScore,
-          trigramMinScore: this.optionMinTrigramScore,
-          tfidfMinScore: this.optionMinTfidfScore,
-          phoneticsMinScore: this.optionMinPhoneticsScore,
-          descriptionTemperature: this.optionDescriptionTemperature,
+          useAi: optionUseAI.value,
+          useCache: shouldUseCache.value,
+          useImageAI:
+            optionImageAI.value && import.meta.env.DEV ? true : undefined,
+          theme: optionTheme.value,
+          filter: optionFilter.value,
+          sentimentMinScore: optionMinSentimentScore.value,
+          markovMinScore: optionMinMarkovScore.value,
+          posMinScore: optionMinPosScore.value,
+          trigramMinScore: optionMinTrigramScore.value,
+          tfidfMinScore: optionMinTfidfScore.value,
+          phoneticsMinScore: optionMinPhoneticsScore.value,
+          descriptionTemperature: optionDescriptionTemperature.value,
           selectionCount: import.meta.env.DEV
-            ? this.optionSelectionCount
+            ? optionSelectionCount.value
             : undefined,
           appendImg: true,
         };
@@ -157,48 +223,47 @@ export const useHaikuStore = defineStore({
           throw result.error;
         }
 
-        const haiku = result.data?.haiku ?? null;
+        const newHaiku = result.data?.haiku ?? null;
+        haiku.value = (newHaiku ??
+          (null as unknown as HaikuValue)) as HaikuValue;
 
-        this.haiku = (haiku ?? (null as unknown as HaikuValue)) as HaikuValue;
+        if (newHaiku) {
+          if (historyIndex.value < history.value.length - 1) {
+            history.value = history.value.slice(0, historyIndex.value + 1);
+          }
+          history.value.push(newHaiku);
+          if (history.value.length > MAX_HISTORY_SIZE) {
+            history.value.shift();
+          }
+          historyIndex.value = history.value.length - 1;
 
-        if (haiku) {
-          if (this.historyIndex < this.history.length - 1) {
-            this.history = this.history.slice(0, this.historyIndex + 1);
+          stats.value.haikusGenerated += 1;
+          if (newHaiku.cacheUsed === true) {
+            stats.value.cachedHaikus += 1;
           }
-          this.history.push(haiku);
-          if (this.history.length > MAX_HISTORY_SIZE) {
-            this.history.shift();
+          if (typeof newHaiku.executionTime === 'number') {
+            stats.value.totalExecutionTime += newHaiku.executionTime;
           }
-          this.historyIndex = this.history.length - 1;
-
-          this.stats.haikusGenerated += 1;
-          if (true === haiku.cacheUsed) {
-            this.stats.cachedHaikus += 1;
-          }
-          if (typeof haiku.executionTime === 'number') {
-            this.stats.totalExecutionTime += haiku.executionTime;
-          }
-          const bookTitle = haiku.book?.title?.trim();
+          const bookTitle = newHaiku.book?.title?.trim();
           if (bookTitle) {
-            if (!this.stats.books.includes(bookTitle)) {
-              this.stats.books.push(bookTitle);
-              this.stats.booksBrowsed = this.stats.books.length;
+            if (!stats.value.books.includes(bookTitle)) {
+              stats.value.books.push(bookTitle);
+              stats.value.booksBrowsed = stats.value.books.length;
             }
-            this.stats.bookCounts[bookTitle] =
-              (this.stats.bookCounts[bookTitle] || 0) + 1;
+            stats.value.bookCounts[bookTitle] =
+              (stats.value.bookCounts[bookTitle] || 0) + 1;
           }
         }
-      } catch (error: unknown) {
-        this.error = 'network-error';
+      } catch (err: unknown) {
+        error.value = 'network-error';
 
         const applyMaxAttemptsMessage = () => {
-          this.error =
-            'No haiku found matching your filters after maximum attempts. ';
-          this.error +=
+          error.value =
+            'No haiku found matching your filters after maximum attempts. ' +
             'Please try again with a different filter or try several words.';
         };
 
-        const combinedError = error as CombinedError;
+        const combinedError = err as CombinedError;
         const graphErrors = combinedError?.graphQLErrors || null;
 
         if (
@@ -210,31 +275,93 @@ export const useHaikuStore = defineStore({
         ) {
           applyMaxAttemptsMessage();
         } else if (
-          error instanceof Error &&
-          error.message === 'max-attempts-error'
+          err instanceof Error &&
+          err.message === 'max-attempts-error'
         ) {
           applyMaxAttemptsMessage();
         }
       } finally {
-        this.firstLoaded = true;
-        this.loading = false;
+        if (subscriptionCleanup) {
+          subscriptionCleanup();
+        }
+        firstLoaded.value = true;
+        loading.value = false;
       }
-    },
-    goBack(): boolean {
-      if (this.historyIndex <= 0) {
+    }
+
+    function goBack(): boolean {
+      if (historyIndex.value <= 0) {
         return false;
       }
-      this.historyIndex--;
-      this.haiku = this.history[this.historyIndex];
+      historyIndex.value--;
+      haiku.value = history.value[historyIndex.value];
       return true;
-    },
-    goForward(): boolean {
-      if (this.historyIndex >= this.history.length - 1) {
+    }
+
+    function goForward(): boolean {
+      if (historyIndex.value >= history.value.length - 1) {
         return false;
       }
-      this.historyIndex++;
-      this.haiku = this.history[this.historyIndex];
+      historyIndex.value++;
+      haiku.value = history.value[historyIndex.value];
       return true;
+    }
+
+    return {
+      // State
+      haiku,
+      loading,
+      firstLoaded,
+      error,
+      craftingMessages,
+      history,
+      historyIndex,
+      optionDrawerOpened,
+      optionUseCache,
+      optionUseAI,
+      optionImageAI,
+      optionTheme,
+      optionFilter,
+      optionMinSentimentScore,
+      optionMinMarkovScore,
+      optionMinPosScore,
+      optionMinTrigramScore,
+      optionMinTfidfScore,
+      optionMinPhoneticsScore,
+      optionDescriptionTemperature,
+      optionSelectionCount,
+      stats,
+      // Getters
+      networkError,
+      notificationError,
+      themeOptions,
+      imageAIThemes,
+      shouldUseCache,
+      avgExecutionTime,
+      canGoBack,
+      canGoForward,
+      historyLength,
+      historyPosition,
+      // Actions
+      fetchNewHaiku,
+      goBack,
+      goForward,
+    };
+  },
+  {
+    persist: {
+      storage: localStorage,
+      paths: [
+        'optionDrawerOpened',
+        'optionTheme',
+        'optionMinSentimentScore',
+        'optionMinMarkovScore',
+        'optionMinPosScore',
+        'optionMinTrigramScore',
+        'optionMinTfidfScore',
+        'optionMinPhoneticsScore',
+        'stats',
+      ],
     },
   },
-});
+);

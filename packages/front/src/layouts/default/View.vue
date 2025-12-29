@@ -1,4 +1,43 @@
-<script lang="ts" setup />
+<script lang="ts" setup>
+import { onBeforeMount } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+// Check if View Transition API is supported
+const supportsViewTransition = (): boolean => {
+  return (
+    typeof document !== 'undefined' &&
+    'startViewTransition' in document &&
+    !globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+};
+
+// Intercept link clicks to trigger View Transition
+onBeforeMount(() => {
+  if (!supportsViewTransition()) {return;}
+
+  // Override router navigation to use View Transitions
+  const originalPush = router.push.bind(router);
+  const originalReplace = router.replace.bind(router);
+
+  const navigateWithTransition = async (
+    method: typeof originalPush,
+    to: Parameters<typeof originalPush>[0]
+  ) => {
+    return new Promise((resolve) => {
+      (document as Document & {
+        startViewTransition: (cb: () => void) => { finished: Promise<void> }
+      }).startViewTransition(() => {
+        method(to).then(resolve);
+      });
+    });
+  };
+
+  router.push = (to) => navigateWithTransition(originalPush, to) as ReturnType<typeof originalPush>;
+  router.replace = (to) => navigateWithTransition(originalReplace, to) as ReturnType<typeof originalReplace>;
+});
+</script>
 
 <template>
   <v-main id="main-content" class="gutenku-app-background" tabindex="-1">

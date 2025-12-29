@@ -6,7 +6,7 @@ const DEFAULT_MESSAGES: string[] = [
   '🎭 Absorbing the emotional essence of timeless stories...',
   '✨ Weaving seventeen syllables of pure magic...',
   '🎨 Selecting the perfect artistic theme for your poem...',
-  '🖼️ Creating a visual masterpiece for your haiku...',
+  '🖼️ Crafting a visual masterpiece for your haiku...',
   '📝 Adding the final touches to your literary art...',
   '🌸 Shuffling cherry blossoms for seasonal vibes...',
   '🧘 Zen mode: in 5, out 7, in 5...',

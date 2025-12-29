@@ -6,8 +6,8 @@ import ZenSkeleton from '@/components/ZenSkeleton.vue';
 import GamePreview from '@/components/GamePreview.vue';
 import HaikuPreview from '@/components/HaikuPreview.vue';
 
-const IntroductionPanel = defineAsyncComponent({
-  loader: () => import('@/components/IntroductionPanel.vue'),
+const Hero = defineAsyncComponent({
+  loader: () => import('@/components/Hero.vue'),
   loadingComponent: ZenSkeleton,
 });
 
@@ -36,7 +36,7 @@ onMounted(() => {
       <!-- Introduction Section -->
       <v-row justify="center" no-gutters>
         <v-col cols="12" md="10" lg="8" class="pa-1 pa-sm-3">
-          <IntroductionPanel />
+          <Hero />
         </v-col>
       </v-row>
 

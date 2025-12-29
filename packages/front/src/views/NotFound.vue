@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Home, BookOpen } from 'lucide-vue-next';
 import ZenCard from '@/components/ui/ZenCard.vue';
+import ZenButton from '@/components/ui/ZenButton.vue';
 
 const { t } = useI18n();
 
@@ -62,15 +63,12 @@ onMounted(() => {
           <span class="brush-stroke"></span>
         </div>
 
-        <v-btn
-          to="/"
-          variant="flat"
-          class="not-found__btn"
-          :aria-label="t('notFound.returnHome')"
-        >
-          <Home :size="18" class="mr-2" />
+        <ZenButton to="/" :aria-label="t('notFound.returnHome')">
+          <template #icon-left>
+            <Home :size="18" />
+          </template>
           {{ t('notFound.returnHome') }}
-        </v-btn>
+        </ZenButton>
       </ZenCard>
     </Transition>
   </v-container>
@@ -200,27 +198,6 @@ onMounted(() => {
     }
   }
 
-  &__btn {
-    background: var(--gutenku-zen-primary) !important;
-    color: #fff !important;
-    font-weight: 500;
-    letter-spacing: 0.05em;
-    padding: 0.75rem 1.5rem !important;
-    border-radius: var(--gutenku-radius-md);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--gutenku-shadow-ink);
-    }
-
-    &:active {
-      transform: translateY(0);
-    }
-  }
 }
 
 // Animations
