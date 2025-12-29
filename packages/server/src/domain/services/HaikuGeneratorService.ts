@@ -137,10 +137,13 @@ export default class HaikuGeneratorService implements IGenerator {
     return await this.buildFromDb();
   }
 
-  async appendImg(haiku: HaikuValue): Promise<HaikuValue> {
+  async appendImg(
+    haiku: HaikuValue,
+    useImageAI: boolean = false,
+  ): Promise<HaikuValue> {
     this.canvasService.useTheme(this.theme);
 
-    const imagePath = await this.canvasService.create(haiku);
+    const imagePath = await this.canvasService.create(haiku, useImageAI);
     const image = await this.canvasService.read(imagePath);
 
     await promisify(unlink)(imagePath);
