@@ -30,7 +30,7 @@ describe('Landing page test', () => {
 
   it('opens advanced config', () => {
     cy.get('.config-panel').scrollIntoView().should('be.visible');
-    cy.get('#config-panel-content', { timeout: 5000 }).should('be.visible');
+    cy.get('.config-panel__content', { timeout: 5000 }).should('be.visible');
     cy.contains('Sentiment').should('be.visible');
     // Toggle advanced section
     cy.get('.config-panel__advanced-toggle').scrollIntoView().click();

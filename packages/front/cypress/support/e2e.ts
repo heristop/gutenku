@@ -31,10 +31,11 @@ Cypress.Commands.add('waitForHaiku', (alias = 'api') => {
 });
 
 Cypress.Commands.add('selectTheme', (value: string) => {
-  // Open v-select menu
-  cy.get('.theme-selector .v-field').click();
-  // Click matching item
-  cy.get('.v-overlay-container .v-list .v-list-item')
-    .contains(new RegExp(`^${value}$`, 'i'))
-    .click();
+  // Open ZenSelect dropdown
+  cy.get('.theme-selector .zen-select__trigger').click();
+  // Click matching option by text content
+  cy.contains(
+    '.zen-select__dropdown .zen-select__option',
+    new RegExp(value, 'i'),
+  ).click();
 });

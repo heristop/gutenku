@@ -13,11 +13,3 @@
   font-style: normal;
   font-display: swap;
 }
-
-@font-face {
-  font-family: 'Material Icons';
-  font-style: normal;
-  font-weight: 400;
-  src: url('@/assets/fonts/MaterialIcons-Regular.woff2') format('woff2');
-  font-display: swap;
-}
