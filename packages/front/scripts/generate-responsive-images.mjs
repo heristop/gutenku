@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import sharp from 'sharp';
-import { readdir, stat } from 'node:fs/promises';
+import { stat } from 'node:fs/promises';
 import { join, basename, extname } from 'node:path';
 
 const ASSETS_DIR = new URL('../src/assets/img', import.meta.url).pathname;
