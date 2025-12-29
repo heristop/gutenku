@@ -10,7 +10,7 @@ const ZenCreditsModal = defineAsyncComponent(
 
 const { t } = useI18n();
 const currentYear = new Date().getFullYear();
-const creditsModal = ref<{ open: () => void } | null>(null);
+const showCreditsModal = ref(false);
 
 // Ink ripple on copyright click
 const inkRipple = ref<{ x: number; y: number; active: boolean }>({
@@ -48,7 +48,7 @@ function openCredits(event: MouseEvent) {
     inkRipple.value.active = false;
   }, 600);
 
-  creditsModal.value?.open();
+  showCreditsModal.value = true;
 }
 
 function openSocialLink(url: string) {
@@ -58,23 +58,6 @@ function openSocialLink(url: string) {
 
 <template>
   <div class="app-footer" :aria-label="t('footer.ariaLabel')">
-    <!-- Decorative top border -->
-    <div class="footer-border" aria-hidden="true">
-      <svg
-        class="footer-border__stroke"
-        viewBox="0 0 100 2"
-        preserveAspectRatio="none"
-      >
-        <path
-          class="ink-line"
-          d="M0 1 Q25 0.5 50 1 Q75 1.5 100 1"
-          stroke="currentColor"
-          stroke-width="0.5"
-          fill="none"
-        />
-      </svg>
-    </div>
-
     <div class="footer-content">
       <!-- Navigation Links -->
       <nav class="footer-nav stagger-1" :aria-label="t('footer.navAriaLabel')">
@@ -121,7 +104,7 @@ function openSocialLink(url: string) {
             @click="openSocialLink(link.url)"
           >
             <span class="ink-circle" aria-hidden="true" />
-            <component :is="link.icon" :size="18" :stroke-width="1.5" />
+            <component :is="link.icon" :size="20" :stroke-width="1.5" />
           </button>
         </ZenTooltip>
       </div>
@@ -157,7 +140,7 @@ function openSocialLink(url: string) {
       </ZenTooltip>
     </div>
 
-    <ZenCreditsModal ref="creditsModal" />
+    <ZenCreditsModal v-model="showCreditsModal" />
   </div>
 </template>
 
@@ -194,33 +177,19 @@ function openSocialLink(url: string) {
 
 .app-footer {
   position: relative;
-  padding: 1.75rem 1rem 2rem;
-  background: transparent;
-  box-shadow: inset 0 1px 0 0 color-mix(in oklch, var(--gutenku-text-primary) 12%, transparent);
+  padding: 1.5rem 1rem 1.75rem;
+  background-image: radial-gradient(
+      circle at 20% 30%,
+      oklch(42% 0.09 55 / 0.05) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 70%,
+      oklch(42% 0.09 55 / 0.05) 0%,
+      transparent 50%
+    );
+  box-shadow: inset 0 1px 0 0 oklch(0 0 0 / 0.06);
   animation: footer-fade-in 0.5s ease-out 0.1s both;
-}
-
-// Decorative top border - organic ink brushstroke
-.footer-border {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(85%, 36rem);
-  height: 4px;
-  overflow: visible;
-
-  &__stroke {
-    width: 100%;
-    height: 100%;
-    color: var(--gutenku-text-muted);
-    opacity: 0.15;
-  }
-}
-
-.ink-line {
-  stroke-dasharray: 200;
-  animation: ink-draw 1s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
 }
 
 .footer-content {
@@ -263,7 +232,7 @@ function openSocialLink(url: string) {
   &__link {
     position: relative;
     font-family: 'JMH Typewriter', monospace;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     color: var(--gutenku-text-secondary);
     text-decoration: none;
     padding: 0.375rem 0.625rem;
@@ -336,20 +305,20 @@ function openSocialLink(url: string) {
 .footer-social {
   display: flex;
   align-items: center;
-  gap: 0.375rem;
+  justify-content: center;
+  gap: 0.5rem;
 
   &__link {
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
     padding: 0;
     background: transparent;
     border: none;
     border-radius: 50%;
-    color: var(--gutenku-text-muted);
+    color: var(--gutenku-text-secondary);
     cursor: pointer;
     transition: all 0.2s ease;
     overflow: hidden;
@@ -402,8 +371,8 @@ function openSocialLink(url: string) {
 .footer-copyright {
   position: relative;
   font-family: 'JMH Typewriter', monospace;
-  font-size: 0.75rem;
-  color: var(--gutenku-text-muted);
+  font-size: 0.875rem;
+  color: var(--gutenku-text-secondary);
   background: transparent;
   border: none;
   padding: 0.375rem 0.625rem;
@@ -413,8 +382,8 @@ function openSocialLink(url: string) {
   overflow: hidden;
 
   &:hover {
-    color: var(--gutenku-text-secondary);
-    background: color-mix(in oklch, var(--gutenku-zen-primary) 6%, transparent);
+    color: var(--gutenku-text-primary);
+    background: color-mix(in oklch, var(--gutenku-zen-primary) 8%, transparent);
   }
 
   &:focus-visible {
@@ -449,14 +418,12 @@ function openSocialLink(url: string) {
 
 // Dark theme
 [data-theme='dark'] {
-  .app-footer {
-    box-shadow: inset 0 1px 0 0 color-mix(in oklch, var(--gutenku-text-primary) 15%, transparent);
-  }
-
   .footer-nav__link {
+    color: var(--gutenku-text-primary);
+
     &:hover {
       color: var(--gutenku-zen-accent);
-      background: color-mix(in oklch, var(--gutenku-zen-accent) 12%, transparent);
+      background: color-mix(in oklch, var(--gutenku-zen-accent) 15%, transparent);
     }
 
     &.router-link-exact-active {
@@ -474,8 +441,12 @@ function openSocialLink(url: string) {
     }
   }
 
-  .footer-social__link:hover {
-    color: var(--gutenku-zen-accent);
+  .footer-social__link {
+    color: var(--gutenku-text-primary);
+
+    &:hover {
+      color: var(--gutenku-zen-accent);
+    }
   }
 
   .ink-circle {
@@ -487,9 +458,17 @@ function openSocialLink(url: string) {
     );
   }
 
-  .footer-copyright:hover {
-    color: var(--gutenku-text-secondary);
-    background: color-mix(in oklch, var(--gutenku-zen-accent) 10%, transparent);
+  .footer-copyright {
+    color: var(--gutenku-text-primary);
+
+    &:hover {
+      color: var(--gutenku-zen-accent);
+      background: color-mix(in oklch, var(--gutenku-zen-accent) 12%, transparent);
+    }
+  }
+
+  .ink-divider .ink-stroke {
+    stroke: color-mix(in oklch, var(--gutenku-text-primary) 25%, transparent);
   }
 
   .ink-ripple {

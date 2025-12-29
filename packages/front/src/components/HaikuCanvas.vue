@@ -8,8 +8,9 @@ import { useInView } from '@/composables/in-view';
 import { useDebouncedCallback } from '@/composables/debounce';
 import { useTouchGestures } from '@/composables/touch-gestures';
 import HankoStamp from '@/components/HankoStamp.vue';
-import EnsoLoader from '@/components/EnsoLoader.vue';
+import InkDropLoader from '@/components/InkDropLoader.vue';
 import ZenCard from '@/components/ui/ZenCard.vue';
+import ZenSelect from '@/components/ui/ZenSelect.vue';
 
 const { t } = useI18n();
 
@@ -41,7 +42,7 @@ const { isSwiping, isTouchDevice } = useTouchGestures(swipeRef, {
   vibrate: true,
   vibrationPattern: [20],
 });
-const { haiku, loading, optionTheme, themeOptions } =
+const { haiku, loading, optionTheme, themeOptions, imageAIThemes } =
   storeToRefs(useHaikuStore());
 
 watch(optionTheme, (newTheme) => {
@@ -58,14 +59,17 @@ const { debouncedFn: debouncedFetchHaiku, isPending: isThemeChangePending } =
 
 const imageLoaded = ref(false);
 const showHanko = ref(false);
+const isRevealing = ref(false);
 
 const ripples = ref<Array<{ id: number; x: number; y: number }>>([]);
 let rippleId = 0;
 watch(imageLoaded, (loaded) => {
   if (loaded) {
+    isRevealing.value = true;
     setTimeout(() => {
+      isRevealing.value = false;
       showHanko.value = true;
-    }, 800);
+    }, 1600); // Match ink wash animation duration
   }
 });
 
@@ -73,6 +77,7 @@ watch(loading, (isLoading) => {
   if (isLoading) {
     showHanko.value = false;
     imageLoaded.value = false;
+    isRevealing.value = false;
   }
 });
 
@@ -151,13 +156,13 @@ const onImageLoad = () => {
           }"
           class="zen-loading-skeleton"
         >
-          <EnsoLoader :size="100" />
+          <InkDropLoader :size="100" />
           <div class="loading-text">
             {{ t('haikuCanvas.loading') }}
           </div>
         </div>
 
-        <v-sheet
+        <div
           v-else
           v-motion
           :initial="{ opacity: 0, scale: 0.95, rotateY: 5 }"
@@ -173,7 +178,6 @@ const onImageLoad = () => {
             transition: { duration: 200, ease: [0.4, 0, 1, 1] },
           }"
           class="canvas-container pa-2"
-          elevation="0"
         >
           <div
             ref="canvasRef"
@@ -188,7 +192,7 @@ const onImageLoad = () => {
             <v-img
               :src="haikuImage"
               :alt="haiku.verses.join(', ')"
-              aspect-ratio="1/1"
+              aspect-ratio="3/4"
               cover
               eager
               class="haiku-image"
@@ -212,6 +216,15 @@ const onImageLoad = () => {
             />
 
             <HankoStamp :show="showHanko" :size="42" />
+
+            <!-- Ink ripple effect during reveal -->
+            <Transition name="ink-ripple-fade">
+              <div v-if="isRevealing" class="ink-ripple-overlay">
+                <div class="ink-reveal-ripple ink-reveal-ripple-1" />
+                <div class="ink-reveal-ripple ink-reveal-ripple-2" />
+                <div class="ink-reveal-ripple ink-reveal-ripple-3" />
+              </div>
+            </Transition>
 
             <div class="canvas-focus-overlay" />
 
@@ -247,27 +260,24 @@ const onImageLoad = () => {
               </div>
             </Transition>
           </div>
-        </v-sheet>
+        </div>
       </div>
 
-      <div class="canvas-actions justify-center">
-        <v-select
+      <template #actions>
+        <ZenSelect
           v-model="optionTheme"
           :label="t('haikuCanvas.themeLabel')"
-          :items="themeOptions"
+          :options="themeOptions"
+          :ai-themes="imageAIThemes"
           :loading="isThemeChangePending"
-          variant="underlined"
-          class="text-primary theme-selector"
-          hide-details
-          density="compact"
-          :menu-props="{ contentClass: 'theme-selector-menu' }"
+          class="theme-selector"
           @update:model-value="debouncedFetchHaiku()"
         >
-          <template #prepend-inner>
-            <Palette :size="18" class="text-primary" />
+          <template #icon>
+            <Palette :size="18" />
           </template>
-        </v-select>
-      </div>
+        </ZenSelect>
+      </template>
     </ZenCard>
   </div>
 </template>
@@ -298,13 +308,13 @@ const onImageLoad = () => {
 .paper-frame {
   width: 100%;
   max-width: 25rem;
-  margin: 0 auto 1rem;
+  margin: 0.75rem auto 0;
   position: relative;
-  aspect-ratio: 1/1;
+  aspect-ratio: 3/4;
 }
 
 .zen-loading-skeleton {
-  aspect-ratio: 1/1;
+  aspect-ratio: 3/4;
   background: var(--gutenku-paper-bg-aged);
   border-radius: var(--gutenku-radius-sm);
   position: relative;
@@ -389,36 +399,89 @@ const onImageLoad = () => {
   }
 }
 
+// Ink wash reveal
 .haiku-image {
-  transition: var(--gutenku-transition-zen);
   border-radius: var(--gutenku-radius-sm);
-  clip-path: inset(100% 0 0 0);
-  -webkit-clip-path: inset(100% 0 0 0);
+  opacity: 0;
+  filter: blur(20px) saturate(0.3);
+  transform: scale(1.08);
+  mask-image: radial-gradient(circle, black 0%, transparent 0%);
+  -webkit-mask-image: radial-gradient(circle, black 0%, transparent 0%);
 
   &--reveal {
-    animation: paint-in-reveal 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation:
+      ink-wash-opacity 1.2s ease-out forwards,
+      ink-wash-blur 1.4s ease-out forwards,
+      ink-wash-mask 1.6s cubic-bezier(0.4, 0, 0.2, 1) forwards,
+      ink-wash-scale 1.4s ease-out forwards;
   }
 }
 
-@keyframes paint-in-reveal {
+@keyframes ink-wash-opacity {
   0% {
-    clip-path: inset(100% 0 0 0);
-    -webkit-clip-path: inset(100% 0 0 0);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.6;
   }
   100% {
-    clip-path: inset(0 0 0 0);
-    -webkit-clip-path: inset(0 0 0 0);
+    opacity: 1;
   }
 }
 
+@keyframes ink-wash-blur {
+  0% {
+    filter: blur(20px) saturate(0.3);
+  }
+  50% {
+    filter: blur(8px) saturate(0.7);
+  }
+  100% {
+    filter: blur(0) saturate(1);
+  }
+}
+
+@keyframes ink-wash-mask {
+  0% {
+    mask-image: radial-gradient(circle, black 0%, transparent 0%);
+    -webkit-mask-image: radial-gradient(circle, black 0%, transparent 0%);
+  }
+  100% {
+    mask-image: radial-gradient(circle, black 100%, transparent 100%);
+    -webkit-mask-image: radial-gradient(circle, black 100%, transparent 100%);
+  }
+}
+
+@keyframes ink-wash-scale {
+  0% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+// Reduced motion support
 @media (prefers-reduced-motion: reduce) {
   .haiku-image {
-    clip-path: none;
-    -webkit-clip-path: none;
+    opacity: 1;
+    filter: none;
+    transform: none;
+    mask-image: none;
+    -webkit-mask-image: none;
 
     &--reveal {
-      animation: none;
+      animation: simple-fade-in 0.3s ease-out forwards;
     }
+  }
+}
+
+@keyframes simple-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
@@ -562,21 +625,8 @@ const onImageLoad = () => {
   }
 }
 
-.canvas-actions {
-  gap: 1rem;
-  padding: 0.5rem 0 0;
-}
-
 .theme-selector {
   max-width: 12.5rem;
-
-  :deep(.v-field__input) {
-    font-size: 0.85rem;
-  }
-
-  :deep(.v-field) {
-    padding-top: 1rem;
-  }
 }
 
 @keyframes brush-draw {
@@ -689,15 +739,81 @@ const onImageLoad = () => {
   opacity: 0;
 }
 
+// Ink ripple overlay during reveal
+.ink-ripple-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 3;
+}
+
+.ink-reveal-ripple {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(
+    circle,
+    var(--gutenku-zen-ink, oklch(0.25 0.02 260 / 0.4)) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0.5;
+}
+
+.ink-reveal-ripple-1 {
+  animation: ink-reveal-expand 1.6s ease-out forwards;
+}
+
+.ink-reveal-ripple-2 {
+  animation: ink-reveal-expand 1.6s ease-out 0.2s forwards;
+}
+
+.ink-reveal-ripple-3 {
+  animation: ink-reveal-expand 1.6s ease-out 0.4s forwards;
+}
+
+@keyframes ink-reveal-expand {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(60);
+    opacity: 0;
+  }
+}
+
+// Ink ripple fade transition
+.ink-ripple-fade-enter-active {
+  transition: opacity 0.2s ease-out;
+}
+
+.ink-ripple-fade-leave-active {
+  transition: opacity 0.4s ease-in;
+}
+
+.ink-ripple-fade-enter-from,
+.ink-ripple-fade-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ink-ripple-overlay {
+    display: none;
+  }
+}
+
 @media (max-width: 768px) {
-  .paper-frame {
-    max-width: 100%;
+  .haiku-canvas-card {
+    margin-top: 0 !important;
   }
 
-  .canvas-actions {
-    flex-direction: column;
-    gap: 0.75rem;
-    align-items: stretch;
+  .paper-frame {
+    max-width: 100%;
   }
 
   .theme-selector {

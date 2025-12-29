@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref, watch, useTemplateRef, nextTick, onUnmounted, onMounted, type Component, type Ref } from 'vue';
+import { computed, ref, watch, useTemplateRef, onUnmounted, type Component, type Ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import {
@@ -24,16 +24,16 @@ import {
 import { useHaikuStore } from '@/store/haiku';
 import { useExpandedState } from '@/composables/local-storage';
 import { useInView } from '@/composables/in-view';
-import { useTouchGestures } from '@/composables/touch-gestures';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
 import ZenCard from '@/components/ui/ZenCard.vue';
+import ZenButton from '@/components/ui/ZenButton.vue';
+import ZenAccordion from '@/components/ui/ZenAccordion.vue';
 
 const PULSE_DURATION = 200;
 
 const { t } = useI18n();
 
 const cardRef = useTemplateRef<HTMLElement>('cardRef');
-const configContentRef = useTemplateRef<HTMLElement>('configContentRef');
 const { isInView } = useInView(cardRef, { delay: 200 });
 
 const haikuStore = useHaikuStore();
@@ -54,55 +54,8 @@ const {
 
 const isDev = import.meta.env.DEV;
 
-const { value: expanded, toggle: toggleConfig } = useExpandedState('appConfig-expanded');
+const expanded = ref(true);
 const { value: showAdvanced, toggle: toggleAdvanced } = useExpandedState('appConfig-advanced', false);
-
-// Swipe gestures for touch devices
-const headerRef = ref<HTMLElement | null>(null);
-const { isTouchDevice, isSwiping: isHeaderSwiping } = useTouchGestures(headerRef, {
-  threshold: 40,
-  onSwipeDown: () => {
-    if (!expanded.value) {
-      expanded.value = true;
-    }
-  },
-  onSwipeUp: () => {
-    if (expanded.value) {
-      expanded.value = false;
-    }
-  },
-  vibrate: true,
-  vibrationPattern: [10],
-});
-
-// Swipe on advanced toggle
-const advancedRef = ref<HTMLElement | null>(null);
-useTouchGestures(advancedRef, {
-  threshold: 40,
-  onSwipeDown: () => {
-    if (!showAdvanced.value) {
-      showAdvanced.value = true;
-    }
-  },
-  onSwipeUp: () => {
-    if (showAdvanced.value) {
-      showAdvanced.value = false;
-    }
-  },
-  vibrate: true,
-  vibrationPattern: [10],
-});
-
-watch(expanded, (isExpanded) => {
-  if (isExpanded) {
-    nextTick(() => {
-      const firstFocusable = configContentRef.value?.querySelector<HTMLElement>(
-        'input, [tabindex]:not([tabindex="-1"])',
-      );
-      firstFocusable?.focus();
-    });
-  }
-});
 
 const pulseTimeouts: ReturnType<typeof setTimeout>[] = [];
 
@@ -173,86 +126,63 @@ function resetAdvancedConfig(): void {
   <ZenCard
     ref="cardRef"
     variant="panel"
+    :loading="loading"
     :aria-label="t('config.ariaLabel')"
     class="config-panel config-panel--card config-panel-container pa-5 mb-6 animate-in"
     :class="{ 'is-visible': isInView }"
   >
     <h2 class="sr-only">{{ t('config.title') }}</h2>
 
-    <button
-      ref="headerRef"
-      type="button"
-      class="config-panel__header"
-      :class="{ 'is-swiping': isHeaderSwiping }"
-      :aria-expanded="expanded"
-      aria-controls="config-panel-content"
+    <ZenAccordion
+      v-model="expanded"
+      :icon="SlidersHorizontal"
+      :title="t('config.title')"
+      :subtitle="t('config.subtitle')"
+      storage-key="appConfig-expanded"
+      :default-expanded="true"
       :aria-label="t('config.ariaLabel')"
       data-cy="menu-btn"
-      @click="toggleConfig"
     >
-      <SlidersHorizontal
-        :size="28"
-        class="config-panel__icon config-panel__icon--main mr-2 text-primary"
-      />
-      <div class="config-panel__header-content flex-grow-1">
-        <div class="config-panel__title text-subtitle-1">
-          {{ t('config.title') }}
-        </div>
-        <div
-          class="config-panel__subtitle d-flex align-center justify-space-between text-body-2 text-medium-emphasis"
-        >
-          <span
-            class="config-panel__subtitle-text"
-            >{{ t('config.subtitle') }}</span
+      <template #actions>
+        <ZenTooltip :text="t('config.generateTooltip')" position="top">
+          <ZenButton
+            variant="text"
+            size="sm"
+            :disabled="loading"
+            :loading="loading"
+            class="config-panel__button config-panel__button--generate"
+            :aria-label="t('config.generateTooltip')"
+            @click="fetchNewHaiku"
           >
-          <div class="config-panel__actions d-flex align-center">
-            <ZenTooltip :text="t('config.generateTooltip')" position="top">
-              <v-btn
-                :disabled="loading"
-                :loading="loading"
-                class="config-panel__button config-panel__button--generate mr-1"
-                variant="text"
-                size="x-small"
-                @click.stop="fetchNewHaiku"
-              >
-                <Sparkles :size="18" />
-              </v-btn>
-            </ZenTooltip>
-            <ZenTooltip
-              :text="t('config.resetTooltip')"
-              position="top"
-              :disabled="!hasChanges"
-            >
-              <v-btn
-                :disabled="!hasChanges"
-                class="config-panel__button config-panel__button--reset ml-1"
-                :class="{ 'config-panel__button--disabled': !hasChanges }"
-                variant="text"
-                size="x-small"
-                @click.stop="resetAdvancedConfig"
-              >
-                <RefreshCw :size="18" />
-              </v-btn>
-            </ZenTooltip>
-          </div>
-        </div>
-      </div>
-      <ChevronUp
-        :size="24"
-        class="config-panel__toggle-icon text-primary"
-        :class="{ 'config-panel__toggle-icon--rotated': !expanded }"
-      />
-    </button>
+            <template #icon-left>
+              <Sparkles :size="18" />
+            </template>
+          </ZenButton>
+        </ZenTooltip>
+        <ZenTooltip
+          :text="t('config.resetTooltip')"
+          position="top"
+          :disabled="!hasChanges"
+        >
+          <ZenButton
+            variant="text"
+            size="sm"
+            :disabled="!hasChanges"
+            class="config-panel__button config-panel__button--reset"
+            :class="{ 'config-panel__button--disabled': !hasChanges }"
+            :aria-label="t('config.resetTooltip')"
+            @click="resetAdvancedConfig"
+          >
+            <template #icon-left>
+              <RefreshCw :size="18" />
+            </template>
+          </ZenButton>
+        </ZenTooltip>
+      </template>
 
-    <v-expand-transition>
-      <div
-        v-show="expanded"
-        ref="configContentRef"
-        id="config-panel-content"
-        class="config-panel__content"
-      >
+      <div class="config-panel__content">
         <div class="config-panel__inner gutenku-book-page pa-3 mb-2">
-          <!-- OpenAI toggles (dev mode only) -->
+          <!-- AI toggles (dev mode only) -->
           <div v-if="isDev" class="config-panel__dev-section mb-4">
             <div class="config-panel__dev-label mb-2">
               <Bot :size="16" class="text-primary mr-1" />
@@ -260,26 +190,26 @@ function resetAdvancedConfig(): void {
             </div>
             <div class="config-panel__toggle-row">
               <v-switch
-                v-model="optionUseAI"
+                v-model="optionImageAI"
                 hide-details
                 density="compact"
                 color="primary"
-                label="OpenAI Description"
+                label="ImageAI Theme"
                 class="config-panel__switch"
               />
             </div>
             <div class="config-panel__toggle-row">
               <v-switch
-                v-model="optionImageAI"
+                v-model="optionUseAI"
                 hide-details
                 density="compact"
                 color="primary"
-                label="OpenAI Image Theme"
+                label="AI Description"
                 class="config-panel__switch"
               />
             </div>
 
-            <!-- OpenAI parameters (only when optionUseAI is on) -->
+            <!-- AI parameters (only when optionUseAI is on) -->
             <v-expand-transition>
               <div v-if="optionUseAI" class="config-panel__dev-params mt-3">
                 <div
@@ -563,7 +493,7 @@ function resetAdvancedConfig(): void {
           </v-expand-transition>
         </div>
       </div>
-    </v-expand-transition>
+    </ZenAccordion>
   </ZenCard>
 </template>
 
@@ -571,76 +501,27 @@ function resetAdvancedConfig(): void {
 .config-panel {
   position: relative;
 
-  &__header {
-    // Reset button styles
-    background: none;
-    border: none;
-    padding: 0;
-    font: inherit;
-    text-align: left;
-    width: 100%;
-
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.5rem;
-    cursor: pointer;
+  &__button.zen-btn {
     transition: all 0.2s ease;
-    border-radius: var(--gutenku-radius-sm);
-
-    &:hover {
-      background: color-mix(in oklch, var(--gutenku-theme-primary-oklch) 5%, transparent);
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--gutenku-zen-primary);
-      outline-offset: 2px;
-    }
-
-    // Swipe feedback
-    &.is-swiping {
-      transform: scale(0.98);
-      background: color-mix(in oklch, var(--gutenku-theme-primary-oklch) 8%, transparent);
-    }
-  }
-
-  &__title {
-    font-family: 'JMH Typewriter', monospace !important;
-    letter-spacing: 0.5px;
-  }
-
-  &__button {
-    transition: all 0.2s ease;
+    min-width: 2rem;
+    min-height: 2rem;
+    padding: 0.25rem;
 
     &--generate {
-      color: rgb(var(--v-theme-primary));
+      color: var(--gutenku-zen-primary);
 
-      &:hover:not(:disabled) {
+      &:hover:not(:disabled):not([aria-disabled='true']) {
         color: var(--gutenku-text-primary);
         transform: scale(1.1);
-      }
-
-      &:disabled {
-        opacity: 0.3;
-        cursor: not-allowed;
-      }
-
-      &:not(:disabled) {
-        opacity: 1;
-        cursor: pointer;
       }
     }
 
     &--reset {
       color: var(--gutenku-text-muted);
 
-      &:hover:not(:disabled) {
+      &:hover:not(:disabled):not([aria-disabled='true']) {
         color: var(--gutenku-text-primary);
         transform: rotate(180deg);
-      }
-
-      &:not(:disabled) {
-        opacity: 1;
-        cursor: pointer;
       }
     }
 
@@ -655,23 +536,6 @@ function resetAdvancedConfig(): void {
     }
   }
 
-  &__icon {
-    margin-right: 0.75rem;
-    font-size: 1.5rem;
-    color: rgb(var(--v-theme-primary));
-  }
-
-  &__toggle-icon {
-    padding: 0.5rem;
-    margin: -0.5rem;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-
-    &--rotated {
-      transform: rotate(180deg);
-    }
-  }
-
   &__content {
     padding-top: 0.5rem;
   }
@@ -682,7 +546,7 @@ function resetAdvancedConfig(): void {
     box-shadow: var(--gutenku-shadow-book);
     border: 1px solid var(--gutenku-paper-border);
     min-height: auto !important;
-    padding: 0.75rem !important;  // 12px
+    padding: 0.75rem 1.25rem !important;  // 12px 20px
   }
 
   &__section {
@@ -897,6 +761,11 @@ function resetAdvancedConfig(): void {
     font-weight: 500;
   }
 
+  &__icon {
+    margin-right: 0.625rem;
+    flex-shrink: 0;
+  }
+
   &__label-text {
     flex: 1;
     font-family: 'JMH Typewriter', monospace !important;
@@ -972,15 +841,6 @@ function resetAdvancedConfig(): void {
       transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    :deep(.v-slider-thumb:hover) {
-      transform: scale(1.1);
-    }
-
-    :deep(.v-slider-thumb:active),
-    :deep(.v-slider-thumb--focused) {
-      transform: scale(1.15);
-    }
-
     :deep(.v-slider-thumb__surface) {
       position: absolute;
       left: 50%;
@@ -999,7 +859,7 @@ function resetAdvancedConfig(): void {
         0 2px 8px oklch(0 0 0 / 0.15),
         0 4px 12px oklch(0.45 0.08 195 / 0.2),
         inset 0 1px 2px oklch(1 0 0 / 0.8);
-      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
       &::after {
         content: '';
@@ -1011,7 +871,7 @@ function resetAdvancedConfig(): void {
         height: 0.375rem;
         border-radius: 50%;
         background: var(--gutenku-zen-primary);
-        transition: all 0.2s ease;
+        transition: background 0.2s ease, transform 0.2s ease;
       }
     }
 
@@ -1024,7 +884,7 @@ function resetAdvancedConfig(): void {
 
       &::after {
         background: var(--gutenku-zen-accent);
-        transform: translate(-50%, -50%) scale(1.2);
+        transform: translate(-50%, -50%) scale(1.15);
       }
     }
 
@@ -1038,7 +898,7 @@ function resetAdvancedConfig(): void {
 
       &::after {
         background: var(--gutenku-zen-accent);
-        transform: translate(-50%, -50%) scale(1.3);
+        transform: translate(-50%, -50%) scale(1.25);
       }
     }
 

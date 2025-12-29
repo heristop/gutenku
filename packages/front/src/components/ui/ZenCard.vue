@@ -148,14 +148,15 @@ const cardClasses = computed(() => [
   }
 
   &__content {
-    padding: 0.75rem 1rem;
+    padding: 0;
+    transition: opacity 0.3s ease, filter 0.3s ease;
   }
 
   &__actions {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.375rem;
     justify-content: center;
-    padding: 0.75rem 1.5rem 1rem;
+    padding: 0 0.75rem 0.5rem;
   }
 
   // Top loading progress bar - soft ink wash effect with contained glow
@@ -223,6 +224,15 @@ const cardClasses = computed(() => [
     // Base styles already applied
   }
 
+  // Loading state for book variant
+  &--book.zen-card--loading {
+    .zen-card__content {
+      opacity: 0.5;
+      filter: blur(1px);
+      transition: all 0.3s ease;
+    }
+  }
+
   // ========================================
   // VARIANT: Book (for HaikuChapter, HaikuCrafting)
   // ========================================
@@ -284,7 +294,7 @@ const cardClasses = computed(() => [
     margin: 1rem 0;
 
     .zen-card__content {
-      padding: 0.75rem 1rem;
+      padding: 0.375rem 0.5rem;
     }
   }
 
@@ -296,7 +306,7 @@ const cardClasses = computed(() => [
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0.75rem;
+      padding: 0.375rem;
     }
   }
 

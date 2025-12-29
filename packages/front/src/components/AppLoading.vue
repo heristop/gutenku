@@ -1,8 +1,14 @@
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted, type Component } from 'vue';
-import { Sparkles, PartyPopper, Zap, Heart, AlertTriangle } from 'lucide-vue-next';
+import { computed, ref, watch, type PropType } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { CloudOff, RefreshCw } from 'lucide-vue-next';
+import ZenButton from '@/components/ui/ZenButton.vue';
+import InkDropLoader from '@/components/InkDropLoader.vue';
 import { useLoadingMessages } from '@/composables/loading-messages';
 import { useTheme } from '@/composables/theme';
+import logoUrl from '@/assets/img/logo/gutenku-logo-300.png';
+
+const { t } = useI18n();
 
 const props = defineProps({
   splash: {
@@ -15,44 +21,32 @@ const props = defineProps({
     required: false,
     default: '',
   },
-  color: {
-    type: String,
-    required: false,
-    default: 'primary',
-  },
   error: {
     type: Boolean,
     required: false,
     default: false,
   },
-});
-
-const loadingIcons: Component[] = [Sparkles, PartyPopper, Zap, Heart];
-const activeIconIndex = ref(0);
-
-const flipIcons = computed(() => {
-  return false === props.error && loadingIcons.length > 0;
-});
-
-let iconInterval: NodeJS.Timeout | null = null;
-
-onMounted(() => {
-  if (loadingIcons.length > 0) {
-    iconInterval = setInterval(() => {
-      activeIconIndex.value = (activeIconIndex.value + 1) % loadingIcons.length;
-    }, 500);
-  }
-});
-
-onUnmounted(() => {
-  if (null !== iconInterval) {
-    clearInterval(iconInterval);
-  }
+  onRetry: {
+    type: Function as PropType<() => void>,
+    required: false,
+    default: null,
+  },
 });
 
 const { message: randomMessage } = useLoadingMessages({ context: 'default' });
 const displayText = computed(() => props.text || randomMessage);
 const { isDarkMode } = useTheme();
+
+// Track message changes for smooth transitions
+const currentMessage = ref(displayText.value);
+const messageKey = ref(0);
+
+watch(displayText, (newText) => {
+  if (newText !== currentMessage.value) {
+    messageKey.value++;
+    currentMessage.value = newText;
+  }
+});
 </script>
 
 <template>
@@ -64,17 +58,19 @@ const { isDarkMode } = useTheme();
     aria-busy="true"
     aria-labelledby="loading-text"
   >
+    <!-- Backdrop -->
     <div
       v-motion
       :initial="{ opacity: 0 }"
       :enter="{
         opacity: 1,
-        transition: { duration: 400, ease: 'easeOut' },
+        transition: { duration: 600, ease: 'easeOut' },
       }"
       class="loading-backdrop"
       aria-hidden="true"
     />
 
+    <!-- Main content -->
     <div
       v-motion
       :initial="{ opacity: 0, y: 20, scale: 0.95 }"
@@ -82,173 +78,451 @@ const { isDarkMode } = useTheme();
         opacity: 1,
         y: 0,
         scale: 1,
-        transition: { duration: 500, delay: 100, ease: [0.25, 0.8, 0.25, 1] },
+        transition: { duration: 600, delay: 150, ease: [0.25, 0.8, 0.25, 1] },
       }"
       class="loading-content"
     >
-      <div v-if="false === splash" class="robot" aria-hidden="true">
-        <AlertTriangle
+      <!-- Inline mode (non-splash) -->
+      <div v-if="!splash" class="loading-inline" aria-hidden="true">
+        <CloudOff
           v-if="error"
           :size="48"
-          class="icon active text-primary"
+          class="loading-icon loading-icon--error"
         />
-
-        <component
-          :is="loadingIcons[activeIconIndex]"
-          v-else
-          :size="48"
-          class="icon active text-primary"
-        />
+        <InkDropLoader v-else :size="80" />
       </div>
 
+      <!-- Splash mode -->
       <div v-if="displayText" class="loading-splash">
+        <!-- Floating ink particles background -->
+        <div class="loading-particles" aria-hidden="true">
+          <div v-for="i in 6" :key="i" :class="`particle particle-${i}`" />
+        </div>
+
+        <!-- Logo -->
         <div class="logo-container" aria-hidden="true">
-          <v-img
-            :style="{ viewTransitionName: 'gutenku-logo' }"
-            src="@/assets/img/logo/gutenku-logo-300.png"
+          <img
+            :src="logoUrl"
             alt=""
-            height="60"
+            class="loading-logo"
+            :style="{ viewTransitionName: 'gutenku-logo' }"
           />
         </div>
 
-        <v-spacer class="pa-10" />
+        <!-- Loader -->
+        <div class="loading-loader" aria-hidden="true">
+          <InkDropLoader v-if="!error" :size="70" />
+          <CloudOff v-else :size="52" class="loading-icon--error" />
+        </div>
 
-        <v-sheet
-          class="loading-text px-4 py-1"
-          :color="error ? 'error' : 'primary'"
-          :style="{
-            backgroundColor: error
-              ? 'var(--v-theme-error)'
-              : 'var(--v-theme-primary)',
-            color: error
-              ? 'var(--v-theme-on-error)'
-              : 'var(--v-theme-on-primary)',
-          }"
-        >
-          <output id="loading-text" aria-live="polite">
-            {{ displayText }}
-          </output>
-        </v-sheet>
-
-        <v-progress-linear
-          :indeterminate="flipIcons"
-          color="primary"
-          class="mb-0 loading-progress"
+        <!-- Progress bar -->
+        <div
+          v-if="!error"
+          class="loading-progress"
+          role="progressbar"
+          aria-valuemin="0"
+          aria-valuemax="100"
           aria-label="Loading progress"
         />
+
+        <!-- Message -->
+        <div class="loading-message-container">
+          <Transition name="message-fade" mode="out-in">
+            <p
+              :key="messageKey"
+              class="loading-message"
+              :class="{ 'loading-message--error': error }"
+            >
+              <output id="loading-text" aria-live="polite">
+                {{ currentMessage }}
+              </output>
+            </p>
+          </Transition>
+        </div>
+
+        <!-- Brush stroke divider -->
+        <div v-if="!error" class="loading-divider" aria-hidden="true" />
+
+        <!-- Retry button for errors -->
+        <ZenButton
+          v-if="error && onRetry"
+          class="loading-retry"
+          @click="onRetry"
+        >
+          <template #icon-left>
+            <RefreshCw :size="18" />
+          </template>
+          {{ t('common.retry') }}
+        </ZenButton>
       </div>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
+// Base layout
 .loading {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+}
 
-  .loading-backdrop {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--gutenku-app-bg);
-    transition: var(--gutenku-transition-zen);
-  }
+.loading-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: var(--gutenku-app-bg);
+  background-image: var(--gutenku-app-bg-image);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  transition: var(--gutenku-transition-zen);
+}
 
-  .loading-content {
-    position: relative;
-    z-index: 2;
-    text-align: center;
-  }
+.loading-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
 
-  .loading-splash {
-    background: var(--gutenku-paper-bg);
-    border-radius: var(--gutenku-radius-xl);
-    padding: 2rem;
-    box-shadow: var(--gutenku-shadow-zen);
-    border: 1px solid var(--gutenku-border-visible);
-    min-width: 18.75rem;  // 300px
-    backdrop-filter: blur(10px);
-  }
+// Inline mode (non-splash)
+.loading-inline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .logo-container {
-    background: var(--gutenku-paper-bg-warm);
-    border-radius: var(--gutenku-radius-md);
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border: 1px solid var(--gutenku-border-visible);
-    box-shadow: var(--gutenku-shadow-light);
-  }
+// Splash card
+.loading-splash {
+  position: relative;
+  background: var(--gutenku-paper-bg);
+  border-radius: var(--gutenku-radius-xl);
+  padding: 2rem 2.5rem;
+  box-shadow: var(--gutenku-shadow-zen);
+  border: 1px solid var(--gutenku-paper-border);
+  min-width: 20rem;
+  max-width: 24rem;
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+}
 
-  .icon.active {
-    opacity: 0.75;
-  }
+// Floating ink particles
+.loading-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
 
-  .icon {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    font-size: 3rem;  // 48px
-    margin: 0 auto;
-    animation: slide-in 1s ease-out infinite;
+.particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--gutenku-zen-ink, oklch(0.3 0.02 260));
+  border-radius: 50%;
+  opacity: 0;
+  animation: particle-float var(--duration) ease-in-out infinite;
+  animation-delay: var(--delay);
+  left: var(--start-x);
+  top: var(--start-y);
+}
+
+.particle-1 {
+  --delay: 0s;
+  --duration: 18s;
+  --start-x: 15%;
+  --start-y: 25%;
+  --drift-x: 12px;
+  --drift-y: -8px;
+}
+
+.particle-2 {
+  --delay: 2.5s;
+  --duration: 20s;
+  --start-x: 75%;
+  --start-y: 35%;
+  --drift-x: -15px;
+  --drift-y: 6px;
+}
+
+.particle-3 {
+  --delay: 5s;
+  --duration: 22s;
+  --start-x: 45%;
+  --start-y: 65%;
+  --drift-x: 8px;
+  --drift-y: -12px;
+}
+
+.particle-4 {
+  --delay: 7.5s;
+  --duration: 24s;
+  --start-x: 85%;
+  --start-y: 55%;
+  --drift-x: -10px;
+  --drift-y: -5px;
+}
+
+.particle-5 {
+  --delay: 10s;
+  --duration: 26s;
+  --start-x: 25%;
+  --start-y: 75%;
+  --drift-x: 14px;
+  --drift-y: 10px;
+}
+
+.particle-6 {
+  --delay: 12.5s;
+  --duration: 28s;
+  --start-x: 60%;
+  --start-y: 20%;
+  --drift-x: -8px;
+  --drift-y: 12px;
+}
+
+@keyframes particle-float {
+  0%, 100% {
     opacity: 0;
-    color: var(--gutenku-text-primary);
+    transform: translate(0, 0) scale(0.5);
   }
-
-  .loading-text {
-    font-size: 1.125rem;  // 18px
-    opacity: 0.9;
-    font-weight: 500;
-    border-top-left-radius: var(--gutenku-radius-md);
-    border-top-right-radius: var(--gutenku-radius-md);
+  10% {
+    opacity: 0.15;
   }
-
-  .loading-progress {
-    border-bottom-left-radius: var(--gutenku-radius-lg);
-    border-bottom-right-radius: var(--gutenku-radius-lg);
-    overflow: hidden;
-
-    :deep(.v-progress-linear__determinate) {
-      border-bottom-left-radius: var(--gutenku-radius-lg);
-      border-bottom-right-radius: var(--gutenku-radius-lg);
-    }
-
-    :deep(.v-progress-linear__indeterminate) {
-      border-bottom-left-radius: var(--gutenku-radius-lg);
-      border-bottom-right-radius: var(--gutenku-radius-lg);
-    }
-
-    :deep(.v-progress-linear__background) {
-      border-bottom-left-radius: var(--gutenku-radius-lg);
-      border-bottom-right-radius: var(--gutenku-radius-lg);
-    }
+  50% {
+    opacity: 0.1;
+    transform: translate(var(--drift-x), var(--drift-y)) scale(1);
   }
-
-  &.loading--dark {
-    .loading-backdrop {
-      background: var(--gutenku-app-bg);
-    }
-
-    .logo-container {
-      background: var(--gutenku-paper-bg-warm);
-      box-shadow: var(--gutenku-shadow-medium);
-    }
-
-    .loading-splash {
-      background: var(--gutenku-paper-bg);
-      box-shadow: var(--gutenku-shadow-zen);
-    }
+  90% {
+    opacity: 0.15;
   }
 }
 
-.loading:not(.loading-splash) {
+// Logo
+.logo-container {
+  background: var(--gutenku-paper-bg-warm);
+  border-radius: var(--gutenku-radius-md);
+  padding: 1rem 1.5rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 1px 2px oklch(0 0 0 / 0.05);
+}
+
+.loading-logo {
+  height: 52px;
+  width: auto;
+}
+
+// Loader section
+.loading-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 0 1.25rem;
+  min-height: 100px;
+}
+
+// Progress bar (ink wash style)
+.loading-progress {
+  height: 4px;
+  margin: 0 1rem 1rem;
+  border-radius: var(--gutenku-radius-sm);
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--gutenku-zen-primary) 15%,
+    var(--gutenku-zen-primary) 85%,
+    transparent 100%
+  );
+  animation: progress-breathe 4s ease-in-out infinite;
+
+  // Shimmer sweep
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      oklch(1 0 0 / 0.35) 50%,
+      transparent 100%
+    );
+    animation: shimmer-sweep 2.5s ease-in-out infinite;
+  }
+
+  // Soft glow
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: inherit;
+    filter: blur(4px);
+    opacity: 0.4;
+    z-index: -1;
+  }
+}
+
+@keyframes progress-breathe {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scaleX(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes shimmer-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+// Message
+.loading-message-container {
+  position: relative;
+  min-height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.5rem;
+}
+
+.loading-message {
+  font-size: 0.95rem;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--gutenku-text-zen, oklch(0.4 0.02 60));
+  margin: 0;
+  padding: 0.5rem 0;
+
+  &--error {
+    color: oklch(0.5 0.12 30);
+    font-style: normal;
+    font-weight: 500;
+  }
+}
+
+// Message transition
+.message-fade-enter-active,
+.message-fade-leave-active {
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.message-fade-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.message-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+// Brush stroke divider
+.loading-divider {
+  height: 2px;
+  margin: 0.75rem 2rem 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--gutenku-zen-ink, oklch(0.35 0.02 260 / 0.3)) 20%,
+    var(--gutenku-zen-ink, oklch(0.35 0.02 260 / 0.5)) 50%,
+    var(--gutenku-zen-ink, oklch(0.35 0.02 260 / 0.3)) 80%,
+    transparent 100%
+  );
+  border-radius: 1px;
+  animation: divider-draw 1.2s ease-out forwards;
+  transform-origin: center;
+}
+
+@keyframes divider-draw {
+  0% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+// Error state (ink bleed style)
+.loading-icon--error {
+  color: oklch(0.5 0.1 35);
+  animation: ink-bleed 3s ease-in-out infinite;
+}
+
+@keyframes ink-bleed {
+  0%, 100% {
+    filter: blur(0);
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    filter: blur(0.5px);
+    transform: scale(1.03);
+    opacity: 1;
+  }
+}
+
+// Retry button
+.loading-retry {
+  margin-top: 1.25rem;
+}
+
+// Dark theme
+.loading--dark {
+  .loading-splash {
+    box-shadow: var(--gutenku-shadow-zen), 0 0 60px oklch(0 0 0 / 0.3);
+  }
+
+  .logo-container {
+    box-shadow: inset 0 1px 2px oklch(0 0 0 / 0.2);
+  }
+
+  .particle {
+    background: var(--gutenku-zen-accent, oklch(0.7 0.04 195));
+  }
+
+  .loading-message {
+    color: var(--gutenku-text-zen, oklch(0.75 0.02 60));
+
+    &--error {
+      color: oklch(0.65 0.12 30);
+    }
+  }
+
+  .loading-divider {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      oklch(0.6 0.03 195 / 0.25) 20%,
+      oklch(0.6 0.03 195 / 0.4) 50%,
+      oklch(0.6 0.03 195 / 0.25) 80%,
+      transparent 100%
+    );
+  }
+
+  .loading-icon--error {
+    color: oklch(0.6 0.12 35);
+  }
+}
+
+// Non-splash mode (inline loading)
+.loading:not(:has(.loading-splash)) {
   position: absolute;
   top: 40%;
   left: 50%;
@@ -259,18 +533,43 @@ const { isDarkMode } = useTheme();
   }
 }
 
-@keyframes slide-in {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) translateY(-20px);
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .loading-progress {
+    animation: none;
+    opacity: 0.85;
+    transform: scaleX(1);
+
+    &::before {
+      animation: none;
+    }
   }
-  50% {
-    opacity: 0.75;
-    transform: translate(-50%, -50%) translateY(0);
+
+  .particle {
+    animation: none !important;
+    opacity: 0.1;
   }
-  100% {
-    opacity: 0;
-    transform: translate(-50%, -50%) translateY(20px);
+
+  .loading-divider {
+    animation: none;
+    opacity: 1;
+    transform: scaleX(1);
+  }
+
+  .loading-icon--error {
+    animation: none;
+    opacity: 1;
+    filter: none;
+  }
+
+  .message-fade-enter-active,
+  .message-fade-leave-active {
+    transition: opacity 0.2s ease;
+  }
+
+  .message-fade-enter-from,
+  .message-fade-leave-to {
+    transform: none;
   }
 }
 </style>
