@@ -11,7 +11,10 @@ import { program } from 'commander';
 import { createInterface } from 'node:readline';
 import terminalImage from 'terminal-image';
 import type { HaikuResponseData } from '~/shared/types';
-import { post as discordPost } from '~/application/services/DiscordService';
+import {
+  post as socialPost,
+  generateSocialCaption,
+} from '~/application/services/SocialService';
 
 dotenv.config();
 
@@ -27,8 +30,10 @@ program
     process.env.OPENAI_SELECTION_COUNT,
   )
   .option('-t, --theme <type>', 'theme', 'random')
+  .option('-p, --platform <type>', 'platform (discord or social)', 'discord')
+  .option('--with-image-ai', 'use AI-generated themes for random', false)
   .option('--no-interaction')
-  .option('--no-openai')
+  .option('--no-ai-description')
   .option('--no-post');
 
 program.parse();
@@ -40,6 +45,7 @@ const query = `
         $useAi: Boolean,
         $useCache: Boolean,
         $appendImg: Boolean,
+        $useImageAI: Boolean,
         $selectionCount: Int,
         $theme: String
     ) {
@@ -47,6 +53,7 @@ const query = `
             useAI: $useAi,
             useCache: $useCache,
             appendImg: $appendImg,
+            useImageAI: $useImageAI,
             selectionCount: $selectionCount,
             theme: $theme
         ) {
@@ -75,7 +82,8 @@ const variables = {
   appendImg: true,
   selectionCount: Number.parseInt(options.selectionCount, 10),
   theme: options.theme,
-  useAi: options.openai,
+  useAi: options.aiDescription,
+  useImageAI: options.withImageAi,
   useCache: true,
 };
 
@@ -90,7 +98,11 @@ try {
 
   // Show options
   console.log(pc.dim(`Theme: ${options.theme}`));
-  console.log(pc.dim(`OpenAI: ${options.openai ? 'yes' : 'no'}`));
+  console.log(pc.dim(`Platform: ${options.platform}`));
+  console.log(
+    pc.dim(`AI Description: ${options.aiDescription ? 'yes' : 'no'}`),
+  );
+  console.log(pc.dim(`ImageAI: ${options.withImageAi ? 'yes' : 'no'}`));
   console.log(pc.dim(`Interactive: ${options.interaction ? 'yes' : 'no'}`));
 
   // Generate haiku with spinner
@@ -188,10 +200,25 @@ try {
     }
   }
 
+  // Handle social platform (generates caption file only, no Discord post)
+  if (options.platform === 'social') {
+    const socialSpinner = ora('Generating social caption...').start();
+    const socialCaption = generateSocialCaption(haiku);
+    const captionPath = path.join(DATA_DIRECTORY, 'social_caption.txt');
+    await fs.writeFile(captionPath, socialCaption);
+    socialSpinner.succeed(pc.green('Social caption generated'));
+
+    console.log(pc.bold('\n═══ Social Caption ═══\n'));
+    console.log(socialCaption);
+    console.log(pc.dim(`\nSaved to: ${captionPath}`));
+    console.log(pc.bold(pc.green('\n✨ Done!\n')));
+    process.exit(0);
+  }
+
   // Post to Discord
   if (options.interaction === false) {
     const postSpinner = ora('Posting to Discord...').start();
-    await discordPost(haiku);
+    await socialPost(haiku);
     postSpinner.succeed(pc.green('Posted to Discord'));
     console.log(pc.bold(pc.green('\n✨ Done!\n')));
     process.exit(0);
@@ -216,7 +243,7 @@ try {
 
         if (answer === 'y' || answer === 'yes') {
           const postSpinner = ora('Posting to Discord...').start();
-          await discordPost(haiku);
+          await socialPost(haiku);
           postSpinner.succeed(pc.green('Posted to Discord'));
         } else {
           console.log(pc.dim('\nSkipped posting.'));

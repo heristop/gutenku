@@ -203,7 +203,7 @@ const GUTENGUESS_BOOKS_ENCODED: readonly EncodedGutenGuessBook[] = ${JSON.string
     2,
   )
     .replaceAll(/"([^"]+)":/g, '$1:')
-    .replaceAll(/"/g, "'")} as const;
+    .replaceAll('"', "'")} as const;
 
 let _decodedBooks: GutenGuessBook[] | null = null;
 
