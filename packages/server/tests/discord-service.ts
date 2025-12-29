@@ -14,12 +14,13 @@ vi.mock('axios', () => ({
   },
 }));
 
-import { post, publish } from '~/application/services/DiscordService';
+import { post } from '~/application/services/SocialService';
+import { publishToDiscord } from '~/application/services/bridges';
 import type { HaikuValue } from '~/shared/types';
 import axios from 'axios';
 import { promises as fs } from 'node:fs';
 
-describe('DiscordService', () => {
+describe('SocialService', () => {
   const createMockHaiku = (): HaikuValue => ({
     book: {
       author: 'Herman Melville',
@@ -66,16 +67,15 @@ describe('DiscordService', () => {
       await expect(post(haiku)).rejects.toThrow('Missing Title');
     });
 
-    it('generates masked title with vowels', async () => {
+    it('generates caption without throwing', async () => {
       const haiku = createMockHaiku();
       process.env.DISCORD_WEBHOOK_URL = '';
       process.env.DISCORD_HASHTAGS = '#daily';
 
-      // Should not throw - masking and caption generation works
       await expect(post(haiku)).resolves.not.toThrow();
     });
 
-    it('calls publish when DISCORD_WEBHOOK_URL is set', async () => {
+    it('calls publishToDiscord when DISCORD_WEBHOOK_URL is set', async () => {
       const haiku = createMockHaiku();
       process.env.DISCORD_WEBHOOK_URL = 'https://discord.webhook.url';
       process.env.DISCORD_HASHTAGS = '#daily';
@@ -103,11 +103,11 @@ describe('DiscordService', () => {
     });
   });
 
-  describe('publish', () => {
+  describe('publishToDiscord', () => {
     it('throws error when caption is empty', async () => {
       const haiku = createMockHaiku();
 
-      await expect(publish(haiku, '')).rejects.toThrow(
+      await expect(publishToDiscord(haiku, '')).rejects.toThrow(
         'Caption cannot be empty',
       );
     });
@@ -116,7 +116,7 @@ describe('DiscordService', () => {
       const haiku = createMockHaiku();
       process.env.DISCORD_WEBHOOK_URL = 'https://discord.webhook.url';
 
-      await publish(haiku, 'Test caption');
+      await publishToDiscord(haiku, 'Test caption');
 
       expect(fs.readFile).toHaveBeenCalledWith('/tmp/haiku.jpg');
       expect(axios.post).toHaveBeenCalled();
@@ -127,21 +127,31 @@ describe('DiscordService', () => {
       haiku.title = 'The Ocean Waves';
       process.env.DISCORD_WEBHOOK_URL = 'https://discord.webhook.url';
 
-      await publish(haiku, 'Test caption');
+      await publishToDiscord(haiku, 'Test caption');
 
       const callArgs = (axios.post as ReturnType<typeof vi.fn>).mock.calls[0];
       expect(callArgs[0]).toBe('https://discord.webhook.url');
     });
 
-    it('handles axios errors gracefully', async () => {
+    it('throws on axios errors', async () => {
       const haiku = createMockHaiku();
       process.env.DISCORD_WEBHOOK_URL = 'https://discord.webhook.url';
       (axios.post as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
         new Error('Network error'),
       );
 
-      // Should not throw - error is caught and logged
-      await expect(publish(haiku, 'Test caption')).resolves.not.toThrow();
+      await expect(publishToDiscord(haiku, 'Test caption')).rejects.toThrow(
+        'Network error',
+      );
+    });
+
+    it('skips publish when webhook URL is not configured', async () => {
+      const haiku = createMockHaiku();
+      process.env.DISCORD_WEBHOOK_URL = '';
+
+      await publishToDiscord(haiku, 'Test caption');
+
+      expect(axios.post).not.toHaveBeenCalled();
     });
   });
 });
