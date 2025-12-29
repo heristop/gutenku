@@ -1,6 +1,6 @@
 {
   "name": "gutenku",
-  "version": "1.8.0",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "lint": "pnpm -r run lint",
@@ -8,6 +8,7 @@
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "test": "pnpm -r run test",
+    "start": "pnpm --filter @gutenku/server dev",
     "dev": "pnpm -r --parallel run dev",
     "setup": "pnpm --filter @gutenku/server run setup:books",
     "setup:reset": "pnpm --filter @gutenku/server run setup:books:reset",
