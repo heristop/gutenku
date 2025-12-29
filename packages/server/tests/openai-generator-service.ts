@@ -89,27 +89,20 @@ describe('OpenAIGeneratorService', () => {
     });
 
     // @ts-expect-error - accessing private property
-    expect(service.selectionCount).toBe(100);
+    expect(service.selectionCount).toBe(20);
   });
 
-  it('configure ignores selectionCount <= 0', () => {
-    // First configure with a valid count
-    service.configure({
-      apiKey: 'test-key',
-      selectionCount: 10,
-      temperature: { description: 0.3 },
-    });
-
-    // Then try to configure with 0 - it should not change the existing count
+  it('configure ignores selectionCount <= 0 and uses env default', () => {
+    // Configure with 0 - it should fall back to env default (5)
     service.configure({
       apiKey: 'test-key',
       selectionCount: 0,
       temperature: { description: 0.3 },
     });
 
-    // Selection count should remain at 10 since 0 was ignored
+    // Selection count should be env default (5) since 0 was ignored
     // @ts-expect-error - accessing private property
-    expect(service.selectionCount).toBe(10);
+    expect(service.selectionCount).toBe(5);
   });
 });
 
@@ -296,63 +289,15 @@ describe('OpenAIGeneratorService - generate', () => {
     expect(result?.book.emoticons).toBe('📚✨🌸');
   });
 
-  it('generate falls back to haikuGeneratorService when OpenAI fails', async () => {
+  it('generate throws when OpenAI fails', async () => {
     vi.mocked(mockOpenAIClient.chatCompletionsCreate).mockRejectedValueOnce(
       new Error('OpenAI API error'),
     );
 
-    const result = await service.generate();
-
-    expect(mockHaikuGenerator.generate).toHaveBeenCalled();
-    expect(result).toBeDefined();
+    await expect(service.generate()).rejects.toThrow('OpenAI API error');
   });
 
-  it('generate uses cached haikus when available', async () => {
-    const cachedHaikus = [
-      createMockHaiku(0),
-      createMockHaiku(1),
-      createMockHaiku(2),
-    ];
-    vi.mocked(mockHaikuGenerator.extractFromCache).mockResolvedValueOnce(
-      cachedHaikus,
-    );
-
-    vi.mocked(mockOpenAIClient.chatCompletionsCreate)
-      .mockResolvedValueOnce({
-        choices: [{ message: { content: '{"id": 1}' } }],
-      })
-      .mockResolvedValueOnce({
-        choices: [
-          {
-            message: {
-              content: '{"title":"T","description":"D","hashtags":"#h"}',
-            },
-          },
-        ],
-      })
-      .mockResolvedValueOnce({
-        choices: [
-          {
-            message: {
-              content: '{"fr":"Fr","jp":"Jp","es":"Es","it":"It","de":"De"}',
-            },
-          },
-        ],
-      })
-      .mockResolvedValueOnce({
-        choices: [{ message: { content: '📚' } }],
-      });
-
-    const result = await service.generate();
-
-    expect(result).toBeDefined();
-    expect(mockHaikuGenerator.extractFromCache).toHaveBeenCalled();
-    expect(mockHaikuGenerator.buildFromDb).not.toHaveBeenCalled();
-  });
-
-  it('generate builds haikus from DB when cache is empty', async () => {
-    vi.mocked(mockHaikuGenerator.extractFromCache).mockResolvedValueOnce([]);
-
+  it('generate builds haikus from DB', async () => {
     vi.mocked(mockOpenAIClient.chatCompletionsCreate)
       .mockResolvedValueOnce({
         choices: [{ message: { content: '{"id": 0}' } }],
@@ -515,7 +460,7 @@ describe('OpenAIGeneratorService - private methods', () => {
     const result = await service.generateSelectionPrompt();
 
     expect(result).toContain('Please select the most relevant haiku');
-    expect(result).toContain('Use the following format: {"id":[Id]}');
+    expect(result).toContain('Use the following format: {"id":[Id],"reason":');
     expect(result).toContain('STOP');
   });
 });
