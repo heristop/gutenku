@@ -26,63 +26,74 @@ async function resetAndReplay() {
 
 <template>
   <header class="game-header">
-    <div class="header-content d-flex align-center justify-space-between">
-      <div class="title-section">
+    <div class="header-content">
+      <!-- Title row -->
+      <div class="header-title">
         <h1 class="game-title gutenku-text-primary">GutenGuess</h1>
+      </div>
+
+      <!-- Info row: puzzle number + actions -->
+      <div class="header-info">
         <ZenChip
           class="puzzle-number"
           :ariaLabel="t('game.puzzleNumber', { number: puzzleNumber })"
         >
           #{{ puzzleNumber }}
         </ZenChip>
-      </div>
 
-      <div class="actions-section d-flex align-center ga-1">
-        <ZenTooltip :text="t('game.currentStreak')" position="bottom">
-          <div v-if="stats.currentStreak > 0" class="streak-badge">
-            {{ stats.currentStreak }}
-          </div>
-        </ZenTooltip>
+        <div class="header-divider" />
 
-        <ZenTooltip v-if="isDev" :text="t('game.resetGame')" position="bottom">
-          <ZenButton
-            variant="text"
-            size="sm"
-            class="dev-reset-btn"
-            :aria-label="t('game.resetGame')"
-            @click="resetAndReplay"
+        <div class="actions-section">
+          <ZenTooltip :text="t('game.currentStreak')" position="bottom">
+            <div v-if="stats.currentStreak > 0" class="streak-badge">
+              {{ stats.currentStreak }}
+            </div>
+          </ZenTooltip>
+
+          <ZenTooltip
+            v-if="isDev"
+            :text="t('game.resetGame')"
+            position="bottom"
           >
-            <template #icon-left>
-              <RotateCcw :size="18" />
-            </template>
-          </ZenButton>
-        </ZenTooltip>
+            <ZenButton
+              variant="text"
+              size="sm"
+              class="dev-reset-btn"
+              :aria-label="t('game.resetGame')"
+              @click="resetAndReplay"
+            >
+              <template #icon-left>
+                <RotateCcw :size="18" />
+              </template>
+            </ZenButton>
+          </ZenTooltip>
 
-        <ZenTooltip :text="t('game.howToPlay')" position="bottom">
-          <ZenButton
-            variant="text"
-            size="sm"
-            :aria-label="t('game.howToPlay')"
-            @click="emit('showHelp')"
-          >
-            <template #icon-left>
-              <HelpCircle :size="18" />
-            </template>
-          </ZenButton>
-        </ZenTooltip>
+          <ZenTooltip :text="t('game.howToPlay')" position="bottom">
+            <ZenButton
+              variant="text"
+              size="sm"
+              :aria-label="t('game.howToPlay')"
+              @click="emit('showHelp')"
+            >
+              <template #icon-left>
+                <HelpCircle :size="18" />
+              </template>
+            </ZenButton>
+          </ZenTooltip>
 
-        <ZenTooltip :text="t('game.statistics')" position="bottom">
-          <ZenButton
-            variant="text"
-            size="sm"
-            :aria-label="t('game.statistics')"
-            @click="emit('showStats')"
-          >
-            <template #icon-left>
-              <BarChart2 :size="18" />
-            </template>
-          </ZenButton>
-        </ZenTooltip>
+          <ZenTooltip :text="t('game.statistics')" position="bottom">
+            <ZenButton
+              variant="text"
+              size="sm"
+              :aria-label="t('game.statistics')"
+              @click="emit('showStats')"
+            >
+              <template #icon-left>
+                <BarChart2 :size="18" />
+              </template>
+            </ZenButton>
+          </ZenTooltip>
+        </div>
       </div>
     </div>
   </header>
@@ -90,21 +101,65 @@ async function resetAndReplay() {
 
 <style lang="scss" scoped>
 .game-header {
-  padding: 1rem 1.25rem;
+  padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--gutenku-paper-border);
+
+  @media (min-width: 600px) {
+    padding: 1rem 1.25rem;
+  }
 }
 
-.title-section {
+.header-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+
+  @media (min-width: 600px) {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+.header-title {
+  text-align: center;
+
+  @media (min-width: 600px) {
+    text-align: left;
+  }
+}
+
+.game-title {
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: 0.08em;
+
+  @media (min-width: 600px) {
+    font-size: 1.5rem;
+  }
+}
+
+.header-info {
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
 
-.game-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0;
-  letter-spacing: 0.05em;
+.header-divider {
+  width: 1px;
+  height: 1.25rem;
+  background: var(--gutenku-paper-border);
+}
+
+.puzzle-number {
+  font-size: 0.8rem;
+}
+
+.actions-section {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
 }
 
 .streak-badge {

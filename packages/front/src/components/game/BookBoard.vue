@@ -252,7 +252,7 @@ defineExpose({
       <span id="book-board-pagination"
         >{{ currentPage + 1 }} / {{ totalPages }}</span
       >
-      <SwipeHint v-if="isTouchDevice" variant="subtle" />
+      <SwipeHint v-if="isTouchDevice" variant="pill" />
     </div>
 
     <div class="book-board__hint">
@@ -379,6 +379,15 @@ defineExpose({
   display: flex;
   align-items: center;
   gap: 0.5rem;
+
+  // Hide pagination buttons on mobile (use swipe instead)
+  > :deep(.zen-btn) {
+    display: none;
+
+    @media (min-width: 600px) {
+      display: flex;
+    }
+  }
 }
 
 .book-board__nav-next:hover:not(:disabled):not([aria-disabled='true']) :deep(svg) {
@@ -389,9 +398,14 @@ defineExpose({
   flex: 1;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
+  gap: 0.75rem 0.5rem;
   justify-items: center;
+  align-items: start;
   min-height: 180px;
+
+  @media (min-width: 400px) {
+    gap: 0.75rem;
+  }
 
   @media (min-width: 480px) {
     grid-template-columns: repeat(4, 1fr);
