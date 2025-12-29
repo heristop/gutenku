@@ -27,7 +27,13 @@ onMounted(() => {
   >
     <div class="preview-card__header">
       <img
-        src="@/assets/img/sumi-e-haiku.webp"
+        src="@/assets/img/sumi-e-haiku-640.webp"
+        srcset="
+          @/assets/img/sumi-e-haiku-320.webp 320w,
+          @/assets/img/sumi-e-haiku-640.webp 640w,
+          @/assets/img/sumi-e-haiku-1024.webp 1024w
+        "
+        sizes="(max-width: 600px) 320px, (max-width: 960px) 640px, 1024px"
         alt=""
         class="preview-card__illustration"
         loading="lazy"

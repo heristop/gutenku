@@ -207,6 +207,11 @@ watch(displayText, (newText) => {
   max-width: 24rem;
   backdrop-filter: blur(12px);
   overflow: hidden;
+  margin: 0 1.5rem;
+
+  @media (min-width: 600px) {
+    margin: 0;
+  }
 }
 
 // Floating ink particles

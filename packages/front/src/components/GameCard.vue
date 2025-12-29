@@ -65,7 +65,6 @@ async function resetAndReplay() {
   await gameStore.fetchDailyPuzzle();
 }
 
-// Auto-fetch puzzle on mount
 onMounted(() => {
   if (!puzzle.value) {
     gameStore.fetchDailyPuzzle();
@@ -81,7 +80,12 @@ onMounted(() => {
     <!-- Card Header with Illustration -->
     <div class="game-card__header">
       <img
-        src="@/assets/img/sumi-e-books.webp"
+        src="@/assets/img/sumi-e-books-320.webp"
+        srcset="
+          @/assets/img/sumi-e-books-320.webp 320w,
+          @/assets/img/sumi-e-books-640.webp 640w
+        "
+        sizes="(max-width: 600px) 320px, 640px"
         alt=""
         class="game-card__illustration"
         loading="lazy"
