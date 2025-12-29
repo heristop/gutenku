@@ -29,7 +29,19 @@ describe('Landing page test', () => {
   });
 
   it('opens advanced config', () => {
-    cy.get('.config-panel').scrollIntoView().should('be.visible');
+    // Wait for animate-in to complete (element gets is-visible class)
+    cy.get('.config-panel')
+      .scrollIntoView()
+      .should('have.class', 'is-visible')
+      .and('be.visible');
+    // Ensure accordion is expanded (click header if content not visible)
+    cy.get('.zen-accordion__header')
+      .first()
+      .then(($header) => {
+        if (!$header.hasClass('zen-accordion__header--expanded')) {
+          cy.wrap($header).click();
+        }
+      });
     cy.get('.config-panel__content', { timeout: 5000 }).should('be.visible');
     cy.contains('Sentiment').should('be.visible');
     // Toggle advanced section
