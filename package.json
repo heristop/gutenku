@@ -29,8 +29,8 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "npm-run-all": "^4.1.5",
-    "oxfmt": "^0.20.0",
-    "oxlint": "^1.35.0"
+    "oxfmt": "^0.21.0",
+    "oxlint": "^1.36.0"
   },
   "packageManager": "pnpm@10.16.1",
   "licence": "UNLICENSED"
