@@ -241,18 +241,18 @@ function handleContextMenu(event: MouseEvent) {
 }
 
 .book-card__title {
-  font-size: 0.55rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--gutenku-text-primary);
   text-align: center;
-  line-height: 1.2;
+  line-height: 1.3;
   max-width: 100%;
   word-wrap: break-word;
   hyphens: auto;
-  opacity: 0.75;
+  opacity: 0.85;
 
   @media (min-width: 600px) {
-    font-size: 0.6rem;
+    font-size: 0.8rem;
   }
 }
 

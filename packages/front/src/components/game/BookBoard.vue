@@ -2,14 +2,14 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
+import { useMediaQuery } from '@vueuse/core';
 import { Search, X as CloseIcon, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import { useGameStore } from '@/store/game';
 import { useTouchGestures } from '@/composables/touch-gestures';
 import BookCard, { type CardState } from './BookCard.vue';
 import SwipeHint from '@/components/ui/SwipeHint.vue';
+import ZenButton from '@/components/ui/ZenButton.vue';
 import type { BookValue } from '@gutenku/shared';
-
-const ITEMS_PER_PAGE = 10; // 2 rows × 5 columns on desktop
 
 const emit = defineEmits<{
   select: [book: BookValue];
@@ -18,6 +18,9 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const gameStore = useGameStore();
 const { availableBooks, currentGame, loading } = storeToRefs(gameStore);
+
+const isDesktop = useMediaQuery('(min-width: 600px)');
+const itemsPerPage = computed(() => isDesktop.value ? 10 : 9);
 
 const searchQuery = ref('');
 const selectedBook = ref<BookValue | null>(null);
@@ -38,14 +41,12 @@ const filteredBooks = computed(() => {
   );
 });
 
-// Pagination
-const totalPages = computed(() => Math.ceil(filteredBooks.value.length / ITEMS_PER_PAGE));
+const totalPages = computed(() => Math.ceil(filteredBooks.value.length / itemsPerPage.value));
 const paginatedBooks = computed(() => {
-  const start = currentPage.value * ITEMS_PER_PAGE;
-  return filteredBooks.value.slice(start, start + ITEMS_PER_PAGE);
+  const start = currentPage.value * itemsPerPage.value;
+  return filteredBooks.value.slice(start, start + itemsPerPage.value);
 });
 
-// Reset page when search changes
 watch(searchQuery, () => {
   currentPage.value = 0;
 });
@@ -64,7 +65,6 @@ function prevPage() {
   }
 }
 
-// Swipe navigation
 const containerRef = ref<HTMLElement | null>(null);
 const { isTouchDevice } = useTouchGestures(containerRef, {
   onSwipeLeft: nextPage,
@@ -72,8 +72,12 @@ const { isTouchDevice } = useTouchGestures(containerRef, {
   threshold: 50,
 });
 
-// Keyboard navigation
 function handleKeydown(event: KeyboardEvent) {
+  const target = event.target as HTMLElement;
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+    return;
+  }
+
   if (event.key === 'ArrowLeft') {
     prevPage();
   } else if (event.key === 'ArrowRight') {
@@ -118,7 +122,6 @@ function isCardDisabled(book: BookValue): boolean {
 
 function handleSelect(book: BookValue) {
   if (selectedBook.value?.reference === book.reference) {
-    // Deselect if already selected
     selectedBook.value = null;
   } else {
     selectedBook.value = book;
@@ -132,7 +135,6 @@ function handleEliminate(book: BookValue) {
   } else {
     eliminatedBooks.value.add(book.reference);
   }
-  // Force reactivity
   eliminatedBooks.value = new Set(eliminatedBooks.value);
 }
 
@@ -148,7 +150,6 @@ function clearSelection() {
   selectedBook.value = null;
 }
 
-// Expose methods for parent components
 defineExpose({
   selectedBook,
   clearSelection,
@@ -158,15 +159,16 @@ defineExpose({
 
 <template>
   <div class="book-board">
-    <!-- Search bar -->
     <div class="book-board__search">
       <div class="book-board__search-input">
         <Search class="book-board__search-icon" :size="18" />
         <input
           v-model="searchQuery"
-          type="text"
+          type="search"
+          :aria-label="t('game.searchLabel')"
           :placeholder="t('game.searchPlaceholder')"
           :disabled="loading"
+          autocomplete="off"
         />
         <button
           v-if="searchQuery"
@@ -189,19 +191,21 @@ defineExpose({
       </button>
     </div>
 
-    <!-- Book grid with pagination -->
     <div ref="containerRef" class="book-board__container">
-      <!-- Left chevron -->
-      <button
-        class="book-board__nav book-board__nav--prev"
+      <ZenButton
+        variant="ghost"
+        size="sm"
+        spring
         :disabled="currentPage === 0"
         :aria-label="t('common.previous')"
+        aria-describedby="book-board-pagination"
         @click="prevPage"
       >
-        <ChevronLeft :size="24" />
-      </button>
+        <template #icon-left>
+          <ChevronLeft :size="18" />
+        </template>
+      </ZenButton>
 
-      <!-- Grid -->
       <TransitionGroup
         name="zen-card"
         tag="div"
@@ -229,24 +233,28 @@ defineExpose({
         </div>
       </TransitionGroup>
 
-      <!-- Right chevron -->
-      <button
-        class="book-board__nav book-board__nav--next"
+      <ZenButton
+        class="book-board__nav-next"
+        variant="ghost"
+        size="sm"
         :disabled="currentPage >= totalPages - 1"
         :aria-label="t('common.next')"
+        aria-describedby="book-board-pagination"
         @click="nextPage"
       >
-        <ChevronRight :size="24" />
-      </button>
+        <template #icon-left>
+          <ChevronRight :size="18" />
+        </template>
+      </ZenButton>
     </div>
 
-    <!-- Page indicator + swipe hint -->
     <div v-if="totalPages > 1" class="book-board__pagination">
-      <span>{{ currentPage + 1 }} / {{ totalPages }}</span>
+      <span id="book-board-pagination"
+        >{{ currentPage + 1 }} / {{ totalPages }}</span
+      >
       <SwipeHint v-if="isTouchDevice" variant="subtle" />
     </div>
 
-    <!-- Hint for eliminate -->
     <div class="book-board__hint">
       {{ t('game.eliminateHint') }}
     </div>
@@ -265,6 +273,7 @@ defineExpose({
   gap: 0.5rem;
   align-items: center;
   padding: 0 0.5rem;
+  margin-bottom: 0.5rem;
 
   @media (min-width: 600px) {
     padding: 0;
@@ -276,6 +285,7 @@ defineExpose({
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  min-height: 3.25rem;
   background: var(--gutenku-zen-water);
   border: 1px solid var(--gutenku-paper-border);
   border-radius: var(--gutenku-radius-md);
@@ -313,17 +323,25 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.25rem;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
   background: transparent;
   border: none;
   border-radius: 50%;
   color: var(--gutenku-text-muted);
   cursor: pointer;
+  flex-shrink: 0;
   transition: all 0.2s ease;
 
   &:hover {
     background: var(--gutenku-zen-mist);
     color: var(--gutenku-text-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--gutenku-zen-accent);
+    outline-offset: 2px;
   }
 }
 
@@ -331,7 +349,8 @@ defineExpose({
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  padding: 0.5rem 0.75rem;
+  min-height: 2.75rem;
+  padding: 0.625rem 0.875rem;
   background: var(--gutenku-zen-water);
   border: 1px solid var(--gutenku-paper-border);
   border-radius: var(--gutenku-radius-md);
@@ -346,6 +365,11 @@ defineExpose({
     border-color: var(--gutenku-zen-accent);
   }
 
+  &:focus-visible {
+    outline: 2px solid var(--gutenku-zen-accent);
+    outline-offset: 2px;
+  }
+
   span {
     font-weight: 600;
   }
@@ -357,35 +381,8 @@ defineExpose({
   gap: 0.5rem;
 }
 
-.book-board__nav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  background: var(--gutenku-zen-water);
-  border: 1px solid var(--gutenku-paper-border);
-  border-radius: 50%;
-  color: var(--gutenku-text-primary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover:not(:disabled) {
-    background: var(--gutenku-zen-mist);
-    border-color: var(--gutenku-zen-accent);
-  }
-
-  &:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-
-  @media (min-width: 600px) {
-    width: 40px;
-    height: 40px;
-  }
+.book-board__nav-next:hover:not(:disabled):not([aria-disabled='true']) :deep(svg) {
+  transform: translateX(3px) !important;
 }
 
 .book-board__grid {
@@ -424,18 +421,21 @@ defineExpose({
   gap: 0.75rem;
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--gutenku-text-muted);
+  color: var(--gutenku-text-secondary);
   padding: 0.25rem 0;
 }
 
 .book-board__hint {
   text-align: center;
-  font-size: 0.7rem;
-  color: var(--gutenku-text-muted);
+  font-size: 0.75rem;
+  color: var(--gutenku-text-primary);
   opacity: 0.7;
 }
 
-// Zen card transitions with staggered animation
+[data-theme='dark'] .book-board__hint {
+  opacity: 0.8;
+}
+
 .zen-card-move {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -449,14 +449,12 @@ defineExpose({
   position: absolute;
 }
 
-// Staggered entrance delay for each card
 @for $i from 1 through 12 {
   .zen-card-enter-active:nth-child(#{$i}) {
     transition-delay: #{($i - 1) * 0.03}s;
   }
 }
 
-// Direction-aware animations
 .book-board__grid--next {
   .zen-card-enter-from {
     opacity: 0;
@@ -485,7 +483,6 @@ defineExpose({
   }
 }
 
-// Default state (no direction yet)
 .zen-card-enter-from {
   opacity: 0;
   transform: translateY(12px) scale(0.95);

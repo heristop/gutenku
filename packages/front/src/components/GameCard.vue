@@ -13,6 +13,7 @@ import GameStats from './game/GameStats.vue';
 import GameHelp from './game/GameHelp.vue';
 import AppLoading from '@/components/AppLoading.vue';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
+import ZenButton from '@/components/ui/ZenButton.vue';
 
 defineProps<{
   expanded?: boolean;
@@ -104,70 +105,80 @@ onMounted(() => {
         :text="isDarkMode ? t('theme.switchToLight') : t('theme.switchToDark')"
         position="bottom"
       >
-        <v-btn
-          icon
+        <ZenButton
           variant="text"
-          size="x-small"
+          size="sm"
           class="action-btn"
           :class="{ 'system-active': systemPreferenceEnabled }"
+          :aria-label="isDarkMode ? t('theme.switchToLight') : t('theme.switchToDark')"
           @click="toggleThemeManually"
         >
-          <Moon v-if="isDarkMode" :size="16" />
-          <Sun v-else :size="16" />
-        </v-btn>
+          <template #icon-left>
+            <Moon v-if="isDarkMode" :size="16" />
+            <Sun v-else :size="16" />
+          </template>
+        </ZenButton>
       </ZenTooltip>
 
       <ZenTooltip :text="t('theme.systemPreference')" position="bottom">
-        <v-btn
-          icon
+        <ZenButton
           variant="text"
-          size="x-small"
+          size="sm"
           class="action-btn"
           :class="{ active: systemPreferenceEnabled }"
+          :aria-label="t('theme.systemPreference')"
           @click="toggleSystemPreference"
         >
-          <Monitor :size="16" />
-        </v-btn>
+          <template #icon-left>
+            <Monitor :size="16" />
+          </template>
+        </ZenButton>
       </ZenTooltip>
 
       <div v-if="isDev" class="action-divider" />
 
       <ZenTooltip v-if="isDev" :text="t('game.resetGame')" position="bottom">
-        <v-btn
-          icon
+        <ZenButton
           variant="text"
-          size="x-small"
+          size="sm"
           class="action-btn action-btn--dev"
+          :aria-label="t('game.resetGame')"
           @click="resetAndReplay"
         >
-          <RotateCcw :size="16" />
-        </v-btn>
+          <template #icon-left>
+            <RotateCcw :size="16" />
+          </template>
+        </ZenButton>
       </ZenTooltip>
 
       <div class="action-divider" />
 
       <ZenTooltip :text="t('game.howToPlay')" position="bottom">
-        <v-btn
-          icon
+        <ZenButton
           variant="text"
-          size="x-small"
+          size="sm"
           class="action-btn"
+          :aria-label="t('game.howToPlay')"
           @click="showHelp = true"
         >
-          <HelpCircle :size="16" />
-        </v-btn>
+          <template #icon-left>
+            <HelpCircle :size="16" />
+          </template>
+        </ZenButton>
       </ZenTooltip>
 
       <ZenTooltip :text="t('game.statistics')" position="bottom">
-        <v-btn
-          icon
+        <ZenButton
           variant="text"
-          size="x-small"
+          size="sm"
           class="action-btn"
+          :aria-label="t('game.statistics')"
           @click="showStats = true"
         >
-          <BarChart2 :size="16" />
-        </v-btn>
+          <template #icon-left>
+            <BarChart2 :size="16" />
+          </template>
+        </ZenButton>
       </ZenTooltip>
     </div>
 
@@ -177,15 +188,16 @@ onMounted(() => {
         <AppLoading :text="t('game.loading')" />
       </div>
 
-      <div v-else-if="error" class="game-card__error">
+      <div
+        v-else-if="error"
+        class="game-card__error"
+        role="alert"
+        aria-live="assertive"
+      >
         <p class="gutenku-text-primary">{{ error }}</p>
-        <v-btn
-          class="gutenku-btn gutenku-btn-generate mt-3"
-          size="small"
-          @click="gameStore.fetchDailyPuzzle()"
-        >
+        <ZenButton size="sm" class="mt-3" @click="gameStore.fetchDailyPuzzle()">
           {{ t('common.retry') }}
-        </v-btn>
+        </ZenButton>
       </div>
 
       <template v-else-if="puzzle && currentGame">

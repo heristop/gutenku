@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { BookOpen, Clock, Globe, Feather } from 'lucide-vue-next';
+import { BookOpen, Clock } from 'lucide-vue-next';
 import type { PuzzleHint } from '@gutenku/shared';
 
 const props = defineProps<{
@@ -116,8 +116,6 @@ const letterAuthorData = computed(() => {
       <!-- Haiku display with zen aesthetic -->
       <template v-else-if="isHaiku">
         <div class="haiku-container">
-          <!-- Decorative brush stroke accent -->
-          <div class="haiku-accent" aria-hidden="true" />
           <div class="haiku-verses">
             <p
               v-for="(line, index) in hint.content.split('\n')"
@@ -149,54 +147,38 @@ const letterAuthorData = computed(() => {
           </div>
         </div>
       </template>
-      <!-- Famous quote with typewriter effect -->
+      <!-- Famous quote with gradient reveal -->
       <template v-else-if="isQuote">
         <div class="quote-container">
-          <span class="quote-mark quote-mark--open" aria-hidden="true">"</span>
-          <p class="quote-text">
-            <span
-              v-for="(char, index) in hint.content"
-              :key="index"
-              class="quote-char"
-              :style="{ '--char-index': index }"
-              >{{ char }}</span
-            >
-          </p>
-          <span class="quote-mark quote-mark--close" aria-hidden="true">"</span>
+          <p class="quote-text">{{ hint.content }}</p>
         </div>
       </template>
-      <!-- First Letter & Nationality display -->
+      <!-- First Letter & Nationality display - unified clue card -->
       <template v-else-if="isLetterAuthor">
         <div class="letter-author-container">
-          <!-- Large letter display -->
-          <div v-if="letterAuthorData.letter" class="letter-display">
-            <span class="letter-char">{{ letterAuthorData.letter }}</span>
-            <span class="letter-label">{{ t('game.hints.firstLetter') }}</span>
-          </div>
-          <!-- Nationality badge -->
-          <div v-if="letterAuthorData.nationality" class="nationality-badge">
-            <Globe :size="16" class="nationality-icon" />
-            <span
-              class="nationality-text"
-              >{{ letterAuthorData.nationality }}</span
+          <!-- Clue card with corner fold -->
+          <div class="clue-card">
+            <div v-if="letterAuthorData.letter" class="letter-char">
+              {{ letterAuthorData.letter }}
+            </div>
+            <span v-if="letterAuthorData.nationality" class="nationality-text">
+              {{ letterAuthorData.nationality }} {{ t('game.hints.author') }}
+            </span>
+            <!-- Fallback: show raw content if parsing failed -->
+            <p
+              v-if="!letterAuthorData.letter && !letterAuthorData.nationality"
+              class="hint-text"
             >
+              {{ hint.content }}
+            </p>
           </div>
-          <!-- Fallback: show raw content if parsing failed -->
-          <p
-            v-if="!letterAuthorData.letter && !letterAuthorData.nationality"
-            class="hint-text"
-          >
-            {{ hint.content }}
-          </p>
         </div>
       </template>
-      <!-- Author's First Name - final hint with dramatic reveal -->
+      <!-- Author's First Name - final hint with signature reveal -->
       <template v-else-if="isAuthorName">
         <div class="author-name-container">
-          <div class="author-name-card">
-            <Feather :size="20" class="author-icon" />
-            <span class="author-name">{{ hint.content }}</span>
-          </div>
+          <span class="author-name">{{ hint.content }}</span>
+          <div class="signature-line" aria-hidden="true" />
           <span
             class="author-label"
             >{{ t('game.hints.authorFirstName') }}</span
@@ -213,8 +195,7 @@ const letterAuthorData = computed(() => {
 
 <style lang="scss" scoped>
 .game-hint {
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--gutenku-paper-border);
+  padding: 0.5rem 0.75rem;
   animation: hint-reveal 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   transition: background-color 0.3s ease;
 
@@ -262,78 +243,72 @@ const letterAuthorData = computed(() => {
   text-align: center;
 }
 
-// Emoticons grid layout
+// Emoticons - paper slip reveal
 .emoticons-grid {
-  display: flex;
+  display: inline-flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
 }
 
 .emoticon-bubble {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 3.5rem;
-  height: 3.5rem;
-  font-size: 1.75rem;
-  background: var(--gutenku-zen-water);
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 1.5rem;
+  background: linear-gradient(
+    135deg,
+    var(--gutenku-paper-bg) 0%,
+    var(--gutenku-paper-bg-aged) 100%
+  );
   border: 1px solid var(--gutenku-paper-border);
-  border-radius: var(--gutenku-radius-md);
-  box-shadow:
-    0 2px 4px oklch(0 0 0 / 0.05),
-    inset 0 1px 0 oklch(1 0 0 / 0.5);
+  border-radius: var(--gutenku-radius-sm);
+  // Torn paper edge effect
+  clip-path: polygon(2% 0, 100% 0, 98% 100%, 0 100%);
   opacity: 0;
-  transform: scale(0.5) translateY(-10px);
-  animation: emoticon-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-delay: calc(var(--index) * 0.08s + 0.1s);
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  animation: slip-reveal 0.35s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+  animation-delay: calc(var(--index) * 80ms + 100ms);
+  transition: filter 0.2s ease;
 
   &:hover {
-    transform: scale(1.1) translateY(-2px);
-    box-shadow:
-      0 4px 8px oklch(0 0 0 / 0.1),
-      inset 0 1px 0 oklch(1 0 0 / 0.5);
+    filter: drop-shadow(0 2px 4px oklch(0 0 0 / 0.15));
   }
 }
 
 [data-theme='dark'] .emoticon-bubble {
-  box-shadow:
-    0 2px 4px oklch(0 0 0 / 0.2),
-    inset 0 1px 0 oklch(1 0 0 / 0.1);
+  background: linear-gradient(
+    135deg,
+    oklch(0.25 0.02 55) 0%,
+    oklch(0.22 0.025 50) 100%
+  );
 
   &:hover {
-    box-shadow:
-      0 4px 8px oklch(0 0 0 / 0.3),
-      inset 0 1px 0 oklch(1 0 0 / 0.1);
+    filter: drop-shadow(0 2px 6px oklch(0 0 0 / 0.3));
   }
 }
 
-@keyframes emoticon-pop {
+@keyframes slip-reveal {
   0% {
     opacity: 0;
-    transform: scale(0.5) translateY(-10px);
-  }
-  70% {
-    transform: scale(1.1) translateY(0);
+    transform: translateY(12px) rotate(-3deg);
   }
   100% {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: translateY(0) rotate(0deg);
   }
 }
 
-// Haiku zen aesthetic
+// Haiku zen aesthetic - ink brushstroke reveal
 .haiku-container {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  padding: 1.25rem 1.5rem;
+  padding: 1.25rem;
   background: linear-gradient(
     135deg,
     var(--gutenku-zen-water) 0%,
@@ -343,48 +318,23 @@ const letterAuthorData = computed(() => {
   border-left: 3px solid var(--gutenku-zen-accent);
 }
 
-.haiku-accent {
-  position: absolute;
-  left: -1px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 60%;
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    var(--gutenku-zen-accent) 20%,
-    var(--gutenku-zen-accent) 80%,
-    transparent 100%
-  );
-  border-radius: 2px;
-  opacity: 0;
-  animation: accent-fade 0.6s ease-out 0.3s forwards;
-}
-
-@keyframes accent-fade {
-  to {
-    opacity: 1;
-  }
-}
-
 .haiku-verses {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.375rem;
 }
 
 .haiku-line {
   font-style: italic;
   font-size: 1.15rem;
-  line-height: 1.9;
+  line-height: 2;
   color: var(--gutenku-text-primary);
   margin: 0;
-  opacity: 0;
-  transform: translateX(-8px);
-  animation: ink-brush 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-  animation-delay: calc(var(--line-index) * 0.2s + 0.1s);
+  text-shadow: 0 0 1px var(--gutenku-text-primary);
+  clip-path: inset(0 100% 0 0);
+  animation: verse-write 0.45s ease-out forwards;
+  animation-delay: calc(var(--line-index) * 250ms + 150ms);
 
   &:nth-child(2) {
     padding-left: 1rem;
@@ -395,19 +345,9 @@ const letterAuthorData = computed(() => {
   }
 }
 
-@keyframes ink-brush {
-  0% {
-    opacity: 0;
-    transform: translateX(-8px);
-    filter: blur(2px);
-  }
-  60% {
-    filter: blur(0);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-    filter: blur(0);
+@keyframes verse-write {
+  to {
+    clip-path: inset(0 0 0 0);
   }
 }
 
@@ -425,8 +365,9 @@ const letterAuthorData = computed(() => {
   border-radius: 4px;
   transform: rotate(5deg);
   opacity: 0;
-  animation: seal-stamp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-delay: 0.8s;
+  animation: seal-stamp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  // Delay: wait for all 3 verses (3 * 250ms + 150ms base + 200ms buffer)
+  animation-delay: 1.1s;
   flex-shrink: 0;
 }
 
@@ -439,7 +380,7 @@ const letterAuthorData = computed(() => {
 @keyframes seal-stamp {
   0% {
     opacity: 0;
-    transform: rotate(5deg) scale(1.5);
+    transform: rotate(5deg) scale(1.4);
   }
   100% {
     opacity: 1;
@@ -447,361 +388,54 @@ const letterAuthorData = computed(() => {
   }
 }
 
-// Genre & Era chips
+// Genre & Era - catalog cards
 .genre-era-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.75rem;
+  gap: 0.625rem;
   padding: 0.5rem 0;
 }
 
 .genre-era-tag {
-  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: var(--gutenku-radius-md);
+  gap: 0.625rem;
+  padding: 0.625rem 1.25rem;
+  background: var(--gutenku-zen-water);
+  border: 1px solid var(--gutenku-paper-border);
+  border-left: 3px solid var(--gutenku-zen-accent);
+  border-radius: var(--gutenku-radius-sm);
   font-size: 0.9rem;
   font-weight: 500;
-  letter-spacing: 0.01em;
+  color: var(--gutenku-zen-primary);
   opacity: 0;
-  transform: translateY(8px) scale(0.96);
-  animation: chip-reveal 0.5s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
-  animation-delay: calc(var(--tag-index) * 0.12s + 0.1s);
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
-  overflow: hidden;
-
-  // Subtle inner shine
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      180deg,
-      oklch(1 0 0 / 0.15) 0%,
-      transparent 50%
-    );
-    pointer-events: none;
-  }
+  animation: card-file 0.4s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+  animation-delay: calc(var(--tag-index) * 150ms + 100ms);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
-    transform: translateY(-2px) scale(1.02);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px oklch(0.45 0.08 195 / 0.12);
   }
 }
 
 .tag-icon {
   flex-shrink: 0;
-  position: relative;
+  color: var(--gutenku-zen-accent);
 }
 
 .tag-label {
   white-space: nowrap;
-  position: relative;
 }
 
-// Genre chip (warm amber gradient)
-.genre-tag {
-  background: linear-gradient(
-    135deg,
-    oklch(0.92 0.06 50) 0%,
-    oklch(0.88 0.08 60) 100%
-  );
-  border: 1px solid oklch(0.78 0.1 55 / 0.5);
-  color: oklch(0.35 0.1 50);
-  box-shadow:
-    0 2px 8px oklch(0.6 0.15 55 / 0.15),
-    inset 0 -1px 0 oklch(0 0 0 / 0.05);
-
-  .tag-icon {
-    color: oklch(0.5 0.15 55);
-  }
-
-  &:hover {
-    box-shadow:
-      0 4px 16px oklch(0.6 0.15 55 / 0.25),
-      inset 0 -1px 0 oklch(0 0 0 / 0.05);
-  }
-}
-
-// Era chip (cool blue gradient)
-.era-tag {
-  background: linear-gradient(
-    135deg,
-    oklch(0.92 0.05 220) 0%,
-    oklch(0.88 0.07 240) 100%
-  );
-  border: 1px solid oklch(0.78 0.08 230 / 0.5);
-  color: oklch(0.35 0.08 230);
-  box-shadow:
-    0 2px 8px oklch(0.6 0.12 230 / 0.15),
-    inset 0 -1px 0 oklch(0 0 0 / 0.05);
-
-  .tag-icon {
-    color: oklch(0.5 0.12 230);
-  }
-
-  &:hover {
-    box-shadow:
-      0 4px 16px oklch(0.6 0.12 230 / 0.25),
-      inset 0 -1px 0 oklch(0 0 0 / 0.05);
-  }
-}
-
-// Dark mode
-[data-theme='dark'] {
-  .genre-tag {
-    background: linear-gradient(
-      135deg,
-      oklch(0.32 0.08 50) 0%,
-      oklch(0.28 0.1 60) 100%
-    );
-    border-color: oklch(0.45 0.1 55 / 0.5);
-    color: oklch(0.9 0.06 55);
-    box-shadow:
-      0 2px 8px oklch(0 0 0 / 0.3),
-      0 0 0 1px oklch(1 0 0 / 0.03) inset;
-
-    .tag-icon {
-      color: oklch(0.75 0.12 55);
-    }
-
-    &:hover {
-      box-shadow:
-        0 4px 16px oklch(0.5 0.15 55 / 0.3),
-        0 0 0 1px oklch(1 0 0 / 0.05) inset;
-    }
-  }
-
-  .era-tag {
-    background: linear-gradient(
-      135deg,
-      oklch(0.32 0.06 220) 0%,
-      oklch(0.28 0.08 240) 100%
-    );
-    border-color: oklch(0.45 0.08 230 / 0.5);
-    color: oklch(0.9 0.05 230);
-    box-shadow:
-      0 2px 8px oklch(0 0 0 / 0.3),
-      0 0 0 1px oklch(1 0 0 / 0.03) inset;
-
-    .tag-icon {
-      color: oklch(0.75 0.1 230);
-    }
-
-    &:hover {
-      box-shadow:
-        0 4px 16px oklch(0.5 0.12 230 / 0.3),
-        0 0 0 1px oklch(1 0 0 / 0.05) inset;
-    }
-  }
-
-  .genre-era-tag::before {
-    background: linear-gradient(
-      180deg,
-      oklch(1 0 0 / 0.08) 0%,
-      transparent 50%
-    );
-  }
-}
-
-@keyframes chip-reveal {
+@keyframes card-file {
   0% {
     opacity: 0;
-    transform: translateY(8px) scale(0.96);
+    transform: translateX(-20px);
   }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-// Famous Quote with typewriter effect
-.quote-container {
-  position: relative;
-  padding: 1rem 2rem;
-  background: linear-gradient(
-    135deg,
-    var(--gutenku-zen-water) 0%,
-    oklch(0.97 0.01 55 / 0.5) 100%
-  );
-  border-radius: var(--gutenku-radius-md);
-  border: 1px solid var(--gutenku-paper-border);
-}
-
-.quote-mark {
-  position: absolute;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 3.5rem;
-  font-weight: 700;
-  line-height: 1;
-  color: var(--gutenku-zen-accent);
-  opacity: 0.25;
-  user-select: none;
-
-  &--open {
-    top: 0.25rem;
-    left: 0.5rem;
-  }
-
-  &--close {
-    bottom: -0.5rem;
-    right: 0.5rem;
-  }
-}
-
-.quote-text {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 1.1rem;
-  font-style: italic;
-  line-height: 1.7;
-  color: var(--gutenku-text-primary);
-  margin: 0;
-  text-align: left;
-}
-
-.quote-char {
-  opacity: 0;
-  animation: typewriter-char 0.03s ease-out forwards;
-  animation-delay: calc(var(--char-index) * 0.025s + 0.2s);
-}
-
-@keyframes typewriter-char {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-// Add blinking cursor at the end
-.quote-text::after {
-  content: '|';
-  font-style: normal;
-  font-weight: 300;
-  color: var(--gutenku-zen-accent);
-  animation: cursor-blink 0.8s ease-in-out infinite;
-  animation-delay: calc(var(--total-chars, 100) * 0.025s + 0.5s);
-}
-
-@keyframes cursor-blink {
-  0%, 50% {
-    opacity: 1;
-  }
-  51%, 100% {
-    opacity: 0;
-  }
-}
-
-[data-theme='dark'] .quote-container {
-  background: linear-gradient(
-    135deg,
-    oklch(0.22 0.02 55 / 0.5) 0%,
-    oklch(0.2 0.015 45 / 0.3) 100%
-  );
-}
-
-// First Letter & Nationality
-.letter-author-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
-  padding: 0.5rem 0;
-}
-
-.letter-display {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-  opacity: 0;
-  transform: scale(0.8);
-  animation: letter-reveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-delay: 0.1s;
-}
-
-.letter-char {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 4rem;
-  height: 4rem;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--gutenku-zen-primary);
-  background: linear-gradient(
-    145deg,
-    oklch(0.98 0.01 55) 0%,
-    oklch(0.94 0.03 55) 100%
-  );
-  border: 2px solid var(--gutenku-zen-accent);
-  border-radius: var(--gutenku-radius-md);
-  box-shadow:
-    0 4px 12px oklch(0.5 0.1 55 / 0.15),
-    inset 0 2px 0 oklch(1 0 0 / 0.5);
-  text-shadow: 0 1px 2px oklch(0 0 0 / 0.1);
-}
-
-.letter-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--gutenku-text-muted);
-}
-
-.nationality-badge {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  background: linear-gradient(
-    135deg,
-    oklch(0.92 0.04 160) 0%,
-    oklch(0.88 0.06 180) 100%
-  );
-  border: 1px solid oklch(0.78 0.08 170 / 0.5);
-  border-radius: var(--gutenku-radius-md);
-  box-shadow:
-    0 2px 8px oklch(0.5 0.1 170 / 0.15),
-    inset 0 1px 0 oklch(1 0 0 / 0.3);
-  opacity: 0;
-  transform: translateX(-10px);
-  animation: nationality-slide 0.4s ease-out forwards;
-  animation-delay: 0.3s;
-}
-
-.nationality-icon {
-  color: oklch(0.45 0.12 170);
-}
-
-.nationality-text {
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: oklch(0.35 0.08 170);
-}
-
-@keyframes letter-reveal {
-  0% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes nationality-slide {
-  0% {
-    opacity: 0;
-    transform: translateX(-10px);
+  70% {
+    transform: translateX(4px);
   }
   100% {
     opacity: 1;
@@ -809,96 +443,270 @@ const letterAuthorData = computed(() => {
   }
 }
 
-// Dark mode for letter-author
-[data-theme='dark'] {
-  .letter-char {
-    background: linear-gradient(
-      145deg,
-      oklch(0.3 0.03 55) 0%,
-      oklch(0.25 0.04 55) 100%
-    );
-    color: oklch(0.9 0.06 55);
-    box-shadow:
-      0 4px 12px oklch(0 0 0 / 0.3),
-      inset 0 1px 0 oklch(1 0 0 / 0.1);
-  }
+// Dark mode for genre-era
+[data-theme='dark'] .genre-era-tag {
+  background: oklch(0.25 0.03 195 / 0.4);
+  border-color: oklch(0.4 0.04 195 / 0.5);
+  color: oklch(0.9 0.04 195);
 
-  .nationality-badge {
-    background: linear-gradient(
-      135deg,
-      oklch(0.3 0.05 160) 0%,
-      oklch(0.25 0.06 180) 100%
-    );
-    border-color: oklch(0.45 0.08 170 / 0.5);
-    box-shadow:
-      0 2px 8px oklch(0 0 0 / 0.3),
-      inset 0 1px 0 oklch(1 0 0 / 0.05);
-  }
-
-  .nationality-icon {
-    color: oklch(0.7 0.1 170);
-  }
-
-  .nationality-text {
-    color: oklch(0.88 0.05 170);
+  &:hover {
+    box-shadow: 0 2px 8px oklch(0.45 0.08 195 / 0.2);
   }
 }
 
-// Author's First Name - Final hint with signature style
-.author-name-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 0;
+[data-theme='dark'] .tag-icon {
+  color: oklch(0.7 0.1 195);
 }
 
-.author-name-card {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1.5rem;
+// Famous Quote - gradient text reveal
+.quote-container {
+  position: relative;
+  padding: 1.25rem 1.5rem;
   background: linear-gradient(
     135deg,
-    oklch(0.97 0.02 300) 0%,
-    oklch(0.94 0.04 330) 100%
+    var(--gutenku-paper-bg-aged) 0%,
+    var(--gutenku-paper-bg) 100%
   );
-  border: 1px solid oklch(0.8 0.08 315 / 0.4);
   border-radius: var(--gutenku-radius-md);
-  box-shadow:
-    0 4px 16px oklch(0.6 0.15 315 / 0.15),
-    inset 0 1px 0 oklch(1 0 0 / 0.4);
-  opacity: 0;
-  transform: scale(0.9);
-  animation: author-reveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-delay: 0.15s;
+  border-left: 2px solid var(--gutenku-zen-accent);
+  animation: container-emerge 0.3s ease-out;
 }
 
-.author-icon {
-  color: oklch(0.5 0.15 315);
-  opacity: 0;
-  transform: rotate(-20deg);
-  animation: feather-write 0.5s ease-out forwards;
-  animation-delay: 0.4s;
-}
-
-@keyframes feather-write {
+@keyframes container-emerge {
   0% {
     opacity: 0;
-    transform: rotate(-20deg) translateX(-5px);
+    transform: translateY(4px);
   }
   100% {
     opacity: 1;
-    transform: rotate(0deg) translateX(0);
+    transform: translateY(0);
+  }
+}
+
+.quote-text {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  line-height: 1.7;
+  margin: 0;
+  text-align: left;
+  color: var(--gutenku-text-primary);
+  animation: text-reveal 1.2s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+  animation-delay: 0.15s;
+
+  // Inline quote marks
+  &::before {
+    content: '\201C';
+    color: var(--gutenku-zen-accent);
+    margin-right: 0.125rem;
+  }
+
+  &::after {
+    content: '\201D';
+    color: var(--gutenku-zen-accent);
+    margin-left: 0.125rem;
+  }
+}
+
+@keyframes text-reveal {
+  0% {
+    opacity: 0;
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+[data-theme='dark'] .quote-container {
+  background: linear-gradient(
+    135deg,
+    oklch(0.22 0.02 55 / 0.6) 0%,
+    oklch(0.18 0.015 45 / 0.4) 100%
+  );
+}
+
+// First Letter & Nationality - unified clue card
+.letter-author-container {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 0;
+}
+
+.clue-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 2rem;
+  background: var(--gutenku-paper-bg);
+  border: 1px solid var(--gutenku-paper-border);
+  border-radius: var(--gutenku-radius-md);
+  animation: card-unfold 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  // Corner fold decoration
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: linear-gradient(
+      135deg,
+      transparent 50%,
+      var(--gutenku-paper-border) 50%
+    );
+  }
+}
+
+@keyframes card-unfold {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) rotateX(5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotateX(0);
+  }
+}
+
+.letter-char {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--gutenku-zen-primary);
+  background: var(--gutenku-zen-water);
+  border-radius: var(--gutenku-radius-full);
+  opacity: 0;
+  animation: letter-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 0.15s;
+}
+
+@keyframes letter-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.nationality-text {
+  font-size: 0.9rem;
+  color: var(--gutenku-text-secondary);
+  opacity: 0;
+  animation: fade-up 0.35s ease-out forwards;
+  animation-delay: 0.35s;
+}
+
+@keyframes fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Dark mode for letter-author
+[data-theme='dark'] .clue-card {
+  background: oklch(0.22 0.02 55);
+
+  &::before {
+    background: linear-gradient(
+      135deg,
+      transparent 50%,
+      oklch(0.35 0.02 55) 50%
+    );
+  }
+}
+
+[data-theme='dark'] .letter-char {
+  background: oklch(0.28 0.04 195);
+  color: oklch(0.92 0.04 195);
+}
+
+// Author's First Name - CLIMAX signature reveal
+.author-name-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 1.5rem 2rem;
+  background: radial-gradient(
+    ellipse at center,
+    var(--gutenku-zen-water) 0%,
+    transparent 70%
+  );
+  animation: spotlight-glow 0.6s ease-out;
+}
+
+@keyframes spotlight-glow {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
 .author-name {
-  font-family: 'Brush Script MT', 'Segoe Script', cursive, Georgia, serif;
-  font-size: 1.75rem;
-  font-weight: 400;
-  color: oklch(0.3 0.1 315);
-  letter-spacing: 0.02em;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 2rem;
+  font-weight: 500;
+  color: var(--gutenku-zen-primary);
+  letter-spacing: 0.03em;
+  opacity: 0;
+  animation: signature-write 0.8s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+  animation-delay: 0.3s;
+}
+
+@keyframes signature-write {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.signature-line {
+  width: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--gutenku-zen-accent),
+    transparent
+  );
+  animation: line-draw 0.5s ease-out forwards;
+  animation-delay: 1s;
+}
+
+@keyframes line-draw {
+  to {
+    width: 100%;
+  }
 }
 
 .author-label {
@@ -906,21 +714,10 @@ const letterAuthorData = computed(() => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--gutenku-text-muted);
+  color: var(--gutenku-text-secondary);
   opacity: 0;
   animation: fade-in-up 0.4s ease-out forwards;
-  animation-delay: 0.5s;
-}
-
-@keyframes author-reveal {
-  0% {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+  animation-delay: 1.2s;
 }
 
 @keyframes fade-in-up {
@@ -935,24 +732,16 @@ const letterAuthorData = computed(() => {
 }
 
 // Dark mode for author name
-[data-theme='dark'] .author-name-card {
-  background: linear-gradient(
-    135deg,
-    oklch(0.28 0.04 300) 0%,
-    oklch(0.24 0.06 330) 100%
+[data-theme='dark'] .author-name-container {
+  background: radial-gradient(
+    ellipse at center,
+    oklch(0.25 0.03 195 / 0.5) 0%,
+    transparent 70%
   );
-  border-color: oklch(0.45 0.1 315 / 0.4);
-  box-shadow:
-    0 4px 16px oklch(0 0 0 / 0.3),
-    inset 0 1px 0 oklch(1 0 0 / 0.08);
-}
-
-[data-theme='dark'] .author-icon {
-  color: oklch(0.7 0.12 315);
 }
 
 [data-theme='dark'] .author-name {
-  color: oklch(0.9 0.06 315);
+  color: oklch(0.92 0.04 195);
 }
 
 .hint-text {
@@ -965,33 +754,36 @@ const letterAuthorData = computed(() => {
 @media (prefers-reduced-motion: reduce) {
   .game-hint,
   .haiku-line,
-  .haiku-accent,
   .haiku-seal,
   .emoticon-bubble,
   .genre-era-tag,
-  .quote-char,
-  .letter-display,
-  .nationality-badge,
-  .author-name-card,
-  .author-icon,
+  .quote-container,
+  .quote-text,
+  .clue-card,
+  .letter-char,
+  .nationality-text,
+  .author-name-container,
+  .author-name,
+  .signature-line,
   .author-label {
-    animation: none;
-    opacity: 1;
-    transform: none;
-    filter: none;
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    clip-path: none !important;
   }
 
   .haiku-seal {
-    transform: rotate(5deg);
+    transform: rotate(5deg) !important;
+  }
+
+  .signature-line {
+    width: 100% !important;
   }
 
   .emoticon-bubble:hover,
   .genre-era-tag:hover {
     transform: none;
-  }
-
-  .quote-text::after {
-    display: none;
   }
 }
 </style>

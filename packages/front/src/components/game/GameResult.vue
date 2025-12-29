@@ -3,6 +3,7 @@ import { computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import { Share2, Trophy, BookX, Clock } from 'lucide-vue-next';
+import ZenButton from '@/components/ui/ZenButton.vue';
 import { useGameStore } from '@/store/game';
 import { useToast } from '@/composables/toast';
 import { useCountdown } from '@/composables/countdown';
@@ -122,24 +123,17 @@ function close() {
       </div>
 
       <div class="result-actions d-flex flex-column ga-2">
-        <v-btn
-          class="gutenku-btn gutenku-btn-generate share-btn"
-          block
-          @click="share"
-        >
+        <ZenButton class="share-btn w-100" @click="share">
           <span class="share-btn__shimmer" aria-hidden="true" />
-          <Share2 :size="18" class="mr-2" />
+          <template #icon-left>
+            <Share2 :size="18" />
+          </template>
           {{ t('game.share') }}
-        </v-btn>
+        </ZenButton>
 
-        <v-btn
-          class="gutenku-btn gutenku-btn-copy"
-          block
-          variant="outlined"
-          @click="close"
-        >
+        <ZenButton variant="ghost" class="w-100" @click="close">
           {{ t('common.close') }}
-        </v-btn>
+        </ZenButton>
       </div>
     </div>
   </v-dialog>

@@ -5,6 +5,7 @@ import { storeToRefs } from 'pinia';
 import { ChevronRight } from 'lucide-vue-next';
 import { useHaikuStore } from '@/store/haiku';
 import { useGlobalStats } from '@/composables/global-stats';
+import ZenChip from '@/components/ui/ZenChip.vue';
 
 const { t } = useI18n();
 const haikuStore = useHaikuStore();
@@ -35,12 +36,15 @@ onMounted(() => {
         <div class="preview-card__title-row">
           <div>
             <h2 class="preview-card__title">GutenKu</h2>
-            <span
+            <ZenChip
               v-if="globalStats.totalHaikusGenerated > 0"
               class="preview-card__subtitle"
+              variant="muted"
+              size="sm"
+              :ariaLabel="t('home.haikusCrafted', { count: formatNumber(globalStats.totalHaikusGenerated) })"
             >
               {{ t('home.haikusCrafted', { count: formatNumber(globalStats.totalHaikusGenerated) }) }}
-            </span>
+            </ZenChip>
           </div>
         </div>
       </div>
@@ -77,7 +81,7 @@ onMounted(() => {
     }
 
     .preview-card__cta {
-      color: var(--gutenku-zen-accent);
+      color: var(--gutenku-zen-primary);
 
       svg {
         transform: translateX(4px);
@@ -173,18 +177,8 @@ onMounted(() => {
 }
 
 .preview-card__subtitle {
-  display: inline-block;
-  font-size: 0.75rem;
-  color: var(--gutenku-text-secondary);
   margin-top: 0.35rem;
-  padding: 0.2rem 0.5rem;
-  background: oklch(0.95 0.01 85 / 0.7);
   backdrop-filter: blur(4px);
-  border-radius: var(--gutenku-radius-sm);
-
-  [data-theme='dark'] & {
-    background: oklch(0.2 0.01 85 / 0.6);
-  }
 }
 
 .preview-card__body {

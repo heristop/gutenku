@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n';
 import { Search, Send, Loader2 } from 'lucide-vue-next';
 import { useGameStore } from '@/store/game';
 import type { BookValue } from '@gutenku/shared';
+import ZenButton from '@/components/ui/ZenButton.vue';
 
 const props = defineProps<{
   loading: boolean;
@@ -73,7 +74,7 @@ function handleKeydown(event: KeyboardEvent) {
 
 <template>
   <div class="book-search">
-    <div class="attempts-counter gutenku-text-muted">
+    <div id="attempts-counter" class="attempts-counter gutenku-text-muted">
       {{ t('game.attemptsRemaining', { count: attemptsRemaining }) }}
     </div>
 
@@ -85,6 +86,10 @@ function handleKeydown(event: KeyboardEvent) {
           type="text"
           class="search-input"
           role="combobox"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
           :aria-label="t('game.searchLabel')"
           :aria-expanded="isMenuOpen"
           :aria-controls="listboxId"
@@ -96,18 +101,20 @@ function handleKeydown(event: KeyboardEvent) {
           @focus="isMenuOpen = searchQuery.length > 0"
           @keydown="handleKeydown"
         />
-        <v-btn
-          icon
+        <ZenButton
           variant="text"
-          size="small"
+          size="sm"
           class="submit-btn"
           :disabled="!canSubmit"
+          :loading="isSubmitting"
           :aria-label="t('game.submit')"
+          aria-describedby="attempts-counter"
           @click="submitGuess"
         >
-          <Loader2 v-if="isSubmitting" :size="18" class="spin" />
-          <Send v-else :size="18" />
-        </v-btn>
+          <template #icon-left>
+            <Send :size="18" />
+          </template>
+        </ZenButton>
       </div>
 
       <v-menu
@@ -156,6 +163,20 @@ function handleKeydown(event: KeyboardEvent) {
 <style lang="scss" scoped>
 .book-search {
   padding: 1rem 1.25rem;
+  margin-bottom: 0.5rem;
+
+  // Hide Vuetify's menu close button
+  :deep(.v-menu > .v-overlay__content > .v-btn),
+  :deep(.v-btn--icon),
+  :deep(.v-field__clearable),
+  :deep(.v-input__append),
+  :deep(.v-field__append-inner) {
+    display: none !important;
+  }
+
+  .search-wrapper :deep(.v-btn:not(.submit-btn)) {
+    display: none !important;
+  }
 }
 
 .attempts-counter {
@@ -179,6 +200,7 @@ function handleKeydown(event: KeyboardEvent) {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  min-height: 3rem;
   background: var(--gutenku-zen-water);
   border: 1px solid var(--gutenku-paper-border);
   border-radius: var(--gutenku-radius-md);
@@ -197,7 +219,6 @@ function handleKeydown(event: KeyboardEvent) {
     box-shadow:
       0 0 0 3px var(--gutenku-zen-mist),
       0 4px 12px oklch(0.5 0.1 55 / 0.1);
-    transform: translateY(-1px);
   }
 }
 
@@ -208,12 +229,29 @@ function handleKeydown(event: KeyboardEvent) {
 
 .search-input {
   flex: 1;
+  height: 1.5rem;
+  line-height: 1.5rem;
+  padding: 0;
   background: transparent;
   border: none;
   outline: none;
+  appearance: none;
+  -webkit-appearance: none;
   font-family: inherit;
   font-size: 1rem;
   color: var(--gutenku-text-primary);
+
+  // Hide browser's native clear button
+  &::-webkit-search-cancel-button,
+  &::-webkit-search-decoration,
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button,
+  &::-ms-clear,
+  &::-ms-reveal {
+    display: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
 
   &::placeholder {
     color: var(--gutenku-text-muted);
@@ -281,11 +319,10 @@ function handleKeydown(event: KeyboardEvent) {
   .search-input-container,
   .book-item {
     transition: none;
+  }
 
-    &:hover,
-    &:focus-within {
-      transform: none;
-    }
+  .book-item:hover {
+    transform: none;
   }
 }
 </style>

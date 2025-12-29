@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Keyboard } from 'lucide-vue-next';
+import ZenButton from '@/components/ui/ZenButton.vue';
+import ZenCard from '@/components/ui/ZenCard.vue';
 
 defineProps<{
   modelValue: boolean;
@@ -32,45 +34,54 @@ function close() {
     @update:model-value="emit('update:modelValue', $event)"
     @keydown.escape="close"
   >
-    <v-card class="keyboard-help gutenku-card pa-4">
-      <v-card-title class="keyboard-help__title d-flex align-center ga-2 pb-3">
-        <Keyboard :size="24" class="text-primary" />
-        <span>Keyboard Shortcuts</span>
-      </v-card-title>
+    <ZenCard class="keyboard-help pa-4">
+      <template #header>
+        <div class="keyboard-help__title">
+          <Keyboard :size="24" class="text-primary" />
+          <span>Keyboard Shortcuts</span>
+        </div>
+      </template>
 
-      <v-card-text class="keyboard-help__content pa-0">
+      <div class="keyboard-help__content">
         <div
           v-for="shortcut in shortcuts"
           :key="shortcut.key"
-          class="keyboard-help__row d-flex align-center justify-space-between py-2"
+          class="keyboard-help__row"
         >
-          <span
-            class="keyboard-help__label text-body-2"
-            >{{ shortcut.label }}</span
-          >
+          <span class="keyboard-help__label">{{ shortcut.label }}</span>
           <kbd class="keyboard-help__key">{{ shortcut.key }}</kbd>
         </div>
-      </v-card-text>
+      </div>
 
-      <v-card-actions class="pt-4 px-0">
-        <v-btn variant="outlined" color="primary" block @click="close">
-          Got it
-        </v-btn>
-      </v-card-actions>
-    </v-card>
+      <template #actions>
+        <ZenButton class="w-100" @click="close"> Got it </ZenButton>
+      </template>
+    </ZenCard>
   </v-dialog>
 </template>
 
 <style scoped lang="scss">
 .keyboard-help {
   &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-family: 'JMH Typewriter', monospace !important;
     letter-spacing: 0.5px;
-    border-bottom: 1px solid var(--gutenku-zen-border);
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--gutenku-paper-border);
+  }
+
+  &__content {
+    padding: 0.5rem 0;
   }
 
   &__row {
-    border-bottom: 1px solid color-mix(in oklch, var(--gutenku-zen-border) 50%, transparent);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid color-mix(in oklch, var(--gutenku-paper-border) 50%, transparent);
 
     &:last-child {
       border-bottom: none;
@@ -78,7 +89,8 @@ function close() {
   }
 
   &__label {
-    color: var(--gutenku-zen-text-secondary);
+    font-size: 0.875rem;
+    color: var(--gutenku-text-secondary);
   }
 
   &__key {
@@ -89,10 +101,10 @@ function close() {
     padding: 0.25rem 0.5rem;
     font-family: 'JMH Typewriter', monospace;
     font-size: 0.85rem;
-    background: var(--gutenku-zen-surface);
-    border: 1px solid var(--gutenku-zen-border);
+    background: var(--gutenku-paper-bg-aged);
+    border: 1px solid var(--gutenku-paper-border);
     border-radius: var(--gutenku-radius-sm);
-    box-shadow: 0 2px 0 var(--gutenku-zen-border);
+    box-shadow: 0 2px 0 var(--gutenku-paper-border);
   }
 }
 

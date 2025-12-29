@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { X, Check, Loader2 } from 'lucide-vue-next';
+import { X, Check } from 'lucide-vue-next';
 import { useFocusTrap } from '@/composables/focus-trap';
+import ZenButton from '@/components/ui/ZenButton.vue';
 import type { BookValue } from '@gutenku/shared';
 
 const props = defineProps<{
@@ -133,22 +134,25 @@ function handleKeydown(event: KeyboardEvent) {
           </p>
 
           <div class="confirm-modal__actions">
-            <button
-              class="confirm-modal__btn confirm-modal__btn--cancel"
+            <ZenButton
+              variant="ghost"
               :disabled="loading"
+              class="confirm-modal__btn"
               @click="close"
             >
               {{ t('common.cancel') }}
-            </button>
-            <button
-              class="confirm-modal__btn confirm-modal__btn--confirm"
-              :disabled="loading"
+            </ZenButton>
+            <ZenButton
+              variant="cta"
+              :loading="loading"
+              class="confirm-modal__btn"
               @click="confirm"
             >
-              <Loader2 v-if="loading" :size="18" class="spin" />
-              <Check v-else :size="18" />
-              <span>{{ t('game.confirmGuess') }}</span>
-            </button>
+              <template #icon-left>
+                <Check :size="18" />
+              </template>
+              {{ t('game.confirmGuess') }}
+            </ZenButton>
           </div>
         </div>
       </div>
@@ -280,51 +284,6 @@ function handleKeydown(event: KeyboardEvent) {
 
 .confirm-modal__btn {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  border-radius: var(--gutenku-radius-md);
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-}
-
-.confirm-modal__btn--cancel {
-  background: var(--gutenku-zen-water);
-  border: 1px solid var(--gutenku-paper-border);
-  color: var(--gutenku-text-primary);
-
-  &:hover:not(:disabled) {
-    background: var(--gutenku-zen-mist);
-  }
-}
-
-.confirm-modal__btn--confirm {
-  background: var(--gutenku-zen-accent);
-  border: 1px solid var(--gutenku-zen-accent);
-  color: white;
-
-  &:hover:not(:disabled) {
-    filter: brightness(1.1);
-    transform: translateY(-1px);
-  }
-}
-
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
 }
 
 // Modal transitions
@@ -359,13 +318,8 @@ function handleKeydown(event: KeyboardEvent) {
 @media (prefers-reduced-motion: reduce) {
   .modal-enter-active,
   .modal-leave-active,
-  .confirm-modal__btn,
   .confirm-modal__close {
     transition: none;
-  }
-
-  .spin {
-    animation: none;
   }
 }
 </style>

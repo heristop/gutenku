@@ -57,44 +57,6 @@ const hintLabel = computed(() => {
   return labels[latestHint.value.type] || t('game.hints.unknown');
 });
 
-// Get a preview of the hint content (truncated for compact view)
-const hintPreview = computed(() => {
-  if (!latestHint.value) {return '';}
-  const content = latestHint.value.content;
-
-  // For emoticons, show as-is
-  if (latestHint.value.type === 'emoticons') {
-    return content;
-  }
-
-  // For haiku, show first line only
-  if (latestHint.value.type === 'haiku') {
-    const firstLine = content.split('\n')[0];
-    return `"${firstLine}..."`;
-  }
-
-  // For genre_era, show formatted
-  if (latestHint.value.type === 'genre_era') {
-    return content.replace('\n', ' • ');
-  }
-
-  // For quote, truncate
-  if (latestHint.value.type === 'quote') {
-    const maxLen = 40;
-    if (content.length > maxLen) {
-      return `"${content.slice(0, maxLen)}..."`;
-    }
-    return `"${content}"`;
-  }
-
-  // Default: truncate if too long
-  const maxLen = 30;
-  if (content.length > maxLen) {
-    return `${content.slice(0, maxLen)}...`;
-  }
-  return content;
-});
-
 function toggleExpanded() {
   emit('update:expanded', !props.expanded);
 }
@@ -110,7 +72,6 @@ function toggleExpanded() {
       <div class="sticky-hint__info">
         <span class="sticky-hint__icon">{{ hintIcon }}</span>
         <span class="sticky-hint__label">{{ hintLabel }}</span>
-        <span class="sticky-hint__preview">{{ hintPreview }}</span>
       </div>
 
       <div class="sticky-hint__meta">
@@ -253,21 +214,17 @@ function toggleExpanded() {
 }
 
 .sticky-hint__label {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--gutenku-text-muted);
+  color: var(--gutenku-text-primary);
+  opacity: 0.85;
   flex-shrink: 0;
 }
 
-.sticky-hint__preview {
-  font-size: 0.85rem;
-  color: var(--gutenku-text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  opacity: 0.8;
+[data-theme='dark'] .sticky-hint__label {
+  opacity: 0.9;
 }
 
 .sticky-hint__meta {

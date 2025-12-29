@@ -4,6 +4,8 @@ import { useI18n } from 'vue-i18n';
 import { BarChart2, HelpCircle, RotateCcw } from 'lucide-vue-next';
 import { useGameStore } from '@/store/game';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
+import ZenButton from '@/components/ui/ZenButton.vue';
+import ZenChip from '@/components/ui/ZenChip.vue';
 
 const emit = defineEmits<{
   showStats: [];
@@ -27,9 +29,12 @@ async function resetAndReplay() {
     <div class="header-content d-flex align-center justify-space-between">
       <div class="title-section">
         <h1 class="game-title gutenku-text-primary">GutenGuess</h1>
-        <span class="puzzle-number gutenku-text-muted">
+        <ZenChip
+          class="puzzle-number"
+          :ariaLabel="t('game.puzzleNumber', { number: puzzleNumber })"
+        >
           #{{ puzzleNumber }}
-        </span>
+        </ZenChip>
       </div>
 
       <div class="actions-section d-flex align-center ga-1">
@@ -40,40 +45,43 @@ async function resetAndReplay() {
         </ZenTooltip>
 
         <ZenTooltip v-if="isDev" :text="t('game.resetGame')" position="bottom">
-          <v-btn
-            icon
+          <ZenButton
             variant="text"
-            size="small"
+            size="sm"
             class="dev-reset-btn"
             :aria-label="t('game.resetGame')"
             @click="resetAndReplay"
           >
-            <RotateCcw :size="18" />
-          </v-btn>
+            <template #icon-left>
+              <RotateCcw :size="18" />
+            </template>
+          </ZenButton>
         </ZenTooltip>
 
         <ZenTooltip :text="t('game.howToPlay')" position="bottom">
-          <v-btn
-            icon
+          <ZenButton
             variant="text"
-            size="small"
+            size="sm"
             :aria-label="t('game.howToPlay')"
             @click="emit('showHelp')"
           >
-            <HelpCircle :size="18" />
-          </v-btn>
+            <template #icon-left>
+              <HelpCircle :size="18" />
+            </template>
+          </ZenButton>
         </ZenTooltip>
 
         <ZenTooltip :text="t('game.statistics')" position="bottom">
-          <v-btn
-            icon
+          <ZenButton
             variant="text"
-            size="small"
+            size="sm"
             :aria-label="t('game.statistics')"
             @click="emit('showStats')"
           >
-            <BarChart2 :size="18" />
-          </v-btn>
+            <template #icon-left>
+              <BarChart2 :size="18" />
+            </template>
+          </ZenButton>
         </ZenTooltip>
       </div>
     </div>
@@ -83,20 +91,13 @@ async function resetAndReplay() {
 <style lang="scss" scoped>
 .game-header {
   padding: 1rem 1.25rem;
-  background: linear-gradient(
-    180deg,
-    oklch(1 0 0 / 0.03) 0%,
-    transparent 100%
-  );
   border-bottom: 1px solid var(--gutenku-paper-border);
 }
 
-[data-theme='dark'] .game-header {
-  background: linear-gradient(
-    180deg,
-    oklch(1 0 0 / 0.02) 0%,
-    transparent 100%
-  );
+.title-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .game-title {
@@ -104,11 +105,6 @@ async function resetAndReplay() {
   font-weight: 600;
   margin: 0;
   letter-spacing: 0.05em;
-}
-
-.puzzle-number {
-  font-size: 0.875rem;
-  margin-left: 0.5rem;
 }
 
 .streak-badge {

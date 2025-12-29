@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { Check, X } from 'lucide-vue-next';
+import { CircleCheck, CircleX } from 'lucide-vue-next';
 import type { GameGuess, PuzzleHint } from '@gutenku/shared';
 
 const props = defineProps<{
@@ -50,8 +50,12 @@ const guessesWithHints = computed(() => {
         {{ guess.bookTitle }}
       </div>
       <div class="guess-result">
-        <Check v-if="guess.isCorrect" :size="18" class="result-icon correct" />
-        <X v-else :size="18" class="result-icon wrong" />
+        <CircleCheck
+          v-if="guess.isCorrect"
+          :size="18"
+          class="result-icon correct"
+        />
+        <CircleX v-else :size="18" class="result-icon wrong" />
       </div>
     </div>
   </div>
