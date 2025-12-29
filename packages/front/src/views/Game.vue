@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, ref, computed } from 'vue';
+import { defineAsyncComponent, onMounted, ref, computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import { ChevronLeft, RefreshCw } from 'lucide-vue-next';
@@ -8,14 +8,23 @@ import { useGameStore } from '@/store/game';
 import { useHapticFeedback } from '@/composables/haptic-feedback';
 import GameHint from '@/components/game/GameHint.vue';
 import BookBoard from '@/components/game/BookBoard.vue';
-import GuessConfirmModal from '@/components/game/GuessConfirmModal.vue';
 import GuessHistory from '@/components/game/GuessHistory.vue';
-import GameResult from '@/components/game/GameResult.vue';
-import GameStats from '@/components/game/GameStats.vue';
-import GameHelp from '@/components/game/GameHelp.vue';
 import GameHeader from '@/components/game/GameHeader.vue';
 import AppLoading from '@/components/AppLoading.vue';
 import type { BookValue } from '@gutenku/shared';
+
+const GuessConfirmModal = defineAsyncComponent(
+  () => import('@/components/game/GuessConfirmModal.vue'),
+);
+const GameResult = defineAsyncComponent(
+  () => import('@/components/game/GameResult.vue'),
+);
+const GameStats = defineAsyncComponent(
+  () => import('@/components/game/GameStats.vue'),
+);
+const GameHelp = defineAsyncComponent(
+  () => import('@/components/game/GameHelp.vue'),
+);
 
 const { t } = useI18n();
 const showHelp = ref(false);

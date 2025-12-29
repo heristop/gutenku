@@ -1,20 +1,49 @@
 <script lang="ts" setup>
-import { computed, onMounted, watch } from 'vue';
+import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import { ChevronLeft } from 'lucide-vue-next';
 import ZenButton from '@/components/ui/ZenButton.vue';
+import ZenSkeleton from '@/components/ZenSkeleton.vue';
 import { useHaikuStore } from '@/store/haiku';
 import { withViewTransition } from '@/composables/view-transition';
 import { useToast } from '@/composables/toast';
+import { usePullToRefresh } from '@/composables/pull-to-refresh';
+import PullToRefresh from '@/components/PullToRefresh.vue';
 import HaikuTitle from '@/components/HaikuTitle.vue';
-import HaikuCanvas from '@/components/HaikuCanvas.vue';
-import HaikuChapter from '@/components/HaikuChapter.vue';
-import ToolbarPanel from '@/components/ToolbarPanel.vue';
-import ConfigPanel from '@/components/ConfigPanel.vue';
-import StatsPanel from '@/components/StatsPanel.vue';
-import SocialPreviewCard from '@/components/SocialPreviewCard.vue';
 import AppLoading from '@/components/AppLoading.vue';
+
+const HaikuCanvas = defineAsyncComponent({
+  loader: () => import('@/components/HaikuCanvas.vue'),
+  loadingComponent: ZenSkeleton,
+});
+
+const HaikuChapter = defineAsyncComponent({
+  loader: () => import('@/components/HaikuChapter.vue'),
+  loadingComponent: ZenSkeleton,
+  delay: 200,
+});
+
+const ToolbarPanel = defineAsyncComponent({
+  loader: () => import('@/components/ToolbarPanel.vue'),
+  loadingComponent: ZenSkeleton,
+});
+
+const ConfigPanel = defineAsyncComponent({
+  loader: () => import('@/components/ConfigPanel.vue'),
+  loadingComponent: ZenSkeleton,
+  delay: 300,
+});
+
+const StatsPanel = defineAsyncComponent({
+  loader: () => import('@/components/StatsPanel.vue'),
+  loadingComponent: ZenSkeleton,
+  delay: 300,
+});
+
+const SocialPreviewCard = defineAsyncComponent(
+  () => import('@/components/SocialPreviewCard.vue'),
+);
 
 const isDev = import.meta.env.DEV;
 
@@ -24,6 +53,12 @@ const { error: showError } = useToast();
 const haikuStore = useHaikuStore();
 const { fetchNewHaiku } = haikuStore;
 const { haiku, error, firstLoaded, networkError, loading, optionUseAI } = storeToRefs(haikuStore);
+
+const containerRef = ref<HTMLElement | null>(null);
+const { pullDistance, isRefreshing, shouldRelease, progress } = usePullToRefresh(
+  containerRef,
+  { onRefresh: fetchNewHaiku },
+);
 
 watch(error, (newError) => {
   if (newError && newError !== 'network-error') {
@@ -52,7 +87,14 @@ onMounted(fetchNewHaiku);
 </script>
 
 <template>
-  <v-container class="haiku-page pa-2 pa-sm-4">
+  <v-container ref="containerRef" class="haiku-page pa-2 pa-sm-4">
+    <PullToRefresh
+      :pull-distance="pullDistance"
+      :is-refreshing="isRefreshing"
+      :should-release="shouldRelease"
+      :progress="progress"
+    />
+
     <nav :aria-label="t('nav.pageNavigation')">
       <ZenButton
         to="/"
