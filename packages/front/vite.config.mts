@@ -5,6 +5,7 @@ import viteCompression from 'vite-plugin-compression';
 import viteImagemin from 'vite-plugin-imagemin';
 import webfontDownload from 'vite-plugin-webfont-dl';
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 // Utilities
 import { defineConfig } from 'vite';
@@ -35,7 +36,26 @@ export default defineConfig({
     viteCompression(),
     viteImagemin(),
     webfontDownload(),
+    visualizer({
+      filename: 'dist/bundle-stats.html',
+      gzipSize: true,
+      brotliSize: true,
+    }),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vue-core': ['vue', 'vue-router', 'pinia'],
+          vuetify: ['vuetify'],
+          graphql: ['@urql/vue', 'graphql', 'graphql-ws'],
+          vueuse: ['@vueuse/core', '@vueuse/motion'],
+          i18n: ['vue-i18n'],
+          icons: ['lucide-vue-next'],
+        },
+      },
+    },
+  },
   define: { 'process.env': {} },
   resolve: {
     alias: {
