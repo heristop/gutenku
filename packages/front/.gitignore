@@ -1,6 +1,6 @@
 /dist
 cypress/videos
 cypress/screenshots
+cypress/downloads
 coverage/
 tsconfig.tsbuildinfo
-
