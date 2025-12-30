@@ -110,7 +110,6 @@ async function share() {
 }
 
 async function playNewPuzzle() {
-  // Reset the game state and fetch new puzzle
   gameStore.resetGame();
   await gameStore.fetchDailyPuzzle();
 }
@@ -118,7 +117,6 @@ async function playNewPuzzle() {
 
 <template>
   <ZenModal v-model="modelValue" :max-width="400" content-class="game-result">
-    <!-- Sakura petals celebration (only on first win) -->
     <div
       v-if="showConfetti"
       :key="particleKey"
@@ -162,7 +160,6 @@ async function playNewPuzzle() {
         }}
       </p>
 
-      <!-- Star score display -->
       <div v-if="isWon" class="score-stars-wrapper mt-3">
         <ScoreStars :score="score" size="xl" animated />
         <div class="numeric-score gutenku-text-muted">
@@ -217,7 +214,6 @@ async function playNewPuzzle() {
     </div>
 
     <div class="next-puzzle text-center mb-4">
-      <!-- New puzzle ready reveal -->
       <Transition name="reveal" mode="out-in">
         <div v-if="newPuzzleReady" key="ready" class="new-puzzle-ready">
           <div class="new-puzzle-ready__particles" aria-hidden="true">
@@ -317,7 +313,6 @@ async function playNewPuzzle() {
       </Transition>
     </div>
 
-    <!-- Play new puzzle button (when ready) -->
     <Transition name="fade-up">
       <ZenButton
         v-if="newPuzzleReady"
@@ -344,7 +339,13 @@ async function playNewPuzzle() {
 </template>
 
 <style lang="scss" scoped>
-// Celebration particles
+:deep(.game-result) {
+  max-height: 90vh;
+  max-height: 90dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 .celebration-particles {
   position: absolute;
   inset: 0;
@@ -352,7 +353,6 @@ async function playNewPuzzle() {
   overflow: hidden;
 }
 
-// Sakura petals - gentle drifting with realistic flutter
 .particle--sakura {
   position: absolute;
   top: 0;
@@ -370,7 +370,6 @@ async function playNewPuzzle() {
     inset 0 1px 1px oklch(1 0 0 / 0.3);
 }
 
-// Sakura petal drift - realistic flutter with side-to-side sway
 @keyframes sakura-drift {
   0% {
     transform: translate(calc(-50% + var(--start-x)), -10px) scale(0) rotate(0deg);
@@ -409,7 +408,6 @@ async function playNewPuzzle() {
     opacity: 0;
   }
 }
-
 
 .result-icon-wrapper {
   display: inline-flex;
@@ -456,7 +454,6 @@ async function playNewPuzzle() {
   margin: 0.5rem 0 0;
 }
 
-// Star score display wrapper
 .score-stars-wrapper {
   display: flex;
   flex-direction: column;
@@ -531,108 +528,6 @@ async function playNewPuzzle() {
   margin-top: 0.25rem;
 }
 
-// Today's Poem (Haiku) section
-.todays-poem {
-  position: relative;
-  padding: 1rem;
-  background: linear-gradient(
-    135deg,
-    var(--gutenku-zen-water) 0%,
-    transparent 100%
-  );
-  border-radius: var(--gutenku-radius-md);
-  border-left: 3px solid var(--gutenku-zen-accent);
-}
-
-.todays-poem-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 0.25rem;
-}
-
-.todays-poem-subtitle {
-  font-size: 0.65rem;
-  font-style: italic;
-  margin-bottom: 0.75rem;
-}
-
-.todays-poem-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.todays-poem .haiku-line {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-style: italic;
-  font-size: 1rem;
-  line-height: 1.8;
-  color: var(--gutenku-text-primary);
-  margin: 0;
-  opacity: 0;
-  animation: haiku-reveal 0.4s ease-out forwards;
-  animation-delay: calc(var(--line-index) * 150ms + 300ms);
-
-  &:nth-child(2) {
-    padding-left: 1rem;
-  }
-
-  &:nth-child(3) {
-    padding-left: 0.5rem;
-  }
-}
-
-@keyframes haiku-reveal {
-  0% {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.todays-poem-seal {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: oklch(0.45 0.15 25);
-  background: oklch(0.55 0.18 25 / 0.12);
-  border: 1px solid oklch(0.55 0.18 25 / 0.2);
-  border-radius: 4px;
-  transform: rotate(5deg);
-  opacity: 0;
-  animation: seal-stamp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-delay: 0.8s;
-}
-
-[data-theme='dark'] .todays-poem-seal {
-  color: oklch(0.7 0.12 25);
-  background: oklch(0.55 0.15 25 / 0.15);
-  border-color: oklch(0.55 0.15 25 / 0.25);
-}
-
-@keyframes seal-stamp {
-  0% {
-    opacity: 0;
-    transform: rotate(5deg) scale(1.4);
-  }
-  100% {
-    opacity: 1;
-    transform: rotate(5deg) scale(1);
-  }
-}
-
 .stat-item {
   min-width: 60px;
   opacity: 0;
@@ -683,7 +578,6 @@ async function playNewPuzzle() {
   margin-bottom: 0.5rem;
 }
 
-// Animated countdown digits
 .countdown-digits {
   display: flex;
   align-items: flex-start;
@@ -755,7 +649,6 @@ async function playNewPuzzle() {
   }
 }
 
-// Flip animation for digits
 .flip-enter-active,
 .flip-leave-active {
   transition: all 0.15s ease-out;
@@ -771,7 +664,6 @@ async function playNewPuzzle() {
   opacity: 0;
 }
 
-// New puzzle ready reveal
 .new-puzzle-ready {
   position: relative;
   display: flex;
@@ -815,7 +707,6 @@ async function playNewPuzzle() {
   }
 }
 
-// Sparkle particles
 .new-puzzle-ready__particles {
   position: absolute;
   inset: 0;
@@ -855,7 +746,6 @@ async function playNewPuzzle() {
   }
 }
 
-// Play new puzzle button
 .play-new-btn {
   animation: glow-pulse 2s ease-in-out infinite;
 }
@@ -869,7 +759,6 @@ async function playNewPuzzle() {
   }
 }
 
-// Reveal transition
 .reveal-enter-active {
   animation: reveal-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -903,7 +792,6 @@ async function playNewPuzzle() {
   }
 }
 
-// Fade up transition
 .fade-up-enter-active {
   animation: fade-up-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   animation-delay: 0.2s;
@@ -936,7 +824,6 @@ async function playNewPuzzle() {
   }
 }
 
-// Share button shimmer effect
 .share-btn {
   position: relative;
   overflow: hidden;
@@ -962,6 +849,49 @@ async function playNewPuzzle() {
   }
   50%, 100% {
     transform: translateX(100%);
+  }
+}
+
+@media (max-width: 400px) {
+  :deep(.game-result) {
+    padding: 1rem !important;
+  }
+
+  :deep(.score-stars--xl .star) {
+    font-size: 1.5rem;
+  }
+
+  .result-header {
+    margin-bottom: 0.75rem !important;
+  }
+
+  .result-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 0.5rem !important;
+
+    svg {
+      width: 36px;
+      height: 36px;
+    }
+  }
+
+  .score-stars-wrapper {
+    margin-top: 0.5rem !important;
+  }
+
+  .correct-book {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem !important;
+  }
+
+  .stats-summary {
+    margin-bottom: 0.75rem !important;
+  }
+
+  .next-puzzle {
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.75rem !important;
   }
 }
 
