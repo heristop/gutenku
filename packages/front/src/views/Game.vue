@@ -33,9 +33,10 @@ const haikuSealRef = ref<HTMLElement | null>(null);
 const haikuTooltipRef = ref<HTMLElement | null>(null);
 const selectedBook = ref<BookValue | null>(null);
 
+// Tooltip position (absolute, document-relative)
 const tooltipPosition = ref({ top: 0, left: 0 });
 const tooltipStyle = computed(() => ({
-  position: 'fixed' as const,
+  position: 'absolute' as const,
   top: `${tooltipPosition.value.top}px`,
   left: `${tooltipPosition.value.left}px`,
   transform: 'translateX(-50%)',
@@ -45,10 +46,11 @@ function updateTooltipPosition() {
   if (!haikuSealRef.value) {return;}
   const rect = haikuSealRef.value.getBoundingClientRect();
   tooltipPosition.value = {
-    top: rect.bottom + 8,
-    left: rect.left + rect.width / 2,
+    top: rect.bottom + window.scrollY + 8,
+    left: rect.left + rect.width / 2 + window.scrollX,
   };
 }
+
 const isSubmitting = ref(false);
 const bookBoardRef = ref<{ clearSelection: () => void; clearEliminated: () => void } | null>(null);
 const gameStarted = ref(false);
@@ -167,9 +169,6 @@ onMounted(() => {
 });
 
 function toggleHaikuTooltip() {
-  if (!showHaikuTooltip.value) {
-    updateTooltipPosition();
-  }
   showHaikuTooltip.value = !showHaikuTooltip.value;
 }
 
@@ -310,7 +309,7 @@ function handleCancelGuess() {
           </button>
         </div>
 
-        <!-- Haiku tooltip (teleported to body for z-index) -->
+        <!-- Haiku tooltip (teleported to body, absolute positioned) -->
         <Teleport to="body">
           <Transition name="tooltip">
             <div
@@ -674,7 +673,6 @@ function handleCancelGuess() {
 
 
 .haiku-tooltip {
-  position: relative;
   z-index: 9999;
   padding: 0.75rem 1rem;
   background: var(--gutenku-paper-bg);
