@@ -1,15 +1,9 @@
 <script setup lang="ts">
 import { Keyboard } from 'lucide-vue-next';
+import ZenModal from '@/components/ui/ZenModal.vue';
 import ZenButton from '@/components/ui/ZenButton.vue';
-import ZenCard from '@/components/ui/ZenCard.vue';
 
-defineProps<{
-  modelValue: boolean;
-}>();
-
-const emit = defineEmits<{
-  'update:modelValue': [value: boolean];
-}>();
+const modelValue = defineModel<boolean>({ default: false });
 
 const shortcuts = [
   { key: 'Space', label: 'Generate new haiku' },
@@ -21,43 +15,35 @@ const shortcuts = [
   { key: '?', label: 'Show this help' },
   { key: 'Esc', label: 'Close dialogs' },
 ];
-
-function close() {
-  emit('update:modelValue', false);
-}
 </script>
 
 <template>
-  <v-dialog
-    :model-value="modelValue"
-    max-width="380"
-    @update:model-value="emit('update:modelValue', $event)"
-    @keydown.escape="close"
+  <ZenModal
+    v-model="modelValue"
+    :max-width="380"
+    title="keyboard-shortcuts"
+    content-class="keyboard-help"
   >
-    <ZenCard class="keyboard-help pa-4">
-      <template #header>
-        <div class="keyboard-help__title">
-          <Keyboard :size="24" class="text-primary" />
-          <span>Keyboard Shortcuts</span>
-        </div>
-      </template>
+    <div class="keyboard-help__title">
+      <Keyboard :size="24" class="text-primary" />
+      <span>Keyboard Shortcuts</span>
+    </div>
 
-      <div class="keyboard-help__content">
-        <div
-          v-for="shortcut in shortcuts"
-          :key="shortcut.key"
-          class="keyboard-help__row"
-        >
-          <span class="keyboard-help__label">{{ shortcut.label }}</span>
-          <kbd class="keyboard-help__key">{{ shortcut.key }}</kbd>
-        </div>
+    <div class="keyboard-help__content">
+      <div
+        v-for="shortcut in shortcuts"
+        :key="shortcut.key"
+        class="keyboard-help__row"
+      >
+        <span class="keyboard-help__label">{{ shortcut.label }}</span>
+        <kbd class="keyboard-help__key">{{ shortcut.key }}</kbd>
       </div>
+    </div>
 
-      <template #actions>
-        <ZenButton class="w-100" @click="close"> Got it </ZenButton>
-      </template>
-    </ZenCard>
-  </v-dialog>
+    <template #actions>
+      <ZenButton class="w-100" @click="modelValue = false">Got it</ZenButton>
+    </template>
+  </ZenModal>
 </template>
 
 <style scoped lang="scss">

@@ -368,7 +368,7 @@ useKeyboardShortcuts({
   transition: stroke-dashoffset 0.05s linear;
 
   [data-theme='dark'] & {
-    stroke: oklch(0.8 0.15 145);
+    stroke: var(--gutenku-zen-accent);
   }
 }
 
@@ -414,7 +414,7 @@ useKeyboardShortcuts({
     }
 
     &--success {
-      color: oklch(0.65 0.18 145) !important;
+      color: var(--gutenku-zen-primary) !important;
       animation: success-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 
       .success-checkmark {
@@ -435,7 +435,7 @@ useKeyboardShortcuts({
       }
 
       &--success {
-        color: oklch(0.75 0.18 145) !important;
+        color: var(--gutenku-zen-accent) !important;
       }
     }
 
@@ -473,7 +473,7 @@ useKeyboardShortcuts({
       background: oklch(0.4 0.02 60);
 
       &--active {
-        background: oklch(0.7 0.1 145);
+        background: var(--gutenku-zen-accent);
       }
     }
   }
@@ -493,11 +493,11 @@ useKeyboardShortcuts({
   0%,
   100% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 oklch(0.55 0.15 145 / 0.4);
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--gutenku-zen-primary) 40%, transparent);
   }
   50% {
     transform: scale(1.01);
-    box-shadow: 0 0 0 6px oklch(0.55 0.15 145 / 0);
+    box-shadow: 0 0 0 6px transparent;
   }
 }
 

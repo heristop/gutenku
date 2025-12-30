@@ -20,7 +20,6 @@ const inkRipple = ref<{ x: number; y: number; active: boolean }>({
 });
 
 const INSTAGRAM_URL = 'https://instagram.com/gutenku.poem';
-const GITHUB_URL = 'https://github.com/heristop/gutenku';
 const GUTENBERG_URL = 'https://gutenberg.org';
 
 const navLinks = [
@@ -32,7 +31,6 @@ const navLinks = [
 const socialLinks = [
   { url: INSTAGRAM_URL, icon: Instagram, label: 'footer.social.instagram' },
   { url: GUTENBERG_URL, icon: BookOpen, label: 'footer.social.gutenberg' },
-  { url: GITHUB_URL, icon: Github, label: 'footer.social.github' },
 ];
 
 function openCredits(event: MouseEvent) {
@@ -178,6 +176,7 @@ function openSocialLink(url: string) {
 .app-footer {
   position: relative;
   padding: 1.5rem 1rem 1.75rem;
+  background-color: oklch(88% 0.02 55 / 0.4);
   background-image: radial-gradient(
       circle at 20% 30%,
       oklch(42% 0.09 55 / 0.05) 0%,
@@ -418,6 +417,10 @@ function openSocialLink(url: string) {
 
 // Dark theme
 [data-theme='dark'] {
+  .app-footer {
+    background-color: oklch(20% 0.02 55 / 0.3);
+  }
+
   .footer-nav__link {
     color: var(--gutenku-text-primary);
 
