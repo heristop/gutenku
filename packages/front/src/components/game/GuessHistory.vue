@@ -69,9 +69,14 @@ const guessesWithHints = computed(() => {
 .guess-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1.25rem;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
   border-bottom: 1px solid var(--gutenku-paper-border);
+
+  @media (min-width: 600px) {
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+  }
   animation: guess-appear 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   transition:
     transform 0.2s ease,
@@ -144,17 +149,25 @@ const guessesWithHints = computed(() => {
 }
 
 .guess-hint-icon {
-  font-size: 1.25rem;
+  font-size: 1rem;
   flex-shrink: 0;
+
+  @media (min-width: 600px) {
+    font-size: 1.25rem;
+  }
 }
 
 .guess-book {
   flex: 1;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: var(--gutenku-text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  @media (min-width: 600px) {
+    font-size: 0.9rem;
+  }
 }
 
 .guess-result {

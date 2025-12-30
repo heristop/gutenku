@@ -32,11 +32,15 @@ const attemptsRemaining = computed(() => {
 
 const hintIcons: Record<string, string> = {
   emoticons: '😀',
-  haiku: '🎭',
-  genre_era: '📖',
+  genre: '📖',
+  era: '🕐',
   quote: '💬',
   letter_author: '🔤',
   author_name: '👤',
+  publication_century: '📅',
+  title_word_count: '#️⃣',
+  setting: '📍',
+  protagonist: '🦸',
 };
 
 const hintIcon = computed(() => {
@@ -48,11 +52,15 @@ const hintLabel = computed(() => {
   if (!latestHint.value) {return '';}
   const labels: Record<string, string> = {
     emoticons: t('game.hints.emoticons'),
-    haiku: t('game.hints.haiku'),
-    genre_era: t('game.hints.genreEra'),
+    genre: t('game.hints.genre'),
+    era: t('game.hints.era'),
     quote: t('game.hints.quote'),
     letter_author: t('game.hints.letterAuthor'),
     author_name: t('game.hints.authorName'),
+    publication_century: t('game.hints.publicationCentury'),
+    title_word_count: t('game.hints.titleWordCount'),
+    setting: t('game.hints.setting'),
+    protagonist: t('game.hints.protagonist'),
   };
   return labels[latestHint.value.type] || t('game.hints.unknown');
 });
@@ -114,28 +122,14 @@ function toggleExpanded() {
             </span>
           </div>
 
-          <!-- Haiku -->
-          <div v-else-if="latestHint.type === 'haiku'" class="haiku-inline">
-            <p v-for="(line, idx) in latestHint.content.split('\n')" :key="idx">
-              {{ line }}
-            </p>
+          <!-- Genre -->
+          <div v-else-if="latestHint.type === 'genre'" class="genre-era-inline">
+            <span class="tag tag--genre">{{ latestHint.content }}</span>
           </div>
 
-          <!-- Genre & Era -->
-          <div
-            v-else-if="latestHint.type === 'genre_era'"
-            class="genre-era-inline"
-          >
-            <span
-              class="tag tag--genre"
-              >{{ latestHint.content.split(/[\n,]/)[0]?.trim() }}</span
-            >
-            <span
-              v-if="latestHint.content.split(/[\n,]/)[1]"
-              class="tag tag--era"
-            >
-              {{ latestHint.content.split(/[\n,]/)[1]?.trim() }}
-            </span>
+          <!-- Era -->
+          <div v-else-if="latestHint.type === 'era'" class="genre-era-inline">
+            <span class="tag tag--era">{{ latestHint.content }}</span>
           </div>
 
           <!-- Quote -->
@@ -157,6 +151,43 @@ function toggleExpanded() {
             class="author-inline"
           >
             <span class="author-name">{{ latestHint.content }}</span>
+          </div>
+
+          <!-- Publication century -->
+          <div
+            v-else-if="latestHint.type === 'publication_century'"
+            class="century-inline"
+          >
+            <span class="tag tag--year">{{ latestHint.content }}</span>
+          </div>
+
+          <!-- Title word count -->
+          <div
+            v-else-if="latestHint.type === 'title_word_count'"
+            class="word-count-inline"
+          >
+            <span class="word-count-value">{{ latestHint.content }}</span>
+            <span
+              class="word-count-label"
+              >{{ t('game.hints.wordsInTitle') }}</span
+            >
+          </div>
+
+          <!-- Setting -->
+          <div v-else-if="latestHint.type === 'setting'" class="setting-inline">
+            {{ latestHint.content }}
+          </div>
+
+          <!-- Protagonist -->
+          <div
+            v-else-if="latestHint.type === 'protagonist'"
+            class="protagonist-inline"
+          >
+            <span class="protagonist-name">{{ latestHint.content }}</span>
+            <span
+              class="protagonist-label"
+              >{{ t('game.hints.protagonist') }}</span
+            >
           </div>
 
           <!-- Default -->
@@ -378,6 +409,75 @@ function toggleExpanded() {
 
 [data-theme='dark'] .author-inline .author-name {
   color: oklch(0.75 0.06 55);
+}
+
+.century-inline {
+  display: flex;
+  justify-content: center;
+
+  .tag--year {
+    padding: 0.375rem 0.75rem;
+    border-radius: var(--gutenku-radius-sm);
+    font-size: 0.85rem;
+    font-weight: 500;
+    background: oklch(0.88 0.04 65);
+    color: oklch(0.42 0.06 55);
+  }
+}
+
+[data-theme='dark'] .century-inline .tag--year {
+  background: oklch(0.30 0.04 60);
+  color: oklch(0.85 0.03 65);
+}
+
+.word-count-inline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+
+  .word-count-value {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gutenku-zen-primary);
+  }
+
+  .word-count-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gutenku-text-muted);
+  }
+}
+
+.setting-inline {
+  font-size: 0.95rem;
+  color: var(--gutenku-text-primary);
+}
+
+.protagonist-inline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+
+  .protagonist-name {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    font-style: italic;
+    color: var(--gutenku-zen-primary);
+  }
+
+  .protagonist-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gutenku-text-muted);
+  }
 }
 
 // Expand transition
