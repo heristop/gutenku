@@ -55,7 +55,7 @@ function openSocialLink(url: string) {
 </script>
 
 <template>
-  <div class="app-footer" :aria-label="t('footer.ariaLabel')">
+  <footer class="app-footer" :aria-label="t('footer.ariaLabel')">
     <div class="footer-content">
       <!-- Navigation Links -->
       <nav class="footer-nav stagger-1" :aria-label="t('footer.navAriaLabel')">
@@ -85,7 +85,7 @@ function openSocialLink(url: string) {
       <!-- Social Links -->
       <div
         class="footer-social stagger-3"
-        role="list"
+        role="group"
         :aria-label="t('footer.socialAriaLabel')"
       >
         <ZenTooltip
@@ -138,7 +138,7 @@ function openSocialLink(url: string) {
     </div>
 
     <ZenCreditsModal v-model="showCreditsModal" />
-  </div>
+  </footer>
 </template>
 
 <style scoped lang="scss">

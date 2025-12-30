@@ -106,6 +106,11 @@ onMounted(() => {
   &:active {
     transform: translateY(-2px);
   }
+
+  &:focus-visible {
+    outline: 2px solid var(--gutenku-zen-primary);
+    outline-offset: 2px;
+  }
 }
 
 .preview-card__header {
