@@ -10,6 +10,7 @@ export interface IChapterRepository {
   getAllChapters(filter: string | null): Promise<ChapterValue[]>;
   getChapterById(id: string): Promise<ChapterValue | null>;
   getFilteredChapters(filterWords: string[]): Promise<ChapterValue[]>;
+  getChaptersByBookReference(reference: string): Promise<ChapterValue[]>;
 
   // Chapter import operations
   createMany(chapters: CreateChapterInput[]): Promise<string[]>;
