@@ -24,6 +24,9 @@ function seededRandom(seed: number): () => number {
   };
 }
 
+// Launch date for puzzle numbering (must match GetDailyPuzzleHandler)
+const LAUNCH_DATE = new Date('2025-01-01');
+
 /**
  * Convert date string to numeric seed
  */
@@ -33,79 +36,180 @@ function dateToSeed(dateStr: string): number {
 }
 
 /**
- * Select deterministic book based on date
+ * Calculate puzzle number (days since launch)
+ */
+function getPuzzleNumber(dateStr: string): number {
+  const date = new Date(dateStr);
+  const diffTime = date.getTime() - LAUNCH_DATE.getTime();
+  return Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+}
+
+/**
+ * Select book for the given date. Must match GetDailyPuzzleHandler logic.
  */
 function selectDailyBook(dateStr: string): GutenGuessBook {
   const books = getGutenGuessBooks();
+  const puzzleNumber = getPuzzleNumber(dateStr);
+
+  // Determine which cycle we're in (each cycle = N books)
+  const cycleNumber = Math.floor((puzzleNumber - 1) / books.length);
+  const positionInCycle = (puzzleNumber - 1) % books.length;
+
+  // Shuffle books deterministically for this cycle
+  const cycleSeed = cycleNumber * 1_000_000 + 42;
+  const random = seededRandom(cycleSeed);
+  const shuffledBooks = shuffleWithSeed([...books], random);
+
+  return shuffledBooks[positionInCycle];
+}
+
+/**
+ * Hint pool with difficulty ratings (lower = revealed earlier, higher = more revealing).
+ */
+interface HintDefinition {
+  type: PuzzleHint['type'];
+  difficulty: number;
+  generator: (book: GutenGuessBook, random: () => number) => string;
+}
+
+const HINT_POOL: HintDefinition[] = [
+  {
+    type: 'title_word_count',
+    difficulty: 2,
+    generator: (book) => {
+      const count = book.title.split(/\s+/).length;
+      return `${count} word${count !== 1 ? 's' : ''}`;
+    },
+  },
+  {
+    type: 'genre',
+    difficulty: 3,
+    generator: (book) => book.genre,
+  },
+  {
+    type: 'era',
+    difficulty: 3,
+    generator: (book) => book.era,
+  },
+  {
+    type: 'protagonist',
+    difficulty: 4,
+    generator: (book) => book.protagonist,
+  },
+  {
+    type: 'publication_century',
+    difficulty: 4,
+    generator: (book) => {
+      const century = Math.floor(book.publicationYear / 100) + 1;
+      const suffixes: Record<number, string> = { 21: 'st', 22: 'nd', 23: 'rd' };
+      const suffix = suffixes[century] || 'th';
+      return `Published in the ${century}${suffix} century`;
+    },
+  },
+  {
+    type: 'setting',
+    difficulty: 5,
+    generator: (book) => book.setting,
+  },
+  {
+    type: 'quote',
+    difficulty: 6,
+    generator: (book, random) => {
+      const quoteIndex = Math.floor(random() * book.notableQuotes.length);
+      return (
+        book.notableQuotes[quoteIndex] || 'A famous quote from this book...'
+      );
+    },
+  },
+  {
+    type: 'letter_author',
+    difficulty: 8,
+    generator: (book) =>
+      `${book.title[0].toUpperCase()}... by a ${book.authorNationality} author`,
+  },
+  {
+    type: 'author_name',
+    difficulty: 10,
+    generator: (book) => book.author.split(' ')[0],
+  },
+];
+
+/**
+ * Fisher-Yates shuffle with seeded random
+ */
+function shuffleWithSeed<T>(array: T[], random: () => number): T[] {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+/**
+ * Generate 6 hints for the book: emoticons (round 1) + 5 randomly selected hints from pool.
+ * Excludes era/publication_century pairs. Sorts by difficulty. Deterministic via seeded PRNG.
+ */
+function generateAllHints(book: GutenGuessBook, dateStr: string): PuzzleHint[] {
   const seed = dateToSeed(dateStr);
   const random = seededRandom(seed);
-  const bookIndex = Math.floor(random() * books.length);
-  return books[bookIndex];
+
+  // Round 1: Always emoticons
+  const hints: PuzzleHint[] = [
+    {
+      round: 1,
+      type: 'emoticons',
+      content: book.emoticons,
+    },
+  ];
+
+  // Shuffle the hint pool and select 5
+  const shuffledPool = shuffleWithSeed([...HINT_POOL], random);
+  const selectedHints = shuffledPool.slice(0, 5);
+
+  // Exclusion rule: era and publication_century cannot both appear
+  const hasEra = selectedHints.some((h) => h.type === 'era');
+  const hasCentury = selectedHints.some(
+    (h) => h.type === 'publication_century',
+  );
+
+  if (hasEra && hasCentury) {
+    // Remove era and find a replacement from remaining pool
+    const eraIndex = selectedHints.findIndex((h) => h.type === 'era');
+    const remaining = shuffledPool.slice(5);
+    const replacement = remaining.find(
+      (h) => h.type !== 'era' && h.type !== 'publication_century',
+    );
+    if (replacement) {
+      selectedHints[eraIndex] = replacement;
+    }
+  }
+
+  // Sort by difficulty (ascending = harder hints first, easier hints later)
+  selectedHints.sort((a, b) => a.difficulty - b.difficulty);
+
+  // Generate content for each selected hint and assign rounds 2-6
+  for (let i = 0; i < selectedHints.length; i++) {
+    const hintDef = selectedHints[i];
+    hints.push({
+      round: i + 2,
+      type: hintDef.type,
+      content: hintDef.generator(book, random),
+    });
+  }
+
+  return hints;
 }
 
 /**
  * Generate hint for a specific round
  */
-function generateHintForRound(book: GutenGuessBook, round: number): PuzzleHint {
-  const haikus: Record<string, string> = {
-    Fantasy:
-      'Through the looking glass\nWonders bloom in every word\nDreams become quite real',
-    'Gothic Horror':
-      'Shadows creep and grow\nDarkness hides what fears to light\nMonsters walk among',
-    Mystery:
-      'Clues in every line\nTruth awaits the keen of eye\nSecrets shall be found',
-    Romance:
-      'Hearts entwined by fate\nLove blooms despite all the odds\nPassion writes the end',
-    Adventure:
-      'Brave souls venture forth\nThrough danger and mystery\nGlory awaits them',
-    'Science Fiction':
-      'Beyond the known stars\nFutures yet to be written\nWonders or warnings',
-    'Coming-of-Age':
-      'Youth finds its own path\nThrough trials wisdom is born\nGrowth comes with each step',
-    'Social Novel':
-      'Society shown\nMirrors held to human hearts\nTruth in fiction told',
-    Philosophy:
-      'Questions without end\nWisdom sought through ancient words\nThink and find your truth',
-    'Epic Poetry':
-      'Heroes rise and fall\nGods and mortals intertwine\nLegends never die',
-  };
-
-  const hints: Record<number, PuzzleHint> = {
-    1: {
-      round: 1,
-      type: 'haiku',
-      content:
-        haikus[book.genre] ||
-        'Pages turn with care\nStories waiting to be read\nFind the hidden tale',
-    },
-    2: {
-      round: 2,
-      type: 'emoticons',
-      content: book.emoticons,
-    },
-    3: {
-      round: 3,
-      type: 'genre_era',
-      content: `${book.genre}, ${book.era}`,
-    },
-    4: {
-      round: 4,
-      type: 'quote',
-      content: book.notableQuotes[0] || 'A famous quote from this book...',
-    },
-    5: {
-      round: 5,
-      type: 'letter_author',
-      content: `${book.title[0].toUpperCase()}... by a ${book.authorNationality} author`,
-    },
-    6: {
-      round: 6,
-      type: 'author_name',
-      content: book.author.split(' ')[0],
-    },
-  };
-
-  return hints[round];
+function generateHintForRound(
+  book: GutenGuessBook,
+  dateStr: string,
+  round: number,
+): PuzzleHint {
+  return generateAllHints(book, dateStr)[round - 1];
 }
 
 /**
@@ -143,6 +247,7 @@ export class SubmitGuessHandler implements IQueryHandler<
       return {
         isCorrect: true,
         correctBook: bookToValue(correctBook),
+        allHints: generateAllHints(correctBook, date),
       };
     }
 
@@ -152,16 +257,17 @@ export class SubmitGuessHandler implements IQueryHandler<
     if (nextRound <= 6) {
       return {
         isCorrect: false,
-        nextHint: generateHintForRound(correctBook, nextRound),
+        nextHint: generateHintForRound(correctBook, date, nextRound),
       };
     }
 
-    // Game over - reveal the correct book
+    // Game over - reveal the correct book and all hints
     // Fire-and-forget - don't block the response
     this.globalStatsRepository.incrementGamePlayed(false).catch(() => {});
     return {
       isCorrect: false,
       correctBook: bookToValue(correctBook),
+      allHints: generateAllHints(correctBook, date),
     };
   }
 }
