@@ -97,7 +97,6 @@ function openSocialLink(url: string) {
           <button
             type="button"
             class="footer-social__link"
-            role="listitem"
             :aria-label="t(link.label)"
             @click="openSocialLink(link.url)"
           >
