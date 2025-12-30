@@ -34,6 +34,19 @@ function isYesterday(dateStr: string | null): boolean {
   return dateStr === yesterday.toISOString().split('T')[0];
 }
 
+function cleanupCelebrationKeys(): void {
+  const keys = Object.keys(localStorage)
+    .filter((k) => k.startsWith('gutenguess-celebrated-'))
+    .sort((a, b) => {
+      const numA = Number.parseInt(a.split('-').pop() || '0', 10);
+      const numB = Number.parseInt(b.split('-').pop() || '0', 10);
+      return numB - numA;
+    });
+  for (const k of keys.slice(30)) {
+    localStorage.removeItem(k);
+  }
+}
+
 export const useGameStore = defineStore(
   'game',
   () => {
@@ -133,7 +146,7 @@ export const useGameStore = defineStore(
       return 0;
     });
 
-    // How many emoticons are currently visible (2 + scratched, or all on win)
+    // 2 base emoticons + scratched count, or all on win
     const visibleEmoticonCount = computed(() => {
       if (currentGame.value?.allEmoticonsRevealed) {
         return 99;
@@ -141,7 +154,6 @@ export const useGameStore = defineStore(
       return 2 + (currentGame.value?.scratchedEmoticons ?? 0);
     });
 
-    // Can scratch more emoticons?
     const canScratchEmoticon = computed(() => {
       if (!puzzle.value || !currentGame.value) {
         return false;
@@ -149,7 +161,6 @@ export const useGameStore = defineStore(
       return visibleEmoticonCount.value < puzzle.value.emoticonCount;
     });
 
-    // Can reveal another haiku?
     const canRevealHaiku = computed(() => {
       if (!puzzle.value || !currentGame.value) {
         return false;
@@ -162,25 +173,30 @@ export const useGameStore = defineStore(
 
     // Actions
     async function fetchDailyPuzzle(): Promise<void> {
+      cleanupCelebrationKeys();
       const today = getTodayDate();
 
+      // Skip fetch if current puzzle is still valid
       if (
         currentGame.value &&
         currentGame.value.date === today &&
-        puzzle.value
+        puzzle.value &&
+        (!currentGame.value.isComplete || puzzle.value.hints.length >= 6)
       ) {
         return;
       }
 
+      // Clear game data when date changes
       if (currentGame.value && currentGame.value.date !== today) {
         currentGame.value = null;
+        showResult.value = false;
       }
 
       try {
         loading.value = true;
         error.value = '';
 
-        // When game is complete, fetch all hints (rounds 1-6)
+        // Fetch all hints if game complete, otherwise only current round hints
         let revealedRounds = [1];
         if (currentGame.value?.isComplete) {
           revealedRounds = [1, 2, 3, 4, 5, 6];
@@ -468,7 +484,6 @@ export const useGameStore = defineStore(
       showStats.value = false;
     }
 
-    // Scratch to reveal one more emoticon
     function scratchEmoticon(): boolean {
       if (!currentGame.value || !canScratchEmoticon.value) {
         return false;
@@ -481,7 +496,6 @@ export const useGameStore = defineStore(
       return true;
     }
 
-    // Reveal next haiku
     function revealHaiku(): string | null {
       if (!puzzle.value || !currentGame.value || !canRevealHaiku.value) {
         return null;
