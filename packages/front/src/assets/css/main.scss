@@ -839,6 +839,7 @@
   --gutenku-zen-primary: #2f5d62;
   --gutenku-zen-secondary: #7d9d9c;
   --gutenku-zen-accent: #a7c4bc;
+  --gutenku-focus-ring: oklch(0.45 0.08 175 / 0.5);
   --gutenku-zen-mist: oklch(0.76 0.04 175 / 0.1);
   --gutenku-zen-water: oklch(0.45 0.08 195 / 0.05);
   --gutenku-shadow-zen: 0 8px 32px oklch(0.45 0.08 195 / 0.1);
@@ -941,6 +942,7 @@
   --gutenku-zen-primary: #7aacb1;
   --gutenku-zen-secondary: #a8c4c2;
   --gutenku-zen-accent: #c5dbd8;
+  --gutenku-focus-ring: oklch(0.75 0.06 175 / 0.5);
   --gutenku-zen-mist: oklch(0.82 0.03 175 / 0.1);
   --gutenku-zen-water: oklch(0.58 0.07 192 / 0.05);
 
@@ -1005,6 +1007,12 @@
 ::-moz-selection {
   background: var(--gutenku-zen-accent);
   color: var(--gutenku-text-primary);
+}
+
+// Global focus-visible styling (reduced opacity for softer look)
+*:focus-visible {
+  outline: 2px solid var(--gutenku-focus-ring);
+  outline-offset: 2px;
 }
 
 [data-theme='dark'] ::selection {
