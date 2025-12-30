@@ -229,6 +229,7 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
       type="button"
       class="zen-select__trigger"
       role="combobox"
+      :aria-label="label ? `${label}: ${modelValue}` : modelValue"
       :aria-expanded="isOpen"
       :aria-haspopup="'listbox'"
       :aria-controls="dropdownId"

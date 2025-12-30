@@ -4,7 +4,7 @@ import { computed } from 'vue';
 const props = withDefaults(
   defineProps<{
     /** Score value 0-5 */
-    score: number;
+    score?: number;
     /** Max stars */
     max?: number;
     /** Size variant */
@@ -13,14 +13,16 @@ const props = withDefaults(
     animated?: boolean;
   }>(),
   {
+    score: 0,
     max: 5,
     size: 'md',
     animated: false,
   },
 );
 
-const fullStars = computed(() => Math.floor(props.score));
-const hasHalfStar = computed(() => props.score % 1 >= 0.5);
+const safeScore = computed(() => props.score ?? 0);
+const fullStars = computed(() => Math.floor(safeScore.value));
+const hasHalfStar = computed(() => safeScore.value % 1 >= 0.5);
 const emptyStars = computed(() =>
   Math.max(0, props.max - fullStars.value - (hasHalfStar.value ? 1 : 0)),
 );
@@ -53,7 +55,7 @@ const stars = computed(() => {
     class="score-stars"
     :class="[`score-stars--${size}`, { 'score-stars--animated': animated }]"
     role="img"
-    :aria-label="`Score: ${score} out of ${max} stars`"
+    :aria-label="`Score: ${safeScore} out of ${max} stars`"
   >
     <span
       v-for="star in stars"
