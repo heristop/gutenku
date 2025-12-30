@@ -89,6 +89,77 @@ export const useGameStore = defineStore(
         currentGame.value?.isComplete,
     );
 
+    // 100-point score calculation
+    // Base: 100, deductions: -10/wrong guess, -5/extra hint, -5/haiku, -2/scratch
+    const numericScore = computed(() => {
+      if (!currentGame.value) {
+        return 0;
+      }
+      const wrongGuesses = currentGame.value.guesses.filter(
+        (g) => !g.isCorrect,
+      ).length;
+      const hintsRevealed = currentGame.value.currentRound - 1; // hints beyond the first
+      const haikusUsed = currentGame.value.revealedHaikus?.length ?? 0;
+      const scratches = currentGame.value.scratchedEmoticons ?? 0;
+
+      const calculated =
+        100 -
+        wrongGuesses * 10 - // -10 per wrong guess
+        hintsRevealed * 5 - // -5 per hint beyond first
+        haikusUsed * 5 - // -5 per haiku lifeline
+        scratches * 2; // -2 per emoticon scratch
+
+      return Math.max(0, calculated);
+    });
+
+    // Star count (0-5) derived from numeric score
+    const score = computed(() => {
+      const s = numericScore.value;
+      if (s >= 80) {
+        return 5;
+      }
+      if (s >= 60) {
+        return 4;
+      }
+      if (s >= 40) {
+        return 3;
+      }
+      if (s >= 20) {
+        return 2;
+      }
+      if (s >= 1) {
+        return 1;
+      }
+      return 0;
+    });
+
+    // How many emoticons are currently visible (2 + scratched, or all on win)
+    const visibleEmoticonCount = computed(() => {
+      if (currentGame.value?.allEmoticonsRevealed) {
+        return 99;
+      }
+      return 2 + (currentGame.value?.scratchedEmoticons ?? 0);
+    });
+
+    // Can scratch more emoticons?
+    const canScratchEmoticon = computed(() => {
+      if (!puzzle.value || !currentGame.value) {
+        return false;
+      }
+      return visibleEmoticonCount.value < puzzle.value.emoticonCount;
+    });
+
+    // Can reveal another haiku?
+    const canRevealHaiku = computed(() => {
+      if (!puzzle.value || !currentGame.value) {
+        return false;
+      }
+      return (
+        (currentGame.value.revealedHaikus?.length ?? 0) <
+        puzzle.value.haikus.length
+      );
+    });
+
     // Actions
     async function fetchDailyPuzzle(): Promise<void> {
       const today = getTodayDate();
@@ -109,12 +180,16 @@ export const useGameStore = defineStore(
         loading.value = true;
         error.value = '';
 
-        const revealedRounds = currentGame.value
-          ? Array.from(
-              { length: currentGame.value.currentRound },
-              (_, i) => i + 1,
-            )
-          : [1];
+        // When game is complete, fetch all hints (rounds 1-6)
+        let revealedRounds = [1];
+        if (currentGame.value?.isComplete) {
+          revealedRounds = [1, 2, 3, 4, 5, 6];
+        } else if (currentGame.value) {
+          revealedRounds = Array.from(
+            { length: currentGame.value.currentRound },
+            (_, i) => i + 1,
+          );
+        }
 
         const query = gql`
           query DailyPuzzle($date: String!, $revealedRounds: [Int!]) {
@@ -122,6 +197,8 @@ export const useGameStore = defineStore(
               puzzle {
                 date
                 puzzleNumber
+                haikus
+                emoticonCount
                 hints {
                   round
                   type
@@ -162,6 +239,9 @@ export const useGameStore = defineStore(
               currentRound: 1,
               isComplete: false,
               isWon: false,
+              scratchedEmoticons: 0,
+              allEmoticonsRevealed: false,
+              revealedHaikus: [],
             };
           }
         }
@@ -206,6 +286,11 @@ export const useGameStore = defineStore(
                 type
                 content
               }
+              allHints {
+                round
+                type
+                content
+              }
             }
           }
         `;
@@ -238,6 +323,13 @@ export const useGameStore = defineStore(
         if (guessResult.isCorrect) {
           currentGame.value.isComplete = true;
           currentGame.value.isWon = true;
+          currentGame.value.correctBook = availableBooks.value.find(
+            (b) => b.reference === bookId,
+          );
+          currentGame.value.allEmoticonsRevealed = true;
+          if (guessResult.allHints && puzzle.value) {
+            puzzle.value.hints = guessResult.allHints;
+          }
           recordWin(currentGame.value.currentRound);
           showResult.value = true;
           return true;
@@ -249,6 +341,10 @@ export const useGameStore = defineStore(
         } else if (guessResult.correctBook) {
           currentGame.value.isComplete = true;
           currentGame.value.isWon = false;
+          currentGame.value.correctBook = guessResult.correctBook;
+          if (guessResult.allHints && puzzle.value) {
+            puzzle.value.hints = guessResult.allHints;
+          }
           recordLoss();
           showResult.value = true;
         }
@@ -294,27 +390,53 @@ export const useGameStore = defineStore(
         return '';
       }
 
-      const hintEmojis: Record<string, string> = {
-        emoticons: '😀',
-        haiku: '🎭',
-        genre_era: '📖',
-        quote: '💬',
-        letter_author: '🔤',
-        author_name: '👤',
-      };
+      const isWon = currentGame.value.isWon;
+      const roundCount = isWon ? currentGame.value.guesses.length : 'X';
 
-      const roundCount = currentGame.value.isWon
-        ? currentGame.value.guesses.length
-        : 'X';
+      // Generate star display (only for wins)
+      let starsDisplay = '';
+      if (isWon) {
+        const starCount = score.value;
+        const emptyStars = 5 - starCount;
+        starsDisplay =
+          '⭐'.repeat(starCount) + '☆'.repeat(Math.max(0, emptyStars));
+      }
 
-      let shareText = `GutenGuess #${currentGame.value.puzzleNumber} ${roundCount}/6\n\n`;
+      // Header with puzzle number, stars and score (format: #YYYY-N)
+      const year = currentGame.value.date.split('-')[0];
+      let shareText = `GutenGuess #${year}-${currentGame.value.puzzleNumber}`;
+      if (isWon) {
+        shareText += ` ${starsDisplay} (${numericScore.value}/100)`;
+      } else {
+        shareText += ' 💔';
+      }
+      shareText += '\n\n';
 
-      currentGame.value.guesses.forEach((guess, index) => {
-        const hint = puzzle.value?.hints.find((h) => h.round === index + 1);
-        const hintEmoji = hint ? hintEmojis[hint.type] || '❓' : '❓';
-        const resultEmoji = guess.isCorrect ? '🟩' : '🟥';
-        shareText += `${hintEmoji} ${resultEmoji}\n`;
-      });
+      // Guess progression with result squares
+      const guessLine = currentGame.value.guesses
+        .map((g) => (g.isCorrect ? '🟩' : '🟥'))
+        .join('');
+      shareText += `${guessLine} ${roundCount}/6\n`;
+
+      // Lifelines summary
+      const scratches = currentGame.value.scratchedEmoticons ?? 0;
+      const haikusUsed = currentGame.value.revealedHaikus?.length ?? 0;
+      const emoticonTotal = puzzle.value?.emoticonCount ?? 5;
+
+      // Emoticon progress bar: ██░░░
+      const visibleEmoticons = 2 + scratches;
+      const filledBlocks = '█'.repeat(visibleEmoticons);
+      const emptyBlocks = '░'.repeat(
+        Math.max(0, emoticonTotal - visibleEmoticons),
+      );
+      shareText += `😀 ${filledBlocks}${emptyBlocks} ${visibleEmoticons}/${emoticonTotal}\n`;
+
+      // Haiku usage indicator
+      const maxHaikus = puzzle.value?.haikus.length ?? 3;
+      const haikuBars =
+        '━'.repeat(haikusUsed) +
+        '┄'.repeat(Math.max(0, maxHaikus - haikusUsed));
+      shareText += `🎭 ${haikuBars} ${haikusUsed}/${maxHaikus}\n`;
 
       shareText += '\ngutenku.xyz/game';
       return shareText;
@@ -335,10 +457,45 @@ export const useGameStore = defineStore(
     }
 
     function resetGame(): void {
+      if (currentGame.value?.puzzleNumber) {
+        localStorage.removeItem(
+          `gutenguess-celebrated-${currentGame.value.puzzleNumber}`,
+        );
+      }
       currentGame.value = null;
       puzzle.value = null;
       showResult.value = false;
       showStats.value = false;
+    }
+
+    // Scratch to reveal one more emoticon
+    function scratchEmoticon(): boolean {
+      if (!currentGame.value || !canScratchEmoticon.value) {
+        return false;
+      }
+      // Initialize if missing (for old persisted state)
+      if (currentGame.value.scratchedEmoticons === undefined) {
+        currentGame.value.scratchedEmoticons = 0;
+      }
+      currentGame.value.scratchedEmoticons++;
+      return true;
+    }
+
+    // Reveal next haiku
+    function revealHaiku(): string | null {
+      if (!puzzle.value || !currentGame.value || !canRevealHaiku.value) {
+        return null;
+      }
+      // Initialize revealedHaikus if missing (for old persisted state)
+      if (!currentGame.value.revealedHaikus) {
+        currentGame.value.revealedHaikus = [];
+      }
+      const nextIndex = currentGame.value.revealedHaikus.length;
+      const haiku = puzzle.value.haikus[nextIndex];
+      if (haiku) {
+        currentGame.value.revealedHaikus.push(haiku);
+      }
+      return haiku ?? null;
     }
 
     return {
@@ -362,6 +519,11 @@ export const useGameStore = defineStore(
       attemptsRemaining,
       winRate,
       hasPlayedToday,
+      score,
+      numericScore,
+      visibleEmoticonCount,
+      canScratchEmoticon,
+      canRevealHaiku,
       // Actions
       fetchDailyPuzzle,
       submitGuess,
@@ -370,12 +532,14 @@ export const useGameStore = defineStore(
       generateShareText,
       shareResult,
       resetGame,
+      scratchEmoticon,
+      revealHaiku,
     };
   },
   {
     persist: {
       storage: localStorage,
-      pick: ['currentGame', 'stats'],
+      pick: ['currentGame', 'stats', 'showResult'],
     },
   },
 );
