@@ -34,7 +34,7 @@ describe('Puzzle Handlers', () => {
 
       const round1Hint = result.puzzle.hints.find((h) => h.round === 1);
       expect(round1Hint).toBeDefined();
-      expect(round1Hint?.type).toBe('haiku');
+      expect(round1Hint?.type).toBe('emoticons');
     });
 
     it('includes revealed rounds in hints', async () => {
@@ -97,12 +97,29 @@ describe('Puzzle Handlers', () => {
       const result = await handler.execute(query);
 
       const hintTypes = result.puzzle.hints.map((h) => h.type);
-      expect(hintTypes).toContain('haiku');
+
+      // Round 1 is always emoticons
       expect(hintTypes).toContain('emoticons');
-      expect(hintTypes).toContain('genre_era');
-      expect(hintTypes).toContain('quote');
-      expect(hintTypes).toContain('letter_author');
-      expect(hintTypes).toContain('author_name');
+
+      // Should have 6 hints total (emoticons + 5 from pool)
+      expect(result.puzzle.hints).toHaveLength(6);
+
+      // All hint types should be valid
+      const validTypes = [
+        'emoticons',
+        'title_word_count',
+        'genre',
+        'era',
+        'protagonist',
+        'publication_century',
+        'setting',
+        'quote',
+        'letter_author',
+        'author_name',
+      ];
+      for (const type of hintTypes) {
+        expect(validTypes).toContain(type);
+      }
     });
   });
 
