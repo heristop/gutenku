@@ -27,7 +27,7 @@
     "vue": "^3.5.26",
     "vue-i18n": "^11.2.7",
     "vue-router": "^4.6.4",
-    "vuetify": "^3.11.5"
+    "vuetify": "^3.11.6"
   },
   "devDependencies": {
     "@babel/types": "^7.28.5",
