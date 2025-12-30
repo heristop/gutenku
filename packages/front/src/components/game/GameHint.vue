@@ -125,7 +125,7 @@ const letterAuthorData = computed(() => {
         <div class="hint-indicator">
           <span class="hint-indicator__label">{{ $t('game.score') }}</span>
           <div class="hint-score-display">
-            <ScoreStars :score="score" size="md" />
+            <ScoreStars :score="score" size="sm" />
             <span class="hint-score-pts">{{ numericScore }}/100</span>
           </div>
         </div>
