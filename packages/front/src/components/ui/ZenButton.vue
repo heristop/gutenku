@@ -93,13 +93,12 @@ function handleClick(event: MouseEvent) {
   emit('click', event);
 }
 
-// Warn if icon-only button lacks aria-label
+// Dev warning for missing aria-label on icon-only buttons
 if (import.meta.env.DEV) {
   onMounted(() => {
     if (isIconOnly.value && !props.ariaLabel) {
       console.warn(
-        '[ZenButton] Icon-only button is missing aria-label prop. ' +
-        'This makes the button inaccessible to screen readers.',
+        '[ZenButton] Icon-only button requires aria-label for screen reader accessibility',
       );
     }
   });
