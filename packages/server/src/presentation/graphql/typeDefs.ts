@@ -68,6 +68,8 @@ const typeDefs = `#graphql
         date: String!
         puzzleNumber: Int!
         hints: [PuzzleHint!]!
+        haikus: [String!]!
+        emoticonCount: Int!
     }
 
     type DailyPuzzleResponse {
@@ -79,6 +81,7 @@ const typeDefs = `#graphql
         isCorrect: Boolean!
         correctBook: Book
         nextHint: PuzzleHint
+        allHints: [PuzzleHint!]
     }
 
     type GlobalStats {

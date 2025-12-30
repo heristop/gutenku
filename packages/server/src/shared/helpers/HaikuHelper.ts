@@ -69,7 +69,7 @@ export function cleanVerses(verses: string[]): string[] {
       .trim()
       .replaceAll(newLineRegex, ' ')
       .replaceAll(whitespaceRegex, ' ')
-      .replaceAll(/^'|'$|\.\.\.$|\.$\.$|\.$|,$|!$|;$|\?$/g, '');
+      .replaceAll(/^['"“”]|['"“”]$|\.\.\.$|\.$\.$|\.$|,$|!$|;$|\?$/g, '');
 
     return verse.charAt(0).toUpperCase() + verse.slice(1);
   });

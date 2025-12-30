@@ -77,7 +77,7 @@ Interpret the haiku's:
 
 Art style: Traditional Edo period ukiyo-e woodblock print. Bold black outlines, flat color planes. Rich colors: indigo blue, vermillion red, gold ochre, forest green. But the SCENE must come entirely from the haiku verses above.
 
-Composition: Layered perspective typical of Japanese prints. Elegant flowing lines. Artistic stylization.
+Composition: Layered perspective typical of Japanese prints. Flowing lines with artistic stylization.
 
 CRITICAL: Absolutely NO text, letters, characters, kanji, hiragana, katakana, or any written symbols in the image. Pure visual art only.`;
 
