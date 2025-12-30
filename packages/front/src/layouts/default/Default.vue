@@ -9,8 +9,13 @@ import AppFooter from '@/components/AppFooter.vue';
 
 const route = useRoute();
 
+const canonicalUrl = computed(
+  () => `https://gutenku.xyz${route.path === '/' ? '' : route.path}`,
+);
+
 useHead({
   title: computed(() => (route.meta.title as string) || 'GutenKu'),
+  link: [{ rel: 'canonical', href: canonicalUrl }],
   meta: [
     {
       name: 'description',
