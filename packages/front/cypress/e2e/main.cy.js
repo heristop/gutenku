@@ -29,9 +29,10 @@ describe('Landing page test', () => {
   });
 
   it('opens advanced config', () => {
-    // Wait for animate-in to complete (element gets is-visible class)
-    cy.get('.config-panel')
-      .scrollIntoView()
+    // Scroll to config panel and wait for IntersectionObserver + animation delay
+    cy.get('.config-panel').scrollIntoView();
+    cy.wait(500);
+    cy.get('.config-panel', { timeout: 5000 })
       .should('have.class', 'is-visible')
       .and('be.visible');
     // Ensure accordion is expanded (click header if content not visible)
