@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, watch, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { X } from 'lucide-vue-next';
 
@@ -32,11 +32,44 @@ const titleId = computed(() =>
 );
 
 function close() {
-  if (!props.persistent) {
-    emit('close');
-    modelValue.value = false;
-  }
+  emit('close');
+  modelValue.value = false;
 }
+
+// Custom scroll lock for mobile compatibility
+let scrollY = 0;
+
+function lockScroll() {
+  scrollY = window.scrollY;
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${scrollY}px`;
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+  document.body.style.overflow = 'hidden';
+}
+
+function unlockScroll() {
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  document.body.style.overflow = '';
+  window.scrollTo(0, scrollY);
+}
+
+watch(modelValue, (isOpen) => {
+  if (isOpen) {
+    lockScroll();
+  } else {
+    unlockScroll();
+  }
+});
+
+onBeforeUnmount(() => {
+  if (modelValue.value) {
+    unlockScroll();
+  }
+});
 </script>
 
 <template>
@@ -45,15 +78,18 @@ function close() {
     :max-width="maxWidth"
     :persistent="persistent"
     :transition="transition"
+    scroll-strategy="none"
   >
     <div
       class="zen-modal gutenku-paper pa-6"
       :class="contentClass"
       role="dialog"
       aria-modal="true"
-      :aria-labelledby="titleId"
+      :aria-labelledby="title ? titleId : undefined"
+      :aria-label="!title ? undefined : undefined"
     >
-      <!-- Close button -->
+      <h2 v-if="title" :id="titleId" class="sr-only">{{ title }}</h2>
+
       <button
         v-if="showClose"
         class="zen-modal__close"
@@ -63,17 +99,14 @@ function close() {
         <X :size="20" />
       </button>
 
-      <!-- Header slot -->
       <div v-if="!!$slots.header" class="zen-modal__header">
         <slot name="header" />
       </div>
 
-      <!-- Default content -->
       <div class="zen-modal__content">
         <slot />
       </div>
 
-      <!-- Actions slot -->
       <div v-if="!!$slots.actions" class="zen-modal__actions">
         <slot name="actions" />
       </div>
@@ -85,7 +118,6 @@ function close() {
 .zen-modal {
   position: relative;
   border-radius: var(--gutenku-radius-md);
-  overflow: hidden;
 }
 
 .zen-modal__close {
@@ -122,5 +154,17 @@ function close() {
 
 .zen-modal__actions {
   margin-top: 1.5rem;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 </style>

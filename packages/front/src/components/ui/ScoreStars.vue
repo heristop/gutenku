@@ -64,8 +64,10 @@ const stars = computed(() => {
       :class="`star--${star.type}`"
       :style="{ '--index': star.index, '--delay': animated ? star.index : undefined }"
     >
-      <span class="star__filled">&#9733;</span>
-      <span class="star__empty">&#9734;</span>
+      <span class="star__empty">⭐</span>
+      <span class="star__filled-wrap">
+        <span class="star__filled">⭐</span>
+      </span>
     </span>
   </div>
 </template>
@@ -77,8 +79,7 @@ const stars = computed(() => {
   gap: 0.125rem;
   line-height: 1;
   vertical-align: middle;
-  // Optical adjustment for star characters (they sit lower in their glyph box)
-  transform: translateY(-0.15em);
+  letter-spacing: 0.05em;
 }
 
 .star {
@@ -86,46 +87,49 @@ const stars = computed(() => {
   display: inline-flex;
   line-height: 1;
 
-  // Hide the empty by default, show filled
-  .star__filled {
-    color: oklch(0.7 0.18 85);
-    filter: drop-shadow(0 0 1px oklch(0.7 0.15 85 / 0.5));
-    transition: filter 0.3s ease;
+  // Empty star as grayscale base layer
+  .star__empty {
+    filter: grayscale(1) opacity(0.35);
   }
 
-  .star__empty {
+  // Wrapper for clipping the filled star
+  .star__filled-wrap {
     position: absolute;
     inset: 0;
-    color: oklch(0.75 0.03 55);
-    opacity: 0;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .star__filled {
+    filter: drop-shadow(0 0 2px oklch(0.7 0.15 85 / 0.3));
+    animation: stars-glow 2s ease-in-out infinite;
   }
 
   &--full {
-    .star__filled {
-      opacity: 1;
-    }
-    .star__empty {
-      opacity: 0;
+    .star__filled-wrap {
+      width: 100%;
     }
   }
 
   &--half {
-    .star__filled {
-      opacity: 1;
-      clip-path: inset(0 50% 0 0);
-    }
-    .star__empty {
-      opacity: 1;
+    .star__filled-wrap {
+      width: 50%;
     }
   }
 
   &--empty {
-    .star__filled {
-      opacity: 0;
+    .star__filled-wrap {
+      width: 0;
     }
-    .star__empty {
-      opacity: 1;
-    }
+  }
+}
+
+@keyframes stars-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px oklch(0.7 0.15 85 / 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px oklch(0.7 0.15 85 / 0.6));
   }
 }
 
@@ -170,8 +174,9 @@ const stars = computed(() => {
     animation-delay: calc(var(--delay) * 100ms + 150ms);
 
     .star__filled {
-      animation: star-glow 0.5s ease-out forwards;
-      animation-delay: calc(var(--delay) * 100ms + 150ms);
+      animation: star-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+                 stars-glow 2s ease-in-out infinite;
+      animation-delay: calc(var(--delay) * 100ms + 150ms), calc(var(--delay) * 100ms + 650ms);
     }
   }
 }
@@ -194,37 +199,24 @@ const stars = computed(() => {
   }
 }
 
-@keyframes star-glow {
-  0% {
-    filter: drop-shadow(0 0 0 oklch(0.8 0.2 85 / 0));
-  }
-  40% {
-    filter: drop-shadow(0 0 8px oklch(0.8 0.2 85 / 0.9)) drop-shadow(0 0 16px oklch(0.75 0.18 85 / 0.5));
-  }
-  100% {
-    filter: drop-shadow(0 0 2px oklch(0.7 0.15 85 / 0.4));
-  }
-}
-
-// Dark mode
+// Dark mode - slightly brighter empty stars
 [data-theme='dark'] .star {
-  .star__filled {
-    color: oklch(0.75 0.16 85);
-    filter: drop-shadow(0 0 2px oklch(0.7 0.15 85 / 0.4));
-  }
-
   .star__empty {
-    color: oklch(0.55 0.03 55);
+    filter: grayscale(1) opacity(0.25);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .star .star__filled {
+    animation: none;
+    filter: drop-shadow(0 0 2px oklch(0.7 0.15 85 / 0.4));
+  }
+
   .score-stars--animated .star,
   .score-stars--animated .star .star__filled {
     animation: none;
     opacity: 1;
     transform: none;
-    filter: drop-shadow(0 0 1px oklch(0.7 0.15 85 / 0.5));
   }
 }
 </style>
