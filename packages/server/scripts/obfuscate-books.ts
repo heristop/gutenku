@@ -51,6 +51,9 @@ interface GutenGuessBook {
   authorNationality: string;
   emoticons: string;
   notableQuotes: string[];
+  publicationYear: number;
+  setting: string;
+  protagonist: string;
 }
 
 program
@@ -110,10 +113,20 @@ async function main(): Promise<void> {
 
     const decodedBooks: GutenGuessBook[] = encodedBooks.map(
       (book: GutenGuessBook) => ({
-        ...book,
+        id: book.id,
         title: deobfuscate(book.title),
         author: deobfuscate(book.author),
+        genre: deobfuscate(book.genre),
+        era: deobfuscate(book.era),
+        authorNationality: deobfuscate(book.authorNationality),
+        emoticons: book.emoticons,
         notableQuotes: book.notableQuotes.map(deobfuscate),
+        publicationYear: Number.parseInt(
+          deobfuscate(book.publicationYear as unknown as string),
+          10,
+        ),
+        setting: deobfuscate(book.setting),
+        protagonist: deobfuscate(book.protagonist),
       }),
     );
 
@@ -154,11 +167,14 @@ async function main(): Promise<void> {
     id: book.id,
     title: obfuscate(book.title),
     author: obfuscate(book.author),
-    genre: book.genre,
-    era: book.era,
-    authorNationality: book.authorNationality,
+    genre: obfuscate(book.genre),
+    era: obfuscate(book.era),
+    authorNationality: obfuscate(book.authorNationality),
     emoticons: book.emoticons,
     notableQuotes: book.notableQuotes.map(obfuscate),
+    publicationYear: obfuscate(book.publicationYear.toString()),
+    setting: obfuscate(book.setting),
+    protagonist: obfuscate(book.protagonist),
   }));
 
   spinner.succeed(pc.green('Obfuscation complete'));
@@ -184,6 +200,9 @@ export interface GutenGuessBook {
   authorNationality: string;
   emoticons: string;
   notableQuotes: string[];
+  publicationYear: number;
+  setting: string;
+  protagonist: string;
 }
 
 interface EncodedGutenGuessBook {
@@ -195,9 +214,12 @@ interface EncodedGutenGuessBook {
   authorNationality: string;
   emoticons: string;
   notableQuotes: string[];
+  publicationYear: string;
+  setting: string;
+  protagonist: string;
 }
 
-const GUTENGUESS_BOOKS_ENCODED: readonly EncodedGutenGuessBook[] = ${JSON.stringify(
+export const GUTENGUESS_BOOKS_ENCODED: readonly EncodedGutenGuessBook[] = ${JSON.stringify(
     encodedBooks,
     null,
     2,
@@ -213,10 +235,17 @@ let _decodedBooks: GutenGuessBook[] | null = null;
 export function getGutenGuessBooks(): readonly GutenGuessBook[] {
   if (!_decodedBooks) {
     _decodedBooks = GUTENGUESS_BOOKS_ENCODED.map((book) => ({
-      ...book,
+      id: book.id,
       title: deobfuscate(book.title),
       author: deobfuscate(book.author),
+      genre: deobfuscate(book.genre),
+      era: deobfuscate(book.era),
+      authorNationality: deobfuscate(book.authorNationality),
+      emoticons: book.emoticons,
       notableQuotes: book.notableQuotes.map(deobfuscate),
+      publicationYear: Number.parseInt(deobfuscate(book.publicationYear), 10),
+      setting: deobfuscate(book.setting),
+      protagonist: deobfuscate(book.protagonist),
     }));
   }
   return _decodedBooks;

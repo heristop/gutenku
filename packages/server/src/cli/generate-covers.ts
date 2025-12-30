@@ -88,7 +88,7 @@ try {
   }
   apiSpinner.succeed(pc.green('OpenAI API key found'));
 
-  // Ensure covers directory exists
+  // Create covers directory if needed
   const dirSpinner = ora('Checking covers directory...').start();
   if (!fs.existsSync(COVERS_DIR)) {
     fs.mkdirSync(COVERS_DIR, { recursive: true });

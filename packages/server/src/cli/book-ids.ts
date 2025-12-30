@@ -6,6 +6,7 @@ export const BOOK_IDS: readonly number[] = [
   11, // Alice's Adventures in Wonderland
   16, // Peter Pan
   21, // Aesop's Fables
+  26, // Paradise Lost
   36, // The War of the Worlds
   45, // Anne of Green Gables
   55, // The Wonderful Wizard of Oz
@@ -66,6 +67,7 @@ export const BOOK_IDS: readonly number[] = [
   24869, // The Rámáyan of Válmíki
   27827, // The Kama Sutra of Vatsyayana
   28054, // The Brothers Karamazov
+  28152, // Sword and Pen
   36034, // White Nights and Other Stories
   55264, // On Growth and Form
   64317, // The Great Gatsby
