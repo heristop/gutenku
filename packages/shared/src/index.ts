@@ -66,11 +66,15 @@ export interface ChapterResponseData {
 // GutenGuess Game Types
 export type HintType =
   | 'emoticons'
-  | 'haiku'
-  | 'genre_era'
+  | 'genre'
+  | 'era'
   | 'quote'
   | 'letter_author'
-  | 'author_name';
+  | 'author_name'
+  | 'publication_century'
+  | 'title_word_count'
+  | 'setting'
+  | 'protagonist';
 
 export interface PuzzleHint {
   round: number;
@@ -82,6 +86,8 @@ export interface DailyPuzzle {
   date: string;
   puzzleNumber: number;
   hints: PuzzleHint[];
+  haikus: string[]; // Array of haikus for lifeline system (max 3)
+  emoticonCount: number; // Total emoticons available for scratch reveal
 }
 
 export interface GameGuess {
@@ -98,6 +104,14 @@ export interface GameState {
   currentRound: number;
   isComplete: boolean;
   isWon: boolean;
+  /** Correct book shown at game completion */
+  correctBook?: BookValue;
+  /** Count of scratched emoticons beyond base 2 */
+  scratchedEmoticons: number;
+  /** Player-revealed haikus */
+  revealedHaikus: string[];
+  /** Whether all emoticons have been revealed via scratch */
+  allEmoticonsRevealed: boolean;
 }
 
 export interface GameStats {
@@ -113,6 +127,8 @@ export interface GuessResult {
   isCorrect: boolean;
   correctBook?: BookValue;
   nextHint?: PuzzleHint;
+  /** Full hint set shown at game completion */
+  allHints?: PuzzleHint[];
 }
 
 export interface DailyPuzzleResponse {
