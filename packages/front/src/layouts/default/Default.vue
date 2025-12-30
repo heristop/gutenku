@@ -84,6 +84,12 @@ useHead({
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  background-color: var(--gutenku-app-bg);
+  background-image: var(--gutenku-app-bg-image);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
 }
 
 .site-header {

@@ -47,12 +47,6 @@ onBeforeMount(() => {
 
 <style lang="scss" scoped>
 .gutenku-app-background {
-  background-color: var(--gutenku-app-bg);
-  background-image: var(--gutenku-app-bg-image);
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
   transition: var(--gutenku-transition-zen);
   flex: 1;
   display: flex;
