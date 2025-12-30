@@ -5,6 +5,7 @@ import type {
   CreateChapterInput,
 } from '~/domain/repositories/IChapterRepository';
 import ChapterModel from '~/infrastructure/models/ChapterModel';
+import BookModel from '~/infrastructure/models/BookModel';
 
 @injectable()
 export default class ChapterRepository implements IChapterRepository {
@@ -37,6 +38,14 @@ export default class ChapterRepository implements IChapterRepository {
       .limit(100)
       .populate('book')
       .exec();
+  }
+
+  async getChaptersByBookReference(reference: string): Promise<ChapterValue[]> {
+    const book = await BookModel.findOne({ reference }).exec();
+    if (!book) {
+      return [];
+    }
+    return await ChapterModel.find({ book: book._id }).populate('book').exec();
   }
 
   async createMany(chapters: CreateChapterInput[]): Promise<string[]> {
