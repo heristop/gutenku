@@ -33,7 +33,6 @@ const haikuSealRef = ref<HTMLElement | null>(null);
 const haikuTooltipRef = ref<HTMLElement | null>(null);
 const selectedBook = ref<BookValue | null>(null);
 
-// Tooltip position (absolute, document-relative)
 const tooltipPosition = ref({ top: 0, left: 0 });
 const tooltipStyle = computed(() => ({
   position: 'absolute' as const,
@@ -160,10 +159,11 @@ function handleStartGame() {
   gameStarted.value = true;
 }
 
-onMounted(() => {
-  gameStore.fetchDailyPuzzle();
+onMounted(async () => {
+  await gameStore.fetchDailyPuzzle();
 
-  if (isGameComplete.value) {
+  // Only show result modal if game is complete AND puzzle data is available
+  if (isGameComplete.value && gameStore.puzzle) {
     showResult.value = true;
   }
 });
@@ -250,7 +250,6 @@ function handleCancelGuess() {
       </div>
 
       <template v-else-if="puzzle && currentGame">
-        <!-- Hint panel - show all hints when game complete, otherwise revealed only -->
         <HintPanel
           v-if="revealedHints.length > 0 || isGameComplete"
           :hints="isGameComplete ? puzzle.hints : revealedHints"
@@ -264,7 +263,6 @@ function handleCancelGuess() {
           @scratch="handleScratch"
         />
 
-        <!-- Start gate (shows until game started) -->
         <Transition name="gate">
           <div
             v-if="!gameStarted && !hasGuesses && !isGameComplete"
@@ -284,7 +282,6 @@ function handleCancelGuess() {
           </div>
         </Transition>
 
-        <!-- Haiku lifeline cards (only show when game started) -->
         <div
           v-if="puzzle?.haikus?.length && !isGameComplete && (gameStarted || hasGuesses)"
           ref="haikuSealRef"
@@ -309,7 +306,6 @@ function handleCancelGuess() {
           </button>
         </div>
 
-        <!-- Haiku tooltip (teleported to body, absolute positioned) -->
         <Teleport to="body">
           <Transition name="tooltip">
             <div
@@ -359,7 +355,6 @@ function handleCancelGuess() {
           class="game-board__history"
         />
 
-        <!-- Book board (only show when game started) -->
         <Transition name="books">
           <div
             v-if="!isGameComplete && (gameStarted || hasGuesses)"
@@ -369,7 +364,6 @@ function handleCancelGuess() {
           </div>
         </Transition>
 
-        <!-- End-game haiku review (show all haikus) -->
         <div
           v-if="isGameComplete && puzzle?.haikus?.length"
           class="haiku-review"
@@ -383,7 +377,6 @@ function handleCancelGuess() {
           </div>
           <!-- Carousel with navigation -->
           <div class="haiku-carousel-wrapper">
-            <!-- Left arrow (desktop) -->
             <button
               v-if="puzzle.haikus.length > 1"
               class="haiku-nav haiku-nav--prev"
@@ -394,7 +387,6 @@ function handleCancelGuess() {
               <ChevronLeft :size="20" />
             </button>
 
-            <!-- Swipeable container -->
             <div ref="haikuCarouselRef" class="haiku-carousel">
               <div
                 class="haiku-carousel__track"
@@ -412,7 +404,6 @@ function handleCancelGuess() {
               </div>
             </div>
 
-            <!-- Right arrow (desktop) -->
             <button
               v-if="puzzle.haikus.length > 1"
               class="haiku-nav haiku-nav--next"
@@ -424,7 +415,6 @@ function handleCancelGuess() {
             </button>
           </div>
 
-          <!-- Pagination dots -->
           <div v-if="puzzle.haikus.length > 1" class="haiku-pagination">
             <button
               v-for="(_, idx) in puzzle.haikus"
@@ -484,7 +474,6 @@ function handleCancelGuess() {
   animation: fade-in 0.4s ease-out;
   margin-bottom: 1rem;
 
-  // Book spine shadow (grounded feel)
   box-shadow:
     inset 4px 0 8px -4px oklch(0 0 0 / 0.12),
     0 1px 2px oklch(0 0 0 / 0.04);
@@ -514,7 +503,6 @@ function handleCancelGuess() {
   &__texture {
     position: absolute;
     inset: 0;
-    // Subtle paper grain + ambient lighting
     background-image:
       url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
       radial-gradient(
@@ -563,8 +551,7 @@ function handleCancelGuess() {
   box-shadow: 0 2px 4px oklch(0 0 0 / 0.08);
   cursor: pointer;
   transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-  // Alternating tilts: -4deg, 0deg, 4deg
-  transform: rotate(calc((var(--card-index) - 1) * 4deg));
+  transform: rotate(calc((var(--card-index) - 1) * 4deg)); // -4deg, 0deg, 4deg
 
   &:hover:not(:disabled) {
     transform: rotate(calc((var(--card-index) - 1) * 4deg)) scale(1.1);
@@ -1076,7 +1063,6 @@ function handleCancelGuess() {
   gap: 0.5rem;
 }
 
-// Navigation arrows (hidden on mobile, visible on desktop)
 .haiku-nav {
   display: none;
   flex-shrink: 0;
