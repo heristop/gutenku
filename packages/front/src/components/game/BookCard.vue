@@ -65,7 +65,6 @@ function handleContextMenu(event: MouseEvent) {
   <button
     :class="cardClasses"
     :disabled="disabled"
-    :title="book.title"
     :aria-label="`${book.title} by ${book.author}`"
     @click="handleClick"
     @contextmenu="handleContextMenu"
@@ -113,9 +112,15 @@ function handleContextMenu(event: MouseEvent) {
 
       <!-- Selection indicator -->
       <div v-if="state === 'selected'" class="book-card__selection-ring" />
+
+      <!-- Hover tooltip -->
+      <div class="book-card__tooltip">
+        <span class="book-card__tooltip-title">{{ book.title }}</span>
+        <span class="book-card__tooltip-author">{{ book.author }}</span>
+      </div>
     </div>
 
-    <!-- Title (visible on mobile, tooltip on desktop) -->
+    <!-- Title -->
     <div class="book-card__title">
       {{ book.title }}
     </div>
@@ -229,6 +234,17 @@ function handleContextMenu(event: MouseEvent) {
   animation: shake 0.4s ease-out;
 }
 
+// Dark mode overlays - brighter for visibility
+[data-theme='dark'] .book-card__overlay--correct {
+  background: oklch(0.55 0.22 145 / 0.9);
+  box-shadow: inset 0 0 20px oklch(0.7 0.2 145 / 0.3);
+}
+
+[data-theme='dark'] .book-card__overlay--wrong {
+  background: oklch(0.55 0.22 25 / 0.9);
+  box-shadow: inset 0 0 20px oklch(0.7 0.2 25 / 0.3);
+}
+
 .book-card__selection-ring {
   position: absolute;
   inset: -2px;
@@ -258,6 +274,77 @@ function handleContextMenu(event: MouseEvent) {
     min-height: 2.5rem;
     -webkit-line-clamp: 3;
   }
+}
+
+// Hover tooltip on cover
+.book-card__tooltip {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  background: oklch(0.12 0.02 250 / 0.85);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  pointer-events: none;
+}
+
+.book-card__tooltip-title {
+  font-family: 'JMH Typewriter', monospace;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: oklch(0.98 0 0);
+  text-align: center;
+  line-height: 1.3;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-shadow: 0 1px 2px oklch(0 0 0 / 0.5);
+}
+
+.book-card__tooltip-author {
+  font-family: 'JMH Typewriter', monospace;
+  font-size: 0.55rem;
+  font-weight: 400;
+  color: oklch(0.8 0.04 80);
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px oklch(0 0 0 / 0.5);
+}
+
+.book-card:hover:not(:disabled):not(.book-card--disabled) {
+  .book-card__tooltip {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+// Dark mode tooltip
+[data-theme='dark'] .book-card__tooltip {
+  background: oklch(0.08 0.02 250 / 0.9);
+  backdrop-filter: blur(6px);
+}
+
+[data-theme='dark'] .book-card__tooltip-title {
+  color: oklch(0.95 0.02 80);
+  text-shadow: 0 1px 3px oklch(0 0 0 / 0.7);
+}
+
+[data-theme='dark'] .book-card__tooltip-author {
+  color: oklch(0.75 0.06 80);
+  text-shadow: 0 1px 3px oklch(0 0 0 / 0.7);
 }
 
 // States
@@ -293,7 +380,32 @@ function handleContextMenu(event: MouseEvent) {
 
 .book-card--disabled {
   cursor: not-allowed;
-  opacity: 0.5;
+  opacity: 0.6;
+
+  .book-card__cover {
+    filter: grayscale(0.3);
+    box-shadow: none;
+  }
+
+  .book-card__title {
+    opacity: 0.5;
+  }
+
+  .book-card__tooltip {
+    display: none;
+  }
+}
+
+[data-theme='dark'] .book-card--disabled {
+  opacity: 0.7;
+
+  .book-card__cover {
+    filter: grayscale(0.2) brightness(0.9);
+  }
+
+  .book-card__title {
+    opacity: 0.6;
+  }
 }
 
 // Animations
@@ -357,6 +469,10 @@ function handleContextMenu(event: MouseEvent) {
     &:hover {
       transform: none;
     }
+  }
+
+  .book-card__tooltip {
+    transition: none;
   }
 
   .book-card__overlay--correct,

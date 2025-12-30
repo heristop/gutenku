@@ -2,8 +2,7 @@
 import { computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
-import { X } from 'lucide-vue-next';
-import ZenButton from '@/components/ui/ZenButton.vue';
+import ZenModal from '@/components/ui/ZenModal.vue';
 import { useGameStore } from '@/store/game';
 import { useGlobalStats } from '@/composables/global-stats';
 
@@ -39,129 +38,87 @@ const globalWinRate = computed(() => {
 function getBarWidth(count: number): string {
   return `${(count / maxDistribution.value) * 100}%`;
 }
-
-function close() {
-  modelValue.value = false;
-}
 </script>
 
 <template>
-  <v-dialog
-    v-model="modelValue"
-    max-width="400"
-    :persistent="false"
-    transition="dialog-bottom-transition"
-  >
-    <div class="game-stats gutenku-paper pa-6 modal-appear">
-      <div class="stats-header d-flex align-center justify-space-between mb-4">
-        <h2 class="stats-title gutenku-text-primary">
-          {{ t('game.statistics') }}
-        </h2>
-        <ZenButton
-          variant="text"
-          size="sm"
-          :aria-label="t('common.close')"
-          @click="close"
-        >
-          <template #icon-left>
-            <X :size="20" />
-          </template>
-        </ZenButton>
-      </div>
+  <ZenModal v-model="modelValue" :max-width="400" title="statistics">
+    <h2 class="stats-title gutenku-text-primary mb-4">
+      {{ t('game.statistics') }}
+    </h2>
 
-      <div class="stats-grid d-flex justify-center ga-4 mb-6">
-        <div class="stat-item text-center">
-          <div class="stat-value stat-value--split gutenku-text-primary">
-            <span class="stat-local">{{ stats.gamesPlayed }}</span>
-            <span class="stat-divider">/</span>
-            <span
-              class="stat-global"
-              >{{ formatNumber(globalStats.totalGamesPlayed) }}</span
-            >
-          </div>
-          <div class="stat-label gutenku-text-muted">
-            {{ t('game.stats.played') }}
-          </div>
-        </div>
-        <div class="stat-item text-center">
-          <div class="stat-value stat-value--split gutenku-text-primary">
-            <span class="stat-local">{{ winRate }}%</span>
-            <span class="stat-divider">/</span>
-            <span class="stat-global">{{ globalWinRate }}%</span>
-          </div>
-          <div class="stat-label gutenku-text-muted">
-            {{ t('game.stats.winRate') }}
-          </div>
-        </div>
-        <div class="stat-item text-center">
-          <div class="stat-value gutenku-text-primary">
-            {{ stats.currentStreak }}
-          </div>
-          <div class="stat-label gutenku-text-muted">
-            {{ t('game.stats.streak') }}
-          </div>
-        </div>
-        <div class="stat-item text-center">
-          <div class="stat-value gutenku-text-primary">
-            {{ stats.maxStreak }}
-          </div>
-          <div class="stat-label gutenku-text-muted">
-            {{ t('game.stats.maxStreak') }}
-          </div>
-        </div>
-      </div>
-
-      <div class="distribution-section">
-        <h3 class="distribution-title gutenku-text-muted mb-3">
-          {{ t('game.stats.distribution') }}
-        </h3>
-
-        <div class="distribution-chart">
-          <div
-            v-for="round in 6"
-            :key="round"
-            class="distribution-row d-flex align-center ga-2 mb-2"
+    <div class="stats-grid d-flex justify-center ga-4 mb-6">
+      <div class="stat-item text-center">
+        <div class="stat-value stat-value--split gutenku-text-primary">
+          <span class="stat-local">{{ stats.gamesPlayed }}</span>
+          <span class="stat-divider">/</span>
+          <span
+            class="stat-global"
+            >{{ formatNumber(globalStats.totalGamesPlayed) }}</span
           >
-            <div class="round-label gutenku-text-muted">
-              {{ round }}
-            </div>
-            <div class="bar-container">
-              <div
-                class="bar"
-                :style="{ width: getBarWidth(stats.guessDistribution[round] || 0) }"
-              >
-                <span class="bar-value">
-                  {{ stats.guessDistribution[round] || 0 }}
-                </span>
-              </div>
+        </div>
+        <div class="stat-label gutenku-text-muted">
+          {{ t('game.stats.played') }}
+        </div>
+      </div>
+      <div class="stat-item text-center">
+        <div class="stat-value stat-value--split gutenku-text-primary">
+          <span class="stat-local">{{ winRate }}%</span>
+          <span class="stat-divider">/</span>
+          <span class="stat-global">{{ globalWinRate }}%</span>
+        </div>
+        <div class="stat-label gutenku-text-muted">
+          {{ t('game.stats.winRate') }}
+        </div>
+      </div>
+      <div class="stat-item text-center">
+        <div class="stat-value gutenku-text-primary">
+          {{ stats.currentStreak }}
+        </div>
+        <div class="stat-label gutenku-text-muted">
+          {{ t('game.stats.streak') }}
+        </div>
+      </div>
+      <div class="stat-item text-center">
+        <div class="stat-value gutenku-text-primary">
+          {{ stats.maxStreak }}
+        </div>
+        <div class="stat-label gutenku-text-muted">
+          {{ t('game.stats.maxStreak') }}
+        </div>
+      </div>
+    </div>
+
+    <div class="distribution-section">
+      <h3 class="distribution-title gutenku-text-muted mb-3">
+        {{ t('game.stats.distribution') }}
+      </h3>
+
+      <div class="distribution-chart">
+        <div
+          v-for="round in 6"
+          :key="round"
+          class="distribution-row d-flex align-center ga-2 mb-2"
+        >
+          <div class="round-label gutenku-text-muted">
+            {{ round }}
+          </div>
+          <div class="bar-container">
+            <div
+              class="bar"
+              :style="{ width: getBarWidth(stats.guessDistribution[round] || 0) }"
+            >
+              <span class="bar-value">
+                {{ stats.guessDistribution[round] || 0 }}
+              </span>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </v-dialog>
+  </ZenModal>
 </template>
 
 <style lang="scss" scoped>
-.game-stats {
-  border-radius: var(--gutenku-radius-md);
-
-  &.modal-appear {
-    animation: modal-slide-up 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-}
-
-@keyframes modal-slide-up {
-  0% {
-    opacity: 0;
-    transform: translateY(20px) scale(0.96);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
 .stats-title {
   font-size: 1.25rem;
   font-weight: 600;
@@ -258,10 +215,6 @@ function close() {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .game-stats.modal-appear {
-    animation: none;
-  }
-
   .stat-value {
     animation: none;
   }

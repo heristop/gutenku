@@ -1,7 +1,9 @@
 <script lang="ts" setup>
+import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
-import { BarChart2, HelpCircle, RotateCcw } from 'lucide-vue-next';
+import { BarChart2, HelpCircle, RotateCcw, Volume2, VolumeX } from 'lucide-vue-next';
+import { useAudioFeedback } from '@/composables/audio-feedback';
 import { useGameStore } from '@/store/game';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
 import ZenButton from '@/components/ui/ZenButton.vue';
@@ -14,9 +16,16 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const gameStore = useGameStore();
-const { puzzleNumber, stats } = storeToRefs(gameStore);
+const { puzzleNumber, stats, todayDate } = storeToRefs(gameStore);
+const { isMuted, toggleMute } = useAudioFeedback();
 
 const isDev = import.meta.env.DEV;
+
+// Format puzzle ID as YYYY-N
+const formattedPuzzleId = computed(() => {
+  const year = todayDate.value.split('-')[0];
+  return `${year}-${puzzleNumber.value}`;
+});
 
 async function resetAndReplay() {
   gameStore.resetGame();
@@ -27,27 +36,42 @@ async function resetAndReplay() {
 <template>
   <header class="game-header">
     <div class="header-content">
-      <!-- Title row -->
-      <div class="header-title">
-        <h1 class="game-title gutenku-text-primary">GutenGuess</h1>
-      </div>
+      <!-- Title -->
+      <h1 class="game-title gutenku-text-primary">GutenGuess</h1>
 
-      <!-- Info row: puzzle number + actions -->
+      <!-- Info row: puzzle number + score + actions -->
       <div class="header-info">
         <ZenChip
           class="puzzle-number"
-          :ariaLabel="t('game.puzzleNumber', { number: puzzleNumber })"
+          :ariaLabel="t('game.puzzleNumber', { number: formattedPuzzleId })"
         >
-          #{{ puzzleNumber }}
+          #{{ formattedPuzzleId }}
         </ZenChip>
 
         <div class="header-divider" />
 
         <div class="actions-section">
           <ZenTooltip :text="t('game.currentStreak')" position="bottom">
-            <div v-if="stats.currentStreak > 0" class="streak-badge">
+            <div v-if="stats.currentStreak > 0" class="streak-badge mr-2">
               {{ stats.currentStreak }}
             </div>
+          </ZenTooltip>
+
+          <ZenTooltip
+            :text="isMuted ? t('game.soundOn') : t('game.soundOff')"
+            position="bottom"
+          >
+            <ZenButton
+              variant="text"
+              size="sm"
+              :aria-label="isMuted ? t('game.soundOn') : t('game.soundOff')"
+              @click="toggleMute"
+            >
+              <template #icon-left>
+                <VolumeX v-if="isMuted" :size="18" />
+                <Volume2 v-else :size="18" />
+              </template>
+            </ZenButton>
           </ZenTooltip>
 
           <ZenTooltip
@@ -118,14 +142,6 @@ async function resetAndReplay() {
   @media (min-width: 600px) {
     flex-direction: row;
     justify-content: space-between;
-  }
-}
-
-.header-title {
-  text-align: center;
-
-  @media (min-width: 600px) {
-    text-align: left;
   }
 }
 

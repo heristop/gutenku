@@ -24,7 +24,7 @@ const itemsPerPage = computed(() => isDesktop.value ? 10 : 9);
 
 const searchQuery = ref('');
 const selectedBook = ref<BookValue | null>(null);
-const eliminatedBooks = ref<Set<string>>(new Set());
+const eliminatedBooks = ref<string[]>([]);
 const currentPage = ref(0);
 const pageDirection = ref<'next' | 'prev'>('next');
 
@@ -110,7 +110,7 @@ function getCardState(book: BookValue): CardState {
   if (selectedBook.value?.reference === book.reference) {
     return 'selected';
   }
-  if (eliminatedBooks.value.has(book.reference)) {
+  if (eliminatedBooks.value.includes(book.reference)) {
     return 'eliminated';
   }
   return 'normal';
@@ -130,20 +130,20 @@ function handleSelect(book: BookValue) {
 }
 
 function handleEliminate(book: BookValue) {
-  if (eliminatedBooks.value.has(book.reference)) {
-    eliminatedBooks.value.delete(book.reference);
+  const index = eliminatedBooks.value.indexOf(book.reference);
+  if (index !== -1) {
+    eliminatedBooks.value.splice(index, 1);
   } else {
-    eliminatedBooks.value.add(book.reference);
+    eliminatedBooks.value.push(book.reference);
   }
-  eliminatedBooks.value = new Set(eliminatedBooks.value);
 }
 
 function clearSearch() {
   searchQuery.value = '';
 }
 
-function clearEliminated() {
-  eliminatedBooks.value = new Set();
+function revertLastEliminated() {
+  eliminatedBooks.value.pop();
 }
 
 function clearSelection() {
@@ -153,7 +153,7 @@ function clearSelection() {
 defineExpose({
   selectedBook,
   clearSelection,
-  clearEliminated,
+  revertLastEliminated,
 });
 </script>
 
@@ -181,13 +181,13 @@ defineExpose({
       </div>
 
       <button
-        v-if="eliminatedBooks.size > 0"
+        v-if="eliminatedBooks.length > 0"
         class="book-board__reset-btn"
         :aria-label="t('game.resetEliminated')"
-        @click="clearEliminated"
+        @click="revertLastEliminated"
       >
         <RotateCcw :size="16" />
-        <span>{{ eliminatedBooks.size }}</span>
+        <span>{{ eliminatedBooks.length }}</span>
       </button>
     </div>
 

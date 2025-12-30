@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { X, Check } from 'lucide-vue-next';
-import { useFocusTrap } from '@/composables/focus-trap';
+import { Check } from 'lucide-vue-next';
+import ZenModal from '@/components/ui/ZenModal.vue';
 import ZenButton from '@/components/ui/ZenButton.vue';
 import type { BookValue } from '@gutenku/shared';
 
@@ -20,9 +20,6 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-const modalRef = ref<HTMLElement | null>(null);
-const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } = useFocusTrap(modalRef);
-
 const imageLoaded = ref(false);
 const imageError = ref(false);
 
@@ -36,14 +33,6 @@ watch(() => props.book, () => {
   imageError.value = false;
 });
 
-watch(() => props.modelValue, (isOpen) => {
-  if (isOpen) {
-    activateFocusTrap();
-  } else {
-    deactivateFocusTrap();
-  }
-});
-
 function handleImageLoad() {
   imageLoaded.value = true;
   imageError.value = false;
@@ -54,6 +43,7 @@ function handleImageError() {
 }
 
 function close() {
+  if (props.loading) {return;}
   emit('update:modelValue', false);
   emit('cancel');
 }
@@ -61,172 +51,122 @@ function close() {
 function confirm() {
   emit('confirm');
 }
-
-function handleKeydown(event: KeyboardEvent) {
-  if (event.key === 'Escape') {
-    close();
-  } else if (event.key === 'Enter' && !props.loading) {
-    confirm();
-  }
-}
 </script>
 
 <template>
-  <Teleport to="body">
-    <Transition name="modal">
-      <div
-        v-if="modelValue && book"
-        class="confirm-modal"
-        role="dialog"
-        aria-modal="true"
-        :aria-labelledby="'confirm-title'"
-        @keydown="handleKeydown"
-      >
-        <div
-          class="confirm-modal__backdrop"
-          aria-hidden="true"
-          @click="close"
-        />
-
-        <div ref="modalRef" class="confirm-modal__content" tabindex="-1">
-          <button
-            class="confirm-modal__close"
-            :aria-label="t('common.close')"
-            @click="close"
-          >
-            <X :size="20" />
-          </button>
-
-          <div class="confirm-modal__book">
-            <!-- Book cover -->
-            <div class="confirm-modal__cover">
-              <img
-                v-show="imageLoaded && !imageError"
-                :src="coverUrl"
-                :alt="book.title"
-                @load="handleImageLoad"
-                @error="handleImageError"
-              />
-              <div
-                v-if="!imageLoaded || imageError"
-                class="confirm-modal__fallback"
-              >
-                <span
-                  class="confirm-modal__emoticons"
-                  >{{ book.emoticons }}</span
-                >
-              </div>
-            </div>
-
-            <!-- Book info -->
-            <div class="confirm-modal__info">
-              <h2 id="confirm-title" class="confirm-modal__title">
-                {{ book.title }}
-              </h2>
-              <p class="confirm-modal__author">
-                {{ book.author }}
-              </p>
-            </div>
-          </div>
-
-          <p class="confirm-modal__question">
-            {{ t('game.confirmGuessQuestion') }}
-          </p>
-
-          <div class="confirm-modal__actions">
-            <ZenButton
-              variant="ghost"
-              :disabled="loading"
-              class="confirm-modal__btn"
-              @click="close"
+  <ZenModal
+    :model-value="modelValue && !!book"
+    :max-width="360"
+    :persistent="loading"
+    :show-close="!loading"
+    content-class="confirm-modal"
+    title="confirm-guess"
+    @update:model-value="(val: boolean) => !val && close()"
+    @close="close"
+  >
+    <template v-if="book">
+      <div class="confirm-modal__content">
+        <!-- Decorative frame around cover -->
+        <div class="confirm-modal__book-frame">
+          <div class="confirm-modal__cover">
+            <img
+              v-show="imageLoaded && !imageError"
+              :src="coverUrl"
+              :alt="book.title"
+              @load="handleImageLoad"
+              @error="handleImageError"
+            />
+            <div
+              v-if="!imageLoaded || imageError"
+              class="confirm-modal__fallback"
             >
-              {{ t('common.cancel') }}
-            </ZenButton>
-            <ZenButton
-              variant="cta"
-              :loading="loading"
-              class="confirm-modal__btn"
-              @click="confirm"
-            >
-              <template #icon-left>
-                <Check :size="18" />
-              </template>
-              {{ t('game.confirmGuess') }}
-            </ZenButton>
+              <span class="confirm-modal__emoticons">{{ book.emoticons }}</span>
+            </div>
+            <!-- Sepia tint overlay -->
+            <div class="confirm-modal__cover-tint" aria-hidden="true" />
           </div>
         </div>
+
+        <!-- Book info card -->
+        <div class="confirm-modal__info-card">
+          <h2 id="confirm-title" class="confirm-modal__title">
+            {{ book.title }}
+          </h2>
+          <p class="confirm-modal__author">
+            {{ book.author }}
+          </p>
+        </div>
+
+        <!-- Question -->
+        <p class="confirm-modal__question">
+          {{ t('game.confirmGuessQuestion') }}
+        </p>
       </div>
-    </Transition>
-  </Teleport>
+
+      <!-- Actions -->
+      <div class="confirm-modal__actions">
+        <ZenButton
+          variant="ghost"
+          size="sm"
+          spring
+          :disabled="loading"
+          class="confirm-modal__btn-cancel"
+          @click="close"
+        >
+          {{ t('common.cancel') }}
+        </ZenButton>
+        <ZenButton
+          variant="cta"
+          spring
+          :loading="loading"
+          class="confirm-modal__btn-confirm"
+          @click="confirm"
+        >
+          <template #icon-left>
+            <Check :size="18" />
+          </template>
+          {{ t('game.confirmGuess') }}
+        </ZenButton>
+      </div>
+    </template>
+  </ZenModal>
 </template>
 
 <style lang="scss" scoped>
-.confirm-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.confirm-modal__backdrop {
-  position: absolute;
-  inset: 0;
-  background: oklch(0 0 0 / 0.5);
-  backdrop-filter: blur(4px);
-}
-
-.confirm-modal__content {
-  position: relative;
-  width: 100%;
-  max-width: 340px;
-  background: var(--gutenku-paper-bg);
-  border-radius: var(--gutenku-radius-lg);
-  box-shadow:
-    0 20px 60px oklch(0 0 0 / 0.3),
-    0 8px 20px oklch(0 0 0 / 0.2);
-  padding: 1.5rem;
+:deep(.confirm-modal) {
   text-align: center;
 }
 
-.confirm-modal__close {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: transparent;
-  border: none;
-  border-radius: 50%;
-  color: var(--gutenku-text-muted);
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: var(--gutenku-zen-mist);
-    color: var(--gutenku-text-primary);
-  }
-}
-
-.confirm-modal__book {
+// Content wrapper for horizontal centering
+.confirm-modal__content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.25rem;
 }
 
+// Decorative frame around cover
+.confirm-modal__book-frame {
+  display: inline-block;
+  padding: 0.75rem;
+  background: var(--gutenku-zen-water);
+  border-radius: var(--gutenku-radius-lg);
+  box-shadow:
+    var(--gutenku-shadow-light),
+    inset 0 1px 0 oklch(1 0 0 / 0.1);
+  animation: cover-reveal 0.3s ease-out;
+}
+
+// Larger cover with refined shadow
 .confirm-modal__cover {
-  width: 120px;
-  height: 120px;
+  position: relative;
+  width: 140px;
+  height: 140px;
   border-radius: var(--gutenku-radius-md);
   overflow: hidden;
-  box-shadow: var(--gutenku-shadow-zen);
+  box-shadow:
+    0 2px 4px -1px oklch(0 0 0 / 0.2),
+    0 4px 5px 0 oklch(0 0 0 / 0.14),
+    0 1px 10px 0 oklch(0 0 0 / 0.12);
   background: var(--gutenku-zen-water);
 
   img {
@@ -236,6 +176,20 @@ function handleKeydown(event: KeyboardEvent) {
   }
 }
 
+// Sepia tint overlay (matches BookCard)
+.confirm-modal__cover-tint {
+  position: absolute;
+  inset: 0;
+  background: oklch(0.6 0.06 55 / 0.18);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+[data-theme='dark'] .confirm-modal__cover-tint {
+  background: oklch(0.45 0.05 50 / 0.18);
+}
+
+// Fallback when image fails
 .confirm-modal__fallback {
   display: flex;
   align-items: center;
@@ -253,7 +207,12 @@ function handleKeydown(event: KeyboardEvent) {
   font-size: 2.5rem;
 }
 
-.confirm-modal__info {
+// Info card with subtle background
+.confirm-modal__info-card {
+  padding: 1rem 1.25rem;
+  background: var(--gutenku-zen-water);
+  border-radius: var(--gutenku-radius-md);
+  margin-top: 1.25rem;
   text-align: center;
 }
 
@@ -271,55 +230,78 @@ function handleKeydown(event: KeyboardEvent) {
   margin: 0;
 }
 
+// Question styled as zen thought
 .confirm-modal__question {
+  position: relative;
   font-size: 0.9rem;
-  color: var(--gutenku-text-muted);
-  margin: 0 0 1.5rem;
+  font-style: italic;
+  color: var(--gutenku-text-secondary);
+  padding: 1.5rem 0 0;
+  margin: 1.5rem 0 0;
+
+  // Brush stroke separator
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--gutenku-zen-primary) 10%,
+      var(--gutenku-zen-primary) 50%,
+      var(--gutenku-zen-primary) 90%,
+      transparent 100%
+    );
+    opacity: 0.4;
+    border-radius: 1px;
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 1 Q10 0.3, 20 1 T40 1 T60 1 T80 1 T100 1' stroke='black' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    mask-size: 100% 100%;
+  }
 }
 
+[data-theme='dark'] .confirm-modal__question::before {
+  opacity: 0.5;
+}
+
+// Action buttons
 .confirm-modal__actions {
   display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 0.75rem;
+  margin-top: 1.25rem;
+  width: 100%;
 }
 
-.confirm-modal__btn {
+.confirm-modal__btn-cancel {
+  flex-shrink: 0;
+  min-height: 3rem;
+}
+
+.confirm-modal__btn-confirm {
   flex: 1;
 }
 
-// Modal transitions
-.modal-enter-active {
-  transition: all 0.25s ease-out;
-
-  .confirm-modal__content {
-    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-}
-
-.modal-leave-active {
-  transition: all 0.2s ease-in;
-
-  .confirm-modal__content {
-    transition: all 0.2s ease-in;
-  }
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  .confirm-modal__backdrop {
+// Cover reveal animation
+@keyframes cover-reveal {
+  from {
     opacity: 0;
+    transform: scale(0.9);
   }
-
-  .confirm-modal__content {
-    opacity: 0;
-    transform: scale(0.9) translateY(20px);
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
+// Reduced motion
 @media (prefers-reduced-motion: reduce) {
-  .modal-enter-active,
-  .modal-leave-active,
-  .confirm-modal__close {
-    transition: none;
+  .confirm-modal__book-frame {
+    animation: none;
   }
 }
 </style>
