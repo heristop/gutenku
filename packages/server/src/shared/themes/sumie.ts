@@ -35,7 +35,7 @@ export default {
     ctx.fillStyle = '#f5f5dc';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.font = 'bold 150px NanumBrushScript';
+    ctx.font = 'bold 165px NanumBrushScript';
     ctx.globalAlpha = 1;
 
     const x = 180;
@@ -52,7 +52,7 @@ export default {
       y += 480;
     });
 
-    ctx.font = 'bold 130px NanumBrushScript';
+    ctx.font = 'bold 145px NanumBrushScript';
     ctx.globalAlpha = 1;
     ctx.strokeStyle = 'rgba(245, 245, 220, 0.85)';
     ctx.lineWidth = 8;

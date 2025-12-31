@@ -70,6 +70,7 @@ const typeDefs = `#graphql
         hints: [PuzzleHint!]!
         haikus: [String!]!
         emoticonCount: Int!
+        nextPuzzleAvailableAt: String!
     }
 
     type DailyPuzzleResponse {

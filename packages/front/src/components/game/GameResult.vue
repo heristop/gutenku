@@ -19,12 +19,17 @@ const gameStore = useGameStore();
 const { currentGame, puzzle, stats, score, numericScore } = storeToRefs(gameStore);
 
 const newPuzzleReady = ref(false);
+const isTransitioning = ref(false);
 
-function handleCountdownComplete() {
+async function handleCountdownComplete() {
   newPuzzleReady.value = true;
+  setTimeout(async () => {
+    await playNewPuzzle();
+  }, 1500);
 }
 
 const { formattedTime, hours, minutes, seconds, start, stop } = useCountdown({
+  getTargetTime: () => puzzle.value?.nextPuzzleAvailableAt,
   onComplete: handleCountdownComplete,
 });
 
@@ -110,13 +115,26 @@ async function share() {
 }
 
 async function playNewPuzzle() {
+  isTransitioning.value = true;
+  // Fade out with animation
+  await new Promise((r) => {
+    setTimeout(r, 300);
+  });
+  modelValue.value = false;
+  // Reset and fetch new puzzle
   gameStore.resetGame();
   await gameStore.fetchDailyPuzzle();
+  isTransitioning.value = false;
+  newPuzzleReady.value = false;
 }
 </script>
 
 <template>
-  <ZenModal v-model="modelValue" :max-width="400" content-class="game-result">
+  <ZenModal
+    v-model="modelValue"
+    :max-width="400"
+    :content-class="`game-result ${isTransitioning ? 'transitioning' : ''}`"
+  >
     <div
       v-if="showConfetti"
       :key="particleKey"
@@ -344,6 +362,12 @@ async function playNewPuzzle() {
   max-height: 90dvh;
   overflow-y: auto;
   overscroll-behavior: contain;
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+:deep(.game-result.transitioning) {
+  transform: scale(0.95);
+  opacity: 0;
 }
 
 .celebration-particles {

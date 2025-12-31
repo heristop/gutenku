@@ -34,7 +34,7 @@ export default {
     ctx.fillStyle = '#f0ead6';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.font = 'bold 125px IndieFlower';
+    ctx.font = 'bold 140px IndieFlower';
     ctx.globalAlpha = 1;
 
     const x = 180;
@@ -48,7 +48,7 @@ export default {
     });
 
     // Signature
-    ctx.font = 'bold 115px IndieFlower';
+    ctx.font = 'bold 130px IndieFlower';
     ctx.fillStyle = '#2d4a2d';
     ctx.fillText('- GutenKu', canvas.width - 660, canvas.height - 280);
 
