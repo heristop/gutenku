@@ -102,8 +102,7 @@ export const useGameStore = defineStore(
         currentGame.value?.isComplete,
     );
 
-    // 100-point score calculation
-    // Base: 100, deductions: -10/wrong guess, -5/extra hint, -5/haiku, -2/scratch
+    // 100-point score: -10/wrong guess, -5/extra hint, -5/haiku, -2/scratch
     const numericScore = computed(() => {
       if (!currentGame.value) {
         return 0;
@@ -176,7 +175,6 @@ export const useGameStore = defineStore(
       cleanupCelebrationKeys();
       const today = getTodayDate();
 
-      // Skip fetch if current puzzle is still valid
       if (
         currentGame.value &&
         currentGame.value.date === today &&
@@ -186,9 +184,9 @@ export const useGameStore = defineStore(
         return;
       }
 
-      // Clear game data when date changes
       if (currentGame.value && currentGame.value.date !== today) {
         currentGame.value = null;
+        puzzle.value = null;
         showResult.value = false;
       }
 
@@ -196,7 +194,6 @@ export const useGameStore = defineStore(
         loading.value = true;
         error.value = '';
 
-        // Fetch all hints if game complete, otherwise only current round hints
         let revealedRounds = [1];
         if (currentGame.value?.isComplete) {
           revealedRounds = [1, 2, 3, 4, 5, 6];
@@ -215,6 +212,7 @@ export const useGameStore = defineStore(
                 puzzleNumber
                 haikus
                 emoticonCount
+                nextPuzzleAvailableAt
                 hints {
                   round
                   type
@@ -488,7 +486,6 @@ export const useGameStore = defineStore(
       if (!currentGame.value || !canScratchEmoticon.value) {
         return false;
       }
-      // Initialize if missing (for old persisted state)
       if (currentGame.value.scratchedEmoticons === undefined) {
         currentGame.value.scratchedEmoticons = 0;
       }
@@ -500,7 +497,6 @@ export const useGameStore = defineStore(
       if (!puzzle.value || !currentGame.value || !canRevealHaiku.value) {
         return null;
       }
-      // Initialize revealedHaikus if missing (for old persisted state)
       if (!currentGame.value.revealedHaikus) {
         currentGame.value.revealedHaikus = [];
       }
@@ -554,6 +550,18 @@ export const useGameStore = defineStore(
     persist: {
       storage: localStorage,
       pick: ['currentGame', 'stats', 'showResult'],
+      afterHydrate: (ctx) => {
+        const today = new Date().toISOString().split('T')[0];
+        const state = ctx.store.$state as {
+          currentGame: GameState | null;
+          showResult: boolean;
+        };
+
+        if (state.currentGame?.date && state.currentGame.date !== today) {
+          state.currentGame = null;
+          state.showResult = false;
+        }
+      },
     },
   },
 );

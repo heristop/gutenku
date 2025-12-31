@@ -34,7 +34,7 @@ export default {
     ctx.fillStyle = '#f4efe4';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.font = 'bold 140px ZenKurenaido';
+    ctx.font = 'bold 155px ZenKurenaido';
     ctx.globalAlpha = 1;
 
     const x = 180;
@@ -48,7 +48,7 @@ export default {
     });
 
     // Signature
-    ctx.font = 'bold 125px ZenKurenaido';
+    ctx.font = 'bold 140px ZenKurenaido';
     ctx.fillStyle = '#5c4033';
     ctx.fillText('- GutenKu', canvas.width - 720, canvas.height - 280);
 

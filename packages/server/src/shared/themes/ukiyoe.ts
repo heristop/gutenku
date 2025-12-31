@@ -34,7 +34,7 @@ export default {
     ctx.fillStyle = '#fff8e7';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.font = 'bold 120px Yomogi';
+    ctx.font = 'bold 135px Yomogi';
     ctx.globalAlpha = 1;
 
     const x = 180;
@@ -48,7 +48,7 @@ export default {
     });
 
     // Signature
-    ctx.font = 'bold 110px Yomogi';
+    ctx.font = 'bold 125px Yomogi';
     ctx.fillStyle = '#4a1525';
     ctx.fillText('- GutenKu', canvas.width - 620, canvas.height - 280);
 

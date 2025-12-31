@@ -313,6 +313,11 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
       .map((s) => s.segment)
       .filter((char) => char.trim()).length;
 
+    // Calculate next puzzle availability (next midnight UTC)
+    const tomorrow = new Date();
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+    tomorrow.setUTCHours(0, 0, 0, 0);
+
     return {
       puzzle: {
         date,
@@ -320,6 +325,7 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
         hints,
         haikus,
         emoticonCount,
+        nextPuzzleAvailableAt: tomorrow.toISOString(),
       },
       availableBooks: getAvailableBooks(book, date),
     };

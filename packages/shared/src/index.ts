@@ -86,8 +86,9 @@ export interface DailyPuzzle {
   date: string;
   puzzleNumber: number;
   hints: PuzzleHint[];
-  haikus: string[]; // Array of haikus for lifeline system (max 3)
-  emoticonCount: number; // Total emoticons available for scratch reveal
+  haikus: string[];
+  emoticonCount: number;
+  nextPuzzleAvailableAt: string;
 }
 
 export interface GameGuess {

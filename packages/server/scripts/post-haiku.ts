@@ -166,7 +166,7 @@ try {
   // Resize for daily card
   const imageBuffer = await fs.readFile(haiku.imagePath);
   const resizedImageBuffer = await sharp(imageBuffer)
-    .resize(1000, 1000)
+    .resize(1000, 1333)
     .toBuffer();
   await fs.writeFile(
     path.join(DATA_DIRECTORY, 'daily_haiku_card.jpg'),
