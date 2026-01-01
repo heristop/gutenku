@@ -269,7 +269,7 @@
 @layer components {
   // Form focus states
   @supports selector(:has(*)) {
-    .form-group:has(input:focus, .v-field--focused) {
+    .form-group:has(input:focus) {
       background: var(--gutenku-zen-water);
       border-radius: var(--gutenku-radius-md);
       transition: background var(--gutenku-duration-swift);
@@ -1049,16 +1049,6 @@ body {
   }
 }
 
-// Dialog backdrop blur
-.v-dialog > .v-overlay__scrim {
-  backdrop-filter: blur(20px);
-  background: oklch(0.15 0.02 60 / 0.85) !important;
-}
-
-[data-theme='dark'] .v-dialog > .v-overlay__scrim {
-  background: oklch(0 0 0 / 0.95) !important;
-}
-
 // Vuetify Typography Utility Class Overrides
 .text-caption,
 .text-body-1,
@@ -1611,68 +1601,6 @@ body {
   .text-subtitle-2.text-medium-emphasis {
     color: var(--gutenku-text-muted) !important;
   }
-
-  .v-card-title {
-    color: var(--gutenku-text-primary) !important;
-  }
-
-  .v-card-subtitle {
-    color: var(--gutenku-text-muted) !important;
-  }
-
-  .v-card-text {
-    color: var(--gutenku-text-secondary) !important;
-  }
-
-  .v-btn {
-    color: var(--gutenku-text-primary) !important;
-
-    .v-btn__content {
-      color: var(--gutenku-text-primary) !important;
-    }
-
-    &.v-btn--variant-text {
-      color: var(--gutenku-text-primary) !important;
-
-      .v-btn__content {
-        color: var(--gutenku-text-primary) !important;
-      }
-
-      &:hover {
-        color: var(--gutenku-zen-accent) !important;
-
-        .v-btn__content {
-          color: var(--gutenku-zen-accent) !important;
-        }
-      }
-    }
-
-    &.v-btn--variant-elevated,
-    &.v-btn--variant-contained {
-      .v-btn__content {
-        color: var(--gutenku-text-primary) !important;
-      }
-    }
-
-    &.v-btn--variant-outlined {
-      color: var(--gutenku-text-primary) !important;
-      border-color: var(--gutenku-border-visible) !important;
-
-      .v-btn__content {
-        color: var(--gutenku-text-primary) !important;
-      }
-    }
-  }
-
-  .v-chip {
-    .v-chip__content {
-      color: inherit !important;
-    }
-  }
-
-  .v-tooltip .v-overlay__content {
-    color: var(--gutenku-text-primary) !important;
-  }
 }
 
 @media (prefers-contrast: high) {
@@ -1711,37 +1639,9 @@ body {
     outline-offset: 2px;
   }
 
-  .stats-panel__book-rank,
-  .v-chip {
+  .stats-panel__book-rank {
     border: 1px solid ButtonText;
   }
-}
-
-// Form element hover states
-// ====================================
-.v-field {
-  transition: var(--gutenku-transition-zen);
-
-  &:hover:not(.v-field--disabled):not(.v-field--focused) {
-    border-color: var(--gutenku-border-visible-hover);
-    background: var(--gutenku-zen-water);
-  }
-}
-
-.v-input:hover:not(.v-input--disabled) {
-  .v-field__outline {
-    border-color: var(--gutenku-border-visible-hover);
-  }
-}
-
-.v-slider:hover:not(.v-input--disabled) {
-  .v-slider-track__background {
-    opacity: 0.5;
-  }
-}
-
-.v-btn {
-  text-transform: none;
 }
 
 .book {
@@ -1819,33 +1719,6 @@ body {
       }
     }
   }
-}
-
-.v-tooltip.v-overlay > .v-overlay__content {
-  background: color-mix(
-    in oklch,
-    var(--gutenku-theme-secondary-oklch) 90%,
-    transparent
-  );
-  max-width: 25rem !important; // 400px
-}
-
-// Tooltips for dark mode
-[data-theme='dark'] .v-tooltip.v-overlay > .v-overlay__content {
-  background: var(--gutenku-paper-bg-warm);
-  color: var(--gutenku-text-primary);
-  border: 1px solid var(--gutenku-border-visible);
-  box-shadow: var(--gutenku-shadow-zen);
-  font-size: 0.85rem;
-  backdrop-filter: blur(8px);
-}
-
-:root .v-tooltip.v-overlay > .v-overlay__content {
-  background: var(--gutenku-paper-bg-warm);
-  color: var(--gutenku-text-primary);
-  border: 1px solid var(--gutenku-border-visible);
-  box-shadow: var(--gutenku-shadow-light);
-  font-size: 0.85rem;
 }
 
 // Theme selector dropdown menu
@@ -1933,9 +1806,6 @@ body {
   .haiku-crafting,
   .light-beam-overlay,
   .floating-particles,
-  .v-snackbar,
-  .v-tooltip,
-  .v-overlay,
   nav,
   header,
   footer {
@@ -1948,13 +1818,6 @@ body {
     background: white !important;
     color: black !important;
     font-size: 12pt !important;
-  }
-
-  // Main content container
-  .v-container {
-    max-width: 100% !important;
-    padding: 0 !important;
-    margin: 0 !important;
   }
 
   // Book page (haiku chapter)
@@ -2037,8 +1900,7 @@ body {
   .hanko-stamp,
   .enso-loader,
   .water-ripple,
-  button,
-  .v-btn {
+  button {
     display: none !important;
   }
 
