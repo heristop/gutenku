@@ -54,37 +54,39 @@ useHead({
 </script>
 
 <template>
-  <v-app>
-    <ZenToast />
-    <header role="banner" class="site-header">
-      <ThemeToggle />
-    </header>
-    <div class="light-beam-overlay" aria-hidden="true" />
+  <div class="gutenku-app">
+    <div class="gutenku-app__wrap">
+      <ZenToast />
+      <header role="banner" class="site-header">
+        <ThemeToggle />
+      </header>
+      <div class="light-beam-overlay" aria-hidden="true" />
 
-    <!-- Floating particles -->
-    <div class="floating-particles" aria-hidden="true">
-      <div class="floating-particles__particle" />
-      <div class="floating-particles__particle" />
-      <div class="floating-particles__particle" />
-      <div class="floating-particles__particle" />
-      <div class="floating-particles__particle" />
-      <div class="floating-particles__particle" />
-      <div class="floating-particles__particle" />
-      <div class="floating-particles__particle" />
+      <!-- Floating particles -->
+      <div class="floating-particles" aria-hidden="true">
+        <div class="floating-particles__particle" />
+        <div class="floating-particles__particle" />
+        <div class="floating-particles__particle" />
+        <div class="floating-particles__particle" />
+        <div class="floating-particles__particle" />
+        <div class="floating-particles__particle" />
+        <div class="floating-particles__particle" />
+        <div class="floating-particles__particle" />
+      </div>
+
+      <a href="#main-content" class="skip-link">
+        {{ $t('layout.skipLink') }}
+      </a>
+      <default-view />
+      <footer role="contentinfo">
+        <AppFooter />
+      </footer>
     </div>
-
-    <a href="#main-content" class="skip-link">
-      {{ $t('layout.skipLink') }}
-    </a>
-    <default-view />
-    <footer role="contentinfo">
-      <AppFooter />
-    </footer>
-  </v-app>
+  </div>
 </template>
 
 <style lang="scss" scoped>
-:deep(.v-application__wrap) {
+.gutenku-app__wrap {
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
