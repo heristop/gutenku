@@ -40,9 +40,9 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <v-main id="main-content" class="gutenku-app-background" tabindex="-1">
+  <main id="main-content" class="gutenku-app-background" tabindex="-1">
     <router-view />
-  </v-main>
+  </main>
 </template>
 
 <style lang="scss" scoped>
