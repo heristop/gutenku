@@ -8,7 +8,7 @@ const props = withDefaults(
     /** Max stars */
     max?: number;
     /** Size variant */
-    size?: 'sm' | 'md' | 'lg' | 'xl';
+    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
     /** Animate entrance */
     animated?: boolean;
   }>(),
@@ -134,6 +134,14 @@ const stars = computed(() => {
 }
 
 // Size variants
+.score-stars--xs {
+  gap: 0.125rem;
+
+  .star {
+    font-size: 1rem;
+  }
+}
+
 .score-stars--sm {
   gap: 0.125rem;
 

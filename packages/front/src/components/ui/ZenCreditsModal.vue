@@ -14,12 +14,11 @@ const currentYear = new Date().getFullYear();
   <ZenModal
     v-model="modelValue"
     :max-width="380"
+    variant="scroll"
     content-class="zen-credits-modal"
     :title="t('footer.credits.ariaLabel')"
+    description="Credits and information about GutenKu"
   >
-    <!-- Paper texture -->
-    <div class="zen-credits-modal__paper" aria-hidden="true" />
-
     <!-- Haiku content -->
     <div class="zen-credits-modal__haiku">
       <p class="zen-credits-modal__line zen-credits-modal__line--1">
@@ -160,16 +159,6 @@ const currentYear = new Date().getFullYear();
 :deep(.zen-credits-modal) {
   text-align: center;
   overflow: hidden;
-}
-
-.zen-credits-modal__paper {
-  position: absolute;
-  inset: 0;
-  background:
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity: 0.03;
-  pointer-events: none;
-  border-radius: inherit;
 }
 
 .zen-credits-modal {
@@ -372,10 +361,6 @@ const currentYear = new Date().getFullYear();
 
 // Dark theme
 [data-theme='dark'] .zen-credits-modal {
-  &__paper {
-    opacity: 0.04;
-  }
-
   &__social-link {
     border-color: oklch(1 0 0 / 0.15);
 

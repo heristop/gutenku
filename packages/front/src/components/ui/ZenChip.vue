@@ -44,6 +44,7 @@ const classes = computed(() => [
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-family: inherit;
   font-weight: 600;
   border-radius: var(--gutenku-radius-md);
   transition: all 0.2s ease;
