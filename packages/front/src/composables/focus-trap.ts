@@ -12,7 +12,7 @@ const FOCUSABLE_SELECTOR = [
 interface FocusTrapOptions {
   /** Restore focus to previously focused element on deactivate */
   restoreFocus?: boolean;
-  /** Auto-focus first element when activated */
+  /** Focus first element when activated */
   autoFocus?: boolean;
 }
 

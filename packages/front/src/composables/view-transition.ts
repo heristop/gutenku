@@ -1,4 +1,4 @@
-// Check if View Transition API is supported and user allows motion
+// Check if View Transition API is supported and motion is enabled
 export const supportsViewTransition = (): boolean => {
   return (
     typeof document !== 'undefined' &&
