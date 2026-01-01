@@ -9,6 +9,7 @@ import { useTouchGestures } from '@/composables/touch-gestures';
 import BookCard, { type CardState } from './BookCard.vue';
 import SwipeHint from '@/components/ui/SwipeHint.vue';
 import ZenButton from '@/components/ui/ZenButton.vue';
+import ZenTooltip from '@/components/ui/ZenTooltip.vue';
 import type { BookValue } from '@gutenku/shared';
 
 const emit = defineEmits<{
@@ -192,19 +193,21 @@ defineExpose({
     </div>
 
     <div ref="containerRef" class="book-board__container">
-      <ZenButton
-        variant="ghost"
-        size="sm"
-        spring
-        :disabled="currentPage === 0"
-        :aria-label="t('common.previous')"
-        aria-describedby="book-board-pagination"
-        @click="prevPage"
-      >
-        <template #icon-left>
-          <ChevronLeft :size="18" />
-        </template>
-      </ZenButton>
+      <ZenTooltip :text="t('common.previous')" position="bottom">
+        <ZenButton
+          variant="ghost"
+          size="sm"
+          spring
+          :disabled="currentPage === 0"
+          :aria-label="t('common.previous')"
+          aria-describedby="book-board-pagination"
+          @click="prevPage"
+        >
+          <template #icon-left>
+            <ChevronLeft :size="18" />
+          </template>
+        </ZenButton>
+      </ZenTooltip>
 
       <TransitionGroup
         name="zen-card"
@@ -239,19 +242,21 @@ defineExpose({
         </div>
       </TransitionGroup>
 
-      <ZenButton
-        class="book-board__nav-next"
-        variant="ghost"
-        size="sm"
-        :disabled="currentPage >= totalPages - 1"
-        :aria-label="t('common.next')"
-        aria-describedby="book-board-pagination"
-        @click="nextPage"
-      >
-        <template #icon-left>
-          <ChevronRight :size="18" />
-        </template>
-      </ZenButton>
+      <ZenTooltip :text="t('common.next')" position="bottom">
+        <ZenButton
+          class="book-board__nav-next"
+          variant="ghost"
+          size="sm"
+          :disabled="currentPage >= totalPages - 1"
+          :aria-label="t('common.next')"
+          aria-describedby="book-board-pagination"
+          @click="nextPage"
+        >
+          <template #icon-left>
+            <ChevronRight :size="18" />
+          </template>
+        </ZenButton>
+      </ZenTooltip>
     </div>
 
     <div v-if="totalPages > 1" class="book-board__pagination">

@@ -208,37 +208,37 @@ async function playNewPuzzle() {
 
     <div class="stats-summary mb-4">
       <div class="stat-card" style="--delay: 0">
-        <div class="stat-card__icon">
-          <BookOpen :size="16" />
-        </div>
-        <div class="stat-card__content">
+        <div class="stat-card__top">
+          <div class="stat-card__icon">
+            <BookOpen :size="16" />
+          </div>
           <span class="stat-card__value">{{ stats.gamesPlayed }}</span>
-          <span class="stat-card__label">{{ t('game.stats.played') }}</span>
         </div>
+        <span class="stat-card__label">{{ t('game.stats.played') }}</span>
       </div>
 
       <div class="stats-divider" aria-hidden="true" />
 
       <div class="stat-card" style="--delay: 1">
-        <div class="stat-card__icon stat-card__icon--streak">
-          <Flame :size="16" />
-        </div>
-        <div class="stat-card__content">
+        <div class="stat-card__top">
+          <div class="stat-card__icon stat-card__icon--streak">
+            <Flame :size="16" />
+          </div>
           <span class="stat-card__value">{{ stats.currentStreak }}</span>
-          <span class="stat-card__label">{{ t('game.stats.streak') }}</span>
         </div>
+        <span class="stat-card__label">{{ t('game.stats.streak') }}</span>
       </div>
 
       <div class="stats-divider" aria-hidden="true" />
 
       <div class="stat-card" style="--delay: 2">
-        <div class="stat-card__icon stat-card__icon--best">
-          <Trophy :size="16" />
-        </div>
-        <div class="stat-card__content">
+        <div class="stat-card__top">
+          <div class="stat-card__icon stat-card__icon--best">
+            <Trophy :size="16" />
+          </div>
           <span class="stat-card__value">{{ stats.maxStreak }}</span>
-          <span class="stat-card__label">{{ t('game.stats.maxStreak') }}</span>
         </div>
+        <span class="stat-card__label">{{ t('game.stats.maxStreak') }}</span>
       </div>
     </div>
 
@@ -599,8 +599,9 @@ async function playNewPuzzle() {
 
 .stat-card {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.25rem;
   opacity: 0;
   transform: translateY(8px);
   animation: stat-appear 0.4s ease-out forwards;
@@ -649,11 +650,10 @@ async function playNewPuzzle() {
   color: oklch(0.75 0.12 85);
 }
 
-.stat-card__content {
+.stat-card__top {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.125rem;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .stat-card__value {
@@ -670,6 +670,7 @@ async function playNewPuzzle() {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--gutenku-text-muted);
+  text-align: center;
 }
 
 .next-puzzle {
