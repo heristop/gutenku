@@ -1,14 +1,8 @@
-import { ref, computed, watch, onMounted } from 'vue';
-import { useTheme as useVuetifyTheme } from 'vuetify';
+import { computed } from 'vue';
+import { useColorMode } from '@vueuse/core';
 
-export type ThemePreference = 'light' | 'dark' | 'system';
+export type ThemePreference = 'light' | 'dark' | 'auto';
 
-const isDarkMode = ref(false);
-const isSystemDark = ref(false);
-const themePreference = ref<ThemePreference>('light');
-const systemPreferenceEnabled = ref(false);
-
-const THEME_STORAGE_KEY = 'gutenku-theme-preference';
 const SYSTEM_PREF_STORAGE_KEY = 'gutenku-system-preference-enabled';
 
 const supportsViewTransition = (): boolean => {
@@ -19,123 +13,61 @@ const supportsViewTransition = (): boolean => {
   );
 };
 
-type Theme = 'light' | 'dark';
-
-const applyThemeChange = (
-  newTheme: Theme,
-  vuetifyTheme: ReturnType<typeof useVuetifyTheme>,
-) => {
-  const themeName = newTheme === 'dark' ? 'gutenkuDarkTheme' : 'gutenkuTheme';
-  const updateDOM = () => {
-    vuetifyTheme.change(themeName);
-    document.documentElement.setAttribute('data-theme', newTheme);
-  };
-
-  if (supportsViewTransition()) {
-    (
-      document as Document & {
-        startViewTransition: (callback: () => void) => void;
-      }
-    ).startViewTransition(updateDOM);
-  } else {
-    updateDOM();
-    document.documentElement.style.setProperty(
-      '--theme-transition',
-      'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
-    );
-  }
-};
+const colorMode = useColorMode({
+  attribute: 'data-theme',
+  selector: 'html',
+  storageKey: 'gutenku-theme-preference',
+  initialValue: 'light',
+  disableTransition: false,
+  onChanged: (mode, defaultHandler) => {
+    if (supportsViewTransition()) {
+      (
+        document as Document & {
+          startViewTransition: (callback: () => void) => void;
+        }
+      ).startViewTransition(() => defaultHandler(mode));
+    } else {
+      defaultHandler(mode);
+      document.documentElement.style.setProperty(
+        '--theme-transition',
+        'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+      );
+    }
+  },
+});
 
 export function useTheme() {
-  const vuetifyTheme = useVuetifyTheme();
-
-  const updateSystemTheme = () => {
-    isSystemDark.value = globalThis.matchMedia(
-      '(prefers-color-scheme: dark)',
-    ).matches;
-  };
-
-  const actualTheme = computed(() => {
-    if (!systemPreferenceEnabled.value && themePreference.value === 'system') {
-      return 'light';
-    }
-
-    switch (themePreference.value) {
-      case 'dark':
-        return 'dark';
-      case 'light':
-        return 'light';
-      case 'system':
-      default:
-        return isSystemDark.value ? 'dark' : 'light';
-    }
-  });
-
-  watch(
-    actualTheme,
-    (newTheme) => {
-      isDarkMode.value = newTheme === 'dark';
-      applyThemeChange(newTheme, vuetifyTheme);
-    },
-    { immediate: true },
+  const isDarkMode = computed(() => colorMode.value === 'dark');
+  const themePreference = computed(
+    () => colorMode.store.value as ThemePreference,
+  );
+  const actualTheme = computed(() => colorMode.value as 'light' | 'dark');
+  const isSystemDark = computed(() => colorMode.system.value === 'dark');
+  const systemPreferenceEnabled = computed(
+    () => colorMode.store.value === 'auto',
   );
 
-  const saveThemePreference = (preference: ThemePreference) => {
-    themePreference.value = preference;
-    localStorage.setItem(THEME_STORAGE_KEY, preference);
-  };
-
-  const saveSystemPreferenceEnabled = (enabled: boolean) => {
-    systemPreferenceEnabled.value = enabled;
-    localStorage.setItem(SYSTEM_PREF_STORAGE_KEY, enabled.toString());
-  };
-
-  const loadThemePreference = () => {
-    const saved = localStorage.getItem(
-      THEME_STORAGE_KEY,
-    ) as ThemePreference | null;
-    if (saved && ['light', 'dark', 'system'].includes(saved)) {
-      themePreference.value = saved;
-    }
-  };
-
-  const loadSystemPreferenceEnabled = () => {
-    const saved = localStorage.getItem(SYSTEM_PREF_STORAGE_KEY);
-    if (saved !== null) {
-      systemPreferenceEnabled.value = saved === 'true';
-    }
-  };
-
   const toggleTheme = () => {
-    const newPreference = isDarkMode.value ? 'light' : 'dark';
-    saveThemePreference(newPreference);
+    colorMode.value = isDarkMode.value ? 'light' : 'dark';
   };
 
   const setTheme = (theme: ThemePreference) => {
-    saveThemePreference(theme);
+    colorMode.value = theme;
   };
 
-  onMounted(() => {
-    loadThemePreference();
-    loadSystemPreferenceEnabled();
-
-    updateSystemTheme();
-
-    const mediaQuery = globalThis.matchMedia('(prefers-color-scheme: dark)');
-    mediaQuery.addEventListener('change', updateSystemTheme);
-
-    return () => {
-      mediaQuery.removeEventListener('change', updateSystemTheme);
-    };
-  });
+  const saveSystemPreferenceEnabled = (enabled: boolean) => {
+    if (enabled) {
+      colorMode.value = 'auto';
+    }
+    localStorage.setItem(SYSTEM_PREF_STORAGE_KEY, enabled.toString());
+  };
 
   return {
-    isDarkMode: computed(() => isDarkMode.value),
-    themePreference: computed(() => themePreference.value),
+    isDarkMode,
+    themePreference,
     actualTheme,
-    isSystemDark: computed(() => isSystemDark.value),
-    systemPreferenceEnabled: computed(() => systemPreferenceEnabled.value),
-
+    isSystemDark,
+    systemPreferenceEnabled,
     toggleTheme,
     setTheme,
     saveSystemPreferenceEnabled,
