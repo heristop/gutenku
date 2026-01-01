@@ -217,6 +217,50 @@ describe('CanvasService - create', () => {
     const result = await canvasService.create(mockHaiku);
     expect(typeof result).toBe('string');
   });
+
+  it('creates image with sumie theme', async () => {
+    canvasService.useTheme('sumie');
+    // @ts-expect-error - test with partial haiku
+    const result = await canvasService.create(mockHaiku);
+    expect(typeof result).toBe('string');
+  });
+
+  it('creates image with ukiyoe theme', async () => {
+    canvasService.useTheme('ukiyoe');
+    // @ts-expect-error - test with partial haiku
+    const result = await canvasService.create(mockHaiku);
+    expect(typeof result).toBe('string');
+  });
+
+  it('creates image with zengarden theme', async () => {
+    canvasService.useTheme('zengarden');
+    // @ts-expect-error - test with partial haiku
+    const result = await canvasService.create(mockHaiku);
+    expect(typeof result).toBe('string');
+  });
+
+  it('creates image with wabisabi theme', async () => {
+    canvasService.useTheme('wabisabi');
+    // @ts-expect-error - test with partial haiku
+    const result = await canvasService.create(mockHaiku);
+    expect(typeof result).toBe('string');
+  });
+
+  it('creates image with bookzen theme', async () => {
+    canvasService.useTheme('bookzen');
+    // @ts-expect-error - test with partial haiku
+    const result = await canvasService.create(mockHaiku);
+    expect(typeof result).toBe('string');
+  });
+
+  it('handles random theme selection with AI themes', async () => {
+    canvasService.useTheme('random');
+    vi.spyOn(Math, 'random').mockReturnValue(0); // Will select first AI theme
+
+    // @ts-expect-error - test with partial haiku
+    const result = await canvasService.create(mockHaiku, true);
+    expect(typeof result).toBe('string');
+  });
 });
 
 describe('CanvasService - save', () => {
