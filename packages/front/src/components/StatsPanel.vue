@@ -9,6 +9,7 @@ import ZenCard from '@/components/ui/ZenCard.vue';
 import ZenChip from '@/components/ui/ZenChip.vue';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
 import ZenAccordion from '@/components/ui/ZenAccordion.vue';
+import ZenProgress from '@/components/ui/ZenProgress.vue';
 
 const { t } = useI18n();
 
@@ -181,116 +182,89 @@ watch(progress, (val) => {
       :aria-label="t('stats.ariaLabel')"
     >
       <div class="stats-panel__content">
-        <div class="stats-panel__inner gutenku-book-page pa-3 mb-2">
-          <v-row dense>
-            <v-col cols="6" class="text-center">
-              <div
-                class="stats-panel__metric-label text-caption text-medium-emphasis"
-              >
+        <div class="stats-panel__inner">
+          <div class="stats-panel__metrics-grid">
+            <div class="stats-panel__metric">
+              <div class="stats-panel__metric-label">
                 {{ t('stats.metrics.haikuForged') }}
               </div>
               <div
-                class="stats-panel__metric-value text-subtitle-1 font-weight-bold"
+                class="stats-panel__metric-value"
                 :class="{ 'stats-panel__metric-value--pulse': pulsingHaikus }"
               >
                 {{ animatedHaikus }}
               </div>
-            </v-col>
-            <v-col cols="6" class="text-center">
-              <div
-                class="stats-panel__metric-label text-caption text-medium-emphasis"
-              >
+            </div>
+            <div class="stats-panel__metric">
+              <div class="stats-panel__metric-label">
                 {{ t('stats.metrics.booksBrowsed') }}
               </div>
               <div
-                class="stats-panel__metric-value text-subtitle-1 font-weight-bold"
+                class="stats-panel__metric-value"
                 :class="{ 'stats-panel__metric-value--pulse': pulsingBooks }"
               >
                 {{ animatedBooks }}
               </div>
-            </v-col>
-            <v-col cols="6" class="text-center mt-2">
-              <div
-                class="stats-panel__metric-label text-caption text-medium-emphasis"
-              >
+            </div>
+            <div class="stats-panel__metric">
+              <div class="stats-panel__metric-label">
                 {{ t('stats.metrics.fromCache') }}
               </div>
               <div
-                class="stats-panel__metric-value text-subtitle-1 font-weight-bold"
+                class="stats-panel__metric-value"
                 :class="{ 'stats-panel__metric-value--pulse': pulsingCached }"
               >
                 {{ animatedCached }}
               </div>
-            </v-col>
-            <v-col cols="6" class="text-center mt-2">
-              <div
-                class="stats-panel__metric-label text-caption text-medium-emphasis"
-              >
+            </div>
+            <div class="stats-panel__metric">
+              <div class="stats-panel__metric-label">
                 {{ t('stats.metrics.avgTime') }}
               </div>
               <div
-                class="stats-panel__metric-value text-subtitle-1 font-weight-bold"
+                class="stats-panel__metric-value"
                 :class="{ 'stats-panel__metric-value--pulse': pulsingTime }"
               >
                 {{ animatedTime.toFixed(2) }}s
               </div>
-            </v-col>
-          </v-row>
+            </div>
+          </div>
         </div>
 
-        <div
-          class="stats-panel__progress-wrapper mb-1 d-flex align-center justify-space-between"
-        >
-          <div
-            class="stats-panel__progress-label text-caption text-medium-emphasis"
-          >
+        <div class="stats-panel__progress-wrapper">
+          <div class="stats-panel__progress-label">
             {{ t('stats.cacheUsage') }}
           </div>
-          <div class="stats-panel__progress-percentage text-caption">
+          <div class="stats-panel__progress-percentage">
             {{ Math.round(animatedProgress) }}%
           </div>
         </div>
-        <v-progress-linear
+        <ZenProgress
           :model-value="animatedProgress"
-          color="primary"
-          rounded
-          height="6"
-          class="stats-panel__progress-bar"
-          role="progressbar"
-          :aria-valuenow="Math.round(animatedProgress)"
-          aria-valuemin="0"
-          aria-valuemax="100"
+          :height="6"
           :aria-label="t('stats.cacheUsage')"
         />
 
-        <div class="stats-panel__books-section mt-2">
-          <div
-            class="stats-panel__books-header text-subtitle-2 mb-2 d-flex align-center"
-          >
-            <Star
-              :size="18"
-              class="stats-panel__books-icon mr-2 text-primary"
-            />
+        <div class="stats-panel__books-section">
+          <div class="stats-panel__books-header">
+            <Star :size="18" class="stats-panel__books-icon" />
             <span
               class="stats-panel__books-title"
               >{{ t('stats.topBooks') }}</span
             >
           </div>
-          <v-row dense>
-            <v-col
+          <div class="stats-panel__books-list">
+            <div
               v-for="([name, count], idx) in topBooks"
               :key="name"
-              cols="12"
               class="stats-panel__book-item"
               :style="{ '--book-index': idx }"
             >
-              <div
-                class="stats-panel__book d-flex align-center justify-space-between"
-              >
-                <div class="stats-panel__book-info d-flex align-center">
+              <div class="stats-panel__book">
+                <div class="stats-panel__book-info">
                   <ZenTooltip :text="name" position="top">
                     <ZenChip
-                      class="stats-panel__book-rank mr-2"
+                      class="stats-panel__book-rank"
                       variant="accent"
                       size="sm"
                       :ariaLabel="t('stats.bookRank', { rank: idx + 1 })"
@@ -300,21 +274,15 @@ watch(progress, (val) => {
                   </ZenTooltip>
                   <span class="stats-panel__book-title">{{ name }}</span>
                 </div>
-                <div
-                  class="stats-panel__book-count text-caption text-medium-emphasis"
-                >
+                <div class="stats-panel__book-count">
                   {{ t('stats.times', { count }, count) }}
                 </div>
               </div>
-            </v-col>
-            <v-col
-              v-if="topBooks.length === 0"
-              cols="12"
-              class="stats-panel__empty-state text-center text-medium-emphasis text-caption"
-            >
+            </div>
+            <div v-if="topBooks.length === 0" class="stats-panel__empty-state">
               {{ t('stats.emptyState') }}
-            </v-col>
-          </v-row>
+            </div>
+          </div>
         </div>
       </div>
     </ZenAccordion>
@@ -331,19 +299,74 @@ watch(progress, (val) => {
 
   &__inner {
     background: var(--gutenku-paper-bg-aged);
-    border-radius: var(--gutenku-radius-md);
-    box-shadow: var(--gutenku-shadow-book);
+    border-radius: var(--gutenku-radius-sm);
+    box-shadow: 0 1px 2px oklch(0 0 0 / 0.06);
     border: 1px solid var(--gutenku-paper-border);
-    min-height: auto !important;
-    padding: 0.75rem !important;  // 12px
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  &__metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 0;
+  }
+
+  &__metric {
+    text-align: center;
+  }
+
+  &__metric-label {
+    font-size: 0.75rem;
+    color: var(--gutenku-text-muted);
   }
 
   &__metric-value {
+    font-size: 1rem;
+    font-weight: 700;
     transition: transform 0.2s ease, color 0.2s ease;
 
     &--pulse {
       animation: value-pulse 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
+  }
+
+  &__progress-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+  }
+
+  &__progress-label {
+    font-size: 0.75rem;
+    color: var(--gutenku-text-muted);
+  }
+
+  &__progress-percentage {
+    font-size: 0.75rem;
+  }
+
+  &__books-section {
+    margin-top: 0.5rem;
+  }
+
+  &__books-header {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  &__books-icon {
+    color: var(--gutenku-zen-primary);
+    margin-right: 0.5rem;
+  }
+
+  &__books-list {
+    display: flex;
+    flex-direction: column;
   }
 
   &__book-item {
@@ -353,15 +376,26 @@ watch(progress, (val) => {
   }
 
   &__book {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     padding: 4px 0;
   }
 
   &__book-info {
+    display: flex;
+    align-items: center;
     flex: 1;
     min-width: 0;
   }
 
+  &__book-rank {
+    margin-right: 0.5rem;
+  }
+
   &__book-count {
+    font-size: 0.75rem;
+    color: var(--gutenku-text-muted);
     white-space: nowrap;
     margin-left: 0.5rem;
     flex-shrink: 0;
@@ -377,6 +411,12 @@ watch(progress, (val) => {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  &__empty-state {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--gutenku-text-muted);
   }
 }
 
@@ -437,16 +477,6 @@ watch(progress, (val) => {
 
   &__progress-percentage {
     color: var(--gutenku-text-secondary);
-  }
-
-  &__progress-bar {
-    :deep(.v-progress-linear__determinate) {
-      background: linear-gradient(
-        90deg,
-        rgb(var(--v-theme-primary)) 0%,
-        rgb(var(--v-theme-secondary)) 100%
-      );
-    }
   }
 }
 

@@ -3,6 +3,7 @@ import { Sparkles, PenTool } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 import { useLoadingMessages } from '@/composables/loading-messages';
 import ZenCard from '@/components/ui/ZenCard.vue';
+import ZenProgress from '@/components/ui/ZenProgress.vue';
 
 interface Message {
   text: string;
@@ -84,11 +85,9 @@ const { message: craftingMessage } = useLoadingMessages({
 
           <!-- Progress Bar -->
           <div class="progress-container">
-            <v-progress-linear
+            <ZenProgress
               indeterminate
-              color="primary"
-              height="4"
-              class="craft-progress"
+              :height="4"
               :aria-label="t('haikuCrafting.progress')"
             />
             <div class="progress-text">

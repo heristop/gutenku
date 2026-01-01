@@ -11,6 +11,7 @@ import HankoStamp from '@/components/HankoStamp.vue';
 import InkDropLoader from '@/components/InkDropLoader.vue';
 import ZenCard from '@/components/ui/ZenCard.vue';
 import ZenSelect from '@/components/ui/ZenSelect.vue';
+import ZenImage from '@/components/ui/ZenImage.vue';
 
 const { t } = useI18n();
 
@@ -106,8 +107,8 @@ const createRipple = (event?: MouseEvent | KeyboardEvent) => {
 };
 
 const haikuImage = computed(() => {
-  if (!haiku.value) {
-    return;
+  if (!haiku.value?.image) {
+    return '';
   }
 
   return `data:image/png;base64,${haiku.value.image}`;
@@ -189,16 +190,18 @@ const onImageLoad = () => {
             @keydown.enter="createRipple"
             @keydown.space.prevent="createRipple"
           >
-            <v-img
+            <ZenImage
               :src="haikuImage"
               :alt="haiku.verses.join(', ')"
               aspect-ratio="3/4"
-              cover
-              eager
+              fit="cover"
+              :lazy="false"
+              placeholder="none"
+              :reveal="false"
+              :prevent-context-menu="true"
               class="haiku-image"
               :class="{ 'haiku-image--reveal': imageLoaded }"
               @load="onImageLoad"
-              @contextmenu.prevent
             />
 
             <div
