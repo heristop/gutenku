@@ -30,7 +30,6 @@ export default {
     ctx.globalAlpha = 0.85;
     drawImageCover(ctx, background, canvas.width, canvas.height);
 
-    // Stronger overlay to soften background
     ctx.globalAlpha = 0.55;
     ctx.fillStyle = '#f5f5dc';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -41,12 +40,10 @@ export default {
     const x = 180;
     let y = canvas.height / 4;
     verses.map((verse) => {
-      // Cream outline for readability
       ctx.strokeStyle = 'rgba(245, 245, 220, 0.9)';
       ctx.lineWidth = 10;
       ctx.lineJoin = 'round';
       ctx.strokeText(verse, x, y);
-      // Dark ink fill
       ctx.fillStyle = '#0a0a0a';
       ctx.fillText(verse, x, y);
       y += 480;
