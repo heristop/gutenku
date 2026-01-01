@@ -1,6 +1,7 @@
 {
   "common": {
     "back": "Back",
+    "backToHome": "Return to home",
     "close": "Close",
     "cancel": "Cancel",
     "collapse": "Collapse",
@@ -12,7 +13,7 @@
     "opensInNewTab": "opens in new tab",
     "swipe": "Swipe",
     "previous": "Previous page",
-    "next": "Next",
+    "next": "Next page",
     "skip": "Skip"
   },
   "nav": {
@@ -210,6 +211,7 @@
       "line1": "Code flows like water",
       "line2": "heristop crafts each pixel",
       "line3": "Haiku born from books",
+      "craftedBy": "Crafted by",
       "years": "2023-{year}",
       "github": "GitHub",
       "portfolio": "Portfolio",

@@ -14,7 +14,7 @@ import type {
 import { gql } from '@urql/vue';
 import { urqlClient } from '@/client';
 
-const LAUNCH_DATE = '2025-01-01';
+const LAUNCH_DATE = '2026-01-01';
 
 function getTodayDate(): string {
   return new Date().toISOString().split('T')[0];
@@ -250,7 +250,7 @@ export const useGameStore = defineStore(
           availableBooks.value = data.availableBooks;
 
           if (!currentGame.value) {
-            // Auto-reveal first haiku (it's free)
+            // First haiku is always revealed
             const firstHaiku = data.puzzle.haikus[0];
             currentGame.value = {
               puzzleNumber: data.puzzle.puzzleNumber,
