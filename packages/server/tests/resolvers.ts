@@ -37,6 +37,26 @@ vi.mock('tsyringe', async (importOriginal) => {
           return { id: 'c1' };
         case 'GenerateHaikuQuery':
           return { verses: ['a', 'b', 'c'] };
+        case 'GetDailyPuzzleQuery':
+          return {
+            puzzle: {
+              date: '2026-01-15',
+              puzzleNumber: 15,
+              hints: [],
+            },
+            availableBooks: [],
+          };
+        case 'SubmitGuessQuery':
+          return {
+            isCorrect: true,
+            correctBook: { reference: 'book-123' },
+          };
+        case 'GetGlobalStatsQuery':
+          return {
+            totalGamesPlayed: 100,
+            totalWins: 75,
+            winRate: 0.75,
+          };
         default:
           return null;
       }
@@ -150,5 +170,46 @@ describe('GraphQL resolvers', () => {
       useCache: undefined,
     });
     expect(h).toEqual({ verses: ['a', 'b', 'c'] });
+  });
+
+  it('dailyPuzzle query resolves via QueryBus', async () => {
+    const result = await resolvers.Query.dailyPuzzle(undefined, {
+      date: '2026-01-15',
+      revealedRounds: [1, 2],
+    });
+    expect(result.puzzle).toBeDefined();
+    expect(result.puzzle.date).toBe('2026-01-15');
+    expect(result.availableBooks).toBeDefined();
+  });
+
+  it('dailyPuzzle query with no revealed rounds', async () => {
+    const result = await resolvers.Query.dailyPuzzle(undefined, {
+      date: '2026-01-15',
+      revealedRounds: undefined,
+    });
+    expect(result.puzzle).toBeDefined();
+  });
+
+  it('submitGuess query resolves via QueryBus', async () => {
+    const result = await resolvers.Query.submitGuess(undefined, {
+      date: '2026-01-15',
+      guessedBookId: 'book-123',
+      currentRound: 1,
+    });
+    expect(result.isCorrect).toBeTruthy();
+    expect(result.correctBook?.reference).toBe('book-123');
+  });
+
+  it('globalStats query resolves via QueryBus', async () => {
+    const result = await resolvers.Query.globalStats();
+    expect(result.totalGamesPlayed).toBe(100);
+    expect(result.totalWins).toBe(75);
+    expect(result.winRate).toBe(0.75);
+  });
+
+  it('subscription resolve function extracts quoteGenerated', () => {
+    const payload = { quoteGenerated: 'Test quote from book' };
+    const result = resolvers.Subscription.quoteGenerated.resolve(payload);
+    expect(result).toBe('Test quote from book');
   });
 });
