@@ -2,7 +2,7 @@
 import { computed, useSlots, onMounted } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { Loader2 } from 'lucide-vue-next';
+import InkDropLoader from '@/components/InkDropLoader.vue';
 
 export type ZenButtonVariant = 'cta' | 'ghost' | 'text';
 export type ZenButtonSize = 'sm' | 'md' | 'lg';
@@ -116,7 +116,7 @@ if (import.meta.env.DEV) {
     @click="handleClick"
   >
     <template v-if="loading">
-      <Loader2 :size="18" class="zen-btn__loader" aria-hidden="true" />
+      <InkDropLoader :size="32" class="zen-btn__loader" aria-hidden="true" />
       <span class="visually-hidden">{{ t('common.loading') }}</span>
     </template>
 
@@ -246,7 +246,7 @@ $spring-easing: linear(
   }
 
   &__loader {
-    animation: spin 1s linear infinite;
+    // ZenLoader handles its own animation
   }
 
   &__content {
@@ -413,6 +413,7 @@ $spring-easing: linear(
 .zen-btn--lg {
   padding: 1rem 2rem;
   font-size: 1rem;
+  font-family: inherit;
   gap: 0.625rem;
 
   &.zen-btn--icon-only {
@@ -442,14 +443,6 @@ $spring-easing: linear(
   }
 }
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
 
 .visually-hidden {
   position: absolute;
