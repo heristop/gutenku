@@ -111,7 +111,6 @@ const body = {
 try {
   console.log(pc.bold('\n📮 Haiku Post\n'));
 
-  // Show options
   console.log(pc.dim(`Theme: ${options.theme}`));
   console.log(pc.dim(`Platform: ${options.platform}`));
   console.log(
@@ -123,7 +122,6 @@ try {
     pc.dim(`Selection Count: ${variables.selectionCount ?? 'default'}`),
   );
 
-  // Generate haiku with spinner
   const generateSpinner = ora('Generating haiku with image...').start();
 
   const response = await fetch(
@@ -156,7 +154,6 @@ try {
     generateSpinner.succeed(pc.green('Haiku generated'));
   }
 
-  // Process image
   const imageSpinner = ora('Processing image...').start();
 
   const imageData = Buffer.from(haiku.image, 'base64');
@@ -166,7 +163,7 @@ try {
   // Resize for daily card
   const imageBuffer = await fs.readFile(haiku.imagePath);
   const resizedImageBuffer = await sharp(imageBuffer)
-    .resize(1000, 1333)
+    .resize(900, 1200)
     .toBuffer();
   await fs.writeFile(
     path.join(DATA_DIRECTORY, 'daily_haiku_card.jpg'),
@@ -182,7 +179,6 @@ try {
 
   imageSpinner.succeed(pc.green('Image processed'));
 
-  // Display all candidates if available
   if (haiku.candidates && haiku.candidates.length > 1 && haiku.selectionInfo) {
     console.log(pc.bold('\n═══ All Candidates ═══\n'));
     const selectedIndex = haiku.selectionInfo.selectedIndex;
@@ -211,10 +207,8 @@ try {
     }
   }
 
-  // Display preview
   console.log(pc.bold('═══ Generated Haiku ═══\n'));
 
-  // Terminal image preview
   try {
     const preview = await terminalImage.buffer(imageData, { width: 40 });
     console.log(preview);
@@ -222,7 +216,6 @@ try {
     console.log(pc.dim('  [Image preview not available]'));
   }
 
-  // Haiku details
   console.log(pc.cyan('  ' + haiku.verses.join('\n  ')));
   console.log(pc.dim(`\n  — ${haiku.book.title}`));
   console.log(pc.dim(`    by ${haiku.book.author}`));
@@ -237,7 +230,6 @@ try {
     console.log(`${pc.dim('Hashtags:')} ${pc.blue(haiku.hashtags)}`);
   }
 
-  // Translations
   if (haiku.translations) {
     console.log(pc.bold('\n═══ Translations ═══\n'));
     if (haiku.translations.fr) {
@@ -272,7 +264,6 @@ try {
     process.exit(0);
   }
 
-  // Post to Discord
   if (options.interaction === false) {
     const postSpinner = ora('Posting to Discord...').start();
     await socialPost(haiku);

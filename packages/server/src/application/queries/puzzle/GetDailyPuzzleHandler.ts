@@ -55,8 +55,8 @@ function getPuzzleNumber(dateStr: string): number {
 }
 
 /**
- * Select book for the given date using cycle-based deterministic selection.
- * Books are shuffled per cycle to avoid repeats within N-day windows.
+ * Select book for the given date using cycle-based selection.
+ * Each cycle reshuffles the book list.
  */
 function selectDailyBook(dateStr: string): GutenGuessBook {
   const books = getGutenGuessBooks();
@@ -133,10 +133,14 @@ const HINT_POOL: HintDefinition[] = [
     },
   },
   {
-    type: 'letter_author',
+    type: 'first_letter',
+    difficulty: 7,
+    generator: (book) => `${book.title[0].toUpperCase()}...`,
+  },
+  {
+    type: 'author_nationality',
     difficulty: 8,
-    generator: (book) =>
-      `${book.title[0].toUpperCase()}... by a ${book.authorNationality} author`,
+    generator: (book) => book.authorNationality,
   },
   {
     type: 'author_name',
@@ -147,7 +151,7 @@ const HINT_POOL: HintDefinition[] = [
 
 /**
  * Generate 6 hints for the book: emoticons (round 1) + 5 randomly selected hints from pool.
- * Excludes era/publication_century pairs. Sorts by difficulty. Deterministic via seeded PRNG.
+ * Excludes era/publication_century pairs. Sorts by difficulty. Uses seeded PRNG.
  */
 function generateHints(
   book: GutenGuessBook,
@@ -333,7 +337,7 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
 
   /**
    * Generate haikus from chapter sentences matching 5-7-5 syllable pattern.
-   * Validates sentences using NaturalLanguageService rules. Deterministic via seeded PRNG.
+   * Validates sentences using NaturalLanguageService rules. Uses seeded PRNG.
    */
   private async generateHaikus(
     book: GutenGuessBook,
