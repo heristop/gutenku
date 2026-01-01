@@ -3,6 +3,7 @@ import { defineAsyncComponent, onMounted, onUnmounted, ref, computed, watch, nex
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import { useSwipe } from '@vueuse/core';
+import { useSeoMeta } from '@unhead/vue';
 import { ChevronLeft, ChevronRight, RefreshCw, Unlock } from 'lucide-vue-next';
 import ZenButton from '@/components/ui/ZenButton.vue';
 import { useGameStore } from '@/store/game';
@@ -26,6 +27,14 @@ const GameHelp = defineAsyncComponent(
 );
 
 const { t } = useI18n();
+
+useSeoMeta({
+  ogImage: 'https://gutenku.xyz/og-gutenguess.png',
+  ogTitle: 'GutenGuess - Daily Literary Guessing Game',
+  ogDescription: 'Guess the classic book from emoji clues! A daily puzzle for book lovers.',
+  twitterImage: 'https://gutenku.xyz/og-gutenguess.png',
+});
+
 const showHelp = ref(false);
 const showConfirmModal = ref(false);
 const showHaikuTooltip = ref(false);
@@ -53,6 +62,7 @@ function updateTooltipPosition() {
 const isSubmitting = ref(false);
 const bookBoardRef = ref<{ clearSelection: () => void; clearEliminated: () => void } | null>(null);
 const gameStarted = ref(false);
+const showHintUnlockedToast = ref(false);
 const currentHaikuIndex = ref(0);
 const haikuCarouselRef = ref<HTMLElement | null>(null);
 
@@ -193,6 +203,11 @@ async function handleConfirmGuess() {
       vibrateSuccess();
     } else {
       vibrateError();
+      // Show "hint unlocked" toast only if game continues (not on final attempt)
+      if (!isGameComplete.value) {
+        showHintUnlockedToast.value = true;
+        setTimeout(() => { showHintUnlockedToast.value = false; }, 2500);
+      }
     }
 
     showConfirmModal.value = false;
@@ -211,7 +226,7 @@ function handleCancelGuess() {
 </script>
 
 <template>
-  <v-container class="game-container py-2">
+  <div class="game-container">
     <ZenButton
       to="/"
       variant="ghost"
@@ -225,12 +240,18 @@ function handleCancelGuess() {
       {{ t('common.back') }}
     </ZenButton>
 
-    <div class="game-board gutenku-paper">
+    <main class="game-board gutenku-paper">
       <div class="game-board__texture" aria-hidden="true" />
 
       <GameHeader @show-stats="showStats = true" @show-help="showHelp = true" />
 
       <div v-if="loading && !puzzle" class="game-loading">
+        <img
+          src="/og-gutenguess.png"
+          alt=""
+          aria-hidden="true"
+          class="game-loading__illustration"
+        />
         <AppLoading :text="t('game.loading')" />
       </div>
 
@@ -269,11 +290,22 @@ function handleCancelGuess() {
             class="start-gate"
           >
             <div class="start-gate__content">
+              <img
+                src="/gutenmage.png"
+                alt=""
+                aria-hidden="true"
+                class="start-gate__illustration"
+                loading="lazy"
+              />
               <h2 class="start-gate__title">{{ t('game.startGate.title') }}</h2>
               <p class="start-gate__subtitle">
                 {{ t('game.startGate.subtitle') }}
               </p>
-              <button class="start-gate__cta" @click="handleStartGame">
+              <button
+                type="button"
+                class="start-gate__cta"
+                @click="handleStartGame"
+              >
                 <Unlock :size="20" />
                 {{ t('game.startGate.cta') }}
               </button>
@@ -294,6 +326,7 @@ function handleCancelGuess() {
             :class="{
               'haiku-card--revealed': index < haikuCount,
               'haiku-card--next': index === haikuCount && canRevealHaiku,
+              'haiku-card--free': index === 0,
             }"
             :style="{ '--card-index': index }"
             :disabled="index > haikuCount || (index === haikuCount && !canRevealHaiku)"
@@ -303,6 +336,17 @@ function handleCancelGuess() {
             <span class="haiku-card__icon">🎭</span>
             <span class="haiku-card__label">Haiku</span>
             <span class="haiku-card__number">{{ index + 1 }}</span>
+            <!-- Cost badge: Free for first, -5 for others -->
+            <span
+              v-if="index === 0 && index < haikuCount"
+              class="haiku-card__cost haiku-card__cost--free"
+              >{{ t('game.free') }}</span
+            >
+            <span
+              v-else-if="index > 0 && index === haikuCount && canRevealHaiku"
+              class="haiku-card__cost haiku-card__cost--paid"
+              >-5 pts</span
+            >
           </button>
         </div>
 
@@ -311,11 +355,13 @@ function handleCancelGuess() {
             <div
               v-if="showHaikuTooltip && hasRevealedHaiku"
               ref="haikuTooltipRef"
+              role="dialog"
+              aria-labelledby="haiku-tooltip-title"
               class="haiku-tooltip"
               :style="tooltipStyle"
             >
               <div class="haiku-tooltip-header">
-                <div class="haiku-tooltip-label">
+                <div id="haiku-tooltip-title" class="haiku-tooltip-label">
                   {{ t('game.haikuHint') }}
                   {{ selectedHaikuIndex + 1 }}/{{ maxHaikus }}
                 </div>
@@ -364,11 +410,15 @@ function handleCancelGuess() {
           </div>
         </Transition>
 
-        <div
+        <section
           v-if="isGameComplete && puzzle?.haikus?.length"
           class="haiku-review"
+          aria-labelledby="haiku-review-heading"
         >
-          <div class="haiku-review__header">
+          <h2 id="haiku-review-heading" class="sr-only">
+            {{ t('game.review.haikuHints') }}
+          </h2>
+          <div class="haiku-review__header" aria-hidden="true">
             <span class="haiku-review__icon">🎭</span>
             <span
               class="haiku-review__title"
@@ -381,7 +431,7 @@ function handleCancelGuess() {
               v-if="puzzle.haikus.length > 1"
               class="haiku-nav haiku-nav--prev"
               :disabled="currentHaikuIndex === 0"
-              aria-label="Previous haiku"
+              :aria-label="t('toolbar.previousTooltip')"
               @click="prevHaiku"
             >
               <ChevronLeft :size="20" />
@@ -408,7 +458,7 @@ function handleCancelGuess() {
               v-if="puzzle.haikus.length > 1"
               class="haiku-nav haiku-nav--next"
               :disabled="currentHaikuIndex === puzzle.haikus.length - 1"
-              aria-label="Next haiku"
+              :aria-label="t('toolbar.nextTooltip')"
               @click="nextHaiku"
             >
               <ChevronRight :size="20" />
@@ -425,9 +475,22 @@ function handleCancelGuess() {
               @click="currentHaikuIndex = idx"
             />
           </div>
-        </div>
+        </section>
       </template>
-    </div>
+
+      <!-- Hint unlocked toast -->
+      <Transition name="toast">
+        <div
+          v-if="showHintUnlockedToast"
+          class="hint-toast"
+          role="status"
+          aria-live="polite"
+        >
+          <span class="hint-toast__icon">🔓</span>
+          <span class="hint-toast__text">{{ t('game.hintUnlocked') }}</span>
+        </div>
+      </Transition>
+    </main>
 
     <GuessConfirmModal
       v-model="showConfirmModal"
@@ -439,15 +502,15 @@ function handleCancelGuess() {
     <GameResult v-model="showResult" />
     <GameStats v-model="showStats" />
     <GameHelp v-model="showHelp" />
-  </v-container>
+  </div>
 </template>
 
 <style lang="scss" scoped>
 .game-container {
+  width: 100%;
   max-width: 900px;
   margin: 0 auto;
-  padding-left: 0.75rem;
-  padding-right: 0.75rem;
+  padding: 0.5rem 0.75rem;
   view-transition-name: game-page;
 
   @media (min-width: 600px) {
@@ -531,8 +594,8 @@ function handleCancelGuess() {
 .haiku-cards-wrapper {
   display: flex;
   justify-content: center;
-  gap: 0.75rem;
-  padding: 0.75rem 0.5rem;
+  gap: 1rem;
+  padding: 1.25rem 1rem;
   border-bottom: 1px solid var(--gutenku-paper-border);
 }
 
@@ -572,7 +635,7 @@ function handleCancelGuess() {
   &--next {
     background: oklch(from var(--gutenku-zen-primary) l c h / 0.12);
     border-color: oklch(from var(--gutenku-zen-primary) l c h / 0.3);
-    animation: card-pulse 2s ease-in-out infinite;
+    animation: card-pulse 3s ease-in-out infinite;
   }
 
   &:disabled:not(.haiku-card--revealed) {
@@ -584,7 +647,7 @@ function handleCancelGuess() {
 
 @keyframes card-pulse {
   0%, 100% { transform: rotate(calc((var(--card-index) - 1) * 4deg)) scale(1); }
-  50% { transform: rotate(calc((var(--card-index) - 1) * 4deg)) scale(1.06); }
+  50% { transform: rotate(calc((var(--card-index) - 1) * 4deg)) scale(1.03); }
 }
 
 .haiku-card__icon {
@@ -658,6 +721,52 @@ function handleCancelGuess() {
   color: oklch(0.75 0.1 195);
 }
 
+.haiku-card__cost {
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.15rem 0.4rem;
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: oklch(0.35 0.1 25);
+  background: oklch(0.85 0.12 45);
+  border-radius: var(--gutenku-radius-sm);
+  white-space: nowrap;
+
+  &--free {
+    color: oklch(0.45 0.08 55);
+    background: oklch(0.96 0.02 85);
+    border: 1px solid oklch(0.85 0.03 85);
+    box-shadow: 0 1px 2px oklch(0 0 0 / 0.08);
+  }
+
+  &--paid {
+    color: oklch(0.4 0.1 25);
+    background: oklch(0.95 0.03 55);
+    border: 1px solid oklch(0.85 0.05 45);
+    box-shadow: 0 1px 2px oklch(0 0 0 / 0.08);
+  }
+}
+
+[data-theme='dark'] .haiku-card__cost {
+  color: oklch(0.95 0.08 45);
+  background: oklch(0.45 0.12 45);
+
+  &--free {
+    color: oklch(0.85 0.02 85);
+    background: oklch(0.28 0.015 85);
+    border: 1px solid oklch(0.4 0.02 85);
+    box-shadow: 0 1px 2px oklch(0 0 0 / 0.2);
+  }
+
+  &--paid {
+    color: oklch(0.9 0.08 45);
+    background: oklch(0.32 0.04 45);
+    border: 1px solid oklch(0.45 0.06 45);
+    box-shadow: 0 1px 2px oklch(0 0 0 / 0.2);
+  }
+}
 
 .haiku-tooltip {
   z-index: 9999;
@@ -863,6 +972,39 @@ function handleCancelGuess() {
   margin: 0 auto;
 }
 
+.start-gate__illustration {
+  display: block;
+  width: 140px;
+  height: auto;
+  margin: 0 auto 1rem;
+  opacity: 0.9;
+  filter: grayscale(20%);
+  animation: illustration-breathe 4s ease-in-out infinite;
+
+  @media (min-width: 640px) {
+    width: 160px;
+  }
+
+  @media (min-width: 1024px) {
+    width: 180px;
+  }
+}
+
+@keyframes illustration-breathe {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+[data-theme='dark'] .start-gate__illustration {
+  filter: brightness(0.85) grayscale(30%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .start-gate__illustration {
+    animation: none;
+  }
+}
+
 .start-gate__title {
   font-size: 1.1rem;
   font-weight: 600;
@@ -1005,9 +1147,24 @@ function handleCancelGuess() {
 .game-loading {
   min-height: 200px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 2rem;
+}
+
+.game-loading__illustration {
+  width: 180px;
+  height: auto;
+  margin-bottom: 1rem;
+  filter: hue-rotate(150deg) saturate(0.7) brightness(1.05);
+  opacity: 0.85;
+  animation: gentle-float 3s ease-in-out infinite;
+}
+
+@keyframes gentle-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }
 
 .game-error {
@@ -1179,6 +1336,62 @@ function handleCancelGuess() {
   }
 }
 
+// Hint unlocked toast
+.hint-toast {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background: var(--gutenku-paper-bg);
+  border: 1px solid var(--gutenku-zen-accent);
+  border-radius: var(--gutenku-radius-full);
+  box-shadow:
+    0 4px 12px oklch(0 0 0 / 0.12),
+    0 0 0 3px oklch(from var(--gutenku-zen-accent) l c h / 0.15);
+  z-index: 10;
+
+  &__icon {
+    font-size: 1rem;
+  }
+
+  &__text {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--gutenku-text-primary);
+    white-space: nowrap;
+  }
+}
+
+[data-theme='dark'] .hint-toast {
+  background: oklch(0.22 0.02 55);
+  box-shadow:
+    0 4px 12px oklch(0 0 0 / 0.35),
+    0 0 0 3px oklch(from var(--gutenku-zen-accent) l c h / 0.2);
+}
+
+// Toast transition
+.toast-enter-active {
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.toast-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.toast-enter-from {
+  opacity: 0;
+  transform: translateX(-50%) translateY(10px) scale(0.95);
+}
+
+.toast-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-5px);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .game-board,
   .seal-free-badge {
@@ -1189,7 +1402,9 @@ function handleCancelGuess() {
   .gate-leave-active,
   .books-enter-active,
   .books-leave-active,
-  .start-gate__cta {
+  .start-gate__cta,
+  .toast-enter-active,
+  .toast-leave-active {
     transition: none;
   }
 }

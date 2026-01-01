@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type {
@@ -66,6 +67,8 @@ export const useGameStore = defineStore(
     const error = ref('');
     const showStats = ref(false);
     const showResult = ref(false);
+    const revealingCorrectBook = ref(false);
+    const correctBookReference = ref<string | null>(null);
 
     // Getters
     const todayDate = computed(() => getTodayDate());
@@ -102,7 +105,7 @@ export const useGameStore = defineStore(
         currentGame.value?.isComplete,
     );
 
-    // 100-point score: -10/wrong guess, -5/extra hint, -5/haiku, -2/scratch
+    // 100-point score: -10/wrong guess, -5/extra hint, -5/haiku (1st free), -2/scratch
     const numericScore = computed(() => {
       if (!currentGame.value) {
         return 0;
@@ -112,13 +115,14 @@ export const useGameStore = defineStore(
       ).length;
       const hintsRevealed = currentGame.value.currentRound - 1; // hints beyond the first
       const haikusUsed = currentGame.value.revealedHaikus?.length ?? 0;
+      const paidHaikus = Math.max(0, haikusUsed - 1); // first haiku is free
       const scratches = currentGame.value.scratchedEmoticons ?? 0;
 
       const calculated =
         100 -
         wrongGuesses * 10 - // -10 per wrong guess
         hintsRevealed * 5 - // -5 per hint beyond first
-        haikusUsed * 5 - // -5 per haiku lifeline
+        paidHaikus * 5 - // -5 per extra haiku (1st is free)
         scratches * 2; // -2 per emoticon scratch
 
       return Math.max(0, calculated);
@@ -246,6 +250,8 @@ export const useGameStore = defineStore(
           availableBooks.value = data.availableBooks;
 
           if (!currentGame.value) {
+            // Auto-reveal first haiku (it's free)
+            const firstHaiku = data.puzzle.haikus[0];
             currentGame.value = {
               puzzleNumber: data.puzzle.puzzleNumber,
               date: today,
@@ -255,7 +261,7 @@ export const useGameStore = defineStore(
               isWon: false,
               scratchedEmoticons: 0,
               allEmoticonsRevealed: false,
-              revealedHaikus: [],
+              revealedHaikus: firstHaiku ? [firstHaiku] : [],
             };
           }
         }
@@ -360,6 +366,15 @@ export const useGameStore = defineStore(
             puzzle.value.hints = guessResult.allHints;
           }
           recordLoss();
+
+          // Show correct book for 1.5s before modal
+          correctBookReference.value = guessResult.correctBook.reference;
+          revealingCorrectBook.value = true;
+          await new Promise((resolve) => {
+            setTimeout(resolve, 1500);
+          });
+          revealingCorrectBook.value = false;
+          correctBookReference.value = null;
           showResult.value = true;
         }
 
@@ -416,9 +431,8 @@ export const useGameStore = defineStore(
           '⭐'.repeat(starCount) + '☆'.repeat(Math.max(0, emptyStars));
       }
 
-      // Header with puzzle number, stars and score (format: #YYYY-N)
-      const year = currentGame.value.date.split('-')[0];
-      let shareText = `GutenGuess #${year}-${currentGame.value.puzzleNumber}`;
+      // Header with puzzle number, stars and score
+      let shareText = `GutenGuess #${currentGame.value.puzzleNumber}`;
       if (isWon) {
         shareText += ` ${starsDisplay} (${numericScore.value}/100)`;
       } else {
@@ -518,6 +532,8 @@ export const useGameStore = defineStore(
       error,
       showStats,
       showResult,
+      revealingCorrectBook,
+      correctBookReference,
       // Getters
       todayDate,
       puzzleNumber,

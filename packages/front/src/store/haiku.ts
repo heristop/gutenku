@@ -307,6 +307,15 @@ export const useHaikuStore = defineStore(
       return true;
     }
 
+    function resetConfigToDefaults(): void {
+      optionMinSentimentScore.value = 0.1;
+      optionMinMarkovScore.value = 0.1;
+      optionMinPosScore.value = 0;
+      optionMinTrigramScore.value = 0;
+      optionMinTfidfScore.value = 0;
+      optionMinPhoneticsScore.value = 0;
+    }
+
     return {
       // State
       haiku,
@@ -346,6 +355,7 @@ export const useHaikuStore = defineStore(
       fetchNewHaiku,
       goBack,
       goForward,
+      resetConfigToDefaults,
     };
   },
   {

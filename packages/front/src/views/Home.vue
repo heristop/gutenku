@@ -26,19 +26,16 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-container class="home-container pa-2 pa-sm-4">
+  <div class="home-container">
     <main
-      id="main-content"
       class="home-content"
       :class="{ 'home-content--visible': showContent }"
       :aria-label="t('home.haikuContentLabel')"
     >
       <!-- Introduction Section -->
-      <v-row justify="center" no-gutters>
-        <v-col cols="12" md="10" lg="8" class="pa-1 pa-sm-3">
-          <Hero />
-        </v-col>
-      </v-row>
+      <div class="hero-wrapper">
+        <Hero />
+      </div>
 
       <!-- Preview Cards Grid -->
       <div class="preview-grid">
@@ -46,7 +43,7 @@ onMounted(() => {
         <HaikuPreview />
       </div>
     </main>
-  </v-container>
+  </div>
 </template>
 
 <style lang="scss" scoped>
@@ -55,8 +52,36 @@ onMounted(() => {
   flex-direction: column;
   justify-content: center;
   flex: 1;
-  padding-top: 1rem;
-  padding-bottom: 0.5rem;
+  width: 100%;
+  margin-inline: auto;
+  padding: 1rem 0.5rem 0.5rem;
+
+  @media (min-width: 600px) {
+    padding: 1rem 1rem 0.5rem;
+  }
+
+  @media (min-width: 960px) {
+    max-width: 900px;
+  }
+
+  @media (min-width: 1280px) {
+    max-width: 1200px;
+  }
+
+  @media (min-width: 1920px) {
+    max-width: 1800px;
+  }
+}
+
+.hero-wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0.25rem;
+  width: 100%;
+
+  @media (min-width: 600px) {
+    padding: 0.75rem;
+  }
 }
 
 .home-content {
