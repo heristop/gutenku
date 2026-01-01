@@ -16,16 +16,13 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const gameStore = useGameStore();
-const { puzzleNumber, stats, todayDate } = storeToRefs(gameStore);
+const { puzzleNumber, stats } = storeToRefs(gameStore);
 const { isMuted, toggleMute } = useAudioFeedback();
 
 const isDev = import.meta.env.DEV;
 
-// Format puzzle ID as YYYY-N
-const formattedPuzzleId = computed(() => {
-  const year = todayDate.value.split('-')[0];
-  return `${year}-${puzzleNumber.value}`;
-});
+// Format puzzle ID
+const formattedPuzzleId = computed(() => puzzleNumber.value);
 
 async function resetAndReplay() {
   gameStore.resetGame();

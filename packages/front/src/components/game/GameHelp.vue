@@ -104,6 +104,9 @@ function close() {
     v-model="modelValue"
     :max-width="440"
     :persistent="isFirstVisit"
+    variant="book"
+    title="How to Play"
+    description="Step-by-step guide on how to play GutenGuess"
     content-class="game-help"
     @close="close"
   >

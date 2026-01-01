@@ -35,7 +35,8 @@ const hintIcons: Record<string, string> = {
   genre: '📖',
   era: '🕐',
   quote: '💬',
-  letter_author: '🔤',
+  first_letter: '🔤',
+  author_nationality: '🌍',
   author_name: '👤',
   publication_century: '📅',
   title_word_count: '#️⃣',
@@ -55,7 +56,8 @@ const hintLabel = computed(() => {
     genre: t('game.hints.genre'),
     era: t('game.hints.era'),
     quote: t('game.hints.quote'),
-    letter_author: t('game.hints.letterAuthor'),
+    first_letter: t('game.hints.firstLetter'),
+    author_nationality: t('game.hints.authorNationality'),
     author_name: t('game.hints.authorName'),
     publication_century: t('game.hints.publicationCentury'),
     title_word_count: t('game.hints.titleWordCount'),
@@ -137,12 +139,24 @@ function toggleExpanded() {
             "{{ latestHint.content }}"
           </div>
 
-          <!-- Letter & Author -->
+          <!-- First Letter -->
           <div
-            v-else-if="latestHint.type === 'letter_author'"
-            class="letter-author-inline"
+            v-else-if="latestHint.type === 'first_letter'"
+            class="first-letter-inline"
           >
-            {{ latestHint.content }}
+            <span
+              class="letter-circle"
+              >{{ latestHint.content.charAt(0) }}</span
+            >
+            <span class="letter-dots">...</span>
+          </div>
+
+          <!-- Author Nationality -->
+          <div
+            v-else-if="latestHint.type === 'author_nationality'"
+            class="nationality-inline"
+          >
+            <span class="nationality-text">{{ latestHint.content }}</span>
           </div>
 
           <!-- Author name -->
@@ -394,9 +408,58 @@ function toggleExpanded() {
   color: var(--gutenku-text-primary);
 }
 
-.letter-author-inline {
-  font-size: 1rem;
-  color: var(--gutenku-text-primary);
+.first-letter-inline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+
+  .letter-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gutenku-zen-primary);
+    background: var(--gutenku-zen-water);
+    border: 2px solid var(--gutenku-zen-primary);
+    border-radius: var(--gutenku-radius-full);
+  }
+
+  .letter-dots {
+    font-size: 1.25rem;
+    color: var(--gutenku-text-muted);
+    letter-spacing: 0.1em;
+  }
+}
+
+[data-theme='dark'] .first-letter-inline .letter-circle {
+  background: oklch(0.25 0.03 60);
+  border-color: var(--gutenku-zen-accent);
+}
+
+.nationality-inline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  .nationality-text {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--gutenku-text-primary);
+    padding: 0.5rem 1rem;
+    background: oklch(0.96 0.02 70);
+    border-left: 3px solid var(--gutenku-zen-accent);
+    border-radius: var(--gutenku-radius-sm);
+  }
+}
+
+[data-theme='dark'] .nationality-inline .nationality-text {
+  background: oklch(0.22 0.02 65);
 }
 
 .author-inline {

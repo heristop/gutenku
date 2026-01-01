@@ -2,7 +2,7 @@
 import { computed, watch, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
-import { Share2, Trophy, BookX, Clock, Sparkles } from 'lucide-vue-next';
+import { Share2, Trophy, BookX, Clock, Sparkles, Flame, BookOpen } from 'lucide-vue-next';
 import { useAudioFeedback } from '@/composables/audio-feedback';
 import ZenModal from '@/components/ui/ZenModal.vue';
 import ZenButton from '@/components/ui/ZenButton.vue';
@@ -133,6 +133,9 @@ async function playNewPuzzle() {
   <ZenModal
     v-model="modelValue"
     :max-width="400"
+    variant="scroll"
+    title="Game Result"
+    description="Your GutenGuess game result with score and next puzzle countdown"
     :content-class="`game-result ${isTransitioning ? 'transitioning' : ''}`"
   >
     <div
@@ -178,11 +181,10 @@ async function playNewPuzzle() {
         }}
       </p>
 
-      <div v-if="isWon" class="score-stars-wrapper mt-3">
-        <ScoreStars :score="score" size="xl" animated />
-        <div class="numeric-score gutenku-text-muted">
-          {{ numericScore }}/100 pts
-        </div>
+      <div v-if="isWon" class="score-display mt-3">
+        <span class="score-value">{{ numericScore }}</span>
+        <span class="score-unit">pts</span>
+        <ScoreStars :score="score" size="lg" animated />
       </div>
     </div>
 
@@ -204,29 +206,38 @@ async function playNewPuzzle() {
       </div>
     </div>
 
-    <div class="stats-summary d-flex justify-center ga-4 mb-4">
-      <div class="stat-item text-center" style="--delay: 0">
-        <div class="stat-value gutenku-text-primary">
-          {{ stats.gamesPlayed }}
+    <div class="stats-summary mb-4">
+      <div class="stat-card" style="--delay: 0">
+        <div class="stat-card__icon">
+          <BookOpen :size="16" />
         </div>
-        <div class="stat-label gutenku-text-muted">
-          {{ t('game.stats.played') }}
-        </div>
-      </div>
-      <div class="stat-item text-center" style="--delay: 1">
-        <div class="stat-value gutenku-text-primary">
-          {{ stats.currentStreak }}
-        </div>
-        <div class="stat-label gutenku-text-muted">
-          {{ t('game.stats.streak') }}
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ stats.gamesPlayed }}</span>
+          <span class="stat-card__label">{{ t('game.stats.played') }}</span>
         </div>
       </div>
-      <div class="stat-item text-center" style="--delay: 2">
-        <div class="stat-value gutenku-text-primary">
-          {{ stats.maxStreak }}
+
+      <div class="stats-divider" aria-hidden="true" />
+
+      <div class="stat-card" style="--delay: 1">
+        <div class="stat-card__icon stat-card__icon--streak">
+          <Flame :size="16" />
         </div>
-        <div class="stat-label gutenku-text-muted">
-          {{ t('game.stats.maxStreak') }}
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ stats.currentStreak }}</span>
+          <span class="stat-card__label">{{ t('game.stats.streak') }}</span>
+        </div>
+      </div>
+
+      <div class="stats-divider" aria-hidden="true" />
+
+      <div class="stat-card" style="--delay: 2">
+        <div class="stat-card__icon stat-card__icon--best">
+          <Trophy :size="16" />
+        </div>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ stats.maxStreak }}</span>
+          <span class="stat-card__label">{{ t('game.stats.maxStreak') }}</span>
         </div>
       </div>
     </div>
@@ -478,17 +489,34 @@ async function playNewPuzzle() {
   margin: 0.5rem 0 0;
 }
 
-.score-stars-wrapper {
+.score-display {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 0.375rem;
 }
 
-.numeric-score {
-  font-size: 1rem;
-  font-weight: 500;
-  opacity: 0.85;
+.score-value {
+  font-family: 'JMH Typewriter', monospace;
+  font-size: 2rem;
+  font-weight: 700;
+  color: oklch(0.5 0.1 195);
+  line-height: 1;
+  text-shadow: 0 0 6px oklch(0.5 0.1 195 / 0.2);
+}
+
+[data-theme='dark'] .score-value {
+  color: oklch(0.65 0.1 195);
+  text-shadow: 0 0 8px oklch(0.6 0.1 195 / 0.25);
+}
+
+.score-unit {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gutenku-text-muted);
+  margin-right: 0.25rem;
 }
 
 .correct-book {
@@ -552,10 +580,29 @@ async function playNewPuzzle() {
   margin-top: 0.25rem;
 }
 
-.stat-item {
-  min-width: 60px;
+.stats-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: var(--gutenku-zen-water);
+  border-radius: var(--gutenku-radius-md);
+}
+
+.stats-divider {
+  width: 1px;
+  height: 2.5rem;
+  background: var(--gutenku-paper-border);
+  opacity: 0.5;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(8px);
   animation: stat-appear 0.4s ease-out forwards;
   animation-delay: calc(var(--delay) * 0.1s + 0.3s);
 }
@@ -567,15 +614,62 @@ async function playNewPuzzle() {
   }
 }
 
-.stat-value {
-  font-size: 1.5rem;
-  font-weight: 600;
+.stat-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: oklch(0.5 0.03 55 / 0.12);
+  border-radius: var(--gutenku-radius-sm);
+  color: var(--gutenku-text-secondary);
 }
 
-.stat-label {
-  font-size: 0.75rem;
+.stat-card__icon--streak {
+  background: oklch(0.65 0.15 30 / 0.15);
+  color: oklch(0.55 0.18 30);
+}
+
+.stat-card__icon--best {
+  background: oklch(0.7 0.12 85 / 0.2);
+  color: oklch(0.55 0.15 85);
+}
+
+[data-theme='dark'] .stat-card__icon {
+  background: oklch(1 0 0 / 0.08);
+}
+
+[data-theme='dark'] .stat-card__icon--streak {
+  background: oklch(0.6 0.15 30 / 0.2);
+  color: oklch(0.7 0.18 30);
+}
+
+[data-theme='dark'] .stat-card__icon--best {
+  background: oklch(0.7 0.12 85 / 0.15);
+  color: oklch(0.75 0.12 85);
+}
+
+.stat-card__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem;
+}
+
+.stat-card__value {
+  font-family: 'JMH Typewriter', monospace;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--gutenku-text-primary);
+}
+
+.stat-card__label {
+  font-size: 0.6rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.05em;
+  color: var(--gutenku-text-muted);
 }
 
 .next-puzzle {
@@ -881,8 +975,12 @@ async function playNewPuzzle() {
     padding: 1rem !important;
   }
 
-  :deep(.score-stars--xl .star) {
+  .score-value {
     font-size: 1.5rem;
+  }
+
+  :deep(.score-stars--lg .star) {
+    font-size: 1.25rem;
   }
 
   .result-header {
@@ -900,7 +998,7 @@ async function playNewPuzzle() {
     }
   }
 
-  .score-stars-wrapper {
+  .score-display {
     margin-top: 0.5rem !important;
   }
 
@@ -910,7 +1008,22 @@ async function playNewPuzzle() {
   }
 
   .stats-summary {
+    gap: 0.5rem;
+    padding: 0.625rem 0.75rem;
     margin-bottom: 0.75rem !important;
+  }
+
+  .stat-card__icon {
+    width: 1.625rem;
+    height: 1.625rem;
+  }
+
+  .stat-card__value {
+    font-size: 1rem;
+  }
+
+  .stats-divider {
+    height: 2rem;
   }
 
   .next-puzzle {
@@ -921,7 +1034,7 @@ async function playNewPuzzle() {
 
 @media (prefers-reduced-motion: reduce) {
   .result-icon-wrapper.won,
-  .stat-item,
+  .stat-card,
   .share-btn__shimmer,
   .particle--sakura,
   .todays-poem .haiku-line,

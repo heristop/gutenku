@@ -41,7 +41,12 @@ function getBarWidth(count: number): string {
 </script>
 
 <template>
-  <ZenModal v-model="modelValue" :max-width="400" title="statistics">
+  <ZenModal
+    v-model="modelValue"
+    :max-width="400"
+    title="statistics"
+    description="Your GutenGuess game statistics including win rate and guess distribution"
+  >
     <h2 class="stats-title gutenku-text-primary mb-4">
       {{ t('game.statistics') }}
     </h2>

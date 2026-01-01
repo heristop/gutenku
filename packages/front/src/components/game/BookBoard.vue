@@ -3,7 +3,7 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import { useMediaQuery } from '@vueuse/core';
-import { Search, X as CloseIcon, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { Search, SearchX, X as CloseIcon, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import { useGameStore } from '@/store/game';
 import { useTouchGestures } from '@/composables/touch-gestures';
 import BookCard, { type CardState } from './BookCard.vue';
@@ -17,7 +17,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const gameStore = useGameStore();
-const { availableBooks, currentGame, loading } = storeToRefs(gameStore);
+const { availableBooks, currentGame, loading, revealingCorrectBook, correctBookReference } = storeToRefs(gameStore);
 
 const isDesktop = useMediaQuery('(min-width: 600px)');
 const itemsPerPage = computed(() => isDesktop.value ? 10 : 9);
@@ -166,7 +166,7 @@ defineExpose({
           v-model="searchQuery"
           type="search"
           :aria-label="t('game.searchLabel')"
-          :placeholder="t('game.searchPlaceholder')"
+          :placeholder="t('game.searchPlaceholder', { count: availableBooks.length })"
           :disabled="loading"
           autocomplete="off"
         />
@@ -220,6 +220,7 @@ defineExpose({
           :book="book"
           :state="getCardState(book)"
           :disabled="isCardDisabled(book)"
+          :spotlight="revealingCorrectBook && book.reference === correctBookReference"
           @select="handleSelect"
           @eliminate="handleEliminate"
         />
@@ -229,7 +230,12 @@ defineExpose({
           key="empty"
           class="book-board__empty"
         >
-          {{ t('game.noResults') }}
+          <SearchX :size="32" class="book-board__empty-icon" />
+          <span class="book-board__empty-title">{{ t('game.noResults') }}</span>
+          <span
+            class="book-board__empty-hint"
+            >{{ t('game.noResultsHint') }}</span
+          >
         </div>
       </TransitionGroup>
 
@@ -422,10 +428,41 @@ defineExpose({
 
 .book-board__empty {
   grid-column: 1 / -1;
-  text-align: center;
-  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 3rem 2rem;
+  animation: empty-fade-in 0.4s ease-out;
+}
+
+.book-board__empty-icon {
   color: var(--gutenku-text-muted);
+  opacity: 0.5;
+  margin-bottom: 0.25rem;
+}
+
+.book-board__empty-title {
+  font-size: 1rem;
   font-style: italic;
+  color: var(--gutenku-text-secondary);
+}
+
+.book-board__empty-hint {
+  font-size: 0.75rem;
+  color: var(--gutenku-text-muted);
+}
+
+@keyframes empty-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .book-board__pagination {
