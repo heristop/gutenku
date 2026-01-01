@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import { ChevronLeft } from 'lucide-vue-next';
 import ZenButton from '@/components/ui/ZenButton.vue';
+import ZenTooltip from '@/components/ui/ZenTooltip.vue';
 import ZenSkeleton from '@/components/ZenSkeleton.vue';
 import { useHaikuStore } from '@/store/haiku';
 import { withViewTransition } from '@/composables/view-transition';
@@ -101,18 +102,20 @@ onMounted(fetchNewHaiku);
     />
 
     <nav :aria-label="t('nav.pageNavigation')">
-      <ZenButton
-        to="/"
-        variant="ghost"
-        spring
-        class="haiku-page__back-wrapper"
-        :aria-label="t('common.back')"
-      >
-        <template #icon-left>
-          <ChevronLeft :size="18" />
-        </template>
-        {{ t('common.back') }}
-      </ZenButton>
+      <ZenTooltip :text="t('common.backToHome')" position="right">
+        <ZenButton
+          to="/"
+          variant="ghost"
+          spring
+          class="haiku-page__back-wrapper"
+          :aria-label="t('common.back')"
+        >
+          <template #icon-left>
+            <ChevronLeft :size="18" />
+          </template>
+          {{ t('common.back') }}
+        </ZenButton>
+      </ZenTooltip>
     </nav>
 
     <div v-if="!firstLoaded && !networkError" class="haiku-page__loading">

@@ -6,6 +6,8 @@ import { useSwipe } from '@vueuse/core';
 import { useSeoMeta } from '@unhead/vue';
 import { ChevronLeft, ChevronRight, RefreshCw, Unlock } from 'lucide-vue-next';
 import ZenButton from '@/components/ui/ZenButton.vue';
+import ZenTooltip from '@/components/ui/ZenTooltip.vue';
+import ZenHaiku from '@/components/ui/ZenHaiku.vue';
 import { useGameStore } from '@/store/game';
 import { useHapticFeedback } from '@/composables/haptic-feedback';
 import HintPanel from '@/components/game/HintPanel.vue';
@@ -227,18 +229,20 @@ function handleCancelGuess() {
 
 <template>
   <div class="game-container">
-    <ZenButton
-      to="/"
-      variant="ghost"
-      spring
-      class="game-page__back-wrapper"
-      :aria-label="t('common.back')"
-    >
-      <template #icon-left>
-        <ChevronLeft :size="18" />
-      </template>
-      {{ t('common.back') }}
-    </ZenButton>
+    <ZenTooltip :text="t('common.backToHome')" position="right">
+      <ZenButton
+        to="/"
+        variant="ghost"
+        spring
+        class="game-page__back-wrapper"
+        :aria-label="t('common.back')"
+      >
+        <template #icon-left>
+          <ChevronLeft :size="18" />
+        </template>
+        {{ t('common.back') }}
+      </ZenButton>
+    </ZenTooltip>
 
     <main class="game-board gutenku-paper">
       <div class="game-board__texture" aria-hidden="true" />
@@ -373,15 +377,13 @@ function handleCancelGuess() {
                   <span class="haiku-tooltip-close__icon">✕</span>
                 </button>
               </div>
-              <div class="haiku-tooltip-content">
-                <p
-                  v-for="(line, index) in haikuLines"
-                  :key="index"
-                  class="haiku-line"
-                >
-                  {{ line }}
-                </p>
-              </div>
+              <ZenHaiku
+                :lines="haikuLines"
+                size="sm"
+                :animated="false"
+                :show-brush-stroke="false"
+                class="haiku-tooltip-content"
+              />
               <button
                 v-if="canRevealHaiku"
                 class="haiku-tooltip-more"
@@ -427,15 +429,20 @@ function handleCancelGuess() {
           </div>
           <!-- Carousel with navigation -->
           <div class="haiku-carousel-wrapper">
-            <button
+            <ZenTooltip
               v-if="puzzle.haikus.length > 1"
-              class="haiku-nav haiku-nav--prev"
-              :disabled="currentHaikuIndex === 0"
-              :aria-label="t('toolbar.previousTooltip')"
-              @click="prevHaiku"
+              :text="t('toolbar.previousTooltip')"
+              position="left"
             >
-              <ChevronLeft :size="20" />
-            </button>
+              <button
+                class="haiku-nav haiku-nav--prev"
+                :disabled="currentHaikuIndex === 0"
+                :aria-label="t('toolbar.previousTooltip')"
+                @click="prevHaiku"
+              >
+                <ChevronLeft :size="20" />
+              </button>
+            </ZenTooltip>
 
             <div ref="haikuCarouselRef" class="haiku-carousel">
               <div
@@ -454,15 +461,20 @@ function handleCancelGuess() {
               </div>
             </div>
 
-            <button
+            <ZenTooltip
               v-if="puzzle.haikus.length > 1"
-              class="haiku-nav haiku-nav--next"
-              :disabled="currentHaikuIndex === puzzle.haikus.length - 1"
-              :aria-label="t('toolbar.nextTooltip')"
-              @click="nextHaiku"
+              :text="t('toolbar.nextTooltip')"
+              position="right"
             >
-              <ChevronRight :size="20" />
-            </button>
+              <button
+                class="haiku-nav haiku-nav--next"
+                :disabled="currentHaikuIndex === puzzle.haikus.length - 1"
+                :aria-label="t('toolbar.nextTooltip')"
+                @click="nextHaiku"
+              >
+                <ChevronRight :size="20" />
+              </button>
+            </ZenTooltip>
           </div>
 
           <div v-if="puzzle.haikus.length > 1" class="haiku-pagination">
@@ -510,12 +522,12 @@ function handleCancelGuess() {
   width: 100%;
   max-width: 900px;
   margin: 0 auto;
-  padding: 0.5rem 0.75rem;
+  padding: 0.75rem 1rem;
   view-transition-name: game-page;
 
   @media (min-width: 600px) {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 }
 
@@ -534,16 +546,19 @@ function handleCancelGuess() {
   position: relative;
   border-radius: var(--gutenku-radius-md);
   overflow: hidden;
+  padding: 0.5rem;
   animation: fade-in 0.4s ease-out;
   margin-bottom: 1rem;
 
   box-shadow:
     inset 4px 0 8px -4px oklch(0 0 0 / 0.12),
-    0 1px 2px oklch(0 0 0 / 0.04);
+    0 2px 4px oklch(0 0 0 / 0.04),
+    0 8px 24px -4px oklch(0 0 0 / 0.08),
+    0 16px 48px -8px oklch(0 0 0 / 0.06);
 
   // Page edge borders
-  border-top: 1px solid oklch(0 0 0 / 0.06);
-  border-bottom: 2px solid oklch(0 0 0 / 0.05);
+  border-top: 1px solid var(--gutenku-paper-border);
+  border-bottom: 2px solid var(--gutenku-paper-border);
 
   // Book spine decoration
   &::after {
@@ -555,8 +570,7 @@ function handleCancelGuess() {
     height: 100%;
     background: linear-gradient(
       to right,
-      oklch(0 0 0 / 0.1) 0%,
-      oklch(0 0 0 / 0.03) 50%,
+      var(--gutenku-paper-border) 0%,
       transparent 100%
     );
     z-index: 2;
@@ -592,11 +606,29 @@ function handleCancelGuess() {
 
 // Haiku cards and tooltip
 .haiku-cards-wrapper {
+  position: relative;
   display: flex;
   justify-content: center;
   gap: 1rem;
-  padding: 1.25rem 1rem;
-  border-bottom: 1px solid var(--gutenku-paper-border);
+  padding: 1.75rem 1.5rem;
+
+  // Ink wash separator
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--gutenku-zen-accent) 20%,
+      var(--gutenku-zen-accent) 80%,
+      transparent 100%
+    );
+    opacity: 0.4;
+  }
 }
 
 .haiku-card {
@@ -860,9 +892,7 @@ function handleCancelGuess() {
 }
 
 .haiku-tooltip-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  margin: 0 -0.25rem;
 }
 
 .haiku-tooltip-more {
@@ -912,37 +942,6 @@ function handleCancelGuess() {
   color: oklch(0.75 0.12 45);
 }
 
-.haiku-tooltip .haiku-line {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-style: italic;
-  font-size: 0.85rem;
-  line-height: 1.6;
-  color: var(--gutenku-text-primary);
-  margin: 0;
-  text-align: center;
-
-  @media (min-width: 600px) {
-    font-size: 0.95rem;
-    line-height: 1.7;
-  }
-
-  &:nth-child(2) {
-    padding-left: 0.5rem;
-
-    @media (min-width: 600px) {
-      padding-left: 0.75rem;
-    }
-  }
-
-  &:nth-child(3) {
-    padding-left: 0.25rem;
-
-    @media (min-width: 600px) {
-      padding-left: 0.375rem;
-    }
-  }
-}
-
 // Tooltip transition
 .tooltip-enter-active,
 .tooltip-leave-active {
@@ -957,14 +956,32 @@ function handleCancelGuess() {
 
 // Start gate section
 .start-gate {
+  position: relative;
   padding: 1.5rem 1rem;
   text-align: center;
-  border-bottom: 1px solid var(--gutenku-paper-border);
   background: linear-gradient(
     180deg,
     oklch(0.97 0.02 85 / 0.5) 0%,
     oklch(0.96 0.01 55 / 0.3) 100%
   );
+
+  // Ink wash separator
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--gutenku-zen-accent) 20%,
+      var(--gutenku-zen-accent) 80%,
+      transparent 100%
+    );
+    opacity: 0.4;
+  }
 }
 
 .start-gate__content {
@@ -977,9 +994,10 @@ function handleCancelGuess() {
   width: 140px;
   height: auto;
   margin: 0 auto 1rem;
-  opacity: 0.9;
-  filter: grayscale(20%);
+  opacity: 0.95;
+  filter: grayscale(10%) drop-shadow(0 4px 12px oklch(0.45 0.08 195 / 0.2));
   animation: illustration-breathe 4s ease-in-out infinite;
+  border-radius: var(--gutenku-radius-md);
 
   @media (min-width: 640px) {
     width: 160px;
@@ -996,7 +1014,7 @@ function handleCancelGuess() {
 }
 
 [data-theme='dark'] .start-gate__illustration {
-  filter: brightness(0.85) grayscale(30%);
+  filter: brightness(0.9) grayscale(15%) drop-shadow(0 4px 12px oklch(0.5 0.1 195 / 0.3));
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1116,32 +1134,41 @@ function handleCancelGuess() {
 }
 
 .game-board__history {
-  border-bottom: 1px solid var(--gutenku-paper-border);
+  position: relative;
+
+  // Ink wash separator
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--gutenku-zen-accent) 20%,
+      var(--gutenku-zen-accent) 80%,
+      transparent 100%
+    );
+    opacity: 0.4;
+  }
 }
 
 .game-board__books {
-  padding: 0.75rem;
+  padding: 1rem;
 
   @media (min-width: 600px) {
-    padding: 1rem;
+    padding: 1.5rem;
   }
 }
 
 [data-theme='dark'] .game-board {
   box-shadow:
     inset 4px 0 8px -4px oklch(0 0 0 / 0.35),
-    0 1px 3px oklch(0 0 0 / 0.15);
-  border-top-color: oklch(1 0 0 / 0.04);
-  border-bottom-color: oklch(1 0 0 / 0.03);
-
-  &::after {
-    background: linear-gradient(
-      to right,
-      oklch(1 0 0 / 0.06) 0%,
-      oklch(1 0 0 / 0.02) 50%,
-      transparent 100%
-    );
-  }
+    0 2px 4px oklch(0 0 0 / 0.12),
+    0 8px 24px -4px oklch(0 0 0 / 0.2),
+    0 16px 48px -8px oklch(0 0 0 / 0.15);
 }
 
 .game-loading {
@@ -1185,11 +1212,29 @@ function handleCancelGuess() {
 
 // End-game haiku review
 .haiku-review {
+  position: relative;
   padding: 0.75rem;
-  border-top: 1px solid var(--gutenku-paper-border);
 
   @media (min-width: 600px) {
     padding: 1rem;
+  }
+
+  // Ink wash separator
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--gutenku-zen-accent) 20%,
+      var(--gutenku-zen-accent) 80%,
+      transparent 100%
+    );
+    opacity: 0.4;
   }
 }
 
