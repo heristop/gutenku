@@ -33,6 +33,7 @@
     />
     <meta name="author" content="GutenKu" />
     <meta name="robots" content="index, follow" />
+    <link rel="alternate" hreflang="en" href="https://gutenku.xyz/" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -93,6 +94,38 @@
             "logo": "https://gutenku.xyz/android-chrome-512x512.png"
           },
           {
+            "@type": "VideoGame",
+            "name": "GutenGuess",
+            "description": "A daily book guessing game where you identify classic literature from emoji hints. Similar to Wordle but for book lovers.",
+            "url": "https://gutenku.xyz/game",
+            "genre": ["Puzzle", "Trivia", "Word Game"],
+            "gamePlatform": "Web Browser",
+            "playMode": "SinglePlayer",
+            "numberOfPlayers": {
+              "@type": "QuantitativeValue",
+              "value": 1
+            },
+            "applicationCategory": "Game",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            }
+          },
+          {
+            "@type": "SoftwareApplication",
+            "name": "GutenKu Haiku Generator",
+            "description": "AI-powered haiku generator that creates poetry from classic literature in the traditional 5-7-5 syllable format.",
+            "url": "https://gutenku.xyz/haiku",
+            "applicationCategory": "CreativeWork",
+            "operatingSystem": "Web Browser",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            }
+          },
+          {
             "@type": "FAQPage",
             "mainEntity": [
               {
@@ -145,17 +178,23 @@
     />
     <link
       rel="preload"
-      href="./src/assets/fonts/ComicNeue-Regular.ttf"
+      href="./src/assets/fonts/ComicNeue-Regular.woff2"
       as="font"
-      type="font/ttf"
+      type="font/woff2"
       crossorigin
     />
     <link
       rel="preload"
-      href="./src/assets/fonts/JMH Typewriter.ttf"
+      href="./src/assets/fonts/JMH Typewriter.woff2"
       as="font"
-      type="font/ttf"
+      type="font/woff2"
       crossorigin
+    />
+    <link
+      rel="preload"
+      href="./src/assets/img/logo/gutenku-logo-300.png"
+      as="image"
+      fetchpriority="high"
     />
 
     <title>GutenKu</title>
