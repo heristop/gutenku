@@ -25,7 +25,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-container class="not-found fill-height d-flex align-center justify-center">
+  <div class="not-found">
     <Transition name="fade-up">
       <ZenCard
         v-if="isVisible"
@@ -71,12 +71,16 @@ onMounted(() => {
         </ZenButton>
       </ZenCard>
     </Transition>
-  </v-container>
+  </div>
 </template>
 
 <style lang="scss" scoped>
 .not-found {
   min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
 
   &__card {
     max-width: 420px;

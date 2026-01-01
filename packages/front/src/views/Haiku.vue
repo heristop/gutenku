@@ -83,11 +83,16 @@ const loadingLabel = computed(() => {
   return t('home.readyMessage');
 });
 
+function handleRetry() {
+  haikuStore.resetConfigToDefaults();
+  fetchNewHaiku();
+}
+
 onMounted(fetchNewHaiku);
 </script>
 
 <template>
-  <v-container ref="containerRef" class="haiku-page pa-2 pa-sm-4">
+  <div ref="containerRef" class="haiku-page">
     <PullToRefresh
       :pull-distance="pullDistance"
       :is-refreshing="isRefreshing"
@@ -119,7 +124,8 @@ onMounted(fetchNewHaiku);
         :splash="true"
         error
         :text="t('home.networkError')"
-        :on-retry="fetchNewHaiku"
+        :on-retry="handleRetry"
+        :retry-label="t('common.retryWithReset')"
       />
     </div>
 
@@ -130,41 +136,57 @@ onMounted(fetchNewHaiku);
       :aria-busy="loading"
       :aria-label="t('home.haikuContentLabel')"
     >
-      <v-row>
-        <v-col cols="12" md="7" lg="8" order="1" order-md="1">
-          <article :aria-label="t('haiku.articleLabel')">
-            <HaikuTitle class="mb-4" />
+      <div class="haiku-grid">
+        <article class="haiku-grid__main" :aria-label="t('haiku.articleLabel')">
+          <HaikuTitle class="mb-4" />
 
-            <HaikuChapter v-if="haiku" class="mb-4" />
-          </article>
-        </v-col>
+          <HaikuChapter v-if="haiku" class="mb-4" />
+        </article>
 
-        <v-col cols="12" md="5" lg="4" order="2" order-md="2">
-          <aside
-            :aria-label="t('haiku.controlsLabel')"
-            class="haiku-page__sidebar"
-          >
-            <HaikuCanvas class="mb-0" />
+        <aside
+          class="haiku-grid__sidebar haiku-page__sidebar"
+          :aria-label="t('haiku.controlsLabel')"
+        >
+          <HaikuCanvas class="mb-0" />
 
-            <ToolbarPanel class="mb-4" />
+          <ToolbarPanel class="mb-4" />
 
-            <StatsPanel class="mb-4" />
+          <StatsPanel class="mb-4" />
 
-            <ConfigPanel />
+          <ConfigPanel />
 
-            <SocialPreviewCard v-if="isDev && optionUseAI" class="mt-4" />
-          </aside>
-        </v-col>
-      </v-row>
+          <SocialPreviewCard v-if="isDev && optionUseAI" class="mt-4" />
+        </aside>
+      </div>
     </main>
-  </v-container>
+  </div>
 </template>
 
 <style lang="scss" scoped>
 .haiku-page {
   min-height: 100vh;
-  padding-bottom: 2rem;
   view-transition-name: haiku-page;
+
+  // Container layout
+  width: 100%;
+  margin-inline: auto;
+  padding: 0.5rem 0.5rem 2rem;
+
+  @media (min-width: 600px) {
+    padding: 1rem 1rem 2rem;
+  }
+
+  @media (min-width: 960px) {
+    max-width: 900px;
+  }
+
+  @media (min-width: 1280px) {
+    max-width: 1200px;
+  }
+
+  @media (min-width: 1920px) {
+    max-width: 1800px;
+  }
 }
 
 .haiku-page__back-wrapper {
@@ -188,6 +210,42 @@ onMounted(fetchNewHaiku);
 
 .haiku-page__content {
   animation: fade-in 0.4s ease-out;
+}
+
+.haiku-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  @media (min-width: 960px) {
+    flex-direction: row;
+  }
+}
+
+.haiku-grid__main {
+  flex: 1 1 100%;
+  order: 1;
+
+  @media (min-width: 960px) {
+    flex: 0 0 calc(58.33% - 0.75rem);
+  }
+
+  @media (min-width: 1280px) {
+    flex: 0 0 calc(66.67% - 0.75rem);
+  }
+}
+
+.haiku-grid__sidebar {
+  flex: 1 1 100%;
+  order: 2;
+
+  @media (min-width: 960px) {
+    flex: 0 0 calc(41.67% - 0.75rem);
+  }
+
+  @media (min-width: 1280px) {
+    flex: 0 0 calc(33.33% - 0.75rem);
+  }
 }
 
 .haiku-page__sidebar {
