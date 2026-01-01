@@ -25,7 +25,7 @@ function seededRandom(seed: number): () => number {
 }
 
 // Launch date for puzzle numbering (must match GetDailyPuzzleHandler)
-const LAUNCH_DATE = new Date('2025-01-01');
+const LAUNCH_DATE = new Date('2026-01-01');
 
 /**
  * Convert date string to numeric seed

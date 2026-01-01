@@ -19,7 +19,7 @@ import NaturalLanguageService from '~/domain/services/NaturalLanguageService';
 import { cleanVerses } from '~/shared/helpers/HaikuHelper';
 
 // Launch date for puzzle numbering (adjust as needed)
-const LAUNCH_DATE = new Date('2025-01-01');
+const LAUNCH_DATE = new Date('2026-01-01');
 
 // Limit the number of books shown in the selection dropdown
 const SELECTABLE_BOOKS_LIMIT = 50;
