@@ -991,7 +991,7 @@ function handleCancelGuess() {
 
 .start-gate__illustration {
   display: block;
-  width: 140px;
+  width: 160px;
   height: auto;
   margin: 0 auto 1rem;
   opacity: 0.95;
@@ -1000,11 +1000,11 @@ function handleCancelGuess() {
   border-radius: var(--gutenku-radius-md);
 
   @media (min-width: 640px) {
-    width: 160px;
+    width: 180px;
   }
 
   @media (min-width: 1024px) {
-    width: 180px;
+    width: 200px;
   }
 }
 
