@@ -1,13 +1,21 @@
 <script lang="ts" setup>
+import { computed } from 'vue';
 import { ExternalLink, Instagram, Github, Linkedin, Twitter } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 import ZenModal from '@/components/ui/ZenModal.vue';
 import ZenButton from '@/components/ui/ZenButton.vue';
+import ZenHaiku from '@/components/ui/ZenHaiku.vue';
 
 const modelValue = defineModel<boolean>({ default: false });
 
 const { t } = useI18n();
 const currentYear = new Date().getFullYear();
+
+const haikuLines = computed(() => [
+  t('footer.credits.line1'),
+  t('footer.credits.line2'),
+  t('footer.credits.line3'),
+]);
 </script>
 
 <template>
@@ -20,35 +28,11 @@ const currentYear = new Date().getFullYear();
     description="Credits and information about GutenKu"
   >
     <!-- Haiku content -->
-    <div class="zen-credits-modal__haiku">
-      <p class="zen-credits-modal__line zen-credits-modal__line--1">
-        {{ t('footer.credits.line1') }}
-      </p>
-      <p class="zen-credits-modal__line zen-credits-modal__line--2">
-        {{ t('footer.credits.line2') }}
-      </p>
-      <p class="zen-credits-modal__line zen-credits-modal__line--3">
-        {{ t('footer.credits.line3') }}
-      </p>
-    </div>
+    <ZenHaiku :lines="haikuLines" class="zen-credits-modal__haiku" />
 
-    <!-- Brush stroke -->
-    <div class="zen-credits-modal__brush" aria-hidden="true">
-      <svg viewBox="0 0 200 20" preserveAspectRatio="none">
-        <path
-          class="zen-credits-modal__brush-path"
-          d="M0,10 Q25,5 50,10 T100,10 T150,10 T200,10"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-        />
-      </svg>
-    </div>
-
-    <!-- Year -->
-    <p class="zen-credits-modal__year">
-      ～ {{ t('footer.credits.years', { year: currentYear }) }} ～
+    <!-- Author -->
+    <p class="zen-credits-modal__author">
+      {{ t('footer.credits.craftedBy') }} <strong>heristop</strong>
     </p>
 
     <!-- Hanko stamp -->
@@ -73,6 +57,11 @@ const currentYear = new Date().getFullYear();
         </text>
       </svg>
     </div>
+
+    <!-- Year -->
+    <p class="zen-credits-modal__year">
+      ～ {{ t('footer.credits.years', { year: currentYear }) }} ～
+    </p>
 
     <!-- Portfolio Link -->
     <div class="zen-credits-modal__links">
@@ -157,62 +146,33 @@ const currentYear = new Date().getFullYear();
 
 <style scoped lang="scss">
 :deep(.zen-credits-modal) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
   overflow: hidden;
 }
 
 .zen-credits-modal {
   &__haiku {
-    position: relative;
     margin-bottom: 1.5rem;
-    z-index: 1;
   }
 
-  &__line {
-    font-family: 'JMH Typewriter', monospace;
-    font-size: 1.1rem;
-    line-height: 2;
-    color: var(--gutenku-text-primary);
-    margin: 0;
-    opacity: 0;
-    animation: typewriter-reveal 0.4s ease forwards;
-
-    &--1 {
-      animation-delay: 0.3s;
-    }
-
-    &--2 {
-      animation-delay: 0.6s;
-      font-style: italic;
-    }
-
-    &--3 {
-      animation-delay: 0.9s;
-    }
-  }
-
-  &__brush {
+  &__author {
     position: relative;
-    width: 60%;
-    height: 20px;
-    margin: 0 auto 1.25rem;
-    color: var(--gutenku-zen-primary);
+    font-family: 'JMH Typewriter', monospace;
+    font-size: 0.95rem;
+    color: var(--gutenku-text-primary);
+    margin: 0 0 1rem;
     opacity: 0;
     animation: fade-in 0.3s ease forwards;
-    animation-delay: 1.2s;
+    animation-delay: 1.4s;
     z-index: 1;
 
-    svg {
-      width: 100%;
-      height: 100%;
+    strong {
+      font-weight: 600;
+      color: var(--gutenku-zen-primary);
     }
-  }
-
-  &__brush-path {
-    stroke-dasharray: 300;
-    stroke-dashoffset: 300;
-    animation: brush-draw 0.6s ease forwards;
-    animation-delay: 1.3s;
   }
 
   &__year {
@@ -222,22 +182,21 @@ const currentYear = new Date().getFullYear();
     margin: 0 0 1.5rem;
     opacity: 0;
     animation: fade-in 0.3s ease forwards;
-    animation-delay: 1.5s;
+    animation-delay: 1.8s;
     z-index: 1;
     position: relative;
   }
 
   &__hanko {
-    position: absolute;
-    bottom: 7rem;
-    right: 1.5rem;
+    position: relative;
     width: 40px;
     height: 40px;
+    margin: 0 auto 0.75rem;
     color: oklch(0.55 0.2 25);
     opacity: 0;
     transform: scale(0) rotate(-15deg);
     animation: hanko-stamp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    animation-delay: 1.8s;
+    animation-delay: 1.6s;
     z-index: 1;
 
     svg {
@@ -313,31 +272,12 @@ const currentYear = new Date().getFullYear();
 }
 
 // Animations
-@keyframes typewriter-reveal {
-  0% {
-    opacity: 0;
-    transform: translateY(8px);
-    filter: blur(4px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-  }
-}
-
 @keyframes fade-in {
   from {
     opacity: 0;
   }
   to {
     opacity: 1;
-  }
-}
-
-@keyframes brush-draw {
-  to {
-    stroke-dashoffset: 0;
   }
 }
 
@@ -375,9 +315,7 @@ const currentYear = new Date().getFullYear();
 // Reduced motion
 @media (prefers-reduced-motion: reduce) {
   .zen-credits-modal {
-    &__line,
-    &__brush,
-    &__brush-path,
+    &__author,
     &__year,
     &__hanko,
     &__links,
@@ -386,7 +324,6 @@ const currentYear = new Date().getFullYear();
       animation: none;
       opacity: 1;
       transform: none;
-      stroke-dashoffset: 0;
     }
 
     &__social-link {
@@ -398,13 +335,11 @@ const currentYear = new Date().getFullYear();
 // Mobile
 @media (max-width: 480px) {
   .zen-credits-modal {
-    &__line {
-      font-size: 1rem;
+    &__author {
+      font-size: 0.875rem;
     }
 
     &__hanko {
-      bottom: 6rem;
-      right: 1rem;
       width: 32px;
       height: 32px;
     }

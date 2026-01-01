@@ -12,6 +12,7 @@ interface Props {
   variant?: 'default' | 'book' | 'help' | 'stats' | 'scroll';
   showDivider?: boolean;
   description?: string;
+  lockBodyScroll?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -22,6 +23,7 @@ const props = withDefaults(defineProps<Props>(), {
   variant: 'default',
   showDivider: false,
   description: '',
+  lockBodyScroll: true,
 });
 
 const emit = defineEmits<{
@@ -138,7 +140,9 @@ watch(modelValue, async (isOpen) => {
   if (isOpen) {
     // Store the element that triggered the modal
     previousActiveElement.value = document.activeElement as HTMLElement;
-    lockScroll();
+    if (props.lockBodyScroll) {
+      lockScroll();
+    }
     document.addEventListener('keydown', handleKeydown);
 
     // WCAG 2.2: Move focus to first focusable element in modal
@@ -152,7 +156,9 @@ watch(modelValue, async (isOpen) => {
     }
   } else {
     document.removeEventListener('keydown', handleKeydown);
-    unlockScroll();
+    if (props.lockBodyScroll) {
+      unlockScroll();
+    }
 
     // WCAG 2.2: Return focus to triggering element
     await nextTick();
@@ -164,7 +170,9 @@ watch(modelValue, async (isOpen) => {
 onBeforeUnmount(() => {
   if (modelValue.value) {
     document.removeEventListener('keydown', handleKeydown);
-    unlockScroll();
+    if (props.lockBodyScroll) {
+      unlockScroll();
+    }
   }
 });
 </script>
