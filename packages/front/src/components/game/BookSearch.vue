@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { ref, computed, useId } from 'vue';
+import { ref, computed, useId, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
-import { Search, Send, Loader2 } from 'lucide-vue-next';
+import { Search, Send } from 'lucide-vue-next';
 import { useGameStore } from '@/store/game';
 import type { BookValue } from '@gutenku/shared';
 import ZenButton from '@/components/ui/ZenButton.vue';
@@ -22,6 +22,13 @@ const selectedBook = ref<BookValue | null>(null);
 const isMenuOpen = ref(false);
 const isSubmitting = ref(false);
 
+// Dropdown positioning refs
+const inputRef = ref<HTMLInputElement | null>(null);
+const dropdownRef = ref<HTMLUListElement | null>(null);
+const highlightedIndex = ref(-1);
+const dropdownStyle = ref<Record<string, string>>({});
+const optionRefs = ref<HTMLLIElement[]>([]);
+
 const filteredBooks = computed(() => {
   if (!searchQuery.value.trim()) {return availableBooks.value;}
 
@@ -37,10 +44,26 @@ const canSubmit = computed(
   () => selectedBook.value && !props.loading && !isSubmitting.value,
 );
 
+// Dropdown positioning
+const updateDropdownPosition = () => {
+  if (!inputRef.value) {return;}
+
+  const rect = inputRef.value.getBoundingClientRect();
+  dropdownStyle.value = {
+    position: 'fixed',
+    top: `${rect.bottom + 4}px`,
+    left: `${rect.left}px`,
+    width: `${rect.width}px`,
+    maxHeight: '300px',
+    zIndex: '9999',
+  };
+};
+
 function selectBook(book: BookValue) {
   selectedBook.value = book;
   searchQuery.value = book.title || '';
   isMenuOpen.value = false;
+  highlightedIndex.value = -1;
 }
 
 async function submitGuess() {
@@ -61,15 +84,114 @@ async function submitGuess() {
 
 function handleInput() {
   selectedBook.value = null;
+  highlightedIndex.value = -1;
   isMenuOpen.value = searchQuery.value.length > 0;
+  if (isMenuOpen.value) {
+    nextTick(updateDropdownPosition);
+  }
 }
 
 function handleKeydown(event: KeyboardEvent) {
-  if (event.key === 'Enter' && canSubmit.value) {
-    event.preventDefault();
-    submitGuess();
+  switch (event.key) {
+    case 'ArrowDown':
+      event.preventDefault();
+      if (!isMenuOpen.value && filteredBooks.value.length > 0) {
+        isMenuOpen.value = true;
+        highlightedIndex.value = 0;
+        nextTick(updateDropdownPosition);
+      } else if (isMenuOpen.value) {
+        highlightedIndex.value = Math.min(
+          highlightedIndex.value + 1,
+          filteredBooks.value.length - 1,
+        );
+      }
+      break;
+
+    case 'ArrowUp':
+      event.preventDefault();
+      if (isMenuOpen.value) {
+        highlightedIndex.value = Math.max(highlightedIndex.value - 1, 0);
+      }
+      break;
+
+    case 'Enter':
+      event.preventDefault();
+      if (isMenuOpen.value && highlightedIndex.value >= 0) {
+        selectBook(filteredBooks.value[highlightedIndex.value]);
+      } else if (canSubmit.value) {
+        submitGuess();
+      }
+      break;
+
+    case 'Escape':
+      if (isMenuOpen.value) {
+        event.preventDefault();
+        isMenuOpen.value = false;
+        highlightedIndex.value = -1;
+      }
+      break;
+
+    case 'Tab':
+      isMenuOpen.value = false;
+      highlightedIndex.value = -1;
+      break;
   }
 }
+
+function handleFocus() {
+  if (searchQuery.value.length > 0) {
+    isMenuOpen.value = true;
+    nextTick(updateDropdownPosition);
+  }
+}
+
+// Scroll highlighted option into view
+watch(highlightedIndex, (index) => {
+  if (index >= 0 && optionRefs.value[index]) {
+    optionRefs.value[index].scrollIntoView({ block: 'nearest' });
+  }
+});
+
+// Click outside handler
+const handleClickOutside = (event: MouseEvent) => {
+  const target = event.target as Node;
+  const inputContainer = inputRef.value?.closest('.search-input-container');
+
+  if (
+    inputContainer &&
+    !inputContainer.contains(target) &&
+    dropdownRef.value &&
+    !dropdownRef.value.contains(target)
+  ) {
+    isMenuOpen.value = false;
+    highlightedIndex.value = -1;
+  }
+};
+
+// Update position on scroll/resize
+const handleScrollResize = () => {
+  if (isMenuOpen.value) {
+    updateDropdownPosition();
+  }
+};
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+  window.addEventListener('scroll', handleScrollResize, true);
+  window.addEventListener('resize', handleScrollResize);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
+  window.removeEventListener('scroll', handleScrollResize, true);
+  window.removeEventListener('resize', handleScrollResize);
+});
+
+const setOptionRef = (el: HTMLLIElement | null, index: number) => {
+  if (el) {
+    optionRefs.value[index] = el;
+  }
+};
 </script>
 
 <template>
@@ -82,6 +204,7 @@ function handleKeydown(event: KeyboardEvent) {
       <div class="search-input-container">
         <Search class="search-icon" :size="20" />
         <input
+          ref="inputRef"
           v-model="searchQuery"
           type="text"
           class="search-input"
@@ -95,10 +218,15 @@ function handleKeydown(event: KeyboardEvent) {
           :aria-controls="listboxId"
           aria-haspopup="listbox"
           aria-autocomplete="list"
-          :placeholder="t('game.searchPlaceholder')"
+          :aria-activedescendant="
+            isMenuOpen && highlightedIndex >= 0
+              ? `${listboxId}-option-${highlightedIndex}`
+              : undefined
+          "
+          :placeholder="t('game.searchPlaceholder', { count: availableBooks.length })"
           :disabled="loading || isSubmitting"
           @input="handleInput"
-          @focus="isMenuOpen = searchQuery.length > 0"
+          @focus="handleFocus"
           @keydown="handleKeydown"
         />
         <ZenButton
@@ -117,45 +245,52 @@ function handleKeydown(event: KeyboardEvent) {
         </ZenButton>
       </div>
 
-      <v-menu
-        v-model="isMenuOpen"
-        :close-on-content-click="false"
-        activator="parent"
-        location="bottom"
-        :max-height="300"
-      >
-        <v-list
-          :id="listboxId"
-          class="book-list"
-          density="compact"
-          role="listbox"
-        >
-          <v-list-item
-            v-for="book in filteredBooks"
-            :key="book.reference"
-            class="book-item"
-            role="option"
-            :aria-selected="selectedBook?.reference === book.reference"
-            @click="selectBook(book)"
+      <Teleport to="body">
+        <Transition name="zen-dropdown">
+          <ul
+            v-if="isMenuOpen"
+            :id="listboxId"
+            ref="dropdownRef"
+            class="book-dropdown"
+            :style="dropdownStyle"
+            role="listbox"
+            :aria-label="t('game.searchLabel')"
+            tabindex="-1"
           >
-            <template #prepend>
-              <span class="book-emoticons">{{ book.emoticons }}</span>
-            </template>
-            <v-list-item-title class="book-title">
-              {{ book.title }}
-            </v-list-item-title>
-            <v-list-item-subtitle class="book-author">
-              {{ book.author }}
-            </v-list-item-subtitle>
-          </v-list-item>
+            <li
+              v-for="(book, index) in filteredBooks"
+              :id="`${listboxId}-option-${index}`"
+              :key="book.reference"
+              :ref="(el) => setOptionRef(el as HTMLLIElement, index)"
+              role="option"
+              class="book-dropdown__item"
+              :class="{ 'book-dropdown__item--highlighted': index === highlightedIndex }"
+              :aria-selected="selectedBook?.reference === book.reference"
+              @click="selectBook(book)"
+              @mouseenter="highlightedIndex = index"
+            >
+              <span class="book-dropdown__emoticons">{{ book.emoticons }}</span>
+              <div class="book-dropdown__text">
+                <span class="book-dropdown__title">{{ book.title }}</span>
+                <span class="book-dropdown__author">{{ book.author }}</span>
+              </div>
+            </li>
 
-          <v-list-item v-if="filteredBooks.length === 0" disabled>
-            <v-list-item-title class="text-center gutenku-text-muted">
+            <li
+              v-if="filteredBooks.length === 0"
+              class="book-dropdown__empty"
+              role="status"
+              aria-live="polite"
+            >
               {{ t('game.noResults') }}
-            </v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
+              <span
+                class="book-dropdown__empty-hint"
+                >{{ t('game.noResultsHint') }}</span
+              >
+            </li>
+          </ul>
+        </Transition>
+      </Teleport>
     </div>
   </div>
 </template>
@@ -164,19 +299,6 @@ function handleKeydown(event: KeyboardEvent) {
 .book-search {
   padding: 1rem 1.25rem;
   margin-bottom: 0.5rem;
-
-  // Hide Vuetify's menu close button
-  :deep(.v-menu > .v-overlay__content > .v-btn),
-  :deep(.v-btn--icon),
-  :deep(.v-field__clearable),
-  :deep(.v-input__append),
-  :deep(.v-field__append-inner) {
-    display: none !important;
-  }
-
-  .search-wrapper :deep(.v-btn:not(.submit-btn)) {
-    display: none !important;
-  }
 }
 
 .attempts-counter {
@@ -185,15 +307,6 @@ function handleKeydown(event: KeyboardEvent) {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 0.75rem;
-}
-
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
 }
 
 .search-input-container {
@@ -277,20 +390,53 @@ function handleKeydown(event: KeyboardEvent) {
   }
 }
 
-.book-list {
-  background: var(--gutenku-paper-bg) !important;
+@media (prefers-reduced-motion: reduce) {
+  .search-input-container {
+    transition: none;
+  }
+}
+</style>
+
+<style lang="scss">
+// Global styles for teleported dropdown
+.book-dropdown {
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  background: var(--gutenku-paper-bg);
   border: 1px solid var(--gutenku-paper-border);
   border-radius: var(--gutenku-radius-md);
   box-shadow: var(--gutenku-shadow-zen);
+  overflow-y: auto;
+
+  // Paper texture
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(
+      circle at 30% 40%,
+      oklch(0.5 0.02 85 / 0.05) 0%,
+      transparent 50%
+    );
+    border-radius: inherit;
+    pointer-events: none;
+  }
 }
 
-.book-item {
+.book-dropdown__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--gutenku-radius-sm);
   cursor: pointer;
   transition:
-    background-color 0.2s ease,
-    transform 0.2s ease;
+    background-color 0.15s ease,
+    transform 0.15s ease;
 
-  &:hover {
+  &:hover,
+  &--highlighted {
     background: var(--gutenku-zen-water);
     transform: translateX(4px);
   }
@@ -300,29 +446,109 @@ function handleKeydown(event: KeyboardEvent) {
   }
 }
 
-.book-emoticons {
+.book-dropdown__emoticons {
   font-size: 1.25rem;
   min-width: 2.5rem;
+  flex-shrink: 0;
 }
 
-.book-title {
+.book-dropdown__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.book-dropdown__title {
   font-weight: 500;
   color: var(--gutenku-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.book-author {
+.book-dropdown__author {
   color: var(--gutenku-text-muted);
   font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .search-input-container,
-  .book-item {
-    transition: none;
+.book-dropdown__empty {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  text-align: center;
+  color: var(--gutenku-text-muted);
+  font-style: italic;
+}
+
+.book-dropdown__empty-hint {
+  font-size: 0.75rem;
+  font-style: normal;
+  opacity: 0.8;
+}
+
+// Dropdown transitions
+.zen-dropdown-enter-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.zen-dropdown-leave-active {
+  transition: opacity 0.1s ease, transform 0.1s ease;
+}
+
+.zen-dropdown-enter-from,
+.zen-dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-0.5rem);
+}
+
+// Dark mode
+[data-theme='dark'] .book-dropdown {
+  background: var(--gutenku-paper-bg);
+  border-color: var(--gutenku-border-visible);
+
+  &::before {
+    background-image: radial-gradient(
+      circle at 30% 40%,
+      oklch(1 0 0 / 0.05) 0%,
+      transparent 50%
+    );
   }
 
-  .book-item:hover {
-    transform: none;
+  .book-dropdown__item {
+    &:hover,
+    &--highlighted {
+      background: var(--gutenku-zen-primary);
+      color: var(--gutenku-paper-bg);
+
+      .book-dropdown__title {
+        color: var(--gutenku-paper-bg);
+      }
+
+      .book-dropdown__author {
+        color: oklch(1 0 0 / 0.7);
+      }
+    }
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .book-dropdown__item {
+    transition: none;
+
+    &:hover,
+    &--highlighted {
+      transform: none;
+    }
+  }
+
+  .zen-dropdown-enter-active,
+  .zen-dropdown-leave-active {
+    transition: none;
   }
 }
 </style>

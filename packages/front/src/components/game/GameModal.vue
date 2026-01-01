@@ -2,7 +2,9 @@
 import { computed, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
+import { useBreakpoints, breakpointsTailwind } from '@vueuse/core';
 import { useGameStore } from '@/store/game';
+import ZenModal from '@/components/ui/ZenModal.vue';
 import GameHeader from './GameHeader.vue';
 import GameHint from './GameHint.vue';
 import BookSearch from './BookSearch.vue';
@@ -28,6 +30,10 @@ const {
   isGameComplete,
 } = storeToRefs(gameStore);
 
+// Responsive breakpoints
+const breakpoints = useBreakpoints(breakpointsTailwind);
+const isMobile = breakpoints.smaller('sm');
+
 const latestHint = computed(() =>
   revealedHints.value.length > 0 ? revealedHints.value.at(-1) : null,
 );
@@ -46,61 +52,61 @@ function close() {
 </script>
 
 <template>
-  <v-dialog
+  <ZenModal
     v-model="modelValue"
-    :fullscreen="$vuetify.display.smAndDown"
+    :fullscreen="isMobile"
     max-width="700"
-    transition="dialog-bottom-transition"
-    :persistent="false"
-    scroll-strategy="block"
+    :show-close="false"
+    variant="book"
+    title="GutenGuess"
+    description="Daily literary guessing game - identify the book from hints"
+    content-class="game-modal"
   >
-    <div class="game-modal gutenku-paper">
-      <GameHeader
-        @show-stats="showStats = true"
-        @show-help="showHelp = true"
-        @close="close"
-      />
+    <GameHeader
+      @show-stats="showStats = true"
+      @show-help="showHelp = true"
+      @close="close"
+    />
 
-      <div class="game-modal-content">
-        <div v-if="loading && !puzzle" class="game-loading">
-          <AppLoading :text="t('game.loading')" />
-        </div>
-
-        <div
-          v-else-if="error"
-          class="game-error gutenku-paper pa-4"
-          role="alert"
-          aria-live="assertive"
-        >
-          <p class="text-center gutenku-text-primary">{{ error }}</p>
-          <ZenButton class="mt-4 w-100" @click="gameStore.fetchDailyPuzzle()">
-            {{ t('common.retry') }}
-          </ZenButton>
-        </div>
-
-        <template v-else-if="puzzle && currentGame">
-          <GameHint
-            v-if="latestHint"
-            :hint="latestHint"
-            :round="currentGame.currentRound"
-            class="mb-4"
-          />
-
-          <BookSearch v-if="!isGameComplete" :loading="loading" class="mb-4" />
-
-          <GuessHistory
-            :guesses="currentGame.guesses"
-            :hints="revealedHints"
-            class="mb-4"
-          />
-        </template>
+    <div class="game-modal-content">
+      <div v-if="loading && !puzzle" class="game-loading">
+        <AppLoading :text="t('game.loading')" />
       </div>
 
-      <GameResult v-model="showResult" />
-      <GameStats v-model="showStats" />
-      <GameHelp v-model="showHelp" />
+      <div
+        v-else-if="error"
+        class="game-error gutenku-paper pa-4"
+        role="alert"
+        aria-live="assertive"
+      >
+        <p class="text-center gutenku-text-primary">{{ error }}</p>
+        <ZenButton class="mt-4 w-100" @click="gameStore.fetchDailyPuzzle()">
+          {{ t('common.retry') }}
+        </ZenButton>
+      </div>
+
+      <template v-else-if="puzzle && currentGame">
+        <GameHint
+          v-if="latestHint"
+          :hint="latestHint"
+          :round="currentGame.currentRound"
+          class="mb-4"
+        />
+
+        <BookSearch v-if="!isGameComplete" :loading="loading" class="mb-4" />
+
+        <GuessHistory
+          :guesses="currentGame.guesses"
+          :hints="revealedHints"
+          class="mb-4"
+        />
+      </template>
     </div>
-  </v-dialog>
+
+    <GameResult v-model="showResult" />
+    <GameStats v-model="showStats" />
+    <GameHelp v-model="showHelp" />
+  </ZenModal>
 </template>
 
 <style lang="scss" scoped>
@@ -111,11 +117,6 @@ function close() {
   max-height: 100vh;
   overflow: hidden;
   background: var(--gutenku-paper-bg);
-  border-radius: var(--gutenku-radius-md);
-
-  @media (max-width: 600px) {
-    border-radius: 0;
-  }
 }
 
 .game-modal-content {

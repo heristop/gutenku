@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { BookOpen, Clock, Sparkles, Calendar, MapPin, Hash } from 'lucide-vue-next';
+import { BookOpen, Clock, Sparkles, Calendar, MapPin, Hash, Unlock } from 'lucide-vue-next';
 import type { PuzzleHint } from '@gutenku/shared';
 import ScoreStars from '@/components/ui/ScoreStars.vue';
 
@@ -40,7 +40,8 @@ const isEmoticons = computed(() => props.hint.type === 'emoticons');
 const isGenre = computed(() => props.hint.type === 'genre');
 const isEra = computed(() => props.hint.type === 'era');
 const isQuote = computed(() => props.hint.type === 'quote');
-const isLetterAuthor = computed(() => props.hint.type === 'letter_author');
+const isFirstLetter = computed(() => props.hint.type === 'first_letter');
+const isAuthorNationality = computed(() => props.hint.type === 'author_nationality');
 const isAuthorName = computed(() => props.hint.type === 'author_name');
 const isPublicationCentury = computed(() => props.hint.type === 'publication_century');
 const isTitleWordCount = computed(() => props.hint.type === 'title_word_count');
@@ -91,27 +92,59 @@ async function handleScratch() {
 }
 
 
-const letterAuthorData = computed(() => {
-  if (!isLetterAuthor.value) {return { letter: '', nationality: '' };}
-  const content = props.hint.content;
-
-  const letterMatch = content.match(/^([A-Z])\.\.\./i);
-  const nationalityMatch = content.match(/by an? (.+?) author/i);
-
-  return {
-    letter: letterMatch ? letterMatch[1].toUpperCase() : content.charAt(0).toUpperCase(),
-    nationality: nationalityMatch ? nationalityMatch[1] : '',
-  };
+const firstLetterChar = computed(() => {
+  if (!isFirstLetter.value) {return '';}
+  const match = props.hint.content.match(/^([A-Z])/i);
+  return match ? match[1].toUpperCase() : props.hint.content.charAt(0).toUpperCase();
 });
+
+// Score reduction animation
+const isScoreReducing = ref(false);
+const previousScore = ref(props.numericScore);
+const displayScore = ref(props.numericScore);
+
+// Track score delta for the floating badge
+const scoreDelta = computed(() => previousScore.value - props.numericScore);
+
+watch(() => props.numericScore, (newScore, oldScore) => {
+  if (oldScore !== undefined && newScore < oldScore) {
+    isScoreReducing.value = true;
+    previousScore.value = oldScore;
+
+    // Animate countdown from old to new
+    animateCountdown(oldScore, newScore);
+
+    setTimeout(() => {
+      isScoreReducing.value = false;
+    }, 800);
+  } else {
+    // Direct update when not reducing (e.g., new game)
+    displayScore.value = newScore;
+  }
+});
+
+function animateCountdown(from: number, to: number) {
+  const duration = 600;
+  const steps = Math.abs(from - to);
+  const stepDuration = Math.max(30, duration / steps); // Min 30ms per step
+
+  let current = from;
+  const interval = setInterval(() => {
+    current--;
+    displayScore.value = current;
+    if (current <= to) {
+      clearInterval(interval);
+    }
+  }, stepDuration);
+}
 </script>
 
 <template>
   <div class="game-hint">
     <div class="hint-header">
       <div class="hint-header__indicators">
-        <!-- Attempts dots -->
+        <!-- Attempts -->
         <div class="hint-indicator">
-          <span class="hint-indicator__label">{{ $t('game.attempts') }}</span>
           <div class="hint-dots">
             <span
               v-for="i in 6"
@@ -120,14 +153,40 @@ const letterAuthorData = computed(() => {
               :class="{ 'hint-dot--filled': i <= attemptsRemaining }"
             />
           </div>
+          <span class="hint-indicator__label">{{ $t('game.attempts') }}</span>
         </div>
-        <!-- Score stars -->
+
+        <!-- Divider -->
+        <div class="hint-divider" aria-hidden="true" />
+
+        <!-- Score -->
         <div class="hint-indicator">
-          <span class="hint-indicator__label">{{ $t('game.score') }}</span>
           <div class="hint-score-display">
-            <ScoreStars :score="score" size="sm" />
-            <span class="hint-score-pts">{{ numericScore }}/100</span>
+            <span
+              class="hint-score-value"
+              :class="{ 'hint-score-value--reducing': isScoreReducing }"
+              >{{ displayScore }}</span
+            >
+            <span class="hint-score-unit">pts</span>
+            <ScoreStars :score="score" size="xs" />
+
+            <!-- Floating minus badge -->
+            <Transition name="smoke">
+              <span v-if="isScoreReducing" class="score-delta">
+                -{{ scoreDelta }}
+              </span>
+            </Transition>
           </div>
+          <span class="hint-indicator__label">{{ $t('game.score') }}</span>
+        </div>
+
+        <!-- Unlock message (only during active game, after first guess) -->
+        <div
+          v-if="attemptsRemaining > 0 && attemptsRemaining < 6"
+          class="hint-unlock-msg"
+        >
+          <Unlock :size="12" />
+          <span>{{ $t('game.unlockNext') }}</span>
         </div>
       </div>
     </div>
@@ -139,7 +198,8 @@ const letterAuthorData = computed(() => {
         'hint-genre': isGenre,
         'hint-era': isEra,
         'hint-quote': isQuote,
-        'hint-letter-author': isLetterAuthor,
+        'hint-first-letter': isFirstLetter,
+        'hint-author-nationality': isAuthorNationality,
         'hint-author-name': isAuthorName,
         'hint-publication-century': isPublicationCentury,
         'hint-title-word-count': isTitleWordCount,
@@ -208,24 +268,26 @@ const letterAuthorData = computed(() => {
           <p class="quote-text">{{ hint.content }}</p>
         </div>
       </template>
-      <!-- First Letter & Nationality display - unified clue card -->
-      <template v-else-if="isLetterAuthor">
-        <div class="letter-author-container">
-          <!-- Clue card with corner fold -->
-          <div class="clue-card">
-            <div v-if="letterAuthorData.letter" class="letter-char">
-              {{ letterAuthorData.letter }}
+      <!-- First Letter display -->
+      <template v-else-if="isFirstLetter">
+        <div class="first-letter-container">
+          <div class="first-letter-circle">
+            <span class="first-letter-char">{{ firstLetterChar }}</span>
+          </div>
+          <span
+            class="first-letter-label"
+            >{{ t('game.hints.firstLetter') }}</span
+          >
+        </div>
+      </template>
+      <!-- Author Nationality display - Passport stamp style -->
+      <template v-else-if="isAuthorNationality">
+        <div class="nationality-container">
+          <div class="passport-stamp">
+            <div class="stamp-frame">
+              <span class="stamp-nationality">{{ hint.content }}</span>
             </div>
-            <span v-if="letterAuthorData.nationality" class="nationality-text">
-              {{ letterAuthorData.nationality }} {{ t('game.hints.author') }}
-            </span>
-            <!-- Fallback: show raw content if parsing failed -->
-            <p
-              v-if="!letterAuthorData.letter && !letterAuthorData.nationality"
-              class="hint-text"
-            >
-              {{ hint.content }}
-            </p>
+            <span class="stamp-label">✦ {{ t('game.hints.origin') }} ✦</span>
           </div>
         </div>
       </template>
@@ -249,16 +311,20 @@ const letterAuthorData = computed(() => {
           </div>
         </div>
       </template>
-      <!-- Title Word Count - counter display -->
+      <!-- Title Word Count - visual word tiles -->
       <template v-else-if="isTitleWordCount">
         <div class="word-count-container">
-          <div class="word-count-badge">
-            <Hash :size="18" class="word-count-icon" />
-            <span class="word-count-number">{{ hint.content }}</span>
+          <div class="word-tiles">
+            <span
+              v-for="i in parseInt(hint.content)"
+              :key="i"
+              class="word-tile"
+              :style="{ '--tile-index': i - 1 }"
+            />
           </div>
           <span
             class="word-count-label"
-            >{{ t('game.hints.wordsInTitle') }}</span
+            >{{ $t('game.hints.wordsInTitle') }}</span
           >
         </div>
       </template>
@@ -327,74 +393,224 @@ const letterAuthorData = computed(() => {
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem 1.5rem;
-  padding: 0.5rem 0.75rem;
-  background: oklch(0.5 0.02 55 / 0.05);
-  border-radius: var(--gutenku-radius-sm);
+  gap: 0.625rem 2rem;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, oklch(0.5 0.02 55 / 0.1), oklch(0.5 0.02 55 / 0.05));
+  border: 1px solid oklch(0.5 0.02 55 / 0.12);
+  border-radius: var(--gutenku-radius-md);
 
   @media (max-width: 360px) {
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.625rem;
   }
 }
 
 [data-theme='dark'] .hint-header__indicators {
-  background: oklch(1 0 0 / 0.03);
+  background: linear-gradient(135deg, oklch(1 0 0 / 0.06), oklch(1 0 0 / 0.02));
+  border-color: oklch(1 0 0 / 0.08);
 }
 
 .hint-indicator {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.25rem;
 }
 
 .hint-indicator__label {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--gutenku-text-muted);
+  letter-spacing: 0.06em;
+  color: var(--gutenku-text-secondary);
+}
+
+.hint-divider {
+  width: 1px;
+  height: 2.5rem;
+  background: var(--gutenku-paper-border);
+  opacity: 0.6;
 }
 
 .hint-score-display {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 0.375rem;
+  min-height: 1.75rem;
 }
 
-.hint-score-pts {
-  font-size: 0.75rem;
-  font-weight: 500;
+.hint-score-value {
+  font-family: 'JMH Typewriter', monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: oklch(0.5 0.1 195);
+  line-height: 1;
+  text-shadow: 0 0 6px oklch(0.5 0.1 195 / 0.2);
+  animation: score-entrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+[data-theme='dark'] .hint-score-value {
+  color: oklch(0.65 0.1 195);
+  text-shadow: 0 0 8px oklch(0.6 0.1 195 / 0.25);
+}
+
+// Softer wobble animation (replaces violent shake)
+.hint-score-value--reducing {
+  animation: score-wobble 0.8s ease-out;
+  color: oklch(0.55 0.18 25) !important;
+}
+
+@keyframes score-wobble {
+  0%, 100% {
+    transform: scale(1);
+  }
+  15% {
+    transform: scale(1.05);
+  }
+  30% {
+    transform: scale(0.98);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  70% {
+    transform: scale(0.99);
+  }
+}
+
+// Floating minus badge - smoke effect
+.score-delta {
+  position: absolute;
+  top: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: oklch(0.5 0.15 25);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.smoke-enter-active {
+  animation: smoke-rise 0.8s ease-out forwards;
+}
+
+.smoke-leave-active {
+  animation: smoke-rise 0.3s ease-out forwards;
+}
+
+@keyframes smoke-rise {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-12px) scale(0.8);
+    filter: blur(2px);
+  }
+}
+
+@keyframes score-entrance {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.hint-score-unit {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--gutenku-text-muted);
-  opacity: 0.8;
+}
+
+.hint-indicator--score {
+  gap: 0.375rem;
+
+  :deep(.score-stars) {
+    opacity: 0.85;
+  }
+}
+
+.hint-unlock-msg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
+  font-size: 0.7rem;
+  font-weight: 500;
+  font-style: italic;
+  color: var(--gutenku-text-secondary);
+  padding-top: 0.5rem;
+  margin-top: 0.375rem;
+  border-top: 1px dashed var(--gutenku-paper-border);
+
+  svg {
+    opacity: 0.7;
+  }
 }
 
 .hint-dots {
   display: flex;
-  gap: 0.25rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 1.75rem;
 }
 
 .hint-dot {
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: oklch(0.85 0.02 55);
-  border: 1px solid var(--gutenku-paper-border);
-  transition: all 0.2s ease;
+  border: 1.5px solid oklch(0.72 0.03 55);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 
   &--filled {
     background: var(--gutenku-zen-primary);
     border-color: var(--gutenku-zen-primary);
+    box-shadow: 0 0 0 2px oklch(0.5 0.1 195 / 0.2);
+    animation: dot-glow 2s ease-in-out infinite;
+  }
+}
+
+@keyframes dot-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 2px oklch(0.5 0.1 195 / 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 3px oklch(0.5 0.1 195 / 0.35);
   }
 }
 
 [data-theme='dark'] .hint-dot {
-  background: oklch(0.45 0.02 55);
-  border-color: oklch(0.55 0.02 55);
+  background: oklch(0.32 0.02 55);
+  border-color: oklch(0.42 0.03 55);
 
   &--filled {
     background: var(--gutenku-zen-primary);
     border-color: var(--gutenku-zen-primary);
+    box-shadow: 0 0 0 2px oklch(0.5 0.1 195 / 0.25);
+    animation: dot-glow-dark 2s ease-in-out infinite;
+  }
+}
+
+@keyframes dot-glow-dark {
+  0%, 100% {
+    box-shadow: 0 0 0 2px oklch(0.5 0.1 195 / 0.25);
+  }
+  50% {
+    box-shadow: 0 0 0 3px oklch(0.5 0.1 195 / 0.4);
   }
 }
 
@@ -808,52 +1024,43 @@ const letterAuthorData = computed(() => {
   );
 }
 
-// First Letter & Nationality - unified clue card
-.letter-author-container {
-  display: flex;
-  justify-content: center;
-  padding: 0.5rem 0;
-}
-
-.clue-card {
-  position: relative;
+// First Letter hint
+.first-letter-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
-  padding: 1.25rem 2rem;
-  background: var(--gutenku-paper-bg);
-  border: 1px solid var(--gutenku-paper-border);
-  border-radius: var(--gutenku-radius-md);
-  animation: card-unfold 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+  padding: 1rem 0;
 }
 
-@keyframes card-unfold {
-  0% {
-    opacity: 0;
-    transform: scale(0.95) rotateX(5deg);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) rotateX(0);
-  }
-}
-
-.letter-char {
+.first-letter-circle {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 3rem;
-  height: 3rem;
+  width: 4rem;
+  height: 4rem;
+  background: var(--gutenku-zen-water);
+  border: 2px solid var(--gutenku-zen-primary);
+  border-radius: var(--gutenku-radius-full);
+  box-shadow: 0 4px 12px oklch(0 0 0 / 0.1);
+  animation: letter-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.first-letter-char {
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 600;
   color: var(--gutenku-zen-primary);
-  background: var(--gutenku-zen-water);
-  border-radius: var(--gutenku-radius-full);
+}
+
+.first-letter-label {
+  font-size: 0.85rem;
+  color: var(--gutenku-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   opacity: 0;
-  animation: letter-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-delay: 0.15s;
+  animation: fade-up 0.35s ease-out forwards;
+  animation-delay: 0.2s;
 }
 
 @keyframes letter-pop {
@@ -867,14 +1074,6 @@ const letterAuthorData = computed(() => {
   }
 }
 
-.nationality-text {
-  font-size: 0.9rem;
-  color: var(--gutenku-text-secondary);
-  opacity: 0;
-  animation: fade-up 0.35s ease-out forwards;
-  animation-delay: 0.35s;
-}
-
 @keyframes fade-up {
   0% {
     opacity: 0;
@@ -886,9 +1085,100 @@ const letterAuthorData = computed(() => {
   }
 }
 
-// Dark mode for letter-author
-[data-theme='dark'] .clue-card {
-  background: oklch(0.22 0.02 55);
+// Author Nationality hint - Passport stamp design
+.nationality-container {
+  display: flex;
+  justify-content: center;
+  padding: 1rem 0;
+}
+
+.passport-stamp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(
+    135deg,
+    var(--gutenku-paper-bg-aged) 0%,
+    var(--gutenku-paper-bg) 100%
+  );
+  border-radius: var(--gutenku-radius-md);
+  transform: rotate(-2deg);
+  animation: stamp-down 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes stamp-down {
+  0% {
+    opacity: 0;
+    transform: rotate(-2deg) scale(1.15);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(-2deg) scale(1);
+  }
+}
+
+.stamp-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.25rem;
+  border: 2px solid var(--gutenku-zen-primary);
+  border-radius: var(--gutenku-radius-sm);
+  position: relative;
+
+  // Inner border effect
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border: 1px solid var(--gutenku-zen-primary);
+    border-radius: calc(var(--gutenku-radius-sm) - 2px);
+    opacity: 0.5;
+  }
+}
+
+.stamp-nationality {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--gutenku-zen-primary);
+}
+
+.stamp-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--gutenku-text-muted);
+}
+
+// Dark mode
+[data-theme='dark'] .first-letter-circle {
+  background: oklch(0.25 0.03 60);
+  border-color: var(--gutenku-zen-accent);
+}
+
+[data-theme='dark'] .passport-stamp {
+  background: linear-gradient(
+    135deg,
+    oklch(0.22 0.02 55 / 0.6) 0%,
+    oklch(0.25 0.02 55) 100%
+  );
+}
+
+[data-theme='dark'] .stamp-frame {
+  border-color: oklch(0.7 0.08 195);
+
+  &::before {
+    border-color: oklch(0.7 0.08 195);
+  }
+}
+
+[data-theme='dark'] .stamp-nationality {
+  color: oklch(0.92 0.04 195);
 }
 
 [data-theme='dark'] .letter-char {
@@ -1009,75 +1299,56 @@ const letterAuthorData = computed(() => {
   margin: 0;
 }
 
-// Word Count - counter badge display
+// Word Count - visual word tiles
 .word-count-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 0;
+  gap: 0.75rem;
+  padding: 1rem 0;
 }
 
-.word-count-badge {
-  display: inline-flex;
+.word-tiles {
+  display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(
-    135deg,
-    var(--gutenku-zen-water) 0%,
-    var(--gutenku-paper-bg) 100%
-  );
-  border: 1px solid var(--gutenku-paper-border);
-  border-radius: var(--gutenku-radius-md);
+  gap: 0.625rem;
+}
+
+.word-tile {
+  width: 2.5rem;
+  height: 0.375rem;
+  background: var(--gutenku-zen-primary);
+  border-radius: 2px;
   opacity: 0;
-  animation: badge-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-delay: 0.1s;
+  animation: tile-appear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: calc(var(--tile-index) * 80ms + 100ms);
 }
 
-.word-count-icon {
-  color: var(--gutenku-zen-accent);
-}
-
-.word-count-number {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--gutenku-zen-primary);
+@keyframes tile-appear {
+  0% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  100% {
+    opacity: 0.65;
+    transform: scaleX(1);
+  }
 }
 
 .word-count-label {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   color: var(--gutenku-text-muted);
   opacity: 0;
   animation: fade-up 0.35s ease-out forwards;
-  animation-delay: 0.35s;
+  animation-delay: 0.5s;
 }
 
-@keyframes badge-pop {
-  0% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-[data-theme='dark'] .word-count-badge {
-  background: linear-gradient(
-    135deg,
-    oklch(0.25 0.03 195 / 0.5) 0%,
-    oklch(0.22 0.02 55) 100%
-  );
-}
-
-[data-theme='dark'] .word-count-number {
-  color: oklch(0.92 0.04 195);
+[data-theme='dark'] .word-tile {
+  background: oklch(0.7 0.08 195);
 }
 
 // Setting - location card display
@@ -1276,22 +1547,34 @@ const letterAuthorData = computed(() => {
   .quote-text,
   .clue-card,
   .letter-char,
-  .nationality-text,
+  .first-letter-circle,
+  .first-letter-label,
+  .passport-stamp,
   .author-name-container,
   .author-name,
   .signature-line,
   .author-label,
-  .word-count-badge,
-  .word-count-label,
+  .word-tile,
   .setting-card,
   .silhouette-spotlight,
   .silhouette-figure,
-  .protagonist-mystery .protagonist-name {
+  .protagonist-mystery .protagonist-name,
+  .hint-score-value--reducing,
+  .smoke-enter-active,
+  .smoke-leave-active {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
     filter: none !important;
     clip-path: none !important;
+  }
+
+  .score-delta {
+    display: none;
+  }
+
+  .passport-stamp {
+    transform: rotate(-2deg) !important;
   }
 
   .signature-line {

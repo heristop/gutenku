@@ -10,9 +10,11 @@ const props = withDefaults(defineProps<{
   book: BookValue;
   state?: CardState;
   disabled?: boolean;
+  spotlight?: boolean;
 }>(), {
   state: 'normal',
   disabled: false,
+  spotlight: false,
 });
 
 const emit = defineEmits<{
@@ -40,6 +42,7 @@ const cardClasses = computed(() => [
   `book-card--${props.state}`,
   {
     'book-card--disabled': props.disabled,
+    'book-card--spotlight': props.spotlight,
   },
 ]);
 
@@ -266,7 +269,7 @@ function handleContextMenu(event: MouseEvent) {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  opacity: 0.85;
+  opacity: 0.92;
 
   @media (min-width: 600px) {
     font-size: 0.8rem;
@@ -405,6 +408,35 @@ function handleContextMenu(event: MouseEvent) {
 
   .book-card__title {
     opacity: 0.6;
+  }
+}
+
+// Spotlight state (loss reveal moment)
+.book-card--spotlight {
+  z-index: 10;
+  transform: scale(1.15) translateY(-8px);
+  animation: spotlight-pulse 1.5s ease-in-out;
+
+  .book-card__cover {
+    box-shadow:
+      0 0 0 4px var(--gutenku-zen-accent),
+      0 0 30px oklch(0.6 0.2 195 / 0.4),
+      0 12px 30px oklch(0 0 0 / 0.25);
+  }
+}
+
+@keyframes spotlight-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  30% {
+    transform: scale(1.15) translateY(-8px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.15) translateY(-8px);
+    opacity: 1;
   }
 }
 

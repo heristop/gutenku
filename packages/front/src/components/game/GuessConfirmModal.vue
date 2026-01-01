@@ -59,8 +59,11 @@ function confirm() {
     :max-width="360"
     :persistent="loading"
     :show-close="!loading"
+    variant="book"
+    show-divider
     content-class="confirm-modal"
     title="confirm-guess"
+    description="Confirm your book guess selection"
     @update:model-value="(val: boolean) => !val && close()"
     @close="close"
   >
