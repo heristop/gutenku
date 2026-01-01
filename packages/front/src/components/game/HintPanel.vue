@@ -66,7 +66,7 @@ const latestHint = computed(() => {
   return props.hints.length > 0 ? props.hints.at(-1)! : null;
 });
 
-// Auto-select latest hint when it changes
+// Select latest hint by default
 watch(latestHint, (newHint) => {
   if (newHint) {
     selectedHintType.value = newHint.type;
@@ -183,12 +183,30 @@ function selectHint(item: TimelineItem) {
 }
 
 .hint-panel__current {
+  position: relative;
   padding: 0.5rem;
-  border-bottom: 1px solid var(--gutenku-paper-border);
   background: oklch(0.97 0.02 68 / 0.3);
 
   @media (min-width: 600px) {
     padding: 0.75rem;
+  }
+
+  // Ink wash separator
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--gutenku-zen-accent) 20%,
+      var(--gutenku-zen-accent) 80%,
+      transparent 100%
+    );
+    opacity: 0.4;
   }
 }
 
@@ -198,11 +216,29 @@ function selectHint(item: TimelineItem) {
 
 // Unified hint timeline
 .hint-timeline {
+  position: relative;
   padding: 0.5rem;
-  border-bottom: 1px solid var(--gutenku-paper-border);
 
   @media (min-width: 600px) {
     padding: 0.5rem 0.75rem;
+  }
+
+  // Ink wash separator
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--gutenku-zen-accent) 20%,
+      var(--gutenku-zen-accent) 80%,
+      transparent 100%
+    );
+    opacity: 0.4;
   }
 }
 

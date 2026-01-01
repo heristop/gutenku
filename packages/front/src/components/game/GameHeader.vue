@@ -34,7 +34,10 @@ async function resetAndReplay() {
   <header class="game-header">
     <div class="header-content">
       <!-- Title -->
-      <h1 class="game-title gutenku-text-primary">GutenGuess</h1>
+      <h1 class="game-title">
+        <span class="game-title__guten">Guten</span
+        ><span class="game-title__guess">Guess</span>
+      </h1>
 
       <!-- Info row: puzzle number + score + actions -->
       <div class="header-info">
@@ -122,11 +125,29 @@ async function resetAndReplay() {
 
 <style lang="scss" scoped>
 .game-header {
+  position: relative;
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--gutenku-paper-border);
 
   @media (min-width: 600px) {
     padding: 1rem 1.25rem;
+  }
+
+  // Ink wash separator
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--gutenku-zen-accent) 20%,
+      var(--gutenku-zen-accent) 80%,
+      transparent 100%
+    );
+    opacity: 0.4;
   }
 }
 
@@ -143,13 +164,29 @@ async function resetAndReplay() {
 }
 
 .game-title {
-  font-size: 1.35rem;
-  font-weight: 600;
+  font-size: 1.5rem;
   margin: 0;
   letter-spacing: 0.08em;
+  text-shadow:
+    0 1px 1px oklch(0 0 0 / 0.1),
+    0 2px 4px oklch(0 0 0 / 0.08),
+    0 4px 8px oklch(0.45 0.08 195 / 0.12);
 
   @media (min-width: 600px) {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
+  }
+
+  &__guten {
+    font-family: 'JMH Typewriter', serif;
+    font-weight: 400;
+    color: var(--gutenku-zen-primary);
+  }
+
+  &__guess {
+    font-family: var(--gutenku-font-body);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--gutenku-zen-secondary);
   }
 }
 

@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { BookOpen, Clock, Sparkles, Calendar, MapPin, Hash, Unlock } from 'lucide-vue-next';
 import type { PuzzleHint } from '@gutenku/shared';
 import ScoreStars from '@/components/ui/ScoreStars.vue';
+import ZenHaiku from '@/components/ui/ZenHaiku.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -262,11 +263,14 @@ function animateCountdown(from: number, to: number) {
           </div>
         </div>
       </template>
-      <!-- Famous quote with gradient reveal -->
+      <!-- Famous quote with zen haiku styling -->
       <template v-else-if="isQuote">
-        <div class="quote-container">
-          <p class="quote-text">{{ hint.content }}</p>
-        </div>
+        <ZenHaiku
+          :lines="[hint.content]"
+          size="sm"
+          :animated="false"
+          class="quote-haiku"
+        />
       </template>
       <!-- First Letter display -->
       <template v-else-if="isFirstLetter">
@@ -542,6 +546,7 @@ function animateCountdown(from: number, to: number) {
 }
 
 .hint-unlock-msg {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -553,7 +558,24 @@ function animateCountdown(from: number, to: number) {
   color: var(--gutenku-text-secondary);
   padding-top: 0.5rem;
   margin-top: 0.375rem;
-  border-top: 1px dashed var(--gutenku-paper-border);
+
+  // Ink wash separator
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--gutenku-zen-accent) 20%,
+      var(--gutenku-zen-accent) 80%,
+      transparent 100%
+    );
+    opacity: 0.4;
+  }
 
   svg {
     opacity: 0.7;
@@ -688,25 +710,26 @@ function animateCountdown(from: number, to: number) {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.25rem;
+  gap: 0.2rem;
   min-width: 3.5rem;
   height: 2.75rem;
   padding: 0.25rem 0.75rem;
   background: linear-gradient(
     135deg,
-    oklch(0.75 0.12 85) 0%,
-    oklch(0.65 0.15 70) 50%,
-    oklch(0.75 0.12 85) 100%
+    oklch(0.82 0.12 80) 0%,
+    oklch(0.75 0.14 70) 50%,
+    oklch(0.82 0.12 80) 100%
   );
-  border: 2px dashed oklch(0.55 0.1 70 / 0.5);
+  border: none;
   border-radius: var(--gutenku-radius-sm);
+  box-shadow: 0 1px 4px oklch(0.5 0.1 70 / 0.2);
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
-  animation: shimmer 2s infinite ease-in-out;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  animation: shimmer 3s infinite ease-in-out;
 
   &:hover:not(:disabled) {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px oklch(0.65 0.15 70 / 0.4);
+    transform: scale(1.03);
+    box-shadow: 0 2px 8px oklch(0.5 0.12 70 / 0.3);
   }
 
   &:active:not(:disabled) {
@@ -719,7 +742,7 @@ function animateCountdown(from: number, to: number) {
   }
 
   &--active {
-    animation: scratch-reveal 0.3s ease-out;
+    animation: scratch-reveal 0.25s ease-out;
   }
 
   &--disabled {
@@ -734,7 +757,7 @@ function animateCountdown(from: number, to: number) {
     filter: brightness(1);
   }
   50% {
-    filter: brightness(1.1);
+    filter: brightness(1.06);
   }
 }
 
@@ -759,45 +782,46 @@ function animateCountdown(from: number, to: number) {
 }
 
 .scratch-overlay__count {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  color: oklch(0.25 0.05 70);
+  color: oklch(0.22 0.06 70);
 }
 
 .scratch-overlay__icon {
-  color: oklch(0.35 0.1 70);
+  color: oklch(0.32 0.1 70);
 }
 
 .scratch-overlay__cost {
-  font-size: 0.6rem;
+  font-size: 0.65rem;
   font-weight: 600;
-  color: oklch(0.35 0.08 70);
+  letter-spacing: 0.02em;
+  color: oklch(0.45 0.12 25);
 }
 
 [data-theme='dark'] .scratch-overlay {
   background: linear-gradient(
     135deg,
-    oklch(0.45 0.1 85) 0%,
-    oklch(0.35 0.12 70) 50%,
-    oklch(0.45 0.1 85) 100%
+    oklch(0.45 0.1 80) 0%,
+    oklch(0.38 0.12 70) 50%,
+    oklch(0.45 0.1 80) 100%
   );
-  border-color: oklch(0.55 0.1 70 / 0.4);
+  box-shadow: 0 1px 4px oklch(0 0 0 / 0.3);
 
   &:hover:not(:disabled) {
-    box-shadow: 0 4px 12px oklch(0.5 0.12 70 / 0.5);
+    box-shadow: 0 2px 8px oklch(0.4 0.1 70 / 0.4);
   }
 }
 
 [data-theme='dark'] .scratch-overlay__count {
-  color: oklch(0.9 0.05 70);
+  color: oklch(0.95 0.05 70);
 }
 
 [data-theme='dark'] .scratch-overlay__icon {
-  color: oklch(0.85 0.08 70);
+  color: oklch(0.9 0.08 70);
 }
 
 [data-theme='dark'] .scratch-overlay__cost {
-  color: oklch(0.8 0.06 70);
+  color: oklch(0.7 0.1 25);
 }
 
 // Haiku zen aesthetic - ink brushstroke reveal
@@ -955,73 +979,9 @@ function animateCountdown(from: number, to: number) {
   color: oklch(0.7 0.1 195);
 }
 
-// Famous Quote - gradient text reveal
-.quote-container {
-  position: relative;
-  padding: 1.25rem 1.5rem;
-  background: linear-gradient(
-    135deg,
-    var(--gutenku-paper-bg-aged) 0%,
-    var(--gutenku-paper-bg) 100%
-  );
-  border-radius: var(--gutenku-radius-md);
-  border-left: 2px solid var(--gutenku-zen-accent);
-  animation: container-emerge 0.3s ease-out;
-}
-
-@keyframes container-emerge {
-  0% {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.quote-text {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 1.05rem;
-  font-style: italic;
-  line-height: 1.7;
-  margin: 0;
+// Quote hint uses ZenHaiku component
+.quote-haiku {
   text-align: left;
-  color: var(--gutenku-text-primary);
-  animation: text-reveal 1.2s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-  animation-delay: 0.15s;
-
-  // Inline quote marks
-  &::before {
-    content: '\201C';
-    color: var(--gutenku-zen-accent);
-    margin-right: 0.125rem;
-  }
-
-  &::after {
-    content: '\201D';
-    color: var(--gutenku-zen-accent);
-    margin-left: 0.125rem;
-  }
-}
-
-@keyframes text-reveal {
-  0% {
-    opacity: 0;
-    filter: blur(4px);
-  }
-  100% {
-    opacity: 1;
-    filter: blur(0);
-  }
-}
-
-[data-theme='dark'] .quote-container {
-  background: linear-gradient(
-    135deg,
-    oklch(0.22 0.02 55 / 0.6) 0%,
-    oklch(0.18 0.015 45 / 0.4) 100%
-  );
 }
 
 // First Letter hint
@@ -1543,8 +1503,6 @@ function animateCountdown(from: number, to: number) {
   .game-hint,
   .emoticon-bubble,
   .genre-era-tag,
-  .quote-container,
-  .quote-text,
   .clue-card,
   .letter-char,
   .first-letter-circle,

@@ -63,15 +63,33 @@ const guessesWithHints = computed(() => {
 
 <style lang="scss" scoped>
 .guess-history {
-  border-bottom: 1px solid var(--gutenku-paper-border);
+  position: relative;
+
+  // Ink wash separator
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--gutenku-zen-accent) 20%,
+      var(--gutenku-zen-accent) 80%,
+      transparent 100%
+    );
+    opacity: 0.4;
+  }
 }
 
 .guess-item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 0.75rem;
-  border-bottom: 1px solid var(--gutenku-paper-border);
 
   @media (min-width: 600px) {
     gap: 0.75rem;
@@ -83,8 +101,26 @@ const guessesWithHints = computed(() => {
     box-shadow 0.2s ease,
     background-color 0.2s ease;
 
-  &:last-child {
-    border-bottom: none;
+  // Ink wash separator between items
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--gutenku-zen-accent) 30%,
+      var(--gutenku-zen-accent) 70%,
+      transparent 100%
+    );
+    opacity: 0.3;
+  }
+
+  &:last-child::after {
+    display: none;
   }
 
   &:hover {
