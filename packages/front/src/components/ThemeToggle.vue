@@ -26,7 +26,7 @@ function toggleSystemPreference() {
     saveSystemPreferenceEnabled(false);
   } else {
     saveSystemPreferenceEnabled(true);
-    setTheme('system');
+    setTheme('auto');
   }
 }
 

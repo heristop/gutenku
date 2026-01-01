@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Sparkles } from 'lucide-vue-next';
 import ZenCard from '@/components/ui/ZenCard.vue';
+import ZenQuote from '@/components/ui/ZenQuote.vue';
 import { useGlobalStats } from '@/composables/global-stats';
 
 const { t } = useI18n();
@@ -118,9 +119,9 @@ onUnmounted(() => {
           aria-atomic="true"
         >
           <Transition name="quote-fade" mode="out-in">
-            <span :key="currentQuoteIndex" class="hero__tagline-text">
+            <ZenQuote :key="currentQuoteIndex">
               {{ currentQuote }}
-            </span>
+            </ZenQuote>
           </Transition>
         </p>
 
@@ -134,6 +135,7 @@ onUnmounted(() => {
         <div
           v-if="targetCount > 0"
           class="hero__stats-badge stagger-4"
+          role="status"
           :aria-label="`${animatedCount.toLocaleString()} ${t('hero.stats.haikusCrafted')}`"
         >
           <Sparkles class="hero__stats-icon" :size="14" aria-hidden="true" />
@@ -379,7 +381,6 @@ onUnmounted(() => {
     align-items: center;
     cursor: default;
 
-    // Hover effect (wow)
     &:hover .hero__illustration {
       transform: translateY(-6px) scale(1.02);
       filter: grayscale(0%);
@@ -461,7 +462,7 @@ onUnmounted(() => {
     margin-top: -0.5rem; // Pull closer to illustration
   }
 
-  // Tagline - smaller, secondary role in hierarchy
+  // Tagline/Verse container
   &__tagline {
     position: relative;
     min-height: 1.5rem;
@@ -469,25 +470,11 @@ onUnmounted(() => {
     align-items: center;
     justify-content: center;
     margin: 0;
+    padding: 0.5rem 1.5rem;
     z-index: 1;
   }
 
-  &__tagline-text {
-    display: inline;
-    font-family: 'JMH Typewriter', monospace;
-    font-size: 0.9rem;
-    font-weight: 400;
-    letter-spacing: 0.03em;
-    color: var(--gutenku-zen-secondary);
-    font-style: italic;
-    opacity: 0.85;
-
-    @media (min-width: 600px) {
-      font-size: 0.95rem;
-    }
-  }
-
-  // Description - primary content, better hierarchy
+  // Description - primary content
   &__description {
     position: relative;
     z-index: 1;
@@ -524,7 +511,6 @@ onUnmounted(() => {
     animation-delay: 1s;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 
-    // Hover effect (wow)
     &:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 12px oklch(0.45 0.08 192 / 0.12);
@@ -564,7 +550,7 @@ onUnmounted(() => {
   }
 }
 
-// Quote fade transition (enhanced)
+// Quote fade transition
 .quote-fade-enter-active {
   transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -605,9 +591,6 @@ onUnmounted(() => {
     border-color: oklch(0.5 0.1 192 / 0.2);
   }
 
-  .hero__tagline-text {
-    color: var(--gutenku-zen-accent);
-  }
 
   .hero__counter {
     color: var(--gutenku-zen-accent);

@@ -344,8 +344,25 @@ onUnmounted(() => {
   z-index: 2;
   text-align: center;
   margin-bottom: 2rem;
-  border-bottom: 1px solid var(--gutenku-border-visible);
   padding-bottom: 1rem;
+
+  // Ink wash separator
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--gutenku-zen-accent) 20%,
+      var(--gutenku-zen-accent) 80%,
+      transparent 100%
+    );
+    opacity: 0.4;
+  }
 
   .disclosure-text {
     font-size: 0.9rem;

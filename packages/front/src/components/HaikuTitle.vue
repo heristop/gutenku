@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useTypewriter } from '@/composables/typewriter';
 import { useQuoteRotation } from '@/composables/quote-rotation';
 import ZenCard from '@/components/ui/ZenCard.vue';
+import ZenQuote from '@/components/ui/ZenQuote.vue';
 
 const { t } = useI18n();
 
@@ -21,6 +22,7 @@ const {
 
 const {
   displayText: typewriterText,
+  showCursor,
   start: startTypewriter,
 } = useTypewriter('GutenKu', {
   speed: 150,
@@ -40,15 +42,18 @@ onMounted(startTypewriter);
     <div class="title-container">
       <h1 class="haiku-title">
         <span class="typewriter-text">{{ typewriterText }}</span>
+        <span v-if="showCursor" class="typewriter-cursor" aria-hidden="true"
+          >|</span
+        >
       </h1>
 
-      <p
+      <ZenQuote
         v-if="showQuote"
         :key="currentQuote"
         class="poetry-quote poetry-quote--animate"
       >
         {{ poetryQuotes[currentQuote] }}
-      </p>
+      </ZenQuote>
     </div>
   </ZenCard>
 </template>
@@ -110,52 +115,68 @@ onMounted(startTypewriter);
   }
 }
 
-.poetry-quote {
-  font-size: 0.9rem;
-  font-style: italic;
-  color: var(--gutenku-text-zen, #2f5d62);
-  margin: 1rem 0 0 0;
-  opacity: 0.8;
-  line-height: 1.4;
-  perspective: 800px;
-  transform-style: preserve-3d;
-
-  &--animate {
-    animation: quote-page-flip 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  }
-
-  @media (max-width: 768px) {
-    font-size: 0.8rem;
+.typewriter-text {
+  // Hide global cursor from main.scss
+  &::after {
+    display: none;
   }
 }
 
-@keyframes quote-page-flip {
+.typewriter-cursor {
+  display: inline-block;
+  font-weight: 300;
+  opacity: 0.4;
+  color: var(--gutenku-zen-primary, #2f5d62);
+  animation: cursor-blink 0.8s ease-in-out infinite;
+  margin-left: -0.1em;
+  position: relative;
+  top: -0.45em;
+}
+
+@keyframes cursor-blink {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.poetry-quote {
+  display: block;
+  margin: 1rem 0 0 0;
+  line-height: 1.4;
+
+  &--animate {
+    animation: quote-fade-in 0.5s ease-out forwards;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+  }
+}
+
+@keyframes quote-fade-in {
   0% {
     opacity: 0;
-    transform: rotateX(45deg) translateY(15px);
-    filter: blur(3px);
-  }
-  40% {
-    opacity: 0.6;
-    transform: rotateX(-5deg) translateY(-3px);
-    filter: blur(0);
-  }
-  70% {
-    transform: rotateX(2deg) translateY(1px);
+    transform: translateY(6px);
   }
   100% {
-    opacity: 0.8;
-    transform: rotateX(0) translateY(0);
-    filter: blur(0);
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .poetry-quote--animate {
     animation: none;
-    opacity: 0.8;
-    transform: none;
-    filter: none;
+    opacity: 1;
+  }
+
+  .typewriter-cursor {
+    animation: none;
+    opacity: 0.4;
   }
 }
 
