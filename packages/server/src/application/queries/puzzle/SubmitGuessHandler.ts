@@ -45,7 +45,7 @@ function getPuzzleNumber(dateStr: string): number {
 }
 
 /**
- * Select book for the given date. Must match GetDailyPuzzleHandler logic.
+ * Select book for the given date. Matches GetDailyPuzzleHandler logic.
  */
 function selectDailyBook(dateStr: string): GutenGuessBook {
   const books = getGutenGuessBooks();
@@ -122,10 +122,14 @@ const HINT_POOL: HintDefinition[] = [
     },
   },
   {
-    type: 'letter_author',
+    type: 'first_letter',
+    difficulty: 7,
+    generator: (book) => `${book.title[0].toUpperCase()}...`,
+  },
+  {
+    type: 'author_nationality',
     difficulty: 8,
-    generator: (book) =>
-      `${book.title[0].toUpperCase()}... by a ${book.authorNationality} author`,
+    generator: (book) => book.authorNationality,
   },
   {
     type: 'author_name',
@@ -148,7 +152,7 @@ function shuffleWithSeed<T>(array: T[], random: () => number): T[] {
 
 /**
  * Generate 6 hints for the book: emoticons (round 1) + 5 randomly selected hints from pool.
- * Excludes era/publication_century pairs. Sorts by difficulty. Deterministic via seeded PRNG.
+ * Excludes era/publication_century pairs. Sorts by difficulty. Uses seeded PRNG.
  */
 function generateAllHints(book: GutenGuessBook, dateStr: string): PuzzleHint[] {
   const seed = dateToSeed(dateStr);
