@@ -29,7 +29,6 @@ export default {
     ctx.globalAlpha = 0.85;
     drawImageCover(ctx, background, canvas.width, canvas.height);
 
-    // Strong overlay to soften background for text readability
     ctx.globalAlpha = 0.75;
     ctx.fillStyle = '#f4efe4';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -41,13 +40,11 @@ export default {
     let y = canvas.height / 4;
 
     verses.map((verse) => {
-      // Dark ink text on parchment overlay
       ctx.fillStyle = '#1a1a1a';
       ctx.fillText(verse, x, y);
       y += 480;
     });
 
-    // Signature
     ctx.font = 'bold 140px ZenKurenaido';
     ctx.fillStyle = '#5c4033';
     ctx.fillText('- GutenKu', canvas.width - 720, canvas.height - 280);
