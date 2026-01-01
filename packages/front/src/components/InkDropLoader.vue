@@ -29,8 +29,8 @@ defineProps<{
 <style lang="scss" scoped>
 .ink-drop-loader {
   --loader-size: 120px;
-  --ink-color: var(--gutenku-zen-ink, oklch(0.25 0.02 260));
-  --ripple-color: var(--gutenku-zen-ink, oklch(0.25 0.02 260 / 0.3));
+  --ink-color: currentColor;
+  --ripple-color: currentColor;
 
   position: relative;
   width: var(--loader-size);

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { Sparkles } from 'lucide-vue-next';
 import ZenCard from '@/components/ui/ZenCard.vue';
 import { useGlobalStats } from '@/composables/global-stats';
 
@@ -76,7 +77,7 @@ onUnmounted(() => {
 <template>
   <ZenCard
     variant="default"
-    class="hero pa-4 mb-6"
+    class="hero pt-2 px-3 pb-3 mb-4"
     role="complementary"
     :aria-label="t('hero.ariaLabel')"
   >
@@ -91,41 +92,64 @@ onUnmounted(() => {
     <!-- Bookmark ribbon -->
     <div class="bookmark-ribbon" aria-hidden="true" />
 
-    <!-- Logo with breathing animation -->
-    <div class="hero__logo-wrapper stagger-1">
-      <v-img
-        :style="{ viewTransitionName: 'gutenku-logo' }"
-        height="64"
-        alt="GutenKu Logo"
-        src="@/assets/img/logo/gutenku-logo-300.png"
-        class="hero__logo"
-      />
-    </div>
+    <!-- SEO: Visually hidden h1 for proper heading structure -->
+    <h1 class="sr-only">GutenKu - Haiku Generator from Classic Literature</h1>
 
-    <!-- Hero Tagline with quote rotation -->
-    <h1 class="hero__tagline stagger-2">
-      <Transition name="quote-fade" mode="out-in">
-        <span :key="currentQuoteIndex" class="hero__tagline-text">
-          {{ currentQuote }}
-        </span>
-      </Transition>
-    </h1>
+    <!-- Hero layout: stacked centered -->
+    <div class="hero__layout">
+      <!-- GutenMage illustration - prominent and centered -->
+      <div class="hero__illustration-wrapper stagger-1">
+        <div class="hero__illustration-glow" aria-hidden="true" />
+        <img
+          src="/gutenmage.png"
+          alt=""
+          aria-hidden="true"
+          class="hero__illustration"
+          loading="eager"
+        />
+      </div>
 
-    <!-- Description -->
-    <div class="hero__description stagger-3" role="article">
-      <!-- eslint-disable-next-line vue/no-v-html -->
-      <p v-html="t('hero.description')" />
-    </div>
+      <!-- Content column -->
+      <div class="hero__content">
+        <!-- Rotating quote with typewriter effect -->
+        <p
+          class="hero__tagline stagger-2"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <Transition name="quote-fade" mode="out-in">
+            <span :key="currentQuoteIndex" class="hero__tagline-text">
+              {{ currentQuote }}
+            </span>
+          </Transition>
+        </p>
 
-    <!-- Social Proof Counter -->
-    <div v-if="targetCount > 0" class="hero__stats stagger-4">
-      <span
-        class="hero__counter"
-        :class="{ 'hero__counter--animating': isCountAnimating }"
-      >
-        {{ animatedCount.toLocaleString() }}
-      </span>
-      <span class="hero__label">{{ t('hero.stats.haikusCrafted') }}</span>
+        <!-- Description -->
+        <div class="hero__description stagger-3" role="article">
+          <!-- eslint-disable-next-line vue/no-v-html -->
+          <p v-html="t('hero.description')" />
+        </div>
+
+        <!-- Social Proof Badge -->
+        <div
+          v-if="targetCount > 0"
+          class="hero__stats-badge stagger-4"
+          :aria-label="`${animatedCount.toLocaleString()} ${t('hero.stats.haikusCrafted')}`"
+        >
+          <Sparkles class="hero__stats-icon" :size="14" aria-hidden="true" />
+          <span
+            class="hero__counter"
+            :class="{ 'hero__counter--animating': isCountAnimating }"
+            aria-hidden="true"
+            >{{ animatedCount.toLocaleString() }}</span
+          >
+          <span
+            class="hero__label"
+            aria-hidden="true"
+            >{{ t('hero.stats.haikusCrafted') }}</span
+          >
+        </div>
+      </div>
     </div>
   </ZenCard>
 </template>
@@ -198,6 +222,21 @@ onUnmounted(() => {
   }
 }
 
+@keyframes illustration-breathe {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.5px); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.15; transform: scale(1); }
+  50% { opacity: 0.25; transform: scale(1.05); }
+}
+
+@keyframes gentle-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
 // Staggered entrance animations
 .stagger-1 {
   animation: hero-entrance 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0s both;
@@ -215,8 +254,13 @@ onUnmounted(() => {
   animation: hero-entrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.45s both;
 }
 
+.stagger-5 {
+  animation: hero-entrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s both;
+}
+
 .bookmark-ribbon {
   animation: bookmark-entrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+  top: -12px; // Moved down from default -20px
 }
 
 .hero {
@@ -225,8 +269,8 @@ onUnmounted(() => {
   text-align: center;
 
   @media (max-width: 600px) {
-    margin-top: 3.5rem;
-    margin-bottom: 1.25rem !important;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem !important;
   }
 
   // Ink wash background
@@ -302,101 +346,242 @@ onUnmounted(() => {
     }
   }
 
-  // Logo
-  &__logo-wrapper {
+  // Stacked centered layout - tight spacing
+  &__layout {
     position: relative;
     display: flex;
-    justify-content: center;
-    margin-bottom: 0.75rem;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
     z-index: 1;
+    text-align: center;
   }
 
-  &__logo {
-    animation: breathe 4s ease-in-out infinite;
-    transition: var(--gutenku-transition-fast);
+  // Screen reader only (SEO h1)
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
 
-    &:hover {
-      opacity: 0.85;
+  // Illustration - larger and prominent
+  &__illustration-wrapper {
+    position: relative;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: default;
+
+    // Hover effect (wow)
+    &:hover .hero__illustration {
+      transform: translateY(-6px) scale(1.02);
+      filter: grayscale(0%);
+    }
+
+    &:hover .hero__illustration-glow {
+      opacity: 0.35;
+      transform: scale(1.1);
     }
   }
 
-  // Tagline
+  &__illustration-glow {
+    position: absolute;
+    width: 260px;
+    height: 260px;
+    background: radial-gradient(
+      circle,
+      oklch(0.45 0.12 192 / 0.18) 0%,
+      oklch(0.45 0.08 192 / 0.08) 45%,
+      transparent 70%
+    );
+    border-radius: 50%;
+    animation: glow-pulse 8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+    transition: all 0.4s ease;
+
+    @media (min-width: 600px) {
+      width: 300px;
+      height: 300px;
+    }
+
+    @media (min-width: 768px) {
+      width: 340px;
+      height: 340px;
+    }
+
+    [data-theme='dark'] & {
+      background: radial-gradient(
+        circle,
+        oklch(0.5 0.15 192 / 0.15) 0%,
+        oklch(0.5 0.1 192 / 0.08) 40%,
+        transparent 70%
+      );
+    }
+  }
+
+  &__illustration {
+    position: relative;
+    width: 240px;
+    height: auto;
+    opacity: 0.95;
+    filter: grayscale(15%);
+    animation: illustration-breathe 5s ease-in-out infinite;
+    z-index: 1;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    @media (min-width: 600px) {
+      width: 280px;
+    }
+
+    @media (min-width: 768px) {
+      width: 320px;
+    }
+
+    [data-theme='dark'] & {
+      filter: brightness(0.85) grayscale(20%);
+    }
+  }
+
+  // Content column - tighter spacing
+  &__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 500px;
+    gap: 0.4rem;
+    margin-top: -0.5rem; // Pull closer to illustration
+  }
+
+  // Tagline - smaller, secondary role in hierarchy
   &__tagline {
     position: relative;
-    min-height: 2.5rem;
-    margin: 0 0 0.75rem;
+    min-height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
     z-index: 1;
   }
 
   &__tagline-text {
-    display: block;
+    display: inline;
     font-family: 'JMH Typewriter', monospace;
-    font-size: 1.35rem;
+    font-size: 0.9rem;
     font-weight: 400;
-    letter-spacing: 0.08em;
-    color: var(--gutenku-zen-primary);
+    letter-spacing: 0.03em;
+    color: var(--gutenku-zen-secondary);
     font-style: italic;
+    opacity: 0.85;
+
+    @media (min-width: 600px) {
+      font-size: 0.95rem;
+    }
   }
 
-  // Description
+  // Description - primary content, better hierarchy
   &__description {
     position: relative;
-    margin-bottom: 1rem;
     z-index: 1;
 
     p {
       margin: 0;
-      line-height: 1.7;
+      line-height: 1.6;
+      font-size: 0.95rem;
+      max-width: 52ch;
+      color: var(--gutenku-text-primary);
+
+      @media (min-width: 600px) {
+        font-size: 1rem;
+      }
     }
   }
 
-  // Stats counter
-  &__stats {
+  // Stats badge - compact with Lucide icon
+  &__stats-badge {
     position: relative;
-    display: flex;
-    align-items: baseline;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid oklch(0 0 0 / 0.06);
+    gap: 0.35rem;
+    padding: 0.4rem 0.85rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0.5rem;
+    background: var(--gutenku-zen-water);
+    border: 1px solid oklch(0.45 0.08 192 / 0.12);
+    border-radius: 2rem;
     z-index: 1;
+    cursor: default;
+    animation: gentle-float 6s ease-in-out infinite;
+    animation-delay: 1s;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    // Hover effect (wow)
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px oklch(0.45 0.08 192 / 0.12);
+      border-color: oklch(0.45 0.08 192 / 0.25);
+    }
+  }
+
+  &__stats-icon {
+    color: var(--gutenku-zen-primary);
+    opacity: 0.8;
+    transition: all 0.3s ease;
+
+    .hero__stats-badge:hover & {
+      transform: scale(1.1) rotate(8deg);
+      opacity: 1;
+    }
   }
 
   &__counter {
     font-family: 'JMH Typewriter', monospace;
-    font-size: 1.5rem;
+    font-size: 0.9rem;
     font-weight: 600;
     color: var(--gutenku-zen-primary);
     letter-spacing: 0.02em;
     transition: transform 0.1s ease;
 
     &--animating {
-      transform: scale(1.02);
+      transform: scale(1.05);
     }
   }
 
   &__label {
     font-family: 'JMH Typewriter', monospace;
-    font-size: 0.9rem;
-    color: var(--gutenku-text-muted);
-    letter-spacing: 0.05em;
+    font-size: 0.8rem;
+    color: var(--gutenku-text-secondary);
+    letter-spacing: 0.02em;
   }
 }
 
-// Quote fade transition
-.quote-fade-enter-active,
+// Quote fade transition (enhanced)
+.quote-fade-enter-active {
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 .quote-fade-leave-active {
-  transition: all 0.4s ease;
+  transition: all 0.3s ease-out;
 }
 
 .quote-fade-enter-from {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(12px) scale(0.98);
+  filter: blur(2px);
 }
 
 .quote-fade-leave-to {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: translateY(-8px) scale(0.98);
 }
 
 // Dark theme
@@ -415,8 +600,9 @@ onUnmounted(() => {
       );
   }
 
-  .hero__stats {
-    border-top-color: oklch(1 0 0 / 0.08);
+  .hero__stats-badge {
+    background: oklch(0.25 0.03 192 / 0.4);
+    border-color: oklch(0.5 0.1 192 / 0.2);
   }
 
   .hero__tagline-text {
@@ -434,6 +620,7 @@ onUnmounted(() => {
   .stagger-2,
   .stagger-3,
   .stagger-4,
+  .stagger-5,
   .bookmark-ribbon {
     animation: none;
     opacity: 1;
@@ -441,8 +628,13 @@ onUnmounted(() => {
     filter: none;
   }
 
-  .hero__logo {
+  .hero__illustration {
     animation: none;
+  }
+
+  .hero__illustration-glow {
+    animation: none;
+    opacity: 0.2;
   }
 
   .hero__ink-wash {
@@ -454,9 +646,19 @@ onUnmounted(() => {
     display: none;
   }
 
+  .hero__stats-badge {
+    animation: none;
+  }
+
   .quote-fade-enter-active,
   .quote-fade-leave-active {
-    transition: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .quote-fade-enter-from,
+  .quote-fade-leave-to {
+    transform: none;
+    filter: none;
   }
 }
 </style>

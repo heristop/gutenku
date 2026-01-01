@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { CloudOff, RefreshCw } from 'lucide-vue-next';
 import ZenButton from '@/components/ui/ZenButton.vue';
 import InkDropLoader from '@/components/InkDropLoader.vue';
+import AppFooter from '@/components/AppFooter.vue';
 import { useLoadingMessages } from '@/composables/loading-messages';
 import { useTheme } from '@/composables/theme';
 import logoUrl from '@/assets/img/logo/gutenku-logo-300.png';
@@ -30,6 +31,11 @@ const props = defineProps({
     type: Function as PropType<() => void>,
     required: false,
     default: null,
+  },
+  retryLabel: {
+    type: String,
+    required: false,
+    default: '',
   },
 });
 
@@ -152,10 +158,15 @@ watch(displayText, (newText) => {
           <template #icon-left>
             <RefreshCw :size="18" />
           </template>
-          {{ t('common.retry') }}
+          {{ retryLabel || t('common.retry') }}
         </ZenButton>
       </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="loading-footer">
+      <AppFooter />
+    </footer>
   </div>
 </template>
 
@@ -486,6 +497,28 @@ watch(displayText, (newText) => {
 // Retry button
 .loading-retry {
   margin-top: 1.25rem;
+
+  :deep(svg) {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover :deep(svg) {
+    transform: rotate(45deg);
+  }
+
+  &:active :deep(svg) {
+    transform: rotate(360deg);
+    transition: transform 0.5s ease;
+  }
+}
+
+// Footer
+.loading-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
 }
 
 // Dark theme

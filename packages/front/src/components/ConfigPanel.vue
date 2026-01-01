@@ -28,6 +28,9 @@ import ZenTooltip from '@/components/ui/ZenTooltip.vue';
 import ZenCard from '@/components/ui/ZenCard.vue';
 import ZenButton from '@/components/ui/ZenButton.vue';
 import ZenAccordion from '@/components/ui/ZenAccordion.vue';
+import ZenSwitch from '@/components/ui/ZenSwitch.vue';
+import ZenSlider from '@/components/ui/ZenSlider.vue';
+import ZenExpandTransition from '@/components/ui/ZenExpandTransition.vue';
 
 const PULSE_DURATION = 200;
 
@@ -181,7 +184,7 @@ function resetAdvancedConfig(): void {
       </template>
 
       <div class="config-panel__content">
-        <div class="config-panel__inner gutenku-book-page pa-3 mb-2">
+        <div class="config-panel__inner pa-3 mb-2">
           <!-- AI toggles (dev mode only) -->
           <div v-if="isDev" class="config-panel__dev-section mb-4">
             <div class="config-panel__dev-label mb-2">
@@ -189,28 +192,22 @@ function resetAdvancedConfig(): void {
               <span>Dev Mode</span>
             </div>
             <div class="config-panel__toggle-row">
-              <v-switch
+              <ZenSwitch
                 v-model="optionImageAI"
-                hide-details
-                density="compact"
-                color="primary"
                 label="ImageAI Theme"
-                class="config-panel__switch"
+                size="sm"
               />
             </div>
             <div class="config-panel__toggle-row">
-              <v-switch
+              <ZenSwitch
                 v-model="optionUseAI"
-                hide-details
-                density="compact"
-                color="primary"
                 label="AI Description"
-                class="config-panel__switch"
+                size="sm"
               />
             </div>
 
             <!-- AI parameters (only when optionUseAI is on) -->
-            <v-expand-transition>
+            <ZenExpandTransition>
               <div v-if="optionUseAI" class="config-panel__dev-params mt-3">
                 <div
                   class="config-panel__section config-panel__section--compact"
@@ -227,15 +224,12 @@ function resetAdvancedConfig(): void {
                       >{{ optionSelectionCount }}</span
                     >
                   </div>
-                  <v-slider
+                  <ZenSlider
                     v-model="optionSelectionCount"
                     :min="1"
                     :max="20"
                     :step="1"
-                    hide-details
-                    color="primary"
-                    thumb-size="12"
-                    class="config-panel__slider config-panel__slider--compact"
+                    size="sm"
                     aria-label="Selection count"
                     :aria-valuetext="`${optionSelectionCount} selections`"
                   />
@@ -256,21 +250,18 @@ function resetAdvancedConfig(): void {
                       >{{ optionDescriptionTemperature.toFixed(1) }}</span
                     >
                   </div>
-                  <v-slider
+                  <ZenSlider
                     v-model="optionDescriptionTemperature"
                     :min="0"
                     :max="1"
                     :step="0.1"
-                    hide-details
-                    color="primary"
-                    thumb-size="12"
-                    class="config-panel__slider config-panel__slider--compact"
+                    size="sm"
                     aria-label="Temperature"
                     :aria-valuetext="`Temperature: ${optionDescriptionTemperature.toFixed(1)}`"
                   />
                 </div>
               </div>
-            </v-expand-transition>
+            </ZenExpandTransition>
           </div>
 
           <div class="config-panel__section">
@@ -293,15 +284,12 @@ function resetAdvancedConfig(): void {
                 }}</span
               >
             </div>
-            <v-slider
+            <ZenSlider
               v-model="optionMinSentimentScore"
               :min="-1"
               :max="0.2"
               :step="0.05"
-              hide-details
-              color="primary"
-              thumb-size="14"
-              class="config-panel__slider"
+              size="sm"
               :aria-label="t('config.filters.sentiment')"
               :aria-valuetext="t('config.sliderValue', { label: t('config.filters.sentiment'), value: optionMinSentimentScore.toFixed(2) })"
             />
@@ -329,7 +317,7 @@ function resetAdvancedConfig(): void {
             </ZenTooltip>
           </div>
 
-          <v-expand-transition>
+          <ZenExpandTransition>
             <div v-show="showAdvanced">
               <div
                 class="config-panel__section"
@@ -349,15 +337,12 @@ function resetAdvancedConfig(): void {
                     }}</span
                   >
                 </div>
-                <v-slider
+                <ZenSlider
                   v-model="optionMinMarkovScore"
                   :min="0"
                   :max="1"
                   :step="0.05"
-                  hide-details
-                  color="primary"
-                  thumb-size="14"
-                  class="config-panel__slider"
+                  size="sm"
                   :aria-label="t('config.filters.markov')"
                   :aria-valuetext="t('config.sliderValue', { label: t('config.filters.markov'), value: optionMinMarkovScore.toFixed(2) })"
                 />
@@ -382,15 +367,12 @@ function resetAdvancedConfig(): void {
                       }}</span
                     >
                   </div>
-                  <v-slider
+                  <ZenSlider
                     v-model="optionMinPosScore"
                     :min="0"
                     :max="1"
                     :step="0.05"
-                    hide-details
-                    color="primary"
-                    thumb-size="14"
-                    class="config-panel__slider"
+                    size="sm"
                     :aria-label="t('config.filters.grammar')"
                     :aria-valuetext="t('config.sliderValue', { label: t('config.filters.grammar'), value: optionMinPosScore.toFixed(2) })"
                   />
@@ -414,15 +396,12 @@ function resetAdvancedConfig(): void {
                       }}</span
                     >
                   </div>
-                  <v-slider
+                  <ZenSlider
                     v-model="optionMinTrigramScore"
                     :min="0"
                     :max="1"
                     :step="0.05"
-                    hide-details
-                    color="primary"
-                    thumb-size="14"
-                    class="config-panel__slider"
+                    size="sm"
                     :aria-label="t('config.filters.trigram')"
                     :aria-valuetext="t('config.sliderValue', { label: t('config.filters.trigram'), value: optionMinTrigramScore.toFixed(2) })"
                   />
@@ -443,15 +422,12 @@ function resetAdvancedConfig(): void {
                       }}</span
                     >
                   </div>
-                  <v-slider
+                  <ZenSlider
                     v-model="optionMinTfidfScore"
                     :min="0"
                     :max="1"
                     :step="0.05"
-                    hide-details
-                    color="primary"
-                    thumb-size="14"
-                    class="config-panel__slider"
+                    size="sm"
                     :aria-label="t('config.filters.tfidf')"
                     :aria-valuetext="t('config.sliderValue', { label: t('config.filters.tfidf'), value: optionMinTfidfScore.toFixed(2) })"
                   />
@@ -475,22 +451,19 @@ function resetAdvancedConfig(): void {
                       }}</span
                     >
                   </div>
-                  <v-slider
+                  <ZenSlider
                     v-model="optionMinPhoneticsScore"
                     :min="0"
                     :max="1"
                     :step="0.05"
-                    hide-details
-                    color="primary"
-                    thumb-size="14"
-                    class="config-panel__slider"
+                    size="sm"
                     :aria-label="t('config.filters.phonetics')"
                     :aria-valuetext="t('config.sliderValue', { label: t('config.filters.phonetics'), value: optionMinPhoneticsScore.toFixed(2) })"
                   />
                 </div>
               </template>
             </div>
-          </v-expand-transition>
+          </ZenExpandTransition>
         </div>
       </div>
     </ZenAccordion>
@@ -542,15 +515,15 @@ function resetAdvancedConfig(): void {
 
   &__inner {
     background: var(--gutenku-paper-bg-aged);
-    border-radius: var(--gutenku-radius-md);
-    box-shadow: var(--gutenku-shadow-book);
+    border-radius: var(--gutenku-radius-sm);
+    box-shadow: 0 1px 2px oklch(0 0 0 / 0.06);
     border: 1px solid var(--gutenku-paper-border);
     min-height: auto !important;
-    padding: 0.75rem 1.25rem !important;  // 12px 20px
+    padding: 0.75rem 1.25rem !important;
   }
 
   &__section {
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.75rem;
 
     &--last {
       margin-bottom: 0;
@@ -630,113 +603,6 @@ function resetAdvancedConfig(): void {
     }
   }
 
-  &__slider--compact {
-    margin: 0.25rem 0;
-
-    :deep(.v-slider-track) {
-      height: 0.35rem;
-    }
-
-    :deep(.v-slider-thumb) {
-      width: 1rem;
-      height: 1rem;
-    }
-
-    :deep(.v-slider-thumb__surface) {
-      width: 0.85rem;
-      height: 0.85rem;
-      border-width: 2px;
-    }
-  }
-
-  &__switch {
-    :deep(.v-label) {
-      font-family: 'JMH Typewriter', monospace !important;
-      font-size: 0.85rem;
-      color: var(--gutenku-text-primary);
-    }
-
-    :deep(.v-switch__track) {
-      opacity: 1;
-      background: oklch(0.82 0.015 60);
-      border: 1px solid oklch(0.72 0.02 60);
-      transition: all 0.25s ease;
-      box-shadow: inset 0 1px 3px oklch(0 0 0 / 0.1);
-    }
-
-    :deep(.v-switch__thumb) {
-      background: linear-gradient(145deg, oklch(0.99 0 0), oklch(0.94 0.01 60));
-      box-shadow:
-        0 2px 4px oklch(0 0 0 / 0.15),
-        0 1px 2px oklch(0 0 0 / 0.1);
-      transition: all 0.25s ease;
-    }
-
-    &:hover :deep(.v-switch__track) {
-      border-color: oklch(0.6 0.03 60);
-    }
-
-    &:hover :deep(.v-switch__thumb) {
-      box-shadow:
-        0 3px 6px oklch(0 0 0 / 0.18),
-        0 2px 4px oklch(0 0 0 / 0.12);
-    }
-
-    :deep(.v-selection-control--dirty .v-switch__track) {
-      background: linear-gradient(90deg, var(--gutenku-zen-secondary), var(--gutenku-zen-primary));
-      border: none;
-      box-shadow:
-        inset 0 1px 2px oklch(0 0 0 / 0.1),
-        0 0 8px oklch(0.6 0.1 180 / 0.3);
-    }
-
-    :deep(.v-selection-control--dirty .v-switch__thumb) {
-      background: linear-gradient(145deg, oklch(1 0 0), oklch(0.96 0.01 60));
-      box-shadow:
-        0 2px 6px oklch(0 0 0 / 0.2),
-        0 0 4px oklch(0.6 0.1 180 / 0.2);
-    }
-
-    [data-theme='dark'] & {
-      :deep(.v-switch__track) {
-        background: oklch(0.35 0.02 60);
-        border: 1px solid oklch(0.45 0.03 60);
-        box-shadow: inset 0 1px 3px oklch(0 0 0 / 0.3);
-      }
-
-      :deep(.v-switch__thumb) {
-        background: linear-gradient(145deg, oklch(0.8 0.01 60), oklch(0.7 0.02 60));
-        box-shadow:
-          0 2px 4px oklch(0 0 0 / 0.3),
-          0 1px 2px oklch(0 0 0 / 0.2);
-      }
-
-      &:hover :deep(.v-switch__track) {
-        border-color: oklch(0.55 0.04 60);
-        background: oklch(0.4 0.02 60);
-      }
-
-      &:hover :deep(.v-switch__thumb) {
-        background: linear-gradient(145deg, oklch(0.85 0.01 60), oklch(0.75 0.02 60));
-      }
-
-      :deep(.v-selection-control--dirty .v-switch__track) {
-        background: linear-gradient(90deg, var(--gutenku-zen-accent), var(--gutenku-zen-secondary));
-        border: none;
-        box-shadow:
-          inset 0 1px 2px oklch(0 0 0 / 0.2),
-          0 0 12px oklch(0.7 0.1 178 / 0.4);
-      }
-
-      :deep(.v-selection-control--dirty .v-switch__thumb) {
-        background: linear-gradient(145deg, oklch(0.98 0 0), oklch(0.92 0.01 60));
-        box-shadow:
-          0 2px 6px oklch(0 0 0 / 0.3),
-          0 0 6px oklch(0.7 0.1 178 / 0.3);
-      }
-    }
-  }
-
   &__advanced-icon {
     opacity: 0.7;
   }
@@ -755,8 +621,8 @@ function resetAdvancedConfig(): void {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 0.75rem;
-    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+    font-size: 0.85rem;
     color: var(--gutenku-text-primary);
     font-weight: 500;
   }
@@ -796,174 +662,6 @@ function resetAdvancedConfig(): void {
       transform: scale(1.15);
       background: color-mix(in oklch, var(--gutenku-theme-primary-oklch) 25%, transparent);
       box-shadow: 0 0 12px color-mix(in oklch, var(--gutenku-theme-primary-oklch) 40%, transparent);
-    }
-  }
-
-  &__slider {
-    margin: 0.5rem 0;
-
-    :deep(.v-slider-thumb__ripple) {
-      display: none;
-    }
-
-    :deep(.v-slider-track) {
-      height: 0.5rem;
-      border-radius: var(--gutenku-radius-sm);
-    }
-
-    :deep(.v-slider-track__background) {
-      background: linear-gradient(
-        180deg,
-        oklch(0 0 0 / 0.08) 0%,
-        oklch(0 0 0 / 0.12) 100%
-      );
-      border-radius: var(--gutenku-radius-sm);
-      box-shadow: inset 0 1px 3px oklch(0 0 0 / 0.1);
-    }
-
-    :deep(.v-slider-track__fill) {
-      background: linear-gradient(
-        90deg,
-        var(--gutenku-zen-secondary) 0%,
-        var(--gutenku-zen-primary) 100%
-      );
-      border-radius: var(--gutenku-radius-sm);
-      box-shadow:
-        0 2px 8px oklch(0.45 0.08 195 / 0.3),
-        inset 0 1px 0 oklch(1 0 0 / 0.2);
-      transition: box-shadow 0.3s ease;
-    }
-
-    :deep(.v-slider-thumb) {
-      width: 1.5rem;
-      height: 1.5rem;
-      background: transparent;
-      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    :deep(.v-slider-thumb__surface) {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      width: 1.25rem;
-      height: 1.25rem;
-      border-radius: 50%;
-      background: linear-gradient(
-        145deg,
-        var(--gutenku-paper-bg) 0%,
-        var(--gutenku-paper-bg-aged) 100%
-      );
-      border: 3px solid var(--gutenku-zen-primary);
-      box-shadow:
-        0 2px 8px oklch(0 0 0 / 0.15),
-        0 4px 12px oklch(0.45 0.08 195 / 0.2),
-        inset 0 1px 2px oklch(1 0 0 / 0.8);
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-
-      &::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 0.375rem;
-        height: 0.375rem;
-        border-radius: 50%;
-        background: var(--gutenku-zen-primary);
-        transition: background 0.2s ease, transform 0.2s ease;
-      }
-    }
-
-    :deep(.v-slider-thumb:hover .v-slider-thumb__surface) {
-      border-color: var(--gutenku-zen-accent);
-      box-shadow:
-        0 4px 12px oklch(0 0 0 / 0.2),
-        0 6px 20px oklch(0.45 0.08 195 / 0.25),
-        inset 0 1px 2px oklch(1 0 0 / 0.8);
-
-      &::after {
-        background: var(--gutenku-zen-accent);
-        transform: translate(-50%, -50%) scale(1.15);
-      }
-    }
-
-    :deep(.v-slider-thumb:active .v-slider-thumb__surface),
-    :deep(.v-slider-thumb--focused .v-slider-thumb__surface) {
-      border-color: var(--gutenku-zen-accent);
-      box-shadow:
-        0 0 0 4px oklch(0.45 0.08 195 / 0.15),
-        0 4px 16px oklch(0.45 0.08 195 / 0.3),
-        inset 0 1px 2px oklch(1 0 0 / 0.8);
-
-      &::after {
-        background: var(--gutenku-zen-accent);
-        transform: translate(-50%, -50%) scale(1.25);
-      }
-    }
-
-    [data-theme='dark'] & {
-      :deep(.v-slider-track__background) {
-        background: linear-gradient(
-          180deg,
-          oklch(1 0 0 / 0.08) 0%,
-          oklch(1 0 0 / 0.04) 100%
-        );
-        box-shadow: inset 0 1px 3px oklch(0 0 0 / 0.3);
-      }
-
-      :deep(.v-slider-track__fill) {
-        background: linear-gradient(
-          90deg,
-          var(--gutenku-zen-secondary) 0%,
-          var(--gutenku-zen-accent) 100%
-        );
-        box-shadow:
-          0 2px 12px oklch(0.72 0.04 178 / 0.4),
-          inset 0 1px 0 oklch(1 0 0 / 0.1);
-      }
-
-      :deep(.v-slider-thumb__surface) {
-        background: linear-gradient(
-          145deg,
-          var(--gutenku-paper-bg-warm) 0%,
-          var(--gutenku-paper-bg) 100%
-        );
-        border-color: var(--gutenku-zen-secondary);
-        box-shadow:
-          0 2px 8px oklch(0 0 0 / 0.3),
-          0 4px 16px oklch(0.72 0.04 178 / 0.2),
-          inset 0 1px 2px oklch(1 0 0 / 0.1);
-
-        &::after {
-          background: var(--gutenku-zen-secondary);
-        }
-      }
-
-      :deep(.v-slider-thumb:hover .v-slider-thumb__surface) {
-        border-color: var(--gutenku-zen-accent);
-        box-shadow:
-          0 4px 16px oklch(0 0 0 / 0.4),
-          0 6px 24px oklch(0.72 0.04 178 / 0.3),
-          inset 0 1px 2px oklch(1 0 0 / 0.1);
-
-        &::after {
-          background: var(--gutenku-zen-accent);
-        }
-      }
-
-      :deep(.v-slider-thumb:active .v-slider-thumb__surface),
-      :deep(.v-slider-thumb--focused .v-slider-thumb__surface) {
-        border-color: var(--gutenku-zen-accent);
-        box-shadow:
-          0 0 0 4px oklch(0.72 0.04 178 / 0.2),
-          0 4px 20px oklch(0.72 0.04 178 / 0.4),
-          inset 0 1px 2px oklch(1 0 0 / 0.1);
-
-        &::after {
-          background: var(--gutenku-zen-accent);
-        }
-      }
     }
   }
 }
@@ -1013,30 +711,6 @@ function resetAdvancedConfig(): void {
 
     &__section {
       margin-bottom: 1.5rem;
-    }
-
-    &__slider {
-      margin: 0.75rem 0;
-
-      :deep(.v-slider-track) {
-        height: 0.375rem;
-      }
-
-      :deep(.v-slider-thumb) {
-        width: 1.25rem;
-        height: 1.25rem;
-      }
-
-      :deep(.v-slider-thumb__surface) {
-        width: 1rem;
-        height: 1rem;
-        border-width: 2px;
-
-        &::after {
-          width: 0.25rem;
-          height: 0.25rem;
-        }
-      }
     }
   }
 }

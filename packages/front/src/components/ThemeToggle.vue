@@ -14,33 +14,32 @@ const {
   setTheme,
 } = useTheme();
 
-// Current mode: 'light' | 'system' | 'dark'
-const currentMode = computed(() => {
-  if (systemPreferenceEnabled.value) {return 'system';}
-  return isDarkMode.value ? 'dark' : 'light';
-});
+// Toggle between light and dark directly
+function toggleTheme() {
+  saveSystemPreferenceEnabled(false);
+  setTheme(isDarkMode.value ? 'light' : 'dark');
+}
 
-// Cycle through: light → system → dark → light
-function cycleTheme() {
-  if (currentMode.value === 'light') {
+// Toggle system preference
+function toggleSystemPreference() {
+  if (systemPreferenceEnabled.value) {
+    saveSystemPreferenceEnabled(false);
+  } else {
     saveSystemPreferenceEnabled(true);
     setTheme('system');
-  } else if (currentMode.value === 'system') {
-    saveSystemPreferenceEnabled(false);
-    setTheme('dark');
-  } else {
-    saveSystemPreferenceEnabled(false);
-    setTheme('light');
   }
 }
 
-// Tooltip text
-const tooltipText = computed(() => {
-  const mode = currentMode.value;
-  if (mode === 'light') {return t('theme.currentLight');}
-  if (mode === 'system') {return t('theme.currentSystem');}
-  return t('theme.currentDark');
-});
+// Tooltip texts
+const themeTooltip = computed(() =>
+  isDarkMode.value ? t('theme.switchToLight') : t('theme.switchToDark'),
+);
+
+const systemTooltip = computed(() =>
+  systemPreferenceEnabled.value
+    ? t('theme.disableSystem')
+    : t('theme.enableSystem'),
+);
 
 // Ink ripple effect
 const ripple = ref<{ x: number; y: number; active: boolean }>({
@@ -53,7 +52,6 @@ function handleClick(event: MouseEvent | TouchEvent) {
   const target = event.currentTarget as HTMLElement;
   const rect = target.getBoundingClientRect();
 
-  // Get coordinates from mouse or touch event
   let x = rect.width / 2;
   let y = rect.height / 2;
 
@@ -71,23 +69,24 @@ function handleClick(event: MouseEvent | TouchEvent) {
     ripple.value.active = false;
   }, 500);
 
-  cycleTheme();
+  toggleTheme();
 }
 </script>
 
 <template>
   <div class="theme-toggle-wrapper">
-    <ZenTooltip :text="tooltipText" position="left">
+    <!-- Main light/dark toggle -->
+    <ZenTooltip :text="themeTooltip" position="left">
       <button
-        class="theme-toggle-zen"
-        :aria-label="tooltipText"
+        class="theme-toggle"
+        :aria-label="themeTooltip"
         @click="handleClick"
         @touchend.prevent="handleClick"
       >
         <!-- Ink ripple effect -->
         <span
           v-if="ripple.active"
-          class="theme-toggle-zen__ripple"
+          class="theme-toggle__ripple"
           :style="{ left: `${ripple.x}px`, top: `${ripple.y}px` }"
           aria-hidden="true"
         />
@@ -95,34 +94,44 @@ function handleClick(event: MouseEvent | TouchEvent) {
         <!-- Icon with transition -->
         <Transition name="theme-icon" mode="out-in">
           <Sun
-            v-if="currentMode === 'light'"
+            v-if="!isDarkMode"
             key="sun"
             :size="20"
-            class="theme-toggle-zen__icon"
-            aria-hidden="true"
-          />
-          <Monitor
-            v-else-if="currentMode === 'system'"
-            key="monitor"
-            :size="20"
-            class="theme-toggle-zen__icon"
+            :stroke-width="1.5"
+            class="theme-toggle__icon"
             aria-hidden="true"
           />
           <Moon
             v-else
             key="moon"
             :size="20"
-            class="theme-toggle-zen__icon"
+            :stroke-width="1.5"
+            class="theme-toggle__icon"
             aria-hidden="true"
           />
         </Transition>
 
-        <!-- State indicator dots -->
-        <div class="theme-toggle-zen__dots" aria-hidden="true">
-          <span :class="{ active: currentMode === 'light' }" />
-          <span :class="{ active: currentMode === 'system' }" />
-          <span :class="{ active: currentMode === 'dark' }" />
+        <!-- State indicator dots (light/dark) -->
+        <div class="theme-toggle__dots" aria-hidden="true">
+          <span :class="{ active: !isDarkMode }" />
+          <span :class="{ active: isDarkMode }" />
         </div>
+      </button>
+    </ZenTooltip>
+
+    <!-- Separator -->
+    <div class="theme-separator" aria-hidden="true" />
+
+    <!-- System preference toggle -->
+    <ZenTooltip :text="systemTooltip" position="left">
+      <button
+        class="system-toggle"
+        :class="{ 'system-toggle--active': systemPreferenceEnabled }"
+        :aria-label="systemTooltip"
+        :aria-pressed="systemPreferenceEnabled"
+        @click="toggleSystemPreference"
+      >
+        <Monitor :size="14" :stroke-width="1.5" />
       </button>
     </ZenTooltip>
   </div>
@@ -134,34 +143,42 @@ function handleClick(event: MouseEvent | TouchEvent) {
   top: 1rem;
   right: 1rem;
   z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
 }
 
-.theme-toggle-zen {
+.theme-toggle {
+  position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 2.75rem;
   height: 2.75rem;
   padding: 0;
+  gap: 0.25rem;
 
-  // Glassmorphism - transparent with blur
-  background: oklch(1 0 0 / 0.4);
-  backdrop-filter: blur(8px);
-  border: 1px solid oklch(0.5 0.05 192 / 0.2);
+  background: var(--gutenku-paper-bg);
+  border: 1px solid var(--gutenku-paper-border);
   border-radius: 50%;
   cursor: pointer;
   overflow: hidden;
 
-  box-shadow: 0 2px 8px oklch(0 0 0 / 0.08);
+  box-shadow:
+    0 2px 8px oklch(0 0 0 / 0.06),
+    0 1px 2px oklch(0 0 0 / 0.04);
 
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
     transform: translateY(-2px);
-    background: oklch(1 0 0 / 0.6);
-    box-shadow: 0 4px 16px oklch(0 0 0 / 0.12);
+    box-shadow:
+      0 4px 16px oklch(0 0 0 / 0.1),
+      0 2px 4px oklch(0 0 0 / 0.06);
 
-    .theme-toggle-zen__icon {
+    .theme-toggle__icon {
       transform: rotate(15deg) scale(1.1);
     }
   }
@@ -171,29 +188,13 @@ function handleClick(event: MouseEvent | TouchEvent) {
   }
 
   &:focus-visible {
-    outline: 2px solid var(--gutenku-zen-accent);
+    outline: 2px solid var(--gutenku-zen-primary);
     outline-offset: 3px;
-  }
-
-  // Dark mode adjustments
-  [data-theme='dark'] & {
-    background: oklch(0.2 0.02 200 / 0.5);
-    border-color: oklch(0.7 0.04 192 / 0.25);
-    box-shadow: 0 2px 12px oklch(0 0 0 / 0.3);
-
-    &:hover {
-      background: oklch(0.25 0.03 200 / 0.6);
-      box-shadow: 0 4px 20px oklch(0 0 0 / 0.4);
-    }
   }
 
   &__icon {
     color: var(--gutenku-zen-primary);
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-
-    [data-theme='dark'] & {
-      color: var(--gutenku-zen-accent);
-    }
   }
 
   &__ripple {
@@ -203,36 +204,121 @@ function handleClick(event: MouseEvent | TouchEvent) {
     background: var(--gutenku-zen-primary);
     border-radius: 50%;
     transform: translate(-50%, -50%) scale(0);
-    opacity: 0.4;
+    opacity: 0.3;
     animation: ink-ripple 0.5s cubic-bezier(0, 0.5, 0.5, 1) forwards;
     pointer-events: none;
-
-    [data-theme='dark'] & {
-      background: var(--gutenku-zen-accent);
-    }
   }
 
   &__dots {
     position: absolute;
-    bottom: 4px;
+    bottom: 5px;
     display: flex;
-    gap: 3px;
+    gap: 4px;
 
     span {
-      width: 3px;
-      height: 3px;
+      width: 4px;
+      height: 4px;
       border-radius: 50%;
       background: var(--gutenku-zen-primary);
-      opacity: 0.25;
+      opacity: 0.2;
       transition: all 0.25s ease;
 
       &.active {
-        opacity: 1;
-        transform: scale(1.2);
+        opacity: 0.8;
+        transform: scale(1.1);
       }
+    }
+  }
+}
 
-      [data-theme='dark'] & {
-        background: var(--gutenku-zen-accent);
+.theme-separator {
+  width: 16px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--gutenku-paper-border) 30%,
+    var(--gutenku-paper-border) 70%,
+    transparent 100%
+  );
+}
+
+.system-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  padding: 0;
+
+  background: var(--gutenku-paper-bg);
+  border: 1px solid var(--gutenku-paper-border);
+  border-radius: 50%;
+  cursor: pointer;
+
+  color: var(--gutenku-text-secondary);
+  opacity: 0.6;
+
+  box-shadow: 0 1px 4px oklch(0 0 0 / 0.04);
+
+  transition: all 0.2s ease;
+
+  &:hover {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--gutenku-zen-primary);
+    outline-offset: 2px;
+  }
+
+  &--active {
+    opacity: 1;
+    background: color-mix(in oklch, var(--gutenku-zen-primary) 12%, var(--gutenku-paper-bg));
+    border-color: var(--gutenku-zen-primary);
+    color: var(--gutenku-zen-primary);
+
+    &:hover {
+      background: color-mix(in oklch, var(--gutenku-zen-primary) 18%, var(--gutenku-paper-bg));
+    }
+  }
+}
+
+// Dark theme adjustments
+[data-theme='dark'] {
+  .theme-toggle {
+    box-shadow:
+      0 2px 12px oklch(0 0 0 / 0.2),
+      0 1px 4px oklch(0 0 0 / 0.15);
+
+    &:hover {
+      box-shadow:
+        0 4px 20px oklch(0 0 0 / 0.3),
+        0 2px 8px oklch(0 0 0 / 0.2);
+    }
+
+    &__icon {
+      color: var(--gutenku-zen-accent);
+    }
+
+    &__ripple {
+      background: var(--gutenku-zen-accent);
+    }
+
+    &__dots span {
+      background: var(--gutenku-zen-accent);
+    }
+  }
+
+  .system-toggle {
+    &--active {
+      background: color-mix(in oklch, var(--gutenku-zen-accent) 15%, var(--gutenku-paper-bg));
+      border-color: var(--gutenku-zen-accent);
+      color: var(--gutenku-zen-accent);
+
+      &:hover {
+        background: color-mix(in oklch, var(--gutenku-zen-accent) 22%, var(--gutenku-paper-bg));
       }
     }
   }
@@ -258,7 +344,7 @@ function handleClick(event: MouseEvent | TouchEvent) {
 @keyframes ink-ripple {
   0% {
     transform: translate(-50%, -50%) scale(0);
-    opacity: 0.4;
+    opacity: 0.3;
   }
   100% {
     transform: translate(-50%, -50%) scale(20);
@@ -271,9 +357,10 @@ function handleClick(event: MouseEvent | TouchEvent) {
   .theme-toggle-wrapper {
     top: 0.85rem;
     right: 0.5rem;
+    gap: 0.25rem;
   }
 
-  .theme-toggle-zen {
+  .theme-toggle {
     width: 2.5rem;
     height: 2.5rem;
     touch-action: manipulation;
@@ -285,19 +372,34 @@ function handleClick(event: MouseEvent | TouchEvent) {
     }
 
     &__dots {
-      bottom: 3px;
+      bottom: 4px;
+      gap: 3px;
 
       span {
-        width: 2.5px;
-        height: 2.5px;
+        width: 3px;
+        height: 3px;
       }
+    }
+  }
+
+  .theme-separator {
+    width: 12px;
+  }
+
+  .system-toggle {
+    width: 1.5rem;
+    height: 1.5rem;
+
+    svg {
+      width: 12px;
+      height: 12px;
     }
   }
 }
 
 // Reduced motion
 @media (prefers-reduced-motion: reduce) {
-  .theme-toggle-zen {
+  .theme-toggle {
     transition: none;
 
     &:hover {
@@ -311,6 +413,14 @@ function handleClick(event: MouseEvent | TouchEvent) {
     &__ripple {
       animation: none;
       display: none;
+    }
+  }
+
+  .system-toggle {
+    transition: none;
+
+    &:hover {
+      transform: none;
     }
   }
 

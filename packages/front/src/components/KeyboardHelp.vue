@@ -21,7 +21,9 @@ const shortcuts = [
   <ZenModal
     v-model="modelValue"
     :max-width="380"
-    title="keyboard-shortcuts"
+    title="Keyboard Shortcuts"
+    description="Available keyboard shortcuts for navigating and using GutenKu"
+    show-divider
     content-class="keyboard-help"
   >
     <div class="keyboard-help__title">

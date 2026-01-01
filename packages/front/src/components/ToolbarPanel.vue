@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n';
 import { useMediaQuery } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
 import {
-  Loader2,
   Sparkles,
   Check,
   Copy,
