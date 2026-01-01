@@ -53,5 +53,5 @@ Thanks to the creators and maintainers of Project Gutenberg for providing the te
 ---
 
 <footer>
-    <p>© 2023-2025 heristop / <a href="https://instagram.com/gutenku.poem" target="_blank">@gutenku.poem</a>. All rights reserved.</p>
+    <p>© 2023-2026 heristop / <a href="https://instagram.com/gutenku.poem" target="_blank">@gutenku.poem</a>. All rights reserved.</p>
 </footer>
