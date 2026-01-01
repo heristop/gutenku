@@ -70,6 +70,46 @@ vi.mock('~/shared/themes/nihonga', () => ({
   },
 }));
 
+vi.mock('~/shared/themes/sumie', () => ({
+  default: {
+    create: vi.fn(async () => ({
+      createJPEGStream: vi.fn(() => ({ pipe: vi.fn() })),
+    })),
+  },
+}));
+
+vi.mock('~/shared/themes/ukiyoe', () => ({
+  default: {
+    create: vi.fn(async () => ({
+      createJPEGStream: vi.fn(() => ({ pipe: vi.fn() })),
+    })),
+  },
+}));
+
+vi.mock('~/shared/themes/zengarden', () => ({
+  default: {
+    create: vi.fn(async () => ({
+      createJPEGStream: vi.fn(() => ({ pipe: vi.fn() })),
+    })),
+  },
+}));
+
+vi.mock('~/shared/themes/wabisabi', () => ({
+  default: {
+    create: vi.fn(async () => ({
+      createJPEGStream: vi.fn(() => ({ pipe: vi.fn() })),
+    })),
+  },
+}));
+
+vi.mock('~/shared/themes/bookzen', () => ({
+  default: {
+    create: vi.fn(async () => ({
+      createJPEGStream: vi.fn(() => ({ pipe: vi.fn() })),
+    })),
+  },
+}));
+
 import CanvasService from '../src/infrastructure/services/CanvasService';
 
 describe('CanvasService', () => {
