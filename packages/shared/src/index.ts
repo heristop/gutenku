@@ -69,7 +69,8 @@ export type HintType =
   | 'genre'
   | 'era'
   | 'quote'
-  | 'letter_author'
+  | 'first_letter'
+  | 'author_nationality'
   | 'author_name'
   | 'publication_century'
   | 'title_word_count'
@@ -105,7 +106,7 @@ export interface GameState {
   currentRound: number;
   isComplete: boolean;
   isWon: boolean;
-  /** Correct book shown at game completion */
+  /** Correct book (revealed after game ends) */
   correctBook?: BookValue;
   /** Count of scratched emoticons beyond base 2 */
   scratchedEmoticons: number;
@@ -128,7 +129,7 @@ export interface GuessResult {
   isCorrect: boolean;
   correctBook?: BookValue;
   nextHint?: PuzzleHint;
-  /** Full hint set shown at game completion */
+  /** Full hint set (revealed after game ends) */
   allHints?: PuzzleHint[];
 }
 
