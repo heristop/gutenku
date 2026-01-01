@@ -1,6 +1,8 @@
 @font-face {
   font-family: 'ComicNeue';
-  src: url('@/assets/fonts/ComicNeue-Regular.ttf') format('truetype');
+  src:
+    url('@/assets/fonts/ComicNeue-Regular.woff2') format('woff2'),
+    url('@/assets/fonts/ComicNeue-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -8,7 +10,9 @@
 
 @font-face {
   font-family: 'JMH Typewriter';
-  src: url('@/assets/fonts/JMH Typewriter.ttf') format('truetype');
+  src:
+    url('@/assets/fonts/JMH Typewriter.woff2') format('woff2'),
+    url('@/assets/fonts/JMH Typewriter.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
