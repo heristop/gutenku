@@ -144,7 +144,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div
+  <span
     :id="triggerId"
     ref="triggerRef"
     class="zen-tooltip-trigger"
@@ -156,7 +156,7 @@ onUnmounted(() => {
     @keydown="handleKeydown"
   >
     <slot />
-  </div>
+  </span>
 
   <Teleport to="body">
     <Transition :name="`zen-tooltip-${position}`">

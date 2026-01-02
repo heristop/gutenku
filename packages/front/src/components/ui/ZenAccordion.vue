@@ -112,85 +112,88 @@ watch(isExpanded, (val) => {
 
 <template>
   <div class="zen-accordion">
-    <!-- Header / Toggle Button -->
-    <button
-      :id="headerId"
-      ref="headerRef"
-      type="button"
-      class="zen-accordion__header"
-      :class="{ 'zen-accordion__header--expanded': isExpanded }"
-      :style="{ '--mouse-x': mouseX, '--mouse-y': mouseY }"
-      :aria-expanded="isExpanded"
-      :aria-controls="contentId"
-      :aria-label="ariaLabel || title"
-      @click="handleClick"
-      @keydown="handleKeydown"
-      @mousemove="handleMouseMove"
-    >
-      <!-- Ink wash hover effect -->
-      <span class="zen-accordion__ink-wash" aria-hidden="true" />
-
-      <!-- Ink ripple on click -->
-      <span
-        v-if="inkRipple.active"
-        class="zen-accordion__ink-ripple"
-        :style="{ left: `${inkRipple.x}px`, top: `${inkRipple.y}px` }"
-        aria-hidden="true"
-      />
-
-      <!-- Icon slot or prop -->
-      <span
-        v-if="icon || $slots.icon"
-        class="zen-accordion__icon"
-        aria-hidden="true"
+    <!-- Header Row (contains button + separate actions) -->
+    <div class="zen-accordion__header-row">
+      <!-- Header / Toggle Button -->
+      <button
+        :id="headerId"
+        ref="headerRef"
+        type="button"
+        class="zen-accordion__header"
+        :class="{ 'zen-accordion__header--expanded': isExpanded }"
+        :style="{ '--mouse-x': mouseX, '--mouse-y': mouseY }"
+        :aria-expanded="isExpanded"
+        :aria-controls="contentId"
+        :aria-label="ariaLabel || title"
+        @click="handleClick"
+        @keydown="handleKeydown"
+        @mousemove="handleMouseMove"
       >
-        <slot name="icon">
-          <component :is="icon" :size="28" />
-        </slot>
-      </span>
+        <!-- Ink wash hover effect -->
+        <span class="zen-accordion__ink-wash" aria-hidden="true" />
 
-      <!-- Title & Subtitle -->
-      <span class="zen-accordion__header-content">
-        <span class="zen-accordion__title">{{ title }}</span>
+        <!-- Ink ripple on click -->
         <span
-          v-if="subtitle || $slots.subtitle"
-          class="zen-accordion__subtitle"
+          v-if="inkRipple.active"
+          class="zen-accordion__ink-ripple"
+          :style="{ left: `${inkRipple.x}px`, top: `${inkRipple.y}px` }"
+          aria-hidden="true"
+        />
+
+        <!-- Icon slot or prop -->
+        <span
+          v-if="icon || $slots.icon"
+          class="zen-accordion__icon"
+          aria-hidden="true"
         >
-          <slot name="subtitle">{{ subtitle }}</slot>
+          <slot name="icon">
+            <component :is="icon" :size="28" />
+          </slot>
         </span>
-      </span>
 
-      <!-- Header Actions Slot -->
-      <span v-if="$slots.actions" class="zen-accordion__actions" @click.stop>
-        <slot name="actions" />
-      </span>
-
-      <!-- Ink Brush Toggle Icon (+/-) -->
-      <ZenTooltip :text="toggleTooltip" position="top">
-        <span class="zen-accordion__toggle" aria-hidden="true">
-          <svg
-            class="zen-accordion__toggle-svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
+        <!-- Title & Subtitle -->
+        <span class="zen-accordion__header-content">
+          <span class="zen-accordion__title">{{ title }}</span>
+          <span
+            v-if="subtitle || $slots.subtitle"
+            class="zen-accordion__subtitle"
           >
-            <!-- Horizontal stroke (always visible) -->
-            <path
-              class="zen-accordion__stroke zen-accordion__stroke--horizontal"
-              d="M5 12 Q12 11.5 19 12"
-            />
-            <!-- Vertical stroke (fades when expanded) -->
-            <path
-              class="zen-accordion__stroke zen-accordion__stroke--vertical"
-              :class="{ 'zen-accordion__stroke--hidden': isExpanded }"
-              d="M12 5 Q11.5 12 12 19"
-            />
-          </svg>
+            <slot name="subtitle">{{ subtitle }}</slot>
+          </span>
         </span>
-      </ZenTooltip>
-    </button>
+
+        <!-- Ink Brush Toggle Icon (+/-) -->
+        <ZenTooltip :text="toggleTooltip" position="top">
+          <span class="zen-accordion__toggle" aria-hidden="true">
+            <svg
+              class="zen-accordion__toggle-svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            >
+              <!-- Horizontal stroke (always visible) -->
+              <path
+                class="zen-accordion__stroke zen-accordion__stroke--horizontal"
+                d="M5 12 Q12 11.5 19 12"
+              />
+              <!-- Vertical stroke (fades when expanded) -->
+              <path
+                class="zen-accordion__stroke zen-accordion__stroke--vertical"
+                :class="{ 'zen-accordion__stroke--hidden': isExpanded }"
+                d="M12 5 Q11.5 12 12 19"
+              />
+            </svg>
+          </span>
+        </ZenTooltip>
+      </button>
+
+      <!-- Header Actions Slot (outside button to avoid nested-interactive) -->
+      <div v-if="$slots.actions" class="zen-accordion__actions">
+        <slot name="actions" />
+      </div>
+    </div>
 
     <!-- Collapsible Content -->
     <div
@@ -220,8 +223,17 @@ $ink-easing: cubic-bezier(0.22, 1, 0.36, 1);
   width: 100%;
 }
 
+// Header Row (button + actions container)
+.zen-accordion__header-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
 // Header / Toggle Button
 .zen-accordion__header {
+  flex: 1;
+  min-width: 0;
   position: relative;
   display: flex;
   align-items: center;
