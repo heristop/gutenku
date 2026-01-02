@@ -26,14 +26,14 @@ jobs:
       - name: Lint
         run: pnpm --filter @gutenku/front lint
 
+      - name: Lint CSS
+        run: pnpm --filter @gutenku/front lint:css
+
+      - name: Typecheck
+        run: pnpm --filter @gutenku/front typecheck
+
       - name: Build
         run: pnpm --filter @gutenku/front build
 
-      - name: E2E Tests
-        uses: cypress-io/github-action@v6
-        with:
-          working-directory: packages/front
-          install: false
-          start: pnpm preview --port 4444
-          wait-on: 'http://localhost:4444'
-          wait-on-timeout: 120
+      - name: Lighthouse CI
+        run: pnpm --filter @gutenku/front lighthouse

@@ -26,5 +26,11 @@ jobs:
       - name: Lint
         run: pnpm --filter @gutenku/server lint
 
+      - name: Typecheck
+        run: pnpm --filter @gutenku/server typecheck
+
       - name: Test
         run: pnpm --filter @gutenku/server test
+
+      - name: Build
+        run: pnpm --filter @gutenku/front build
