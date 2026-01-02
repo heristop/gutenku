@@ -210,7 +210,7 @@ function confirm() {
   font-size: 2.5rem;
 }
 
-// Info card with subtle background
+// Info card with background
 .confirm-modal__info-card {
   padding: 1rem 1.25rem;
   background: var(--gutenku-zen-water);
