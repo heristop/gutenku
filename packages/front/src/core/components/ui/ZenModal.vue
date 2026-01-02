@@ -102,11 +102,15 @@ function handleKeydown(e: KeyboardEvent) {
   }
 }
 
-function close() {
-  if (!props.persistent) {
+function close(force = false) {
+  if (force || !props.persistent) {
     emit('close');
     modelValue.value = false;
   }
+}
+
+function handleCloseButtonClick() {
+  close(true);
 }
 
 function handleOverlayClick(e: MouseEvent) {
@@ -192,7 +196,7 @@ onBeforeUnmount(() => {
             type="button"
             class="zen-modal__close"
             :aria-label="t('common.close')"
-            @click="close"
+            @click="handleCloseButtonClick"
           >
             <X :size="20" aria-hidden="true" />
           </button>
