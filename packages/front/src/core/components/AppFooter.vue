@@ -3,9 +3,11 @@ import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Instagram, BookOpen } from 'lucide-vue-next';
 import ZenTooltip from '@/core/components/ui/ZenTooltip.vue';
+import ZenCreditsModal from '@/core/components/ui/ZenCreditsModal.vue';
 
 const { t } = useI18n();
 const currentYear = new Date().getFullYear();
+const showCredits = ref(false);
 
 // Ink ripple on copyright click
 const inkRipple = ref<{ x: number; y: number; active: boolean }>({
@@ -42,6 +44,8 @@ function openCredits(event: MouseEvent) {
   setTimeout(() => {
     inkRipple.value.active = false;
   }, 600);
+
+  showCredits.value = true;
 }
 
 function openSocialLink(url: string) {
@@ -131,6 +135,8 @@ function openSocialLink(url: string) {
         </button>
       </ZenTooltip>
     </div>
+
+    <ZenCreditsModal v-model="showCredits" />
   </footer>
 </template>
 
