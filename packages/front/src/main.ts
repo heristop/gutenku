@@ -5,7 +5,7 @@ import urql from '@urql/vue';
 import { createHead } from '@unhead/vue/client';
 import { urqlClient } from './client';
 import { MotionPlugin } from '@vueuse/motion';
-import { registerPlugins } from '@/plugins';
+import { registerPlugins } from '@/core/plugins';
 
 const app = createApp({
   render: () => h(App),

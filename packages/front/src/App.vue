@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { onMounted } from 'vue';
-import PwaInstallBanner from '@/components/ui/PwaInstallBanner.vue';
+import PwaInstallBanner from '@/core/components/ui/PwaInstallBanner.vue';
 
 onMounted(() => {
   // Defer analytics to idle callback
