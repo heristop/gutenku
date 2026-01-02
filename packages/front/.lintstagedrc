@@ -1,4 +1,5 @@
 {
   '*': ['oxfmt --no-error-on-unmatched-pattern'],
   '*.{cjs,js,ts,tsx,vue}': ['pnpm lint'],
+  '*.{vue,scss,css}': ['stylelint --fix'],
 }

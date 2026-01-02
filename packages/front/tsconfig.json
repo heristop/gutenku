@@ -14,7 +14,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "lib": ["esnext", "dom", "dom.iterable"],
-    "types": ["node", "vuetify"],
+    "types": ["node"],
     "paths": {
       "@/*": ["src/*"]
     }
