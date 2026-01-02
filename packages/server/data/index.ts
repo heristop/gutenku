@@ -15,8 +15,10 @@ const gutenguessServerPath = process.env.GUTENGUESS_PATH
 const hasSubmodule = existsSync(gutenguessServerPath);
 
 // Re-export from submodule or fallback
+// Use variable to prevent TypeScript from resolving the optional module at compile time
+const gutenguessModule = '@gutenguess/server';
 const source = hasSubmodule
-  ? await import('@gutenguess/server')
+  ? await import(/* @vite-ignore */ gutenguessModule)
   : await import('./gutenguess-books.js');
 
 export const { getGutenGuessBooks, GUTENGUESS_BOOKS, GUTENGUESS_BOOK_COUNT } =
