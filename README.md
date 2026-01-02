@@ -41,10 +41,10 @@ Run `make help` for all available commands.
 
 [![Api](https://github.com/heristop/gutenku/actions/workflows/api.yaml/badge.svg)](https://github.com/heristop/gutenku/actions/workflows/api.yaml) [![Vue](https://github.com/heristop/gutenku/actions/workflows/vue.yaml/badge.svg)](https://github.com/heristop/gutenku/actions/workflows/vue.yaml)
 
-| Application                                     | Env                                                                    |
-| ----------------------------------------------- | ---------------------------------------------------------------------- |
-| [Api](/packages/server/README.md#installation)  | TypeScript, GraphQL / Apollo Server, MongoDB, OpenAI                   |
-| [Front](/packages/front/README.md#installation) | TypeScript, GraphQL / Apollo Client, Vue 3 / Tailwind / Pinia, Cypress |
+| Application                                     | Env                                                  |
+| ----------------------------------------------- | ---------------------------------------------------- |
+| [Api](/packages/server/README.md#installation)  | TypeScript, GraphQL / Apollo Server, MongoDB, OpenAI |
+| [Front](/packages/front/README.md#installation) | TypeScript, GraphQL / URQL, Vue 3 / Pinia, Cypress   |
 
 ## Acknowledgments
 
