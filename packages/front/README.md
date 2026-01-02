@@ -52,9 +52,17 @@ cp .env.dist .env
 make test
 ```
 
-Linux prerequisites for Cypress:
+Cypress prerequisites:
+
+- **macOS / Windows**: No additional dependencies needed
+- **Linux**: Install system libraries:
 
 ```bash
-apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev \
-  libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+# Ubuntu >=24.04 / Debian 13
+sudo apt install libgtk-3-0t64 libgbm-dev libnotify-dev libnss3 \
+  libxss1 libasound2t64 libxtst6 xauth xvfb
+
+# Ubuntu 22.04 / Debian 11-12
+sudo apt install libgtk-3-0 libgbm-dev libnotify-dev libnss3 \
+  libxss1 libasound2 libxtst6 xauth xvfb
 ```
