@@ -3,6 +3,7 @@ import { defineAsyncComponent, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { withViewTransition } from '@/composables/view-transition';
 import ZenSkeleton from '@/components/ZenSkeleton.vue';
+import InkBrushNav from '@/components/ui/InkBrushNav.vue';
 import GamePreview from '@/components/GamePreview.vue';
 import HaikuPreview from '@/components/HaikuPreview.vue';
 
@@ -27,6 +28,8 @@ onMounted(() => {
 
 <template>
   <div class="home-container">
+    <InkBrushNav />
+
     <main
       class="home-content"
       :class="{ 'home-content--visible': showContent }"
@@ -102,7 +105,7 @@ onMounted(() => {
   grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
   max-width: 900px;
-  margin: 2rem auto 0;
+  margin: 0.5rem auto 2rem;
   padding: 0 1rem;
 
   @media (max-width: 768px) {

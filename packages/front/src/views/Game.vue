@@ -4,10 +4,12 @@ import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import { useSwipe } from '@vueuse/core';
 import { useSeoMeta } from '@unhead/vue';
-import { ChevronLeft, ChevronRight, RefreshCw, Unlock } from 'lucide-vue-next';
+import { ChevronLeft, ChevronRight, RefreshCw, Unlock, Drama, LockOpen } from 'lucide-vue-next';
 import ZenButton from '@/components/ui/ZenButton.vue';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
+import InkBrushNav from '@/components/ui/InkBrushNav.vue';
 import ZenHaiku from '@/components/ui/ZenHaiku.vue';
+import ZenPaginationDots from '@/components/ui/ZenPaginationDots.vue';
 import { useGameStore } from '@/store/game';
 import { useHapticFeedback } from '@/composables/haptic-feedback';
 import HintPanel from '@/components/game/HintPanel.vue';
@@ -31,10 +33,10 @@ const GameHelp = defineAsyncComponent(
 const { t } = useI18n();
 
 useSeoMeta({
-  ogImage: 'https://gutenku.xyz/og-gutenguess.png',
+  ogImage: 'https://gutenku.xyz/og-image.png',
   ogTitle: 'GutenGuess - Daily Literary Guessing Game',
   ogDescription: 'Guess the classic book from emoji clues! A daily puzzle for book lovers.',
-  twitterImage: 'https://gutenku.xyz/og-gutenguess.png',
+  twitterImage: 'https://gutenku.xyz/og-image.png',
 });
 
 const showHelp = ref(false);
@@ -92,7 +94,7 @@ function nextHaiku() {
   }
 }
 
-function handleClickOutside(event: MouseEvent) {
+function handleClickOutside(event: PointerEvent | MouseEvent) {
   const target = event.target as Node;
   if (haikuSealRef.value?.contains(target) || haikuTooltipRef.value?.contains(target)) {
     return;
@@ -103,14 +105,15 @@ function handleClickOutside(event: MouseEvent) {
 watch(showHaikuTooltip, async (visible) => {
   if (visible) {
     await nextTick();
-    document.addEventListener('click', handleClickOutside);
+    // Use pointerdown for both mouse and touch support
+    document.addEventListener('pointerdown', handleClickOutside);
   } else {
-    document.removeEventListener('click', handleClickOutside);
+    document.removeEventListener('pointerdown', handleClickOutside);
   }
 });
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside);
+  document.removeEventListener('pointerdown', handleClickOutside);
 });
 
 const gameStore = useGameStore();
@@ -157,7 +160,6 @@ function handleRevealHaiku() {
     return;
   }
   gameStore.revealHaiku();
-  // Show the newly revealed haiku (array is 0-indexed, so count - 1)
   selectedHaikuIndex.value = haikuCount.value - 1;
   updateTooltipPosition();
   showHaikuTooltip.value = true;
@@ -174,7 +176,6 @@ function handleStartGame() {
 onMounted(async () => {
   await gameStore.fetchDailyPuzzle();
 
-  // Only show result modal if game is complete AND puzzle data is available
   if (isGameComplete.value && gameStore.puzzle) {
     showResult.value = true;
   }
@@ -205,7 +206,6 @@ async function handleConfirmGuess() {
       vibrateSuccess();
     } else {
       vibrateError();
-      // Show "hint unlocked" toast only if game continues (not on final attempt)
       if (!isGameComplete.value) {
         showHintUnlockedToast.value = true;
         setTimeout(() => { showHintUnlockedToast.value = false; }, 2500);
@@ -229,20 +229,7 @@ function handleCancelGuess() {
 
 <template>
   <div class="game-container">
-    <ZenTooltip :text="t('common.backToHome')" position="right">
-      <ZenButton
-        to="/"
-        variant="ghost"
-        spring
-        class="game-page__back-wrapper"
-        :aria-label="t('common.back')"
-      >
-        <template #icon-left>
-          <ChevronLeft :size="18" />
-        </template>
-        {{ t('common.back') }}
-      </ZenButton>
-    </ZenTooltip>
+    <InkBrushNav />
 
     <main class="game-board gutenku-paper">
       <div class="game-board__texture" aria-hidden="true" />
@@ -251,7 +238,7 @@ function handleCancelGuess() {
 
       <div v-if="loading && !puzzle" class="game-loading">
         <img
-          src="/og-gutenguess.png"
+          src="/gutenmage.webp"
           alt=""
           aria-hidden="true"
           class="game-loading__illustration"
@@ -265,8 +252,11 @@ function handleCancelGuess() {
         role="alert"
         aria-live="assertive"
       >
-        <p class="text-center gutenku-text-primary">{{ error }}</p>
-        <ZenButton class="mt-4" @click="gameStore.fetchDailyPuzzle()">
+        <p class="game-error__message gutenku-text-primary">{{ error }}</p>
+        <ZenButton
+          class="game-error__retry"
+          @click="gameStore.fetchDailyPuzzle()"
+        >
           <template #icon-left>
             <RefreshCw :size="18" />
           </template>
@@ -337,10 +327,9 @@ function handleCancelGuess() {
             :aria-label="index < haikuCount ? t('game.viewHaiku') : t('game.revealHaiku')"
             @click="index < haikuCount ? showHaiku(index) : handleRevealHaiku()"
           >
-            <span class="haiku-card__icon">🎭</span>
+            <Drama :size="18" class="haiku-card__icon" />
             <span class="haiku-card__label">Haiku</span>
             <span class="haiku-card__number">{{ index + 1 }}</span>
-            <!-- Cost badge: Free for first, -5 for others -->
             <span
               v-if="index === 0 && index < haikuCount"
               class="haiku-card__cost haiku-card__cost--free"
@@ -421,13 +410,12 @@ function handleCancelGuess() {
             {{ t('game.review.haikuHints') }}
           </h2>
           <div class="haiku-review__header" aria-hidden="true">
-            <span class="haiku-review__icon">🎭</span>
+            <Drama :size="22" class="haiku-review__icon" />
             <span
               class="haiku-review__title"
               >{{ t('game.review.haikuHints') }}</span
             >
           </div>
-          <!-- Carousel with navigation -->
           <div class="haiku-carousel-wrapper">
             <ZenTooltip
               v-if="puzzle.haikus.length > 1"
@@ -454,9 +442,12 @@ function handleCancelGuess() {
                   :key="idx"
                   class="haiku-carousel__slide"
                 >
-                  <p class="haiku-carousel__text">
-                    {{ haiku.split('\n').map(l => l.trim()).join(' · ') }}
-                  </p>
+                  <ZenHaiku
+                    :lines="haiku.split('\n').map((l: string) => l.trim())"
+                    size="sm"
+                    :animated="false"
+                    :show-brush-stroke="false"
+                  />
                 </div>
               </div>
             </div>
@@ -477,20 +468,16 @@ function handleCancelGuess() {
             </ZenTooltip>
           </div>
 
-          <div v-if="puzzle.haikus.length > 1" class="haiku-pagination">
-            <button
-              v-for="(_, idx) in puzzle.haikus"
-              :key="idx"
-              class="haiku-pagination__dot"
-              :class="{ 'haiku-pagination__dot--active': idx === currentHaikuIndex }"
-              :aria-label="`Haiku ${idx + 1}`"
-              @click="currentHaikuIndex = idx"
-            />
-          </div>
+          <ZenPaginationDots
+            v-model="currentHaikuIndex"
+            :total="puzzle.haikus.length"
+            :aria-label="t('game.haikuPagination')"
+            item-label="Haiku"
+            class="haiku-pagination"
+          />
         </section>
       </template>
 
-      <!-- Hint unlocked toast -->
       <Transition name="toast">
         <div
           v-if="showHintUnlockedToast"
@@ -498,7 +485,7 @@ function handleCancelGuess() {
           role="status"
           aria-live="polite"
         >
-          <span class="hint-toast__icon">🔓</span>
+          <LockOpen :size="18" class="hint-toast__icon" />
           <span class="hint-toast__text">{{ t('game.hintUnlocked') }}</span>
         </div>
       </Transition>
@@ -531,51 +518,25 @@ function handleCancelGuess() {
   }
 }
 
-.game-page__back-wrapper {
-  margin-bottom: 1rem;
-  margin-left: 0;
-  margin-top: 0.75rem;
-
-  @media (min-width: 600px) {
-    margin-top: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-}
 
 .game-board {
   position: relative;
-  border-radius: var(--gutenku-radius-md);
+  border-radius: var(--gutenku-radius-lg);
   overflow: hidden;
   padding: 0.5rem;
   animation: fade-in 0.4s ease-out;
   margin-bottom: 1rem;
 
+  background: oklch(0.985 0.008 85 / 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
   box-shadow:
-    inset 4px 0 8px -4px oklch(0 0 0 / 0.12),
-    0 2px 4px oklch(0 0 0 / 0.04),
-    0 8px 24px -4px oklch(0 0 0 / 0.08),
-    0 16px 48px -8px oklch(0 0 0 / 0.06);
-
-  // Page edge borders
-  border-top: 1px solid var(--gutenku-paper-border);
-  border-bottom: 2px solid var(--gutenku-paper-border);
-
-  // Book spine decoration
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 3px;
-    height: 100%;
-    background: linear-gradient(
-      to right,
-      var(--gutenku-paper-border) 0%,
-      transparent 100%
-    );
-    z-index: 2;
-    pointer-events: none;
-  }
+    0 1px 3px oklch(0 0 0 / 0.04),
+    0 4px 12px oklch(0 0 0 / 0.06),
+    0 8px 24px oklch(0 0 0 / 0.04),
+    inset 0 1px 0 oklch(1 0 0 / 0.6);
+  border: 1px solid oklch(0.9 0.015 75 / 0.5);
 
   &__texture {
     position: absolute;
@@ -593,7 +554,7 @@ function handleCancelGuess() {
         transparent 50%
       );
     background-repeat: repeat;
-    opacity: 0.15;
+    opacity: 0.08;
     pointer-events: none;
     z-index: 0;
   }
@@ -604,7 +565,6 @@ function handleCancelGuess() {
   }
 }
 
-// Haiku cards and tooltip
 .haiku-cards-wrapper {
   position: relative;
   display: flex;
@@ -612,7 +572,6 @@ function handleCancelGuess() {
   gap: 1rem;
   padding: 1.75rem 1.5rem;
 
-  // Ink wash separator
   &::after {
     content: '';
     position: absolute;
@@ -659,9 +618,9 @@ function handleCancelGuess() {
   }
 
   &--revealed {
-    background: oklch(0.92 0.06 195);
-    border-color: oklch(0.7 0.1 195);
-    box-shadow: 0 2px 6px oklch(0.5 0.15 195 / 0.2);
+    background: oklch(from var(--gutenku-zen-accent) 0.92 0.06 h / 0.5);
+    border-color: var(--gutenku-zen-accent);
+    box-shadow: 0 2px 6px oklch(from var(--gutenku-zen-accent) l c h / 0.25);
   }
 
   &--next {
@@ -683,8 +642,17 @@ function handleCancelGuess() {
 }
 
 .haiku-card__icon {
-  font-size: 1rem;
-  line-height: 1;
+  color: oklch(0.55 0.15 280);
+  filter: drop-shadow(0 0 2px oklch(0.6 0.15 280 / 0.3));
+}
+
+.haiku-card--revealed .haiku-card__icon {
+  color: oklch(0.5 0.12 195);
+  filter: drop-shadow(0 0 3px oklch(0.5 0.15 195 / 0.4));
+}
+
+.haiku-card--next .haiku-card__icon {
+  color: var(--gutenku-zen-primary);
 }
 
 .haiku-card__label {
@@ -735,14 +703,24 @@ function handleCancelGuess() {
   box-shadow: 0 2px 4px oklch(0 0 0 / 0.3);
 
   &--revealed {
-    background: oklch(0.28 0.08 195);
-    border-color: oklch(0.45 0.1 195);
+    background: oklch(0.28 0.08 195 / 0.5);
+    border-color: var(--gutenku-zen-accent);
   }
 
   &--next {
     background: oklch(from var(--gutenku-zen-primary) l c h / 0.15);
     border-color: oklch(from var(--gutenku-zen-primary) l c h / 0.35);
   }
+}
+
+[data-theme='dark'] .haiku-card__icon {
+  color: oklch(0.65 0.18 280);
+  filter: drop-shadow(0 0 3px oklch(0.7 0.18 280 / 0.4));
+}
+
+[data-theme='dark'] .haiku-card--revealed .haiku-card__icon {
+  color: oklch(0.6 0.14 195);
+  filter: drop-shadow(0 0 4px oklch(0.6 0.14 195 / 0.5));
 }
 
 [data-theme='dark'] .haiku-card__label {
@@ -811,7 +789,7 @@ function handleCancelGuess() {
     0 4px 16px oklch(0 0 0 / 0.12),
     0 8px 32px oklch(0 0 0 / 0.08);
   min-width: 220px;
-  max-width: calc(100vw - 2rem);
+  max-width: calc(100dvw - 2rem);
 
   @media (min-width: 600px) {
     padding: 1rem 1.25rem;
@@ -954,7 +932,6 @@ function handleCancelGuess() {
   transform: translateX(-50%) translateY(-4px);
 }
 
-// Start gate section
 .start-gate {
   position: relative;
   padding: 1.5rem 1rem;
@@ -965,7 +942,6 @@ function handleCancelGuess() {
     oklch(0.96 0.01 55 / 0.3) 100%
   );
 
-  // Ink wash separator
   &::after {
     content: '';
     position: absolute;
@@ -991,7 +967,7 @@ function handleCancelGuess() {
 
 .start-gate__illustration {
   display: block;
-  width: 160px;
+  width: 180px;
   height: auto;
   margin: 0 auto 1rem;
   opacity: 0.95;
@@ -1000,17 +976,17 @@ function handleCancelGuess() {
   border-radius: var(--gutenku-radius-md);
 
   @media (min-width: 640px) {
-    width: 180px;
+    width: 220px;
   }
 
   @media (min-width: 1024px) {
-    width: 200px;
+    width: 260px;
   }
 }
 
 @keyframes illustration-breathe {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
+  50% { transform: translateY(-1.5px); }
 }
 
 [data-theme='dark'] .start-gate__illustration {
@@ -1115,7 +1091,6 @@ function handleCancelGuess() {
   transform: scale(0.95);
 }
 
-// Books transition
 .books-enter-active {
   transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -1136,7 +1111,6 @@ function handleCancelGuess() {
 .game-board__history {
   position: relative;
 
-  // Ink wash separator
   &::after {
     content: '';
     position: absolute;
@@ -1164,11 +1138,15 @@ function handleCancelGuess() {
 }
 
 [data-theme='dark'] .game-board {
+  background: oklch(0.16 0.015 70 / 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid oklch(0.35 0.02 75 / 0.4);
   box-shadow:
-    inset 4px 0 8px -4px oklch(0 0 0 / 0.35),
-    0 2px 4px oklch(0 0 0 / 0.12),
-    0 8px 24px -4px oklch(0 0 0 / 0.2),
-    0 16px 48px -8px oklch(0 0 0 / 0.15);
+    0 1px 3px oklch(0 0 0 / 0.15),
+    0 4px 12px oklch(0 0 0 / 0.2),
+    0 8px 24px oklch(0 0 0 / 0.15),
+    inset 0 1px 0 oklch(1 0 0 / 0.04);
 }
 
 .game-loading {
@@ -1197,6 +1175,10 @@ function handleCancelGuess() {
 .game-error {
   text-align: center;
   padding: 2rem;
+
+  &__retry {
+    margin-top: var(--gutenku-space-4);
+  }
 }
 
 @keyframes fade-in {
@@ -1210,7 +1192,6 @@ function handleCancelGuess() {
   }
 }
 
-// End-game haiku review
 .haiku-review {
   position: relative;
   padding: 0.75rem;
@@ -1219,7 +1200,6 @@ function handleCancelGuess() {
     padding: 1rem;
   }
 
-  // Ink wash separator
   &::before {
     content: '';
     position: absolute;
@@ -1247,7 +1227,13 @@ function handleCancelGuess() {
 }
 
 .haiku-review__icon {
-  font-size: 1.25rem;
+  color: oklch(0.55 0.15 280);
+  filter: drop-shadow(0 0 3px oklch(0.6 0.15 280 / 0.4));
+}
+
+[data-theme='dark'] .haiku-review__icon {
+  color: oklch(0.65 0.18 280);
+  filter: drop-shadow(0 0 4px oklch(0.65 0.18 280 / 0.5));
 }
 
 .haiku-review__title {
@@ -1258,7 +1244,6 @@ function handleCancelGuess() {
   color: var(--gutenku-text-muted);
 }
 
-// Haiku carousel wrapper with nav arrows
 .haiku-carousel-wrapper {
   display: flex;
   align-items: center;
@@ -1295,7 +1280,6 @@ function handleCancelGuess() {
   }
 }
 
-// Haiku carousel
 .haiku-carousel {
   flex: 1;
   overflow: hidden;
@@ -1318,70 +1302,10 @@ function handleCancelGuess() {
   padding: 0 0.25rem;
 }
 
-.haiku-carousel__text {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-style: italic;
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: var(--gutenku-text-primary);
-  margin: 0;
-  text-align: center;
-  padding: 0.75rem 1rem;
-  background: linear-gradient(
-    135deg,
-    var(--gutenku-zen-water) 0%,
-    transparent 100%
-  );
-  border-radius: var(--gutenku-radius-md);
-  border-left: 3px solid var(--gutenku-zen-accent);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
-  @media (min-width: 600px) {
-    font-size: 1rem;
-    white-space: normal;
-  }
-}
-
-[data-theme='dark'] .haiku-carousel__text {
-  background: linear-gradient(
-    135deg,
-    oklch(0.22 0.02 55 / 0.6) 0%,
-    transparent 100%
-  );
-}
-
-// Pagination dots
 .haiku-pagination {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
   margin-top: 0.5rem;
 }
 
-.haiku-pagination__dot {
-  width: 8px;
-  height: 8px;
-  padding: 0;
-  border: none;
-  border-radius: 50%;
-  background: var(--gutenku-paper-border);
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-
-  &:hover {
-    background: var(--gutenku-zen-accent);
-    opacity: 0.7;
-  }
-
-  &--active {
-    background: var(--gutenku-zen-accent);
-    transform: scale(1.25);
-  }
-}
-
-// Hint unlocked toast
 .hint-toast {
   position: absolute;
   bottom: 1rem;
@@ -1400,7 +1324,8 @@ function handleCancelGuess() {
   z-index: 10;
 
   &__icon {
-    font-size: 1rem;
+    color: oklch(0.55 0.15 145);
+    filter: drop-shadow(0 0 3px oklch(0.6 0.18 145 / 0.5));
   }
 
   &__text {
@@ -1418,7 +1343,6 @@ function handleCancelGuess() {
     0 0 0 3px oklch(from var(--gutenku-zen-accent) l c h / 0.2);
 }
 
-// Toast transition
 .toast-enter-active {
   transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }

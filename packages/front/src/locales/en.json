@@ -2,10 +2,12 @@
   "common": {
     "back": "Back",
     "backToHome": "Return to home",
+    "by": "by",
     "close": "Close",
     "cancel": "Cancel",
     "collapse": "Collapse",
     "expand": "Expand",
+    "page": "Page",
     "refresh": "Refresh",
     "retry": "Try Again",
     "retryWithReset": "Reset & Try Again",
@@ -14,10 +16,15 @@
     "swipe": "Swipe",
     "previous": "Previous page",
     "next": "Next page",
-    "skip": "Skip"
+    "skip": "Skip",
+    "pageNavigation": "Page navigation"
   },
   "nav": {
-    "pageNavigation": "Page navigation"
+    "mainNavigation": "Main navigation",
+    "pageNavigation": "Page navigation",
+    "home": "Go to home page",
+    "haiku": "Go to GutenKu haiku generator",
+    "game": "Go to GutenGuess word game"
   },
   "haiku": {
     "articleLabel": "Generated haiku and source text",
@@ -43,6 +50,7 @@
     "loading": "Loading today's puzzle...",
     "searchPlaceholder": "Search among {count} books...",
     "searchLabel": "Search books by title or author",
+    "searchResults": "{count} book found | {count} books found",
     "submit": "Submit guess",
     "noResults": "No matching books found",
     "noResultsHint": "Try a different search term",
@@ -98,6 +106,7 @@
     },
     "hints": {
       "emoticons": "Bookmoji",
+      "emoticonsSrDesc": "{count} emoji hint | {count} emoji hints representing the book",
       "genre": "Genre",
       "era": "Era",
       "quote": "Famous Quote",
@@ -156,6 +165,8 @@
     },
     "shareCopied": "Result copied to clipboard!",
     "attemptsRemaining": "Attempts remaining",
+    "attemptsProgress": "Attempts progress: {used} of 6 used",
+    "attemptRemaining": "Attempt available",
     "attempts": "Tries",
     "score": "Score",
     "attemptAvailable": "Attempt available",
@@ -173,6 +184,13 @@
     "bookGrid": "Book selection grid",
     "eliminateHint": "Right-click or long-press to eliminate books",
     "resetEliminated": "Reset eliminated",
+    "haikuPagination": "Haiku navigation",
+    "cardState": {
+      "eliminated": "eliminated",
+      "selected": "selected",
+      "correct": "correct answer",
+      "wrong": "wrong answer"
+    },
     "confirmGuessQuestion": "Is this your final answer?",
     "confirmGuess": "Confirm Guess",
     "review": {
@@ -190,6 +208,7 @@
   "footer": {
     "copyright": "heristop © 2023-{year}",
     "openCredits": "Open credits",
+    "help": "Help & How to Play",
     "ariaLabel": "Site footer",
     "navAriaLabel": "Footer navigation",
     "socialAriaLabel": "Social links",

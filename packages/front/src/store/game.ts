@@ -423,50 +423,35 @@ export const useGameStore = defineStore(
       const roundCount = isWon ? currentGame.value.guesses.length : 'X';
 
       // Generate star display (only for wins)
-      let starsDisplay = '';
+      let starsLine = '';
       if (isWon) {
         const starCount = score.value;
-        const emptyStars = 5 - starCount;
-        starsDisplay =
-          '⭐'.repeat(starCount) + '☆'.repeat(Math.max(0, emptyStars));
+        starsLine = '⭐'.repeat(starCount);
       }
 
-      // Header with puzzle number, stars and score
-      let shareText = `GutenGuess #${currentGame.value.puzzleNumber}`;
+      // Header with book emoji and puzzle number
+      let shareText = `📚 GutenGuess #${currentGame.value.puzzleNumber}\n`;
+
+      // Guess progression grid (6 squares total)
+      const guessSquares: string[] = [];
+      for (let i = 0; i < 6; i++) {
+        const guess = currentGame.value.guesses[i];
+        if (!guess) {
+          guessSquares.push('⬜'); // Unused attempt
+        } else if (guess.isCorrect) {
+          guessSquares.push('🟩'); // Correct
+        } else {
+          guessSquares.push('🟥'); // Wrong
+        }
+      }
+      shareText += `${guessSquares.join('')} ${roundCount}/6\n`;
+
+      // Score line (wins only)
       if (isWon) {
-        shareText += ` ${starsDisplay} (${numericScore.value}/100)`;
-      } else {
-        shareText += ' 💔';
+        shareText += `${starsLine} ${numericScore.value}pts\n`;
       }
-      shareText += '\n\n';
 
-      // Guess progression with result squares
-      const guessLine = currentGame.value.guesses
-        .map((g) => (g.isCorrect ? '🟩' : '🟥'))
-        .join('');
-      shareText += `${guessLine} ${roundCount}/6\n`;
-
-      // Lifelines summary
-      const scratches = currentGame.value.scratchedEmoticons ?? 0;
-      const haikusUsed = currentGame.value.revealedHaikus?.length ?? 0;
-      const emoticonTotal = puzzle.value?.emoticonCount ?? 5;
-
-      // Emoticon progress bar: ██░░░
-      const visibleEmoticons = 2 + scratches;
-      const filledBlocks = '█'.repeat(visibleEmoticons);
-      const emptyBlocks = '░'.repeat(
-        Math.max(0, emoticonTotal - visibleEmoticons),
-      );
-      shareText += `😀 ${filledBlocks}${emptyBlocks} ${visibleEmoticons}/${emoticonTotal}\n`;
-
-      // Haiku usage indicator
-      const maxHaikus = puzzle.value?.haikus.length ?? 3;
-      const haikuBars =
-        '━'.repeat(haikusUsed) +
-        '┄'.repeat(Math.max(0, maxHaikus - haikusUsed));
-      shareText += `🎭 ${haikuBars} ${haikusUsed}/${maxHaikus}\n`;
-
-      shareText += '\ngutenku.xyz/game';
+      shareText += '\n🎮 gutenku.xyz/game #GutenGuess';
       return shareText;
     }
 
