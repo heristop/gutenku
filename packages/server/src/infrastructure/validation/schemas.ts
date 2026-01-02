@@ -5,23 +5,6 @@ import { z } from 'zod';
  * Uses Zod v4 for runtime validation and type inference
  */
 
-// Puzzle submission validation
-export const submitGuessSchema = z.object({
-  date: z.iso.date(), // YYYY-MM-DD format (Zod v4 ISO date)
-  guessedBookId: z.string().min(1).max(50),
-  currentRound: z.number().int().min(1).max(6),
-});
-
-export type SubmitGuessInput = z.infer<typeof submitGuessSchema>;
-
-// Daily puzzle query validation
-export const dailyPuzzleSchema = z.object({
-  date: z.iso.date(),
-  revealedRounds: z.array(z.number().int().min(1).max(6)).default([]),
-});
-
-export type DailyPuzzleInput = z.infer<typeof dailyPuzzleSchema>;
-
 // Book filter validation (for search queries)
 export const bookFilterSchema = z.object({
   filter: z
@@ -50,6 +33,30 @@ export const haikuQuerySchema = z.object({
 });
 
 export type HaikuQueryInput = z.infer<typeof haikuQuerySchema>;
+
+// Daily puzzle validation
+export const dailyPuzzleSchema = z.object({
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+  revealedRounds: z
+    .array(z.number().int().min(1).max(6))
+    .optional()
+    .default([]),
+});
+
+export type DailyPuzzleInput = z.infer<typeof dailyPuzzleSchema>;
+
+// Submit guess validation
+export const submitGuessSchema = z.object({
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+  guessedBookId: z.string().min(1, 'Book ID is required'),
+  currentRound: z.number().int().min(1).max(6),
+});
+
+export type SubmitGuessInput = z.infer<typeof submitGuessSchema>;
 
 /**
  * Validate input and throw Zod error if invalid

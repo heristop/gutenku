@@ -188,11 +188,11 @@ watch(isExpanded, (val) => {
           </span>
         </ZenTooltip>
       </button>
+    </div>
 
-      <!-- Header Actions Slot (outside button to avoid nested-interactive) -->
-      <div v-if="$slots.actions" class="zen-accordion__actions">
-        <slot name="actions" />
-      </div>
+    <!-- Header Actions Slot (below header, centered) -->
+    <div v-if="$slots.actions" class="zen-accordion__actions">
+      <slot name="actions" />
     </div>
 
     <!-- Collapsible Content -->
@@ -223,22 +223,18 @@ $ink-easing: cubic-bezier(0.22, 1, 0.36, 1);
   width: 100%;
 }
 
-// Header Row (button + actions container)
+// Header Row (contains the toggle button)
 .zen-accordion__header-row {
-  display: flex;
-  align-items: center;
   width: 100%;
 }
 
 // Header / Toggle Button
 .zen-accordion__header {
-  flex: 1;
-  min-width: 0;
+  width: 100%;
   position: relative;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  width: 100%;
   padding: 0.5rem;
   background: transparent;
   border: none;
@@ -273,6 +269,7 @@ $ink-easing: cubic-bezier(0.22, 1, 0.36, 1);
   &:active {
     transform: scale(0.995);
   }
+
 }
 
 // Ink wash hover effect (follows cursor)
@@ -348,13 +345,13 @@ $ink-easing: cubic-bezier(0.22, 1, 0.36, 1);
   margin-top: 0.125rem;
 }
 
-// Header actions slot
+// Header actions slot (now below header, centered)
 .zen-accordion__actions {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  margin-left: 0.5rem;
-  flex-shrink: 0;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 // Toggle icon (+/-)

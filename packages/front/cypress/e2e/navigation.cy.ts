@@ -16,10 +16,16 @@ describe('Navigation', () => {
       cy.url().should('include', '/haiku');
     });
 
-    it('navigates to game page', () => {
+    it('navigates to game page (if enabled)', () => {
       cy.visit('/');
-      cy.get('.ink-nav__item[href="/game"]').click();
-      cy.url().should('include', '/game');
+      cy.get('body').then(($body) => {
+        if ($body.find('.ink-nav__item[href="/game"]').length) {
+          cy.get('.ink-nav__item[href="/game"]').click();
+          cy.url().should('include', '/game');
+        } else {
+          cy.log('Game navigation not available (GAME_ENABLED=false)');
+        }
+      });
     });
 
     it('navigates back to home', () => {

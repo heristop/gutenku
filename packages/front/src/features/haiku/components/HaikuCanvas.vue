@@ -287,7 +287,7 @@ const onImageLoad = () => {
 
 <style lang="scss" scoped>
 .haiku-canvas-card {
-  padding: var(--gutenku-space-4);
+  padding: var(--gutenku-space-2) var(--gutenku-space-4) var(--gutenku-space-4);
   margin-bottom: var(--gutenku-space-6);
   display: flex;
   flex-direction: column;
@@ -315,9 +315,11 @@ const onImageLoad = () => {
   border-radius: var(--gutenku-radius-sm);
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  color: var(--gutenku-zen-primary);
 
   .loading-text {
     font-size: 0.9rem;

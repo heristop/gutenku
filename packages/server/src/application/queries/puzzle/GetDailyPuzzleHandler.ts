@@ -7,10 +7,7 @@ import type {
   PuzzleHint,
   BookValue,
 } from '@gutenku/shared';
-import {
-  getGutenGuessBooks,
-  type GutenGuessBook,
-} from '~/cli/gutenguess-books';
+import { getGutenGuessBooks, type GutenGuessBook } from '~~/data';
 import {
   type IChapterRepository,
   IChapterRepositoryToken,
@@ -257,7 +254,6 @@ function getAvailableBooks(
     reference: book.id.toString(),
     title: book.title,
     author: book.author,
-    emoticons: book.emoticons,
   }));
 }
 

@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRoute, useRouter, RouterLink } from 'vue-router';
 import { PenTool, Lightbulb } from 'lucide-vue-next';
 import ToriiIcon from '@/core/components/icons/ToriiIcon.vue';
 import { withViewTransition } from '@/core/composables/view-transition';
 import { useI18n } from 'vue-i18n';
+import { GAME_ENABLED } from '@/features/game';
 
 const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
 
-const navItems = [
+const navItems = computed(() => [
   { label: 'Home', to: '/', icon: ToriiIcon, transitionName: 'nav-icon-home', ariaLabel: 'nav.home' },
   { label: 'GutenKu', to: '/haiku', icon: PenTool, transitionName: 'nav-icon-haiku', ariaLabel: 'nav.haiku' },
-  { label: 'GutenGuess', to: '/game', icon: Lightbulb, transitionName: 'nav-icon-game', ariaLabel: 'nav.game' },
-];
+  ...(GAME_ENABLED ? [{ label: 'GutenGuess', to: '/game', icon: Lightbulb, transitionName: 'nav-icon-game', ariaLabel: 'nav.game' }] : []),
+]);
 
 const isActive = (path: string) => route.path === path;
 

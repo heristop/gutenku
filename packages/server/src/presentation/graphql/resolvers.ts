@@ -43,12 +43,18 @@ const resolvers = {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
       return queryBus.execute(new GenerateHaikuQuery(args));
     },
+    globalStats: async () => {
+      const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
+      return queryBus.execute(new GetGlobalStatsQuery());
+    },
     dailyPuzzle: async (
       _,
       { date, revealedRounds }: { date: string; revealedRounds?: number[] },
     ) => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
-      return queryBus.execute(new GetDailyPuzzleQuery(date, revealedRounds));
+      return queryBus.execute(
+        new GetDailyPuzzleQuery(date, revealedRounds || []),
+      );
     },
     submitGuess: async (
       _,
@@ -66,10 +72,6 @@ const resolvers = {
     reduceBooks: async (_, { date }: { date: string }) => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
       return queryBus.execute(new ReduceBooksQuery(date));
-    },
-    globalStats: async () => {
-      const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
-      return queryBus.execute(new GetGlobalStatsQuery());
     },
   },
   Subscription: {

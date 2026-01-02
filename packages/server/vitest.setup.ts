@@ -8,3 +8,8 @@ vi.mock('mongoose', async (importOriginal) => {
     connect: vi.fn(async () => actual.connection),
   };
 });
+
+// Mock ~~/data with local 3-book fixture for tests
+vi.mock('~~/data', async () => {
+  return import('~~/data/gutenguess-books');
+});

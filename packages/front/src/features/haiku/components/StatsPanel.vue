@@ -9,7 +9,6 @@ import ZenCard from '@/core/components/ui/ZenCard.vue';
 import ZenChip from '@/core/components/ui/ZenChip.vue';
 import ZenTooltip from '@/core/components/ui/ZenTooltip.vue';
 import ZenAccordion from '@/core/components/ui/ZenAccordion.vue';
-import ZenProgress from '@/core/components/ui/ZenProgress.vue';
 
 const { t } = useI18n();
 
@@ -19,13 +18,6 @@ const { isInView } = useInView(cardRef, { delay: 300 });
 const store = useHaikuStore();
 const { stats, loading } = storeToRefs(store);
 const avgTime = computed(() => store.avgExecutionTime.toFixed(2));
-const progress = computed(() => {
-  const freshHaikus = stats.value.haikusGenerated;
-  const cachedHaikus = stats.value.cachedHaikus;
-  const total = freshHaikus + cachedHaikus;
-  if (total === 0) {return 0;}
-  return Math.min(100, Math.round((cachedHaikus / total) * 100));
-});
 
 const topBooks = computed(() => {
   const entries = Object.entries(stats.value.bookCounts || {});
@@ -39,7 +31,6 @@ const animatedHaikus = ref(0);
 const animatedCached = ref(0);
 const animatedBooks = ref(0);
 const animatedTime = ref(0);
-const animatedProgress = ref(0);
 const hasAnimated = ref(false);
 
 // Pulse states for value updates
@@ -110,12 +101,6 @@ function triggerAnimations() {
       animatedTime.value = v;
     });
   }, 400);
-
-  setTimeout(() => {
-    animateValue(0, progress.value, 600, (v) => {
-      animatedProgress.value = v;
-    });
-  }, 500);
 }
 
 watch(
@@ -160,9 +145,6 @@ watch(avgTime, (val, oldVal) => {
     animatedTime.value = Number.parseFloat(val);
     if (val !== oldVal) {triggerPulse(pulsingTime);}
   }
-});
-watch(progress, (val) => {
-  if (hasAnimated.value) {animatedProgress.value = val;}
 });
 </script>
 
@@ -233,20 +215,6 @@ watch(progress, (val) => {
             </div>
           </div>
         </div>
-
-        <div class="stats-panel__progress-wrapper">
-          <div class="stats-panel__progress-label">
-            {{ t('stats.cacheUsage') }}
-          </div>
-          <div class="stats-panel__progress-percentage">
-            {{ Math.round(animatedProgress) }}%
-          </div>
-        </div>
-        <ZenProgress
-          :model-value="animatedProgress"
-          :height="6"
-          :aria-label="t('stats.cacheUsage')"
-        />
 
         <div class="stats-panel__books-section">
           <div class="stats-panel__books-header">
@@ -337,22 +305,6 @@ watch(progress, (val) => {
     }
   }
 
-  &__progress-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.25rem;
-  }
-
-  &__progress-label {
-    font-size: 0.75rem;
-    color: var(--gutenku-text-muted);
-  }
-
-  &__progress-percentage {
-    font-size: 0.75rem;
-  }
-
   &__books-section {
     margin-top: 0.5rem;
   }
@@ -363,6 +315,7 @@ watch(progress, (val) => {
     font-size: 0.875rem;
     font-weight: 500;
     margin-bottom: 0.5rem;
+    color: var(--gutenku-text-primary);
   }
 
   &__books-icon {
@@ -475,14 +428,9 @@ watch(progress, (val) => {
 
   &__subtitle,
   &__metric-label,
-  &__progress-label,
   &__book-count,
   &__empty-state {
     color: var(--gutenku-text-muted);
-  }
-
-  &__progress-percentage {
-    color: var(--gutenku-text-secondary);
   }
 }
 

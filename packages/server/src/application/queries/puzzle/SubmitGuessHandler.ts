@@ -2,10 +2,7 @@ import { inject, injectable } from 'tsyringe';
 import type { IQueryHandler } from '~/application/cqrs/IQueryHandler';
 import type { SubmitGuessQuery } from './SubmitGuessQuery';
 import type { GuessResult, PuzzleHint, BookValue } from '@gutenku/shared';
-import {
-  getGutenGuessBooks,
-  type GutenGuessBook,
-} from '~/cli/gutenguess-books';
+import { getGutenGuessBooks, type GutenGuessBook } from '~~/data';
 import {
   type IGlobalStatsRepository,
   IGlobalStatsRepositoryToken,

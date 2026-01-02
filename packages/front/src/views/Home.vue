@@ -5,13 +5,13 @@ import { useSeoMeta } from '@unhead/vue';
 import { withViewTransition } from '@/core/composables/view-transition';
 import ZenSkeleton from '@/core/components/ZenSkeleton.vue';
 import InkBrushNav from '@/core/components/ui/InkBrushNav.vue';
+import { GAME_ENABLED, GamePreview } from '@/features/game';
 
 const Hero = defineAsyncComponent({
   loader: () => import('@/core/components/Hero.vue'),
   loadingComponent: ZenSkeleton,
 });
 
-const GamePreview = defineAsyncComponent(() => import('@/features/game/components/GamePreview.vue'));
 const HaikuPreview = defineAsyncComponent(() => import('@/features/haiku/components/HaikuPreview.vue'));
 
 const { t } = useI18n();
@@ -50,10 +50,13 @@ onMounted(() => {
       </div>
 
       <!-- Preview Cards Grid -->
-      <div class="preview-grid">
+      <div
+        class="preview-grid"
+        :class="{ 'preview-grid--single': !GAME_ENABLED }"
+      >
         <HaikuPreview />
 
-        <GamePreview />
+        <component :is="GamePreview" v-if="GAME_ENABLED" />
       </div>
     </main>
   </div>
@@ -124,6 +127,11 @@ onMounted(() => {
     padding: 0 0.75rem;
     margin-top: 0;
     margin-bottom: 2.5rem;
+  }
+
+  &--single {
+    grid-template-columns: 1fr;
+    max-width: 500px;
   }
 }
 

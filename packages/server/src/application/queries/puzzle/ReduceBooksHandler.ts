@@ -2,10 +2,7 @@ import { injectable } from 'tsyringe';
 import type { IQueryHandler } from '~/application/cqrs/IQueryHandler';
 import type { ReduceBooksQuery } from './ReduceBooksQuery';
 import type { BookValue } from '@gutenku/shared';
-import {
-  getGutenGuessBooks,
-  type GutenGuessBook,
-} from '~/cli/gutenguess-books';
+import { getGutenGuessBooks, type GutenGuessBook } from '~~/data';
 import { z } from 'zod';
 
 // Limit when using the book reduction lifeline
@@ -84,7 +81,6 @@ function bookToValue(book: GutenGuessBook): BookValue {
     reference: book.id.toString(),
     title: book.title,
     author: book.author,
-    emoticons: book.emoticons,
   };
 }
 

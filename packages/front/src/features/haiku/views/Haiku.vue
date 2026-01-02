@@ -210,10 +210,6 @@ onMounted(fetchNewHaiku);
   order: 1;
 
   @media (min-width: 960px) {
-    flex: 0 0 calc(58.33% - 0.75rem);
-  }
-
-  @media (min-width: 1280px) {
     flex: 0 0 calc(66.67% - 0.75rem);
   }
 }
@@ -223,10 +219,6 @@ onMounted(fetchNewHaiku);
   order: 2;
 
   @media (min-width: 960px) {
-    flex: 0 0 calc(41.67% - 0.75rem);
-  }
-
-  @media (min-width: 1280px) {
     flex: 0 0 calc(33.33% - 0.75rem);
   }
 }
