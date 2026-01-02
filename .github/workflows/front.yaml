@@ -18,7 +18,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm --filter @gutenku/front install
+        run: pnpm install
 
       - name: Copy env
         run: cp packages/front/.env.dist packages/front/.env
