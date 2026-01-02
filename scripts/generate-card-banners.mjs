@@ -7,7 +7,7 @@ import { execSync } from 'node:child_process';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Read .env file manually
-const envPath = path.join(__dirname, '../../server/.env');
+const envPath = path.join(__dirname, '../packages/server/.env');
 const envContent = fs.readFileSync(envPath, 'utf-8');
 const envVars = {};
 envContent.split('\n').forEach((line) => {
@@ -58,7 +58,11 @@ async function generateBanner(banner) {
 
   const data = await response.json();
   const imageData = data.data[0];
-  const outputPath = path.join(__dirname, '../src/assets/img/', banner.output);
+  const outputPath = path.join(
+    __dirname,
+    '../packages/front/src/assets/img/',
+    banner.output,
+  );
 
   if (imageData.b64_json) {
     fs.writeFileSync(outputPath, Buffer.from(imageData.b64_json, 'base64'));
