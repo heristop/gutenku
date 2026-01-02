@@ -114,6 +114,8 @@ export interface GameState {
   revealedHaikus: string[];
   /** Whether all emoticons have been revealed via scratch */
   allEmoticonsRevealed: boolean;
+  /** Whether books selection has been reduced (50 -> 30) */
+  hasReducedBooks?: boolean;
 }
 
 export interface GameStats {
