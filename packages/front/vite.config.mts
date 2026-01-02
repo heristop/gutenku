@@ -1,6 +1,5 @@
 // Plugins
 import vue from '@vitejs/plugin-vue';
-import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
 import viteCompression from 'vite-plugin-compression';
 import viteImagemin from 'vite-plugin-imagemin';
 import webfontDownload from 'vite-plugin-webfont-dl';
@@ -15,17 +14,7 @@ import { resolve, dirname } from 'node:path';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    vue({
-      template: { transformAssetUrls },
-    }),
-    // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
-    vuetify({
-      autoImport: true,
-      styles: {
-        configFile: 'src/styles/settings.scss',
-      },
-    }),
-    // Vue I18n plugin for pre-compiling locale messages
+    vue(),
     VueI18nPlugin({
       include: resolve(
         dirname(fileURLToPath(import.meta.url)),
@@ -47,7 +36,6 @@ export default defineConfig({
       output: {
         manualChunks: {
           'vue-core': ['vue', 'vue-router', 'pinia'],
-          vuetify: ['vuetify'],
           graphql: ['@urql/vue', 'graphql', 'graphql-ws'],
           vueuse: ['@vueuse/core', '@vueuse/motion'],
           i18n: ['vue-i18n'],
