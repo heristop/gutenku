@@ -131,7 +131,7 @@ function resetAdvancedConfig(): void {
     variant="panel"
     :loading="loading"
     :aria-label="t('config.ariaLabel')"
-    class="config-panel config-panel--card config-panel-container pa-5 mb-6 animate-in"
+    class="config-panel config-panel--card config-panel-container animate-in"
     :class="{ 'is-visible': isInView }"
   >
     <h2 class="sr-only">{{ t('config.title') }}</h2>
@@ -184,11 +184,11 @@ function resetAdvancedConfig(): void {
       </template>
 
       <div class="config-panel__content">
-        <div class="config-panel__inner pa-3 mb-2">
+        <div class="config-panel__inner">
           <!-- AI toggles (dev mode only) -->
-          <div v-if="isDev" class="config-panel__dev-section mb-4">
-            <div class="config-panel__dev-label mb-2">
-              <Bot :size="16" class="text-primary mr-1" />
+          <div v-if="isDev" class="config-panel__dev-section">
+            <div class="config-panel__dev-label">
+              <Bot :size="16" class="config-panel__dev-icon" />
               <span>Dev Mode</span>
             </div>
             <div class="config-panel__toggle-row">
@@ -208,7 +208,7 @@ function resetAdvancedConfig(): void {
 
             <!-- AI parameters (only when optionUseAI is on) -->
             <ZenExpandTransition>
-              <div v-if="optionUseAI" class="config-panel__dev-params mt-3">
+              <div v-if="optionUseAI" class="config-panel__dev-params">
                 <div
                   class="config-panel__section config-panel__section--compact"
                 >
@@ -473,6 +473,8 @@ function resetAdvancedConfig(): void {
 <style scoped lang="scss">
 .config-panel {
   position: relative;
+  padding: var(--gutenku-space-5);
+  margin-bottom: var(--gutenku-space-6);
 
   &__button.zen-btn {
     transition: all 0.2s ease;
@@ -519,7 +521,8 @@ function resetAdvancedConfig(): void {
     box-shadow: 0 1px 2px oklch(0 0 0 / 0.06);
     border: 1px solid var(--gutenku-paper-border);
     min-height: auto !important;
-    padding: 0.75rem 1.25rem !important;
+    padding: var(--gutenku-space-3) 1.25rem !important;
+    margin-bottom: var(--gutenku-space-2);
   }
 
   &__section {
@@ -542,6 +545,7 @@ function resetAdvancedConfig(): void {
     gap: 0.5rem;
     padding: 0.5rem;
     margin: 0.75rem 0;
+    background: transparent;
     border-radius: var(--gutenku-radius-sm);
     cursor: pointer;
     color: var(--gutenku-text-muted);
@@ -563,6 +567,7 @@ function resetAdvancedConfig(): void {
 
   &__dev-section {
     padding: 0.75rem;
+    margin-bottom: var(--gutenku-space-4);
     background: color-mix(in oklch, var(--gutenku-theme-primary-oklch) 8%, transparent);
     border: 1px dashed var(--gutenku-zen-primary);
     border-radius: var(--gutenku-radius-sm);
@@ -571,6 +576,7 @@ function resetAdvancedConfig(): void {
   &__dev-label {
     display: flex;
     align-items: center;
+    margin-bottom: var(--gutenku-space-2);
     font-family: 'JMH Typewriter', monospace !important;
     font-size: 0.75rem;
     font-weight: 600;
@@ -579,11 +585,17 @@ function resetAdvancedConfig(): void {
     color: var(--gutenku-zen-primary);
   }
 
+  &__dev-icon {
+    color: var(--gutenku-zen-primary);
+    margin-right: var(--gutenku-space-1);
+  }
+
   &__toggle-row {
     margin-top: 0.25rem;
   }
 
   &__dev-params {
+    margin-top: var(--gutenku-space-3);
     padding-top: 0.75rem;
     border-top: 1px dashed var(--gutenku-border-visible);
   }

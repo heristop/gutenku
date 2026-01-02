@@ -34,11 +34,7 @@ onMounted(startTypewriter);
 </script>
 
 <template>
-  <ZenCard
-    variant="default"
-    class="text-center mb-6 haiku-title-card"
-    aria-label="Haiku title"
-  >
+  <ZenCard variant="default" class="haiku-title-card" aria-label="Haiku title">
     <div class="title-container">
       <h1 class="haiku-title">
         <span class="typewriter-text">{{ typewriterText }}</span>
@@ -62,6 +58,8 @@ onMounted(startTypewriter);
 .haiku-title-card {
   position: relative;
   overflow: visible;
+  text-align: center;
+  margin-bottom: var(--gutenku-space-6);
   transition: var(--gutenku-transition-zen, all 0.4s ease);
   background: linear-gradient(
     135deg,

@@ -5,6 +5,7 @@ import { Sparkles } from 'lucide-vue-next';
 import ZenCard from '@/components/ui/ZenCard.vue';
 import ZenQuote from '@/components/ui/ZenQuote.vue';
 import { useGlobalStats } from '@/composables/global-stats';
+import { useAnimatedCounter } from '@/composables/animated-counter';
 
 const { t } = useI18n();
 const { globalStats, fetchGlobalStats } = useGlobalStats();
@@ -23,38 +24,7 @@ let quoteInterval: ReturnType<typeof setInterval> | null = null;
 
 // Animated counter
 const targetCount = computed(() => globalStats.value.totalHaikusGenerated ?? 0);
-const animatedCount = ref(0);
-const isCountAnimating = ref(false);
-
-function animateCounter() {
-  if (targetCount.value === 0) {return;}
-
-  isCountAnimating.value = true;
-  const duration = 2000;
-  const startTime = performance.now();
-  const startValue = 0;
-  const endValue = targetCount.value;
-
-  function easeOutQuart(x: number): number {
-    return 1 - Math.pow(1 - x, 4);
-  }
-
-  function updateCounter(currentTime: number) {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    const easedProgress = easeOutQuart(progress);
-
-    animatedCount.value = Math.floor(startValue + (endValue - startValue) * easedProgress);
-
-    if (progress < 1) {
-      requestAnimationFrame(updateCounter);
-    } else {
-      isCountAnimating.value = false;
-    }
-  }
-
-  requestAnimationFrame(updateCounter);
-}
+const { count: animatedCount, isAnimating: isCountAnimating, animate: animateCounter } = useAnimatedCounter(targetCount);
 
 onMounted(() => {
   // Start quote rotation
@@ -78,7 +48,7 @@ onUnmounted(() => {
 <template>
   <ZenCard
     variant="default"
-    class="hero pt-2 px-3 pb-3 mb-4"
+    class="hero"
     role="complementary"
     :aria-label="t('hero.ariaLabel')"
   >
@@ -269,6 +239,8 @@ onUnmounted(() => {
   position: relative;
   overflow: visible;
   text-align: center;
+  padding: var(--gutenku-space-2) var(--gutenku-space-3) var(--gutenku-space-3);
+  margin-bottom: var(--gutenku-space-4);
 
   @media (max-width: 600px) {
     margin-top: 2.5rem;
@@ -357,19 +329,6 @@ onUnmounted(() => {
     gap: 0.25rem;
     z-index: 1;
     text-align: center;
-  }
-
-  // Screen reader only (SEO h1)
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
   }
 
   // Illustration - larger and prominent

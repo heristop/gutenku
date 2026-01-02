@@ -43,7 +43,9 @@ const shortcuts = [
     </div>
 
     <template #actions>
-      <ZenButton class="w-100" @click="modelValue = false">Got it</ZenButton>
+      <ZenButton class="keyboard-help__action" @click="modelValue = false"
+        >Got it</ZenButton
+      >
     </template>
   </ZenModal>
 </template>
@@ -102,5 +104,9 @@ const shortcuts = [
     border-color: oklch(0.35 0.02 60);
     box-shadow: 0 2px 0 oklch(0.2 0.01 60);
   }
+}
+
+.keyboard-help__action {
+  width: 100%;
 }
 </style>

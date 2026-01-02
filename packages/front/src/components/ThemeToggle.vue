@@ -1,11 +1,17 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Sun, Moon, Monitor } from 'lucide-vue-next';
 import { useTheme } from '@/composables/theme';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
 
 const { t } = useI18n();
+
+// Disable tooltips on touch devices (causes layout overflow)
+const isTouchDevice = ref(false);
+onMounted(() => {
+  isTouchDevice.value = 'ontouchstart' in globalThis || navigator.maxTouchPoints > 0;
+});
 
 const {
   isDarkMode,
@@ -76,7 +82,7 @@ function handleClick(event: MouseEvent | TouchEvent) {
 <template>
   <div class="theme-toggle-wrapper">
     <!-- Main light/dark toggle -->
-    <ZenTooltip :text="themeTooltip" position="left">
+    <ZenTooltip :text="themeTooltip" position="left" :disabled="isTouchDevice">
       <button
         class="theme-toggle"
         :aria-label="themeTooltip"
@@ -110,12 +116,6 @@ function handleClick(event: MouseEvent | TouchEvent) {
             aria-hidden="true"
           />
         </Transition>
-
-        <!-- State indicator dots (light/dark) -->
-        <div class="theme-toggle__dots" aria-hidden="true">
-          <span :class="{ active: !isDarkMode }" />
-          <span :class="{ active: isDarkMode }" />
-        </div>
       </button>
     </ZenTooltip>
 
@@ -123,7 +123,7 @@ function handleClick(event: MouseEvent | TouchEvent) {
     <div class="theme-separator" aria-hidden="true" />
 
     <!-- System preference toggle -->
-    <ZenTooltip :text="systemTooltip" position="left">
+    <ZenTooltip :text="systemTooltip" position="left" :disabled="isTouchDevice">
       <button
         class="system-toggle"
         :class="{ 'system-toggle--active': systemPreferenceEnabled }"
@@ -147,38 +147,52 @@ function handleClick(event: MouseEvent | TouchEvent) {
   flex-direction: column;
   align-items: center;
   gap: 0.375rem;
+
+  // Self-contained layout - prevents affecting page dimensions
+  contain: layout;
 }
 
 .theme-toggle {
   position: relative;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 2.75rem;
   height: 2.75rem;
   padding: 0;
-  gap: 0.25rem;
 
-  background: var(--gutenku-paper-bg);
-  border: 1px solid var(--gutenku-paper-border);
+  // Water-themed background (matching InkBrushNav)
+  background:
+    radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.12) 0%, transparent 50%),
+    var(--gutenku-zen-water);
+  border: 1.5px solid oklch(0.45 0.1 195 / 0.2);
   border-radius: 50%;
   cursor: pointer;
   overflow: hidden;
 
   box-shadow:
-    0 2px 8px oklch(0 0 0 / 0.06),
-    0 1px 2px oklch(0 0 0 / 0.04);
+    0 2px 8px oklch(0.45 0.08 195 / 0.12),
+    inset 0 1px 0 oklch(1 0 0 / 0.15);
 
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease;
 
   &:hover {
-    transform: translateY(-2px);
+    background:
+      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.2) 0%, transparent 50%),
+      var(--gutenku-zen-primary);
+    border-color: var(--gutenku-zen-primary);
+    transform: translateY(-2px) scale(1.05);
     box-shadow:
-      0 4px 16px oklch(0 0 0 / 0.1),
-      0 2px 4px oklch(0 0 0 / 0.06);
+      0 6px 20px oklch(0.45 0.1 195 / 0.28),
+      0 0 0 3px oklch(0.45 0.1 195 / 0.1),
+      inset 0 1px 0 oklch(1 0 0 / 0.2);
 
     .theme-toggle__icon {
+      color: white;
       transform: rotate(15deg) scale(1.1);
     }
   }
@@ -188,46 +202,27 @@ function handleClick(event: MouseEvent | TouchEvent) {
   }
 
   &:focus-visible {
-    outline: 2px solid var(--gutenku-zen-primary);
-    outline-offset: 3px;
+    outline: 3px solid var(--gutenku-zen-accent);
+    outline-offset: 4px;
   }
 
   &__icon {
     color: var(--gutenku-zen-primary);
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition:
+      color 0.3s ease,
+      transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   &__ripple {
     position: absolute;
     width: 4px;
     height: 4px;
-    background: var(--gutenku-zen-primary);
+    background: white;
     border-radius: 50%;
     transform: translate(-50%, -50%) scale(0);
-    opacity: 0.3;
+    opacity: 0.4;
     animation: ink-ripple 0.5s cubic-bezier(0, 0.5, 0.5, 1) forwards;
     pointer-events: none;
-  }
-
-  &__dots {
-    position: absolute;
-    bottom: 5px;
-    display: flex;
-    gap: 4px;
-
-    span {
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: var(--gutenku-zen-primary);
-      opacity: 0.2;
-      transition: all 0.25s ease;
-
-      &.active {
-        opacity: 0.8;
-        transform: scale(1.1);
-      }
-    }
   }
 }
 
@@ -251,36 +246,53 @@ function handleClick(event: MouseEvent | TouchEvent) {
   height: 1.625rem;
   padding: 0;
 
-  background: var(--gutenku-paper-bg);
-  border: 1px solid var(--gutenku-paper-border);
+  // Water-themed background (matching main toggle)
+  background:
+    radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.1) 0%, transparent 50%),
+    var(--gutenku-zen-water);
+  border: 1.5px solid oklch(0.45 0.1 195 / 0.2);
   border-radius: 50%;
   cursor: pointer;
 
-  color: var(--gutenku-text-secondary);
-  opacity: 0.6;
+  color: var(--gutenku-zen-primary);
+  opacity: 0.7;
 
-  box-shadow: 0 1px 4px oklch(0 0 0 / 0.04);
+  box-shadow:
+    0 1px 4px oklch(0.45 0.08 195 / 0.1),
+    inset 0 1px 0 oklch(1 0 0 / 0.1);
 
-  transition: all 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    opacity 0.2s ease;
 
   &:hover {
     opacity: 1;
-    transform: scale(1.05);
+    transform: scale(1.08);
+    box-shadow:
+      0 2px 8px oklch(0.45 0.08 195 / 0.15),
+      inset 0 1px 0 oklch(1 0 0 / 0.12);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--gutenku-zen-primary);
+    outline: 2px solid var(--gutenku-zen-accent);
     outline-offset: 2px;
   }
 
   &--active {
     opacity: 1;
-    background: color-mix(in oklch, var(--gutenku-zen-primary) 12%, var(--gutenku-paper-bg));
+    background:
+      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.15) 0%, transparent 50%),
+      var(--gutenku-zen-primary);
     border-color: var(--gutenku-zen-primary);
-    color: var(--gutenku-zen-primary);
+    color: white;
 
     &:hover {
-      background: color-mix(in oklch, var(--gutenku-zen-primary) 18%, var(--gutenku-paper-bg));
+      transform: scale(1.08);
+      box-shadow:
+        0 3px 12px oklch(0.45 0.1 195 / 0.25),
+        inset 0 1px 0 oklch(1 0 0 / 0.15);
     }
   }
 }
@@ -288,14 +300,27 @@ function handleClick(event: MouseEvent | TouchEvent) {
 // Dark theme adjustments
 [data-theme='dark'] {
   .theme-toggle {
+    background:
+      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.08) 0%, transparent 50%),
+      oklch(0.25 0.04 195 / 0.7);
+    border-color: oklch(0.5 0.08 195 / 0.3);
     box-shadow:
-      0 2px 12px oklch(0 0 0 / 0.2),
-      0 1px 4px oklch(0 0 0 / 0.15);
+      0 2px 8px oklch(0 0 0 / 0.3),
+      inset 0 1px 0 oklch(1 0 0 / 0.08);
 
     &:hover {
+      background:
+        radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.12) 0%, transparent 50%),
+        var(--gutenku-zen-accent);
+      border-color: var(--gutenku-zen-accent);
       box-shadow:
-        0 4px 20px oklch(0 0 0 / 0.3),
-        0 2px 8px oklch(0 0 0 / 0.2);
+        0 6px 20px oklch(0.6 0.1 195 / 0.4),
+        0 0 0 3px oklch(0.6 0.1 195 / 0.2),
+        inset 0 1px 0 oklch(1 0 0 / 0.1);
+
+      .theme-toggle__icon {
+        color: oklch(0.12 0.02 195);
+      }
     }
 
     &__icon {
@@ -303,22 +328,34 @@ function handleClick(event: MouseEvent | TouchEvent) {
     }
 
     &__ripple {
-      background: var(--gutenku-zen-accent);
-    }
-
-    &__dots span {
-      background: var(--gutenku-zen-accent);
+      background: oklch(0.12 0.02 195);
     }
   }
 
   .system-toggle {
+    background:
+      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.06) 0%, transparent 50%),
+      oklch(0.25 0.04 195 / 0.6);
+    border-color: oklch(0.5 0.08 195 / 0.25);
+    color: var(--gutenku-zen-accent);
+
+    &:hover {
+      box-shadow:
+        0 2px 8px oklch(0 0 0 / 0.3),
+        inset 0 1px 0 oklch(1 0 0 / 0.08);
+    }
+
     &--active {
-      background: color-mix(in oklch, var(--gutenku-zen-accent) 15%, var(--gutenku-paper-bg));
+      background:
+        radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.1) 0%, transparent 50%),
+        var(--gutenku-zen-accent);
       border-color: var(--gutenku-zen-accent);
-      color: var(--gutenku-zen-accent);
+      color: oklch(0.12 0.02 195);
 
       &:hover {
-        background: color-mix(in oklch, var(--gutenku-zen-accent) 22%, var(--gutenku-paper-bg));
+        box-shadow:
+          0 3px 12px oklch(0.6 0.1 195 / 0.35),
+          inset 0 1px 0 oklch(1 0 0 / 0.1);
       }
     }
   }
@@ -355,8 +392,10 @@ function handleClick(event: MouseEvent | TouchEvent) {
 // Mobile adjustments
 @media (max-width: 600px) {
   .theme-toggle-wrapper {
-    top: 0.85rem;
-    right: 0.5rem;
+    // Position at bottom-right on mobile
+    top: auto;
+    bottom: 3.5rem;
+    right: 1rem;
     gap: 0.25rem;
   }
 
@@ -366,19 +405,14 @@ function handleClick(event: MouseEvent | TouchEvent) {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
 
+    // Add subtle backdrop for better visibility
+    box-shadow:
+      0 2px 12px oklch(0.45 0.08 195 / 0.2),
+      inset 0 1px 0 oklch(1 0 0 / 0.15);
+
     &__icon {
       width: 18px;
       height: 18px;
-    }
-
-    &__dots {
-      bottom: 4px;
-      gap: 3px;
-
-      span {
-        width: 3px;
-        height: 3px;
-      }
     }
   }
 

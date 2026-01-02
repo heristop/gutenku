@@ -169,7 +169,7 @@ watch(progress, (val) => {
     variant="panel"
     :loading="loading"
     :aria-label="t('stats.ariaLabel')"
-    class="stats-panel stats-panel--card stats-panel-container pa-5 mb-4 animate-in"
+    class="stats-panel stats-panel--card stats-panel-container animate-in"
     :class="{ 'is-visible': isInView }"
   >
     <ZenAccordion
@@ -292,6 +292,8 @@ watch(progress, (val) => {
 <style scoped lang="scss">
 .stats-panel {
   position: relative;
+  padding: var(--gutenku-space-5);
+  margin-bottom: var(--gutenku-space-4);
 
   &__content {
     padding-top: 0.5rem;
@@ -324,6 +326,7 @@ watch(progress, (val) => {
   &__metric-value {
     font-size: 1rem;
     font-weight: 700;
+    color: var(--gutenku-text-primary);
     transition: transform 0.2s ease, color 0.2s ease;
 
     &--pulse {
