@@ -19,7 +19,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@commitlint/config-conventional": "^20.2.0"
+    "@commitlint/config-conventional": "^20.3.0"
   },
   "devDependencies": {
     "husky": "^9.1.7",
