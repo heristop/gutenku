@@ -20,8 +20,11 @@ const store = useHaikuStore();
 const { stats, loading } = storeToRefs(store);
 const avgTime = computed(() => store.avgExecutionTime.toFixed(2));
 const progress = computed(() => {
-  const total = Math.max(stats.value.haikusGenerated, 1);
-  return Math.min(100, Math.round((stats.value.cachedHaikus / total) * 100));
+  const freshHaikus = stats.value.haikusGenerated;
+  const cachedHaikus = stats.value.cachedHaikus;
+  const total = freshHaikus + cachedHaikus;
+  if (total === 0) {return 0;}
+  return Math.min(100, Math.round((cachedHaikus / total) * 100));
 });
 
 const topBooks = computed(() => {

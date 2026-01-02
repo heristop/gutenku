@@ -36,6 +36,8 @@ onMounted(() => {
         sizes="(max-width: 600px) 320px, (max-width: 960px) 640px, 1024px"
         alt="Hand-drawn illustration of calligraphy and cherry blossoms for GutenKu haiku generator"
         class="preview-card__illustration"
+        width="640"
+        height="427"
         loading="lazy"
       />
       <div class="preview-card__overlay">

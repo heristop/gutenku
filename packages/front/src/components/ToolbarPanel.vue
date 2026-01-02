@@ -172,7 +172,7 @@ useKeyboardShortcuts({
 
     <div class="toolbar-panel__primary">
       <ZenTooltip :text="generateTooltip" position="top">
-        <div
+        <span
           ref="generateBtnRef"
           class="generate-btn-wrapper"
           :class="{ 'is-pressing': isLongPressing }"
@@ -212,7 +212,7 @@ useKeyboardShortcuts({
               :stroke-dashoffset="125.6 - (longPressProgress / 100) * 125.6"
             />
           </svg>
-        </div>
+        </span>
       </ZenTooltip>
     </div>
 
@@ -431,6 +431,8 @@ useKeyboardShortcuts({
 
   &__button.zen-btn {
     width: 100%;
+    min-width: 180px;
+    min-height: 3.25rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     &--pulse {
@@ -493,7 +495,7 @@ useKeyboardShortcuts({
 @media (max-width: 768px) {
   .toolbar-panel {
     &__button.zen-btn {
-      min-height: 2.75rem;
+      min-height: 3rem;
     }
 
     &__action-btn.zen-btn {
