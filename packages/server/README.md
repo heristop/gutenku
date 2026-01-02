@@ -1,41 +1,35 @@
-# GutenKu Api
+# GutenKu Server
 
-[![Ci](https://github.com/heristop/gutenku/actions/workflows/api.yaml/badge.svg)](https://github.com/heristop/gutenku/actions/workflows/api.yaml)
+[![CI](https://github.com/heristop/gutenku/actions/workflows/server.yaml/badge.svg)](https://github.com/heristop/gutenku/actions/workflows/server.yaml)
 [![Apollo](https://img.shields.io/badge/apollo-4.x-blue.svg)](https://www.apollographql.com/)
+[![TypeScript](https://img.shields.io/badge/typescript-5.x-blue.svg)](https://www.typescriptlang.org/)
 
-## Getting Started
+> GraphQL API for haiku generation from classic literature
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+[← Back to main README](../../README.md)
 
-### Prerequisites
+---
+
+## Prerequisites
 
 - Node.js (v22)
 - Docker (for MongoDB)
 
-### Installation
-
-1. Clone the repository:
+## Installation
 
 ```bash
-git clone https://github.com/heristop/gutenku.git
-```
-
-2. Copy env variables (optional):
-
-```bash
-cp gutenku/packages/server/.env.dist gutenku/packages/server/.env
-```
-
-3. Install dependencies and start:
-
-```bash
+# From root directory
 make install
 make dev
 ```
 
-## Usage
+Or copy env variables first:
 
-Run `make help` for all available commands.
+```bash
+cp .env.dist .env
+```
+
+## Commands
 
 | Command            | Description                      |
 | ------------------ | -------------------------------- |
@@ -47,7 +41,7 @@ Run `make help` for all available commands.
 | `make test`        | Run all tests                    |
 | `make lint`        | Run linters                      |
 
-## Built With
+## Tech Stack
 
 - Node.js / TypeScript / ESM
 - Apollo Server / GraphQL
@@ -56,28 +50,32 @@ Run `make help` for all available commands.
 - Natural Language Processing (NLP)
 - OpenAI
 
-## Architecture & DI (DDD)
+## Architecture (DDD)
 
-- Layers
-  - Presentation: GraphQL schema + resolvers
-  - Application: Orchestrates use cases (services, event bus)
-  - Domain: Entities/services/interfaces (no infra)
-  - Infrastructure: Repositories, external clients, PubSub publisher
+### Layers
 
-- Domain interfaces (tokens)
-  - `IBookRepository` (`'IBookRepository'`): `src/domain/repositories/IBookRepository.ts`
-  - `IChapterRepository` (`'IChapterRepository'`): `src/domain/repositories/IChapterRepository.ts`
-  - `IHaikuRepository` (`'IHaikuRepository'`): `src/domain/repositories/IHaikuRepository.ts`
-  - `ICanvasService` (`'ICanvasService'`): `src/domain/services/ICanvasService.ts`
-  - `IEventBus` (`'IEventBus'`): `src/domain/events/IEventBus.ts`
-  - `IOpenAIClient` (`'IOpenAIClient'`): `src/domain/gateways/IOpenAIClient.ts`
-  - `IMessagePublisher` (`'IMessagePublisher'`): `src/application/messaging/IMessagePublisher.ts`
+| Layer          | Responsibility                                   |
+| -------------- | ------------------------------------------------ |
+| Presentation   | GraphQL schema + resolvers                       |
+| Application    | Orchestrates use cases (services, event bus)     |
+| Domain         | Entities, services, interfaces (no infra)        |
+| Infrastructure | Repositories, external clients, PubSub publisher |
 
-- DI bindings
-  - Declared in `src/infrastructure/di/container.ts` (imported by `src/index.ts`).
-  - Example bindings: repos → Mongo implementations, `ICanvasService` → `CanvasService`, `IMessagePublisher` → `PubSubMessagePublisher`, `IOpenAIClient` → `OpenAIClient`, `IEventBus` → `GraphQLEventBus`.
+### Domain Interfaces
 
-- Injecting by token (example)
+| Interface            | Path                                             |
+| -------------------- | ------------------------------------------------ |
+| `IBookRepository`    | `src/domain/repositories/IBookRepository.ts`     |
+| `IChapterRepository` | `src/domain/repositories/IChapterRepository.ts`  |
+| `IHaikuRepository`   | `src/domain/repositories/IHaikuRepository.ts`    |
+| `ICanvasService`     | `src/domain/services/ICanvasService.ts`          |
+| `IEventBus`          | `src/domain/events/IEventBus.ts`                 |
+| `IOpenAIClient`      | `src/domain/gateways/IOpenAIClient.ts`           |
+| `IMessagePublisher`  | `src/application/messaging/IMessagePublisher.ts` |
+
+### DI Bindings
+
+Declared in `src/infrastructure/di/container.ts`:
 
 ```ts
 import { inject, injectable } from 'tsyringe';
@@ -91,47 +89,33 @@ class BookService {
 }
 ```
 
-- Events
-  - Domain raises `QuoteGeneratedEvent`.
-  - `GraphQLEventBus` maps it to GraphQL subscription payload via `IMessagePublisher`.
+### Event Flow
 
-- Tests
-  - Domain-level invariants use simple typed fakes (no DB). See `tests/haiku_invariants.ts`.
-
-### Diagram (layers and event flow)
-
-```text
-┌──────────────────────────────────────────────────────────────────────┐
-│ Presentation (GraphQL)                                               │
-│  - typeDefs, resolvers                                               │
-│         │ subscribe                                                  │
-│         ▼                                                            │
-│  IMessagePublisher (PubSubMessagePublisher) ──► GraphQL PubSub       │
-└─────────┬────────────────────────────────────────────────────────────┘
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Presentation (GraphQL)                                      │
+│  typeDefs, resolvers                                        │
+│         │ subscribe                                         │
+│         ▼                                                   │
+│  IMessagePublisher ──► GraphQL PubSub                       │
+└─────────┬───────────────────────────────────────────────────┘
           │ uses
           ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│ Application                                                          │
-│  - Services (BookService, ChapterService, HaikuBridgeService, …)     │
-│  - GraphQLEventBus (IEventBus)                                       │
-└─────────┬────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│ Application                                                 │
+│  Services, GraphQLEventBus                                  │
+└─────────┬───────────────────────────────────────────────────┘
           │ calls
           ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│ Domain                                                               │
-│  - Services (HaikuGeneratorService, NaturalLanguage, …)              │
-│  - Interfaces: IBookRepository, IChapterRepository, IHaikuRepository │
-│                 ICanvasService, IOpenAIClient, IEventBus             │
-│  - Events: QuoteGeneratedEvent                                       │
-└─────────┬────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│ Domain                                                      │
+│  HaikuGeneratorService, NaturalLanguage                     │
+│  Events: QuoteGeneratedEvent                                │
+└─────────┬───────────────────────────────────────────────────┘
           │ implemented by
           ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│ Infrastructure                                                       │
-│  - Mongo repositories (BookRepository, ChapterRepository, HaikuRepository)
-│  - CanvasService                                                     │
-│  - OpenAIClient                                                      │
-│  - PubSubMessagePublisher                                            │
-│  - DI container bindings                                             │
-└──────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│ Infrastructure                                              │
+│  Mongo repositories, CanvasService, OpenAIClient            │
+└─────────────────────────────────────────────────────────────┘
 ```
