@@ -237,21 +237,22 @@ export const useHaikuStore = defineStore(
           }
           historyIndex.value = history.value.length - 1;
 
-          stats.value.haikusGenerated += 1;
           if (newHaiku.cacheUsed === true) {
             stats.value.cachedHaikus += 1;
-          }
-          if (typeof newHaiku.executionTime === 'number') {
-            stats.value.totalExecutionTime += newHaiku.executionTime;
-          }
-          const bookTitle = newHaiku.book?.title?.trim();
-          if (bookTitle) {
-            if (!stats.value.books.includes(bookTitle)) {
+          } else {
+            stats.value.haikusGenerated += 1;
+            if (typeof newHaiku.executionTime === 'number') {
+              stats.value.totalExecutionTime += newHaiku.executionTime;
+            }
+            const bookTitle = newHaiku.book?.title?.trim();
+            if (bookTitle && !stats.value.books.includes(bookTitle)) {
               stats.value.books.push(bookTitle);
               stats.value.booksBrowsed = stats.value.books.length;
             }
-            stats.value.bookCounts[bookTitle] =
-              (stats.value.bookCounts[bookTitle] || 0) + 1;
+            if (bookTitle) {
+              stats.value.bookCounts[bookTitle] =
+                (stats.value.bookCounts[bookTitle] || 0) + 1;
+            }
           }
         }
       } catch (err: unknown) {

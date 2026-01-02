@@ -12,6 +12,7 @@ import ZenHaiku from '@/components/ui/ZenHaiku.vue';
 import ZenPaginationDots from '@/components/ui/ZenPaginationDots.vue';
 import { useGameStore } from '@/store/game';
 import { useHapticFeedback } from '@/composables/haptic-feedback';
+import { usePwaInstall } from '@/composables/pwa-install';
 import HintPanel from '@/components/game/HintPanel.vue';
 import BookBoard from '@/components/game/BookBoard.vue';
 import GuessHistory from '@/components/game/GuessHistory.vue';
@@ -105,7 +106,6 @@ function handleClickOutside(event: PointerEvent | MouseEvent) {
 watch(showHaikuTooltip, async (visible) => {
   if (visible) {
     await nextTick();
-    // Use pointerdown for both mouse and touch support
     document.addEventListener('pointerdown', handleClickOutside);
   } else {
     document.removeEventListener('pointerdown', handleClickOutside);
@@ -191,9 +191,14 @@ function handleBookSelect(book: BookValue) {
 }
 
 const { vibrateSuccess, vibrateError } = useHapticFeedback();
+const { trackGamePlayed } = usePwaInstall();
 
 async function handleConfirmGuess() {
   if (!selectedBook.value?.reference || isSubmitting.value) {return;}
+
+  if (currentGame.value?.guesses.length === 0) {
+    trackGamePlayed();
+  }
 
   isSubmitting.value = true;
   try {
@@ -242,6 +247,10 @@ function handleCancelGuess() {
           alt=""
           aria-hidden="true"
           class="game-loading__illustration"
+          width="1536"
+          height="1024"
+          draggable="false"
+          @contextmenu.prevent
         />
         <AppLoading :text="t('game.loading')" />
       </div>
@@ -285,11 +294,15 @@ function handleCancelGuess() {
           >
             <div class="start-gate__content">
               <img
-                src="/gutenmage.png"
+                src="/gutenmage.webp"
                 alt=""
                 aria-hidden="true"
                 class="start-gate__illustration"
+                width="1536"
+                height="1024"
                 loading="lazy"
+                draggable="false"
+                @contextmenu.prevent
               />
               <h2 class="start-gate__title">{{ t('game.startGate.title') }}</h2>
               <p class="start-gate__subtitle">
@@ -1147,6 +1160,16 @@ function handleCancelGuess() {
     0 4px 12px oklch(0 0 0 / 0.2),
     0 8px 24px oklch(0 0 0 / 0.15),
     inset 0 1px 0 oklch(1 0 0 / 0.04);
+}
+
+// Reserve space for game content to prevent CLS
+.game-board {
+  min-height: 400px;
+  contain: layout style;
+}
+
+.game-board__books {
+  min-height: 280px;
 }
 
 .game-loading {

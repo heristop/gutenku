@@ -38,10 +38,12 @@ onMounted(() => {
         >
           <!-- Illustration -->
           <img
-            src="/gutenmage.png"
+            src="/gutenmage.webp"
             alt=""
             aria-hidden="true"
             class="not-found__illustration"
+            width="1536"
+            height="1024"
             loading="lazy"
           />
 

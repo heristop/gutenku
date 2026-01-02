@@ -9,6 +9,7 @@ import { useHaikuStore } from '@/store/haiku';
 import { withViewTransition } from '@/composables/view-transition';
 import { useToast } from '@/composables/toast';
 import { usePullToRefresh } from '@/composables/pull-to-refresh';
+import { usePwaInstall } from '@/composables/pwa-install';
 import PullToRefresh from '@/components/PullToRefresh.vue';
 import HaikuTitle from '@/components/HaikuTitle.vue';
 import AppLoading from '@/components/AppLoading.vue';
@@ -60,6 +61,13 @@ useSeoMeta({
 const haikuStore = useHaikuStore();
 const { fetchNewHaiku } = haikuStore;
 const { haiku, error, firstLoaded, networkError, loading, optionUseAI } = storeToRefs(haikuStore);
+const { trackHaikuView } = usePwaInstall();
+
+watch(haiku, (newHaiku) => {
+  if (newHaiku) {
+    trackHaikuView();
+  }
+});
 
 const containerRef = ref<HTMLElement | null>(null);
 const { pullDistance, isRefreshing, shouldRelease, progress } = usePullToRefresh(
@@ -170,19 +178,8 @@ onMounted(fetchNewHaiku);
   padding: 0.5rem 0.5rem 2rem;
 
   @media (min-width: 600px) {
-    padding: 1rem 1rem 2rem;
-  }
-
-  @media (min-width: 960px) {
     max-width: 900px;
-  }
-
-  @media (min-width: 1280px) {
-    max-width: 1200px;
-  }
-
-  @media (min-width: 1920px) {
-    max-width: 1800px;
+    padding: 1rem 1rem 2rem;
   }
 }
 
