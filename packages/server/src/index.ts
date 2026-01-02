@@ -4,6 +4,8 @@ import compression from 'compression';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
+import helmet from 'helmet';
+import { rateLimit } from 'express-rate-limit';
 import { container } from 'tsyringe';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@as-integrations/express5';
@@ -22,6 +24,36 @@ import '~/infrastructure/di/container';
 dotenv.config();
 
 const log = createLogger('server');
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Rate limiting for all GraphQL requests
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 100, // Limit each IP to 100 requests per window
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: {
+    errors: [{ message: 'Too many requests, please try again later' }],
+  },
+});
+
+// Stricter rate limiting for expensive AI operations
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  limit: 5, // Only 5 AI requests per minute
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: {
+    errors: [{ message: 'Rate limit exceeded for AI operations' }],
+  },
+  skip: (req) => {
+    const body = req.body as {
+      query?: string;
+      variables?: { useAI?: boolean };
+    };
+    return !body?.query?.includes('haiku') || body?.variables?.useAI === false;
+  },
+});
 
 interface MyContext {
   db?: Connection;
@@ -41,7 +73,7 @@ async function listen(port: number) {
   const serverCleanup = useServer({ schema }, wsServer);
 
   const server = new ApolloServer<MyContext>({
-    introspection: true,
+    introspection: !isProduction,
     persistedQueries: false,
     plugins: [
       ApolloServerPluginDrainHttpServer({ httpServer }),
@@ -73,7 +105,36 @@ async function listen(port: number) {
     log.warn('MongoDB not available, continuing without DB connection');
   }
 
+  // Security headers
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", 'data:', 'https:'],
+          connectSrc: ["'self'", 'https://api.openai.com'],
+          objectSrc: ["'none'"],
+          frameSrc: ["'none'"],
+        },
+      },
+      strictTransportSecurity: isProduction
+        ? { maxAge: 63072000, includeSubDomains: true, preload: true }
+        : false,
+      crossOriginEmbedderPolicy: false,
+      crossOriginOpenerPolicy: { policy: 'same-origin' },
+      referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    }),
+  );
+
   app.use(compression());
+
+  // Apply rate limiters to GraphQL endpoint (production only)
+  if (isProduction) {
+    app.use('/graphql', generalLimiter);
+    app.use('/graphql', aiLimiter);
+  }
 
   app.use(
     '/graphql',
