@@ -2,9 +2,7 @@
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
-import { ChevronLeft } from 'lucide-vue-next';
-import ZenButton from '@/components/ui/ZenButton.vue';
-import ZenTooltip from '@/components/ui/ZenTooltip.vue';
+import InkBrushNav from '@/components/ui/InkBrushNav.vue';
 import ZenSkeleton from '@/components/ZenSkeleton.vue';
 import { useHaikuStore } from '@/store/haiku';
 import { withViewTransition } from '@/composables/view-transition';
@@ -101,22 +99,7 @@ onMounted(fetchNewHaiku);
       :progress="progress"
     />
 
-    <nav :aria-label="t('nav.pageNavigation')">
-      <ZenTooltip :text="t('common.backToHome')" position="right">
-        <ZenButton
-          to="/"
-          variant="ghost"
-          spring
-          class="haiku-page__back-wrapper"
-          :aria-label="t('common.back')"
-        >
-          <template #icon-left>
-            <ChevronLeft :size="18" />
-          </template>
-          {{ t('common.back') }}
-        </ZenButton>
-      </ZenTooltip>
-    </nav>
+    <InkBrushNav />
 
     <div v-if="!firstLoaded && !networkError" class="haiku-page__loading">
       <AppLoading :text="loadingLabel" :splash="true" />
@@ -141,24 +124,27 @@ onMounted(fetchNewHaiku);
     >
       <div class="haiku-grid">
         <article class="haiku-grid__main" :aria-label="t('haiku.articleLabel')">
-          <HaikuTitle class="mb-4" />
+          <HaikuTitle class="haiku-section__title" />
 
-          <HaikuChapter v-if="haiku" class="mb-4" />
+          <HaikuChapter v-if="haiku" class="haiku-section__chapter" />
         </article>
 
         <aside
           class="haiku-grid__sidebar haiku-page__sidebar"
           :aria-label="t('haiku.controlsLabel')"
         >
-          <HaikuCanvas class="mb-0" />
+          <HaikuCanvas class="haiku-section__canvas" />
 
-          <ToolbarPanel class="mb-4" />
+          <ToolbarPanel class="haiku-section__toolbar" />
 
-          <StatsPanel class="mb-4" />
+          <StatsPanel class="haiku-section__stats" />
 
           <ConfigPanel />
 
-          <SocialPreviewCard v-if="isDev && optionUseAI" class="mt-4" />
+          <SocialPreviewCard
+            v-if="isDev && optionUseAI"
+            class="haiku-section__preview"
+          />
         </aside>
       </div>
     </main>
@@ -189,17 +175,6 @@ onMounted(fetchNewHaiku);
 
   @media (min-width: 1920px) {
     max-width: 1800px;
-  }
-}
-
-.haiku-page__back-wrapper {
-  margin-bottom: 1.5rem;
-  margin-left: 0.5rem;
-  margin-top: 0.25rem;
-
-  @media (min-width: 600px) {
-    margin-left: 0;
-    margin-top: 0;
   }
 }
 
@@ -278,5 +253,21 @@ onMounted(fetchNewHaiku);
   .haiku-page__content {
     animation: none;
   }
+}
+
+// Spacing for child components
+.haiku-section__title,
+.haiku-section__chapter,
+.haiku-section__toolbar,
+.haiku-section__stats {
+  margin-bottom: var(--gutenku-space-4);
+}
+
+.haiku-section__canvas {
+  margin-bottom: 0;
+}
+
+.haiku-section__preview {
+  margin-top: var(--gutenku-space-4);
 }
 </style>

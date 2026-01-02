@@ -1,90 +1,109 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { Home, BookOpen } from 'lucide-vue-next';
+import { Home } from 'lucide-vue-next';
 import ZenCard from '@/components/ui/ZenCard.vue';
 import ZenButton from '@/components/ui/ZenButton.vue';
+import ZenHaiku from '@/components/ui/ZenHaiku.vue';
+import InkBrushNav from '@/components/ui/InkBrushNav.vue';
 
 const { t } = useI18n();
 
 const isVisible = ref(false);
-const showVerses = ref([false, false, false]);
+
+const haikuLines = [
+  'She did it sweetly',
+  'The tears came into his eyes',
+  'It will be all right',
+];
 
 onMounted(() => {
   requestAnimationFrame(() => {
     isVisible.value = true;
-  });
-
-  // Staggered verse animations
-  [400, 600, 800].forEach((delay, i) => {
-    setTimeout(() => {
-      showVerses.value[i] = true;
-    }, delay);
   });
 });
 </script>
 
 <template>
   <div class="not-found">
-    <Transition name="fade-up">
-      <ZenCard
-        v-if="isVisible"
-        variant="default"
-        class="not-found__card text-center pa-8 pa-sm-12"
-        aria-label="Page not found"
-      >
-        <!-- Floating book icon -->
-        <div class="not-found__icon">
-          <BookOpen :size="48" stroke-width="1" />
-        </div>
+    <InkBrushNav />
 
-        <!-- Animated 404 number -->
-        <div class="not-found__number">
-          <span class="digit">4</span>
-          <span class="digit digit--center">0</span>
-          <span class="digit">4</span>
-        </div>
+    <div class="not-found__content">
+      <Transition name="fade-up">
+        <ZenCard
+          v-if="isVisible"
+          variant="default"
+          class="not-found__card"
+          aria-label="Page not found"
+        >
+          <!-- Illustration -->
+          <img
+            src="/gutenmage.png"
+            alt=""
+            aria-hidden="true"
+            class="not-found__illustration"
+            loading="lazy"
+          />
 
-        <!-- Staggered haiku verses -->
-        <div class="not-found__haiku">
-          <Transition name="verse">
-            <p v-if="showVerses[0]" class="verse">{{ t('notFound.verse1') }}</p>
-          </Transition>
-          <Transition name="verse">
-            <p v-if="showVerses[1]" class="verse">{{ t('notFound.verse2') }}</p>
-          </Transition>
-          <Transition name="verse">
-            <p v-if="showVerses[2]" class="verse">{{ t('notFound.verse3') }}</p>
-          </Transition>
-        </div>
+          <!-- Animated 404 number -->
+          <div class="not-found__number">
+            <span class="digit">4</span>
+            <span class="digit digit--center">0</span>
+            <span class="digit">4</span>
+          </div>
 
-        <!-- Ink brush divider -->
-        <div class="not-found__divider">
-          <span class="brush-stroke"></span>
-        </div>
+          <!-- Haiku -->
+          <ZenHaiku
+            :lines="haikuLines"
+            size="sm"
+            :animated="true"
+            :show-brush-stroke="false"
+            class="not-found__haiku"
+          />
 
-        <ZenButton to="/" :aria-label="t('notFound.returnHome')">
-          <template #icon-left>
-            <Home :size="18" />
-          </template>
-          {{ t('notFound.returnHome') }}
-        </ZenButton>
-      </ZenCard>
-    </Transition>
+          <!-- Ink brush divider -->
+          <div class="not-found__divider">
+            <span class="brush-stroke"></span>
+          </div>
+
+          <ZenButton to="/" :aria-label="t('notFound.returnHome')">
+            <template #icon-left>
+              <Home :size="18" />
+            </template>
+            {{ t('notFound.returnHome') }}
+          </ZenButton>
+        </ZenCard>
+      </Transition>
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
+@use '@/assets/css/_mixins' as *;
+
 .not-found {
-  min-height: 80vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  min-height: 100%;
   padding: 1rem;
+
+  &__content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
   &__card {
     max-width: 420px;
     width: 100%;
+    text-align: center;
+    padding: var(--gutenku-space-8);
+
+    @include sm-up {
+      padding: var(--gutenku-space-12);
+    }
+
     background: linear-gradient(
       135deg,
       var(--gutenku-paper-bg) 0%,
@@ -102,14 +121,22 @@ onMounted(() => {
     }
   }
 
-  &__icon {
-    color: var(--gutenku-zen-secondary);
-    opacity: 0.7;
-    margin-bottom: 1rem;
-    animation: float 4s ease-in-out infinite;
+  &__illustration {
+    display: block;
+    width: 180px;
+    height: auto;
+    margin: 0 auto 1.5rem;
+    opacity: 0.95;
+    filter: grayscale(10%) drop-shadow(0 4px 12px oklch(0.45 0.08 195 / 0.2));
+    animation: float 8s ease-in-out infinite;
+    border-radius: var(--gutenku-radius-md);
+
+    @media (min-width: 600px) {
+      width: 220px;
+    }
 
     [data-theme='dark'] & {
-      opacity: 0.6;
+      filter: brightness(0.9) grayscale(15%) drop-shadow(0 4px 12px oklch(0.5 0.1 195 / 0.3));
     }
   }
 
@@ -145,37 +172,6 @@ onMounted(() => {
 
   &__haiku {
     margin-bottom: 2rem;
-    min-height: 5.4rem;
-
-    .verse {
-      font-size: 1.1rem;
-      font-style: italic;
-      color: var(--gutenku-text-zen);
-      line-height: 1.8;
-      margin: 0;
-
-      &:nth-child(2) {
-        font-size: 1rem;
-        opacity: 0.9;
-      }
-
-      &:nth-child(3) {
-        font-size: 0.95rem;
-        opacity: 0.8;
-      }
-
-      @media (max-width: 600px) {
-        font-size: 1rem;
-
-        &:nth-child(2) {
-          font-size: 0.95rem;
-        }
-
-        &:nth-child(3) {
-          font-size: 0.9rem;
-        }
-      }
-    }
   }
 
   &__divider {
@@ -211,7 +207,7 @@ onMounted(() => {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-8px);
+    transform: translateY(-2px);
   }
 }
 
@@ -255,25 +251,8 @@ onMounted(() => {
   transform: translateY(0);
 }
 
-// Verse transitions
-.verse-enter-active {
-  transition:
-    opacity 0.4s ease-out,
-    transform 0.4s ease-out;
-}
-
-.verse-enter-from {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.verse-enter-to {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .not-found__icon,
+  .not-found__illustration,
   .not-found__number .digit--center,
   .not-found__divider .brush-stroke {
     animation: none;
