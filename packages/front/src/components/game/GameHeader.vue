@@ -51,6 +51,8 @@ async function resetAndReplay() {
         </ZenChip>
       </div>
 
+      <span class="header-separator" aria-hidden="true"></span>
+
       <!-- Right: Streak + Actions -->
       <div class="header-right">
         <!-- Streak badge -->
@@ -172,23 +174,33 @@ async function resetAndReplay() {
 .header-content {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 0.75rem;
   flex-wrap: wrap;
 
   @media (min-width: 600px) {
+    position: relative;
     flex-wrap: nowrap;
+    justify-content: space-between;
     gap: 1rem;
   }
 }
 
 // Left section - Title
 .header-left {
-  flex-shrink: 0;
+  flex: 0 0 100%;
+  text-align: center;
+  margin-bottom: 0.25rem;
+
+  @media (min-width: 600px) {
+    flex: 0 0 auto;
+    text-align: left;
+    margin-bottom: 0;
+  }
 }
 
 .game-title {
-  font-size: 1.25rem;
+  font-size: 1.75rem;
   margin: 0;
   letter-spacing: 0.05em;
   text-shadow:
@@ -196,7 +208,7 @@ async function resetAndReplay() {
     0 2px 4px oklch(0 0 0 / 0.08);
 
   @media (min-width: 600px) {
-    font-size: 1.5rem;
+    font-size: 2rem;
     letter-spacing: 0.08em;
   }
 
@@ -218,17 +230,14 @@ async function resetAndReplay() {
 .header-center {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  flex: 1;
   justify-content: center;
-  order: 3;
-  width: 100%;
-  margin-top: 0.25rem;
+  gap: 0.5rem;
+  order: 2;
 
   @media (min-width: 600px) {
-    order: 2;
-    width: auto;
-    margin-top: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     gap: 0.75rem;
   }
 }
@@ -242,15 +251,27 @@ async function resetAndReplay() {
   }
 }
 
+.header-separator {
+  width: 1px;
+  height: 1.25rem;
+  background: var(--gutenku-zen-secondary);
+  opacity: 0.4;
+  order: 3;
+  margin: 0 0.25rem;
+
+  @media (min-width: 600px) {
+    display: none;
+  }
+}
+
 // Right section - Actions
 .header-right {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  order: 2;
+  order: 4;
 
   @media (min-width: 600px) {
-    order: 3;
     gap: 0.375rem;
   }
 }
