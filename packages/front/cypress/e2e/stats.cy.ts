@@ -2,6 +2,8 @@
 
 describe('Stats panel', () => {
   beforeEach(() => {
+    // Mock GraphQL response to ensure consistent test behavior
+    cy.interceptGraphQL('api', 'haiku.json');
     cy.visitApp('/haiku');
     cy.get('[data-cy=fetch-btn]', { timeout: 30000 })
       .should('exist')
