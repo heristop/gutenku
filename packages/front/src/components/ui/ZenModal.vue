@@ -2,6 +2,7 @@
 import { computed, watch, onBeforeUnmount, ref, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { X } from 'lucide-vue-next';
+import { useScrollLock } from '@/composables/scroll-lock';
 
 interface Props {
   maxWidth?: string | number;
@@ -116,25 +117,7 @@ function handleOverlayClick(e: MouseEvent) {
 }
 
 // WCAG 2.2: Scroll lock for mobile compatibility
-let scrollY = 0;
-
-function lockScroll() {
-  scrollY = globalThis.scrollY;
-  document.body.style.position = 'fixed';
-  document.body.style.top = `-${scrollY}px`;
-  document.body.style.left = '0';
-  document.body.style.right = '0';
-  document.body.style.overflow = 'hidden';
-}
-
-function unlockScroll() {
-  document.body.style.position = '';
-  document.body.style.top = '';
-  document.body.style.left = '';
-  document.body.style.right = '';
-  document.body.style.overflow = '';
-  globalThis.scrollTo(0, scrollY);
-}
+const { lock: lockScroll, unlock: unlockScroll } = useScrollLock();
 
 watch(modelValue, async (isOpen) => {
   if (isOpen) {
@@ -384,19 +367,6 @@ onBeforeUnmount(() => {
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--gutenku-paper-border, oklch(0.9 0.01 60));
   }
-}
-
-// Screen reader only text
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
 }
 
 // Transition animations - zen-inspired with subtle wow effect

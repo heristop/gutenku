@@ -80,18 +80,6 @@ function handleKeydown(event: KeyboardEvent, toastId: number) {
 </style>
 
 <style scoped lang="scss">
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
 .zen-toast-container {
   position: fixed;
   bottom: 2rem;

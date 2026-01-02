@@ -100,25 +100,24 @@ const cardClasses = computed(() => [
 </template>
 
 <style lang="scss" scoped>
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
 .zen-card {
   position: relative;
-  background: var(--gutenku-paper-bg);
-  border: 1px solid var(--gutenku-paper-border);
-  border-radius: var(--gutenku-radius-md);
-  box-shadow: var(--gutenku-shadow-light), var(--gutenku-shadow-inset);
+  border-radius: var(--gutenku-radius-lg);
   overflow: hidden;
+
+  // Glass-morphism effect
+  background: oklch(0.98 0.01 85 / 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  // Subtle border for glass edge
+  border: 1px solid oklch(1 0 0 / 0.3);
+
+  // Softer shadows for glass effect
+  box-shadow:
+    0 4px 16px oklch(0 0 0 / 0.08),
+    0 8px 32px oklch(0 0 0 / 0.06),
+    inset 0 1px 0 oklch(1 0 0 / 0.5);
 
   // Paper texture layer
   &__paper {
@@ -318,8 +317,13 @@ const cardClasses = computed(() => [
 
 // Dark theme adjustments
 [data-theme='dark'] .zen-card {
+  background: oklch(0.18 0.02 70 / 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid oklch(1 0 0 / 0.08);
   box-shadow:
-    0 2px 8px oklch(0 0 0 / 0.3),
+    0 4px 16px oklch(0 0 0 / 0.25),
+    0 8px 32px oklch(0 0 0 / 0.2),
     inset 0 1px 0 oklch(1 0 0 / 0.05);
 
   &__paper {

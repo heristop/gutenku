@@ -452,7 +452,8 @@ onUnmounted(() => {
 // Mobile responsive
 @media (max-width: 480px) {
   .zen-tooltip {
-    max-width: calc(100vw - 2rem);
+    // Use dvw (dynamic viewport) which excludes scrollbar, fallback to fixed px
+    max-width: min(280px, calc(100dvw - 2rem));
 
     &__content {
       font-size: 0.75rem;

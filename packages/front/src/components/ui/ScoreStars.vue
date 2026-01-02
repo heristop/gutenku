@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
+import { Star } from 'lucide-vue-next';
 
 const props = withDefaults(
   defineProps<{
@@ -57,6 +58,16 @@ const stars = computed(() => {
     role="img"
     :aria-label="`Score: ${safeScore} out of ${max} stars`"
   >
+    <!-- SVG gradient definition -->
+    <svg width="0" height="0" class="svg-defs">
+      <defs>
+        <linearGradient id="star-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="oklch(0.85 0.18 80)" />
+          <stop offset="50%" stop-color="oklch(0.75 0.2 70)" />
+          <stop offset="100%" stop-color="oklch(0.65 0.18 55)" />
+        </linearGradient>
+      </defs>
+    </svg>
     <span
       v-for="star in stars"
       :key="star.index"
@@ -64,10 +75,7 @@ const stars = computed(() => {
       :class="`star--${star.type}`"
       :style="{ '--index': star.index, '--delay': animated ? star.index : undefined }"
     >
-      <span class="star__empty">⭐</span>
-      <span class="star__filled-wrap">
-        <span class="star__filled">⭐</span>
-      </span>
+      <Star class="star__icon" />
     </span>
   </div>
 </template>
@@ -83,95 +91,89 @@ const stars = computed(() => {
 }
 
 .star {
-  position: relative;
   display: inline-flex;
   line-height: 1;
 
-  // Empty star as grayscale base layer
-  .star__empty {
-    filter: grayscale(1) opacity(0.35);
+  .star__icon {
+    color: oklch(0.78 0.16 75);
+    fill: url(#star-gradient);
+    filter:
+      drop-shadow(0 0 3px oklch(0.8 0.2 70 / 0.5))
+      drop-shadow(0 1px 2px oklch(0.6 0.15 60 / 0.4));
+    animation: stars-glow 2.5s ease-in-out infinite;
   }
 
-  // Wrapper for clipping the filled star
-  .star__filled-wrap {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    width: 100%;
+  &--empty .star__icon {
+    color: oklch(0.6 0.03 70);
+    fill: none;
+    filter: none;
+    opacity: 0.35;
+    animation: none;
   }
 
-  .star__filled {
-    filter: drop-shadow(0 0 2px oklch(0.7 0.15 85 / 0.3));
-    animation: stars-glow 2s ease-in-out infinite;
+  &--half .star__icon {
+    opacity: 0.65;
+  }
+}
+
+[data-theme='dark'] .star {
+  .star__icon {
+    color: oklch(0.82 0.18 75);
+    filter:
+      drop-shadow(0 0 4px oklch(0.85 0.2 70 / 0.6))
+      drop-shadow(0 0 8px oklch(0.7 0.15 60 / 0.3));
   }
 
-  &--full {
-    .star__filled-wrap {
-      width: 100%;
-    }
+  &--empty .star__icon {
+    color: oklch(0.5 0.02 70);
+    opacity: 0.3;
   }
+}
 
-  &--half {
-    .star__filled-wrap {
-      width: 50%;
-    }
-  }
-
-  &--empty {
-    .star__filled-wrap {
-      width: 0;
-    }
-  }
+.svg-defs {
+  position: absolute;
+  pointer-events: none;
 }
 
 @keyframes stars-glow {
   0%, 100% {
-    filter: drop-shadow(0 0 2px oklch(0.7 0.15 85 / 0.3));
+    filter:
+      drop-shadow(0 0 3px oklch(0.8 0.2 70 / 0.5))
+      drop-shadow(0 1px 2px oklch(0.6 0.15 60 / 0.4));
+    opacity: 1;
   }
   50% {
-    filter: drop-shadow(0 0 8px oklch(0.7 0.15 85 / 0.6));
+    filter:
+      drop-shadow(0 0 6px oklch(0.85 0.22 70 / 0.7))
+      drop-shadow(0 0 12px oklch(0.7 0.18 60 / 0.4));
+    opacity: 0.95;
   }
 }
 
 // Size variants
-.score-stars--xs {
-  gap: 0.125rem;
-
-  .star {
-    font-size: 1rem;
-  }
+.score-stars--xs .star svg {
+  width: 16px;
+  height: 16px;
 }
 
-.score-stars--sm {
-  gap: 0.125rem;
-
-  .star {
-    font-size: 1.125rem;
-  }
+.score-stars--sm .star svg {
+  width: 18px;
+  height: 18px;
 }
 
-.score-stars--md {
-  gap: 0.1875rem;
-
-  .star {
-    font-size: 1.375rem;
-  }
+.score-stars--md .star svg {
+  width: 22px;
+  height: 22px;
 }
 
-.score-stars--lg {
-  gap: 0.25rem;
-
-  .star {
-    font-size: 1.625rem;
-  }
+.score-stars--lg .star svg {
+  width: 26px;
+  height: 26px;
 }
 
-.score-stars--xl {
-  gap: 0.375rem;
-
-  .star {
-    font-size: 2rem;
-  }
+.score-stars--xl .star svg {
+  width: 32px;
+  height: 32px;
 }
 
 // Animation variant - staggered entrance with wow effect
@@ -181,11 +183,16 @@ const stars = computed(() => {
     animation: star-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     animation-delay: calc(var(--delay) * 100ms + 150ms);
 
-    .star__filled {
+    .star__icon {
       animation: star-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
                  stars-glow 2s ease-in-out infinite;
       animation-delay: calc(var(--delay) * 100ms + 150ms), calc(var(--delay) * 100ms + 650ms);
     }
+  }
+
+  .star--empty .star__icon {
+    animation: star-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation-delay: calc(var(--delay) * 100ms + 150ms);
   }
 }
 
@@ -207,21 +214,18 @@ const stars = computed(() => {
   }
 }
 
-// Dark mode - slightly brighter empty stars
-[data-theme='dark'] .star {
-  .star__empty {
-    filter: grayscale(1) opacity(0.25);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .star .star__filled {
+  .star .star__icon {
     animation: none;
     filter: drop-shadow(0 0 2px oklch(0.7 0.15 85 / 0.4));
   }
 
+  .star--empty .star__icon {
+    filter: none;
+  }
+
   .score-stars--animated .star,
-  .score-stars--animated .star .star__filled {
+  .score-stars--animated .star .star__icon {
     animation: none;
     opacity: 1;
     transform: none;
