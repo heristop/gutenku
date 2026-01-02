@@ -75,12 +75,15 @@ function close() {
 
       <div
         v-else-if="error"
-        class="game-error gutenku-paper pa-4"
+        class="game-error gutenku-paper"
         role="alert"
         aria-live="assertive"
       >
-        <p class="text-center gutenku-text-primary">{{ error }}</p>
-        <ZenButton class="mt-4 w-100" @click="gameStore.fetchDailyPuzzle()">
+        <p class="game-error__text gutenku-text-primary">{{ error }}</p>
+        <ZenButton
+          class="game-error__btn"
+          @click="gameStore.fetchDailyPuzzle()"
+        >
           {{ t('common.retry') }}
         </ZenButton>
       </div>
@@ -90,15 +93,19 @@ function close() {
           v-if="latestHint"
           :hint="latestHint"
           :round="currentGame.currentRound"
-          class="mb-4"
+          class="game-modal__hint"
         />
 
-        <BookSearch v-if="!isGameComplete" :loading="loading" class="mb-4" />
+        <BookSearch
+          v-if="!isGameComplete"
+          :loading="loading"
+          class="game-modal__search"
+        />
 
         <GuessHistory
           :guesses="currentGame.guesses"
           :hints="revealedHints"
-          class="mb-4"
+          class="game-modal__history"
         />
       </template>
     </div>
@@ -138,6 +145,22 @@ function close() {
 
 .game-error {
   text-align: center;
+  padding: var(--gutenku-space-4);
   border-radius: var(--gutenku-radius-md);
+
+  &__text {
+    text-align: center;
+  }
+
+  &__btn {
+    margin-top: var(--gutenku-space-4);
+    width: 100%;
+  }
+}
+
+.game-modal__hint,
+.game-modal__search,
+.game-modal__history {
+  margin-bottom: var(--gutenku-space-4);
 }
 </style>

@@ -211,11 +211,16 @@ function animateCountdown(from: number, to: number) {
       <!-- Emoticons display as individual bubbles with scratch-to-reveal -->
       <template v-if="isEmoticons">
         <div class="emoticons-grid">
+          <!-- Screen reader description -->
+          <span class="sr-only">
+            {{ t('game.hints.emoticonsSrDesc', { count: visibleEmoticons.length }) }}
+          </span>
           <!-- Visible emoticons -->
           <span
             v-for="(item, index) in visibleEmoticons"
             :key="`visible-${index}`"
             class="emoticon-bubble"
+            aria-hidden="true"
             :style="{
               '--index': index,
               '--offset-x': `${item.offsetX}px`,
@@ -245,21 +250,29 @@ function animateCountdown(from: number, to: number) {
           </button>
         </div>
       </template>
-      <!-- Genre display with tag -->
+      <!-- Genre display - library card aesthetic -->
       <template v-else-if="isGenre">
-        <div class="single-tag-container">
-          <div class="genre-era-tag genre-tag" style="--tag-index: 0">
-            <BookOpen :size="16" class="tag-icon" />
-            <span class="tag-label">{{ hint.content }}</span>
+        <div class="genre-card-container">
+          <div class="genre-card">
+            <div class="genre-card__header">
+              <BookOpen :size="18" class="genre-card__icon" />
+              <span class="genre-card__label">{{ t('game.hints.genre') }}</span>
+            </div>
+            <div class="genre-card__divider" aria-hidden="true" />
+            <span class="genre-card__value">{{ hint.content }}</span>
           </div>
         </div>
       </template>
-      <!-- Era display with tag -->
+      <!-- Era display - library card aesthetic -->
       <template v-else-if="isEra">
-        <div class="single-tag-container">
-          <div class="genre-era-tag era-tag" style="--tag-index: 0">
-            <Clock :size="16" class="tag-icon" />
-            <span class="tag-label">{{ hint.content }}</span>
+        <div class="genre-card-container">
+          <div class="genre-card genre-card--era">
+            <div class="genre-card__header">
+              <Clock :size="18" class="genre-card__icon" />
+              <span class="genre-card__label">{{ t('game.hints.era') }}</span>
+            </div>
+            <div class="genre-card__divider" aria-hidden="true" />
+            <span class="genre-card__value">{{ hint.content }}</span>
           </div>
         </div>
       </template>
@@ -429,13 +442,6 @@ function animateCountdown(from: number, to: number) {
   color: var(--gutenku-text-secondary);
 }
 
-.hint-divider {
-  width: 1px;
-  height: 2.5rem;
-  background: var(--gutenku-paper-border);
-  opacity: 0.6;
-}
-
 .hint-score-display {
   position: relative;
   display: flex;
@@ -582,6 +588,13 @@ function animateCountdown(from: number, to: number) {
   }
 }
 
+.hint-divider {
+  width: 1px;
+  height: 2.5rem;
+  background: var(--gutenku-paper-border);
+  opacity: 0.6;
+}
+
 .hint-dots {
   display: flex;
   align-items: center;
@@ -602,16 +615,6 @@ function animateCountdown(from: number, to: number) {
     background: var(--gutenku-zen-primary);
     border-color: var(--gutenku-zen-primary);
     box-shadow: 0 0 0 2px oklch(0.5 0.1 195 / 0.2);
-    animation: dot-glow 2s ease-in-out infinite;
-  }
-}
-
-@keyframes dot-glow {
-  0%, 100% {
-    box-shadow: 0 0 0 2px oklch(0.5 0.1 195 / 0.2);
-  }
-  50% {
-    box-shadow: 0 0 0 3px oklch(0.5 0.1 195 / 0.35);
   }
 }
 
@@ -623,21 +626,28 @@ function animateCountdown(from: number, to: number) {
     background: var(--gutenku-zen-primary);
     border-color: var(--gutenku-zen-primary);
     box-shadow: 0 0 0 2px oklch(0.5 0.1 195 / 0.25);
-    animation: dot-glow-dark 2s ease-in-out infinite;
   }
 }
 
-@keyframes dot-glow-dark {
-  0%, 100% {
-    box-shadow: 0 0 0 2px oklch(0.5 0.1 195 / 0.25);
-  }
-  50% {
-    box-shadow: 0 0 0 3px oklch(0.5 0.1 195 / 0.4);
-  }
-}
-
+// Hint content card container
 .hint-content {
   text-align: center;
+  padding: 1rem;
+  margin-top: 0.5rem;
+  background: var(--gutenku-paper-bg);
+  border: 1px solid var(--gutenku-paper-border);
+  border-radius: var(--gutenku-radius-lg);
+  box-shadow: 0 2px 8px oklch(0 0 0 / 0.06);
+
+  @media (min-width: 600px) {
+    padding: 1.25rem;
+  }
+}
+
+[data-theme='dark'] .hint-content {
+  background: oklch(0.2 0.02 60 / 0.5);
+  border-color: oklch(0.4 0.02 60 / 0.3);
+  box-shadow: 0 2px 8px oklch(0 0 0 / 0.15);
 }
 
 // Emoticons - paper slip reveal
@@ -733,7 +743,9 @@ function animateCountdown(from: number, to: number) {
   }
 
   &:active:not(:disabled) {
-    transform: scale(0.98);
+    transform: scale(0.96);
+    box-shadow: 0 1px 2px oklch(0.5 0.1 70 / 0.15);
+    filter: brightness(0.95);
   }
 
   &:focus-visible {
@@ -788,7 +800,8 @@ function animateCountdown(from: number, to: number) {
 }
 
 .scratch-overlay__icon {
-  color: oklch(0.32 0.1 70);
+  color: oklch(0.4 0.12 55);
+  filter: drop-shadow(0 1px 0 oklch(1 0 0 / 0.3));
 }
 
 .scratch-overlay__cost {
@@ -817,7 +830,8 @@ function animateCountdown(from: number, to: number) {
 }
 
 [data-theme='dark'] .scratch-overlay__icon {
-  color: oklch(0.9 0.08 70);
+  color: oklch(0.95 0.1 75);
+  filter: drop-shadow(0 0 3px oklch(0.9 0.15 70 / 0.6));
 }
 
 [data-theme='dark'] .scratch-overlay__cost {
@@ -977,6 +991,169 @@ function animateCountdown(from: number, to: number) {
 
 [data-theme='dark'] .tag-icon {
   color: oklch(0.7 0.1 195);
+}
+
+// Genre card - library catalog aesthetic
+.genre-card-container {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 0;
+}
+
+.genre-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  min-width: 180px;
+  background: linear-gradient(
+    145deg,
+    var(--gutenku-paper-bg) 0%,
+    var(--gutenku-paper-bg-aged) 100%
+  );
+  border: 1px solid var(--gutenku-paper-border);
+  border-radius: var(--gutenku-radius-md);
+  box-shadow:
+    0 2px 8px oklch(0 0 0 / 0.06),
+    inset 0 1px 0 oklch(1 0 0 / 0.5);
+  opacity: 0;
+  animation: genre-card-appear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 0.1s;
+
+  // Decorative corner flourishes
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-color: var(--gutenku-zen-accent);
+    opacity: 0.4;
+  }
+
+  &::before {
+    top: 6px;
+    left: 6px;
+    border-top: 2px solid;
+    border-left: 2px solid;
+  }
+
+  &::after {
+    bottom: 6px;
+    right: 6px;
+    border-bottom: 2px solid;
+    border-right: 2px solid;
+  }
+}
+
+@keyframes genre-card-appear {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) rotateX(-10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotateX(0);
+  }
+}
+
+.genre-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.genre-card__icon {
+  color: var(--gutenku-zen-accent);
+  opacity: 0.8;
+}
+
+.genre-card__label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--gutenku-text-muted);
+}
+
+.genre-card__divider {
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--gutenku-zen-accent) 50%,
+    transparent 100%
+  );
+  opacity: 0.4;
+}
+
+.genre-card__value {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--gutenku-zen-primary);
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
+[data-theme='dark'] .genre-card {
+  background: linear-gradient(
+    145deg,
+    oklch(0.22 0.02 55) 0%,
+    oklch(0.18 0.025 50) 100%
+  );
+  border-color: oklch(0.35 0.03 55);
+  box-shadow:
+    0 2px 8px oklch(0 0 0 / 0.2),
+    inset 0 1px 0 oklch(1 0 0 / 0.05);
+
+  &::before,
+  &::after {
+    border-color: oklch(0.6 0.1 195);
+  }
+}
+
+[data-theme='dark'] .genre-card__icon {
+  color: oklch(0.65 0.1 195);
+}
+
+[data-theme='dark'] .genre-card__value {
+  color: oklch(0.9 0.04 195);
+}
+
+// Era variant - warmer accent
+.genre-card--era {
+  &::before,
+  &::after {
+    border-color: oklch(0.55 0.12 55);
+  }
+
+  .genre-card__icon {
+    color: oklch(0.55 0.12 55);
+  }
+
+  .genre-card__divider {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      oklch(0.55 0.12 55) 50%,
+      transparent 100%
+    );
+  }
+}
+
+[data-theme='dark'] .genre-card--era {
+  &::before,
+  &::after {
+    border-color: oklch(0.7 0.1 55);
+  }
+
+  .genre-card__icon {
+    color: oklch(0.7 0.1 55);
+  }
 }
 
 // Quote hint uses ZenHaiku component
@@ -1503,6 +1680,7 @@ function animateCountdown(from: number, to: number) {
   .game-hint,
   .emoticon-bubble,
   .genre-era-tag,
+  .genre-card,
   .clue-card,
   .letter-char,
   .first-letter-circle,

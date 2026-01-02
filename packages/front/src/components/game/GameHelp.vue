@@ -1,7 +1,26 @@
 <script lang="ts" setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, type Component } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { ChevronRight, ChevronLeft, BookOpen, Lightbulb, Sparkles, Trophy, Lock } from 'lucide-vue-next';
+import {
+  ChevronRight,
+  ChevronLeft,
+  BookOpen,
+  Lightbulb,
+  Sparkles,
+  Trophy,
+  Lock,
+  Smile,
+  HelpCircle,
+  Clock,
+  Calendar,
+  MapPin,
+  Drama,
+  Quote,
+  Hash,
+  Type,
+  User,
+  Star,
+} from 'lucide-vue-next';
 import ZenModal from '@/components/ui/ZenModal.vue';
 import ZenButton from '@/components/ui/ZenButton.vue';
 
@@ -42,26 +61,26 @@ const steps = [
 ];
 
 // Hint progression demo (Bookmoji first, then 5 locked random hints)
-const hintProgression = [
-  { icon: '😀', labelKey: 'game.hints.emoticonsShort', unlocked: true },
-  { icon: '❓', labelKey: 'game.help.randomHint', unlocked: false },
-  { icon: '❓', labelKey: 'game.help.randomHint', unlocked: false },
-  { icon: '❓', labelKey: 'game.help.randomHint', unlocked: false },
-  { icon: '❓', labelKey: 'game.help.randomHint', unlocked: false },
-  { icon: '❓', labelKey: 'game.help.randomHint', unlocked: false },
+const hintProgression: Array<{ icon: Component; labelKey: string; unlocked: boolean }> = [
+  { icon: Smile, labelKey: 'game.hints.emoticonsShort', unlocked: true },
+  { icon: HelpCircle, labelKey: 'game.help.randomHint', unlocked: false },
+  { icon: HelpCircle, labelKey: 'game.help.randomHint', unlocked: false },
+  { icon: HelpCircle, labelKey: 'game.help.randomHint', unlocked: false },
+  { icon: HelpCircle, labelKey: 'game.help.randomHint', unlocked: false },
+  { icon: HelpCircle, labelKey: 'game.help.randomHint', unlocked: false },
 ];
 
 // All possible hint types that can appear randomly (9 types, 5 picked daily)
-const possibleHintTypes = [
-  { icon: '📖', labelKey: 'game.hints.genreShort' },
-  { icon: '🕐', labelKey: 'game.hints.eraShort' },
-  { icon: '📅', labelKey: 'game.hints.centuryShort' },
-  { icon: '📍', labelKey: 'game.hints.settingShort' },
-  { icon: '🎭', labelKey: 'game.hints.protagonistShort' },
-  { icon: '💬', labelKey: 'game.hints.quoteShort' },
-  { icon: '#️⃣', labelKey: 'game.hints.countShort' },
-  { icon: '🔤', labelKey: 'game.hints.letterShort' },
-  { icon: '👤', labelKey: 'game.hints.authorShort' },
+const possibleHintTypes: Array<{ icon: Component; labelKey: string }> = [
+  { icon: BookOpen, labelKey: 'game.hints.genreShort' },
+  { icon: Clock, labelKey: 'game.hints.eraShort' },
+  { icon: Calendar, labelKey: 'game.hints.centuryShort' },
+  { icon: MapPin, labelKey: 'game.hints.settingShort' },
+  { icon: Drama, labelKey: 'game.hints.protagonistShort' },
+  { icon: Quote, labelKey: 'game.hints.quoteShort' },
+  { icon: Hash, labelKey: 'game.hints.countShort' },
+  { icon: Type, labelKey: 'game.hints.letterShort' },
+  { icon: User, labelKey: 'game.hints.authorShort' },
 ];
 
 onMounted(() => {
@@ -156,7 +175,7 @@ function close() {
                 ]"
               :style="{ '--delay': index }"
             >
-              <span class="hint-chip__icon">{{ hint.icon }}</span>
+              <component :is="hint.icon" :size="16" class="hint-chip__icon" />
               <span class="hint-chip__label">{{ t(hint.labelKey) }}</span>
               <Lock v-if="!hint.unlocked" :size="12" class="hint-chip__lock" />
             </div>
@@ -174,7 +193,7 @@ function close() {
                 class="hint-pool__item"
                 :style="{ '--delay': index }"
               >
-                <span class="hint-pool__emoji">{{ hint.icon }}</span>
+                <component :is="hint.icon" :size="14" class="hint-pool__icon" />
                 <span class="hint-pool__label">{{ t(hint.labelKey) }}</span>
               </div>
             </div>
@@ -187,14 +206,17 @@ function close() {
           class="game-help__lifelines"
         >
           <div class="lifeline-item">
-            <span class="lifeline-icon">✨</span>
+            <Sparkles
+              :size="20"
+              class="lifeline-icon lifeline-icon--sparkles"
+            />
             <span
               class="lifeline-text"
               >{{ t('game.help.step3Lifeline1') }}</span
             >
           </div>
           <div class="lifeline-item">
-            <span class="lifeline-icon">🎭</span>
+            <Drama :size="20" class="lifeline-icon lifeline-icon--drama" />
             <span
               class="lifeline-text"
               >{{ t('game.help.step3Lifeline2') }}</span
@@ -205,7 +227,9 @@ function close() {
 
         <!-- Step 4: Scoring -->
         <div v-if="steps[currentStep].showScoring" class="game-help__scoring">
-          <div class="scoring-stars">⭐⭐⭐⭐⭐</div>
+          <div class="scoring-stars">
+            <Star v-for="i in 5" :key="i" :size="24" class="scoring-star" />
+          </div>
           <div class="scoring-legend">
             <span class="scoring-item"
               ><span class="scoring-dot scoring-dot--good" />Fewer guesses</span
@@ -369,7 +393,18 @@ function close() {
 }
 
 .hint-chip__icon {
-  font-size: 1rem;
+  flex-shrink: 0;
+  color: oklch(0.55 0.12 195);
+}
+
+.hint-chip--unlocked .hint-chip__icon {
+  color: white;
+  filter: drop-shadow(0 0 2px oklch(1 0 0 / 0.3));
+}
+
+.hint-chip--locked .hint-chip__icon {
+  color: oklch(0.55 0.02 55);
+  opacity: 0.5;
 }
 
 .hint-chip__label {
@@ -391,6 +426,22 @@ function close() {
 [data-theme='dark'] .hint-chip--unlocked {
   background: oklch(0.45 0.1 195 / 0.7);
   border-color: oklch(0.5 0.1 195 / 0.5);
+
+  .hint-chip__icon {
+    color: oklch(0.95 0.05 195);
+  }
+}
+
+[data-theme='dark'] .hint-pool__icon {
+  color: oklch(0.6 0.12 195);
+}
+
+[data-theme='dark'] .scoring-star {
+  color: oklch(0.82 0.18 75);
+  fill: oklch(0.85 0.2 75);
+  filter:
+    drop-shadow(0 0 4px oklch(0.85 0.2 70 / 0.6))
+    drop-shadow(0 0 8px oklch(0.7 0.15 60 / 0.3));
 }
 
 // Locked state
@@ -450,8 +501,9 @@ function close() {
   background: oklch(0.25 0.02 55 / 0.5);
 }
 
-.hint-pool__emoji {
-  font-size: 0.9rem;
+.hint-pool__icon {
+  flex-shrink: 0;
+  color: oklch(0.5 0.1 195);
 }
 
 .hint-pool__label {
@@ -499,7 +551,17 @@ function close() {
 }
 
 .lifeline-icon {
-  font-size: 1.25rem;
+  flex-shrink: 0;
+
+  &--sparkles {
+    color: oklch(0.65 0.2 85);
+    filter: drop-shadow(0 0 4px oklch(0.7 0.2 85 / 0.5));
+  }
+
+  &--drama {
+    color: oklch(0.55 0.15 280);
+    filter: drop-shadow(0 0 4px oklch(0.6 0.15 280 / 0.4));
+  }
 }
 
 .lifeline-text {
@@ -525,17 +587,32 @@ function close() {
 }
 
 .scoring-stars {
-  font-size: 1.5rem;
-  letter-spacing: 0.1em;
+  display: flex;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.scoring-star {
+  color: oklch(0.78 0.16 75);
+  fill: oklch(0.8 0.18 75);
+  filter:
+    drop-shadow(0 0 3px oklch(0.8 0.2 70 / 0.5))
+    drop-shadow(0 1px 2px oklch(0.6 0.15 60 / 0.4));
   animation: stars-glow 2s ease-in-out infinite;
 }
 
 @keyframes stars-glow {
   0%, 100% {
-    filter: drop-shadow(0 0 2px oklch(0.7 0.15 85 / 0.3));
+    filter:
+      drop-shadow(0 0 3px oklch(0.8 0.2 70 / 0.5))
+      drop-shadow(0 1px 2px oklch(0.6 0.15 60 / 0.4));
+    opacity: 1;
   }
   50% {
-    filter: drop-shadow(0 0 8px oklch(0.7 0.15 85 / 0.6));
+    filter:
+      drop-shadow(0 0 6px oklch(0.85 0.22 70 / 0.7))
+      drop-shadow(0 0 12px oklch(0.7 0.18 60 / 0.4));
+    opacity: 0.95;
   }
 }
 
