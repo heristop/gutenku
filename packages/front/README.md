@@ -4,6 +4,7 @@
 [![Vue](https://img.shields.io/badge/vue-3-brightgreen.svg)](https://vuejs.org/)
 [![TypeScript](https://img.shields.io/badge/typescript-5.x-blue.svg)](https://www.typescriptlang.org/)
 
+> [!NOTE]
 > Vue 3 frontend for the GutenKu haiku generator
 
 [← Back to main README](../../README.md)
