@@ -18,7 +18,7 @@
   <a href="https://gutenku.xyz">gutenku.xyz</a>
 </p>
 
----
+<p align="center">🌸 · 🌸 · 🌸</p>
 
 ## Daily Haiku Card
 
@@ -26,17 +26,19 @@
 
 Last Snapshot: `Thu, 01 Jan 2026 00:00:01 +0000`
 
-<details>
-<summary>Read AI Analysis</summary>
-
 > [!TIP]
+> Read the AI analysis below for poetic insights.
+
+<details>
+<summary>AI Analysis</summary>
+
 > "This haiku captures a moment of profound emotional release and acceptance. The first line, 'His soul was at peace,' suggests a deep sense of inner tranquility and reconciliation with one's circumstances or emotions. The imagery of 'his head tilted far back' evokes a physical gesture often associated with surrender or openness to the universe, perhaps signaling a connection to something greater than oneself. Finally, 'Through a film of tears' introduces a poignant contrast, as tears typically represent sorrow or emotional turmoil. However, within this context, they also signify a cleansing or cathartic experience, suggesting that peace can coexist with sadness, and that through embracing one's vulnerability, one can find serenity."
 >
 > _— BotenKu, Your devoted Bot Literature Teacher_
 
 </details>
 
----
+<p align="center">🌸 · 🌸 · 🌸</p>
 
 ## About
 
@@ -83,7 +85,7 @@ Thanks to the creators and maintainers of [Project Gutenberg](https://www.gutenb
 
 This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE) file for details.
 
----
+<p align="center">🌸 · 🌸 · 🌸</p>
 
 <p align="center">
   © 2023-2026 heristop / <a href="https://instagram.com/gutenku.poem">@gutenku.poem</a>
