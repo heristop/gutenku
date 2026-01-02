@@ -36,10 +36,10 @@ make dev
 ## Built With
 
 - Vue 3 (Composition API)
-- Tailwind CSS
+- Custom SCSS Design System
 - Pinia
-- Apollo Client / GraphQL
-- Vitest / Cypress
+- URQL / GraphQL
+- Cypress
 
 ## Tests
 
