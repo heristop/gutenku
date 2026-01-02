@@ -520,5 +520,18 @@
         "🎋"
       ]
     }
+  },
+  "pwa": {
+    "bannerLabel": "App installation prompt",
+    "addToHomeScreen": "Add GutenKu to Home Screen",
+    "installSubtitle": "Quick access to haiku & games",
+    "install": "Install",
+    "installButton": "Install GutenKu app",
+    "iosModalTitle": "Install GutenKu",
+    "iosModalDescription": "Add to your home screen for the best experience",
+    "iosStep1Title": "Tap the Share button",
+    "iosStep1Desc": "Find it in your Safari toolbar at the bottom",
+    "iosStep2Title": "Add to Home Screen",
+    "iosStep2Desc": "Scroll down and tap 'Add to Home Screen'"
   }
 }

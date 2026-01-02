@@ -86,6 +86,16 @@ useHead({
 </template>
 
 <style lang="scss" scoped>
+// CSS containment for decorative elements (improves CLS and paint performance)
+.floating-particles {
+  contain: strict;
+  content-visibility: auto;
+}
+
+.light-beam-overlay {
+  contain: strict;
+}
+
 .gutenku-app__wrap {
   min-height: 100vh;
   min-height: 100dvh;
