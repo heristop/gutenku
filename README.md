@@ -37,7 +37,7 @@
 
 ## About
 
-GutenKu transforms classic literature from Project Gutenberg into haiku poetry using NLP, Markov Chain algorithms, and OpenAI for enhanced selection and descriptions.
+GutenKu transforms classic literature from Project Gutenberg into haiku poetry using NLP, Markov Chain algorithms, and OpenAI for selection and narrative generation.
 
 ## Features
 
@@ -51,8 +51,8 @@ GutenKu transforms classic literature from Project Gutenberg into haiku poetry u
 1. **Scrape** — Collect texts from a curated whitelist of eBooks on Project Gutenberg
 2. **Process** — Apply Markov Chain to sequence sentences with highest transition probabilities
 3. **Structure** — Enforce traditional 5-7-5 syllable structure via NLP
-4. **Enhance** — Refine selection and generate narratives with OpenAI
-5. **Generate** — Create shareable image cards
+4. **Select** — Choose candidates and generate narratives with OpenAI
+5. **Render** — Create shareable image cards
 
 ## Quick Start
 
