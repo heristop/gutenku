@@ -236,7 +236,7 @@ const cardClasses = computed(() => [
   // VARIANT: Book (for HaikuChapter, HaikuCrafting)
   // ========================================
   &--book {
-    padding: 3rem 2rem 2rem 3rem;
+    padding: 3rem 0.5rem 2rem 1rem;
     min-height: 31.25rem;
     overflow: visible;
     box-shadow:

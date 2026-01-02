@@ -116,7 +116,7 @@ if (import.meta.env.DEV) {
     @click="handleClick"
   >
     <template v-if="loading">
-      <InkDropLoader :size="32" class="zen-btn__loader" aria-hidden="true" />
+      <InkDropLoader :size="20" class="zen-btn__loader" aria-hidden="true" />
       <span class="visually-hidden">{{ t('common.loading') }}</span>
     </template>
 
@@ -243,10 +243,6 @@ $spring-easing: linear(
   &--loading {
     cursor: wait;
     opacity: 0.8;
-  }
-
-  &__loader {
-    // ZenLoader handles its own animation
   }
 
   &__content {
