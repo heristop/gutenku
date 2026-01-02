@@ -10,6 +10,7 @@ import {
   type IGlobalStatsRepository,
   IGlobalStatsRepositoryToken,
 } from '~/domain/repositories/IGlobalStatsRepository';
+import { submitGuessSchema } from '~/infrastructure/validation/schemas';
 
 /**
  * Mulberry32 seeded PRNG for deterministic random selection
@@ -239,7 +240,14 @@ export class SubmitGuessHandler implements IQueryHandler<
   ) {}
 
   async execute(query: SubmitGuessQuery): Promise<GuessResult> {
-    const { date, guessedBookId, currentRound } = query;
+    // Validate input parameters
+    const validated = submitGuessSchema.parse({
+      date: query.date,
+      guessedBookId: query.guessedBookId,
+      currentRound: query.currentRound,
+    });
+
+    const { date, guessedBookId, currentRound } = validated;
 
     // Get the correct book for today
     const correctBook = selectDailyBook(date);
