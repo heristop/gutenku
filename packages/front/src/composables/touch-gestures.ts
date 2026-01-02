@@ -196,10 +196,15 @@ export function useLongPress(
       'ontouchstart' in globalThis || navigator.maxTouchPoints > 0;
 
     if (elementRef.value) {
+      // Pointer events (primary)
       elementRef.value.addEventListener('pointerdown', handlePointerDown);
       elementRef.value.addEventListener('pointerup', handlePointerEnd);
       elementRef.value.addEventListener('pointerleave', handlePointerEnd);
       elementRef.value.addEventListener('pointercancel', handlePointerEnd);
+
+      // Touch events fallback (iOS Safari - pointerleave is unreliable)
+      elementRef.value.addEventListener('touchend', handlePointerEnd);
+      elementRef.value.addEventListener('touchcancel', handlePointerEnd);
     }
   });
 
@@ -211,6 +216,8 @@ export function useLongPress(
       elementRef.value.removeEventListener('pointerup', handlePointerEnd);
       elementRef.value.removeEventListener('pointerleave', handlePointerEnd);
       elementRef.value.removeEventListener('pointercancel', handlePointerEnd);
+      elementRef.value.removeEventListener('touchend', handlePointerEnd);
+      elementRef.value.removeEventListener('touchcancel', handlePointerEnd);
     }
   });
 
