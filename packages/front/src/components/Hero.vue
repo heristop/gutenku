@@ -72,11 +72,15 @@ onUnmounted(() => {
       <div class="hero__illustration-wrapper stagger-1">
         <div class="hero__illustration-glow" aria-hidden="true" />
         <img
-          src="/gutenmage.png"
+          src="/gutenmage.webp"
           alt=""
           aria-hidden="true"
           class="hero__illustration"
+          width="1536"
+          height="1024"
           loading="eager"
+          draggable="false"
+          @contextmenu.prevent
         />
       </div>
 
@@ -459,8 +463,8 @@ onUnmounted(() => {
     justify-content: center;
     gap: 0.35rem;
     padding: 0.4rem 0.85rem;
-    margin-top: 0.25rem;
-    margin-bottom: 0.5rem;
+    margin-top: 0.6rem;
+    margin-bottom: 0.8rem;
     background: var(--gutenku-zen-water);
     border: 1px solid oklch(0.45 0.08 192 / 0.12);
     border-radius: 2rem;

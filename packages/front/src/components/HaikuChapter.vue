@@ -379,50 +379,73 @@ onUnmounted(() => {
   }
 
   .toggle-btn.zen-btn {
-    background: var(--gutenku-btn-subtle-bg) !important;
-    border: 1px solid var(--gutenku-border-visible) !important;
-    color: var(--gutenku-text-contrast) !important;
+    background:
+      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.12) 0%, transparent 50%),
+      var(--gutenku-zen-water) !important;
+    border: 1.5px solid oklch(0.45 0.1 195 / 0.2) !important;
+    color: var(--gutenku-zen-primary) !important;
     border-radius: 50% !important;
-    width: 2.5rem !important;
-    height: 2.5rem !important;
-    min-width: 2.5rem !important;
-    min-height: 2.5rem !important;
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+    min-width: 2.75rem !important;
+    min-height: 2.75rem !important;
     padding: 0 !important;
-    box-shadow: var(--gutenku-shadow-light);
-    transition: var(--gutenku-transition-zen);
+    box-shadow:
+      0 2px 8px oklch(0.45 0.08 195 / 0.12),
+      inset 0 1px 0 oklch(1 0 0 / 0.15);
+    transition:
+      background 0.3s ease,
+      border-color 0.3s ease,
+      box-shadow 0.3s ease,
+      transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-origin: center center;
     cursor: pointer !important;
 
     &:hover:not(:disabled):not([aria-disabled='true']) {
-      background: var(--gutenku-btn-subtle-hover) !important;
-      border-color: var(--gutenku-border-visible-hover) !important;
-      transform: translateY(-2px) scale(1.05);
-      box-shadow: var(--gutenku-shadow-ink);
+      background:
+        radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.2) 0%, transparent 50%),
+        var(--gutenku-zen-primary) !important;
+      border-color: var(--gutenku-zen-primary) !important;
+      transform: scale(1.05);
+      box-shadow:
+        0 6px 20px oklch(0.45 0.1 195 / 0.28),
+        0 0 0 3px oklch(0.45 0.1 195 / 0.1),
+        inset 0 1px 0 oklch(1 0 0 / 0.2);
     }
 
     &:active:not(:disabled):not([aria-disabled='true']) {
-      transform: translateY(0) scale(0.95);
-      transition: var(--gutenku-transition-fast);
+      transform: scale(0.95);
     }
 
     :deep(svg) {
-      transition: var(--gutenku-transition-zen);
+      transition: color 0.3s ease;
     }
 
     &:hover:not(:disabled):not([aria-disabled='true']) :deep(svg) {
-      transform: rotate(12deg) scale(1.1);
+      transform: none;
+      color: white !important;
     }
 
     &.expand-toggle {
-      background: var(--gutenku-btn-expand-bg) !important;
-      border: 1px solid var(--gutenku-border-visible) !important;
+      background:
+        radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.12) 0%, transparent 50%),
+        var(--gutenku-zen-water) !important;
+      border: 1.5px solid oklch(0.45 0.1 195 / 0.2) !important;
 
       &:hover:not(:disabled):not([aria-disabled='true']) {
-        background: var(--gutenku-btn-expand-hover) !important;
-        border-color: var(--gutenku-border-visible-hover) !important;
+        background:
+          radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.2) 0%, transparent 50%),
+          var(--gutenku-zen-primary) !important;
+        border-color: var(--gutenku-zen-primary) !important;
       }
 
       :deep(svg) {
-        color: var(--gutenku-text-primary) !important;
+        color: var(--gutenku-zen-primary) !important;
+      }
+
+      &:hover:not(:disabled):not([aria-disabled='true']) :deep(svg) {
+        transform: none;
+        color: white !important;
       }
     }
   }
@@ -431,18 +454,52 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .book-header {
     .toggle-btn.zen-btn {
-      width: 2.25rem !important;
-      height: 2.25rem !important;
-      min-width: 2.25rem !important;
-      min-height: 2.25rem !important;
+      width: 2.5rem !important;
+      height: 2.5rem !important;
+      min-width: 2.5rem !important;
+      min-height: 2.5rem !important;
+    }
+  }
+}
+
+// Dark mode for toggle buttons
+[data-theme='dark'] .book-header {
+  .toggle-btn.zen-btn {
+    background:
+      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.08) 0%, transparent 50%),
+      oklch(0.25 0.04 195 / 0.7) !important;
+    border-color: oklch(0.5 0.08 195 / 0.3) !important;
+    color: var(--gutenku-zen-accent) !important;
+    box-shadow:
+      0 2px 8px oklch(0 0 0 / 0.3),
+      inset 0 1px 0 oklch(1 0 0 / 0.08);
+
+    :deep(svg) {
+      color: var(--gutenku-zen-accent) !important;
+    }
+
+    &:hover:not(:disabled):not([aria-disabled='true']) {
+      background:
+        radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.12) 0%, transparent 50%),
+        var(--gutenku-zen-accent) !important;
+      border-color: var(--gutenku-zen-accent) !important;
+      box-shadow:
+        0 6px 20px oklch(0.6 0.1 195 / 0.4),
+        0 0 0 3px oklch(0.6 0.1 195 / 0.2),
+        inset 0 1px 0 oklch(1 0 0 / 0.1);
+
+      :deep(svg) {
+        transform: none;
+        color: oklch(0.12 0.02 195) !important;
+      }
     }
   }
 }
 
 .book-content {
-  background: none;
+  background: var(--gutenku-paper-bg);
   border: none;
-  padding: 0;
+  padding: 1rem 1.5rem;
   font: inherit;
   text-align: inherit;
   width: 100%;
@@ -475,7 +532,7 @@ onUnmounted(() => {
 }
 
 .book-title {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: bold;
   color: var(--gutenku-text-primary);
   text-align: center;
@@ -539,7 +596,7 @@ onUnmounted(() => {
     border: none !important;
 
     .chapter-text {
-      font-size: 1rem;
+      font-size: 0.9rem;
       line-height: 1.8;
       color: var(--gutenku-text-primary);
       text-align: justify;
@@ -683,7 +740,7 @@ onUnmounted(() => {
   }
 
   .book-title {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
 
   .book-author {
@@ -691,7 +748,7 @@ onUnmounted(() => {
   }
 
   .chapter-text {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     line-height: 1.6;
   }
 }

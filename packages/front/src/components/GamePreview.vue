@@ -42,6 +42,8 @@ onMounted(() => {
         sizes="(max-width: 600px) 320px, 640px"
         alt="Hand-drawn illustration of books and question marks for GutenGuess game"
         class="preview-card__illustration"
+        width="640"
+        height="427"
         loading="lazy"
       />
       <div class="preview-card__overlay">
