@@ -215,7 +215,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style lang="scss" scoped>
-// Overlay with subtle backdrop blur
+// Overlay with backdrop blur
 .zen-modal-overlay {
   position: fixed;
   inset: 0;
@@ -369,7 +369,7 @@ onBeforeUnmount(() => {
   }
 }
 
-// Transition animations - zen-inspired with subtle wow effect
+// Transition animations - zen-inspired
 .zen-modal-enter-active {
   transition:
     opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),

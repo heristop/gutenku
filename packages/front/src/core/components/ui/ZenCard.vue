@@ -194,7 +194,7 @@ const cardClasses = computed(() => [
       pointer-events: none;
     }
 
-    // Shimmer overlay for subtle wow effect
+    // Shimmer overlay
     &::before {
       content: '';
       position: absolute;
@@ -389,7 +389,7 @@ const cardClasses = computed(() => [
   }
 }
 
-// Progress bar transition - smooth ink wash appearance
+// Progress bar transition - ink wash appearance
 .zen-progress-enter-active {
   transition:
     opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
