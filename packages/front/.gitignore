@@ -4,3 +4,4 @@ cypress/screenshots
 cypress/downloads
 coverage/
 tsconfig.tsbuildinfo
+.lighthouseci/

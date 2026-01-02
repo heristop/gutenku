@@ -5,6 +5,7 @@ import viteImagemin from 'vite-plugin-imagemin';
 import webfontDownload from 'vite-plugin-webfont-dl';
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
+import { VitePWA } from 'vite-plugin-pwa';
 
 // Utilities
 import { defineConfig } from 'vite';
@@ -29,6 +30,30 @@ export default defineConfig({
       filename: 'dist/bundle-stats.html',
       gzipSize: true,
       brotliSize: true,
+    }),
+    VitePWA({
+      registerType: 'autoUpdate',
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,webp,woff2}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/.*\.webp$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'cover-images',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+              },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/beamanalytics\.b-cdn\.net\/.*/,
+            handler: 'NetworkOnly',
+          },
+        ],
+      },
+      manifest: false, // Use existing manifest.json
     }),
   ],
   build: {
