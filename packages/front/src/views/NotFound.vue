@@ -2,10 +2,10 @@
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Home } from 'lucide-vue-next';
-import ZenCard from '@/components/ui/ZenCard.vue';
-import ZenButton from '@/components/ui/ZenButton.vue';
-import ZenHaiku from '@/components/ui/ZenHaiku.vue';
-import InkBrushNav from '@/components/ui/InkBrushNav.vue';
+import ZenCard from '@/core/components/ui/ZenCard.vue';
+import ZenButton from '@/core/components/ui/ZenButton.vue';
+import ZenHaiku from '@/core/components/ui/ZenHaiku.vue';
+import InkBrushNav from '@/core/components/ui/InkBrushNav.vue';
 
 const { t } = useI18n();
 

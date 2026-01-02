@@ -76,6 +76,7 @@
       "rule3": "After each wrong guess, you receive a new hint",
       "hintsTitle": "Hints (in order)",
       "footer": "A new puzzle every day!",
+      "welcomeTo": "Welcome to",
       "step1Title": "Welcome to GutenGuess",
       "step1Description": "Guess today's classic book in 6 tries or less!",
       "step2Title": "Guess to Unlock Hints",
@@ -85,9 +86,10 @@
       "step2Sub3": "6 hints total: Emoticons → Author",
       "step3Title": "Optional Lifelines",
       "step3Description": "Need extra help? Use these strategic boosts:",
-      "step3Lifeline1": "Scratch to reveal more emoticons",
-      "step3Lifeline2": "Haiku hints from the book (1st free)",
-      "step3Cost": "-5 pts per extra haiku / -2 pts per emoji",
+      "step3Lifeline1": "Scratch to reveal more emoticons (-2 pts)",
+      "step3Lifeline2": "Haiku hints from the book (-5 pts, 1st free)",
+      "step3Lifeline3": "Reduce book selection: 50 → 30 (-20 pts)",
+      "step3Cost": "Each lifeline costs points",
       "step4Title": "Win with Style",
       "step4Description": "Fewer guesses + fewer lifelines = higher score. Aim for 100 points!",
       "startPlaying": "Start Playing",
@@ -149,6 +151,9 @@
     "revealHaiku": "Reveal a haiku hint",
     "haikuHint": "Haiku Hint",
     "revealAnotherHaiku": "Reveal another haiku",
+    "reduceBooks": "Reduce to 30 books",
+    "reduceBooksSuccess": "Books reduced to 30!",
+    "reduceBooksError": "Failed to reduce books. Please try again.",
     "scratchToReveal": "Scratch to reveal more emoticons",
     "result": {
       "won": "Well done!",
@@ -193,6 +198,9 @@
     },
     "confirmGuessQuestion": "Is this your final answer?",
     "confirmGuess": "Confirm Guess",
+    "confirmReduceBooks": "Use this lifeline?",
+    "confirmReduceBooksDesc": "Reduces the book list from 50 to 30. Costs 20 points.",
+    "confirmReduce": "Use Lifeline",
     "review": {
       "haikuHints": "Haiku Hints"
     }
@@ -241,7 +249,7 @@
   },
   "hero": {
     "ariaLabel": "About GutenKu",
-    "description": "Poetry from prose. <strong>GutenKu</strong> creates haikus from classic literature, drawing from Project Gutenberg's free eBook library.",
+    "description": "<strong>GutenKu</strong> creates haikus from classic literature using Project Gutenberg's free eBook library.",
     "stats": {
       "haikusCrafted": "haikus crafted"
     }
@@ -372,7 +380,7 @@
   "social": {
     "ariaLabel": "About GutenKu",
     "linksAriaLabel": "Social links",
-    "description": "<strong>GutenKu</strong> is a Haiku generator based on a selection of books from <span class=\"visually-hidden\">the</span> Project Gutenberg, a vast online library of free eBooks, and then processes this data to extract quotes and create <strong>5</strong>-<strong>7</strong>-<strong>5</strong> haiku",
+    "description": "<strong>GutenKu</strong> is a haiku generator that uses books from <span class=\"visually-hidden\">the</span> Project Gutenberg library to extract quotes and create <strong>5</strong>-<strong>7</strong>-<strong>5</strong> haiku",
     "links": {
       "instagram": {
         "name": "Instagram",

@@ -2,17 +2,17 @@
 import { defineAsyncComponent, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useSeoMeta } from '@unhead/vue';
-import { withViewTransition } from '@/composables/view-transition';
-import ZenSkeleton from '@/components/ZenSkeleton.vue';
-import InkBrushNav from '@/components/ui/InkBrushNav.vue';
+import { withViewTransition } from '@/core/composables/view-transition';
+import ZenSkeleton from '@/core/components/ZenSkeleton.vue';
+import InkBrushNav from '@/core/components/ui/InkBrushNav.vue';
 
 const Hero = defineAsyncComponent({
-  loader: () => import('@/components/Hero.vue'),
+  loader: () => import('@/core/components/Hero.vue'),
   loadingComponent: ZenSkeleton,
 });
 
-const GamePreview = defineAsyncComponent(() => import('@/components/GamePreview.vue'));
-const HaikuPreview = defineAsyncComponent(() => import('@/components/HaikuPreview.vue'));
+const GamePreview = defineAsyncComponent(() => import('@/features/game/components/GamePreview.vue'));
+const HaikuPreview = defineAsyncComponent(() => import('@/features/haiku/components/HaikuPreview.vue'));
 
 const { t } = useI18n();
 
