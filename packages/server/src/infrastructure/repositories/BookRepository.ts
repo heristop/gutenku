@@ -1,4 +1,5 @@
 import { injectable } from 'tsyringe';
+import mongoSanitize from 'mongo-sanitize';
 import type { BookValue } from '~/shared/types';
 import type {
   IBookRepository,
@@ -12,7 +13,11 @@ import ChapterModel from '~/infrastructure/models/ChapterModel';
 export default class BookRepository implements IBookRepository {
   async getAllBooks(filter: string | null) {
     if (filter) {
-      const bookIds = await ChapterModel.find({ $text: { $search: filter } })
+      // Sanitize filter to prevent MongoDB injection
+      const sanitizedFilter = mongoSanitize(filter) as string;
+      const bookIds = await ChapterModel.find({
+        $text: { $search: sanitizedFilter },
+      })
         .distinct('book')
         .exec();
 
