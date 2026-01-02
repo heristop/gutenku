@@ -405,7 +405,7 @@ function handleClick(event: MouseEvent | TouchEvent) {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
 
-    // Add subtle backdrop for better visibility
+    // Backdrop shadow with inset highlight
     box-shadow:
       0 2px 12px oklch(0.45 0.08 195 / 0.2),
       inset 0 1px 0 oklch(1 0 0 / 0.15);

@@ -43,7 +43,7 @@ const { message: randomMessage } = useLoadingMessages({ context: 'default' });
 const displayText = computed(() => props.text || randomMessage);
 const { isDarkMode } = useTheme();
 
-// Track message changes for smooth transitions
+// Track message changes for transitions
 const currentMessage = ref(displayText.value);
 const messageKey = ref(0);
 

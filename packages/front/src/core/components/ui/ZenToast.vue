@@ -71,7 +71,7 @@ function handleKeydown(event: KeyboardEvent, toastId: number) {
 </template>
 
 <style lang="scss">
-// CSS @property for smooth clip-path animation
+// CSS @property for clip-path animation
 @property --ink-radius {
   syntax: '<percentage>';
   initial-value: 0%;
