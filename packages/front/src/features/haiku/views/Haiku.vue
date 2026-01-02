@@ -248,9 +248,20 @@ onMounted(fetchNewHaiku);
 }
 
 @media (max-width: 960px) {
+  .haiku-grid {
+    gap: 0;
+  }
+
+  .haiku-grid__main {
+    margin-bottom: 0;
+  }
+
   .haiku-page__sidebar {
     position: static;
-    margin-top: -1rem;
+  }
+
+  .haiku-section__chapter {
+    margin-bottom: 0;
   }
 }
 
@@ -261,7 +272,10 @@ onMounted(fetchNewHaiku);
 }
 
 // Spacing for child components
-.haiku-section__title,
+.haiku-section__title {
+  margin-bottom: var(--gutenku-space-6);
+}
+
 .haiku-section__chapter,
 .haiku-section__toolbar,
 .haiku-section__stats {
