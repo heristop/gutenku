@@ -11,7 +11,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // Allow override via env for local development
 const gutenguessServerPath = process.env.GUTENGUESS_PATH
   ? resolve(process.env.GUTENGUESS_PATH, 'packages/server')
-  : resolve(__dirname, '../../private/gutenguess/packages/server');
+  : resolve(__dirname, '../../../private/gutenguess/packages/server');
 const hasSubmodule = existsSync(gutenguessServerPath);
 
 // Re-export from submodule or fallback
