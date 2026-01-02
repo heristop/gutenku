@@ -17,6 +17,7 @@ import {
 } from '~/domain/repositories/IChapterRepository';
 import NaturalLanguageService from '~/domain/services/NaturalLanguageService';
 import { cleanVerses } from '~/shared/helpers/HaikuHelper';
+import { dailyPuzzleSchema } from '~/infrastructure/validation/schemas';
 
 // Launch date for puzzle numbering (adjust as needed)
 const LAUNCH_DATE = new Date('2026-01-01');
@@ -284,7 +285,13 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
   ) {}
 
   async execute(query: GetDailyPuzzleQuery): Promise<DailyPuzzleResponse> {
-    const { date, revealedRounds } = query;
+    // Validate input parameters
+    const validated = dailyPuzzleSchema.parse({
+      date: query.date,
+      revealedRounds: query.revealedRounds,
+    });
+
+    const { date, revealedRounds } = validated;
 
     // Create seeded PRNG for deterministic results
     const seed = dateToSeed(date);

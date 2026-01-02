@@ -88,7 +88,7 @@ export class GenerateHaikuHandler implements IQueryHandler<
       haiku = await this.haikuGenerator.appendImg(haiku, query.useImageAI);
     }
 
-    if (haiku !== null) {
+    if (haiku !== null && haiku.cacheUsed !== true) {
       // Fire-and-forget - don't block the response
       this.globalStatsRepository.incrementHaikuCount().catch(() => {});
     }
