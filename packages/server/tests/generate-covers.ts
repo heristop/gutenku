@@ -30,13 +30,13 @@ vi.mock('ora', () => ({
 import {
   getGutenGuessBooks,
   type GutenGuessBook,
-} from '../src/cli/gutenguess-books';
+} from '~~/data/gutenguess-books';
 
 const GUTENGUESS_BOOKS = getGutenGuessBooks();
 
 describe('GutenGuess Books Data', () => {
-  it('should have at least 49 books', () => {
-    expect(GUTENGUESS_BOOKS.length).toBeGreaterThanOrEqual(49);
+  it('should have books in fixture', () => {
+    expect(GUTENGUESS_BOOKS.length).toBeGreaterThanOrEqual(3);
   });
 
   it('each book should have required fields', () => {
@@ -184,22 +184,22 @@ describe('Sharp Image Processing Parameters', () => {
 describe('Book Genre Coverage', () => {
   it('should have diverse genres', () => {
     const genres = new Set(GUTENGUESS_BOOKS.map((book) => book.genre));
-    // Should have at least 10 different genres
-    expect(genres.size).toBeGreaterThanOrEqual(10);
+    // Fixture has 3 different genres
+    expect(genres.size).toBeGreaterThanOrEqual(3);
   });
 
   it('should have diverse eras', () => {
     const eras = new Set(GUTENGUESS_BOOKS.map((book) => book.era));
-    // Should have multiple eras
-    expect(eras.size).toBeGreaterThanOrEqual(5);
+    // Fixture has 3 different eras
+    expect(eras.size).toBeGreaterThanOrEqual(3);
   });
 
-  it('should have diverse nationalities', () => {
+  it('should have nationalities', () => {
     const nationalities = new Set(
       GUTENGUESS_BOOKS.map((book) => book.authorNationality),
     );
-    // Should have authors from multiple countries
-    expect(nationalities.size).toBeGreaterThanOrEqual(5);
+    // Fixture has at least 1 nationality
+    expect(nationalities.size).toBeGreaterThanOrEqual(1);
   });
 });
 

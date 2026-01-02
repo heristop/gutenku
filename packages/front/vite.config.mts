@@ -8,9 +8,26 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import { VitePWA } from 'vite-plugin-pwa';
 
 // Utilities
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import { fileURLToPath, URL } from 'node:url';
 import { resolve, dirname } from 'node:path';
+import { existsSync } from 'node:fs';
+
+// Load env for gutenguess path override
+const env = loadEnv('', process.cwd(), 'GUTENGUESS_');
+
+// Allow override via env for local development
+const gutenguessBasePath =
+  env.GUTENGUESS_PATH ||
+  resolve(dirname(fileURLToPath(import.meta.url)), '../../private/gutenguess');
+const privateGamePath = resolve(gutenguessBasePath, 'packages/front');
+const isGameEnabled = existsSync(privateGamePath);
+const gameModulePath = isGameEnabled
+  ? privateGamePath
+  : resolve(
+      dirname(fileURLToPath(import.meta.url)),
+      './src/features/game-stub',
+    );
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -72,9 +89,23 @@ export default defineConfig({
   define: { 'process.env': {} },
   resolve: {
     alias: {
+      '@/features/game': gameModulePath,
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
     extensions: ['.js', '.json', '.jsx', '.mjs', '.ts', '.tsx', '.vue'],
+    // Ensure private game module uses main project's dependencies
+    dedupe: [
+      'vue',
+      'pinia',
+      'vue-router',
+      'vue-i18n',
+      '@urql/vue',
+      'graphql',
+      '@vueuse/core',
+      '@vueuse/motion',
+      'lucide-vue-next',
+      '@unhead/vue',
+    ],
   },
   css: {
     preprocessorOptions: {

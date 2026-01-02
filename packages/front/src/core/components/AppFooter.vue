@@ -1,16 +1,11 @@
 <script lang="ts" setup>
-import { defineAsyncComponent, ref } from 'vue';
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { Instagram, BookOpen, HelpCircle } from 'lucide-vue-next';
+import { Instagram, BookOpen } from 'lucide-vue-next';
 import ZenTooltip from '@/core/components/ui/ZenTooltip.vue';
-
-const ZenCreditsModal = defineAsyncComponent(
-  () => import('@/core/components/ui/ZenCreditsModal.vue'),
-);
 
 const { t } = useI18n();
 const currentYear = new Date().getFullYear();
-const showCreditsModal = ref(false);
 
 // Ink ripple on copyright click
 const inkRipple = ref<{ x: number; y: number; active: boolean }>({
@@ -47,8 +42,6 @@ function openCredits(event: MouseEvent) {
   setTimeout(() => {
     inkRipple.value.active = false;
   }, 600);
-
-  showCreditsModal.value = true;
 }
 
 function openSocialLink(url: string) {
@@ -106,17 +99,6 @@ function openSocialLink(url: string) {
             <component :is="link.icon" :size="20" :stroke-width="1.5" />
           </button>
         </ZenTooltip>
-        <!-- Help link for WCAG 3.2.6 consistent help -->
-        <ZenTooltip :text="t('footer.help')" position="top">
-          <RouterLink
-            :to="helpRoute"
-            class="footer-social__link"
-            :aria-label="t('footer.help')"
-          >
-            <span class="ink-circle" aria-hidden="true" />
-            <HelpCircle :size="20" :stroke-width="1.5" />
-          </RouterLink>
-        </ZenTooltip>
       </div>
 
       <!-- Ink Brushstroke Divider -->
@@ -149,8 +131,6 @@ function openSocialLink(url: string) {
         </button>
       </ZenTooltip>
     </div>
-
-    <ZenCreditsModal v-model="showCreditsModal" />
   </footer>
 </template>
 

@@ -180,6 +180,7 @@
     "currentScore": "Current potential score",
     "pts": "pts",
     "unlockNext": "Guess to unlock next hint",
+    "hintUnlocked": "New hint unlocked!",
     "nextPuzzle": "Next puzzle in",
     "hours": "hrs",
     "minutes": "min",

@@ -14,7 +14,7 @@ import sharp from 'sharp';
 import ora from 'ora';
 import cliProgress from 'cli-progress';
 import pc from 'picocolors';
-import { getGutenGuessBooks, type GutenGuessBook } from './gutenguess-books.js';
+import { getGutenGuessBooks, type GutenGuessBook } from '~~/data';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const COVERS_DIR = path.resolve(__dirname, '../../../front/public/covers');

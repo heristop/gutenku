@@ -58,13 +58,19 @@ const typeDefs = `#graphql
         candidates: [HaikuCandidate!]
     }
 
+    type GlobalStats {
+        totalHaikusGenerated: Int!
+        totalGamesPlayed: Int!
+        totalGamesWon: Int!
+    }
+
     type PuzzleHint {
         round: Int!
         type: String!
         content: String!
     }
 
-    type DailyPuzzle {
+    type Puzzle {
         date: String!
         puzzleNumber: Int!
         hints: [PuzzleHint!]!
@@ -74,7 +80,7 @@ const typeDefs = `#graphql
     }
 
     type DailyPuzzleResponse {
-        puzzle: DailyPuzzle!
+        puzzle: Puzzle!
         availableBooks: [Book!]!
     }
 
@@ -83,12 +89,6 @@ const typeDefs = `#graphql
         correctBook: Book
         nextHint: PuzzleHint
         allHints: [PuzzleHint!]
-    }
-
-    type GlobalStats {
-        totalHaikusGenerated: Int!
-        totalGamesPlayed: Int!
-        totalGamesWon: Int!
     }
 
     type Query {
@@ -112,10 +112,10 @@ const typeDefs = `#graphql
             phoneticsMinScore: Float,
             descriptionTemperature: Float
         ): Haiku
+        globalStats: GlobalStats!
         dailyPuzzle(date: String!, revealedRounds: [Int!]): DailyPuzzleResponse!
         submitGuess(date: String!, guessedBookId: ID!, currentRound: Int!): GuessResult!
         reduceBooks(date: String!): [Book!]!
-        globalStats: GlobalStats!
     }
 
     type Subscription {

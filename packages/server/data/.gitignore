@@ -2,3 +2,6 @@
 *
 # Except this file
 !.gitignore
+# And book data module
+!gutenguess-books.ts
+!index.ts

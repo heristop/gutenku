@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n';
 import { CloudOff, RefreshCw } from 'lucide-vue-next';
 import ZenButton from '@/core/components/ui/ZenButton.vue';
 import InkDropLoader from '@/core/components/InkDropLoader.vue';
-import AppFooter from '@/core/components/AppFooter.vue';
 import { useLoadingMessages } from '@/core/composables/loading-messages';
 import { useTheme } from '@/core/composables/theme';
 import logoUrl from '@/assets/img/logo/gutenku-logo-300.png';
@@ -162,11 +161,6 @@ watch(displayText, (newText) => {
         </ZenButton>
       </div>
     </div>
-
-    <!-- Footer -->
-    <footer class="loading-footer">
-      <AppFooter />
-    </footer>
   </div>
 </template>
 
@@ -204,6 +198,7 @@ watch(displayText, (newText) => {
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--gutenku-zen-primary);
 }
 
 // Splash card
@@ -341,6 +336,7 @@ watch(displayText, (newText) => {
   justify-content: center;
   padding: 1.5rem 0 1.25rem;
   min-height: 100px;
+  color: var(--gutenku-zen-primary);
 }
 
 // Progress bar (ink wash style)
@@ -510,15 +506,6 @@ watch(displayText, (newText) => {
     transform: rotate(360deg);
     transition: transform 0.5s ease;
   }
-}
-
-// Footer
-.loading-footer {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 3;
 }
 
 // Dark theme

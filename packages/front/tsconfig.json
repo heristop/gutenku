@@ -16,7 +16,8 @@
     "lib": ["esnext", "dom", "dom.iterable"],
     "types": ["node"],
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@/features/game": ["src/features/game-stub"]
     }
   },
   "include": [

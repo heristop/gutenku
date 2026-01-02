@@ -115,30 +115,34 @@ if (import.meta.env.DEV) {
     :aria-busy="loading || undefined"
     @click="handleClick"
   >
-    <template v-if="loading">
-      <InkDropLoader :size="20" class="zen-btn__loader" aria-hidden="true" />
-      <span class="visually-hidden">{{ t('common.loading') }}</span>
+    <span v-if="loading" class="zen-btn__loading-wrapper">
+      <InkDropLoader :size="64" class="zen-btn__loader" aria-hidden="true" />
+      <span class="zen-btn__content">
+        <slot />
+      </span>
+    </span>
+
+    <template v-else>
+      <span
+        v-if="hasLeftIcon"
+        class="zen-btn__icon zen-btn__icon--left"
+        aria-hidden="true"
+      >
+        <slot name="icon-left" />
+      </span>
+
+      <span v-if="$slots.default" class="zen-btn__content">
+        <slot />
+      </span>
+
+      <span
+        v-if="hasRightIcon"
+        class="zen-btn__icon zen-btn__icon--right"
+        aria-hidden="true"
+      >
+        <slot name="icon-right" />
+      </span>
     </template>
-
-    <span
-      v-else-if="hasLeftIcon"
-      class="zen-btn__icon zen-btn__icon--left"
-      aria-hidden="true"
-    >
-      <slot name="icon-left" />
-    </span>
-
-    <span v-if="$slots.default" class="zen-btn__content">
-      <slot />
-    </span>
-
-    <span
-      v-if="hasRightIcon && !loading"
-      class="zen-btn__icon zen-btn__icon--right"
-      aria-hidden="true"
-    >
-      <slot name="icon-right" />
-    </span>
 
     <span v-if="isExternalLink" class="visually-hidden">
       {{ t('common.opensInNewTab') }}
@@ -243,6 +247,22 @@ $spring-easing: linear(
   &--loading {
     cursor: wait;
     opacity: 0.8;
+    overflow: visible;
+  }
+
+  &__loading-wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  &__loader {
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    transform: translateY(-50%);
+    margin-right: -2.6rem;
   }
 
   &__content {

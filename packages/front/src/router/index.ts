@@ -1,7 +1,12 @@
 // Composables
-import { createRouter, createWebHistory } from 'vue-router';
+import {
+  createRouter,
+  createWebHistory,
+  type RouteRecordRaw,
+} from 'vue-router';
+import { GAME_ENABLED, GameView } from '@/features/game';
 
-const routes = [
+const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('@/core/layouts/default/Default.vue'),
@@ -17,19 +22,20 @@ const routes = [
             'Generate beautiful haikus from classic literature using AI. Play GutenGuess daily!',
         },
       },
-      {
-        path: 'game',
-        name: 'Game',
-        component: () =>
-          import(
-            /* webpackChunkName: "game" */ '@/features/game/views/Game.vue'
-          ),
-        meta: {
-          title: 'GutenGuess - Daily Book Guessing Game',
-          description:
-            'Guess the classic book from emoji hints. A daily literary puzzle similar to Wordle.',
-        },
-      },
+      ...(GAME_ENABLED && GameView
+        ? [
+            {
+              path: 'game',
+              name: 'Game',
+              component: GameView,
+              meta: {
+                title: 'GutenGuess - Daily Book Guessing Game',
+                description:
+                  'Guess the classic book from emoji hints. A daily literary puzzle similar to Wordle.',
+              },
+            },
+          ]
+        : []),
       {
         path: 'haiku',
         name: 'Haiku',

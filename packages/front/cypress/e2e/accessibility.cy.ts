@@ -37,16 +37,20 @@ describe('WCAG 2.2 Accessibility Tests', () => {
     });
   });
 
-  describe('Game Page', () => {
-    beforeEach(() => {
-      cy.visit('/game');
-      cy.injectAxe();
-    });
-
+  describe('Game Page (if enabled)', () => {
     it('has no accessibility violations', () => {
-      // Wait for page content to stabilize (WebSocket-based data)
-      cy.wait(1500);
-      cy.checkA11y(null, a11yOptions);
+      cy.visit('/');
+      cy.get('body').then(($body) => {
+        if ($body.find('.ink-nav__item[href="/game"]').length) {
+          cy.visit('/game');
+          cy.injectAxe();
+          // Wait for page content to stabilize (WebSocket-based data)
+          cy.wait(1500);
+          cy.checkA11y(null, a11yOptions);
+        } else {
+          cy.log('Game page not available (GAME_ENABLED=false)');
+        }
+      });
     });
   });
 

@@ -14,9 +14,10 @@ describe('Home Page', () => {
       cy.get('.ink-nav').should('exist');
     });
 
-    it('displays both preview cards', () => {
+    it('displays preview cards', () => {
       cy.get('.preview-grid').within(() => {
-        cy.get('.preview-card').should('have.length', 2);
+        // At least 1 card (haiku), 2 if game is enabled
+        cy.get('.preview-card').should('have.length.at.least', 1);
       });
     });
 
@@ -26,17 +27,29 @@ describe('Home Page', () => {
   });
 
   describe('Preview Cards', () => {
-    it('displays GamePreview card', () => {
-      cy.get('.preview-card[href="/game"]').should('exist');
+    it('displays GamePreview card (if enabled)', () => {
+      cy.get('body').then(($body) => {
+        if ($body.find('.preview-card[href="/game"]').length) {
+          cy.get('.preview-card[href="/game"]').should('exist');
+        } else {
+          cy.log('GamePreview not available (GAME_ENABLED=false)');
+        }
+      });
     });
 
     it('displays HaikuPreview card', () => {
       cy.get('.preview-card[href="/haiku"]').should('exist');
     });
 
-    it('navigates to game page when clicking game preview', () => {
-      cy.get('.preview-card[href="/game"]').click();
-      cy.url().should('include', '/game');
+    it('navigates to game page when clicking game preview (if enabled)', () => {
+      cy.get('body').then(($body) => {
+        if ($body.find('.preview-card[href="/game"]').length) {
+          cy.get('.preview-card[href="/game"]').click();
+          cy.url().should('include', '/game');
+        } else {
+          cy.log('GamePreview not available (GAME_ENABLED=false)');
+        }
+      });
     });
 
     it('navigates to haiku page when clicking haiku preview', () => {
