@@ -1,0 +1,104 @@
+// ====================================
+// MOBILE-FIRST BREAKPOINT MIXINS
+// ====================================
+
+@use 'sass:map';
+
+$breakpoints: (
+  'sm': 600px,
+  'md': 960px,
+  'lg': 1280px,
+  'xl': 1920px,
+);
+
+// Mobile-first: styles apply from breakpoint and up
+@mixin breakpoint($name) {
+  @if map.has-key($breakpoints, $name) {
+    $bp: map.get($breakpoints, $name);
+    @if $bp == 0 {
+      @content;
+    } @else {
+      @media (min-width: #{$bp}) {
+        @content;
+      }
+    }
+  } @else {
+    @warn "Breakpoint `#{$name}` not found in $breakpoints.";
+  }
+}
+
+// Shorthand aliases for common breakpoints
+@mixin sm-up {
+  @include breakpoint('sm') {
+    @content;
+  }
+}
+
+@mixin md-up {
+  @include breakpoint('md') {
+    @content;
+  }
+}
+
+@mixin lg-up {
+  @include breakpoint('lg') {
+    @content;
+  }
+}
+
+@mixin xl-up {
+  @include breakpoint('xl') {
+    @content;
+  }
+}
+
+// Max-width variants (for mobile-only patterns)
+@mixin sm-down {
+  @media (max-width: 599px) {
+    @content;
+  }
+}
+
+@mixin md-down {
+  @media (max-width: 959px) {
+    @content;
+  }
+}
+
+@mixin lg-down {
+  @media (max-width: 1279px) {
+    @content;
+  }
+}
+
+// ====================================
+// FOCUS STATE MIXINS
+// ====================================
+
+@mixin zen-focus-ring($color: var(--gutenku-zen-accent), $offset: 2px) {
+  &:focus-visible {
+    outline: 2px solid $color;
+    outline-offset: $offset;
+  }
+}
+
+// ====================================
+// BACKDROP FILTER MIXINS
+// ====================================
+
+@mixin zen-blur($blur: 12px) {
+  backdrop-filter: blur($blur);
+  -webkit-backdrop-filter: blur($blur);
+}
+
+@mixin zen-blur-sm {
+  @include zen-blur(6px);
+}
+
+@mixin zen-blur-md {
+  @include zen-blur(12px);
+}
+
+@mixin zen-blur-lg {
+  @include zen-blur(20px);
+}
