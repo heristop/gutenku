@@ -44,7 +44,7 @@ function copyCaption() {
     variant="panel"
     :loading="loading"
     aria-label="Social Preview"
-    class="social-panel social-panel--card pa-5 mb-6 animate-in"
+    class="social-panel social-panel--card animate-in"
     :class="{ 'is-visible': isInView }"
   >
     <ZenAccordion
@@ -61,7 +61,7 @@ function copyCaption() {
           <div class="social-panel__caption">
             <pre class="social-panel__caption-text">{{ caption }}</pre>
           </div>
-          <ZenButton class="social-panel__copy-btn mt-3" @click="copyCaption">
+          <ZenButton class="social-panel__copy-btn" @click="copyCaption">
             <template #icon-left>
               <component :is="copied ? Check : Copy" :size="18" />
             </template>
@@ -76,6 +76,8 @@ function copyCaption() {
 <style scoped lang="scss">
 .social-panel {
   position: relative;
+  padding: var(--gutenku-space-5);
+  margin-bottom: var(--gutenku-space-6);
 
   &__content {
     padding-top: 0.5rem;
@@ -106,6 +108,7 @@ function copyCaption() {
 
   &__copy-btn {
     width: 100%;
+    margin-top: var(--gutenku-space-3);
   }
 }
 </style>

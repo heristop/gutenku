@@ -199,7 +199,11 @@ onMounted(() => {
         aria-live="assertive"
       >
         <p class="gutenku-text-primary">{{ error }}</p>
-        <ZenButton size="sm" class="mt-3" @click="gameStore.fetchDailyPuzzle()">
+        <ZenButton
+          size="sm"
+          class="game-card__retry-btn"
+          @click="gameStore.fetchDailyPuzzle()"
+        >
           {{ t('common.retry') }}
         </ZenButton>
       </div>
@@ -209,10 +213,14 @@ onMounted(() => {
           v-if="latestHint"
           :hint="latestHint"
           :round="currentGame.currentRound"
-          class="mb-3"
+          class="game-card__hint"
         />
 
-        <BookSearch v-if="!isGameComplete" :loading="loading" class="mb-3" />
+        <BookSearch
+          v-if="!isGameComplete"
+          :loading="loading"
+          class="game-card__search"
+        />
 
         <GuessHistory :guesses="currentGame.guesses" :hints="revealedHints" />
       </template>
@@ -365,6 +373,15 @@ onMounted(() => {
 .game-card__error {
   text-align: center;
   padding: 1rem;
+}
+
+.game-card__retry-btn {
+  margin-top: var(--gutenku-space-3);
+}
+
+.game-card__hint,
+.game-card__search {
+  margin-bottom: var(--gutenku-space-3);
 }
 
 @media (max-width: 600px) {

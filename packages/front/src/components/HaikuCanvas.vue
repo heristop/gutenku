@@ -130,7 +130,7 @@ const onImageLoad = () => {
       variant="default"
       :loading="loading"
       :aria-label="t('haikuCanvas.ariaLabel')"
-      class="haiku-canvas-card haiku-canvas-container pa-4 mb-6 align-center justify-center"
+      class="haiku-canvas-card haiku-canvas-container"
     >
       <div class="sr-only" aria-live="polite" aria-atomic="true">
         {{ themeChangeAnnouncement }}
@@ -178,7 +178,7 @@ const onImageLoad = () => {
             scale: 0.98,
             transition: { duration: 200, ease: [0.4, 0, 1, 1] },
           }"
-          class="canvas-container pa-2"
+          class="canvas-container"
         >
           <div
             ref="canvasRef"
@@ -286,20 +286,13 @@ const onImageLoad = () => {
 </template>
 
 <style lang="scss" scoped>
-// Screen reader only utility
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
 .haiku-canvas-card {
+  padding: var(--gutenku-space-4);
+  margin-bottom: var(--gutenku-space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   background: linear-gradient(
     135deg,
     var(--gutenku-paper-bg) 0%,
@@ -373,6 +366,7 @@ const onImageLoad = () => {
 }
 
 .canvas-container {
+  padding: var(--gutenku-space-2);
   background: transparent;
 }
 
@@ -821,10 +815,6 @@ const onImageLoad = () => {
 
   .theme-selector {
     max-width: 100%;
-  }
-
-  .download-btn {
-    width: 100%;
   }
 
   .zen-loading-skeleton {

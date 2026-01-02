@@ -72,7 +72,7 @@ onMounted(() => {
   text-decoration: none;
   background: var(--gutenku-paper-bg);
   border: 1px solid var(--gutenku-paper-border);
-  border-radius: var(--gutenku-radius-md);
+  border-radius: var(--gutenku-radius-lg);
   overflow: hidden;
   transition: var(--gutenku-transition-zen);
   box-shadow: var(--gutenku-shadow-zen);

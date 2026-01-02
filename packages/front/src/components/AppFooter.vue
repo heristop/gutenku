@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { defineAsyncComponent, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { Instagram, BookOpen, Github } from 'lucide-vue-next';
+import { Instagram, BookOpen, HelpCircle } from 'lucide-vue-next';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
 
 const ZenCreditsModal = defineAsyncComponent(
@@ -32,6 +32,8 @@ const socialLinks = [
   { url: INSTAGRAM_URL, icon: Instagram, label: 'footer.social.instagram' },
   { url: GUTENBERG_URL, icon: BookOpen, label: 'footer.social.gutenberg' },
 ];
+
+const helpRoute = '/game';
 
 function openCredits(event: MouseEvent) {
   const target = event.currentTarget as HTMLElement;
@@ -104,6 +106,17 @@ function openSocialLink(url: string) {
             <component :is="link.icon" :size="20" :stroke-width="1.5" />
           </button>
         </ZenTooltip>
+        <!-- Help link for WCAG 3.2.6 consistent help -->
+        <ZenTooltip :text="t('footer.help')" position="top">
+          <RouterLink
+            :to="helpRoute"
+            class="footer-social__link"
+            :aria-label="t('footer.help')"
+          >
+            <span class="ink-circle" aria-hidden="true" />
+            <HelpCircle :size="20" :stroke-width="1.5" />
+          </RouterLink>
+        </ZenTooltip>
       </div>
 
       <!-- Ink Brushstroke Divider -->
@@ -175,18 +188,18 @@ function openSocialLink(url: string) {
 .app-footer {
   position: relative;
   padding: 1.5rem 1rem 1.75rem;
-  background-color: oklch(88% 0.02 55 / 0.4);
-  background-image: radial-gradient(
-      circle at 20% 30%,
-      oklch(42% 0.09 55 / 0.05) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 80% 70%,
-      oklch(42% 0.09 55 / 0.05) 0%,
-      transparent 50%
-    );
-  box-shadow: inset 0 1px 0 0 oklch(0 0 0 / 0.06);
+
+  // Glass-morphism effect
+  background: oklch(0.88 0.02 55 / 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  // Top drop shadow
+  box-shadow:
+    0 -4px 16px oklch(0 0 0 / 0.06),
+    0 -2px 8px oklch(0 0 0 / 0.04),
+    inset 0 1px 0 oklch(1 0 0 / 0.5);
+
   animation: footer-fade-in 0.5s ease-out 0.1s both;
 }
 
@@ -417,7 +430,13 @@ function openSocialLink(url: string) {
 // Dark theme
 [data-theme='dark'] {
   .app-footer {
-    background-color: oklch(20% 0.02 55 / 0.3);
+    background: oklch(0.20 0.02 55 / 0.3);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow:
+      0 -4px 16px oklch(0 0 0 / 0.2),
+      0 -2px 8px oklch(0 0 0 / 0.15),
+      inset 0 1px 0 oklch(1 0 0 / 0.05);
   }
 
   .footer-nav__link {
@@ -498,10 +517,6 @@ function openSocialLink(url: string) {
   .footer-nav {
     gap: 0.25rem;
   }
-
-  .footer-border {
-    width: 80%;
-  }
 }
 
 // Reduced motion
@@ -512,7 +527,6 @@ function openSocialLink(url: string) {
   .stagger-3,
   .stagger-4,
   .stagger-5,
-  .ink-line,
   .ink-stroke {
     animation: none;
     opacity: 1;

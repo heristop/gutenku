@@ -252,11 +252,6 @@ const { message: craftingMessage } = useLoadingMessages({
   margin-top: 2rem;
   text-align: center;
 
-  .craft-progress {
-    margin: 1rem 0;
-    border-radius: var(--gutenku-radius-xs);
-  }
-
   .progress-text {
     font-size: 0.9rem;
     color: var(--gutenku-text-muted);

@@ -24,6 +24,7 @@ import ZenTooltip from '@/components/ui/ZenTooltip.vue';
 import SwipeHint from '@/components/ui/SwipeHint.vue';
 import ZenCard from '@/components/ui/ZenCard.vue';
 import ZenButton from '@/components/ui/ZenButton.vue';
+import ZenPaginationDots from '@/components/ui/ZenPaginationDots.vue';
 
 const { t } = useI18n();
 const { success, error } = useToast();
@@ -164,12 +165,11 @@ useKeyboardShortcuts({
     variant="default"
     :loading="loading"
     :aria-label="t('toolbar.ariaLabel')"
-    class="toolbar-panel toolbar-panel--card toolbar-container mb-6 animate-in"
+    class="toolbar-panel toolbar-panel--card toolbar-container animate-in"
     :class="{ 'is-visible': isInView }"
   >
     <h2 class="sr-only">{{ t('toolbar.title') }}</h2>
 
-    <!-- Primary: Generate Button (full width) -->
     <div class="toolbar-panel__primary">
       <ZenTooltip :text="generateTooltip" position="top">
         <div
@@ -216,9 +216,7 @@ useKeyboardShortcuts({
       </ZenTooltip>
     </div>
 
-    <!-- Secondary: Action Buttons Row -->
     <div class="toolbar-panel__secondary">
-      <!-- Previous Button -->
       <ZenTooltip :text="previousTooltip" position="bottom">
         <ZenButton
           variant="text"
@@ -236,7 +234,6 @@ useKeyboardShortcuts({
         </ZenButton>
       </ZenTooltip>
 
-      <!-- Copy Button -->
       <ZenTooltip :text="copyTooltip" position="bottom">
         <ZenButton
           variant="text"
@@ -256,7 +253,6 @@ useKeyboardShortcuts({
         </ZenButton>
       </ZenTooltip>
 
-      <!-- Share Button -->
       <ZenTooltip :text="shareTooltip" position="bottom">
         <ZenButton
           variant="text"
@@ -276,7 +272,6 @@ useKeyboardShortcuts({
         </ZenButton>
       </ZenTooltip>
 
-      <!-- Download Button -->
       <ZenTooltip :text="downloadTooltip" position="bottom">
         <ZenButton
           variant="text"
@@ -295,7 +290,6 @@ useKeyboardShortcuts({
         </ZenButton>
       </ZenTooltip>
 
-      <!-- Next Button -->
       <ZenTooltip :text="nextTooltip" position="bottom">
         <ZenButton
           variant="text"
@@ -314,22 +308,16 @@ useKeyboardShortcuts({
       </ZenTooltip>
     </div>
 
-    <!-- History Indicator Dots -->
-    <div
-      v-if="historyLength > 0"
-      class="toolbar-panel__history"
-      role="group"
-      :aria-label="t('toolbar.historyLabel')"
-    >
+    <div v-if="historyLength > 0" class="toolbar-panel__history">
       <span class="sr-only">
         {{ t('toolbar.historyPosition', { current: historyPosition, total: historyLength }) }}
       </span>
-      <span
-        v-for="n in historyLength"
-        :key="n"
-        class="toolbar-panel__history-dot"
-        :class="{ 'toolbar-panel__history-dot--active': n === historyPosition }"
-        aria-hidden="true"
+      <ZenPaginationDots
+        :model-value="historyPosition - 1"
+        :total="historyLength"
+        :clickable="false"
+        :aria-label="t('toolbar.historyLabel')"
+        item-label="Haiku"
       />
     </div>
 
@@ -377,6 +365,7 @@ useKeyboardShortcuts({
   align-items: center;
   gap: 1rem;
   padding: 1.5rem;
+  margin-bottom: var(--gutenku-space-6);
 
   &__primary {
     width: 100%;
@@ -440,43 +429,6 @@ useKeyboardShortcuts({
 
   }
 
-  &__history {
-    display: flex;
-    gap: 0.35rem;
-    justify-content: center;
-  }
-
-  &__history-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--gutenku-zen-secondary);
-    transition: all 0.2s ease;
-    animation: dot-bounce-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    opacity: 0;
-
-    @for $i from 1 through 10 {
-      &:nth-child(#{$i}) {
-        animation-delay: calc(#{$i - 1} * 40ms);
-      }
-    }
-
-    &--active {
-      background: var(--gutenku-zen-primary) !important;
-      transform: scale(1.2) !important;
-      opacity: 1 !important;
-      animation: dot-active-pulse 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    [data-theme='dark'] & {
-      background: oklch(0.4 0.02 60);
-
-      &--active {
-        background: var(--gutenku-zen-accent);
-      }
-    }
-  }
-
   &__button.zen-btn {
     width: 100%;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -538,32 +490,6 @@ useKeyboardShortcuts({
   }
 }
 
-@keyframes dot-bounce-in {
-  0% {
-    opacity: 0;
-    transform: scale(0);
-  }
-  60% {
-    transform: scale(1.3);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes dot-active-pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.5);
-  }
-  100% {
-    transform: scale(1.2);
-  }
-}
-
 @media (max-width: 768px) {
   .toolbar-panel {
     &__button.zen-btn {
@@ -610,15 +536,6 @@ useKeyboardShortcuts({
 
       &:hover {
         transform: none;
-      }
-    }
-
-    &__history-dot {
-      animation: none;
-      opacity: 1;
-
-      &--active {
-        animation: none;
       }
     }
   }
