@@ -157,9 +157,6 @@ importers:
       '@graphql-tools/schema':
         specifier: ^10.0.30
         version: 10.0.30(graphql@16.12.0)
-      '@gutenguess/server':
-        specifier: file:../../packages-private/gutenguess/packages/server
-        version: file:packages-private/gutenguess/packages/server
       '@gutenku/shared':
         specifier: workspace:*
         version: link:../shared
@@ -299,6 +296,10 @@ importers:
       vitest:
         specifier: ^4.0.16
         version: 4.0.16(@types/node@25.0.3)(jiti@2.6.1)(jsdom@27.4.0(canvas@3.2.0))(sass-embedded@1.97.1)(sass@1.97.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
+    optionalDependencies:
+      '@gutenguess/server':
+        specifier: file:../../private/gutenguess/packages/server
+        version: file:private/gutenguess/packages/server
 
   packages/shared: {}
 
@@ -1404,8 +1405,8 @@ packages:
     peerDependencies:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
 
-  '@gutenguess/server@file:packages-private/gutenguess/packages/server':
-    resolution: {directory: packages-private/gutenguess/packages/server, type: directory}
+  '@gutenguess/server@file:private/gutenguess/packages/server':
+    resolution: {directory: private/gutenguess/packages/server, type: directory}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -9505,7 +9506,8 @@ snapshots:
     dependencies:
       graphql: 16.12.0
 
-  '@gutenguess/server@file:packages-private/gutenguess/packages/server': {}
+  '@gutenguess/server@file:private/gutenguess/packages/server':
+    optional: true
 
   '@humanfs/core@0.19.1': {}
 
