@@ -4,6 +4,7 @@
 [![Apollo](https://img.shields.io/badge/apollo-4.x-blue.svg)](https://www.apollographql.com/)
 [![TypeScript](https://img.shields.io/badge/typescript-5.x-blue.svg)](https://www.typescriptlang.org/)
 
+> [!NOTE]
 > GraphQL API for haiku generation from classic literature
 
 [← Back to main README](../../README.md)
