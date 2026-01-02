@@ -34,7 +34,7 @@ onMounted(() => {
           @/assets/img/sumi-e-haiku-1024.webp 1024w
         "
         sizes="(max-width: 600px) 320px, (max-width: 960px) 640px, 1024px"
-        alt=""
+        alt="Hand-drawn illustration of calligraphy and cherry blossoms for GutenKu haiku generator"
         class="preview-card__illustration"
         loading="lazy"
       />

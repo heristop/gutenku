@@ -40,7 +40,7 @@ onMounted(() => {
           @/assets/img/sumi-e-books-640.webp 640w
         "
         sizes="(max-width: 600px) 320px, 640px"
-        alt=""
+        alt="Hand-drawn illustration of books and question marks for GutenGuess game"
         class="preview-card__illustration"
         loading="lazy"
       />
