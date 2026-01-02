@@ -1,0 +1,78 @@
+{
+  "data": {
+    "dailyPuzzle": {
+      "puzzle": {
+        "date": "2024-01-01",
+        "puzzleNumber": 1,
+        "haikus": [
+          ["Autumn moonlight—", "a worm digs silently", "into the chestnut."]
+        ],
+        "emoticonCount": 5,
+        "nextPuzzleAvailableAt": null,
+        "hints": [
+          {
+            "round": 1,
+            "type": "emoticons",
+            "content": "🐋🚢⚓🌊📖"
+          }
+        ]
+      },
+      "availableBooks": [
+        {
+          "reference": "moby-dick",
+          "title": "Moby Dick",
+          "author": "Herman Melville",
+          "emoticons": "🐋🚢⚓🌊📖"
+        },
+        {
+          "reference": "pride-and-prejudice",
+          "title": "Pride and Prejudice",
+          "author": "Jane Austen",
+          "emoticons": "💕👗🏰💍📚"
+        },
+        {
+          "reference": "frankenstein",
+          "title": "Frankenstein",
+          "author": "Mary Shelley",
+          "emoticons": "⚡🧟💀🧪🏚️"
+        },
+        {
+          "reference": "dracula",
+          "title": "Dracula",
+          "author": "Bram Stoker",
+          "emoticons": "🧛🦇🌙🏰🩸"
+        },
+        {
+          "reference": "great-gatsby",
+          "title": "The Great Gatsby",
+          "author": "F. Scott Fitzgerald",
+          "emoticons": "🥂🎭💚🚗🗽"
+        },
+        {
+          "reference": "jane-eyre",
+          "title": "Jane Eyre",
+          "author": "Charlotte Bronte",
+          "emoticons": "👩🔥🏠💔📖"
+        },
+        {
+          "reference": "wuthering-heights",
+          "title": "Wuthering Heights",
+          "author": "Emily Bronte",
+          "emoticons": "🌪️💔🏚️👻🌿"
+        },
+        {
+          "reference": "oliver-twist",
+          "title": "Oliver Twist",
+          "author": "Charles Dickens",
+          "emoticons": "👦🍜🎩🏭💰"
+        },
+        {
+          "reference": "treasure-island",
+          "title": "Treasure Island",
+          "author": "Robert Louis Stevenson",
+          "emoticons": "🏴‍☠️🗺️💰🦜⚓"
+        }
+      ]
+    }
+  }
+}

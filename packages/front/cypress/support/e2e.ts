@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import 'cypress-axe';
+
 // Fail-safe: don't fail tests for 3rd-party runtime errors
 Cypress.on('uncaught:exception', () => false);
 
