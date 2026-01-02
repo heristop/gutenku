@@ -27,7 +27,7 @@ make dev
 Or copy env variables first:
 
 ```bash
-cp .env.dist .env
+cp .env.example .env
 ```
 
 ## Commands

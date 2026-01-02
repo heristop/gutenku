@@ -18,7 +18,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Copy env
-        run: cp packages/server/.env.dist packages/server/.env
+        run: cp packages/server/.env.example packages/server/.env
 
       - name: Install dependencies
         run: pnpm install

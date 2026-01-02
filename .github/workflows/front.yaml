@@ -21,7 +21,7 @@ jobs:
         run: pnpm install
 
       - name: Copy env
-        run: cp packages/front/.env.dist packages/front/.env
+        run: cp packages/front/.env.example packages/front/.env
 
       - name: Lint
         run: pnpm --filter @gutenku/front lint

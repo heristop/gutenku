@@ -1,3 +1,3 @@
-[submodule "packages-private/gutenguess"]
+[submodule "private/gutenguess"]
 	path = private/gutenguess
 	url = https://github.com/heristop/gutenguess.git
