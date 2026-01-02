@@ -9,7 +9,7 @@
 
 [← Back to main README](../../README.md)
 
----
+<p align="center">🌸 · 🌸 · 🌸</p>
 
 ## Prerequisites
 
