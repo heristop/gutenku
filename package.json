@@ -5,6 +5,7 @@
   "license": "GPL-3.0",
   "scripts": {
     "lint": "pnpm -r run lint",
+    "lint:css": "pnpm --filter @gutenku/front lint:css",
     "typecheck": "pnpm -r run typecheck",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
