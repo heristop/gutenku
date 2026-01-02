@@ -1,7 +1,9 @@
 <script lang="ts" setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { Check, X } from 'lucide-vue-next';
 import { useHapticFeedback } from '@/composables/haptic-feedback';
+import { useLongPress } from '@/composables/touch-gestures';
 import type { BookValue } from '@gutenku/shared';
 
 export type CardState = 'normal' | 'eliminated' | 'selected' | 'correct' | 'wrong';
@@ -22,7 +24,46 @@ const emit = defineEmits<{
   eliminate: [book: BookValue];
 }>();
 
+const { t } = useI18n();
 const { vibrateSelect, vibrateEliminate } = useHapticFeedback();
+
+// Long-press to eliminate on touch devices
+const buttonRef = ref<HTMLElement | null>(null);
+const longPressProgress = ref(0);
+
+const { isPressed } = useLongPress(buttonRef, {
+  delay: 500,
+  onLongPress: () => {
+    if (props.disabled || props.state === 'correct' || props.state === 'wrong' || props.state === 'eliminated') {
+      return;
+    }
+    vibrateEliminate();
+    emit('eliminate', props.book);
+  },
+  onProgress: (progress) => {
+    longPressProgress.value = progress;
+  },
+});
+
+// Reset progress when released
+watch(isPressed, (pressed) => {
+  if (!pressed) {
+    longPressProgress.value = 0;
+  }
+});
+
+const accessibleLabel = computed(() => {
+  const baseLabel = `${props.book.title} ${t('common.by')} ${props.book.author}`;
+  const stateLabels: Record<CardState, string> = {
+    normal: '',
+    eliminated: t('game.cardState.eliminated'),
+    selected: t('game.cardState.selected'),
+    correct: t('game.cardState.correct'),
+    wrong: t('game.cardState.wrong'),
+  };
+  const stateLabel = stateLabels[props.state];
+  return stateLabel ? `${baseLabel}, ${stateLabel}` : baseLabel;
+});
 
 const hasError = ref(false);
 
@@ -66,12 +107,20 @@ function handleContextMenu(event: MouseEvent) {
 
 <template>
   <button
+    ref="buttonRef"
     :class="cardClasses"
     :disabled="disabled"
-    :aria-label="`${book.title} by ${book.author}`"
+    :aria-label="accessibleLabel"
     @click="handleClick"
     @contextmenu="handleContextMenu"
   >
+    <!-- Long-press progress indicator (touch only) -->
+    <div
+      v-if="isPressed && longPressProgress > 0"
+      class="book-card__long-press-indicator"
+      :style="{ '--progress': `${longPressProgress}%` }"
+    />
+
     <!-- Cover image -->
     <div class="book-card__cover">
       <img
@@ -131,6 +180,49 @@ function handleContextMenu(event: MouseEvent) {
 </template>
 
 <style lang="scss" scoped>
+// Long-press progress indicator for touch elimination
+.book-card__long-press-indicator {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--gutenku-radius-sm);
+  pointer-events: none;
+  z-index: 20;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--progress, 0%);
+    background: linear-gradient(
+      to top,
+      oklch(0.5 0.15 25 / 0.6) 0%,
+      oklch(0.6 0.15 25 / 0.3) 100%
+    );
+    transition: height 16ms linear;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 2px solid oklch(0.5 0.15 25 / 0.6);
+    border-radius: inherit;
+    animation: long-press-pulse 0.3s ease-in-out infinite;
+  }
+}
+
+@keyframes long-press-pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 .book-card {
   position: relative;
   display: flex;

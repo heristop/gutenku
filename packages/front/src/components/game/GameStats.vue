@@ -47,12 +47,12 @@ function getBarWidth(count: number): string {
     title="statistics"
     description="Your GutenGuess game statistics including win rate and guess distribution"
   >
-    <h2 class="stats-title gutenku-text-primary mb-4">
+    <h2 class="stats-title gutenku-text-primary">
       {{ t('game.statistics') }}
     </h2>
 
-    <div class="stats-grid d-flex justify-center ga-4 mb-6">
-      <div class="stat-item text-center">
+    <div class="stats-grid">
+      <div class="stat-item">
         <div class="stat-value stat-value--split gutenku-text-primary">
           <span class="stat-local">{{ stats.gamesPlayed }}</span>
           <span class="stat-divider">/</span>
@@ -65,7 +65,7 @@ function getBarWidth(count: number): string {
           {{ t('game.stats.played') }}
         </div>
       </div>
-      <div class="stat-item text-center">
+      <div class="stat-item">
         <div class="stat-value stat-value--split gutenku-text-primary">
           <span class="stat-local">{{ winRate }}%</span>
           <span class="stat-divider">/</span>
@@ -75,7 +75,7 @@ function getBarWidth(count: number): string {
           {{ t('game.stats.winRate') }}
         </div>
       </div>
-      <div class="stat-item text-center">
+      <div class="stat-item">
         <div class="stat-value gutenku-text-primary">
           {{ stats.currentStreak }}
         </div>
@@ -83,7 +83,7 @@ function getBarWidth(count: number): string {
           {{ t('game.stats.streak') }}
         </div>
       </div>
-      <div class="stat-item text-center">
+      <div class="stat-item">
         <div class="stat-value gutenku-text-primary">
           {{ stats.maxStreak }}
         </div>
@@ -94,16 +94,12 @@ function getBarWidth(count: number): string {
     </div>
 
     <div class="distribution-section">
-      <h3 class="distribution-title gutenku-text-muted mb-3">
+      <h3 class="distribution-title gutenku-text-muted">
         {{ t('game.stats.distribution') }}
       </h3>
 
       <div class="distribution-chart">
-        <div
-          v-for="round in 6"
-          :key="round"
-          class="distribution-row d-flex align-center ga-2 mb-2"
-        >
+        <div v-for="round in 6" :key="round" class="distribution-row">
           <div class="round-label gutenku-text-muted">
             {{ round }}
           </div>
@@ -127,16 +123,25 @@ function getBarWidth(count: number): string {
 .stats-title {
   font-size: 1.25rem;
   font-weight: 600;
-  margin: 0;
+  margin: 0 0 var(--gutenku-space-4) 0;
+}
+
+.stats-grid {
+  display: flex;
+  justify-content: center;
+  gap: var(--gutenku-space-4);
+  margin-bottom: var(--gutenku-space-6);
 }
 
 .stat-item {
   min-width: 50px;
+  text-align: center;
 }
 
 .stat-value {
   font-size: 1.5rem;
   font-weight: 600;
+  color: var(--gutenku-text-primary);
   animation: value-appear 0.3s ease-out;
 
   &--split {
@@ -184,7 +189,14 @@ function getBarWidth(count: number): string {
   font-size: 0.875rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin: 0;
+  margin: 0 0 var(--gutenku-space-3) 0;
+}
+
+.distribution-row {
+  display: flex;
+  align-items: center;
+  gap: var(--gutenku-space-2);
+  margin-bottom: var(--gutenku-space-2);
 }
 
 .round-label {

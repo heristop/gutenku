@@ -10,6 +10,7 @@ import ScoreStars from '@/components/ui/ScoreStars.vue';
 import { useGameStore } from '@/store/game';
 import { useToast } from '@/composables/toast';
 import { useCountdown } from '@/composables/countdown';
+import { useTimeDigits } from '@/composables/digit-display';
 
 const modelValue = defineModel<boolean>({ default: false });
 
@@ -50,9 +51,7 @@ function markCelebrated() {
   }
 }
 
-const hoursDigits = computed(() => [...String(hours.value).padStart(2, '0')]);
-const minutesDigits = computed(() => [...String(minutes.value).padStart(2, '0')]);
-const secondsDigits = computed(() => [...String(seconds.value).padStart(2, '0')]);
+const { hoursDigits, minutesDigits, secondsDigits } = useTimeDigits(hours, minutes, seconds);
 
 const isWon = computed(() => currentGame.value?.isWon ?? false);
 const attemptsUsed = computed(() => currentGame.value?.guesses.length ?? 0);
@@ -161,11 +160,8 @@ async function playNewPuzzle() {
       />
     </div>
 
-    <div class="result-header text-center mb-4">
-      <div
-        class="result-icon-wrapper mb-3"
-        :class="{ won: isWon, lost: !isWon }"
-      >
+    <div class="result-header">
+      <div class="result-icon-wrapper" :class="{ won: isWon, lost: !isWon }">
         <Trophy v-if="isWon" :size="48" class="result-icon" />
         <BookX v-else :size="48" class="result-icon" />
       </div>
@@ -181,15 +177,15 @@ async function playNewPuzzle() {
         }}
       </p>
 
-      <div v-if="isWon" class="score-display mt-3">
+      <div class="score-display">
         <span class="score-value">{{ numericScore }}</span>
         <span class="score-unit">pts</span>
-        <ScoreStars :score="score" size="lg" animated />
+        <ScoreStars :score="score" size="sm" animated />
       </div>
     </div>
 
-    <div v-if="correctBook" class="correct-book text-center mb-4">
-      <div v-if="bookEmoticons.length > 0" class="book-emoticons mb-3">
+    <div v-if="correctBook" class="correct-book">
+      <div v-if="bookEmoticons.length > 0" class="book-emoticons">
         <span
           v-for="(emoji, idx) in bookEmoticons"
           :key="idx"
@@ -206,7 +202,7 @@ async function playNewPuzzle() {
       </div>
     </div>
 
-    <div class="stats-summary mb-4">
+    <div class="stats-summary">
       <div class="stat-card" style="--delay: 0">
         <div class="stat-card__top">
           <div class="stat-card__icon">
@@ -242,7 +238,7 @@ async function playNewPuzzle() {
       </div>
     </div>
 
-    <div class="next-puzzle text-center mb-4">
+    <div class="next-puzzle">
       <Transition name="reveal" mode="out-in">
         <div v-if="newPuzzleReady" key="ready" class="new-puzzle-ready">
           <div class="new-puzzle-ready__particles" aria-hidden="true">
@@ -262,7 +258,7 @@ async function playNewPuzzle() {
 
         <div v-else key="countdown" class="countdown-container">
           <div class="next-puzzle-label gutenku-text-muted">
-            <Clock :size="14" class="mr-1" />
+            <Clock :size="14" class="next-puzzle-label__icon" />
             {{ t('game.nextPuzzle') }}
           </div>
           <div class="countdown-digits">
@@ -345,7 +341,7 @@ async function playNewPuzzle() {
     <Transition name="fade-up">
       <ZenButton
         v-if="newPuzzleReady"
-        class="play-new-btn w-100 mb-2"
+        class="play-new-btn"
         @click="playNewPuzzle"
       >
         <template #icon-left>
@@ -356,7 +352,7 @@ async function playNewPuzzle() {
     </Transition>
 
     <div class="result-actions">
-      <ZenButton class="share-btn w-100" @click="share">
+      <ZenButton class="share-btn" @click="share">
         <span class="share-btn__shimmer" aria-hidden="true" />
         <template #icon-left>
           <Share2 :size="18" />
@@ -369,11 +365,22 @@ async function playNewPuzzle() {
 
 <style lang="scss" scoped>
 :deep(.game-result) {
-  max-height: 90vh;
-  max-height: 90dvh;
+  max-height: 95dvh;
   overflow-y: auto;
   overscroll-behavior: contain;
   transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+  padding: 1rem !important;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gutenku-paper-border) transparent;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--gutenku-paper-border);
+    border-radius: 2px;
+  }
 }
 
 :deep(.game-result.transitioning) {
@@ -444,23 +451,88 @@ async function playNewPuzzle() {
   }
 }
 
+.result-header {
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+
 .result-icon-wrapper {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 80px;
-  height: 80px;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 0.5rem;
   border-radius: var(--gutenku-radius-full);
 
+  svg {
+    width: 32px;
+    height: 32px;
+  }
+
   &.won {
-    background: color-mix(in oklch, var(--gutenku-zen-primary) 15%, transparent);
-    color: var(--gutenku-zen-primary);
-    animation: win-bounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    background: linear-gradient(
+      135deg,
+      oklch(0.55 0.12 145 / 0.2) 0%,
+      oklch(0.5 0.1 175 / 0.15) 100%
+    );
+    color: oklch(0.5 0.12 145);
+    border: 2px solid oklch(0.5 0.1 145 / 0.3);
+    animation: win-bounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+               win-glow 2s ease-in-out infinite 0.6s;
+    box-shadow:
+      0 0 20px oklch(0.55 0.12 145 / 0.25),
+      0 4px 12px oklch(0 0 0 / 0.1);
   }
 
   &.lost {
-    background: oklch(0.6 0.15 25 / 0.15);
-    color: oklch(0.5 0.15 25);
+    // Softer, more muted loss visual
+    background: linear-gradient(
+      135deg,
+      oklch(0.7 0.05 55 / 0.15) 0%,
+      oklch(0.65 0.04 60 / 0.1) 100%
+    );
+    color: oklch(0.5 0.08 55);
+    border: 2px solid oklch(0.6 0.04 55 / 0.2);
+    box-shadow: 0 4px 12px oklch(0 0 0 / 0.08);
+  }
+}
+
+@keyframes win-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 20px oklch(0.55 0.12 145 / 0.25),
+      0 4px 12px oklch(0 0 0 / 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 30px oklch(0.55 0.12 145 / 0.4),
+      0 4px 12px oklch(0 0 0 / 0.1);
+  }
+}
+
+[data-theme='dark'] .result-icon-wrapper {
+  &.won {
+    background: linear-gradient(
+      135deg,
+      oklch(0.45 0.1 145 / 0.3) 0%,
+      oklch(0.4 0.08 175 / 0.25) 100%
+    );
+    color: oklch(0.7 0.12 145);
+    border-color: oklch(0.55 0.1 145 / 0.4);
+    box-shadow:
+      0 0 24px oklch(0.55 0.12 145 / 0.35),
+      0 4px 12px oklch(0 0 0 / 0.2);
+  }
+
+  &.lost {
+    background: linear-gradient(
+      135deg,
+      oklch(0.35 0.04 55 / 0.3) 0%,
+      oklch(0.3 0.03 60 / 0.25) 100%
+    );
+    color: oklch(0.65 0.06 55);
+    border-color: oklch(0.45 0.03 55 / 0.3);
   }
 }
 
@@ -479,14 +551,14 @@ async function playNewPuzzle() {
 }
 
 .result-title {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 600;
   margin: 0;
 }
 
 .result-subtitle {
-  font-size: 0.9rem;
-  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  margin: 0.25rem 0 0;
 }
 
 .score-display {
@@ -494,11 +566,12 @@ async function playNewPuzzle() {
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
+  margin-top: 0.5rem;
 }
 
 .score-value {
   font-family: 'JMH Typewriter', monospace;
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: oklch(0.5 0.1 195);
   line-height: 1;
@@ -520,7 +593,9 @@ async function playNewPuzzle() {
 }
 
 .correct-book {
-  padding: 1.25rem 1rem;
+  text-align: center;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
   background: var(--gutenku-zen-water);
   border-radius: var(--gutenku-radius-md);
 }
@@ -529,16 +604,17 @@ async function playNewPuzzle() {
   display: flex;
   flex-wrap: nowrap;
   justify-content: center;
-  gap: 0.25rem;
+  gap: 0.2rem;
+  margin-bottom: 0.5rem;
 }
 
 .emoji-card {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  font-size: 1.1rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  font-size: 1rem;
   background: var(--gutenku-paper-bg);
   border-radius: var(--gutenku-radius-sm);
   border: 1px solid var(--gutenku-paper-border);
@@ -570,29 +646,30 @@ async function playNewPuzzle() {
 }
 
 .book-title {
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 600;
   line-height: 1.3;
 }
 
 .book-author {
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  margin-top: 0.125rem;
 }
 
 .stats-summary {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1rem;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
   background: var(--gutenku-zen-water);
   border-radius: var(--gutenku-radius-md);
 }
 
 .stats-divider {
   width: 1px;
-  height: 2.5rem;
+  height: 2rem;
   background: var(--gutenku-paper-border);
   opacity: 0.5;
 }
@@ -619,11 +696,16 @@ async function playNewPuzzle() {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: 1.5rem;
+  height: 1.5rem;
   background: oklch(0.5 0.03 55 / 0.12);
   border-radius: var(--gutenku-radius-sm);
   color: var(--gutenku-text-secondary);
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
 }
 
 .stat-card__icon--streak {
@@ -658,14 +740,14 @@ async function playNewPuzzle() {
 
 .stat-card__value {
   font-family: 'JMH Typewriter', monospace;
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 700;
   line-height: 1;
   color: var(--gutenku-text-primary);
 }
 
 .stat-card__label {
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -674,10 +756,12 @@ async function playNewPuzzle() {
 }
 
 .next-puzzle {
-  padding: 0.75rem 1rem;
+  text-align: center;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
   background: var(--gutenku-zen-water);
   border-radius: var(--gutenku-radius-md);
-  min-height: 80px;
+  min-height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -691,17 +775,23 @@ async function playNewPuzzle() {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.375rem;
+
+  &__icon {
+    margin-right: var(--gutenku-space-1);
+    width: 12px;
+    height: 12px;
+  }
 }
 
 .countdown-digits {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  gap: 0.25rem;
+  gap: 0.2rem;
 }
 
 .countdown-unit {
@@ -712,13 +802,13 @@ async function playNewPuzzle() {
 
 .digit-wrapper {
   display: flex;
-  gap: 3px;
+  gap: 2px;
 }
 
 .digit-slot {
   position: relative;
-  width: 1.5rem;
-  height: 2rem;
+  width: 1.25rem;
+  height: 1.625rem;
   perspective: 100px;
 }
 
@@ -728,7 +818,7 @@ async function playNewPuzzle() {
   justify-content: center;
   width: 100%;
   height: 100%;
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--gutenku-text-primary);
@@ -742,20 +832,20 @@ async function playNewPuzzle() {
 }
 
 .unit-label {
-  font-size: 0.6rem;
+  font-size: 0.5rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: var(--gutenku-text-muted);
-  margin-top: 0.25rem;
+  margin-top: 0.125rem;
 }
 
 .countdown-separator {
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--gutenku-text-muted);
-  padding: 0 0.125rem;
-  line-height: 2rem;
+  padding: 0 0.1rem;
+  line-height: 1.625rem;
   animation: blink 1s ease-in-out infinite;
 }
 
@@ -866,6 +956,8 @@ async function playNewPuzzle() {
 }
 
 .play-new-btn {
+  width: 100%;
+  margin-bottom: 0.5rem;
   animation: glow-pulse 2s ease-in-out infinite;
 }
 
@@ -945,6 +1037,7 @@ async function playNewPuzzle() {
 
 .share-btn {
   position: relative;
+  width: 100%;
   overflow: hidden;
 
   &__shimmer {
@@ -971,67 +1064,7 @@ async function playNewPuzzle() {
   }
 }
 
-@media (max-width: 400px) {
-  :deep(.game-result) {
-    padding: 1rem !important;
-  }
-
-  .score-value {
-    font-size: 1.5rem;
-  }
-
-  :deep(.score-stars--lg .star) {
-    font-size: 1.25rem;
-  }
-
-  .result-header {
-    margin-bottom: 0.75rem !important;
-  }
-
-  .result-icon-wrapper {
-    width: 60px;
-    height: 60px;
-    margin-bottom: 0.5rem !important;
-
-    svg {
-      width: 36px;
-      height: 36px;
-    }
-  }
-
-  .score-display {
-    margin-top: 0.5rem !important;
-  }
-
-  .correct-book {
-    padding: 0.75rem;
-    margin-bottom: 0.75rem !important;
-  }
-
-  .stats-summary {
-    gap: 0.5rem;
-    padding: 0.625rem 0.75rem;
-    margin-bottom: 0.75rem !important;
-  }
-
-  .stat-card__icon {
-    width: 1.625rem;
-    height: 1.625rem;
-  }
-
-  .stat-card__value {
-    font-size: 1rem;
-  }
-
-  .stats-divider {
-    height: 2rem;
-  }
-
-  .next-puzzle {
-    padding: 0.5rem 0.75rem;
-    margin-bottom: 0.75rem !important;
-  }
-}
+// Removed: mobile-specific overrides (now compact by default)
 
 @media (prefers-reduced-motion: reduce) {
   .result-icon-wrapper.won,

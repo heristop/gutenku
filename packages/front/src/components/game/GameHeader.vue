@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
-import { BarChart2, HelpCircle, RotateCcw, Volume2, VolumeX } from 'lucide-vue-next';
+import { BarChart2, Flame, HelpCircle, RotateCcw, Volume2, VolumeX } from 'lucide-vue-next';
 import { useAudioFeedback } from '@/composables/audio-feedback';
 import { useGameStore } from '@/store/game';
 import ZenTooltip from '@/components/ui/ZenTooltip.vue';
@@ -33,30 +33,39 @@ async function resetAndReplay() {
 <template>
   <header class="game-header">
     <div class="header-content">
-      <!-- Title -->
-      <h1 class="game-title">
-        <span class="game-title__guten">Guten</span
-        ><span class="game-title__guess">Guess</span>
-      </h1>
+      <!-- Left: Title -->
+      <div class="header-left">
+        <h1 class="game-title">
+          <span class="game-title__guten">Guten</span
+          ><span class="game-title__guess">Guess</span>
+        </h1>
+      </div>
 
-      <!-- Info row: puzzle number + score + actions -->
-      <div class="header-info">
+      <!-- Center: Puzzle number -->
+      <div class="header-center">
         <ZenChip
           class="puzzle-number"
           :ariaLabel="t('game.puzzleNumber', { number: formattedPuzzleId })"
         >
           #{{ formattedPuzzleId }}
         </ZenChip>
+      </div>
 
-        <div class="header-divider" />
+      <!-- Right: Streak + Actions -->
+      <div class="header-right">
+        <!-- Streak badge -->
+        <ZenTooltip
+          v-if="stats.currentStreak > 0"
+          :text="t('game.currentStreak')"
+          position="bottom"
+        >
+          <div class="streak-badge">
+            <Flame class="streak-badge__icon" :size="16" aria-hidden="true" />
+            <span class="streak-badge__count">{{ stats.currentStreak }}</span>
+          </div>
+        </ZenTooltip>
 
         <div class="actions-section">
-          <ZenTooltip :text="t('game.currentStreak')" position="bottom">
-            <div v-if="stats.currentStreak > 0" class="streak-badge mr-2">
-              {{ stats.currentStreak }}
-            </div>
-          </ZenTooltip>
-
           <ZenTooltip
             :text="isMuted ? t('game.soundOn') : t('game.soundOff')"
             position="bottom"
@@ -125,21 +134,30 @@ async function resetAndReplay() {
 
 <style lang="scss" scoped>
 .game-header {
-  position: relative;
-  padding: 0.75rem 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  // Extend to full width of parent container (offset parent padding)
+  margin: -0.5rem -0.5rem 0;
+  padding: 0.5rem 0.75rem;
+  background: var(--gutenku-paper-bg);
+  border-bottom: 1px solid var(--gutenku-paper-border);
+  backdrop-filter: blur(8px);
+  // Ensure rounded corners at top match container
+  border-radius: var(--gutenku-radius-lg) var(--gutenku-radius-lg) 0 0;
 
   @media (min-width: 600px) {
-    padding: 1rem 1.25rem;
+    padding: 0.75rem 1rem;
   }
 
   // Ink wash separator
   &::after {
     content: '';
     position: absolute;
-    bottom: 0;
+    bottom: -1px;
     left: 0;
     right: 0;
-    height: 1px;
+    height: 2px;
     background: linear-gradient(
       90deg,
       transparent 0%,
@@ -147,33 +165,39 @@ async function resetAndReplay() {
       var(--gutenku-zen-accent) 80%,
       transparent 100%
     );
-    opacity: 0.4;
+    opacity: 0.3;
   }
 }
 
 .header-content {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   gap: 0.5rem;
+  flex-wrap: wrap;
 
   @media (min-width: 600px) {
-    flex-direction: row;
-    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 1rem;
   }
 }
 
+// Left section - Title
+.header-left {
+  flex-shrink: 0;
+}
+
 .game-title {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   margin: 0;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   text-shadow:
     0 1px 1px oklch(0 0 0 / 0.1),
-    0 2px 4px oklch(0 0 0 / 0.08),
-    0 4px 8px oklch(0.45 0.08 195 / 0.12);
+    0 2px 4px oklch(0 0 0 / 0.08);
 
   @media (min-width: 600px) {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
+    letter-spacing: 0.08em;
   }
 
   &__guten {
@@ -190,50 +214,128 @@ async function resetAndReplay() {
   }
 }
 
-.header-info {
+// Center section - Progress info
+.header-center {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-}
+  gap: 0.5rem;
+  flex: 1;
+  justify-content: center;
+  order: 3;
+  width: 100%;
+  margin-top: 0.25rem;
 
-.header-divider {
-  width: 1px;
-  height: 1.25rem;
-  background: var(--gutenku-paper-border);
+  @media (min-width: 600px) {
+    order: 2;
+    width: auto;
+    margin-top: 0;
+    gap: 0.75rem;
+  }
 }
 
 .puzzle-number {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  @media (min-width: 600px) {
+    font-size: 0.8rem;
+  }
+}
+
+// Right section - Actions
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  order: 2;
+
+  @media (min-width: 600px) {
+    order: 3;
+    gap: 0.375rem;
+  }
 }
 
 .actions-section {
   display: flex;
   align-items: center;
-  gap: 0.125rem;
+  gap: 0;
 }
 
+// Streak badge
 .streak-badge {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 2rem;
-  height: 2rem;
-  padding: 0 0.5rem;
-  background: var(--gutenku-btn-generate-bg);
-  border: 1px solid var(--gutenku-btn-generate);
-  border-radius: var(--gutenku-radius-full);
-  color: var(--gutenku-btn-generate-text);
-  font-weight: 600;
-  font-size: 0.875rem;
-  animation: streak-pulse 2s ease-in-out infinite;
+  gap: 0.125rem;
+  min-width: 2.25rem;
+  height: 1.75rem;
+  padding: 0 0.375rem;
+  background: linear-gradient(
+    135deg,
+    oklch(0.65 0.18 40 / 0.2) 0%,
+    oklch(0.55 0.2 30 / 0.15) 100%
+  );
+  border: 1px solid oklch(0.6 0.18 35 / 0.4);
+  border-radius: var(--gutenku-radius-md);
+  animation: streak-glow 2s ease-in-out infinite;
+
+  @media (min-width: 600px) {
+    height: 2rem;
+    padding: 0 0.5rem;
+    gap: 0.25rem;
+  }
+
+  &__icon {
+    color: oklch(0.65 0.2 35);
+
+    @media (min-width: 600px) {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  &__count {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: oklch(0.4 0.15 35);
+    font-variant-numeric: tabular-nums;
+
+    @media (min-width: 600px) {
+      font-size: 0.875rem;
+    }
+  }
 }
 
-@keyframes streak-pulse {
+@keyframes streak-glow {
   0%, 100% {
-    transform: scale(1);
+    box-shadow: 0 0 8px oklch(0.6 0.18 35 / 0.3);
   }
   50% {
-    transform: scale(1.05);
+    box-shadow: 0 0 16px oklch(0.6 0.18 35 / 0.5);
+  }
+}
+
+// Dark mode
+[data-theme='dark'] {
+  .game-header {
+    background: oklch(0.18 0.02 60 / 0.95);
+  }
+
+  .streak-badge {
+    background: linear-gradient(
+      135deg,
+      oklch(0.55 0.15 40 / 0.3) 0%,
+      oklch(0.5 0.18 30 / 0.25) 100%
+    );
+    border-color: oklch(0.55 0.15 35 / 0.5);
+
+    &__icon {
+      color: oklch(0.75 0.18 40);
+    }
+
+    &__count {
+      color: oklch(0.85 0.1 40);
+    }
   }
 }
 
@@ -248,8 +350,15 @@ async function resetAndReplay() {
   transition: var(--gutenku-transition-fast);
 
   &:hover {
-    color: #e74c3c;
+    color: oklch(0.55 0.2 25);
     transform: rotate(-180deg);
+  }
+}
+
+// High contrast mode
+@media (forced-colors: active) {
+  .streak-badge {
+    border: 2px solid CanvasText;
   }
 }
 </style>

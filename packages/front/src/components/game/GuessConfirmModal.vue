@@ -159,7 +159,7 @@ function confirm() {
   animation: cover-reveal 0.3s ease-out;
 }
 
-// Larger cover with refined shadow
+// Book cover container with material design shadow
 .confirm-modal__cover {
   position: relative;
   width: 140px;

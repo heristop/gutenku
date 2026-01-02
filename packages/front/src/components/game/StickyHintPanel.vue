@@ -1,8 +1,23 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, type Component } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
-import { ChevronDown, ChevronUp } from 'lucide-vue-next';
+import {
+  ChevronDown,
+  ChevronUp,
+  Smile,
+  BookOpen,
+  Clock,
+  Quote,
+  Type,
+  Globe,
+  User,
+  Calendar,
+  Hash,
+  MapPin,
+  Drama,
+  HelpCircle,
+} from 'lucide-vue-next';
 import { useGameStore } from '@/store/game';
 import type { PuzzleHint } from '@gutenku/shared';
 
@@ -30,23 +45,23 @@ const attemptsRemaining = computed(() => {
   return 6 - guesses;
 });
 
-const hintIcons: Record<string, string> = {
-  emoticons: '😀',
-  genre: '📖',
-  era: '🕐',
-  quote: '💬',
-  first_letter: '🔤',
-  author_nationality: '🌍',
-  author_name: '👤',
-  publication_century: '📅',
-  title_word_count: '#️⃣',
-  setting: '📍',
-  protagonist: '🦸',
+const hintIcons: Record<string, Component> = {
+  emoticons: Smile,
+  genre: BookOpen,
+  era: Clock,
+  quote: Quote,
+  first_letter: Type,
+  author_nationality: Globe,
+  author_name: User,
+  publication_century: Calendar,
+  title_word_count: Hash,
+  setting: MapPin,
+  protagonist: Drama,
 };
 
 const hintIcon = computed(() => {
-  if (!latestHint.value) {return '❓';}
-  return hintIcons[latestHint.value.type] || '❓';
+  if (!latestHint.value) {return HelpCircle;}
+  return hintIcons[latestHint.value.type] || HelpCircle;
 });
 
 const hintLabel = computed(() => {
@@ -80,7 +95,7 @@ function toggleExpanded() {
       @click="toggleExpanded"
     >
       <div class="sticky-hint__info">
-        <span class="sticky-hint__icon">{{ hintIcon }}</span>
+        <component :is="hintIcon" :size="20" class="sticky-hint__icon" />
         <span class="sticky-hint__label">{{ hintLabel }}</span>
       </div>
 
@@ -254,8 +269,14 @@ function toggleExpanded() {
 }
 
 .sticky-hint__icon {
-  font-size: 1.25rem;
   flex-shrink: 0;
+  color: oklch(0.5 0.12 195);
+  filter: drop-shadow(0 0 3px oklch(0.5 0.12 195 / 0.3));
+}
+
+[data-theme='dark'] .sticky-hint__icon {
+  color: oklch(0.6 0.14 195);
+  filter: drop-shadow(0 0 4px oklch(0.6 0.14 195 / 0.4));
 }
 
 .sticky-hint__label {

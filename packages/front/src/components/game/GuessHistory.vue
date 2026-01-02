@@ -1,7 +1,17 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, type Component } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { CircleCheck, CircleX } from 'lucide-vue-next';
+import {
+  CircleCheck,
+  CircleX,
+  Smile,
+  Drama,
+  BookOpen,
+  Quote,
+  Type,
+  User,
+  HelpCircle,
+} from 'lucide-vue-next';
 import type { GameGuess, PuzzleHint } from '@gutenku/shared';
 
 const props = defineProps<{
@@ -11,13 +21,13 @@ const props = defineProps<{
 
 const { t } = useI18n();
 
-const hintIcons: Record<string, string> = {
-  emoticons: '😀',
-  haiku: '🎭',
-  genre_era: '📖',
-  quote: '💬',
-  letter_author: '🔤',
-  author_name: '👤',
+const hintIcons: Record<string, Component> = {
+  emoticons: Smile,
+  haiku: Drama,
+  genre_era: BookOpen,
+  quote: Quote,
+  letter_author: Type,
+  author_name: User,
 };
 
 const guessesWithHints = computed(() => {
@@ -25,7 +35,7 @@ const guessesWithHints = computed(() => {
     const hint = props.hints[index];
     return {
       ...guess,
-      hintIcon: hint ? hintIcons[hint.type] || '❓' : '❓',
+      hintIcon: hint ? hintIcons[hint.type] || HelpCircle : HelpCircle,
       hintType: hint?.type || 'unknown',
     };
   });
@@ -44,7 +54,7 @@ const guessesWithHints = computed(() => {
       }"
     >
       <div class="guess-hint-icon">
-        {{ guess.hintIcon }}
+        <component :is="guess.hintIcon" :size="18" class="hint-icon" />
       </div>
       <div class="guess-book">
         {{ guess.bookTitle }}
@@ -185,12 +195,29 @@ const guessesWithHints = computed(() => {
 }
 
 .guess-hint-icon {
-  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 
-  @media (min-width: 600px) {
-    font-size: 1.25rem;
+  .hint-icon {
+    color: oklch(0.5 0.1 195);
   }
+
+  @media (min-width: 600px) {
+    .hint-icon {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+.guess-correct .hint-icon {
+  color: oklch(0.55 0.15 145);
+}
+
+.guess-wrong .hint-icon {
+  color: oklch(0.5 0.08 55);
 }
 
 .guess-book {
