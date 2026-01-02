@@ -13,6 +13,7 @@ import { GenerateHaikuQuery } from '~/application/queries/haiku';
 import {
   GetDailyPuzzleQuery,
   SubmitGuessQuery,
+  ReduceBooksQuery,
 } from '~/application/queries/puzzle';
 import { GetGlobalStatsQuery } from '~/application/queries/stats';
 import { PubSubService } from '~/infrastructure/services/PubSubService';
@@ -61,6 +62,10 @@ const resolvers = {
       return queryBus.execute(
         new SubmitGuessQuery(date, guessedBookId, currentRound),
       );
+    },
+    reduceBooks: async (_, { date }: { date: string }) => {
+      const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
+      return queryBus.execute(new ReduceBooksQuery(date));
     },
     globalStats: async () => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);

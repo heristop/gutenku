@@ -114,6 +114,7 @@ const typeDefs = `#graphql
         ): Haiku
         dailyPuzzle(date: String!, revealedRounds: [Int!]): DailyPuzzleResponse!
         submitGuess(date: String!, guessedBookId: ID!, currentRound: Int!): GuessResult!
+        reduceBooks(date: String!): [Book!]!
         globalStats: GlobalStats!
     }
 
