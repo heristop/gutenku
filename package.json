@@ -2,6 +2,7 @@
   "name": "gutenku",
   "version": "2.0.0",
   "private": true,
+  "license": "GPL-3.0",
   "scripts": {
     "lint": "pnpm -r run lint",
     "typecheck": "pnpm -r run typecheck",
@@ -27,6 +28,5 @@
     "oxfmt": "^0.21.0",
     "oxlint": "^1.36.0"
   },
-  "packageManager": "pnpm@10.16.1",
-  "licence": "UNLICENSED"
+  "packageManager": "pnpm@10.16.1"
 }
