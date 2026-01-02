@@ -4,7 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 const routes = [
   {
     path: '/',
-    component: () => import('@/layouts/default/Default.vue'),
+    component: () => import('@/core/layouts/default/Default.vue'),
     children: [
       {
         path: '',
@@ -21,7 +21,9 @@ const routes = [
         path: 'game',
         name: 'Game',
         component: () =>
-          import(/* webpackChunkName: "game" */ '@/views/Game.vue'),
+          import(
+            /* webpackChunkName: "game" */ '@/features/game/views/Game.vue'
+          ),
         meta: {
           title: 'GutenGuess - Daily Book Guessing Game',
           description:
@@ -32,7 +34,9 @@ const routes = [
         path: 'haiku',
         name: 'Haiku',
         component: () =>
-          import(/* webpackChunkName: "haiku" */ '@/views/Haiku.vue'),
+          import(
+            /* webpackChunkName: "haiku" */ '@/features/haiku/views/Haiku.vue'
+          ),
         meta: {
           title: 'Haiku Generator - GutenKu',
           description:
