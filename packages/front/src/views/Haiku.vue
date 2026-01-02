@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useSeoMeta } from '@unhead/vue';
 import { storeToRefs } from 'pinia';
 import InkBrushNav from '@/components/ui/InkBrushNav.vue';
 import ZenSkeleton from '@/components/ZenSkeleton.vue';
@@ -48,6 +49,13 @@ const isDev = import.meta.env.DEV;
 
 const { t, tm } = useI18n();
 const { error: showError } = useToast();
+
+useSeoMeta({
+  ogTitle: 'GutenKu - AI Haiku Generator',
+  ogDescription: 'Generate beautiful haikus from classic literature using AI. Transform timeless prose into zen poetry.',
+  ogImage: 'https://gutenku.xyz/og-image.png',
+  twitterImage: 'https://gutenku.xyz/og-image.png',
+});
 
 const haikuStore = useHaikuStore();
 const { fetchNewHaiku } = haikuStore;

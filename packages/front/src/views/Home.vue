@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { defineAsyncComponent, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useSeoMeta } from '@unhead/vue';
 import { withViewTransition } from '@/composables/view-transition';
 import ZenSkeleton from '@/components/ZenSkeleton.vue';
 import InkBrushNav from '@/components/ui/InkBrushNav.vue';
@@ -13,6 +14,13 @@ const Hero = defineAsyncComponent({
 });
 
 const { t } = useI18n();
+
+useSeoMeta({
+  ogTitle: 'GutenKu - AI Haiku Generator & Literary Guessing Game',
+  ogDescription: 'Generate beautiful haikus from classic literature. Play GutenGuess - guess the book from emoji hints.',
+  ogImage: 'https://gutenku.xyz/og-image.png',
+  twitterImage: 'https://gutenku.xyz/og-image.png',
+});
 
 const showContent = ref(false);
 
