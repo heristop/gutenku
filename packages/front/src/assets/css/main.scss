@@ -24,7 +24,7 @@
 
   body {
     margin: 0;
-    overflow-x: hidden; // Safety net for edge cases
+    overflow-x: hidden; // Prevent horizontal scroll
   }
 }
 
@@ -255,7 +255,7 @@
     .scroll-fade-in {
       opacity: 0;
       transform: translateY(20px);
-      animation: scroll-reveal linear forwards;
+      animation: scroll-reveal cubic-bezier(0.4, 0, 0.2, 1) forwards;
       animation-timeline: view();
       animation-range: entry 0% entry 100%;
     }
@@ -855,9 +855,13 @@
   --gutenku-shadow-elevated:
     0 8px 24px oklch(0 0 0 / 0.12), 0 16px 48px oklch(0 0 0 / 0.08);
 
-  // Transitions
-  --gutenku-transition: all 0.3s ease;
-  --gutenku-transition-fast: all 0.2s ease;
+  // Transitions (property-specific for performance)
+  --gutenku-transition:
+    color 0.3s ease, background 0.3s ease, opacity 0.3s ease,
+    transform 0.3s ease, border-color 0.3s ease;
+  --gutenku-transition-fast:
+    color 0.2s ease, background 0.2s ease, opacity 0.2s ease,
+    transform 0.2s ease;
 
   --gutenku-paper-bg-warm: #faf8f2;
   --gutenku-paper-bg-aged: #f5f2e8;
@@ -1832,16 +1836,141 @@ body {
   }
 }
 
+// ====================================
+// SUBTLE WOW EFFECTS
+// ====================================
+
+// Staggered card entrances
+.stagger-container > .animate-in {
+  @for $i from 1 through 6 {
+    &:nth-child(#{$i}) {
+      transition-delay: #{($i - 1) * 0.08}s;
+    }
+  }
+}
+
+// Parallax depth on scroll
+.parallax-slow {
+  animation: parallax-slow linear;
+  animation-timeline: scroll();
+  animation-range: 0% 100%;
+  will-change: transform;
+}
+
+.parallax-fast {
+  animation: parallax-fast linear;
+  animation-timeline: scroll();
+  animation-range: 0% 100%;
+  will-change: transform;
+}
+
+@keyframes parallax-slow {
+  from {
+    transform: translateY(0) translateZ(0);
+  }
+  to {
+    transform: translateY(-5%) translateZ(0);
+  }
+}
+
+@keyframes parallax-fast {
+  from {
+    transform: translateY(0) translateZ(0);
+  }
+  to {
+    transform: translateY(-15%) translateZ(0);
+  }
+}
+
+// Hover micro-interactions
+.hover-lift {
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s ease;
+
+  &:hover {
+    transform: translateY(-2px) translateZ(0);
+    box-shadow: 0 8px 24px oklch(0 0 0 / 0.12);
+  }
+}
+
+.hover-glow {
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 0 20px oklch(0.45 0.08 170 / 0.3);
+  }
+}
+
+.hover-scale {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &:hover {
+    transform: scale(1.02) translateZ(0);
+  }
+}
+
+// Text reveal animation
+.text-reveal {
+  overflow: hidden;
+
+  > span {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(100%);
+    animation: text-reveal-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @for $i from 1 through 20 {
+    > span:nth-child(#{$i}) {
+      animation-delay: #{($i - 1) * 0.03}s;
+    }
+  }
+}
+
+@keyframes text-reveal-up {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Breath animation for special cards (HaikuChapter)
+.breath-animation {
+  animation: gentle-breath 4s ease-in-out infinite;
+}
+
+@keyframes gentle-breath {
+  0%,
+  100% {
+    transform: scale(1) translateZ(0);
+    box-shadow:
+      0 4px 16px oklch(0 0 0 / 0.08),
+      0 8px 32px oklch(0 0 0 / 0.06);
+  }
+  50% {
+    transform: scale(1.005) translateZ(0);
+    box-shadow:
+      0 6px 20px oklch(0.45 0.08 170 / 0.12),
+      0 12px 40px oklch(0 0 0 / 0.08);
+  }
+}
+
+// ====================================
+// INTERSECTION OBSERVER ANIMATIONS
+// ====================================
+
 .animate-in {
   opacity: 0;
-  transform: translateY(1.875rem); // 30px
+  transform: translateY(1.25rem) translateZ(0);
+  backface-visibility: hidden;
   transition:
-    opacity 0.5s cubic-bezier(0.25, 0.8, 0.25, 1),
-    transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 
   &.is-visible {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) translateZ(0);
   }
 }
 
@@ -1856,10 +1985,25 @@ body {
     scroll-behavior: auto !important;
   }
 
-  .animate-in {
+  .animate-in,
+  .stagger-container > .animate-in,
+  .text-reveal > span {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+
+  .parallax-slow,
+  .parallax-fast,
+  .breath-animation {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .hover-lift,
+  .hover-glow,
+  .hover-scale {
+    transition: none !important;
   }
 }
 
