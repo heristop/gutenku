@@ -189,6 +189,8 @@
     "playNewPuzzle": "Play New Puzzle",
     "bookGrid": "Book selection grid",
     "eliminateHint": "Right-click or long-press to eliminate books",
+    "eliminateHintDesktop": "Right-click to eliminate books",
+    "selectHintMobile": "Long-press to select a book",
     "resetEliminated": "Reset eliminated",
     "haikuPagination": "Haiku navigation",
     "cardState": {
@@ -204,7 +206,14 @@
     "confirmReduce": "Use Lifeline",
     "review": {
       "haikuHints": "Haiku Hints"
-    }
+    },
+    "select": "Select",
+    "showInfo": "Show info",
+    "selectBook": "Select this book",
+    "hideAuthor": "Hide author",
+    "showAuthor": "Show author",
+    "eliminate": "Eliminate",
+    "eliminateBook": "Eliminate this book"
   },
   "pullToRefresh": {
     "pull": "Pull to refresh",
