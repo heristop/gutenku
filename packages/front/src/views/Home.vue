@@ -118,7 +118,7 @@ onMounted(() => {
   grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
   max-width: 900px;
-  margin: 0.5rem auto 2rem;
+  margin: 0.5rem auto 4rem;
   padding: 0 1rem;
 
   @media (max-width: 768px) {
@@ -126,7 +126,7 @@ onMounted(() => {
     gap: 1.25rem;
     padding: 0 0.75rem;
     margin-top: 0;
-    margin-bottom: 2.5rem;
+    margin-bottom: 4.5rem;
   }
 
   &--single {
