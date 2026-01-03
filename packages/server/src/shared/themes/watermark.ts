@@ -33,7 +33,7 @@ export default {
     ctx.globalAlpha = 0.2;
 
     const lineHeight = 420;
-    const baseX = 220;
+    const baseX = 250;
     const baseY = (canvas.height - lineHeight * verses.length) / 2;
 
     if (!context) {
@@ -107,7 +107,7 @@ export default {
 
     ctx.font = '110px Typewriter';
     ctx.globalAlpha = 0.7;
-    ctx.fillText('- GutenKu', canvas.width - 680, canvas.height - 200);
+    ctx.fillText('- GutenKu', canvas.width - 900, canvas.height - 280);
 
     return canvas;
   },

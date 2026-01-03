@@ -34,7 +34,7 @@ export default {
     ctx.fillStyle = '#2F5D62';
     ctx.globalAlpha = 0.84;
 
-    const x = 220;
+    const x = 250;
     let y = canvas.height / 4;
     verses.map((verse) => {
       ctx.fillText(verse, x, y);
@@ -53,7 +53,7 @@ export default {
     ctx.globalAlpha = 0.92;
     ctx.drawImage(
       pic,
-      canvas.width - pic.width - 120,
+      canvas.width - pic.width - 400,
       canvas.height - pic.height - 420,
       pic.width,
       pic.height,
@@ -61,7 +61,7 @@ export default {
 
     ctx.font = '154px NanumBrushScript';
     ctx.globalAlpha = 0.6;
-    ctx.fillText('- GutenKu', canvas.width - 720, canvas.height - 280);
+    ctx.fillText('- GutenKu', canvas.width - 900, canvas.height - 280);
 
     return canvas;
   },
