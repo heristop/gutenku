@@ -339,6 +339,7 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
 }
 
 .zen-select__trigger {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -346,22 +347,52 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
   padding: 0.5rem 0;
   background: transparent;
   border: none;
-  border-bottom: 1px solid var(--zen-select-border);
   cursor: pointer;
   font-family: inherit;
   font-size: 0.875rem;
   color: var(--zen-select-text);
   text-align: left;
-  transition: border-color 0.2s ease;
 
-  &:hover:not(:disabled) {
-    border-color: var(--gutenku-zen-accent, oklch(0.5 0.08 192));
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--zen-select-border) 20%,
+      var(--zen-select-border) 80%,
+      transparent 100%
+    );
+    opacity: 0.25;
+    transform: scaleY(1);
+    transform-origin: bottom;
+    transition:
+      opacity 0.25s ease-out,
+      transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  &:hover:not(:disabled)::after {
+    opacity: 0.5;
+    transform: scaleY(2);
   }
 
   &:focus-visible {
     outline: none;
-    border-color: var(--gutenku-zen-accent);
-    box-shadow: 0 2px 0 var(--gutenku-zen-accent);
+
+    &::after {
+      opacity: 1;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--gutenku-zen-accent) 20%,
+        var(--gutenku-zen-accent) 80%,
+        transparent 100%
+      );
+    }
   }
 
   &:disabled {
@@ -484,6 +515,7 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
 // Global styles for teleported dropdown
 .zen-select__dropdown {
   --zen-select-text: var(--gutenku-text-zen, oklch(0.35 0.03 85));
+  --zen-select-text-muted: var(--gutenku-text-muted, oklch(0.5 0.02 85));
   --zen-select-border: var(--gutenku-zen-primary, oklch(0.42 0.06 192));
   --zen-select-bg: var(--gutenku-paper-bg, oklch(0.97 0.01 85));
   --zen-select-hover: oklch(0.42 0.06 192 / 0.08);
@@ -515,19 +547,54 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
 }
 
 .zen-select__group-header {
+  position: relative;
   padding: 0.375rem 0.75rem 0.25rem;
   font-size: 0.65rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--zen-select-text-muted, oklch(0.5 0.02 85));
-  border-bottom: 1px solid oklch(0 0 0 / 0.06);
+  background: oklch(0 0 0 / 0.015);
+  border-radius: var(--gutenku-radius-sm, 0.25rem);
   margin-bottom: 0.25rem;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--zen-select-text-muted) 10%,
+      var(--zen-select-text-muted) 90%,
+      transparent 100%
+    );
+    opacity: 0.4;
+  }
 
   &:not(:first-child) {
     margin-top: 0.5rem;
-    border-top: 1px solid oklch(0 0 0 / 0.06);
     padding-top: 0.5rem;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--zen-select-text-muted) 10%,
+        var(--zen-select-text-muted) 90%,
+        transparent 100%
+      );
+      opacity: 0.4;
+    }
   }
 }
 
@@ -586,6 +653,7 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
 // Dark mode for teleported dropdown
 [data-theme='dark'] .zen-select__dropdown {
   --zen-select-text: var(--gutenku-text-primary);
+  --zen-select-text-muted: var(--gutenku-text-muted);
   --zen-select-border: var(--gutenku-zen-primary);
   --zen-select-bg: var(--gutenku-paper-bg);
   --zen-select-hover: var(--gutenku-zen-water);
@@ -603,7 +671,7 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
 
   .zen-select__group-header {
     color: var(--gutenku-text-muted);
-    border-color: oklch(1 0 0 / 0.1);
+    background: oklch(1 0 0 / 0.03);
   }
 
   .zen-select__option {
