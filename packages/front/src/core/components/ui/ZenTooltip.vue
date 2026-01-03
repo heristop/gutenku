@@ -1,5 +1,11 @@
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, onMounted, onUnmounted, nextTick, useAttrs } from 'vue';
+
+defineOptions({
+  inheritAttrs: false,
+});
+
+const attrs = useAttrs();
 
 type Position = 'top' | 'bottom' | 'left' | 'right';
 
@@ -149,6 +155,7 @@ onUnmounted(() => {
     ref="triggerRef"
     class="zen-tooltip-trigger"
     :aria-describedby="isVisible && !disabled ? tooltipId : undefined"
+    v-bind="attrs"
     @mouseenter="!isTouchDevice && show()"
     @mouseleave="!isTouchDevice && hide()"
     @focusin="handleFocusIn"

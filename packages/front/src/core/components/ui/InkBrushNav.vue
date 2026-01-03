@@ -304,7 +304,7 @@ function handleClick(event: MouseEvent, to: string) {
 // Enso draw animation
 @keyframes enso-draw {
   to {
-    stroke-dashoffset: 15; // Leave small gap for zen "incomplete" aesthetic
+    stroke-dashoffset: 8; // Leave tiny gap for zen "incomplete" aesthetic
   }
 }
 
@@ -431,7 +431,7 @@ function handleClick(event: MouseEvent, to: string) {
     // Show enso without animation
     &__enso {
       animation: none;
-      stroke-dashoffset: 15;
+      stroke-dashoffset: 5;
     }
 
     // Disable hover scale on icon wrapper

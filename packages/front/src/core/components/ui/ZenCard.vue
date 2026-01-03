@@ -55,7 +55,6 @@ const cardClasses = computed(() => [
     :aria-live="loading ? 'polite' : undefined"
     :tabindex="ariaLabel ? 0 : undefined"
   >
-    <!-- Screen reader loading announcement -->
     <div
       v-if="loading"
       class="sr-only"
@@ -66,7 +65,6 @@ const cardClasses = computed(() => [
       Loading content, please wait...
     </div>
 
-    <!-- Top loading progress bar (like v-card) -->
     <Transition name="zen-progress">
       <div
         v-if="loading"
@@ -79,20 +77,16 @@ const cardClasses = computed(() => [
       />
     </Transition>
 
-    <!-- Paper texture -->
     <div class="zen-card__paper" aria-hidden="true" />
 
-    <!-- Header slot -->
     <header v-if="hasHeader" class="zen-card__header">
       <slot name="header" />
     </header>
 
-    <!-- Default content -->
     <div class="zen-card__content">
       <slot />
     </div>
 
-    <!-- Actions slot -->
     <footer v-if="hasActions" class="zen-card__actions">
       <slot name="actions" />
     </footer>
@@ -104,22 +98,18 @@ const cardClasses = computed(() => [
   position: relative;
   border-radius: var(--gutenku-radius-lg);
   overflow: hidden;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 
-  // Glass-morphism effect
   background: oklch(0.98 0.01 85 / 0.7);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-
-  // Subtle border for glass edge
   border: 1px solid oklch(1 0 0 / 0.3);
-
-  // Softer shadows for glass effect
   box-shadow:
     0 4px 16px oklch(0 0 0 / 0.08),
     0 8px 32px oklch(0 0 0 / 0.06),
     inset 0 1px 0 oklch(1 0 0 / 0.5);
 
-  // Paper texture layer
   &__paper {
     position: absolute;
     inset: 0;
@@ -158,7 +148,6 @@ const cardClasses = computed(() => [
     padding: 0 0.75rem 0.5rem;
   }
 
-  // Top loading progress bar - soft ink wash effect with contained glow
   &__progress {
     position: absolute;
     top: 0;
@@ -176,7 +165,6 @@ const cardClasses = computed(() => [
     border-radius: 1px;
     overflow: hidden;
 
-    // Glow layer (contained within card)
     &::after {
       content: '';
       position: absolute;
@@ -194,7 +182,6 @@ const cardClasses = computed(() => [
       pointer-events: none;
     }
 
-    // Shimmer overlay
     &::before {
       content: '';
       position: absolute;
@@ -209,21 +196,14 @@ const cardClasses = computed(() => [
     }
   }
 
-
-  // Focus styles
   &:focus-visible {
     outline: 2px solid var(--gutenku-zen-primary);
     outline-offset: 2px;
   }
 
-  // ========================================
-  // VARIANT: Default
-  // ========================================
   &--default {
-    // Base styles already applied
   }
 
-  // Loading state for book variant
   &--book.zen-card--loading {
     .zen-card__content {
       opacity: 0.5;
@@ -232,9 +212,6 @@ const cardClasses = computed(() => [
     }
   }
 
-  // ========================================
-  // VARIANT: Book (for HaikuChapter, HaikuCrafting)
-  // ========================================
   &--book {
     padding: 3rem 0.5rem 2rem 1rem;
     min-height: 31.25rem;
@@ -244,7 +221,6 @@ const cardClasses = computed(() => [
       0 4px 5px 0 oklch(0 0 0 / 0.14),
       0 1px 10px 0 oklch(0 0 0 / 0.12);
 
-    // Book binding effect
     &::after {
       content: '';
       position: absolute;
@@ -286,9 +262,6 @@ const cardClasses = computed(() => [
     }
   }
 
-  // ========================================
-  // VARIANT: Panel (for Stats, Config, Toolbar)
-  // ========================================
   &--panel {
     margin: 1rem 0;
 
@@ -297,9 +270,6 @@ const cardClasses = computed(() => [
     }
   }
 
-  // ========================================
-  // VARIANT: Footer
-  // ========================================
   &--footer {
     .zen-card__content {
       display: flex;
@@ -309,13 +279,11 @@ const cardClasses = computed(() => [
     }
   }
 
-  // Mobile: increase horizontal margin
   @media (max-width: 600px) {
     margin-inline: 0.5rem;
   }
 }
 
-// Dark theme adjustments
 [data-theme='dark'] .zen-card {
   background: oklch(0.18 0.02 70 / 0.6);
   backdrop-filter: blur(12px);
@@ -364,7 +332,6 @@ const cardClasses = computed(() => [
   }
 }
 
-// Animations - Soft ink breathe effect for zen theme
 @keyframes ink-breathe {
   0%, 100% {
     opacity: 0.4;
@@ -389,7 +356,6 @@ const cardClasses = computed(() => [
   }
 }
 
-// Progress bar transition - ink wash appearance
 .zen-progress-enter-active {
   transition:
     opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
@@ -412,7 +378,6 @@ const cardClasses = computed(() => [
   transform: scaleX(0.5);
 }
 
-// Reduced motion
 @media (prefers-reduced-motion: reduce) {
   .zen-card__progress {
     animation: none;
