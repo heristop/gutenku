@@ -139,6 +139,7 @@ const cardClasses = computed(() => [
   &__content {
     padding: 0;
     transition: opacity 0.3s ease, filter 0.3s ease;
+    min-width: 200px;
   }
 
   &__actions {
