@@ -3,8 +3,11 @@ import { defineAsyncComponent, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useSeoMeta } from '@unhead/vue';
 import { withViewTransition } from '@/core/composables/view-transition';
+import { usePullToRefresh } from '@/core/composables/pull-to-refresh';
+import { useGlobalStats } from '@/core/composables/global-stats';
 import ZenSkeleton from '@/core/components/ZenSkeleton.vue';
 import InkBrushNav from '@/core/components/ui/InkBrushNav.vue';
+import PullToRefresh from '@/core/components/PullToRefresh.vue';
 import { GAME_ENABLED, GamePreview } from '@/features/game';
 
 const Hero = defineAsyncComponent({
@@ -15,6 +18,7 @@ const Hero = defineAsyncComponent({
 const HaikuPreview = defineAsyncComponent(() => import('@/features/haiku/components/HaikuPreview.vue'));
 
 const { t } = useI18n();
+const { fetchGlobalStats } = useGlobalStats();
 
 useSeoMeta({
   ogTitle: 'GutenKu - AI Haiku Generator & Literary Guessing Game',
@@ -24,6 +28,12 @@ useSeoMeta({
 });
 
 const showContent = ref(false);
+const containerRef = ref<HTMLElement | null>(null);
+
+const { pullDistance, isRefreshing, shouldRelease, progress } = usePullToRefresh(
+  containerRef,
+  { onRefresh: fetchGlobalStats },
+);
 
 onMounted(() => {
   // Wait for next frame before triggering entrance
@@ -36,7 +46,14 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="home-container">
+  <div ref="containerRef" class="home-container">
+    <PullToRefresh
+      :pull-distance="pullDistance"
+      :is-refreshing="isRefreshing"
+      :should-release="shouldRelease"
+      :progress="progress"
+    />
+
     <InkBrushNav />
 
     <main
