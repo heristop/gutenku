@@ -5,6 +5,19 @@ import { Sun, Moon, Monitor } from 'lucide-vue-next';
 import { useTheme } from '@/core/composables/theme';
 import ZenTooltip from '@/core/components/ui/ZenTooltip.vue';
 
+type ThemeState = 'light' | 'dark' | 'system';
+
+const props = withDefaults(
+  defineProps<{
+    variant?: 'default' | 'footer';
+    showSystemToggle?: boolean;
+  }>(),
+  {
+    variant: 'default',
+    showSystemToggle: false,
+  },
+);
+
 const { t } = useI18n();
 
 // Disable tooltips on touch devices (causes layout overflow)
@@ -20,13 +33,19 @@ const {
   setTheme,
 } = useTheme();
 
-// Toggle between light and dark directly
+// Current theme state for 3-state toggle (footer variant)
+const currentThemeState = computed<ThemeState>(() => {
+  if (systemPreferenceEnabled.value) {return 'system';}
+  return isDarkMode.value ? 'dark' : 'light';
+});
+
+// Toggle between light and dark directly (default variant)
 function toggleTheme() {
   saveSystemPreferenceEnabled(false);
   setTheme(isDarkMode.value ? 'light' : 'dark');
 }
 
-// Toggle system preference
+// Toggle system preference (default variant)
 function toggleSystemPreference() {
   if (systemPreferenceEnabled.value) {
     saveSystemPreferenceEnabled(false);
@@ -36,10 +55,38 @@ function toggleSystemPreference() {
   }
 }
 
+// Cycle through themes: light → dark → system (footer variant)
+function cycleTheme() {
+  switch (currentThemeState.value) {
+    case 'light':
+      saveSystemPreferenceEnabled(false);
+      setTheme('dark');
+      break;
+    case 'dark':
+      saveSystemPreferenceEnabled(true);
+      setTheme('auto');
+      break;
+    case 'system':
+      saveSystemPreferenceEnabled(false);
+      setTheme('light');
+      break;
+  }
+}
+
 // Tooltip texts
-const themeTooltip = computed(() =>
-  isDarkMode.value ? t('theme.switchToLight') : t('theme.switchToDark'),
-);
+const themeTooltip = computed(() => {
+  if (props.variant === 'footer') {
+    switch (currentThemeState.value) {
+      case 'light':
+        return t('theme.switchToDark');
+      case 'dark':
+        return t('theme.enableSystem');
+      case 'system':
+        return t('theme.switchToLight');
+    }
+  }
+  return isDarkMode.value ? t('theme.switchToLight') : t('theme.switchToDark');
+});
 
 const systemTooltip = computed(() =>
   systemPreferenceEnabled.value
@@ -80,7 +127,35 @@ function handleClick(event: MouseEvent | TouchEvent) {
 </script>
 
 <template>
-  <div class="theme-toggle-wrapper">
+  <!-- Footer variant: 3-state cycle toggle (mobile only) -->
+  <ZenTooltip v-if="variant === 'footer'" :text="themeTooltip" position="top">
+    <button
+      type="button"
+      class="theme-toggle-footer"
+      :aria-label="themeTooltip"
+      @click="cycleTheme"
+    >
+      <span class="theme-toggle-footer__circle" aria-hidden="true" />
+      <Transition name="theme-icon" mode="out-in">
+        <Sun
+          v-if="currentThemeState === 'light'"
+          key="sun"
+          :size="20"
+          :stroke-width="1.5"
+        />
+        <Moon
+          v-else-if="currentThemeState === 'dark'"
+          key="moon"
+          :size="20"
+          :stroke-width="1.5"
+        />
+        <Monitor v-else key="monitor" :size="20" :stroke-width="1.5" />
+      </Transition>
+    </button>
+  </ZenTooltip>
+
+  <!-- Default variant: floating button (desktop only) -->
+  <div v-else class="theme-toggle-wrapper">
     <!-- Main light/dark toggle -->
     <ZenTooltip :text="themeTooltip" position="left" :disabled="isTouchDevice">
       <button
@@ -119,21 +194,26 @@ function handleClick(event: MouseEvent | TouchEvent) {
       </button>
     </ZenTooltip>
 
-    <!-- Separator -->
-    <div class="theme-separator" aria-hidden="true" />
+    <!-- Separator and System preference toggle (optional) -->
+    <template v-if="showSystemToggle">
+      <div class="theme-separator" aria-hidden="true" />
 
-    <!-- System preference toggle -->
-    <ZenTooltip :text="systemTooltip" position="left" :disabled="isTouchDevice">
-      <button
-        class="system-toggle"
-        :class="{ 'system-toggle--active': systemPreferenceEnabled }"
-        :aria-label="systemTooltip"
-        :aria-pressed="systemPreferenceEnabled"
-        @click="toggleSystemPreference"
+      <ZenTooltip
+        :text="systemTooltip"
+        position="left"
+        :disabled="isTouchDevice"
       >
-        <Monitor :size="14" :stroke-width="1.5" />
-      </button>
-    </ZenTooltip>
+        <button
+          class="system-toggle"
+          :class="{ 'system-toggle--active': systemPreferenceEnabled }"
+          :aria-label="systemTooltip"
+          :aria-pressed="systemPreferenceEnabled"
+          @click="toggleSystemPreference"
+        >
+          <Monitor :size="16" :stroke-width="1.5" />
+        </button>
+      </ZenTooltip>
+    </template>
   </div>
 </template>
 
@@ -147,9 +227,11 @@ function handleClick(event: MouseEvent | TouchEvent) {
   flex-direction: column;
   align-items: center;
   gap: 0.375rem;
-
-  // Self-contained layout - prevents affecting page dimensions
   contain: layout;
+
+  @media (max-width: 600px) {
+    display: none;
+  }
 }
 
 .theme-toggle {
@@ -160,8 +242,6 @@ function handleClick(event: MouseEvent | TouchEvent) {
   width: 2.75rem;
   height: 2.75rem;
   padding: 0;
-
-  // Water-themed background (matching InkBrushNav)
   background:
     radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.12) 0%, transparent 50%),
     var(--gutenku-zen-water);
@@ -242,11 +322,9 @@ function handleClick(event: MouseEvent | TouchEvent) {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.625rem;
-  height: 1.625rem;
+  width: 2rem;
+  height: 2rem;
   padding: 0;
-
-  // Water-themed background (matching main toggle)
   background:
     radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.1) 0%, transparent 50%),
     var(--gutenku-zen-water);
@@ -361,6 +439,81 @@ function handleClick(event: MouseEvent | TouchEvent) {
   }
 }
 
+// Footer variant styles
+.theme-toggle-footer {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--gutenku-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  overflow: hidden;
+
+  svg {
+    position: relative;
+    z-index: 1;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  &:hover {
+    color: var(--gutenku-zen-primary);
+
+    svg {
+      transform: translateY(-2px) scale(1.05);
+    }
+
+    .theme-toggle-footer__circle {
+      transform: scale(1) rotate(0deg);
+      opacity: 0.1;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--gutenku-zen-primary);
+    outline-offset: 2px;
+  }
+
+  &__circle {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at center,
+      var(--gutenku-zen-primary) 0%,
+      var(--gutenku-zen-primary) 50%,
+      transparent 100%
+    );
+    border-radius: 50%;
+    transform: scale(0) rotate(-30deg);
+    opacity: 0;
+    transition:
+      transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+      opacity 0.25s ease;
+  }
+}
+
+[data-theme='dark'] .theme-toggle-footer {
+  color: var(--gutenku-text-primary);
+
+  &:hover {
+    color: var(--gutenku-zen-accent);
+  }
+
+  .theme-toggle-footer__circle {
+    background: radial-gradient(
+      circle at center,
+      var(--gutenku-zen-accent) 0%,
+      var(--gutenku-zen-accent) 50%,
+      transparent 100%
+    );
+  }
+}
+
 // Icon transition animations
 .theme-icon-enter-active,
 .theme-icon-leave-active {
@@ -386,48 +539,6 @@ function handleClick(event: MouseEvent | TouchEvent) {
   100% {
     transform: translate(-50%, -50%) scale(20);
     opacity: 0;
-  }
-}
-
-// Mobile adjustments
-@media (max-width: 600px) {
-  .theme-toggle-wrapper {
-    // Position at bottom-right on mobile
-    top: auto;
-    bottom: 3.5rem;
-    right: 1rem;
-    gap: 0.25rem;
-  }
-
-  .theme-toggle {
-    width: 2.5rem;
-    height: 2.5rem;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-
-    // Backdrop shadow with inset highlight
-    box-shadow:
-      0 2px 12px oklch(0.45 0.08 195 / 0.2),
-      inset 0 1px 0 oklch(1 0 0 / 0.15);
-
-    &__icon {
-      width: 18px;
-      height: 18px;
-    }
-  }
-
-  .theme-separator {
-    width: 12px;
-  }
-
-  .system-toggle {
-    width: 1.5rem;
-    height: 1.5rem;
-
-    svg {
-      width: 12px;
-      height: 12px;
-    }
   }
 }
 

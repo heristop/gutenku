@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { Instagram, BookOpen } from 'lucide-vue-next';
 import ZenTooltip from '@/core/components/ui/ZenTooltip.vue';
 import ZenCreditsModal from '@/core/components/ui/ZenCreditsModal.vue';
+import ThemeToggle from '@/core/components/ThemeToggle.vue';
 
 const { t } = useI18n();
 const currentYear = new Date().getFullYear();
@@ -29,8 +30,6 @@ const socialLinks = [
   { url: INSTAGRAM_URL, icon: Instagram, label: 'footer.social.instagram' },
   { url: GUTENBERG_URL, icon: BookOpen, label: 'footer.social.gutenberg' },
 ];
-
-const helpRoute = '/game';
 
 function openCredits(event: MouseEvent) {
   const target = event.currentTarget as HTMLElement;
@@ -82,9 +81,8 @@ function openSocialLink(url: string) {
       </svg>
 
       <!-- Social Links -->
-      <div
+      <nav
         class="footer-social stagger-3"
-        role="group"
         :aria-label="t('footer.socialAriaLabel')"
       >
         <ZenTooltip
@@ -103,7 +101,7 @@ function openSocialLink(url: string) {
             <component :is="link.icon" :size="20" :stroke-width="1.5" />
           </button>
         </ZenTooltip>
-      </div>
+      </nav>
 
       <!-- Ink Brushstroke Divider -->
       <svg class="ink-divider stagger-4" viewBox="0 0 2 20" aria-hidden="true">
@@ -134,6 +132,21 @@ function openSocialLink(url: string) {
           {{ t('footer.copyright', { year: currentYear }) }}
         </button>
       </ZenTooltip>
+
+      <!-- Ink Brushstroke Divider -->
+      <svg class="ink-divider stagger-6" viewBox="0 0 2 20" aria-hidden="true">
+        <path
+          class="ink-stroke"
+          d="M1 0 Q0.5 5 1 10 Q1.5 15 1 20"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          fill="none"
+        />
+      </svg>
+
+      <!-- Theme Toggle (3-state: light → dark → system) -->
+      <ThemeToggle variant="footer" class="stagger-7" />
     </div>
 
     <ZenCreditsModal v-model="showCredits" />
@@ -141,15 +154,60 @@ function openSocialLink(url: string) {
 </template>
 
 <style scoped lang="scss">
+// Zen easing curves
+$ease-zen: cubic-bezier(0.23, 1, 0.32, 1);
+$ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
+
 // Keyframes
 @keyframes footer-fade-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(12px);
+    filter: blur(4px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes nav-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-16px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes social-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes copyright-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
   }
 }
 
@@ -165,9 +223,11 @@ function openSocialLink(url: string) {
 @keyframes ink-stroke-draw {
   from {
     stroke-dashoffset: 30;
+    opacity: 0;
   }
   to {
     stroke-dashoffset: 0;
+    opacity: 1;
   }
 }
 
@@ -186,7 +246,7 @@ function openSocialLink(url: string) {
     0 -2px 8px oklch(0 0 0 / 0.04),
     inset 0 1px 0 oklch(1 0 0 / 0.5);
 
-  animation: footer-fade-in 0.5s ease-out 0.1s both;
+  animation: footer-fade-in 0.3s $ease-zen both;
 }
 
 .footer-content {
@@ -195,29 +255,37 @@ function openSocialLink(url: string) {
   justify-content: center;
   gap: 1.25rem;
   flex-wrap: wrap;
-  max-width: 42rem;
+  max-width: 52rem;
   margin: 0 auto;
 }
 
-// Staggered entrance animations
+// Staggered entrance animations - fast & subtle
 .stagger-1 {
-  animation: footer-fade-in 0.4s ease-out 0.15s both;
+  animation: nav-slide-in 0.25s $ease-zen-out 0.05s both;
 }
 
 .stagger-2 {
-  animation: footer-fade-in 0.4s ease-out 0.25s both;
+  animation: ink-stroke-draw 0.3s $ease-zen 0.1s both;
 }
 
 .stagger-3 {
-  animation: footer-fade-in 0.4s ease-out 0.35s both;
+  animation: social-pop-in 0.25s $ease-zen-out 0.12s both;
 }
 
 .stagger-4 {
-  animation: footer-fade-in 0.4s ease-out 0.45s both;
+  animation: ink-stroke-draw 0.3s $ease-zen 0.15s both;
 }
 
 .stagger-5 {
-  animation: footer-fade-in 0.4s ease-out 0.55s both;
+  animation: copyright-rise 0.25s $ease-zen-out 0.18s both;
+}
+
+.stagger-6 {
+  animation: ink-stroke-draw 0.3s $ease-zen 0.2s both;
+}
+
+.stagger-7 {
+  animation: social-pop-in 0.25s $ease-zen-out 0.22s both;
 }
 
 // Navigation with ink underline
@@ -239,6 +307,7 @@ function openSocialLink(url: string) {
     &:hover {
       color: var(--gutenku-zen-primary);
       background: color-mix(in oklch, var(--gutenku-zen-primary) 8%, transparent);
+      transform: translateY(-2px);
     }
 
     &.router-link-exact-active {
@@ -254,6 +323,11 @@ function openSocialLink(url: string) {
     &:focus-visible {
       outline: 2px solid var(--gutenku-zen-primary);
       outline-offset: 2px;
+
+      .footer-nav__underline {
+        transform: scaleX(1);
+        opacity: 1;
+      }
     }
   }
 
@@ -294,7 +368,6 @@ function openSocialLink(url: string) {
   .ink-stroke {
     stroke: color-mix(in oklch, var(--gutenku-text-primary) 15%, transparent);
     stroke-dasharray: 30;
-    animation: ink-stroke-draw 0.5s ease-out 0.3s both;
   }
 }
 
@@ -495,13 +568,18 @@ function openSocialLink(url: string) {
   }
 
   .ink-divider {
-    width: 2.5rem;
-    height: 2px;
-    transform: rotate(90deg);
+    display: none;
   }
 
   .footer-nav {
     gap: 0.25rem;
+
+    &__link {
+      padding: 0.5rem 0.75rem;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+    }
   }
 }
 
@@ -513,10 +591,13 @@ function openSocialLink(url: string) {
   .stagger-3,
   .stagger-4,
   .stagger-5,
+  .stagger-6,
+  .stagger-7,
   .ink-stroke {
     animation: none;
     opacity: 1;
     transform: none;
+    filter: none;
   }
 
   .ink-stroke {
