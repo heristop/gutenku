@@ -8,10 +8,13 @@ jobs:
     timeout-minutes: 10
 
     steps:
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.GUTENGUESS_DEPLOY_KEY }}
+
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-          ssh-key: ${{ secrets.GUTENGUESS_DEPLOY_KEY }}
 
       - uses: pnpm/action-setup@v4
 
