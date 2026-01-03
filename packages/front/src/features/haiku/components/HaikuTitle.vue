@@ -60,7 +60,8 @@ onMounted(startTypewriter);
   overflow: visible;
   text-align: center;
   margin-bottom: var(--gutenku-space-6);
-  transition: var(--gutenku-transition-zen, all 0.4s ease);
+  transform: translateZ(0); // GPU layer stability
+  backface-visibility: hidden; // Prevents flicker
   background: linear-gradient(
     135deg,
     var(--gutenku-paper-bg, #f8f6f0) 0%,

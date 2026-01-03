@@ -1,5 +1,5 @@
 import { useIntersectionObserver } from '@vueuse/core';
-import { shallowRef, type Ref, onMounted } from 'vue';
+import { shallowRef, type Ref, onMounted, nextTick } from 'vue';
 
 export interface UseInViewOptions {
   threshold?: number;
@@ -15,30 +15,36 @@ export function useInView(
 
   const isInView = shallowRef(false);
   let isReady = false;
+  let pendingIntersection = false;
 
-  onMounted(() => {
-    setTimeout(() => {
-      isReady = true;
-    }, 50);
-  });
-
-  useIntersectionObserver(
+  const { stop } = useIntersectionObserver(
     target,
     ([entry]) => {
       if (entry?.isIntersecting && !isInView.value) {
         if (isReady) {
           setTimeout(() => {
             isInView.value = true;
+            stop();
           }, delay);
         } else {
-          setTimeout(() => {
-            isInView.value = true;
-          }, delay + 50);
+          pendingIntersection = true;
         }
       }
     },
     { threshold, rootMargin },
   );
+
+  onMounted(() => {
+    nextTick(() => {
+      isReady = true;
+      if (pendingIntersection && !isInView.value) {
+        setTimeout(() => {
+          isInView.value = true;
+          stop();
+        }, delay);
+      }
+    });
+  });
 
   return { isInView };
 }
