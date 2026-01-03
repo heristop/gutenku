@@ -133,6 +133,7 @@ export function useLongPress(
   const isPressed = ref(false);
   const progress = ref(0);
   const isTouchDevice = ref(false);
+  const isTouching = ref(false); // Track active touch to prevent hover simulation
 
   const { vibrate, isSupported: vibrationSupported } = useVibrate({
     pattern: [25],
@@ -150,6 +151,10 @@ export function useLongPress(
   let startTime = 0;
 
   function startPress() {
+    if (isPressed.value) {
+      return;
+    } // Prevent double-start
+
     isPressed.value = true;
     progress.value = 0;
     startTime = Date.now();
@@ -170,6 +175,7 @@ export function useLongPress(
 
   function cancelPress() {
     isPressed.value = false;
+    isTouching.value = false;
     progress.value = 0;
 
     if (pressTimer) {
@@ -182,29 +188,43 @@ export function useLongPress(
     }
   }
 
+  function handleTouchStart(e: TouchEvent) {
+    // Prevent context menu, text selection, and simulated mouse events
+    if (e.cancelable) {
+      e.preventDefault();
+    }
+    isTouching.value = true;
+    startPress();
+  }
+
   function handlePointerDown(e: PointerEvent) {
-    if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+    if (
+      (e.pointerType === 'touch' || e.pointerType === 'pen') &&
+      !isPressed.value
+    ) {
       startPress();
     }
   }
 
-  // Single handler for all pointer end events (up, leave, cancel)
-  const handlePointerEnd = () => cancelPress();
+  const handleEnd = () => cancelPress();
 
   onMounted(() => {
     isTouchDevice.value =
       'ontouchstart' in globalThis || navigator.maxTouchPoints > 0;
 
     if (elementRef.value) {
-      // Pointer events (primary)
-      elementRef.value.addEventListener('pointerdown', handlePointerDown);
-      elementRef.value.addEventListener('pointerup', handlePointerEnd);
-      elementRef.value.addEventListener('pointerleave', handlePointerEnd);
-      elementRef.value.addEventListener('pointercancel', handlePointerEnd);
+      const el = elementRef.value;
 
-      // Touch events fallback (iOS Safari - pointerleave is unreliable)
-      elementRef.value.addEventListener('touchend', handlePointerEnd);
-      elementRef.value.addEventListener('touchcancel', handlePointerEnd);
+      // Touch events (mobile)
+      el.addEventListener('touchstart', handleTouchStart, { passive: false });
+      el.addEventListener('touchend', handleEnd);
+      el.addEventListener('touchcancel', handleEnd);
+
+      // Pointer events (pen/desktop)
+      el.addEventListener('pointerdown', handlePointerDown);
+      el.addEventListener('pointerup', handleEnd);
+      el.addEventListener('pointerleave', handleEnd);
+      el.addEventListener('pointercancel', handleEnd);
     }
   });
 
@@ -212,12 +232,15 @@ export function useLongPress(
     cancelPress();
 
     if (elementRef.value) {
-      elementRef.value.removeEventListener('pointerdown', handlePointerDown);
-      elementRef.value.removeEventListener('pointerup', handlePointerEnd);
-      elementRef.value.removeEventListener('pointerleave', handlePointerEnd);
-      elementRef.value.removeEventListener('pointercancel', handlePointerEnd);
-      elementRef.value.removeEventListener('touchend', handlePointerEnd);
-      elementRef.value.removeEventListener('touchcancel', handlePointerEnd);
+      const el = elementRef.value;
+
+      el.removeEventListener('touchstart', handleTouchStart);
+      el.removeEventListener('touchend', handleEnd);
+      el.removeEventListener('touchcancel', handleEnd);
+      el.removeEventListener('pointerdown', handlePointerDown);
+      el.removeEventListener('pointerup', handleEnd);
+      el.removeEventListener('pointerleave', handleEnd);
+      el.removeEventListener('pointercancel', handleEnd);
     }
   });
 
@@ -225,5 +248,6 @@ export function useLongPress(
     isPressed,
     progress,
     isTouchDevice,
+    isTouching,
   };
 }

@@ -13,6 +13,8 @@ const supportsViewTransition = (): boolean => {
   );
 };
 
+let isInitialized = false;
+
 const colorMode = useColorMode({
   attribute: 'data-theme',
   selector: 'html',
@@ -20,6 +22,13 @@ const colorMode = useColorMode({
   initialValue: 'light',
   disableTransition: false,
   onChanged: (mode, defaultHandler) => {
+    // Skip view transition on initial page load
+    if (!isInitialized) {
+      isInitialized = true;
+      defaultHandler(mode);
+      return;
+    }
+
     if (supportsViewTransition()) {
       (
         document as Document & {
