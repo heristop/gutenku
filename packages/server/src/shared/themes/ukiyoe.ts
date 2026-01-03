@@ -36,18 +36,26 @@ export default {
     ctx.font = 'bold 135px Yomogi';
     ctx.globalAlpha = 1;
 
-    const x = 180;
+    const x = 250;
     let y = canvas.height / 4;
 
     verses.map((verse) => {
+      ctx.strokeStyle = 'rgba(255, 248, 231, 0.9)';
+      ctx.lineWidth = 10;
+      ctx.lineJoin = 'round';
+      ctx.strokeText(verse, x, y);
       ctx.fillStyle = '#0a0a14';
       ctx.fillText(verse, x, y);
       y += 480;
     });
 
     ctx.font = 'bold 125px Yomogi';
+    ctx.strokeStyle = 'rgba(255, 248, 231, 0.85)';
+    ctx.lineWidth = 8;
+    ctx.lineJoin = 'round';
+    ctx.strokeText('- GutenKu', canvas.width - 900, canvas.height - 280);
     ctx.fillStyle = '#4a1525';
-    ctx.fillText('- GutenKu', canvas.width - 620, canvas.height - 280);
+    ctx.fillText('- GutenKu', canvas.width - 900, canvas.height - 280);
 
     return canvas;
   },

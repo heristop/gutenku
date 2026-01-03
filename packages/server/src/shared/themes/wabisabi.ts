@@ -36,18 +36,26 @@ export default {
     ctx.font = 'bold 160px ZenKurenaido';
     ctx.globalAlpha = 1;
 
-    const x = 180;
+    const x = 250;
     let y = canvas.height / 4;
 
     verses.map((verse) => {
+      ctx.strokeStyle = 'rgba(232, 220, 196, 0.9)';
+      ctx.lineWidth = 10;
+      ctx.lineJoin = 'round';
+      ctx.strokeText(verse, x, y);
       ctx.fillStyle = '#0a0a14';
       ctx.fillText(verse, x, y);
       y += 480;
     });
 
     ctx.font = 'bold 145px ZenKurenaido';
+    ctx.strokeStyle = 'rgba(232, 220, 196, 0.85)';
+    ctx.lineWidth = 8;
+    ctx.lineJoin = 'round';
+    ctx.strokeText('- GutenKu', canvas.width - 900, canvas.height - 280);
     ctx.fillStyle = '#4a2f1a';
-    ctx.fillText('- GutenKu', canvas.width - 750, canvas.height - 280);
+    ctx.fillText('- GutenKu', canvas.width - 900, canvas.height - 280);
 
     return canvas;
   },

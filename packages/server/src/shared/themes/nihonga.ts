@@ -41,7 +41,7 @@ export default {
     ctx.font = 'bold 125px IndieFlower';
     ctx.globalAlpha = 1;
 
-    const x = 180;
+    const x = 250;
     let y = canvas.height / 4;
     verses.map((verse) => {
       // White outline for readability
@@ -60,9 +60,9 @@ export default {
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
     ctx.lineWidth = 8;
     ctx.lineJoin = 'round';
-    ctx.strokeText('- GutenKu', canvas.width - 700, canvas.height - 280);
+    ctx.strokeText('- GutenKu', canvas.width - 900, canvas.height - 280);
     ctx.fillStyle = '#2F5D62';
-    ctx.fillText('- GutenKu', canvas.width - 700, canvas.height - 280);
+    ctx.fillText('- GutenKu', canvas.width - 900, canvas.height - 280);
 
     return canvas;
   },

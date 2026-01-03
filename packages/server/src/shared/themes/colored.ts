@@ -35,7 +35,7 @@ export default {
     ctx.globalAlpha = 0.25;
     ctx.drawImage(
       logo,
-      canvas.width - logo.width * 0.8 - 120,
+      canvas.width - logo.width * 0.8 - 220,
       canvas.height - logo.height * 0.8 - 180,
       logo.width * 0.8,
       logo.height * 0.8,
@@ -47,7 +47,7 @@ export default {
     ctx.lineWidth = 2;
     ctx.globalAlpha = 0.8;
 
-    const x = 220;
+    const x = 250;
     let y = canvas.height / 4;
     verses.forEach((verse) => {
       ctx.fillText(verse, x, y);
