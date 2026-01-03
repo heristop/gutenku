@@ -5,6 +5,7 @@ import { gql, type CombinedError } from '@urql/vue';
 import { urqlClient } from '@/client';
 
 interface CraftingMessage {
+  id: string;
   text: string;
   timestamp: number;
   emoji: string;
@@ -125,13 +126,19 @@ export const useHaikuStore = defineStore(
           .subscription(subscriptionQuery, {})
           .subscribe((result) => {
             if (result.data?.quoteGenerated) {
+              // Ensure all existing messages have IDs (handles persisted state migration)
+              const existingMessages = craftingMessages.value.map((m) => ({
+                ...m,
+                id: m.id || crypto.randomUUID(),
+              }));
               craftingMessages.value = [
                 {
+                  id: crypto.randomUUID(),
                   text: result.data.quoteGenerated,
                   timestamp: Date.now(),
                   emoji: '✨',
                 },
-                ...craftingMessages.value,
+                ...existingMessages,
               ];
             }
           });
