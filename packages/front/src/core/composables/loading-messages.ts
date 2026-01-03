@@ -5,7 +5,7 @@ const DEFAULT_MESSAGES: string[] = [
   '📚 Scanning through the greatest works ever written...',
   '🎭 Absorbing the emotional essence of timeless stories...',
   '✨ Weaving seventeen syllables of pure magic...',
-  '🎨 Selecting the perfect artistic theme for your poem...',
+  '🎨 Selecting the perfect aesthetic theme for your poem...',
   '🖼️ Crafting a visual masterpiece for your haiku...',
   '📝 Adding the final touches to your literary art...',
   '🌸 Shuffling cherry blossoms for seasonal vibes...',
