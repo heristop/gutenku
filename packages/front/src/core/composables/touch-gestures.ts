@@ -115,6 +115,7 @@ export function useTouchGestures(
 interface UseLongPressOptions {
   delay?: number;
   onLongPress: () => void;
+  onShortPress?: () => void;
   onProgress?: (progress: number) => void;
   vibrate?: boolean;
 }
@@ -126,6 +127,7 @@ export function useLongPress(
   const {
     delay = 400,
     onLongPress,
+    onShortPress,
     onProgress,
     vibrate: enableVibration = true,
   } = options;
@@ -149,6 +151,7 @@ export function useLongPress(
   let pressTimer: ReturnType<typeof setTimeout> | null = null;
   let progressInterval: ReturnType<typeof setInterval> | null = null;
   let startTime = 0;
+  let longPressTriggered = false;
 
   function startPress() {
     if (isPressed.value) {
@@ -158,6 +161,7 @@ export function useLongPress(
     isPressed.value = true;
     progress.value = 0;
     startTime = Date.now();
+    longPressTriggered = false;
 
     // Update progress every frame (60fps)
     progressInterval = setInterval(() => {
@@ -167,6 +171,7 @@ export function useLongPress(
     }, 16);
 
     pressTimer = setTimeout(() => {
+      longPressTriggered = true;
       triggerVibration();
       onLongPress();
       cancelPress();
@@ -188,13 +193,41 @@ export function useLongPress(
     }
   }
 
+  let startX = 0;
+  let startY = 0;
+  const moveThreshold = 10; // Cancel if finger moves more than 10px
+
   function handleTouchStart(e: TouchEvent) {
-    // Prevent context menu, text selection, and simulated mouse events
+    // Prevent default touch behaviors
     if (e.cancelable) {
       e.preventDefault();
     }
     isTouching.value = true;
+
+    // Track start position for movement detection
+    const touch = e.touches[0];
+    if (touch) {
+      startX = touch.clientX;
+      startY = touch.clientY;
+    }
+
     startPress();
+  }
+
+  function handleTouchMove(e: TouchEvent) {
+    // Cancel long press if finger moves too much
+    if (!isPressed.value) {
+      return;
+    }
+
+    const touch = e.touches[0];
+    if (touch) {
+      const dx = Math.abs(touch.clientX - startX);
+      const dy = Math.abs(touch.clientY - startY);
+      if (dx > moveThreshold || dy > moveThreshold) {
+        cancelPress();
+      }
+    }
   }
 
   function handlePointerDown(e: PointerEvent) {
@@ -204,6 +237,14 @@ export function useLongPress(
     ) {
       startPress();
     }
+  }
+
+  function handleTouchEnd() {
+    // Detect short press: released before long press triggered
+    if (isPressed.value && !longPressTriggered && onShortPress) {
+      onShortPress();
+    }
+    cancelPress();
   }
 
   const handleEnd = () => cancelPress();
@@ -217,7 +258,8 @@ export function useLongPress(
 
       // Touch events (mobile)
       el.addEventListener('touchstart', handleTouchStart, { passive: false });
-      el.addEventListener('touchend', handleEnd);
+      el.addEventListener('touchmove', handleTouchMove, { passive: true });
+      el.addEventListener('touchend', handleTouchEnd);
       el.addEventListener('touchcancel', handleEnd);
 
       // Pointer events (pen/desktop)
@@ -235,7 +277,8 @@ export function useLongPress(
       const el = elementRef.value;
 
       el.removeEventListener('touchstart', handleTouchStart);
-      el.removeEventListener('touchend', handleEnd);
+      el.removeEventListener('touchmove', handleTouchMove);
+      el.removeEventListener('touchend', handleTouchEnd);
       el.removeEventListener('touchcancel', handleEnd);
       el.removeEventListener('pointerdown', handlePointerDown);
       el.removeEventListener('pointerup', handleEnd);
