@@ -61,6 +61,7 @@ interface MyContext {
 
 async function listen(port: number) {
   const app = express();
+  app.set('trust proxy', 1);
   const httpServer = createServer(app);
 
   const schema = makeExecutableSchema({ resolvers, typeDefs });
