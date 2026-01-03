@@ -86,7 +86,7 @@ watch(
 
   position: absolute;
   bottom: 0.75rem;
-  right: 0.75rem;
+  left: 0.75rem;
   width: var(--hanko-size);
   height: var(--hanko-size);
   opacity: 0;
