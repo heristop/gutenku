@@ -9,6 +9,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          ssh-key: ${{ secrets.GUTENGUESS_DEPLOY_KEY }}
 
       - uses: pnpm/action-setup@v4
 
