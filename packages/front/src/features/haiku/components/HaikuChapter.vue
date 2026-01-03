@@ -188,7 +188,7 @@ onUnmounted(() => {
           <TransitionGroup name="message-slide" tag="div" class="messages-list">
             <div
               v-for="(msg, index) in craftingMessages.slice(0, 6)"
-              :key="msg.timestamp"
+              :key="msg.id || `msg-${msg.timestamp}-${index}`"
               class="crafting-message"
               :class="{ 'latest': index === 0 }"
             >
