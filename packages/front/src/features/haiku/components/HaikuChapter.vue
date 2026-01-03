@@ -172,12 +172,10 @@ onUnmounted(() => {
     class="book-page"
     :class="{ 'is-swiping': isSwiping, 'is-loading': loading }"
   >
-    <!-- Screen reader announcement for toggle state -->
     <div class="sr-only" aria-live="polite" aria-atomic="true">
       {{ disclosureText }}
     </div>
 
-    <!-- Crafting messages teleported to body to escape stacking context -->
     <Teleport to="body">
       <Transition name="crafting-fade">
         <div
@@ -261,7 +259,6 @@ onUnmounted(() => {
         {{ haiku.book.title }}
       </h2>
 
-      <!-- Book Author -->
       <div
         :class="{
           'stabilo-hidden': blackMarker,
@@ -308,7 +305,9 @@ onUnmounted(() => {
 .book-page {
   position: relative;
   margin-bottom: 1.5rem;
-  transition: all 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   cursor: pointer;
   border-radius: var(--gutenku-radius-sm);
   overflow: visible;
@@ -327,7 +326,9 @@ onUnmounted(() => {
 
   &:active {
     transform: translateY(-1px) scale(0.99);
-    transition: all 0.1s ease;
+    transition:
+      transform 0.1s ease,
+      box-shadow 0.1s ease;
   }
 
   [data-theme='dark'] & {
