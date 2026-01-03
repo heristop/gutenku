@@ -13,8 +13,11 @@ jobs:
           ssh-private-key: ${{ secrets.GUTENGUESS_DEPLOY_KEY }}
 
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      - name: Checkout submodules
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive
 
       - uses: pnpm/action-setup@v4
 
