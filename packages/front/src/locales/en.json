@@ -305,10 +305,10 @@
   },
   "haikuCanvas": {
     "loading": "Crafting artwork...",
-    "themeLabel": "Artistic Theme",
+    "themeLabel": "Aesthetic Theme",
     "ariaLabel": "Haiku artwork display",
     "imageLabel": "Haiku artwork: {verses}",
-    "themeChanged": "Artistic theme changed to {theme}"
+    "themeChanged": "Aesthetic theme changed to {theme}"
   },
   "highlightText": {
     "ariaDescription": "Text with {count} highlighted haiku verses"
@@ -411,7 +411,7 @@
       "1": "📚 Scanning book passages...",
       "2": "🎭 Analyzing text sentiment...",
       "3": "✨ Composing seventeen syllables...",
-      "4": "🎨 Selecting artistic theme...",
+      "4": "🎨 Selecting aesthetic theme...",
       "5": "🖼️ Crafting haiku artwork...",
       "6": "📝 Finalizing your haiku..."
     }
@@ -422,7 +422,7 @@
       "1": "Scanning book passages...",
       "2": "Analyzing text sentiment...",
       "3": "Composing seventeen syllables...",
-      "4": "Selecting artistic theme...",
+      "4": "Selecting aesthetic theme...",
       "5": "Crafting haiku artwork...",
       "6": "Finalizing your haiku...",
       "7": "Processing seasonal imagery...",
