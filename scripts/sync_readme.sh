@@ -7,11 +7,14 @@ cp packages/server/data/description.txt ./assets/description.txt
 
 if git status | grep -qF daily_haiku_card.jpg; then
     echo '\033[1;32mNew image found\033[0m'
-    sed -i "s/t=[0-9]\+/t=$(date +%s)/" README.md
-    sed -i "s/Last Snapshot:.*/Last Snapshot: \`$(date +'%a, %d %b %Y %H:%M:%S %z')\`/" README.md
+    sed -i '' "s/t=[0-9]\+/t=$(date +%s)/" README.md
 
     description=$(cat assets/description.txt)
-    sed -i "s/“[^”]*”/“$description”/" README.md
+    escaped_desc=$(printf '%s\n' "$description" | sed 's/[&/\]/\\&/g')
+    sed -i '' "s/> _\"[^\"]*\"_/> _\"$escaped_desc\"_/" README.md
+
+    current_date=$(date +'%b %d, %Y')
+    sed -i '' "s/📅 _[^_]*_/📅 _${current_date}_/" README.md
 
     git add assets README.md
     git commit -m "docs(readme): updated daily haiku card"
