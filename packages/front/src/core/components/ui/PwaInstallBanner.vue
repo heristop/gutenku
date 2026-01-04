@@ -111,6 +111,7 @@ function handleIosModalClose() {
       :description="t('pwa.iosModalDescription')"
       max-width="340"
       variant="help"
+      :show-close="false"
       @close="handleIosModalClose"
     >
       <div class="pwa-ios-instructions">
