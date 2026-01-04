@@ -5,7 +5,7 @@
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.json && tsc-alias",
+    "build": "pnpm --filter @gutenguess/server run build || true && tsc -p tsconfig.json && tsc-alias",
     "start": "tsx src/index.ts",
     "start:dist": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
