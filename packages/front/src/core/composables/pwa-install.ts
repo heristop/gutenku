@@ -93,6 +93,10 @@ export function usePwaInstall() {
   });
 
   function handleBeforeInstallPrompt(event: Event) {
+    // Only capture event if we might show the banner
+    if (isInStandaloneMode.value || isDismissalCooldownActive.value) {
+      return;
+    }
     event.preventDefault();
     deferredPrompt.value = event as BeforeInstallPromptEvent;
   }

@@ -27,11 +27,9 @@ function getElement(ref: ComponentOrElement): HTMLElement | Document {
   if (!ref) {
     return document;
   }
-  // Handle Vue component instance (has $el property)
   if ('$el' in ref && ref.$el instanceof HTMLElement) {
     return ref.$el;
   }
-  // Handle direct HTMLElement
   if (ref instanceof HTMLElement) {
     return ref;
   }
@@ -77,12 +75,10 @@ export function usePullToRefresh(
       return;
     }
 
-    // Only allow pull when at top of page
     if (globalThis.scrollY <= 0) {
       canPull.value = true;
       startY.value = getClientY(e);
       hasVibratedAtThreshold = false;
-      // Disable native pull-to-refresh while custom pull is active
       document.documentElement.style.overscrollBehaviorY = 'contain';
     }
   }
@@ -95,13 +91,10 @@ export function usePullToRefresh(
     const currentY = getClientY(e);
     const diff = currentY - startY.value;
 
-    // Only pull down, not up
     if (diff > 0 && globalThis.scrollY <= 0) {
       isPulling.value = true;
-      // Apply 0.5 resistance factor
       pullDistance.value = Math.min(diff * 0.5, maxPull);
 
-      // Vibrate when crossing threshold
       if (pullDistance.value >= threshold && !hasVibratedAtThreshold) {
         triggerVibration();
         hasVibratedAtThreshold = true;
@@ -109,15 +102,13 @@ export function usePullToRefresh(
         hasVibratedAtThreshold = false;
       }
 
-      // Prevent default scrolling when pulling
-      if (pullDistance.value > 10) {
+      if (pullDistance.value > 10 && e.cancelable) {
         e.preventDefault();
       }
     }
   }
 
   async function handlePointerEnd() {
-    // Re-enable native pull-to-refresh
     document.documentElement.style.overscrollBehaviorY = '';
 
     if (!isPulling.value) {
@@ -137,7 +128,6 @@ export function usePullToRefresh(
       }
     }
 
-    // Animate back to 0
     isPulling.value = false;
     pullDistance.value = 0;
   }
@@ -145,7 +135,6 @@ export function usePullToRefresh(
   onMounted(() => {
     const container = getElement(containerRef.value);
 
-    // Touch events (mobile)
     container.addEventListener(
       'touchstart',
       handlePointerStart as EventListener,
@@ -160,7 +149,6 @@ export function usePullToRefresh(
       passive: true,
     });
 
-    // Mouse events (desktop)
     container.addEventListener(
       'mousedown',
       handlePointerStart as EventListener,
@@ -173,7 +161,6 @@ export function usePullToRefresh(
   onUnmounted(() => {
     const container = getElement(containerRef.value);
 
-    // Touch events
     container.removeEventListener(
       'touchstart',
       handlePointerStart as EventListener,
@@ -187,7 +174,6 @@ export function usePullToRefresh(
       handlePointerEnd as EventListener,
     );
 
-    // Mouse events
     container.removeEventListener(
       'mousedown',
       handlePointerStart as EventListener,
