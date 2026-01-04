@@ -217,7 +217,11 @@ useKeyboardShortcuts({
     </div>
 
     <div class="toolbar-panel__secondary">
-      <ZenTooltip :text="previousTooltip" position="bottom">
+      <ZenTooltip
+        v-if="!hasCoarsePointer"
+        :text="previousTooltip"
+        position="bottom"
+      >
         <ZenButton
           variant="text"
           size="sm"
@@ -290,7 +294,11 @@ useKeyboardShortcuts({
         </ZenButton>
       </ZenTooltip>
 
-      <ZenTooltip :text="nextTooltip" position="bottom">
+      <ZenTooltip
+        v-if="!hasCoarsePointer"
+        :text="nextTooltip"
+        position="bottom"
+      >
         <ZenButton
           variant="text"
           size="sm"
@@ -308,20 +316,26 @@ useKeyboardShortcuts({
       </ZenTooltip>
     </div>
 
-    <div v-if="historyLength > 0" class="toolbar-panel__history">
-      <span class="sr-only">
-        {{ t('toolbar.historyPosition', { current: historyPosition, total: historyLength }) }}
-      </span>
-      <ZenPaginationDots
-        :model-value="historyPosition - 1"
-        :total="historyLength"
-        :clickable="false"
-        :aria-label="t('toolbar.historyLabel')"
-        item-label="Haiku"
+    <div class="toolbar-panel__navigation">
+      <SwipeHint
+        v-if="isTouchDevice"
+        @prev="navigateBack"
+        @next="navigateForward"
       />
-    </div>
 
-    <SwipeHint v-if="isTouchDevice" />
+      <div v-if="historyLength > 0" class="toolbar-panel__history">
+        <span class="sr-only">
+          {{ t('toolbar.historyPosition', { current: historyPosition, total: historyLength }) }}
+        </span>
+        <ZenPaginationDots
+          :model-value="historyPosition - 1"
+          :total="historyLength"
+          :clickable="false"
+          :aria-label="t('toolbar.historyLabel')"
+          item-label="Haiku"
+        />
+      </div>
+    </div>
   </ZenCard>
 </template>
 
@@ -438,6 +452,13 @@ useKeyboardShortcuts({
     &--pulse {
       animation: generate-pulse 2.5s ease-in-out infinite;
     }
+  }
+
+  &__navigation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
   }
 
 }
