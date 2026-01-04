@@ -1,14 +1,15 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, markRaw } from 'vue';
 import type { HaikuValue } from '@gutenku/shared';
 import { gql, type CombinedError } from '@urql/vue';
+import { Sparkles, type LucideIcon } from 'lucide-vue-next';
 import { urqlClient } from '@/client';
 
-interface CraftingMessage {
+export interface CraftingMessage {
   id: string;
   text: string;
   timestamp: number;
-  emoji: string;
+  icon: LucideIcon;
 }
 
 interface Stats {
@@ -136,7 +137,7 @@ export const useHaikuStore = defineStore(
                   id: crypto.randomUUID(),
                   text: result.data.quoteGenerated,
                   timestamp: Date.now(),
-                  emoji: '✨',
+                  icon: markRaw(Sparkles),
                 },
                 ...existingMessages,
               ];

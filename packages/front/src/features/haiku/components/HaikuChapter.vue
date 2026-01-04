@@ -171,7 +171,9 @@ onUnmounted(() => {
               class="crafting-message"
               :class="{ 'latest': index === 0 }"
             >
-              <span class="message-emoji">{{ msg.emoji }}</span>
+              <span class="message-icon" aria-hidden="true">
+                <component :is="msg.icon" :size="16" />
+              </span>
               <span class="message-text">{{ msg.text }}</span>
             </div>
           </TransitionGroup>
@@ -774,9 +776,12 @@ onUnmounted(() => {
     }
   }
 
-  .message-emoji {
+  .message-icon {
     flex-shrink: 0;
-    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    color: var(--gutenku-zen-primary);
+    opacity: 0.8;
   }
 
   .message-text {

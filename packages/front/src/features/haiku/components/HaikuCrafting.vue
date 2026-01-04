@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { Sparkles, PenTool } from 'lucide-vue-next';
+import type { Component } from 'vue';
+import { Sparkles } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 import { useLoadingMessages } from '@/core/composables/loading-messages';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
@@ -8,7 +9,7 @@ import ZenProgress from '@/core/components/ui/ZenProgress.vue';
 interface Message {
   text: string;
   timestamp: number;
-  emoji: string;
+  icon: Component;
 }
 
 defineProps<{
@@ -32,8 +33,14 @@ const { message: craftingMessage } = useLoadingMessages({
   >
     <!-- Book Header Style for Crafting -->
     <div class="book-header">
-      <div class="crafting-text">
-        {{ craftingMessage }}
+      <div v-if="craftingMessage" class="crafting-text">
+        <component
+          :is="craftingMessage.icon"
+          :size="14"
+          class="crafting-text-icon"
+          aria-hidden="true"
+        />
+        {{ craftingMessage.text }}
       </div>
 
       <div class="header-controls" aria-hidden="true">
@@ -70,13 +77,8 @@ const { message: craftingMessage } = useLoadingMessages({
                 }"
                 :style="{ animationDelay: `${index * 50}ms` }"
               >
-                <span class="message-emoji" aria-hidden="true">
-                  <PenTool
-                    v-if="message.emoji === '✨'"
-                    :size="18"
-                    class="text-primary"
-                  />
-                  <span v-else>{{ message.emoji }}</span>
+                <span class="message-icon" aria-hidden="true">
+                  <component :is="message.icon" :size="18" />
                 </span>
                 <span class="message-text">{{ message.text }}</span>
               </div>
@@ -129,6 +131,14 @@ const { message: craftingMessage } = useLoadingMessages({
     color: var(--gutenku-text-muted);
     text-transform: uppercase;
     margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .crafting-text-icon {
+    opacity: 0.7;
   }
 
   .header-controls {
@@ -214,7 +224,7 @@ const { message: craftingMessage } = useLoadingMessages({
     background: oklch(0.65 0.18 145 / 0.12);
     box-shadow: 0 2px 12px oklch(0.65 0.18 145 / 0.15);
 
-    .message-emoji {
+    .message-icon {
       animation: craft-pulse 1.5s ease-in-out infinite;
     }
 
@@ -229,13 +239,14 @@ const { message: craftingMessage } = useLoadingMessages({
   }
 }
 
-.message-emoji {
-  font-size: 1.2rem;
+.message-icon {
   min-width: 2rem;
   margin-right: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--gutenku-zen-primary);
+  opacity: 0.8;
 }
 
 .message-text {
@@ -354,8 +365,7 @@ const { message: craftingMessage } = useLoadingMessages({
     line-height: 1.6;
   }
 
-  .message-emoji {
-    font-size: 1rem;
+  .message-icon {
     min-width: 1.5rem;
     margin-right: 0.5rem;
   }
@@ -371,7 +381,7 @@ const { message: craftingMessage } = useLoadingMessages({
     animation: none;
   }
 
-  .craft-message.latest-message .message-emoji {
+  .craft-message.latest-message .message-icon {
     animation: none;
   }
 
