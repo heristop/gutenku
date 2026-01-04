@@ -4,6 +4,28 @@ import type { HaikuValue } from '@gutenku/shared';
 import { gql, type CombinedError } from '@urql/vue';
 import { Sparkles, type LucideIcon } from 'lucide-vue-next';
 import { urqlClient } from '@/client';
+import type { PersistenceOptions } from 'pinia-plugin-persistedstate';
+
+// SSR-safe persist config - only enable on client
+const getPersistConfig = (): PersistenceOptions | false => {
+  if (import.meta.env.SSR) {
+    return false;
+  }
+  return {
+    storage: localStorage,
+    pick: [
+      'optionDrawerOpened',
+      'optionTheme',
+      'optionMinSentimentScore',
+      'optionMinMarkovScore',
+      'optionMinPosScore',
+      'optionMinTrigramScore',
+      'optionMinTfidfScore',
+      'optionMinPhoneticsScore',
+      'stats',
+    ],
+  };
+};
 
 export interface CraftingMessage {
   id: string;
@@ -368,19 +390,6 @@ export const useHaikuStore = defineStore(
     };
   },
   {
-    persist: {
-      storage: localStorage,
-      pick: [
-        'optionDrawerOpened',
-        'optionTheme',
-        'optionMinSentimentScore',
-        'optionMinMarkovScore',
-        'optionMinPosScore',
-        'optionMinTrigramScore',
-        'optionMinTfidfScore',
-        'optionMinPhoneticsScore',
-        'stats',
-      ],
-    },
+    persist: getPersistConfig(),
   },
 );

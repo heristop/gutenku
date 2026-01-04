@@ -63,21 +63,20 @@ onUnmounted(() => {
     <!-- Bookmark ribbon -->
     <div class="bookmark-ribbon" aria-hidden="true" />
 
-    <!-- SEO: Visually hidden h1 for proper heading structure -->
-    <h1 class="sr-only">GutenKu - Haiku Generator from Classic Literature</h1>
-
     <!-- Hero layout: stacked centered -->
     <div class="hero__layout">
       <!-- GutenMage illustration - prominent and centered -->
       <div class="hero__illustration-wrapper stagger-1">
         <div class="hero__illustration-glow" aria-hidden="true" />
         <img
-          src="/gutenmage.webp"
+          src="/gutenmage-640.webp"
+          srcset="/gutenmage-320.webp 320w, /gutenmage-640.webp 640w, /gutenmage-1024.webp 1024w"
+          sizes="(max-width: 600px) 240px, (max-width: 768px) 280px, 320px"
           alt=""
           aria-hidden="true"
           class="hero__illustration"
-          width="1536"
-          height="1024"
+          width="640"
+          height="427"
           loading="eager"
           draggable="false"
           @contextmenu.prevent

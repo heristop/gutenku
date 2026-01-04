@@ -8,12 +8,8 @@ import { useGlobalStats } from '@/core/composables/global-stats';
 import ZenSkeleton from '@/core/components/ZenSkeleton.vue';
 import InkBrushNav from '@/core/components/ui/InkBrushNav.vue';
 import PullToRefresh from '@/core/components/PullToRefresh.vue';
+import Hero from '@/core/components/Hero.vue';
 import { GAME_ENABLED, GamePreview } from '@/features/game';
-
-const Hero = defineAsyncComponent({
-  loader: () => import('@/core/components/Hero.vue'),
-  loadingComponent: ZenSkeleton,
-});
 
 const HaikuPreview = defineAsyncComponent(() => import('@/features/haiku/components/HaikuPreview.vue'));
 
@@ -61,6 +57,9 @@ onMounted(() => {
       :class="{ 'home-content--visible': showContent }"
       :aria-label="t('home.haikuContentLabel')"
     >
+      <!-- SEO: H1 in sync content for crawlers -->
+      <h1 class="sr-only">GutenKu - Haiku Generator from Classic Literature</h1>
+
       <!-- Introduction Section -->
       <div class="hero-wrapper">
         <Hero />

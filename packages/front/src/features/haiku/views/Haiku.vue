@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
+import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useSeoMeta } from '@unhead/vue';
 import { storeToRefs } from 'pinia';
@@ -10,6 +10,7 @@ import { withViewTransition } from '@/core/composables/view-transition';
 import { useToast } from '@/core/composables/toast';
 import { usePullToRefresh } from '@/core/composables/pull-to-refresh';
 import { usePwaInstall } from '@/core/composables/pwa-install';
+import { closeWSClient } from '@/client';
 import PullToRefresh from '@/core/components/PullToRefresh.vue';
 import HaikuTitle from '@/features/haiku/components/HaikuTitle.vue';
 import AppLoading from '@/core/components/AppLoading.vue';
@@ -104,6 +105,9 @@ function handleRetry() {
 }
 
 onMounted(fetchNewHaiku);
+
+// Close WebSocket when leaving page to allow bfcache
+onUnmounted(closeWSClient);
 </script>
 
 <template>

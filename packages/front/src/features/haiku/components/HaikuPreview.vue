@@ -6,7 +6,6 @@ import PreviewCard from '@/core/components/ui/PreviewCard.vue';
 import ZenChip from '@/core/components/ui/ZenChip.vue';
 import haikuImage320 from '@/assets/img/sumi-e-haiku-320.webp';
 import haikuImage640 from '@/assets/img/sumi-e-haiku-640.webp';
-import haikuImage1024 from '@/assets/img/sumi-e-haiku-1024.webp';
 
 const { t } = useI18n();
 const { globalStats, fetchGlobalStats, formatNumber } = useGlobalStats();
@@ -23,8 +22,8 @@ onMounted(() => {
     :description="t('home.tagline')"
     :cta-text="t('toolbar.generate')"
     :image-src="haikuImage640"
-    :image-srcset="`${haikuImage320} 320w, ${haikuImage640} 640w, ${haikuImage1024} 1024w`"
-    image-sizes="(max-width: 600px) 320px, (max-width: 960px) 640px, 1024px"
+    :image-srcset="`${haikuImage320} 320w, ${haikuImage640} 640w`"
+    image-sizes="(max-width: 768px) 100vw, 420px"
     image-alt="Hand-drawn illustration of calligraphy and cherry blossoms for GutenKu haiku generator"
     :ariaLabel="t('toolbar.generate')"
     view-transition-name="haiku-card"
