@@ -22,21 +22,15 @@
 
 ## Daily Haiku Card
 
-<img src="/assets/img/daily_haiku_card.jpg?t=1767484801" width="300" alt="Daily Haiku Card">
+<img align="left" src="/assets/img/daily_haiku_card.jpg?t=1767484801" width="280" alt="Daily Haiku Card" hspace="16">
 
-Last Snapshot: `Sun, 04 Jan 2026 00:00:01 +0000`
+&nbsp;
 
-> [!TIP]
-> Read the AI analysis below for poetic insights.
-
-<details>
-<summary>AI Analysis</summary>
-
-> "This haiku captures a moment of blissful tranquility, evoking the serene atmosphere of a paradise. The 'Paradisal air' suggests an idyllic setting filled with peace and purity. This evokes the idea that such joys are timeless and seek to last forever, as they inherently arise from an origin of boundless beauty and perfection. The poem reflects on the desire for such moments to be eternal, emphasizing the transient yet profound impact of pure happiness."
+> _"This haiku captures a moment of blissful tranquility, evoking the serene atmosphere of a paradise. The 'Paradisal air' suggests an idyllic setting filled with peace and purity."_
 >
-> _— BotenKu, Your devoted Bot Literature Teacher_
+> — **BotenKu** 📅 _Jan 04, 2026_
 
-</details>
+<br clear="all"><br>
 
 <p align="center">🌸 · 🌸 · 🌸</p>
 
