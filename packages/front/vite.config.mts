@@ -61,6 +61,15 @@ export default defineConfig(({ isSsrBuild }) => ({
       registerType: 'autoUpdate',
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,webp,woff2}'],
+        // Exclude SEO/static files from navigation fallback
+        navigateFallbackDenylist: [
+          /^\/sitemap\.xml$/,
+          /^\/robots\.txt$/,
+          /^\/llms\.txt$/,
+          /^\/BingSiteAuth\.xml$/,
+          /^\/browserconfig\.xml$/,
+          /^\/manifest\.json$/,
+        ],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.webp$/,
