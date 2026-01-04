@@ -188,9 +188,8 @@
     "newPuzzleReady": "New puzzle ready!",
     "playNewPuzzle": "Play New Puzzle",
     "bookGrid": "Book selection grid",
-    "eliminateHint": "Right-click or long-press to eliminate books",
-    "eliminateHintDesktop": "Right-click to eliminate books",
-    "selectHintMobile": "Long-press to select a book",
+    "bookHintDesktop": "Click to select and submit, right-click to eliminate",
+    "bookHintMobile": "Touch to select, then submit",
     "resetEliminated": "Reset eliminated",
     "haikuPagination": "Haiku navigation",
     "cardState": {
