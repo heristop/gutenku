@@ -22,7 +22,7 @@ export default class OpenAIGeneratorService implements IGenerator {
   private selectionCount: number;
 
   private get model(): string {
-    return process.env.OPENAI_GPT_MODEL || 'gpt-4o';
+    return process.env.OPENAI_GPT_MODEL || 'gpt-5.2';
   }
 
   private get supportsReasoning(): boolean {
