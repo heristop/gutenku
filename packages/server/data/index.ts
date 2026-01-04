@@ -11,7 +11,6 @@ const gutenguessServerPath = process.env.GUTENGUESS_PATH
   : resolve(process.cwd(), 'packages/server');
 const hasSubmodule = existsSync(gutenguessServerPath);
 
-// Try to import from submodule, fall back to local fixture if unavailable
 // Use variable to prevent TypeScript from resolving the optional module at compile time
 const gutenguessModule = '@gutenguess/server';
 let source: typeof import('./gutenguess-books.js');
