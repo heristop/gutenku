@@ -3,7 +3,7 @@ import { onMounted } from 'vue';
 import PwaInstallBanner from '@/core/components/ui/PwaInstallBanner.vue';
 
 onMounted(() => {
-  // Defer analytics to idle callback
+  // Defer analytics to idle callback (client-side only)
   if ('requestIdleCallback' in globalThis) {
     requestIdleCallback(() => import('./analytics-setup'));
   } else {
@@ -14,5 +14,7 @@ onMounted(() => {
 
 <template>
   <router-view />
-  <PwaInstallBanner />
+  <client-only>
+    <PwaInstallBanner />
+  </client-only>
 </template>

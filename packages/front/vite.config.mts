@@ -29,8 +29,17 @@ const gameModulePath = isGameEnabled
       './src/features/game-stub',
     );
 
+// Vendor chunk configuration for client build
+const vendorChunks: Record<string, string[]> = {
+  'vue-core': ['vue', 'vue-router', 'pinia'],
+  graphql: ['@urql/vue', 'graphql', 'graphql-ws'],
+  vueuse: ['@vueuse/core', '@vueuse/motion'],
+  i18n: ['vue-i18n'],
+  icons: ['lucide-vue-next'],
+};
+
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ isSsrBuild }) => ({
   plugins: [
     vue(),
     VueI18nPlugin({
@@ -76,13 +85,18 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vue-core': ['vue', 'vue-router', 'pinia'],
-          graphql: ['@urql/vue', 'graphql', 'graphql-ws'],
-          vueuse: ['@vueuse/core', '@vueuse/motion'],
-          i18n: ['vue-i18n'],
-          icons: ['lucide-vue-next'],
-        },
+        // Only apply manualChunks for client build, not SSR
+        manualChunks: isSsrBuild
+          ? undefined
+          : (id) => {
+              for (const [chunkName, modules] of Object.entries(vendorChunks)) {
+                if (
+                  modules.some((mod) => id.includes(`/node_modules/${mod}/`))
+                ) {
+                  return chunkName;
+                }
+              }
+            },
       },
     },
   },
@@ -93,7 +107,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
     extensions: ['.js', '.json', '.jsx', '.mjs', '.ts', '.tsx', '.vue'],
-    // Ensure private game module uses main project's dependencies
+    // Private game module uses main project's dependencies
     dedupe: [
       'vue',
       'pinia',
@@ -120,4 +134,15 @@ export default defineConfig({
   server: {
     port: 4444,
   },
-});
+  ssgOptions: {
+    script: 'async',
+    formatting: 'minify',
+    beastiesOptions: {
+      preload: 'media',
+    },
+    includedRoutes(paths) {
+      // Only pre-render Home and 404
+      return paths.filter((path) => path === '/' || path.startsWith('/404'));
+    },
+  },
+}));

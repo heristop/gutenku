@@ -1,12 +1,7 @@
-// Composables
-import {
-  createRouter,
-  createWebHistory,
-  type RouteRecordRaw,
-} from 'vue-router';
-import { GAME_ENABLED, GameView } from '@/features/game';
+import type { RouteRecordRaw } from 'vue-router';
+import { GAME_ENABLED } from '@/features/game';
 
-const routes: RouteRecordRaw[] = [
+export const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('@/core/layouts/default/Default.vue'),
@@ -22,12 +17,15 @@ const routes: RouteRecordRaw[] = [
             'Generate beautiful haikus from classic literature using AI. Play GutenGuess daily!',
         },
       },
-      ...(GAME_ENABLED && GameView
+      ...(GAME_ENABLED
         ? [
             {
               path: 'game',
               name: 'Game',
-              component: GameView,
+              component: () =>
+                import(/* webpackChunkName: "game" */ '@/features/game').then(
+                  (m) => m.GameView,
+                ),
               meta: {
                 title: 'GutenGuess - Daily Book Guessing Game',
                 description:
@@ -62,10 +60,3 @@ const routes: RouteRecordRaw[] = [
     ],
   },
 ];
-
-const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
-  routes,
-});
-
-export default router;
