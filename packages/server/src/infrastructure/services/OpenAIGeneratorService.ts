@@ -10,32 +10,16 @@ import {
   IOpenAIClientToken,
 } from '~/domain/gateways/IOpenAIClient';
 
-type ReasoningEffort = 'none' | 'low' | 'medium' | 'high';
-
 @singleton()
 export default class OpenAIGeneratorService implements IGenerator {
   private readonly MAX_SELECTION_COUNT: number = 20;
+  private readonly MODEL = 'gpt-5.2';
+  private readonly DEFAULT_TEMPERATURE = 0.7;
 
   private haikuSelection: HaikuValue[] = [];
   private openai: IOpenAIClient;
-
   private selectionCount: number;
-
-  private get model(): string {
-    return process.env.OPENAI_GPT_MODEL || 'gpt-5.2';
-  }
-
-  private get supportsReasoning(): boolean {
-    // Only o1, o3, and gpt-5 models support reasoning_effort
-    return /^(o1|o3|gpt-5)/.test(this.model);
-  }
-
-  private get reasoningEffort(): ReasoningEffort | undefined {
-    if (!this.supportsReasoning) {
-      return undefined;
-    }
-    return (process.env.OPENAI_REASONING_EFFORT as ReasoningEffort) || 'low';
-  }
+  private temperature: number = this.DEFAULT_TEMPERATURE;
 
   constructor(
     @inject(HaikuGeneratorService)
@@ -65,10 +49,8 @@ export default class OpenAIGeneratorService implements IGenerator {
       'OpenAI selection configured',
     );
 
-    temperature.description =
-      temperature.description ??
-      Number.parseFloat(process.env.OPENAI_DESCRIPTION_TEMPERATURE || '0.3');
-    log.info({ temperature }, 'OpenAI temperature settings');
+    this.temperature = temperature.description ?? this.DEFAULT_TEMPERATURE;
+    log.info({ temperature: this.temperature }, 'OpenAI temperature settings');
 
     this.openai.configure(apiKey);
 
@@ -85,7 +67,7 @@ export default class OpenAIGeneratorService implements IGenerator {
         {
           promptLength: prompt.length,
           haikuCount: this.haikuSelection.length,
-          model: this.model,
+          model: this.MODEL,
         },
         'Sending selection prompt to OpenAI',
       );
@@ -98,9 +80,8 @@ export default class OpenAIGeneratorService implements IGenerator {
             content: prompt,
           },
         ],
-        model: this.model,
-        temperature: 0.7,
-        ...(this.reasoningEffort && { reasoning_effort: this.reasoningEffort }),
+        model: this.MODEL,
+        temperature: this.temperature,
       });
 
       const answer = completion.choices[0].message.content;
@@ -201,9 +182,8 @@ export default class OpenAIGeneratorService implements IGenerator {
           content: `${prompt} (Use the following format: ${outputFormat})`,
         },
       ],
-      model: this.model,
-      temperature: 0.7,
-      ...(this.reasoningEffort && { reasoning_effort: this.reasoningEffort }),
+      model: this.MODEL,
+      temperature: this.temperature,
     });
 
     const answer = completion.choices[0].message.content;
@@ -234,9 +214,8 @@ export default class OpenAIGeneratorService implements IGenerator {
           content: prompt,
         },
       ],
-      model: this.model,
-      temperature: 0.7,
-      ...(this.reasoningEffort && { reasoning_effort: this.reasoningEffort }),
+      model: this.MODEL,
+      temperature: this.temperature,
     });
 
     const answer = completion.choices[0].message.content;
@@ -254,9 +233,8 @@ export default class OpenAIGeneratorService implements IGenerator {
           content: prompt,
         },
       ],
-      model: this.model,
-      temperature: 0.7,
-      ...(this.reasoningEffort && { reasoning_effort: this.reasoningEffort }),
+      model: this.MODEL,
+      temperature: this.temperature,
     });
 
     return completion.choices[0].message.content.replaceAll(/[\n\s]+/g, '');

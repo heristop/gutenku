@@ -84,7 +84,7 @@ export const useHaikuStore = defineStore(
     const optionMinTrigramScore = ref(0);
     const optionMinTfidfScore = ref(0);
     const optionMinPhoneticsScore = ref(0);
-    const optionDescriptionTemperature = ref(0.3);
+    const optionDescriptionTemperature = ref(0.7);
     const optionSelectionCount = ref(1);
 
     const stats = ref<Stats>({
