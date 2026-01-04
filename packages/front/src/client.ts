@@ -4,16 +4,36 @@ import {
   fetchExchange,
   subscriptionExchange,
 } from '@urql/vue';
-import { createClient as createWSClient } from 'graphql-ws';
+import {
+  createClient as createWSClient,
+  type Client as WSClient,
+} from 'graphql-ws';
 
 const envServerHost =
   import.meta.env.VITE_SERVER_HOST || 'http://localhost:4000';
 const envWebSocketHost =
   import.meta.env.VITE_WEBSOCKET_HOST || 'ws://localhost:4000';
 
-const wsClient = createWSClient({
-  url: `${envWebSocketHost}/graphql-ws`,
-});
+// Lazy WebSocket client - only created when subscriptions are used
+let wsClient: WSClient | null = null;
+
+function getWSClient(): WSClient {
+  if (!wsClient) {
+    wsClient = createWSClient({
+      url: `${envWebSocketHost}/graphql-ws`,
+      lazy: true,
+      lazyCloseTimeout: 3000,
+    });
+  }
+  return wsClient;
+}
+
+export function closeWSClient(): void {
+  if (wsClient) {
+    wsClient.dispose();
+    wsClient = null;
+  }
+}
 
 export const urqlClient = new Client({
   url: `${envServerHost}/graphql`,
@@ -25,7 +45,7 @@ export const urqlClient = new Client({
         const input = { ...request, query: request.query || '' };
         return {
           subscribe(sink) {
-            const unsubscribe = wsClient.subscribe(input, sink);
+            const unsubscribe = getWSClient().subscribe(input, sink);
             return { unsubscribe };
           },
         };
