@@ -6,13 +6,11 @@ import { Lightbulb, LightbulbOff, ChevronsUpDown, ChevronsDownUp } from 'lucide-
 import { useHaikuStore } from '@/features/haiku/store/haiku';
 import { useHaikuHighlighter } from '@/features/haiku/composables/haiku-highlighter';
 import { useTextCompacting } from '@/features/haiku/composables/text-compacting';
-import { useTouchGestures } from '@/core/composables/touch-gestures';
 import { useBotDetection } from '@/core/composables/bot-detection';
 import HighLightText from '@/features/haiku/components/HighLightText.vue';
 import ZenTooltip from '@/core/components/ui/ZenTooltip.vue';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
 import ZenButton from '@/core/components/ui/ZenButton.vue';
-import SwipeHint from '@/core/components/ui/SwipeHint.vue';
 
 const { t } = useI18n();
 
@@ -23,7 +21,6 @@ const { haiku, loading, craftingMessages } = storeToRefs(haikuStore);
 const blackMarker = ref(true);
 const isCompacted = ref(true);
 const chapterRef = ref<{ $el: HTMLElement } | null>(null);
-const showSwipeHint = ref(true);
 
 const cardRect = ref<DOMRect | null>(null);
 const chapterEl = computed(() => chapterRef.value?.$el as HTMLElement | null);
@@ -59,24 +56,6 @@ watch(craftingMessages, (messages) => {
 }, { immediate: true });
 
 let scrollListener: (() => void) | null = null;
-
-const { isSwiping, isTouchDevice } = useTouchGestures(chapterEl, {
-  threshold: 60,
-  onSwipeLeft: () => {
-    if (!loading.value) {
-      showSwipeHint.value = false;
-      fetchNewHaiku();
-    }
-  },
-  onSwipeRight: () => {
-    if (!loading.value) {
-      showSwipeHint.value = false;
-      fetchNewHaiku();
-    }
-  },
-  vibrate: true,
-  vibrationPattern: [20],
-});
 
 const { applyToAllHighlights } = useHaikuHighlighter();
 
@@ -170,7 +149,7 @@ onUnmounted(() => {
     :loading="loading"
     :aria-label="t('haikuChapter.ariaLabel')"
     class="book-page"
-    :class="{ 'is-swiping': isSwiping, 'is-loading': loading }"
+    :class="{ 'is-loading': loading }"
   >
     <div class="sr-only" aria-live="polite" aria-atomic="true">
       {{ disclosureText }}
@@ -288,16 +267,6 @@ onUnmounted(() => {
     </button>
 
     <div class="page-number">— {{ pageNumber }} —</div>
-
-    <Transition name="fade">
-      <div
-        v-if="isTouchDevice && showSwipeHint && !loading"
-        class="swipe-hint-wrapper"
-        aria-hidden="true"
-      >
-        <SwipeHint variant="pill" />
-      </div>
-    </Transition>
   </ZenCard>
 </template>
 
@@ -736,7 +705,7 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .book-page {
     padding: 1.25rem 1.5rem 1.5rem 2rem;
-    min-height: 25rem;
+    min-height: auto;
     margin-top: 0;
   }
 
@@ -748,25 +717,16 @@ onUnmounted(() => {
     font-size: 1rem;
   }
 
+  .chapter-content:not(.expandable) {
+    max-height: 20rem;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+
   .chapter-text {
     font-size: 0.85rem;
     line-height: 1.6;
   }
-}
-
-.book-page.is-swiping {
-  transform: scale(0.98);
-  opacity: 0.9;
-  transition: all 0.15s ease;
-}
-
-.swipe-hint-wrapper {
-  position: absolute;
-  bottom: 2.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-  pointer-events: none;
 }
 
 .fade-enter-active,
@@ -777,12 +737,6 @@ onUnmounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .book-page.is-swiping {
-    transform: none;
-  }
 }
 </style>
 
