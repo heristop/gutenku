@@ -3,15 +3,12 @@
  * Uses @gutenguess/server submodule if available, otherwise falls back to local fixture.
  */
 import { existsSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-// Allow override via env for local development
+// Allow override via env for local development, defaults to current working directory
 const gutenguessServerPath = process.env.GUTENGUESS_PATH
   ? resolve(process.env.GUTENGUESS_PATH, 'packages/server')
-  : resolve(__dirname, '../../../private/gutenguess/packages/server');
+  : resolve(process.cwd(), 'packages/server');
 const hasSubmodule = existsSync(gutenguessServerPath);
 
 // Re-export from submodule or fallback
