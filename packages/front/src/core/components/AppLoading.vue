@@ -1,10 +1,13 @@
 <script lang="ts" setup>
-import { computed, ref, watch, type PropType } from 'vue';
+import { computed, ref, watch, type PropType, type Component } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { CloudOff, RefreshCw } from 'lucide-vue-next';
+import { CloudOff, RefreshCw, Sparkles } from 'lucide-vue-next';
 import ZenButton from '@/core/components/ui/ZenButton.vue';
 import InkDropLoader from '@/core/components/InkDropLoader.vue';
-import { useLoadingMessages } from '@/core/composables/loading-messages';
+import {
+  useLoadingMessages,
+  type LoadingMessage,
+} from '@/core/composables/loading-messages';
 import { useTheme } from '@/core/composables/theme';
 import logoUrl from '@/assets/img/logo/gutenku-logo-300.png';
 
@@ -39,19 +42,30 @@ const props = defineProps({
 });
 
 const { message: randomMessage } = useLoadingMessages({ context: 'default' });
-const displayText = computed(() => props.text || randomMessage);
+
+const defaultMessage: LoadingMessage = { icon: Sparkles, text: '' };
+
+const displayMessage = computed<LoadingMessage>(() => {
+  if (props.text) {
+    return { icon: Sparkles, text: props.text };
+  }
+  return randomMessage.value ?? defaultMessage;
+});
+
 const { isDarkMode } = useTheme();
 
 // Track message changes for transitions
-const currentMessage = ref(displayText.value);
+const currentMessage = ref<LoadingMessage>(displayMessage.value);
 const messageKey = ref(0);
 
-watch(displayText, (newText) => {
-  if (newText !== currentMessage.value) {
+watch(displayMessage, (newMessage) => {
+  if (newMessage.text !== currentMessage.value.text) {
     messageKey.value++;
-    currentMessage.value = newText;
+    currentMessage.value = newMessage;
   }
 });
+
+const currentIcon = computed<Component>(() => currentMessage.value.icon);
 </script>
 
 <template>
@@ -98,7 +112,7 @@ watch(displayText, (newText) => {
       </div>
 
       <!-- Splash mode -->
-      <div v-if="displayText" class="loading-splash">
+      <div v-if="displayMessage.text" class="loading-splash">
         <!-- Floating ink particles background -->
         <div class="loading-particles" aria-hidden="true">
           <div v-for="i in 6" :key="i" :class="`particle particle-${i}`" />
@@ -138,8 +152,14 @@ watch(displayText, (newText) => {
               class="loading-message"
               :class="{ 'loading-message--error': error }"
             >
+              <component
+                :is="currentIcon"
+                :size="16"
+                class="loading-message-icon"
+                aria-hidden="true"
+              />
               <output id="loading-text" aria-live="polite">
-                {{ currentMessage }}
+                {{ currentMessage.text }}
               </output>
             </p>
           </Transition>
@@ -419,12 +439,22 @@ watch(displayText, (newText) => {
   color: var(--gutenku-text-zen, oklch(0.4 0.02 60));
   margin: 0;
   padding: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 
   &--error {
     color: oklch(0.5 0.12 30);
     font-style: normal;
     font-weight: 500;
   }
+}
+
+.loading-message-icon {
+  flex-shrink: 0;
+  opacity: 0.7;
+  color: var(--gutenku-zen-primary);
 }
 
 // Message transition
