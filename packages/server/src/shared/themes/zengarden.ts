@@ -96,7 +96,7 @@ CRITICAL: Absolutely NO text, letters, characters, kanji, hiragana, katakana, or
     output_format: 'png',
     prompt: prompt,
     quality: process.env.OPENAI_IMAGE_QUALITY || 'high',
-    size: '1024x1024',
+    size: '1024x1536',
     user: 'gutenku-zengarden-theme',
   });
 

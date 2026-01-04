@@ -29,7 +29,6 @@ export default {
     ctx.globalAlpha = 0.7;
     drawImageCover(ctx, background, canvas.width, canvas.height);
 
-    // Stronger overlay to soften background
     ctx.globalAlpha = 0.65;
     ctx.fillStyle = '#DFEEEA';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -44,12 +43,10 @@ export default {
     const x = 250;
     let y = canvas.height / 4;
     verses.map((verse) => {
-      // White outline for readability
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
       ctx.lineWidth = 10;
       ctx.lineJoin = 'round';
       ctx.strokeText(verse, x, y);
-      // Teal fill
       ctx.fillStyle = '#1d4a4f';
       ctx.fillText(verse, x, y);
       y += 480;
@@ -97,7 +94,7 @@ CRITICAL: Absolutely NO text, letters, characters, kanji, hiragana, katakana, or
     output_format: 'png',
     prompt: prompt,
     quality: process.env.OPENAI_IMAGE_QUALITY || 'high',
-    size: '1024x1024',
+    size: '1024x1536',
     user: 'gutenku-nihonga-theme',
   });
 

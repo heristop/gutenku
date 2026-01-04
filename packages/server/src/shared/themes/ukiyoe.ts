@@ -33,10 +33,10 @@ export default {
     ctx.fillStyle = '#fff8e7';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.font = 'bold 135px Yomogi';
+    ctx.font = 'bold 125px Yomogi';
     ctx.globalAlpha = 1;
 
-    const x = 250;
+    const x = 200;
     let y = canvas.height / 4;
 
     verses.map((verse) => {
@@ -49,7 +49,7 @@ export default {
       y += 480;
     });
 
-    ctx.font = 'bold 125px Yomogi';
+    ctx.font = 'bold 120px Yomogi';
     ctx.strokeStyle = 'rgba(255, 248, 231, 0.85)';
     ctx.lineWidth = 8;
     ctx.lineJoin = 'round';
@@ -92,7 +92,7 @@ CRITICAL: Absolutely NO text, letters, characters, kanji, hiragana, katakana, or
     output_format: 'png',
     prompt: prompt,
     quality: process.env.OPENAI_IMAGE_QUALITY || 'high',
-    size: '1024x1024',
+    size: '1024x1536',
     user: 'gutenku-ukiyoe-theme',
   });
 
