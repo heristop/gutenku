@@ -5,3 +5,4 @@ cypress/downloads
 coverage/
 tsconfig.tsbuildinfo
 .lighthouseci/
+.vite-ssg-temp

@@ -1,0 +1,17 @@
+# GutenKu - AI Haiku Generator & Literary Guessing Game
+# https://gutenku.xyz
+
+> GutenKu generates haikus from classic literature using AI and features GutenGuess, a daily book guessing game.
+
+## Features
+- AI haiku generation from Project Gutenberg classics
+- Daily literary guessing game with emoji hints
+- Share haikus on social media
+
+## Main Pages
+- /: Homepage with haiku generator and game preview
+- /haiku: Generate haikus from classic literature themes
+- /game: GutenGuess daily book guessing game
+
+## Sitemap
+https://gutenku.xyz/sitemap.xml
