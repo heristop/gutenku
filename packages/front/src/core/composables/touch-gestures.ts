@@ -62,7 +62,6 @@ export function useTouchGestures(
   const isTouchDevice = ref(false);
   const hasCoarsePointer = useMediaQuery('(pointer: coarse)');
 
-  // Vibration support
   const { vibrate, isSupported: vibrationSupported } = useVibrate({
     pattern: vibrationPattern,
   });
@@ -74,7 +73,6 @@ export function useTouchGestures(
     vibrate,
   });
 
-  // Swipe detection
   const { direction, isSwiping, lengthX, lengthY } = useSwipe(elementRef, {
     threshold,
     passive: true,
@@ -112,8 +110,15 @@ export function useTouchGestures(
   };
 }
 
+type GesturePhase = 'idle' | 'observing' | 'committed' | 'cancelled';
+
 interface UseLongPressOptions {
   delay?: number;
+  observationWindow?: number;
+  scrollThreshold?: number;
+  moveThreshold?: number;
+  onObserving?: () => void;
+  onCommit?: () => void;
   onLongPress: () => void;
   onShortPress?: () => void;
   onProgress?: (progress: number) => void;
@@ -125,7 +130,12 @@ export function useLongPress(
   options: UseLongPressOptions,
 ) {
   const {
-    delay = 400,
+    delay = 500,
+    observationWindow = 80,
+    scrollThreshold = 8,
+    moveThreshold = 10,
+    onObserving,
+    onCommit,
     onLongPress,
     onShortPress,
     onProgress,
@@ -133,12 +143,17 @@ export function useLongPress(
   } = options;
 
   const isPressed = ref(false);
+  const isObserving = ref(false);
   const progress = ref(0);
   const isTouchDevice = ref(false);
-  const isTouching = ref(false); // Track active touch to prevent hover simulation
+  const isTouching = ref(false);
 
   const { vibrate, isSupported: vibrationSupported } = useVibrate({
     pattern: [25],
+  });
+
+  const { vibrate: vibrateCommit } = useVibrate({
+    pattern: [10],
   });
 
   const triggerVibration = createVibrationTrigger({
@@ -148,22 +163,26 @@ export function useLongPress(
     vibrate,
   });
 
+  const triggerCommitVibration = createVibrationTrigger({
+    enableVibration,
+    vibrationSupported,
+    isTouchDevice,
+    vibrate: vibrateCommit,
+  });
+
+  let observationTimer: ReturnType<typeof setTimeout> | null = null;
   let pressTimer: ReturnType<typeof setTimeout> | null = null;
   let progressInterval: ReturnType<typeof setInterval> | null = null;
   let startTime = 0;
   let longPressTriggered = false;
+  let gesturePhase: GesturePhase = 'idle';
+  let startX = 0;
+  let startY = 0;
 
-  function startPress() {
-    if (isPressed.value) {
-      return;
-    } // Prevent double-start
-
-    isPressed.value = true;
-    progress.value = 0;
+  function startLongPressTimer() {
     startTime = Date.now();
     longPressTriggered = false;
 
-    // Update progress every frame (60fps)
     progressInterval = setInterval(() => {
       const elapsed = Date.now() - startTime;
       progress.value = Math.min((elapsed / delay) * 100, 100);
@@ -174,15 +193,21 @@ export function useLongPress(
       longPressTriggered = true;
       triggerVibration();
       onLongPress();
-      cancelPress();
+      cancelGesture();
     }, delay);
   }
 
-  function cancelPress() {
+  function cancelGesture() {
+    gesturePhase = 'idle';
     isPressed.value = false;
+    isObserving.value = false;
     isTouching.value = false;
     progress.value = 0;
 
+    if (observationTimer) {
+      clearTimeout(observationTimer);
+      observationTimer = null;
+    }
     if (pressTimer) {
       clearTimeout(pressTimer);
       pressTimer = null;
@@ -193,61 +218,81 @@ export function useLongPress(
     }
   }
 
-  let startX = 0;
-  let startY = 0;
-  const moveThreshold = 10; // Cancel if finger moves more than 10px
-
   function handleTouchStart(e: TouchEvent) {
-    // Prevent default touch behaviors
-    if (e.cancelable) {
-      e.preventDefault();
+    if (gesturePhase !== 'idle') {
+      return;
     }
-    isTouching.value = true;
 
-    // Track start position for movement detection
     const touch = e.touches[0];
     if (touch) {
       startX = touch.clientX;
       startY = touch.clientY;
     }
 
-    startPress();
+    gesturePhase = 'observing';
+    isObserving.value = true;
+    isTouching.value = true;
+    onObserving?.();
+
+    observationTimer = setTimeout(() => {
+      if (gesturePhase === 'observing') {
+        gesturePhase = 'committed';
+        isObserving.value = false;
+        isPressed.value = true;
+        triggerCommitVibration();
+        onCommit?.();
+        startLongPressTimer();
+      }
+    }, observationWindow);
   }
 
   function handleTouchMove(e: TouchEvent) {
-    // Cancel long press if finger moves too much
-    if (!isPressed.value) {
+    const touch = e.touches[0];
+    if (!touch) {
       return;
     }
 
-    const touch = e.touches[0];
-    if (touch) {
-      const dx = Math.abs(touch.clientX - startX);
-      const dy = Math.abs(touch.clientY - startY);
-      if (dx > moveThreshold || dy > moveThreshold) {
-        cancelPress();
-      }
+    const dy = Math.abs(touch.clientY - startY);
+    const dx = Math.abs(touch.clientX - startX);
+
+    if (gesturePhase === 'observing' && dy > scrollThreshold) {
+      cancelGesture();
+      return;
+    }
+
+    if (
+      gesturePhase === 'committed' &&
+      (dx > moveThreshold || dy > moveThreshold)
+    ) {
+      cancelGesture();
     }
   }
 
   function handlePointerDown(e: PointerEvent) {
-    if (
-      (e.pointerType === 'touch' || e.pointerType === 'pen') &&
-      !isPressed.value
-    ) {
-      startPress();
+    if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+      return;
+    }
+    if (gesturePhase === 'idle') {
+      gesturePhase = 'committed';
+      isPressed.value = true;
+      startLongPressTimer();
     }
   }
 
   function handleTouchEnd() {
-    // Detect short press: released before long press triggered
-    if (isPressed.value && !longPressTriggered && onShortPress) {
+    if (gesturePhase === 'observing' && onShortPress) {
+      onShortPress();
+    } else if (
+      gesturePhase === 'committed' &&
+      !longPressTriggered &&
+      onShortPress
+    ) {
       onShortPress();
     }
-    cancelPress();
+    cancelGesture();
   }
 
-  const handleEnd = () => cancelPress();
+  const handleEnd = () => cancelGesture();
 
   onMounted(() => {
     isTouchDevice.value =
@@ -256,13 +301,11 @@ export function useLongPress(
     if (elementRef.value) {
       const el = elementRef.value;
 
-      // Touch events (mobile)
-      el.addEventListener('touchstart', handleTouchStart, { passive: false });
+      el.addEventListener('touchstart', handleTouchStart, { passive: true });
       el.addEventListener('touchmove', handleTouchMove, { passive: true });
       el.addEventListener('touchend', handleTouchEnd);
       el.addEventListener('touchcancel', handleEnd);
 
-      // Pointer events (pen/desktop)
       el.addEventListener('pointerdown', handlePointerDown);
       el.addEventListener('pointerup', handleEnd);
       el.addEventListener('pointerleave', handleEnd);
@@ -271,7 +314,7 @@ export function useLongPress(
   });
 
   onUnmounted(() => {
-    cancelPress();
+    cancelGesture();
 
     if (elementRef.value) {
       const el = elementRef.value;
@@ -289,6 +332,7 @@ export function useLongPress(
 
   return {
     isPressed,
+    isObserving,
     progress,
     isTouchDevice,
     isTouching,
