@@ -29,10 +29,10 @@ export default {
     background.src = imagePath;
     drawImageCover(ctx, background, canvas.width, canvas.height);
 
-    ctx.font = '112px Typewriter';
+    ctx.font = '104px Typewriter';
     ctx.globalAlpha = 0.2;
 
-    const lineHeight = 420;
+    const lineHeight = 390;
     const baseX = 250;
     const baseY = (canvas.height - lineHeight * verses.length) / 2;
 
@@ -105,9 +105,9 @@ export default {
     ctx.globalAlpha = 1;
     drawImageCover(ctx, decor, canvas.width, canvas.height);
 
-    ctx.font = '110px Typewriter';
+    ctx.font = '102px Typewriter';
     ctx.globalAlpha = 0.7;
-    ctx.fillText('- GutenKu', canvas.width - 900, canvas.height - 280);
+    ctx.fillText('- GutenKu', canvas.width - 840, canvas.height - 260);
 
     return canvas;
   },

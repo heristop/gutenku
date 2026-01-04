@@ -1,7 +1,7 @@
 import type { CanvasRenderingContext2D, Image } from 'canvas';
 
-export const CANVAS_WIDTH = 2025;
-export const CANVAS_HEIGHT = 2700;
+export const CANVAS_WIDTH = 2000;
+export const CANVAS_HEIGHT = 2500;
 
 export function drawImageCover(
   ctx: CanvasRenderingContext2D,
