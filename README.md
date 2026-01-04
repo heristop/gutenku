@@ -22,7 +22,7 @@
 
 ## Daily Haiku Card
 
-<img align="left" src="/assets/img/daily_haiku_card.jpg?t=1767484801" width="280" alt="Daily Haiku Card" hspace="16">
+<img align="left" src="/assets/img/daily_haiku_card.jpg?t=1767559670" width="280" alt="Daily Haiku Card" hspace="16">
 
 &nbsp;
 
