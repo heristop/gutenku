@@ -18,7 +18,8 @@
     "train": "pnpm --filter @gutenku/server train",
     "post": "pnpm --filter @gutenku/server post",
     "build": "pnpm --filter @gutenku/front build",
-    "prepare": "husky"
+    "prepare": "husky",
+    "submodule:update": "./scripts/update-submodule.sh"
   },
   "dependencies": {
     "@commitlint/config-conventional": "^20.3.0"
