@@ -116,6 +116,8 @@ export interface GameState {
   allEmoticonsRevealed: boolean;
   /** Whether books selection has been reduced (50 -> 30) */
   hasReducedBooks?: boolean;
+  /** Books eliminated by the player */
+  eliminatedBooks?: string[];
 }
 
 export interface GameStats {
@@ -159,7 +161,9 @@ export function maskBookTitle(title: string): string {
     }
   }
 
-  if (!nonMaskedVowel) return title;
+  if (!nonMaskedVowel) {
+    return title;
+  }
 
   return title.replaceAll(new RegExp(`[^ ${nonMaskedVowel}]`, 'gi'), '*');
 }
