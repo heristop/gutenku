@@ -113,7 +113,6 @@ const currentIcon = computed<Component>(() => currentMessage.value.icon);
 
       <!-- Splash mode -->
       <div v-if="displayMessage.text" class="loading-splash">
-        <!-- Floating ink particles background -->
         <div class="loading-particles" aria-hidden="true">
           <div v-for="i in 6" :key="i" :class="`particle particle-${i}`" />
         </div>
@@ -240,7 +239,6 @@ const currentIcon = computed<Component>(() => currentMessage.value.icon);
   }
 }
 
-// Floating ink particles
 .loading-particles {
   position: absolute;
   inset: 0;
@@ -316,7 +314,8 @@ const currentIcon = computed<Component>(() => currentMessage.value.icon);
 }
 
 @keyframes particle-float {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0;
     transform: translate(0, 0) scale(0.5);
   }
@@ -375,20 +374,6 @@ const currentIcon = computed<Component>(() => currentMessage.value.icon);
   );
   animation: progress-breathe 4s ease-in-out infinite;
 
-  // Shimmer sweep
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      oklch(1 0 0 / 0.35) 50%,
-      transparent 100%
-    );
-    animation: shimmer-sweep 2.5s ease-in-out infinite;
-  }
-
   // Soft glow
   &::after {
     content: '';
@@ -402,22 +387,14 @@ const currentIcon = computed<Component>(() => currentMessage.value.icon);
 }
 
 @keyframes progress-breathe {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.7;
     transform: scaleX(0.92);
   }
   50% {
     opacity: 1;
     transform: scaleX(1);
-  }
-}
-
-@keyframes shimmer-sweep {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
   }
 }
 
@@ -460,7 +437,9 @@ const currentIcon = computed<Component>(() => currentMessage.value.icon);
 // Message transition
 .message-fade-enter-active,
 .message-fade-leave-active {
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
 }
 
 .message-fade-enter-from {
@@ -508,7 +487,8 @@ const currentIcon = computed<Component>(() => currentMessage.value.icon);
 }
 
 @keyframes ink-bleed {
-  0%, 100% {
+  0%,
+  100% {
     filter: blur(0);
     transform: scale(1);
     opacity: 0.85;
@@ -541,7 +521,9 @@ const currentIcon = computed<Component>(() => currentMessage.value.icon);
 // Dark theme
 .loading--dark {
   .loading-splash {
-    box-shadow: var(--gutenku-shadow-zen), 0 0 60px oklch(0 0 0 / 0.3);
+    box-shadow:
+      var(--gutenku-shadow-zen),
+      0 0 60px oklch(0 0 0 / 0.3);
   }
 
   .logo-container {
@@ -594,10 +576,6 @@ const currentIcon = computed<Component>(() => currentMessage.value.icon);
     animation: none;
     opacity: 0.85;
     transform: scaleX(1);
-
-    &::before {
-      animation: none;
-    }
   }
 
   .particle {

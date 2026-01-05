@@ -5,6 +5,8 @@ export class GetDailyPuzzleQuery extends Query<DailyPuzzleResponse> {
   constructor(
     public readonly date: string,
     public readonly revealedRounds: number[] = [],
+    public readonly visibleEmoticonCount?: number,
+    public readonly revealedHaikuCount?: number,
   ) {
     super();
   }

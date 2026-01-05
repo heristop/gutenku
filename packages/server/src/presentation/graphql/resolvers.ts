@@ -49,11 +49,26 @@ const resolvers = {
     },
     dailyPuzzle: async (
       _,
-      { date, revealedRounds }: { date: string; revealedRounds?: number[] },
+      {
+        date,
+        revealedRounds,
+        visibleEmoticonCount,
+        revealedHaikuCount,
+      }: {
+        date: string;
+        revealedRounds?: number[];
+        visibleEmoticonCount?: number;
+        revealedHaikuCount?: number;
+      },
     ) => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
       return queryBus.execute(
-        new GetDailyPuzzleQuery(date, revealedRounds || []),
+        new GetDailyPuzzleQuery(
+          date,
+          revealedRounds || [],
+          visibleEmoticonCount,
+          revealedHaikuCount,
+        ),
       );
     },
     submitGuess: async (

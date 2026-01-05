@@ -43,6 +43,8 @@ export const dailyPuzzleSchema = z.object({
     .array(z.number().int().min(1).max(6))
     .optional()
     .default([]),
+  visibleEmoticonCount: z.number().int().min(0).max(100).optional(),
+  revealedHaikuCount: z.number().int().min(0).max(3).optional(),
 });
 
 export type DailyPuzzleInput = z.infer<typeof dailyPuzzleSchema>;

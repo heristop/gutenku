@@ -1718,6 +1718,61 @@ body {
   }
 }
 
+// ====================================
+// DYSLEXIA-FRIENDLY MODE
+// ====================================
+[data-dyslexia='true'] {
+  // Apply OpenDyslexic to all UI text (excluding book content)
+  body,
+  .text-h1,
+  .text-h2,
+  .text-h3,
+  .text-h4,
+  .text-h5,
+  .text-h6,
+  .text-subtitle-1,
+  .text-subtitle-2,
+  .text-body-1,
+  .text-body-2,
+  .text-caption,
+  .text-overline,
+  .text-button,
+  button,
+  [role='button'],
+  label,
+  input,
+  select,
+  textarea,
+  .app-footer,
+  .toolbar-panel,
+  .config-panel,
+  .stats-panel,
+  .zen-btn,
+  .zen-chip,
+  .zen-modal,
+  .zen-tooltip {
+    font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif !important;
+  }
+
+  body {
+    letter-spacing: 0.03em;
+    word-spacing: 0.08em;
+  }
+
+  p,
+  .text-body-1,
+  .text-body-2,
+  .text-caption {
+    line-height: 1.7 !important;
+  }
+
+  // Exclude book content
+  .chapter-sheet {
+    font-family: 'JMH Typewriter', monospace !important;
+    font-size: inherit !important;
+  }
+}
+
 .book {
   color: #2c3e50;
   text-align: justify;

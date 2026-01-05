@@ -47,7 +47,15 @@
     "disableSystem": "Disable system theme"
   },
   "game": {
-    "loading": "Loading today's puzzle...",
+    "loading": {
+      "default": "Loading...",
+      "fetchingPuzzle": "Fetching today's puzzle...",
+      "loadingBooks": "Loading book collection...",
+      "preparingGame": "Preparing your game...",
+      "submittingGuess": "Checking your answer...",
+      "revealingHint": "Revealing new clue...",
+      "reducingBooks": "Narrowing the selection..."
+    },
     "searchPlaceholder": "Search among {count} books...",
     "searchLabel": "Search books by title or author",
     "searchResults": "{count} book found | {count} books found",
@@ -140,6 +148,7 @@
     "previousHints": "Previous hints",
     "startGate": {
       "title": "These emoticons represent a classic book",
+      "titleHaiku": "This haiku is crafted from a classic book",
       "subtitle": "Can you guess which one?",
       "cta": "Start Guessing",
       "hint": "Each guess unlocks more hints!"
@@ -201,7 +210,7 @@
     "confirmGuessQuestion": "Is this your final answer?",
     "confirmGuess": "Confirm Guess",
     "confirmReduceBooks": "Use this lifeline?",
-    "confirmReduceBooksDesc": "Reduces the book list from 50 to 30. Costs 20 points.",
+    "confirmReduceBooksDesc": "Reduces the book list from 50 to 30.",
     "confirmReduce": "Use Lifeline",
     "review": {
       "haikuHints": "Haiku Hints"
@@ -254,6 +263,11 @@
       "githubLabel": "Visit heristop on GitHub (opens in new tab)",
       "portfolioLabel": "Visit heristop portfolio (opens in new tab)",
       "feedback": "Questions or ideas? Reach out on social media!"
+    },
+    "accessibility": {
+      "dyslexia": "Dyslexia-friendly",
+      "dyslexiaOn": "Disable dyslexia mode",
+      "dyslexiaOff": "Enable dyslexia mode"
     }
   },
   "hero": {

@@ -285,9 +285,16 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
     const validated = dailyPuzzleSchema.parse({
       date: query.date,
       revealedRounds: query.revealedRounds,
+      visibleEmoticonCount: query.visibleEmoticonCount,
+      revealedHaikuCount: query.revealedHaikuCount,
     });
 
-    const { date, revealedRounds } = validated;
+    const {
+      date,
+      revealedRounds,
+      visibleEmoticonCount = 2,
+      revealedHaikuCount = 0,
+    } = validated;
 
     // Create seeded PRNG for deterministic results
     const seed = dateToSeed(date);
@@ -304,18 +311,25 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
       (hint) => revealedRounds.includes(hint.round) || hint.round === 1,
     );
 
-    // Shuffle emoticons deterministically
+    // Shuffle emoticons deterministically and limit to visibleEmoticonCount
+    const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
     for (const hint of hints) {
       if (hint.type === 'emoticons') {
-        hint.content = shuffleEmoticons(hint.content, random);
+        const shuffled = shuffleEmoticons(hint.content, random);
+        // Slice to only show visibleEmoticonCount emoticons
+        const allEmojis = [...segmenter.segment(shuffled)]
+          .map((s) => s.segment)
+          .filter((char) => char.trim());
+        hint.content = allEmojis.slice(0, visibleEmoticonCount).join('');
       }
     }
 
     // Generate multiple haikus for lifeline system (max 3) - deterministic
-    const haikus = await this.generateHaikus(book, 3, random);
+    const allHaikus = await this.generateHaikus(book, 3, random);
+    // Only return revealed haikus (client reveals them progressively)
+    const haikus = allHaikus.slice(0, revealedHaikuCount);
 
-    // Count emoticons using grapheme segmentation
-    const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
+    // Count emoticons using grapheme segmentation (reuse segmenter from above)
     const emoticonCount = [...segmenter.segment(book.emoticons)]
       .map((s) => s.segment)
       .filter((char) => char.trim()).length;
@@ -339,6 +353,51 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
   }
 
   /**
+   * Check if a sentence is valid for haiku use.
+   */
+  private isValidSentence(sentence: string): boolean {
+    if (this.naturalLanguage.hasUpperCaseWords(sentence)) {
+      return false;
+    }
+    if (this.naturalLanguage.hasBlacklistedCharsInQuote(sentence)) {
+      return false;
+    }
+    return sentence.length < 30;
+  }
+
+  /**
+   * Categorize sentences by syllable count (5 or 7).
+   */
+  private categorizeSentences(chapters: { content: string }[]): {
+    fiveSyllable: string[];
+    sevenSyllable: string[];
+  } {
+    const fiveSyllable: string[] = [];
+    const sevenSyllable: string[] = [];
+
+    for (const chapter of chapters) {
+      const sentences = this.naturalLanguage.extractSentencesByPunctuation(
+        chapter.content,
+      );
+
+      for (const sentence of sentences) {
+        if (!this.isValidSentence(sentence)) {
+          continue;
+        }
+
+        const syllableCount = countSyllables(sentence);
+        if (syllableCount === 5) {
+          fiveSyllable.push(sentence);
+        } else if (syllableCount === 7) {
+          sevenSyllable.push(sentence);
+        }
+      }
+    }
+
+    return { fiveSyllable, sevenSyllable };
+  }
+
+  /**
    * Generate haikus from chapter sentences matching 5-7-5 syllable pattern.
    * Validates sentences using NaturalLanguageService rules. Uses seeded PRNG.
    */
@@ -356,37 +415,9 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
         return [];
       }
 
-      // Pool all valid quotes from all chapters
-      const fiveSyllable: string[] = [];
-      const sevenSyllable: string[] = [];
+      const { fiveSyllable, sevenSyllable } =
+        this.categorizeSentences(chapters);
 
-      for (const chapter of chapters) {
-        const sentences = this.naturalLanguage.extractSentencesByPunctuation(
-          chapter.content,
-        );
-
-        for (const sentence of sentences) {
-          // Use same validation as GutenKu
-          if (this.naturalLanguage.hasUpperCaseWords(sentence)) {
-            continue;
-          }
-          if (this.naturalLanguage.hasBlacklistedCharsInQuote(sentence)) {
-            continue;
-          }
-          if (sentence.length >= 30) {
-            continue;
-          }
-
-          const syllableCount = countSyllables(sentence);
-          if (syllableCount === 5) {
-            fiveSyllable.push(sentence);
-          } else if (syllableCount === 7) {
-            sevenSyllable.push(sentence);
-          }
-        }
-      }
-
-      // Need at least 2 five-syllable and 1 seven-syllable verse
       if (fiveSyllable.length < 2 || sevenSyllable.length < 1) {
         return [];
       }
@@ -394,18 +425,15 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
       const haikus: string[] = [];
       const usedFive = new Set<string>();
       const usedSeven = new Set<string>();
+      const pick = (arr: string[]) => arr[Math.floor(random() * arr.length)];
 
-      // Generate multiple unique haikus using seeded random
       for (let i = 0; i < count; i++) {
         const availableFive = fiveSyllable.filter((s) => !usedFive.has(s));
         const availableSeven = sevenSyllable.filter((s) => !usedSeven.has(s));
 
-        // Need at least 2 unused five-syllable and 1 unused seven-syllable
         if (availableFive.length < 2 || availableSeven.length < 1) {
           break;
         }
-
-        const pick = (arr: string[]) => arr[Math.floor(random() * arr.length)];
 
         const v1 = pick(availableFive);
         usedFive.add(v1);
@@ -418,7 +446,6 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
           remainingFive.length > 0 ? pick(remainingFive) : pick(availableFive);
         usedFive.add(v3);
 
-        // Apply same cleaning as GutenKu
         const cleaned = cleanVerses([v1, v2, v3]);
         haikus.push(cleaned.join('\n'));
       }

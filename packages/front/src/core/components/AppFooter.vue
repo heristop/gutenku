@@ -5,6 +5,7 @@ import { Instagram, BookOpen } from 'lucide-vue-next';
 import ZenTooltip from '@/core/components/ui/ZenTooltip.vue';
 import ZenCreditsModal from '@/core/components/ui/ZenCreditsModal.vue';
 import ThemeToggle from '@/core/components/ThemeToggle.vue';
+import AccessibilityToggle from '@/core/components/AccessibilityToggle.vue';
 
 const { t } = useI18n();
 const currentYear = new Date().getFullYear();
@@ -147,6 +148,9 @@ function openSocialLink(url: string) {
 
       <!-- Theme Toggle (3-state: light → dark → system) -->
       <ThemeToggle variant="footer" class="stagger-7" />
+
+      <!-- Accessibility Toggle -->
+      <AccessibilityToggle class="stagger-8" />
     </div>
 
     <ZenCreditsModal v-model="showCredits" />
@@ -288,6 +292,10 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   animation: social-pop-in 0.25s $ease-zen-out 0.22s both;
 }
 
+.stagger-8 {
+  animation: social-pop-in 0.25s $ease-zen-out 0.25s both;
+}
+
 // Navigation with ink underline
 .footer-nav {
   display: flex;
@@ -306,7 +314,11 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
 
     &:hover {
       color: var(--gutenku-zen-primary);
-      background: color-mix(in oklch, var(--gutenku-zen-primary) 8%, transparent);
+      background: color-mix(
+        in oklch,
+        var(--gutenku-zen-primary) 8%,
+        transparent
+      );
       transform: translateY(-2px);
     }
 
@@ -489,7 +501,7 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
 // Dark theme
 [data-theme='dark'] {
   .app-footer {
-    background: oklch(0.20 0.02 55 / 0.3);
+    background: oklch(0.2 0.02 55 / 0.3);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     box-shadow:
@@ -503,7 +515,11 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
 
     &:hover {
       color: var(--gutenku-zen-accent);
-      background: color-mix(in oklch, var(--gutenku-zen-accent) 15%, transparent);
+      background: color-mix(
+        in oklch,
+        var(--gutenku-zen-accent) 15%,
+        transparent
+      );
     }
 
     &.router-link-exact-active {
@@ -543,7 +559,11 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
 
     &:hover {
       color: var(--gutenku-zen-accent);
-      background: color-mix(in oklch, var(--gutenku-zen-accent) 12%, transparent);
+      background: color-mix(
+        in oklch,
+        var(--gutenku-zen-accent) 12%,
+        transparent
+      );
     }
   }
 
@@ -593,6 +613,7 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   .stagger-5,
   .stagger-6,
   .stagger-7,
+  .stagger-8,
   .ink-stroke {
     animation: none;
     opacity: 1;

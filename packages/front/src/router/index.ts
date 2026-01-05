@@ -42,9 +42,9 @@ export const routes: RouteRecordRaw[] = [
             /* webpackChunkName: "haiku" */ '@/features/haiku/views/Haiku.vue'
           ),
         meta: {
-          title: 'Haiku Generator - GutenKu',
+          title: 'Free Haiku Generator - GutenKu',
           description:
-            'Create haikus inspired by classic literature from Project Gutenberg.',
+            'Free AI haiku generator inspired by classic literature. Create beautiful zen poetry from Project Gutenberg books.',
         },
       },
       {

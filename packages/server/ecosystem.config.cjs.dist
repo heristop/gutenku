@@ -1,11 +1,11 @@
-export default {
+module.exports = {
   apps: [
     {
       name: 'server',
-      script: 'pnpm',
-      args: 'start',
+      script: './dist/src/index.js',
+      instances: 2,
+      exec_mode: 'cluster',
       max_memory_restart: '400M',
-      interpreter: 'none',
       env: {
         NODE_ENV: 'production',
       },

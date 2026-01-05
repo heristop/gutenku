@@ -1,5 +1,12 @@
 <script lang="ts" setup>
-import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, watch } from 'vue';
+import {
+  computed,
+  defineAsyncComponent,
+  onMounted,
+  onUnmounted,
+  ref,
+  watch,
+} from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useSeoMeta } from '@unhead/vue';
 import { storeToRefs } from 'pinia';
@@ -53,15 +60,17 @@ const { t, tm } = useI18n();
 const { error: showError } = useToast();
 
 useSeoMeta({
-  ogTitle: 'GutenKu - AI Haiku Generator',
-  ogDescription: 'Generate beautiful haikus from classic literature using AI. Transform timeless prose into zen poetry.',
+  ogTitle: 'Free AI Haiku Generator - GutenKu',
+  ogDescription:
+    'Free haiku generator powered by AI. Create beautiful zen poetry from classic literature. No signup required.',
   ogImage: 'https://gutenku.xyz/og-image.png',
   twitterImage: 'https://gutenku.xyz/og-image.png',
 });
 
 const haikuStore = useHaikuStore();
 const { fetchNewHaiku } = haikuStore;
-const { haiku, error, firstLoaded, networkError, loading, optionUseAI } = storeToRefs(haikuStore);
+const { haiku, error, firstLoaded, networkError, loading, optionUseAI } =
+  storeToRefs(haikuStore);
 const { trackHaikuView } = usePwaInstall();
 
 watch(haiku, (newHaiku) => {
@@ -71,10 +80,8 @@ watch(haiku, (newHaiku) => {
 });
 
 const containerRef = ref<HTMLElement | null>(null);
-const { pullDistance, isRefreshing, shouldRelease, progress } = usePullToRefresh(
-  containerRef,
-  { onRefresh: fetchNewHaiku },
-);
+const { pullDistance, isRefreshing, shouldRelease, progress } =
+  usePullToRefresh(containerRef, { onRefresh: fetchNewHaiku });
 
 watch(error, (newError) => {
   if (newError && newError !== 'network-error') {

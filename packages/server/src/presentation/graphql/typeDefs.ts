@@ -113,7 +113,7 @@ const typeDefs = `#graphql
             descriptionTemperature: Float
         ): Haiku
         globalStats: GlobalStats!
-        dailyPuzzle(date: String!, revealedRounds: [Int!]): DailyPuzzleResponse!
+        dailyPuzzle(date: String!, revealedRounds: [Int!], visibleEmoticonCount: Int, revealedHaikuCount: Int): DailyPuzzleResponse!
         submitGuess(date: String!, guessedBookId: ID!, currentRound: Int!): GuessResult!
         reduceBooks(date: String!): [Book!]!
     }

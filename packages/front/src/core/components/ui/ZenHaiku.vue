@@ -130,8 +130,8 @@ const lineIndent = (index: number): string => {
 // Animated variant
 .zen-haiku--animated .zen-haiku__line {
   opacity: 0;
-  animation: typewriter-reveal 0.4s ease forwards;
-  animation-delay: calc(var(--line-index) * 0.3s + 0.3s);
+  animation: typewriter-reveal 0.25s ease forwards;
+  animation-delay: calc(var(--line-index) * 0.15s + 0.1s);
 }
 
 @keyframes typewriter-reveal {
