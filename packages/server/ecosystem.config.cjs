@@ -1,12 +1,14 @@
 module.exports = {
   apps: [
     {
+      name: 'server',
+      script: 'pnpm',
+      args: 'start',
+      max_memory_restart: '400M',
+      interpreter: 'none',
       env: {
         NODE_ENV: 'production',
       },
-      max_memory_restart: '400M',
-      name: 'server',
-      script: 'dist/index.js',
     },
   ],
 };
