@@ -35,14 +35,14 @@ export default {
     ctx.globalAlpha = 0.25;
     ctx.drawImage(
       logo,
-      canvas.width - logo.width * 0.8 - 220,
-      canvas.height - logo.height * 0.8 - 180,
-      logo.width * 0.8,
-      logo.height * 0.8,
+      canvas.width - logo.width * 0.7 - 200,
+      canvas.height - logo.height * 0.7 - 160,
+      logo.width * 0.7,
+      logo.height * 0.7,
     );
     ctx.globalAlpha = 1;
 
-    ctx.font = 'bold 120px Yomogi';
+    ctx.font = 'bold 110px Yomogi';
     ctx.fillStyle = '#fff';
     ctx.lineWidth = 2;
     ctx.globalAlpha = 0.8;
@@ -51,7 +51,7 @@ export default {
     let y = canvas.height / 4;
     verses.forEach((verse) => {
       ctx.fillText(verse, x, y);
-      y += 480;
+      y += 420;
     });
 
     return canvas;

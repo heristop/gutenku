@@ -33,7 +33,7 @@ export default {
     ctx.fillStyle = '#fff8e7';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.font = 'bold 125px Yomogi';
+    ctx.font = 'bold 115px Yomogi';
     ctx.globalAlpha = 1;
 
     const x = 200;
@@ -46,16 +46,16 @@ export default {
       ctx.strokeText(verse, x, y);
       ctx.fillStyle = '#0a0a14';
       ctx.fillText(verse, x, y);
-      y += 480;
+      y += 420;
     });
 
-    ctx.font = 'bold 120px Yomogi';
+    ctx.font = 'bold 110px Yomogi';
     ctx.strokeStyle = 'rgba(255, 248, 231, 0.85)';
     ctx.lineWidth = 8;
     ctx.lineJoin = 'round';
-    ctx.strokeText('- GutenKu', canvas.width - 900, canvas.height - 280);
+    ctx.strokeText('- GutenKu', canvas.width - 780, canvas.height - 240);
     ctx.fillStyle = '#4a1525';
-    ctx.fillText('- GutenKu', canvas.width - 900, canvas.height - 280);
+    ctx.fillText('- GutenKu', canvas.width - 780, canvas.height - 240);
 
     return canvas;
   },

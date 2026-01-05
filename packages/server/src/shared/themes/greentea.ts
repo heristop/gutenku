@@ -30,7 +30,7 @@ export default {
     background.src = imagePath;
     drawImageCover(ctx, background, canvas.width, canvas.height);
 
-    ctx.font = '180px NanumBrushScript';
+    ctx.font = '155px NanumBrushScript';
     ctx.fillStyle = '#2F5D62';
     ctx.globalAlpha = 0.84;
 
@@ -38,7 +38,7 @@ export default {
     let y = canvas.height / 4;
     verses.map((verse) => {
       ctx.fillText(verse, x, y);
-      y += 480;
+      y += 420;
     });
 
     const decor = new Canvas.Image();
@@ -59,9 +59,9 @@ export default {
       pic.height,
     );
 
-    ctx.font = '154px NanumBrushScript';
+    ctx.font = '132px NanumBrushScript';
     ctx.globalAlpha = 0.6;
-    ctx.fillText('- GutenKu', canvas.width - 900, canvas.height - 280);
+    ctx.fillText('- GutenKu', canvas.width - 780, canvas.height - 240);
 
     return canvas;
   },
