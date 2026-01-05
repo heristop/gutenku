@@ -6,6 +6,9 @@ node_modules
 .env.local
 .env.*.local
 
+# PM2 config (use .dist as template)
+ecosystem.config.mjs
+
 # Editor directories and files
 .idea
 .vscode

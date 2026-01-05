@@ -23,5 +23,12 @@
   "ts-node": {
     "esm": true,
     "experimentalSpecifierResolution": "node"
+  },
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "fileExtensions": {
+      "inputGlob": "{js,mjs}",
+      "outputCheck": ["js", "mjs"]
+    }
   }
 }
