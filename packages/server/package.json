@@ -56,7 +56,7 @@
     "reflect-metadata": "^0.2.2",
     "sharp": "^0.34.5",
     "syllable": "^5.0.1",
-    "terminal-image": "^4.1.0",
+    "terminal-image": "^4.2.0",
     "tsyringe": "^4.10.0",
     "ws": "^8.18.3",
     "zod": "^4.3.5"

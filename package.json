@@ -17,7 +17,7 @@
     "extract": "pnpm --filter @gutenku/server extract",
     "train": "pnpm --filter @gutenku/server train",
     "post": "pnpm --filter @gutenku/server post",
-    "build": "pnpm --filter @gutenku/front build",
+    "build": "pnpm -r run build",
     "prepare": "husky",
     "submodule:update": "./scripts/update-submodule.sh"
   },
