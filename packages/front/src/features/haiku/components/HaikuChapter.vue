@@ -2,7 +2,13 @@
 import { onMounted, ref, computed, watch, onUnmounted, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
-import { Lightbulb, LightbulbOff, ChevronsUpDown, ChevronsDownUp } from 'lucide-vue-next';
+import {
+  Lightbulb,
+  LightbulbOff,
+  ChevronsUpDown,
+  ChevronsDownUp,
+  BookOpen,
+} from 'lucide-vue-next';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
 import { useHaikuHighlighter } from '@/features/haiku/composables/haiku-highlighter';
 import { useTextCompacting } from '@/features/haiku/composables/text-compacting';
@@ -32,7 +38,9 @@ function updateCardRect() {
 }
 
 const craftingStyle = computed(() => {
-  if (!cardRect.value) {return {};}
+  if (!cardRect.value) {
+    return {};
+  }
   return {
     position: 'fixed' as const,
     top: `${cardRect.value.top + 16}px`,
@@ -49,11 +57,15 @@ watch(loading, (isLoading) => {
   }
 });
 
-watch(craftingMessages, (messages) => {
-  if (messages.length > 0 && !cardRect.value) {
-    nextTick(updateCardRect);
-  }
-}, { immediate: true });
+watch(
+  craftingMessages,
+  (messages) => {
+    if (messages.length > 0 && !cardRect.value) {
+      nextTick(updateCardRect);
+    }
+  },
+  { immediate: true },
+);
 
 let scrollListener: (() => void) | null = null;
 
@@ -81,7 +93,9 @@ function toggleCompactedView(): void {
 }
 
 const pageNumber = computed(() => {
-  if (!haiku.value?.book?.title || !haiku.value?.chapter?.title) {return 1;}
+  if (!haiku.value?.book?.title || !haiku.value?.chapter?.title) {
+    return 1;
+  }
 
   const combined = haiku.value.book.title + haiku.value.chapter.title;
   let hash = 0;
@@ -94,7 +108,9 @@ const pageNumber = computed(() => {
 });
 
 function getCompactedText(): string {
-  if (!haiku.value?.chapter.content || !haiku.value?.rawVerses) {return '';}
+  if (!haiku.value?.chapter.content || !haiku.value?.rawVerses) {
+    return '';
+  }
   return compactText(haiku.value.chapter.content, haiku.value.rawVerses);
 }
 
@@ -169,7 +185,7 @@ onUnmounted(() => {
               v-for="(msg, index) in craftingMessages.slice(0, 6)"
               :key="msg.id || `msg-${msg.timestamp}-${index}`"
               class="crafting-message"
-              :class="{ 'latest': index === 0 }"
+              :class="{ latest: index === 0 }"
             >
               <span class="message-icon" aria-hidden="true">
                 <component :is="msg.icon" :size="16" />
@@ -268,6 +284,19 @@ onUnmounted(() => {
       </div>
     </button>
 
+    <a
+      v-if="haiku.book.reference"
+      :href="`https://www.gutenberg.org/ebooks/${haiku.book.reference}`"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="gutenberg-link"
+      :aria-label="t('haikuChapter.readOnGutenberg')"
+      @click.stop
+    >
+      <BookOpen :size="16" />
+      <span>{{ t('haikuChapter.readOnGutenberg') }}</span>
+    </a>
+
     <div class="page-number">— {{ pageNumber }} —</div>
   </ZenCard>
 </template>
@@ -352,7 +381,11 @@ onUnmounted(() => {
 
   .toggle-btn.zen-btn {
     background:
-      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.12) 0%, transparent 50%),
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.12) 0%,
+        transparent 50%
+      ),
       var(--gutenku-zen-water) !important;
     border: 1.5px solid oklch(0.45 0.1 195 / 0.2) !important;
     color: var(--gutenku-zen-primary) !important;
@@ -375,7 +408,11 @@ onUnmounted(() => {
 
     &:hover:not(:disabled):not([aria-disabled='true']) {
       background:
-        radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.2) 0%, transparent 50%),
+        radial-gradient(
+          circle at 30% 30%,
+          oklch(1 0 0 / 0.2) 0%,
+          transparent 50%
+        ),
         var(--gutenku-zen-primary) !important;
       border-color: var(--gutenku-zen-primary) !important;
       transform: scale(1.05);
@@ -400,13 +437,21 @@ onUnmounted(() => {
 
     &.expand-toggle {
       background:
-        radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.12) 0%, transparent 50%),
+        radial-gradient(
+          circle at 30% 30%,
+          oklch(1 0 0 / 0.12) 0%,
+          transparent 50%
+        ),
         var(--gutenku-zen-water) !important;
       border: 1.5px solid oklch(0.45 0.1 195 / 0.2) !important;
 
       &:hover:not(:disabled):not([aria-disabled='true']) {
         background:
-          radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.2) 0%, transparent 50%),
+          radial-gradient(
+            circle at 30% 30%,
+            oklch(1 0 0 / 0.2) 0%,
+            transparent 50%
+          ),
           var(--gutenku-zen-primary) !important;
         border-color: var(--gutenku-zen-primary) !important;
       }
@@ -438,7 +483,11 @@ onUnmounted(() => {
 [data-theme='dark'] .book-header {
   .toggle-btn.zen-btn {
     background:
-      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.08) 0%, transparent 50%),
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.08) 0%,
+        transparent 50%
+      ),
       oklch(0.25 0.04 195 / 0.7) !important;
     border-color: oklch(0.5 0.08 195 / 0.3) !important;
     color: var(--gutenku-zen-accent) !important;
@@ -452,7 +501,11 @@ onUnmounted(() => {
 
     &:hover:not(:disabled):not([aria-disabled='true']) {
       background:
-        radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.12) 0%, transparent 50%),
+        radial-gradient(
+          circle at 30% 30%,
+          oklch(1 0 0 / 0.12) 0%,
+          transparent 50%
+        ),
         var(--gutenku-zen-accent) !important;
       border-color: var(--gutenku-zen-accent) !important;
       box-shadow:
@@ -512,15 +565,30 @@ onUnmounted(() => {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   text-shadow: 1px 1px 2px oklch(0 0 0 / 0.1);
+  transition: all 0.3s ease;
 
   &.stabilo-hidden {
-    opacity: 0.3;
-    transition: all 0.3s ease;
+    background: repeating-linear-gradient(
+      transparent,
+      transparent 0.1em,
+      oklch(0 0 0 / 0.7) 0.1em,
+      oklch(0 0 0 / 0.7) 1.3em,
+      transparent 1.3em,
+      transparent 1.4em
+    );
+    background-size: 100% 1.4em;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='35' viewBox='0 0 100 35'%3E%3Cpath d='M0,4 L8,3.7 L15,4.2 L23,3.9 L32,4.1 L42,3.8 L52,4.3 L62,3.9 L72,4.1 L82,3.8 L92,4.2 L100,4 L100,31 L92,31.3 L82,30.9 L72,31.2 L62,31 L52,31.4 L42,30.8 L32,31.3 L23,31 L15,31.2 L8,30.9 L0,31.1 Z' fill='white'/%3E%3C/svg%3E");
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='35' viewBox='0 0 100 35'%3E%3Cpath d='M0,4 L8,3.7 L15,4.2 L23,3.9 L32,4.1 L42,3.8 L52,4.3 L62,3.9 L72,4.1 L82,3.8 L92,4.2 L100,4 L100,31 L92,31.3 L82,30.9 L72,31.2 L62,31 L52,31.4 L42,30.8 L32,31.3 L23,31 L15,31.2 L8,30.9 L0,31.1 Z' fill='white'/%3E%3C/svg%3E");
+    mask-repeat: repeat;
+    -webkit-mask-repeat: repeat;
+    mask-size: 100px 35px;
+    -webkit-mask-size: 100px 35px;
+    color: transparent;
+    text-shadow: 0 0 0 #000;
   }
 
   &.stabilo-visible {
     opacity: 1;
-    transition: all 0.3s ease;
   }
 }
 
@@ -530,6 +598,7 @@ onUnmounted(() => {
   text-align: center;
   margin-bottom: 2.5rem;
   font-style: italic;
+  transition: all 0.3s ease;
 
   &::before {
     content: 'by ';
@@ -538,13 +607,59 @@ onUnmounted(() => {
   }
 
   &.stabilo-hidden {
-    opacity: 0.3;
-    transition: all 0.3s ease;
+    background: repeating-linear-gradient(
+      transparent,
+      transparent 0.1em,
+      oklch(0 0 0 / 0.7) 0.1em,
+      oklch(0 0 0 / 0.7) 1.1em,
+      transparent 1.1em,
+      transparent 1.2em
+    );
+    background-size: 100% 1.2em;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='35' viewBox='0 0 100 35'%3E%3Cpath d='M0,4 L8,3.7 L15,4.2 L23,3.9 L32,4.1 L42,3.8 L52,4.3 L62,3.9 L72,4.1 L82,3.8 L92,4.2 L100,4 L100,31 L92,31.3 L82,30.9 L72,31.2 L62,31 L52,31.4 L42,30.8 L32,31.3 L23,31 L15,31.2 L8,30.9 L0,31.1 Z' fill='white'/%3E%3C/svg%3E");
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='35' viewBox='0 0 100 35'%3E%3Cpath d='M0,4 L8,3.7 L15,4.2 L23,3.9 L32,4.1 L42,3.8 L52,4.3 L62,3.9 L72,4.1 L82,3.8 L92,4.2 L100,4 L100,31 L92,31.3 L82,30.9 L72,31.2 L62,31 L52,31.4 L42,30.8 L32,31.3 L23,31 L15,31.2 L8,30.9 L0,31.1 Z' fill='white'/%3E%3C/svg%3E");
+    mask-repeat: repeat;
+    -webkit-mask-repeat: repeat;
+    mask-size: 100px 35px;
+    -webkit-mask-size: 100px 35px;
+    color: transparent;
+    text-shadow: 0 0 0 #000;
   }
 
   &.stabilo-visible {
     opacity: 1;
-    transition: all 0.3s ease;
+  }
+}
+
+.gutenberg-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  font-size: 0.85rem;
+  color: var(--gutenku-text-muted);
+  text-decoration: none;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+
+  svg {
+    transition: transform 0.2s ease;
+  }
+
+  &:hover {
+    color: var(--gutenku-zen-primary);
+
+    svg {
+      transform: translateY(-1px);
+    }
+  }
+
+  [data-theme='dark'] & {
+    &:hover {
+      color: var(--gutenku-zen-accent);
+    }
   }
 }
 

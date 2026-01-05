@@ -11,7 +11,6 @@ const { t } = useI18n();
 const currentYear = new Date().getFullYear();
 const showCredits = ref(false);
 
-// Ink ripple on copyright click
 const inkRipple = ref<{ x: number; y: number; active: boolean }>({
   x: 0,
   y: 0,
@@ -146,11 +145,11 @@ function openSocialLink(url: string) {
         />
       </svg>
 
-      <!-- Theme Toggle (3-state: light → dark → system) -->
-      <ThemeToggle variant="footer" class="stagger-7" />
-
-      <!-- Accessibility Toggle -->
-      <AccessibilityToggle class="stagger-8" />
+      <!-- Theme & Accessibility Toggles -->
+      <div class="footer-toggles">
+        <ThemeToggle variant="footer" class="stagger-7" />
+        <AccessibilityToggle class="stagger-8" />
+      </div>
     </div>
 
     <ZenCreditsModal v-model="showCredits" />
@@ -158,11 +157,8 @@ function openSocialLink(url: string) {
 </template>
 
 <style scoped lang="scss">
-// Zen easing curves
 $ease-zen: cubic-bezier(0.23, 1, 0.32, 1);
 $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
-
-// Keyframes
 @keyframes footer-fade-in {
   from {
     opacity: 0;
@@ -238,13 +234,9 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
 .app-footer {
   position: relative;
   padding: 1.5rem 1rem 1.75rem;
-
-  // Glass-morphism effect
   background: oklch(0.88 0.02 55 / 0.4);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-
-  // Top drop shadow
   box-shadow:
     0 -4px 16px oklch(0 0 0 / 0.06),
     0 -2px 8px oklch(0 0 0 / 0.04),
@@ -263,7 +255,6 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   margin: 0 auto;
 }
 
-// Staggered entrance animations - fast & subtle
 .stagger-1 {
   animation: nav-slide-in 0.25s $ease-zen-out 0.05s both;
 }
@@ -296,7 +287,6 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   animation: social-pop-in 0.25s $ease-zen-out 0.25s both;
 }
 
-// Navigation with ink underline
 .footer-nav {
   display: flex;
   align-items: center;
@@ -371,7 +361,6 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
-// Ink brushstroke divider
 .ink-divider {
   width: 2px;
   height: 1.25rem;
@@ -383,7 +372,6 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
-// Social icons with ink circle
 .footer-social {
   display: flex;
   align-items: center;
@@ -431,7 +419,6 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
-// Ink circle reveal behind icons
 .ink-circle {
   position: absolute;
   inset: 0;
@@ -449,7 +436,6 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
     opacity 0.25s ease;
 }
 
-// Copyright with ink ripple
 .footer-copyright {
   position: relative;
   font-family: 'JMH Typewriter', monospace;
@@ -474,7 +460,6 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
-// Ink ripple effect
 .ink-ripple {
   position: absolute;
   width: 4px;
@@ -498,7 +483,12 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
-// Dark theme
+.footer-toggles {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 [data-theme='dark'] {
   .app-footer {
     background: oklch(0.2 0.02 55 / 0.3);
@@ -576,7 +566,6 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
-// Mobile
 @media (max-width: 600px) {
   .app-footer {
     padding: 1.25rem 0.75rem 1.75rem;
@@ -603,7 +592,6 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
-// Reduced motion
 @media (prefers-reduced-motion: reduce) {
   .app-footer,
   .stagger-1,

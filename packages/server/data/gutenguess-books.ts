@@ -15,6 +15,7 @@ export interface GutenGuessBook {
   publicationYear: number;
   setting: string;
   protagonist: string;
+  summary: string;
 }
 
 const GUTENGUESS_BOOKS: readonly GutenGuessBook[] = [
@@ -30,6 +31,8 @@ const GUTENGUESS_BOOKS: readonly GutenGuessBook[] = [
     publicationYear: 1865,
     setting: 'Wonderland',
     protagonist: 'Young girl',
+    summary:
+      'A young girl tumbles down a rabbit hole into a realm where logic bends like willow branches.',
   },
   {
     id: 84,
@@ -46,6 +49,8 @@ const GUTENGUESS_BOOKS: readonly GutenGuessBook[] = [
     publicationYear: 1818,
     setting: 'Europe',
     protagonist: 'Scientist',
+    summary:
+      'A young scientist dares to create life, only to abandon his creation in horror.',
   },
   {
     id: 1342,
@@ -62,6 +67,8 @@ const GUTENGUESS_BOOKS: readonly GutenGuessBook[] = [
     publicationYear: 1813,
     setting: 'England',
     protagonist: 'Young woman',
+    summary:
+      'In the drawing rooms of Regency England, a quick-witted young woman and a proud gentleman spar with words.',
   },
 ] as const;
 

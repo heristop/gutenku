@@ -1,16 +1,7 @@
 @use '@/assets/css/fonts.css';
 @use '@/assets/css/_mixins' as *;
 
-// ====================================
-// GUTENKU GLOBAL DESIGN SYSTEM
-// ====================================
-
-// CSS Cascade Layers - Define order (lowest to highest priority)
 @layer base, components, utilities, theme;
-
-// ====================================
-// BASE RESET
-// ====================================
 @layer base {
   *,
   *::before,
@@ -28,11 +19,7 @@
   }
 }
 
-// ====================================
-// VIEW TRANSITION API STYLES
-// ====================================
 @layer utilities {
-  // View transition for theme switching - circular reveal from toggle position
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation-duration: 700ms;
@@ -84,7 +71,6 @@
     }
   }
 
-  // Theme toggle button transition
   .theme-toggle-zen {
     view-transition-name: theme-toggle;
   }
@@ -127,7 +113,6 @@
     }
   }
 
-  // Haiku canvas transition
   .haiku-canvas-container {
     view-transition-name: haiku-canvas;
   }
@@ -171,7 +156,6 @@
     }
   }
 
-  // Logo morph transition (loading -> about card)
   ::view-transition-old(gutenku-logo),
   ::view-transition-new(gutenku-logo) {
     animation-duration: var(--gutenku-duration-calm, 600ms);
@@ -216,11 +200,7 @@
   }
 }
 
-// ====================================
-// SCROLL-DRIVEN ANIMATIONS
-// ====================================
 @layer utilities {
-  // Scroll progress indicator
   @supports (animation-timeline: scroll()) {
     .scroll-progress-container {
       scroll-timeline: --scroll-progress block;
@@ -251,7 +231,6 @@
       }
     }
 
-    // Fade in on scroll for verses
     .scroll-fade-in {
       opacity: 0;
       transform: translateY(20px);
@@ -267,7 +246,6 @@
       }
     }
 
-    // Parallax effect for decorative elements
     .scroll-parallax {
       animation: parallax-shift linear;
       animation-timeline: scroll();
@@ -284,11 +262,7 @@
   }
 }
 
-// ====================================
-// CSS :has() SELECTORS
-// ====================================
 @layer components {
-  // Form focus states
   @supports selector(:has(*)) {
     .form-group:has(input:focus) {
       background: var(--gutenku-zen-water);
@@ -296,28 +270,23 @@
       transition: background var(--gutenku-duration-swift);
     }
 
-    // Toolbar active state
     .toolbar-panel:has(.gutenku-btn:active, .gutenku-btn:focus) {
       box-shadow: var(--gutenku-shadow-ink);
     }
 
-    // Panel loading state
     .gutenku-paper:has(.zen-loading) {
       opacity: 0.85;
       pointer-events: none;
     }
 
-    // Card expanded state
     .gutenku-card:has(.expanded) {
       box-shadow: var(--gutenku-shadow-zen);
     }
 
-    // Button group checked state
     .btn-group:has(input:checked) {
       border-color: var(--gutenku-zen-accent);
     }
 
-    // Stats panel empty state
     .stats-panel:has(.empty-state) {
       min-height: 200px;
       display: flex;
@@ -327,11 +296,7 @@
   }
 }
 
-// ====================================
-// CONTAINER QUERIES
-// ====================================
 @layer components {
-  // Config panel container
   .config-panel-container {
     container-type: inline-size;
     container-name: config-panel;
@@ -355,7 +320,6 @@
     }
   }
 
-  // Stats panel container
   .stats-panel-container {
     container-type: inline-size;
     container-name: stats-panel;
@@ -380,7 +344,6 @@
     }
   }
 
-  // Haiku canvas container
   .haiku-canvas-wrapper {
     container-type: inline-size;
     container-name: haiku-canvas;
@@ -393,7 +356,6 @@
     }
   }
 
-  // Toolbar container
   .toolbar-container {
     container-type: inline-size;
     container-name: toolbar;
@@ -411,14 +373,7 @@
   }
 }
 
-// ====================================
-// VISUAL EFFECTS
-// ====================================
-
-// Light beam overlay
-// -------------------------------------
 @layer utilities {
-  // CSS @property for gradient animation
   @property --beam-position {
     syntax: '<percentage>';
     inherits: false;
@@ -491,8 +446,6 @@
   }
 }
 
-// Water ripple click effect
-// -------------------------------------
 @layer components {
   .water-ripple-container {
     position: relative;
@@ -538,8 +491,6 @@
   }
 }
 
-// Bookmark ribbon
-// -------------------------------------
 @layer components {
   .bookmark-ribbon {
     position: absolute;
@@ -569,7 +520,6 @@
         inset -2px 0 4px rgba(255, 255, 255, 0.1);
     }
 
-    // Gold stripe
     &::after {
       content: '';
       position: absolute;
@@ -592,8 +542,6 @@
   }
 }
 
-// Floating particles (outside @layer for proper specificity)
-// -------------------------------------
 .floating-particles {
   position: fixed;
   inset: 0;
@@ -823,7 +771,6 @@
 
 // CSS Variables for Design System
 :root {
-  // Colors - Book/Paper Theme (Light Mode)
   --gutenku-paper-bg: #f8f6f0;
   --gutenku-paper-border: oklch(0.42 0.09 55 / 0.2);
   --gutenku-paper-border-hover: oklch(0.42 0.09 55 / 0.6);
@@ -831,8 +778,6 @@
   --gutenku-text-secondary: #4a4a4a;
   --gutenku-text-muted: #5a5a5a;
   --gutenku-text-accent: #6b4423;
-
-  // Button Theme Colors
   --gutenku-btn-generate: oklch(0.55 0.15 145 / 0.4);
   --gutenku-btn-generate-hover: oklch(0.55 0.15 145 / 0.6);
   --gutenku-btn-generate-bg: oklch(0.55 0.15 145 / 0.1);
@@ -841,8 +786,6 @@
   --gutenku-btn-copy-bg: oklch(0.43 0.05 250 / 0.1);
   --gutenku-btn-success: oklch(0.55 0.15 145 / 0.6);
   --gutenku-btn-success-bg: oklch(0.55 0.15 145 / 0.1);
-
-  // Shadows
   --gutenku-shadow-light: 0 2px 4px oklch(0 0 0 / 0.1);
   --gutenku-shadow-medium: 0 4px 8px oklch(0 0 0 / 0.15);
   --gutenku-shadow-book:
@@ -854,8 +797,6 @@
     inset 0 1px 0 oklch(1 0 0 / 0.5);
   --gutenku-shadow-elevated:
     0 8px 24px oklch(0 0 0 / 0.12), 0 16px 48px oklch(0 0 0 / 0.08);
-
-  // Transitions (property-specific for performance)
   --gutenku-transition:
     color 0.3s ease, background 0.3s ease, opacity 0.3s ease,
     transform 0.3s ease, border-color 0.3s ease;
@@ -876,19 +817,16 @@
   --gutenku-shadow-ink: 0 2px 8px oklch(0.45 0.08 195 / 0.15);
   --gutenku-transition-zen: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   --gutenku-transition-slow: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-
-  // Spacing scale (N * 4px)
-  // ====================================
   --gutenku-space-0: 0;
-  --gutenku-space-1: 0.25rem; // 4px
-  --gutenku-space-2: 0.5rem; // 8px
-  --gutenku-space-3: 0.75rem; // 12px
-  --gutenku-space-4: 1rem; // 16px
-  --gutenku-space-5: 1.25rem; // 20px (pa-5)
-  --gutenku-space-6: 1.5rem; // 24px
-  --gutenku-space-7: 0.7rem; // legacy
-  --gutenku-space-8: 2rem; // 32px
-  --gutenku-space-12: 3rem; // 48px
+  --gutenku-space-1: 0.25rem;
+  --gutenku-space-2: 0.5rem;
+  --gutenku-space-3: 0.75rem;
+  --gutenku-space-4: 1rem;
+  --gutenku-space-5: 1.25rem;
+  --gutenku-space-6: 1.5rem;
+  --gutenku-space-7: 0.7rem;
+  --gutenku-space-8: 2rem;
+  --gutenku-space-12: 3rem;
   --gutenku-space-haiku: 1.75rem;
   --gutenku-space-golden-sm: 1rem;
   --gutenku-space-golden-md: 1.618rem;
@@ -918,33 +856,21 @@
   --gutenku-theme-primary-oklch: oklch(0.45 0.08 195);
   --gutenku-theme-secondary-oklch: oklch(0.62 0.05 180);
   --gutenku-theme-accent-oklch: oklch(0.76 0.04 175);
-
-  // Icon sizes
-  // ====================================
-  --gutenku-icon-sm: 1.125rem; // 18px - Button icons, compact contexts
-  --gutenku-icon-md: 1.25rem; // 20px - Standard action icons (DEFAULT)
-  --gutenku-icon-lg: 1.5rem; // 24px - Section headers, toggle icons
-  --gutenku-icon-xl: 1.75rem; // 28px - Panel header icons
-  --gutenku-icon-hero: 3rem; // 48px - Splash/loading screens
-
-  // Border radius scale
-  // ====================================
-  --gutenku-radius-xs: 0.125rem; // 2px
-  --gutenku-radius-sm: 0.25rem; // 4px
-  --gutenku-radius-md: 0.5rem; // 8px
-  --gutenku-radius-lg: 0.75rem; // 12px
-  --gutenku-radius-xl: 1rem; // 16px
+  --gutenku-icon-sm: 1.125rem;
+  --gutenku-icon-md: 1.25rem;
+  --gutenku-icon-lg: 1.5rem;
+  --gutenku-icon-xl: 1.75rem;
+  --gutenku-icon-hero: 3rem;
+  --gutenku-radius-xs: 0.125rem;
+  --gutenku-radius-sm: 0.25rem;
+  --gutenku-radius-md: 0.5rem;
+  --gutenku-radius-lg: 0.75rem;
+  --gutenku-radius-xl: 1rem;
   --gutenku-radius-full: 50%;
-
-  // Animation timing
-  // ====================================
-  --gutenku-duration-swift: 200ms; // Hover states, toggles
-  --gutenku-duration-gentle: 400ms; // Standard transitions (DEFAULT)
-  --gutenku-duration-calm: 600ms; // Reveals, major state changes
+  --gutenku-duration-swift: 200ms;
+  --gutenku-duration-gentle: 400ms;
+  --gutenku-duration-calm: 600ms;
   --gutenku-duration-serene: 800ms;
-
-  // Button text colors
-  // ====================================
   --gutenku-btn-generate-text: #2e7d32;
   --gutenku-btn-copy-text: #455a78;
   --gutenku-btn-success-text: #2e7d32;
@@ -1036,15 +962,11 @@
   --gutenku-theme-primary-oklch: oklch(0.58 0.07 192);
   --gutenku-theme-secondary-oklch: oklch(0.72 0.04 178);
   --gutenku-theme-accent-oklch: oklch(0.82 0.03 175);
-
-  // Button text colors (dark mode)
   --gutenku-btn-generate-text: var(--gutenku-zen-accent);
   --gutenku-btn-copy-text: var(--gutenku-zen-secondary);
   --gutenku-btn-success-text: var(--gutenku-zen-accent);
 }
 
-// Text selection styling
-// ====================================
 ::selection {
   background: var(--gutenku-zen-accent);
   color: var(--gutenku-text-primary);
@@ -1055,13 +977,11 @@
   color: var(--gutenku-text-primary);
 }
 
-// Global focus-visible styling (reduced opacity for softer look)
 *:focus-visible {
   outline: 2px solid var(--gutenku-focus-ring);
   outline-offset: 2px;
 }
 
-// Reset browser form element fonts to inherit from body
 button,
 input,
 select,
@@ -1069,7 +989,6 @@ textarea {
   font-family: inherit;
 }
 
-// Touch optimization - prevent 300ms delay and double-tap zoom
 button,
 [role='button'],
 input,
@@ -1080,13 +999,12 @@ label {
   touch-action: manipulation;
 }
 
-// Safari iOS touch optimizations
 button,
 [role='button'],
 a,
 label {
-  -webkit-touch-callout: none; // Prevent long-press callout menu
-  -webkit-tap-highlight-color: transparent; // Remove tap flash
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 [data-theme='dark'] ::selection {
@@ -1099,7 +1017,6 @@ label {
   color: var(--gutenku-paper-bg);
 }
 
-// Overscroll background (mobile pull-to-refresh area)
 html {
   background-color: #fbf3ea;
 
@@ -1718,11 +1635,7 @@ body {
   }
 }
 
-// ====================================
-// DYSLEXIA-FRIENDLY MODE
-// ====================================
 [data-dyslexia='true'] {
-  // Apply OpenDyslexic to all UI text (excluding book content)
   body,
   .text-h1,
   .text-h2,
@@ -1766,8 +1679,9 @@ body {
     line-height: 1.7 !important;
   }
 
-  // Exclude book content
-  .chapter-sheet {
+  .chapter-sheet,
+  .book-title,
+  .book-author {
     font-family: 'JMH Typewriter', monospace !important;
     font-size: inherit !important;
   }
@@ -1850,7 +1764,6 @@ body {
   }
 }
 
-// Theme selector dropdown menu
 .theme-selector-menu {
   background: oklch(1 0 0 / 0.92) !important;
   backdrop-filter: blur(8px);
@@ -1863,7 +1776,6 @@ body {
   border: 1px solid var(--gutenku-border-visible);
 }
 
-// Screen reader only utility class
 .sr-only {
   position: absolute;
   width: 1px;
@@ -1875,7 +1787,6 @@ body {
   white-space: nowrap;
   border: 0;
 
-  // Becomes visible on focus
   &-focusable {
     &:focus,
     &:active {
@@ -1891,11 +1802,6 @@ body {
   }
 }
 
-// ====================================
-// SUBTLE WOW EFFECTS
-// ====================================
-
-// Staggered card entrances
 .stagger-container > .animate-in {
   @for $i from 1 through 6 {
     &:nth-child(#{$i}) {
@@ -1904,7 +1810,6 @@ body {
   }
 }
 
-// Parallax depth on scroll
 .parallax-slow {
   animation: parallax-slow linear;
   animation-timeline: scroll();
@@ -1937,7 +1842,6 @@ body {
   }
 }
 
-// Hover micro-interactions
 .hover-lift {
   transition:
     transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -1965,7 +1869,6 @@ body {
   }
 }
 
-// Text reveal animation
 .text-reveal {
   overflow: hidden;
 
@@ -1990,7 +1893,6 @@ body {
   }
 }
 
-// Breath animation for special cards (HaikuChapter)
 .breath-animation {
   animation: gentle-breath 4s ease-in-out infinite;
 }
@@ -2011,10 +1913,6 @@ body {
   }
 }
 
-// ====================================
-// INTERSECTION OBSERVER ANIMATIONS
-// ====================================
-
 .animate-in {
   opacity: 0;
   transform: translateY(1.25rem) translateZ(0);
@@ -2029,7 +1927,6 @@ body {
   }
 }
 
-// Reduced motion preference
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -2062,9 +1959,7 @@ body {
   }
 }
 
-// Print stylesheet
 @media print {
-  // Hide non-essential UI elements
   .toolbar-panel,
   .config-panel,
   .stats-panel,
@@ -2081,7 +1976,6 @@ body {
     display: none !important;
   }
 
-  // Reset page styles
   body,
   html {
     background: white !important;
@@ -2089,7 +1983,6 @@ body {
     font-size: 12pt !important;
   }
 
-  // Book page (haiku chapter)
   .book-page {
     box-shadow: none !important;
     border: none !important;
@@ -2130,7 +2023,6 @@ body {
     background: none !important;
   }
 
-  // Haiku highlights
   mark,
   .highlight {
     background: #fffacd !important;
@@ -2140,7 +2032,6 @@ body {
     -webkit-print-color-adjust: exact;
   }
 
-  // Haiku canvas (image)
   .haiku-canvas {
     page-break-before: always;
     text-align: center !important;
@@ -2162,7 +2053,6 @@ body {
     display: block !important;
   }
 
-  // Hide interactive elements
   .download-btn,
   .theme-selector,
   .canvas-focus-overlay,
@@ -2173,7 +2063,6 @@ body {
     display: none !important;
   }
 
-  // Page number
   .page-number {
     position: fixed !important;
     bottom: 1cm !important;
@@ -2182,7 +2071,6 @@ body {
     color: #666 !important;
   }
 
-  // Page setup
   @page {
     size: A4;
     margin: 1.5cm;

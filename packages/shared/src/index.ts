@@ -3,6 +3,7 @@ export interface BookValue {
   title: string;
   author: string;
   emoticons?: string;
+  summary?: string;
 }
 
 export interface ChapterValue {

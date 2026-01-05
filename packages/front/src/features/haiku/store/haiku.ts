@@ -129,6 +129,63 @@ export const useHaikuStore = defineStore(
     const historyLength = computed(() => history.value.length);
     const historyPosition = computed(() => historyIndex.value + 1);
 
+    // Helper: Add haiku to history
+    function addToHistory(newHaiku: HaikuValue): void {
+      if (historyIndex.value < history.value.length - 1) {
+        history.value = history.value.slice(0, historyIndex.value + 1);
+      }
+      history.value.push(newHaiku);
+      if (history.value.length > MAX_HISTORY_SIZE) {
+        history.value.shift();
+      }
+      historyIndex.value = history.value.length - 1;
+    }
+
+    // Helper: Update stats for new haiku
+    function updateStats(newHaiku: HaikuValue): void {
+      if (newHaiku.cacheUsed === true) {
+        stats.value.cachedHaikus += 1;
+        return;
+      }
+
+      stats.value.haikusGenerated += 1;
+      if (typeof newHaiku.executionTime === 'number') {
+        stats.value.totalExecutionTime += newHaiku.executionTime;
+      }
+
+      const bookTitle = newHaiku.book?.title?.trim();
+      if (!bookTitle) {
+        return;
+      }
+
+      if (!stats.value.books.includes(bookTitle)) {
+        stats.value.books.push(bookTitle);
+        stats.value.booksBrowsed = stats.value.books.length;
+      }
+      stats.value.bookCounts[bookTitle] =
+        (stats.value.bookCounts[bookTitle] || 0) + 1;
+    }
+
+    // Helper: Handle fetch error
+    function handleFetchError(err: unknown): void {
+      error.value = 'network-error';
+
+      const isMaxAttemptsError = (e: unknown): boolean => {
+        const combinedError = e as CombinedError;
+        const graphErrors = combinedError?.graphQLErrors;
+        if (graphErrors?.some((g) => g.message === 'max-attempts-error')) {
+          return true;
+        }
+        return e instanceof Error && e.message === 'max-attempts-error';
+      };
+
+      if (isMaxAttemptsError(err)) {
+        error.value =
+          'No haiku found matching your filters after maximum attempts. ' +
+          'Please try again with a different filter or try several words.';
+      }
+    }
+
     // Actions
     async function fetchNewHaiku(): Promise<void> {
       let subscriptionCleanup: (() => void) | null = null;
@@ -140,16 +197,15 @@ export const useHaikuStore = defineStore(
 
         // Subscribe to crafting messages
         const subscriptionQuery = gql`
-        subscription QuoteGenerated {
-          quoteGenerated
-        }
-      `;
+          subscription QuoteGenerated {
+            quoteGenerated
+          }
+        `;
 
         const { unsubscribe } = urqlClient
           .subscription(subscriptionQuery, {})
           .subscribe((result) => {
             if (result.data?.quoteGenerated) {
-              // Ensure all existing messages have IDs (handles persisted state migration)
               const existingMessages = craftingMessages.value.map((m) => ({
                 ...m,
                 id: m.id || crypto.randomUUID(),
@@ -169,61 +225,62 @@ export const useHaikuStore = defineStore(
         subscriptionCleanup = unsubscribe;
 
         const queryHaiku = gql`
-        query Query(
-          $useAi: Boolean
-          $useCache: Boolean
-          $useImageAI: Boolean
-          $theme: String
-          $filter: String
-          $sentimentMinScore: Float
-          $markovMinScore: Float
-          $posMinScore: Float
-          $trigramMinScore: Float
-          $tfidfMinScore: Float
-          $phoneticsMinScore: Float
-          $descriptionTemperature: Float
-          $selectionCount: Int
-        ) {
-          haiku(
-            useAI: $useAi
-            useCache: $useCache
-            useImageAI: $useImageAI
-            theme: $theme
-            filter: $filter
-            sentimentMinScore: $sentimentMinScore
-            markovMinScore: $markovMinScore
-            posMinScore: $posMinScore
-            trigramMinScore: $trigramMinScore
-            tfidfMinScore: $tfidfMinScore
-            phoneticsMinScore: $phoneticsMinScore
-            descriptionTemperature: $descriptionTemperature
-            selectionCount: $selectionCount
+          query Query(
+            $useAi: Boolean
+            $useCache: Boolean
+            $useImageAI: Boolean
+            $theme: String
+            $filter: String
+            $sentimentMinScore: Float
+            $markovMinScore: Float
+            $posMinScore: Float
+            $trigramMinScore: Float
+            $tfidfMinScore: Float
+            $phoneticsMinScore: Float
+            $descriptionTemperature: Float
+            $selectionCount: Int
           ) {
-            book {
+            haiku(
+              useAI: $useAi
+              useCache: $useCache
+              useImageAI: $useImageAI
+              theme: $theme
+              filter: $filter
+              sentimentMinScore: $sentimentMinScore
+              markovMinScore: $markovMinScore
+              posMinScore: $posMinScore
+              trigramMinScore: $trigramMinScore
+              tfidfMinScore: $tfidfMinScore
+              phoneticsMinScore: $phoneticsMinScore
+              descriptionTemperature: $descriptionTemperature
+              selectionCount: $selectionCount
+            ) {
+              book {
+                reference
+                title
+                author
+                emoticons
+              }
+              chapter {
+                content
+                title
+              }
+              verses
+              rawVerses
+              image
               title
-              author
-              emoticons
+              description
+              hashtags
+              translations {
+                fr
+                jp
+                es
+              }
+              cacheUsed
+              executionTime
             }
-            chapter {
-              content
-              title
-            }
-            verses
-            rawVerses
-            image
-            title
-            description
-            hashtags
-            translations {
-              fr
-              jp
-              es
-            }
-            cacheUsed
-            executionTime
           }
-        }
-      `;
+        `;
 
         const variables = {
           useAi: optionUseAI.value,
@@ -258,59 +315,11 @@ export const useHaikuStore = defineStore(
           (null as unknown as HaikuValue)) as HaikuValue;
 
         if (newHaiku) {
-          if (historyIndex.value < history.value.length - 1) {
-            history.value = history.value.slice(0, historyIndex.value + 1);
-          }
-          history.value.push(newHaiku);
-          if (history.value.length > MAX_HISTORY_SIZE) {
-            history.value.shift();
-          }
-          historyIndex.value = history.value.length - 1;
-
-          if (newHaiku.cacheUsed === true) {
-            stats.value.cachedHaikus += 1;
-          } else {
-            stats.value.haikusGenerated += 1;
-            if (typeof newHaiku.executionTime === 'number') {
-              stats.value.totalExecutionTime += newHaiku.executionTime;
-            }
-            const bookTitle = newHaiku.book?.title?.trim();
-            if (bookTitle && !stats.value.books.includes(bookTitle)) {
-              stats.value.books.push(bookTitle);
-              stats.value.booksBrowsed = stats.value.books.length;
-            }
-            if (bookTitle) {
-              stats.value.bookCounts[bookTitle] =
-                (stats.value.bookCounts[bookTitle] || 0) + 1;
-            }
-          }
+          addToHistory(newHaiku);
+          updateStats(newHaiku);
         }
       } catch (err: unknown) {
-        error.value = 'network-error';
-
-        const applyMaxAttemptsMessage = () => {
-          error.value =
-            'No haiku found matching your filters after maximum attempts. ' +
-            'Please try again with a different filter or try several words.';
-        };
-
-        const combinedError = err as CombinedError;
-        const graphErrors = combinedError?.graphQLErrors || null;
-
-        if (
-          graphErrors &&
-          graphErrors.some(
-            (graphError: { message: string }) =>
-              graphError.message === 'max-attempts-error',
-          )
-        ) {
-          applyMaxAttemptsMessage();
-        } else if (
-          err instanceof Error &&
-          err.message === 'max-attempts-error'
-        ) {
-          applyMaxAttemptsMessage();
-        }
+        handleFetchError(err);
       } finally {
         if (subscriptionCleanup) {
           subscriptionCleanup();

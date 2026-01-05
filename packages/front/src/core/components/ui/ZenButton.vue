@@ -41,9 +41,13 @@ const slots = useSlots();
 
 const hasLeftIcon = computed(() => !!slots['icon-left']);
 const hasRightIcon = computed(() => !!slots['icon-right']);
-const isIconOnly = computed(() => !slots.default && (hasLeftIcon.value || hasRightIcon.value));
+const isIconOnly = computed(
+  () => !slots.default && (hasLeftIcon.value || hasRightIcon.value),
+);
 
-const isExternalLink = computed(() => props.target === '_blank' || props.href?.startsWith('http'));
+const isExternalLink = computed(
+  () => props.target === '_blank' || props.href?.startsWith('http'),
+);
 
 const classes = computed(() => [
   'zen-btn',
@@ -59,8 +63,12 @@ const classes = computed(() => [
 const isDisabled = computed(() => props.disabled || props.loading);
 
 const component = computed(() => {
-  if (props.to) {return RouterLink;}
-  if (props.href) {return 'a';}
+  if (props.to) {
+    return RouterLink;
+  }
+  if (props.href) {
+    return 'a';
+  }
   return 'button';
 });
 
@@ -75,7 +83,9 @@ const componentProps = computed(() => {
     return {
       href: props.href,
       target: props.target,
-      rel: props.rel || (props.target === '_blank' ? 'noopener noreferrer' : undefined),
+      rel:
+        props.rel ||
+        (props.target === '_blank' ? 'noopener noreferrer' : undefined),
       'aria-disabled': isDisabled.value || undefined,
     };
   }
@@ -152,12 +162,23 @@ if (import.meta.env.DEV) {
 
 <style lang="scss" scoped>
 .zen-btn {
-  --zen-btn-cta-bg: linear-gradient(135deg, oklch(0.42 0.06 192) 0%, oklch(0.38 0.05 198) 100%);
-  --zen-btn-cta-bg-hover: linear-gradient(135deg, oklch(0.46 0.07 192) 0%, oklch(0.42 0.06 198) 100%);
+  --zen-btn-cta-bg: linear-gradient(
+    135deg,
+    oklch(0.42 0.06 192) 0%,
+    oklch(0.38 0.05 198) 100%
+  );
+  --zen-btn-cta-bg-hover: linear-gradient(
+    135deg,
+    oklch(0.46 0.07 192) 0%,
+    oklch(0.42 0.06 198) 100%
+  );
   --zen-btn-cta-color: oklch(1 0 0);
-  --zen-btn-cta-shadow: 0 2px 8px oklch(0.4 0.06 195 / 0.3), inset 0 1px 0 oklch(1 0 0 / 0.15);
-  --zen-btn-cta-shadow-hover: 0 4px 16px oklch(0.4 0.06 195 / 0.4), inset 0 1px 0 oklch(1 0 0 / 0.2);
-  --zen-btn-cta-shadow-active: 0 1px 4px oklch(0.4 0.06 195 / 0.25), inset 0 1px 0 oklch(1 0 0 / 0.1);
+  --zen-btn-cta-shadow:
+    0 2px 8px oklch(0.4 0.06 195 / 0.3), inset 0 1px 0 oklch(1 0 0 / 0.15);
+  --zen-btn-cta-shadow-hover:
+    0 4px 16px oklch(0.4 0.06 195 / 0.4), inset 0 1px 0 oklch(1 0 0 / 0.2);
+  --zen-btn-cta-shadow-active:
+    0 1px 4px oklch(0.4 0.06 195 / 0.25), inset 0 1px 0 oklch(1 0 0 / 0.1);
 
   --zen-btn-ghost-bg: oklch(0.97 0.01 85 / 0.85);
   --zen-btn-ghost-bg-hover: oklch(0.95 0.01 85 / 0.95);
@@ -176,12 +197,23 @@ if (import.meta.env.DEV) {
 }
 
 :global([data-theme='dark'] .zen-btn) {
-  --zen-btn-cta-bg: linear-gradient(135deg, oklch(0.48 0.06 192) 0%, oklch(0.44 0.05 198) 100%);
-  --zen-btn-cta-bg-hover: linear-gradient(135deg, oklch(0.52 0.07 192) 0%, oklch(0.48 0.06 198) 100%);
+  --zen-btn-cta-bg: linear-gradient(
+    135deg,
+    oklch(0.48 0.06 192) 0%,
+    oklch(0.44 0.05 198) 100%
+  );
+  --zen-btn-cta-bg-hover: linear-gradient(
+    135deg,
+    oklch(0.52 0.07 192) 0%,
+    oklch(0.48 0.06 198) 100%
+  );
   --zen-btn-cta-color: oklch(1 0 0);
-  --zen-btn-cta-shadow: 0 2px 12px oklch(0 0 0 / 0.5), inset 0 1px 0 oklch(1 0 0 / 0.1);
-  --zen-btn-cta-shadow-hover: 0 6px 20px oklch(0 0 0 / 0.6), inset 0 1px 0 oklch(1 0 0 / 0.15);
-  --zen-btn-cta-shadow-active: 0 2px 8px oklch(0 0 0 / 0.4), inset 0 1px 0 oklch(1 0 0 / 0.08);
+  --zen-btn-cta-shadow:
+    0 2px 12px oklch(0 0 0 / 0.5), inset 0 1px 0 oklch(1 0 0 / 0.1);
+  --zen-btn-cta-shadow-hover:
+    0 6px 20px oklch(0 0 0 / 0.6), inset 0 1px 0 oklch(1 0 0 / 0.15);
+  --zen-btn-cta-shadow-active:
+    0 2px 8px oklch(0 0 0 / 0.4), inset 0 1px 0 oklch(1 0 0 / 0.08);
 
   --zen-btn-ghost-bg: oklch(0.22 0.02 85 / 0.9);
   --zen-btn-ghost-bg-hover: oklch(0.28 0.025 85 / 0.95);
@@ -200,9 +232,21 @@ if (import.meta.env.DEV) {
 }
 
 $spring-easing: linear(
-  0, 0.006, 0.025 2.8%, 0.101 6.1%, 0.539 18.9%, 0.721 25.3%, 0.849 31.5%,
-  0.937 38.1%, 0.968 41.8%, 0.991 45.7%, 1.006 50.1%, 1.015 55%, 1.017 63.9%,
-  1.001 83%, 1
+  0,
+  0.006,
+  0.025 2.8%,
+  0.101 6.1%,
+  0.539 18.9%,
+  0.721 25.3%,
+  0.849 31.5%,
+  0.937 38.1%,
+  0.968 41.8%,
+  0.991 45.7%,
+  1.006 50.1%,
+  1.015 55%,
+  1.017 63.9%,
+  1.001 83%,
+  1
 );
 
 .zen-btn {
@@ -294,7 +338,7 @@ $spring-easing: linear(
   padding: 0.75rem 1.5rem;
   background: var(--zen-btn-cta-bg);
   border: none;
-  border-radius: var(--gutenku-radius-md);
+  border-radius: var(--gutenku-radius-lg);
   color: var(--zen-btn-cta-color);
   font-size: 0.9rem;
   font-weight: 500;
@@ -418,7 +462,7 @@ $spring-easing: linear(
 
   &.zen-btn--icon-only {
     padding: 0.625rem;
-    min-width: 2.75rem;  // 44px
+    min-width: 2.75rem; // 44px
     min-height: 2.75rem; // 44px
   }
 }
@@ -434,8 +478,8 @@ $spring-easing: linear(
 
   &.zen-btn--icon-only {
     padding: 1rem;
-    min-width: 3rem;    // 48px
-    min-height: 3rem;   // 48px
+    min-width: 3rem; // 48px
+    min-height: 3rem; // 48px
   }
 }
 
@@ -458,7 +502,6 @@ $spring-easing: linear(
     }
   }
 }
-
 
 .visually-hidden {
   position: absolute;

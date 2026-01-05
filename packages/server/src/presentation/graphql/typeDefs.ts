@@ -6,6 +6,7 @@ const typeDefs = `#graphql
         author: String
         chapters: [Chapter!]!
         emoticons: String
+        summary: String
     }
 
     type Chapter {

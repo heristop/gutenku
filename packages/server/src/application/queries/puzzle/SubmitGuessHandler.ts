@@ -223,6 +223,7 @@ function bookToValue(book: GutenGuessBook): BookValue {
     title: book.title,
     author: book.author,
     emoticons: book.emoticons,
+    summary: book.summary,
   };
 }
 

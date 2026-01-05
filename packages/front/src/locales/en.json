@@ -75,6 +75,8 @@
     "playToday": "Play Today",
     "tagline": "Daily literary guessing game",
     "resetGame": "Reset game (dev)",
+    "helpSteps": "Help steps",
+    "step": "Step",
     "help": {
       "title": "How to Play",
       "intro": "Guess the classic book from Project Gutenberg in 6 tries or less!",
@@ -115,6 +117,7 @@
       }
     },
     "hints": {
+      "title": "Clues",
       "emoticons": "Bookmoji",
       "emoticonsSrDesc": "{count} emoji hint | {count} emoji hints representing the book",
       "genre": "Genre",
@@ -221,7 +224,10 @@
     "hideAuthor": "Hide author",
     "showAuthor": "Show author",
     "eliminate": "Eliminate",
-    "eliminateBook": "Eliminate this book"
+    "eliminateBook": "Eliminate this book",
+    "bookOfTheDay": "Book of the Day",
+    "readOnGutenberg": "Read on Gutenberg",
+    "pickABook": "Pick a Book"
   },
   "pullToRefresh": {
     "pull": "Pull to refresh",
@@ -302,7 +308,8 @@
     "discloseHide": "Disclose / Hide",
     "showFull": "Show Full Chapter",
     "showCompacted": "Show Compacted View",
-    "swipeHint": "Swipe for new haiku"
+    "swipeHint": "Swipe for new haiku",
+    "readOnGutenberg": "Read on Gutenberg"
   },
   "haikuProcess": {
     "steps": {
