@@ -1,3 +1,4 @@
 /dist
 coverage/
 src/cli/gutenguess-books-source.ts
+ecosystem.config.cjs
