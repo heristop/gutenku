@@ -11,6 +11,7 @@ import {
   Download,
   ChevronLeft,
   ChevronRight,
+  Feather,
 } from 'lucide-vue-next';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
 import { useClipboard } from '@/core/composables/clipboard';
@@ -18,7 +19,10 @@ import { useShare } from '@/core/composables/share';
 import { useImageDownload } from '@/core/composables/image-download';
 import { useInView } from '@/features/haiku/composables/in-view';
 import { useToast } from '@/core/composables/toast';
-import { useLongPress, useTouchGestures } from '@/core/composables/touch-gestures';
+import {
+  useLongPress,
+  useTouchGestures,
+} from '@/core/composables/touch-gestures';
 import { useKeyboardShortcuts } from '@/features/haiku/composables/keyboard-shortcuts';
 import ZenTooltip from '@/core/components/ui/ZenTooltip.vue';
 import SwipeHint from '@/core/components/ui/SwipeHint.vue';
@@ -50,7 +54,8 @@ const hasCoarsePointer = useMediaQuery('(pointer: coarse)');
 const isTouchDevice = ref(false);
 
 onMounted(() => {
-  isTouchDevice.value = 'ontouchstart' in globalThis || navigator.maxTouchPoints > 0;
+  isTouchDevice.value =
+    'ontouchstart' in globalThis || navigator.maxTouchPoints > 0;
 });
 
 const longPressProgress = ref(0);
@@ -85,26 +90,36 @@ useTouchGestures(cardRef, {
 
 const buttonLabel = computed<string>(() => {
   if (loading.value) {
-    return firstLoaded.value ? t('toolbar.generating') : t('toolbar.extracting');
+    return firstLoaded.value
+      ? t('toolbar.generating')
+      : t('toolbar.extracting');
   }
   return firstLoaded.value ? t('toolbar.generate') : t('toolbar.extract');
 });
 
-const generateTooltip = computed(() => t('toolbar.generateTooltip', { action: buttonLabel.value }));
+const generateTooltip = computed(() =>
+  t('toolbar.generateTooltip', { action: buttonLabel.value }),
+);
 const copyTooltip = computed(() => `${t('toolbar.copyTooltip')} (C)`);
 const shareTooltip = computed(() => `${t('toolbar.shareTooltip')} (S)`);
 const downloadTooltip = computed(() => `${t('toolbar.downloadTooltip')} (D)`);
-const previousTooltip = computed(() => `${t('toolbar.previousTooltip')} (\u2190)`);
+const previousTooltip = computed(
+  () => `${t('toolbar.previousTooltip')} (\u2190)`,
+);
 const nextTooltip = computed(() => `${t('toolbar.nextTooltip')} (\u2192)`);
 
-const showPulse = computed(() => firstLoaded.value && !loading.value && haiku.value?.verses?.length);
+const showPulse = computed(
+  () => firstLoaded.value && !loading.value && haiku.value?.verses?.length,
+);
 
 async function extractGenerate(): Promise<void> {
   await fetchNewHaiku();
 }
 
 async function copyHaiku(): Promise<void> {
-  if (!haiku.value?.verses) {return;}
+  if (!haiku.value?.verses) {
+    return;
+  }
   const copySuccess = await copy(haiku.value.verses.join('\n'));
   if (copySuccess) {
     success(t('toolbar.copySuccess'));
@@ -114,7 +129,9 @@ async function copyHaiku(): Promise<void> {
 }
 
 async function shareHaiku(): Promise<void> {
-  if (!haiku.value) {return;}
+  if (!haiku.value) {
+    return;
+  }
   const shareSuccess = await share(haiku.value);
   if (shareSuccess) {
     success(t('toolbar.shareSuccess'));
@@ -122,7 +139,9 @@ async function shareHaiku(): Promise<void> {
 }
 
 async function downloadImage(): Promise<void> {
-  if (!haiku.value?.image) {return;}
+  if (!haiku.value?.image) {
+    return;
+  }
 
   const bookTitle = haiku.value.book?.title || 'haiku';
   const chapterTitle = haiku.value.chapter?.title || '';
@@ -169,6 +188,16 @@ useKeyboardShortcuts({
     :class="{ 'is-visible': isInView }"
   >
     <h2 class="sr-only">{{ t('toolbar.title') }}</h2>
+
+    <!-- Decorative Header -->
+    <div class="toolbar-panel__header">
+      <div class="toolbar-panel__header-line" />
+      <div class="toolbar-panel__header-badge">
+        <Feather :size="14" />
+        <span>{{ t('toolbar.subtitle') }}</span>
+      </div>
+      <div class="toolbar-panel__header-line" />
+    </div>
 
     <div class="toolbar-panel__primary">
       <ZenTooltip :text="generateTooltip" position="top">
@@ -325,7 +354,12 @@ useKeyboardShortcuts({
 
       <div v-if="historyLength > 0" class="toolbar-panel__history">
         <span class="sr-only">
-          {{ t('toolbar.historyPosition', { current: historyPosition, total: historyLength }) }}
+          {{
+            t('toolbar.historyPosition', {
+              current: historyPosition,
+              total: historyLength,
+            })
+          }}
         </span>
         <ZenPaginationDots
           :model-value="historyPosition - 1"
@@ -381,6 +415,51 @@ useKeyboardShortcuts({
   padding: 1.5rem;
   margin-bottom: var(--gutenku-space-6);
 
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    margin-bottom: 0.75rem;
+    animation: header-fade-in 0.5s ease-out 0.2s both;
+  }
+
+  &__header-line {
+    flex: 1;
+    max-width: 5.5rem;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--gutenku-zen-accent, oklch(0.5 0.08 195)) 100%
+    );
+
+    &:last-child {
+      background: linear-gradient(
+        90deg,
+        var(--gutenku-zen-accent, oklch(0.5 0.08 195)) 0%,
+        transparent 100%
+      );
+    }
+  }
+
+  &__header-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.875rem;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gutenku-zen-primary, oklch(0.4 0.08 195));
+    white-space: nowrap;
+    background: oklch(0.5 0.08 195 / 0.08);
+    border-radius: 100px;
+    border: 1px solid oklch(0.5 0.08 195 / 0.15);
+  }
+
   &__primary {
     width: 100%;
     max-width: 280px;
@@ -411,7 +490,11 @@ useKeyboardShortcuts({
     }
 
     &:hover:not(:disabled) {
-      background: color-mix(in oklch, var(--gutenku-zen-primary) 10%, transparent);
+      background: color-mix(
+        in oklch,
+        var(--gutenku-zen-primary) 10%,
+        transparent
+      );
       transform: translateY(-1px);
     }
 
@@ -440,7 +523,6 @@ useKeyboardShortcuts({
         color: var(--gutenku-zen-accent) !important;
       }
     }
-
   }
 
   &__button.zen-btn {
@@ -460,18 +542,54 @@ useKeyboardShortcuts({
     align-items: center;
     gap: 0.75rem;
   }
-
 }
 
 @keyframes generate-pulse {
   0%,
   100% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 color-mix(in oklch, var(--gutenku-zen-primary) 40%, transparent);
+    box-shadow: 0 0 0 0
+      color-mix(in oklch, var(--gutenku-zen-primary) 40%, transparent);
   }
   50% {
     transform: scale(1.01);
     box-shadow: 0 0 0 6px transparent;
+  }
+}
+
+@keyframes header-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Dark mode for header
+[data-theme='dark'] .toolbar-panel {
+  &__header-line {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--gutenku-zen-accent, oklch(0.6 0.08 195)) 100%
+    );
+
+    &:last-child {
+      background: linear-gradient(
+        90deg,
+        var(--gutenku-zen-accent, oklch(0.6 0.08 195)) 0%,
+        transparent 100%
+      );
+    }
+  }
+
+  &__header-badge {
+    color: var(--gutenku-zen-accent, oklch(0.7 0.08 195));
+    background: oklch(0.5 0.08 195 / 0.12);
+    border-color: oklch(0.5 0.08 195 / 0.2);
   }
 }
 
@@ -529,6 +647,11 @@ useKeyboardShortcuts({
 
 @media (prefers-reduced-motion: reduce) {
   .toolbar-panel {
+    &__header {
+      animation: none;
+      opacity: 1;
+    }
+
     &__button.zen-btn {
       transition: none;
 

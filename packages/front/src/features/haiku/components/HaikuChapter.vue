@@ -8,6 +8,7 @@ import {
   ChevronsUpDown,
   ChevronsDownUp,
   BookOpen,
+  Sparkles,
 } from 'lucide-vue-next';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
 import { useHaikuHighlighter } from '@/features/haiku/composables/haiku-highlighter';
@@ -22,7 +23,8 @@ const { t } = useI18n();
 
 const haikuStore = useHaikuStore();
 const { fetchNewHaiku } = haikuStore;
-const { haiku, loading, craftingMessages } = storeToRefs(haikuStore);
+const { haiku, loading, craftingMessages, isDailyHaiku } =
+  storeToRefs(haikuStore);
 
 const blackMarker = ref(true);
 const isCompacted = ref(true);
@@ -198,6 +200,21 @@ onUnmounted(() => {
     </Teleport>
 
     <div class="book-header">
+      <div
+        v-if="isDailyHaiku"
+        class="daily-header"
+        role="status"
+        :aria-label="t('haiku.dailyHaiku')"
+      >
+        <div class="daily-header__line" />
+        <div class="daily-header__badge">
+          <Sparkles :size="14" />
+          <span>{{ t('haiku.dailyHaiku') }}</span>
+          <Sparkles :size="14" />
+        </div>
+        <div class="daily-header__line" />
+      </div>
+
       <div class="disclosure-text" aria-hidden="true">
         {{ disclosureText }}
       </div>
@@ -365,11 +382,56 @@ onUnmounted(() => {
     opacity: 0.4;
   }
 
+  .daily-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    margin-bottom: 2.25rem;
+    animation: daily-fade-in 0.5s ease-out 0.2s both;
+  }
+
+  .daily-header__line {
+    flex: 1;
+    max-width: 8rem;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--gutenku-zen-accent, oklch(0.5 0.08 195)) 100%
+    );
+
+    &:last-child {
+      background: linear-gradient(
+        90deg,
+        var(--gutenku-zen-accent, oklch(0.5 0.08 195)) 0%,
+        transparent 100%
+      );
+    }
+  }
+
+  .daily-header__badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.875rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gutenku-zen-primary, oklch(0.4 0.08 195));
+    white-space: nowrap;
+    background: oklch(0.5 0.08 195 / 0.08);
+    border-radius: 100px;
+    border: 1px solid oklch(0.5 0.08 195 / 0.15);
+  }
+
   .disclosure-text {
     font-size: 0.9rem;
     color: var(--gutenku-text-muted);
     text-transform: uppercase;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
   }
 
   .header-controls {
@@ -854,6 +916,49 @@ onUnmounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+@keyframes daily-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Dark mode for daily header
+[data-theme='dark'] .book-header {
+  .daily-header__line {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--gutenku-zen-accent, oklch(0.6 0.08 195)) 100%
+    );
+
+    &:last-child {
+      background: linear-gradient(
+        90deg,
+        var(--gutenku-zen-accent, oklch(0.6 0.08 195)) 0%,
+        transparent 100%
+      );
+    }
+  }
+
+  .daily-header__badge {
+    color: var(--gutenku-zen-accent, oklch(0.7 0.08 195));
+    background: oklch(0.5 0.08 195 / 0.12);
+    border-color: oklch(0.5 0.08 195 / 0.2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book-header .daily-header {
+    animation: none;
+    opacity: 1;
+  }
 }
 </style>
 

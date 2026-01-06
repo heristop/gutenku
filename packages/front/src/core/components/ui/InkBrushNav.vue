@@ -12,9 +12,31 @@ const router = useRouter();
 const { t } = useI18n();
 
 const navItems = computed(() => [
-  { label: 'Home', to: '/', icon: ToriiIcon, transitionName: 'nav-icon-home', ariaLabel: 'nav.home' },
-  { label: 'GutenKu', to: '/haiku', icon: PenTool, transitionName: 'nav-icon-haiku', ariaLabel: 'nav.haiku' },
-  ...(GAME_ENABLED ? [{ label: 'GutenGuess', to: '/game', icon: Lightbulb, transitionName: 'nav-icon-game', ariaLabel: 'nav.game' }] : []),
+  {
+    label: 'Home',
+    to: '/',
+    icon: ToriiIcon,
+    transitionName: 'nav-icon-home',
+    ariaLabel: 'nav.home',
+  },
+  {
+    label: 'GutenKu',
+    to: '/haiku',
+    icon: PenTool,
+    transitionName: 'nav-icon-haiku',
+    ariaLabel: 'nav.haiku',
+  },
+  ...(GAME_ENABLED
+    ? [
+        {
+          label: 'GutenGuess',
+          to: '/game',
+          icon: Lightbulb,
+          transitionName: 'nav-icon-game',
+          ariaLabel: 'nav.game',
+        },
+      ]
+    : []),
 ]);
 
 const isActive = (path: string) => route.path === path;
@@ -149,7 +171,7 @@ function handleClick(event: MouseEvent, to: string) {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.375rem;
+    gap: 0.625rem;
     padding: 0.5rem;
     min-width: 4.5rem;
     text-decoration: none;
@@ -158,7 +180,7 @@ function handleClick(event: MouseEvent, to: string) {
 
     // Larger touch target on mobile
     @media (min-width: 375px) {
-      gap: 0.5rem;
+      gap: 0.75rem;
       min-width: 5.5rem;
     }
 
@@ -199,7 +221,11 @@ function handleClick(event: MouseEvent, to: string) {
     height: 2.75rem;
     border-radius: var(--gutenku-radius-full);
     background:
-      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.12) 0%, transparent 50%),
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.12) 0%,
+        transparent 50%
+      ),
       var(--gutenku-zen-water);
     border: 1.5px solid oklch(0.45 0.1 195 / 0.2);
     box-shadow:
@@ -220,7 +246,11 @@ function handleClick(event: MouseEvent, to: string) {
   // Hover state with spring effect
   &__item:hover &__icon-wrapper {
     background:
-      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.2) 0%, transparent 50%),
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.2) 0%,
+        transparent 50%
+      ),
       var(--gutenku-zen-primary);
     border-color: var(--gutenku-zen-primary);
     transform: scale(1.05);
@@ -233,7 +263,11 @@ function handleClick(event: MouseEvent, to: string) {
   // Active state with glow ring
   &__item--active &__icon-wrapper {
     background:
-      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.15) 0%, transparent 50%),
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.15) 0%,
+        transparent 50%
+      ),
       var(--gutenku-zen-primary);
     border-color: oklch(0.35 0.1 195);
     transform: scale(1.05);
@@ -279,7 +313,9 @@ function handleClick(event: MouseEvent, to: string) {
     text-transform: uppercase;
     // Ensure 4.5:1 contrast ratio (WCAG AA)
     color: var(--gutenku-text-primary);
-    transition: color 0.3s ease 0.05s, text-shadow 0.3s ease;
+    transition:
+      color 0.3s ease 0.05s,
+      text-shadow 0.3s ease;
 
     @media (min-width: 375px) {
       font-size: 0.7rem;
@@ -319,7 +355,11 @@ function handleClick(event: MouseEvent, to: string) {
 
   &__icon-wrapper {
     background:
-      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.08) 0%, transparent 50%),
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.08) 0%,
+        transparent 50%
+      ),
       oklch(0.25 0.04 195 / 0.7);
     border-color: oklch(0.5 0.08 195 / 0.3);
     box-shadow:
@@ -329,7 +369,11 @@ function handleClick(event: MouseEvent, to: string) {
 
   &__item:hover &__icon-wrapper {
     background:
-      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.12) 0%, transparent 50%),
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.12) 0%,
+        transparent 50%
+      ),
       var(--gutenku-zen-accent);
     border-color: var(--gutenku-zen-accent);
     box-shadow:
@@ -340,7 +384,11 @@ function handleClick(event: MouseEvent, to: string) {
 
   &__item--active &__icon-wrapper {
     background:
-      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.1) 0%, transparent 50%),
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.1) 0%,
+        transparent 50%
+      ),
       var(--gutenku-zen-accent);
     border-color: oklch(0.6 0.1 195);
     box-shadow:

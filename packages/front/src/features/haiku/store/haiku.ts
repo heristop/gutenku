@@ -66,6 +66,7 @@ export const useHaikuStore = defineStore(
     const haiku = ref<HaikuValue>(null as unknown as HaikuValue);
     const loading = ref(false);
     const firstLoaded = ref(false);
+    const isDailyHaiku = ref(false);
     const error = ref('');
     const craftingMessages = ref<CraftingMessage[]>([]);
     const history = ref<HaikuValue[]>([]);
@@ -115,6 +116,7 @@ export const useHaikuStore = defineStore(
 
     const imageAIThemes = computed(() => IMAGE_AI_THEMES);
     const shouldUseCache = computed(() => !firstLoaded.value);
+    const shouldUseDaily = computed(() => !firstLoaded.value);
 
     const avgExecutionTime = computed(() =>
       stats.value.haikusGenerated > 0
@@ -190,6 +192,9 @@ export const useHaikuStore = defineStore(
     async function fetchNewHaiku(): Promise<void> {
       let subscriptionCleanup: (() => void) | null = null;
 
+      // Track if this fetch is for the daily haiku
+      const fetchingDaily = shouldUseDaily.value;
+
       try {
         loading.value = true;
         error.value = '';
@@ -228,6 +233,8 @@ export const useHaikuStore = defineStore(
           query Query(
             $useAi: Boolean
             $useCache: Boolean
+            $useDaily: Boolean
+            $date: String
             $useImageAI: Boolean
             $theme: String
             $filter: String
@@ -243,6 +250,8 @@ export const useHaikuStore = defineStore(
             haiku(
               useAI: $useAi
               useCache: $useCache
+              useDaily: $useDaily
+              date: $date
               useImageAI: $useImageAI
               theme: $theme
               filter: $filter
@@ -282,9 +291,14 @@ export const useHaikuStore = defineStore(
           }
         `;
 
+        // Get today's date in UTC (YYYY-MM-DD format)
+        const today = new Date().toISOString().split('T')[0];
+
         const variables = {
           useAi: optionUseAI.value,
           useCache: shouldUseCache.value,
+          useDaily: shouldUseDaily.value,
+          date: shouldUseDaily.value ? today : undefined,
           useImageAI:
             optionImageAI.value && import.meta.env.DEV ? true : undefined,
           theme: optionTheme.value,
@@ -315,6 +329,7 @@ export const useHaikuStore = defineStore(
           (null as unknown as HaikuValue)) as HaikuValue;
 
         if (newHaiku) {
+          isDailyHaiku.value = fetchingDaily;
           addToHistory(newHaiku);
           updateStats(newHaiku);
         }
@@ -361,6 +376,7 @@ export const useHaikuStore = defineStore(
       haiku,
       loading,
       firstLoaded,
+      isDailyHaiku,
       error,
       craftingMessages,
       history,
@@ -386,6 +402,7 @@ export const useHaikuStore = defineStore(
       themeOptions,
       imageAIThemes,
       shouldUseCache,
+      shouldUseDaily,
       avgExecutionTime,
       canGoBack,
       canGoForward,

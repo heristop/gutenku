@@ -28,7 +28,8 @@
   },
   "haiku": {
     "articleLabel": "Generated haiku and source text",
-    "controlsLabel": "Haiku controls and settings"
+    "controlsLabel": "Haiku controls and settings",
+    "dailyHaiku": "Haiku of the Day"
   },
   "notFound": {
     "verse1": "The page you seek",
@@ -345,11 +346,12 @@
   "toolbar": {
     "title": "Haiku Actions",
     "ariaLabel": "Haiku toolbar actions",
-    "generate": "Craft",
+    "generate": "Craft New Haiku",
     "extract": "Extract",
     "generating": "Crafting",
     "extracting": "Extracting",
-    "generateTooltip": "{action} a new haiku",
+    "generateTooltip": "Create your own unique haiku",
+    "subtitle": "Poetry from classic books",
     "copyTooltip": "Copy haiku to clipboard",
     "copySuccess": "Haiku copied to clipboard!",
     "copyError": "Could not copy to clipboard. Please try again.",
