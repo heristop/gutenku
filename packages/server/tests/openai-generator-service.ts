@@ -286,7 +286,7 @@ describe('OpenAIGeneratorService - generate', () => {
     const result = await service.generate();
 
     expect(result).toBeDefined();
-    expect(result?.book.emoticons).toBe('📚✨🌸');
+    expect(result?.book.emoticons).toBe('');
   });
 
   it('generate throws when OpenAI fails', async () => {
@@ -430,14 +430,17 @@ describe('OpenAIGeneratorService - private methods', () => {
     });
 
     // @ts-expect-error - accessing private method
-    const result = await service.generateBookmojis('Moby Dick');
+    const result = await service.generateBookmojis({
+      title: 'Moby Dick',
+      author: 'Herman Melville',
+    });
 
     expect(mockOpenAIClient.chatCompletionsCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         max_completion_tokens: 20,
         messages: expect.arrayContaining([
           expect.objectContaining({
-            content: expect.stringContaining('Generate 3-5 emoticons'),
+            content: expect.stringContaining('emoji generator'),
           }),
         ]),
       }),
