@@ -38,15 +38,19 @@ const modalRef = ref<HTMLElement | null>(null);
 const previousActiveElement = ref<HTMLElement | null>(null);
 
 const titleId = computed(() =>
-  props.title ? `zen-modal-${props.title.toLowerCase().replaceAll(/\s+/g, '-')}` : undefined
+  props.title
+    ? `zen-modal-${props.title.toLowerCase().replaceAll(/\s+/g, '-')}`
+    : undefined,
 );
 
 const descriptionId = computed(() =>
-  props.description ? `zen-modal-desc-${props.title?.toLowerCase().replaceAll(/\s+/g, '-') || 'modal'}` : undefined
+  props.description
+    ? `zen-modal-desc-${props.title?.toLowerCase().replaceAll(/\s+/g, '-') || 'modal'}`
+    : undefined,
 );
 
 const maxWidthStyle = computed(() =>
-  typeof props.maxWidth === 'number' ? `${props.maxWidth}px` : props.maxWidth
+  typeof props.maxWidth === 'number' ? `${props.maxWidth}px` : props.maxWidth,
 );
 
 const modalClasses = computed(() => [
@@ -59,7 +63,9 @@ const modalClasses = computed(() => [
 
 // WCAG 2.2: Get all focusable elements within the modal
 function getFocusableElements(): HTMLElement[] {
-  if (!modalRef.value) {return [];}
+  if (!modalRef.value) {
+    return [];
+  }
 
   const focusableSelectors = [
     'button:not([disabled])',
@@ -83,7 +89,9 @@ function handleKeydown(e: KeyboardEvent) {
 
   if (e.key === 'Tab') {
     const focusableElements = getFocusableElements();
-    if (focusableElements.length === 0) {return;}
+    if (focusableElements.length === 0) {
+      return;
+    }
 
     const firstElement = focusableElements[0];
     const lastElement = focusableElements.at(-1);
@@ -362,6 +370,12 @@ onBeforeUnmount(() => {
       background: var(--gutenku-zen-mist);
       border-radius: 3px;
     }
+
+    @media (max-width: 600px) {
+      max-height: none;
+      overflow-y: visible;
+      padding-right: 0;
+    }
   }
 }
 
@@ -517,7 +531,8 @@ onBeforeUnmount(() => {
   }
 
   @keyframes zen-glow {
-    from, to {
+    from,
+    to {
       box-shadow:
         0 0 0 1px oklch(0 0 0 / 0.05),
         0 8px 24px oklch(0 0 0 / 0.12),
@@ -526,7 +541,8 @@ onBeforeUnmount(() => {
   }
 
   @keyframes zen-glow-dark {
-    from, to {
+    from,
+    to {
       box-shadow:
         0 0 0 1px oklch(1 0 0 / 0.05),
         0 8px 24px oklch(0 0 0 / 0.3),
@@ -539,15 +555,15 @@ onBeforeUnmount(() => {
 @media (max-width: 600px) {
   .zen-modal-overlay {
     padding: 0;
-    padding-top: 3rem;
     align-items: flex-end;
   }
 
   .zen-modal {
-    max-height: calc(100vh - 3rem);
-    max-height: calc(100dvh - 3rem);
-    border-radius: var(--gutenku-radius-xl, 16px) var(--gutenku-radius-xl, 16px) 0 0;
-    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0));
+    max-height: 100vh;
+    max-height: 100dvh;
+    border-radius: var(--gutenku-radius-xl, 16px) var(--gutenku-radius-xl, 16px)
+      0 0;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0));
 
     // Handle bar indicator
     &::before {
