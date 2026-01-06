@@ -22,15 +22,18 @@
 
 ## Daily Haiku Card
 
-<img align="left" src="/assets/img/daily_haiku_card.jpg?t=1767559670" width="280" alt="Daily Haiku Card" hspace="16">
-
-&nbsp;
-
-> _"This haiku frames a quiet, intimate moment within an ordinary, enclosed setting: a space “bordered by houses” suggests a narrow street, courtyard, or alley—private yet overlooked, where life is close and contained. The second line, “In another mood and place,” introduces a shift that feels psychological as much as physical: the couple step out of the everyday world into a different atmosphere, as if their emotions transform the familiar surroundings into somewhere new. The final line, “A youth and maiden,” presents archetypal figures of first love and possibility; they are less individualized characters than symbols of innocence, awakening desire, and the tenderness of beginnings. Overall, the poem contrasts the mundane architecture of domestic life with the sudden, almost secret emergence of romance—suggesting that love can create its own ‘place’ even when the world is crowded in."_
->
-> — **BotenKu** 📅 _Jan 06, 2026_
-
-<br clear="all"><br>
+<table>
+<tr>
+<td width="300" valign="top">
+<img src="/assets/img/daily_haiku_card.jpg?t=1767559670" width="280" alt="Daily Haiku Card">
+</td>
+<td valign="top">
+<em>"This haiku frames a quiet, intimate moment within an ordinary, enclosed setting: a space "bordered by houses" suggests a narrow street, courtyard, or alley—private yet overlooked, where life is close and contained. The second line, "In another mood and place," introduces a shift that feels psychological as much as physical: the couple step out of the everyday world into a different atmosphere, as if their emotions transform the familiar surroundings into somewhere new. The final line, "A youth and maiden," presents archetypal figures of first love and possibility; they are less individualized characters than symbols of innocence, awakening desire, and the tenderness of beginnings. Overall, the poem contrasts the mundane architecture of domestic life with the sudden, almost secret emergence of romance—suggesting that love can create its own 'place' even when the world is crowded in."</em>
+<br><br>
+— <strong>BotenKu</strong> 📅 <em>Jan 06, 2026</em>
+</td>
+</tr>
+</table>
 
 <p align="center">🌸 · 🌸 · 🌸</p>
 
