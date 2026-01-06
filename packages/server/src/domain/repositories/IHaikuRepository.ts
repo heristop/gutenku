@@ -7,6 +7,7 @@ export interface IHaikuRepository {
   extractDeterministicFromCache(
     seed: number,
     minCachedDocs: number,
+    excludeDate: string,
   ): Promise<HaikuValue | null>;
 }
 

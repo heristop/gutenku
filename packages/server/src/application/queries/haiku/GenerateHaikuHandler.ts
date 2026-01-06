@@ -44,9 +44,11 @@ export class GenerateHaikuHandler implements IQueryHandler<
 
       log.info({ date, seed, useDaily: true }, 'Daily haiku mode');
 
+      // Pass date to exclude haikus created today (ensures determinism)
       haiku = await this.haikuRepository.extractDeterministicFromCache(
         seed,
         minCachedDocs,
+        date,
       );
 
       if (haiku) {

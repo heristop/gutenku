@@ -105,10 +105,12 @@ export default class HaikuRepository implements IHaikuRepository {
   /**
    * Extract a deterministic haiku from cache using seeded random selection.
    * Ensures the same haiku is returned for the same seed (date-based).
+   * Excludes haikus created on or after excludeDate to maintain determinism.
    */
   async extractDeterministicFromCache(
     seed: number,
     minCachedDocs: number,
+    excludeDate: string,
   ): Promise<HaikuValue | null> {
     if (!this.db) {
       return null;
@@ -117,9 +119,10 @@ export default class HaikuRepository implements IHaikuRepository {
     try {
       const haikusCollection = this.db.collection('haikus');
 
-      // Fetch all haikus sorted by _id for deterministic ordering
+      // Fetch haikus created before excludeDate, sorted by _id for deterministic ordering
+      // This ensures new haikus added today don't change the daily selection
       const allHaikus = await haikusCollection
-        .find({})
+        .find({ createdAt: { $lt: excludeDate } })
         .sort({ _id: 1 })
         .toArray();
 
@@ -127,7 +130,7 @@ export default class HaikuRepository implements IHaikuRepository {
 
       if (count < minCachedDocs) {
         log.info(
-          { count, minCachedDocs },
+          { count, minCachedDocs, excludeDate },
           'Not enough cached documents for deterministic extraction',
         );
         return null;
@@ -137,7 +140,10 @@ export default class HaikuRepository implements IHaikuRepository {
       const random = seededRandom(seed);
       const index = Math.floor(random() * count);
 
-      log.debug({ seed, index, count }, 'Deterministic cache extraction');
+      log.debug(
+        { seed, index, count, excludeDate },
+        'Deterministic cache extraction',
+      );
 
       const selected = allHaikus[index] as unknown as HaikuDocument;
       return {
