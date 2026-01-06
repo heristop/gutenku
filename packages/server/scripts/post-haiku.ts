@@ -104,7 +104,6 @@ const variables = {
 
 const body = {
   query: query,
-  timeout: 100,
   variables: variables,
 };
 
@@ -124,14 +123,30 @@ try {
 
   const generateSpinner = ora('Generating haiku with image...').start();
 
-  const response = await fetch(
-    process.env.SERVER_URI || 'http://localhost:4000/graphql',
-    {
-      body: JSON.stringify(body),
-      headers: { 'Content-Type': 'application/json' },
-      method: 'POST',
-    },
-  );
+  // 3-minute timeout for AI generation (OpenAI calls + image rendering)
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 180000);
+
+  let response;
+  try {
+    response = await fetch(
+      process.env.SERVER_URI || 'http://localhost:4000/graphql',
+      {
+        body: JSON.stringify(body),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+        signal: controller.signal,
+      },
+    );
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      generateSpinner.fail(pc.red('Request timed out after 3 minutes'));
+      process.exit(1);
+    }
+    throw error;
+  }
+  clearTimeout(timeoutId);
 
   const data = (await response.json()) as { data: HaikuResponseData };
   const haiku = data.data?.haiku;
