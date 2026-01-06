@@ -10,6 +10,7 @@ import {
 import { useI18n } from 'vue-i18n';
 import { useSeoMeta } from '@unhead/vue';
 import { storeToRefs } from 'pinia';
+import { Feather } from 'lucide-vue-next';
 import InkBrushNav from '@/core/components/ui/InkBrushNav.vue';
 import ZenSkeleton from '@/core/components/ZenSkeleton.vue';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
@@ -154,24 +155,45 @@ onUnmounted(closeWSClient);
           <HaikuTitle class="haiku-section__title" />
 
           <HaikuChapter v-if="haiku" class="haiku-section__chapter" />
+
+          <div
+            v-else-if="loading"
+            class="haiku-section__chapter haiku-section__placeholder"
+          >
+            <div class="placeholder-header">
+              <span class="placeholder-header__icon" aria-hidden="true">
+                <Feather :size="24" />
+              </span>
+              <span class="placeholder-header__content">
+                <span class="placeholder-header__title">{{
+                  t('toolbar.title')
+                }}</span>
+                <span class="placeholder-header__subtitle">{{
+                  t('toolbar.subtitle')
+                }}</span>
+              </span>
+            </div>
+            <ZenSkeleton variant="title" :lines="1" />
+            <ZenSkeleton variant="text" :lines="5" />
+          </div>
+
+          <SocialPreviewCard
+            v-if="isDev && optionUseAI"
+            class="haiku-section__preview"
+          />
         </article>
 
         <aside
           class="haiku-grid__sidebar haiku-page__sidebar"
           :aria-label="t('haiku.controlsLabel')"
         >
-          <HaikuCanvas class="haiku-section__canvas" />
-
           <ToolbarPanel class="haiku-section__toolbar" />
+
+          <HaikuCanvas class="haiku-section__canvas" />
 
           <StatsPanel class="haiku-section__stats" />
 
           <ConfigPanel />
-
-          <SocialPreviewCard
-            v-if="isDev && optionUseAI"
-            class="haiku-section__preview"
-          />
         </aside>
       </div>
     </main>
@@ -279,17 +301,60 @@ onUnmounted(closeWSClient);
   margin-bottom: var(--gutenku-space-6);
 }
 
-.haiku-section__chapter,
-.haiku-section__toolbar,
-.haiku-section__stats {
-  margin-bottom: var(--gutenku-space-4);
-}
-
-.haiku-section__canvas {
-  margin-bottom: 0;
-}
-
 .haiku-section__preview {
   margin-top: var(--gutenku-space-4);
+}
+
+.haiku-section__placeholder {
+  background: var(--gutenku-zen-paper);
+  border-radius: var(--gutenku-radius-lg);
+  padding: 2rem;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: var(--gutenku-shadow-sm);
+}
+
+.placeholder-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--gutenku-zen-primary);
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--gutenku-text-primary);
+    letter-spacing: 0.025em;
+  }
+
+  &__subtitle {
+    font-size: 0.875rem;
+    color: var(--gutenku-text-muted);
+    margin-top: 0.125rem;
+  }
+}
+
+[data-theme='dark'] .placeholder-header {
+  &__icon {
+    color: var(--gutenku-zen-accent);
+  }
 }
 </style>

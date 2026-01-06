@@ -48,7 +48,9 @@ const { haiku, loading, optionTheme, themeOptions, imageAIThemes } =
 
 watch(optionTheme, (newTheme) => {
   if (newTheme) {
-    themeChangeAnnouncement.value = t('haikuCanvas.themeChanged', { theme: newTheme });
+    themeChangeAnnouncement.value = t('haikuCanvas.themeChanged', {
+      theme: newTheme,
+    });
     setTimeout(() => {
       themeChangeAnnouncement.value = '';
     }, 1000);
@@ -83,7 +85,9 @@ watch(loading, (isLoading) => {
 });
 
 const createRipple = (event?: MouseEvent | KeyboardEvent) => {
-  if (!canvasRef.value) {return;}
+  if (!canvasRef.value) {
+    return;
+  }
 
   const rect = canvasRef.value.getBoundingClientRect();
   let x: number;
@@ -184,7 +188,9 @@ const onImageLoad = () => {
             ref="canvasRef"
             class="canvas water-ripple-container"
             role="img"
-            :aria-label="t('haikuCanvas.imageLabel', { verses: haiku.verses.join(', ') })"
+            :aria-label="
+              t('haikuCanvas.imageLabel', { verses: haiku.verses.join(', ') })
+            "
             tabindex="0"
             @click="createRipple"
             @keydown.enter="createRipple"
@@ -251,10 +257,9 @@ const onImageLoad = () => {
                     :size="16"
                     class="swipe-arrow swipe-arrow--left"
                   />
-                  <span
-                    class="swipe-text"
-                    >{{ t('haikuChapter.swipeHint') }}</span
-                  >
+                  <span class="swipe-text">{{
+                    t('haikuChapter.swipeHint')
+                  }}</span>
                   <ChevronRight
                     :size="16"
                     class="swipe-arrow swipe-arrow--right"
@@ -288,7 +293,7 @@ const onImageLoad = () => {
 <style lang="scss" scoped>
 .haiku-canvas-card {
   padding: var(--gutenku-space-2) var(--gutenku-space-4) var(--gutenku-space-4);
-  margin-bottom: var(--gutenku-space-6);
+  margin-bottom: var(--gutenku-space-2);
   display: flex;
   flex-direction: column;
   align-items: center;

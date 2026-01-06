@@ -187,16 +187,17 @@ useKeyboardShortcuts({
     class="toolbar-panel toolbar-panel--card toolbar-container animate-in"
     :class="{ 'is-visible': isInView }"
   >
-    <h2 class="sr-only">{{ t('toolbar.title') }}</h2>
-
-    <!-- Decorative Header -->
+    <!-- Header -->
     <div class="toolbar-panel__header">
-      <div class="toolbar-panel__header-line" />
-      <div class="toolbar-panel__header-badge">
-        <Feather :size="14" />
-        <span>{{ t('toolbar.subtitle') }}</span>
-      </div>
-      <div class="toolbar-panel__header-line" />
+      <span class="toolbar-panel__header-icon" aria-hidden="true">
+        <Feather :size="24" />
+      </span>
+      <span class="toolbar-panel__header-content">
+        <h2 class="toolbar-panel__header-title">{{ t('toolbar.title') }}</h2>
+        <span class="toolbar-panel__header-subtitle">{{
+          t('toolbar.subtitle')
+        }}</span>
+      </span>
     </div>
 
     <div class="toolbar-panel__primary">
@@ -418,46 +419,39 @@ useKeyboardShortcuts({
   &__header {
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 0.5rem;
-    width: 100%;
-    margin-bottom: 0.75rem;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
     animation: header-fade-in 0.5s ease-out 0.2s both;
   }
 
-  &__header-line {
-    flex: 1;
-    max-width: 5.5rem;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      var(--gutenku-zen-accent, oklch(0.5 0.08 195)) 100%
-    );
-
-    &:last-child {
-      background: linear-gradient(
-        90deg,
-        var(--gutenku-zen-accent, oklch(0.5 0.08 195)) 0%,
-        transparent 100%
-      );
-    }
-  }
-
-  &__header-badge {
+  &__header-icon {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.4rem 0.875rem;
-    font-size: 0.65rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--gutenku-zen-primary, oklch(0.4 0.08 195));
-    white-space: nowrap;
-    background: oklch(0.5 0.08 195 / 0.08);
-    border-radius: 100px;
-    border: 1px solid oklch(0.5 0.08 195 / 0.15);
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--gutenku-zen-primary);
+  }
+
+  &__header-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-width: 0;
+  }
+
+  &__header-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--gutenku-text-primary);
+    letter-spacing: 0.025em;
+    margin: 0;
+  }
+
+  &__header-subtitle {
+    font-size: 0.875rem;
+    color: var(--gutenku-text-muted);
+    margin-top: 0.125rem;
   }
 
   &__primary {
@@ -569,26 +563,16 @@ useKeyboardShortcuts({
 
 // Dark mode for header
 [data-theme='dark'] .toolbar-panel {
-  &__header-line {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      var(--gutenku-zen-accent, oklch(0.6 0.08 195)) 100%
-    );
-
-    &:last-child {
-      background: linear-gradient(
-        90deg,
-        var(--gutenku-zen-accent, oklch(0.6 0.08 195)) 0%,
-        transparent 100%
-      );
-    }
+  &__header-icon {
+    color: var(--gutenku-zen-accent);
   }
 
-  &__header-badge {
-    color: var(--gutenku-zen-accent, oklch(0.7 0.08 195));
-    background: oklch(0.5 0.08 195 / 0.12);
-    border-color: oklch(0.5 0.08 195 / 0.2);
+  &__header-title {
+    color: var(--gutenku-text-primary);
+  }
+
+  &__header-subtitle {
+    color: var(--gutenku-text-muted);
   }
 }
 

@@ -19,14 +19,16 @@ const { haiku, loading } = storeToRefs(store);
 const expanded = ref(true);
 const { copy, copied } = useClipboard();
 
-// Check if haiku has valid social data (title, emoticons, and translations from OpenAI)
+// Check if haiku has valid social data (title and translations from OpenAI)
 const hasValidData = computed(() => {
   const h = haiku.value;
-  return h?.title && h?.book?.emoticons && (h?.translations?.fr || h?.translations?.jp);
+  return h?.title && (h?.translations?.fr || h?.translations?.jp);
 });
 
 const caption = computed(() => {
-  if (!haiku.value || !hasValidData.value) {return '';}
+  if (!haiku.value || !hasValidData.value) {
+    return '';
+  }
   return generateSocialCaption(haiku.value as HaikuValue);
 });
 
@@ -39,7 +41,6 @@ function copyCaption() {
 
 <template>
   <ZenCard
-    v-if="hasValidData"
     ref="cardRef"
     variant="panel"
     :loading="loading"
@@ -57,7 +58,7 @@ function copyCaption() {
       aria-label="Social Preview"
     >
       <div class="social-panel__content">
-        <div class="social-panel__preview">
+        <div v-if="hasValidData" class="social-panel__preview">
           <div class="social-panel__caption">
             <pre class="social-panel__caption-text">{{ caption }}</pre>
           </div>
@@ -67,6 +68,9 @@ function copyCaption() {
             </template>
             {{ copied ? 'Copied!' : 'Copy Caption' }}
           </ZenButton>
+        </div>
+        <div v-else class="social-panel__placeholder">
+          <p>Generate a new haiku to see AI description</p>
         </div>
       </div>
     </ZenAccordion>
@@ -109,6 +113,13 @@ function copyCaption() {
   &__copy-btn {
     width: 100%;
     margin-top: var(--gutenku-space-3);
+  }
+
+  &__placeholder {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--gutenku-text-muted);
+    font-style: italic;
   }
 }
 </style>

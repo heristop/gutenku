@@ -15,6 +15,7 @@ export default class OpenAIGeneratorService implements IGenerator {
   private readonly MAX_SELECTION_COUNT: number = 20;
   private readonly MODEL = 'gpt-5.2';
   private readonly DEFAULT_TEMPERATURE = 0.7;
+  private readonly EMOTICONS_TEMPERATURE = 0.1;
 
   private haikuSelection: HaikuValue[] = [];
   private openai: IOpenAIClient;
@@ -120,7 +121,7 @@ export default class OpenAIGeneratorService implements IGenerator {
       const [descResult, transResult, emojisResult] = await Promise.allSettled([
         this.generateDescription(haiku.verses),
         this.generateTranslations(haiku.verses),
-        this.generateBookmojis(haiku.book.title),
+        this.generateBookmojis(haiku.book),
       ]);
 
       if (descResult.status === 'fulfilled') {
@@ -145,10 +146,23 @@ export default class OpenAIGeneratorService implements IGenerator {
         };
       }
 
-      if (emojisResult.status === 'fulfilled') {
+      log.info(
+        {
+          emojisStatus: emojisResult.status,
+          emojisValue:
+            emojisResult.status === 'fulfilled' ? emojisResult.value : null,
+          emojisReason:
+            emojisResult.status === 'rejected'
+              ? (emojisResult.reason as Error)?.message
+              : null,
+        },
+        'Emoticons result from Promise.allSettled',
+      );
+
+      if (emojisResult.status === 'fulfilled' && emojisResult.value) {
         haiku.book.emoticons = emojisResult.value;
       } else {
-        haiku.book.emoticons = '📚✨🌸';
+        haiku.book.emoticons = '';
       }
 
       return haiku;
@@ -222,22 +236,45 @@ export default class OpenAIGeneratorService implements IGenerator {
     return JSON.parse(answer);
   }
 
-  private async generateBookmojis(bookTitle: string): Promise<string> {
-    const prompt = `Generate 3-5 emoticons that represent the book "${bookTitle}". Respond with only the emoticons, no text or explanation.`;
+  private async generateBookmojis(book: {
+    title: string;
+    author: string;
+  }): Promise<string> {
+    log.info(
+      { bookTitle: book.title, bookAuthor: book.author },
+      'Generating bookmojis',
+    );
 
     const completion = await this.openai.chatCompletionsCreate({
       max_completion_tokens: 20,
       messages: [
         {
+          role: 'system',
+          content:
+            'You are an emoji generator. Respond ONLY with 3-5 emojis that visually represent the given book. No text, no spaces, just emojis.',
+        },
+        {
           role: 'user',
-          content: prompt,
+          content: `"${book.title}" by ${book.author}`,
         },
       ],
       model: this.MODEL,
-      temperature: this.temperature,
+      temperature: this.EMOTICONS_TEMPERATURE,
     });
 
-    return completion.choices[0].message.content.replaceAll(/[\n\s]+/g, '');
+    const rawContent = completion.choices[0]?.message?.content;
+    const emoticons = rawContent?.replaceAll(/[\n\s]+/g, '') || '';
+
+    log.info(
+      {
+        book: `${book.title} by ${book.author}`,
+        rawContent,
+        emoticons,
+      },
+      'Bookmojis generation result',
+    );
+
+    return emoticons;
   }
 
   private async fetchHaikus(): Promise<string[]> {

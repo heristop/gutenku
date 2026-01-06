@@ -181,7 +181,7 @@ export function generateSocialCaption(
   haiku: HaikuValue,
   options?: SocialCaptionOptions,
 ): string {
-  if (!haiku.title || !haiku.book?.emoticons) {
+  if (!haiku.title) {
     return '';
   }
 
@@ -193,20 +193,27 @@ export function generateSocialCaption(
     ? ` ${options.extraHashtags}`
     : '';
 
-  return `🌸 “${haiku.title}” 🗻
+  const hasEmoticons = !!haiku.book?.emoticons;
+  let hintNumber = 1;
+
+  const hints: string[] = [];
+
+  if (hasEmoticons) {
+    hints.push(`💡 Hint ${hintNumber++} (Bookmoji):\n${haiku.book.emoticons}`);
+  }
+
+  hints.push(
+    `💡 Hint ${hintNumber++} (First letter of the book):\n${firstLetter}...`,
+  );
+  hints.push(`💡 Hint ${hintNumber++} (Author):\n${authorFirstName}...`);
+
+  return `🌸 "${haiku.title}" 🗻
 
 📚 Guess the book! 👇
 
 ~~~
 
-💡 Hint 1 (Bookmoji):
-${haiku.book.emoticons}
-
-💡 Hint 2 (First letter of the book):
-${firstLetter}...
-
-💡 Hint 3 (Author):
-${authorFirstName}...
+${hints.join('\n\n')}
 
 ・
 ・

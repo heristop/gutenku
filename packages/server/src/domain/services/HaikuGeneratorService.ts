@@ -159,6 +159,7 @@ export default class HaikuGeneratorService implements IGenerator {
   }
 
   async buildFromDb(): Promise<HaikuValue | null> {
+    this.executionTime = Date.now();
     await this.prepare();
 
     const result = await this.buildFromDbWithYielding();
@@ -305,6 +306,7 @@ export default class HaikuGeneratorService implements IGenerator {
         reference: book.reference,
         title: book.title,
         author: book.author,
+        emoticons: book.emoticons,
       },
       cacheUsed: false,
       chapter: chapter,

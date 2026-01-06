@@ -346,7 +346,7 @@
     "ariaDescription": "Text with {count} highlighted haiku verses"
   },
   "toolbar": {
-    "title": "Haiku Actions",
+    "title": "Haiku Crafter",
     "ariaLabel": "Haiku toolbar actions",
     "generate": "Craft Haiku",
     "extract": "Extract",
