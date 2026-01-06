@@ -121,8 +121,17 @@ export default class HaikuRepository implements IHaikuRepository {
 
       // Fetch haikus created before excludeDate, sorted by _id for deterministic ordering
       // This ensures new haikus added today don't change the daily selection
+      // Convert excludeDate (YYYY-MM-DD) to ISO timestamp at midnight for consistent comparison
+      const excludeTimestamp = `${excludeDate}T00:00:00.000Z`;
+
+      // Include documents without createdAt (legacy) OR with createdAt before today
       const allHaikus = await haikusCollection
-        .find({ createdAt: { $lt: excludeDate } })
+        .find({
+          $or: [
+            { createdAt: { $exists: false } },
+            { createdAt: { $lt: excludeTimestamp } },
+          ],
+        })
         .sort({ _id: 1 })
         .toArray();
 
@@ -130,7 +139,7 @@ export default class HaikuRepository implements IHaikuRepository {
 
       if (count < minCachedDocs) {
         log.info(
-          { count, minCachedDocs, excludeDate },
+          { count, minCachedDocs, excludeDate, excludeTimestamp },
           'Not enough cached documents for deterministic extraction',
         );
         return null;
@@ -140,8 +149,8 @@ export default class HaikuRepository implements IHaikuRepository {
       const random = seededRandom(seed);
       const index = Math.floor(random() * count);
 
-      log.debug(
-        { seed, index, count, excludeDate },
+      log.info(
+        { seed, index, count, excludeDate, excludeTimestamp },
         'Deterministic cache extraction',
       );
 

@@ -22,7 +22,9 @@ const hasHeader = computed(() => !!slots.header);
 const hasActions = computed(() => !!slots.actions);
 
 const computedRole = computed(() => {
-  if (props.role) {return props.role;}
+  if (props.role) {
+    return props.role;
+  }
   switch (props.variant) {
     case 'book':
       return 'article';
@@ -101,7 +103,7 @@ const cardClasses = computed(() => [
   transform: translateZ(0);
   backface-visibility: hidden;
 
-  background: oklch(0.98 0.01 85 / 0.7);
+  background: var(--gutenku-paper-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid oklch(1 0 0 / 0.3);
@@ -138,7 +140,9 @@ const cardClasses = computed(() => [
 
   &__content {
     padding: 0;
-    transition: opacity 0.3s ease, filter 0.3s ease;
+    transition:
+      opacity 0.3s ease,
+      filter 0.3s ease;
     min-width: 200px;
   }
 
@@ -334,7 +338,8 @@ const cardClasses = computed(() => [
 }
 
 @keyframes ink-breathe {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.4;
     transform: scaleX(0.5);
   }
@@ -345,7 +350,8 @@ const cardClasses = computed(() => [
 }
 
 @keyframes ink-shimmer {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0;
     transform: translateX(-100%);
   }
