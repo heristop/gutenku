@@ -9,6 +9,23 @@ import AppFooter from '@/core/components/AppFooter.vue';
 
 const route = useRoute();
 
+function skipToMain(): void {
+  const targets = [
+    'preview-grid',
+    'book-page',
+    'start-gate',
+    'game-hints',
+    'main-content',
+  ];
+  for (const id of targets) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.focus();
+      return;
+    }
+  }
+}
+
 const canonicalUrl = computed(
   () => `https://gutenku.xyz${route.path === '/' ? '' : route.path}`,
 );
@@ -22,7 +39,7 @@ useHead({
       content: computed(
         () =>
           (route.meta.description as string) ||
-          'AI Haiku Generator & Literary Games'
+          'AI Haiku Generator & Literary Games',
       ),
     },
     {
@@ -34,7 +51,7 @@ useHead({
       content: computed(
         () =>
           (route.meta.description as string) ||
-          'AI Haiku Generator & Literary Games'
+          'AI Haiku Generator & Literary Games',
       ),
     },
     {
@@ -46,7 +63,7 @@ useHead({
       content: computed(
         () =>
           (route.meta.description as string) ||
-          'AI Haiku Generator & Literary Games'
+          'AI Haiku Generator & Literary Games',
       ),
     },
   ],
@@ -74,7 +91,7 @@ useHead({
         <div class="floating-particles__particle" />
       </div>
 
-      <a href="#main-content" class="skip-link">
+      <a href="#main-content" class="skip-link" @click.prevent="skipToMain">
         {{ $t('layout.skipLink') }}
       </a>
       <default-view />

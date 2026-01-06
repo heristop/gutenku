@@ -185,10 +185,12 @@ onUnmounted(() => {
 <template>
   <ZenCard
     v-if="haiku"
+    id="book-page"
     ref="chapterRef"
     variant="book"
     :loading="loading"
     :aria-label="t('haikuChapter.ariaLabel')"
+    tabindex="-1"
     class="book-page"
     :class="{ 'is-loading': loading }"
   >

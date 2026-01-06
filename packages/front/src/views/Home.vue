@@ -11,14 +11,17 @@ import PullToRefresh from '@/core/components/PullToRefresh.vue';
 import Hero from '@/core/components/Hero.vue';
 import { GAME_ENABLED, GamePreview } from '@/features/game';
 
-const HaikuPreview = defineAsyncComponent(() => import('@/features/haiku/components/HaikuPreview.vue'));
+const HaikuPreview = defineAsyncComponent(
+  () => import('@/features/haiku/components/HaikuPreview.vue'),
+);
 
 const { t } = useI18n();
 const { fetchGlobalStats } = useGlobalStats();
 
 useSeoMeta({
   ogTitle: 'GutenKu - AI Haiku Generator & Literary Guessing Game',
-  ogDescription: 'Generate beautiful haikus from classic literature. Play GutenGuess - guess the book from emoji hints.',
+  ogDescription:
+    'Generate beautiful haikus from classic literature. Play GutenGuess - guess the book from emoji hints.',
   ogImage: 'https://gutenku.xyz/og-image.png',
   twitterImage: 'https://gutenku.xyz/og-image.png',
 });
@@ -26,10 +29,8 @@ useSeoMeta({
 const showContent = ref(false);
 const containerRef = ref<HTMLElement | null>(null);
 
-const { pullDistance, isRefreshing, shouldRelease, progress } = usePullToRefresh(
-  containerRef,
-  { onRefresh: fetchGlobalStats },
-);
+const { pullDistance, isRefreshing, shouldRelease, progress } =
+  usePullToRefresh(containerRef, { onRefresh: fetchGlobalStats });
 
 onMounted(() => {
   // Wait for next frame before triggering entrance
@@ -67,6 +68,8 @@ onMounted(() => {
 
       <!-- Preview Cards Grid -->
       <div
+        id="preview-grid"
+        tabindex="-1"
         class="preview-grid"
         :class="{ 'preview-grid--single': !GAME_ENABLED }"
       >
