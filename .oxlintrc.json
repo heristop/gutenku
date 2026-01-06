@@ -174,7 +174,7 @@
       "error",
       { "max": 500, "skipBlankLines": true, "skipComments": true }
     ],
-    "complexity": ["warn", { "max": 15 }],
+    "complexity": ["error", { "max": 15 }],
     "no-nested-ternary": "error",
     "no-duplicate-imports": "error",
     "no-template-curly-in-string": "error",

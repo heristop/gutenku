@@ -11,54 +11,44 @@ interface KeyboardShortcutsOptions {
   onEscape?: () => void;
 }
 
+type ShortcutHandler = keyof Omit<KeyboardShortcutsOptions, 'onHelp'>;
+
+const KEYBOARD_SHORTCUTS: Record<string, ShortcutHandler> = {
+  Space: 'onGenerate',
+  KeyC: 'onCopy',
+  KeyD: 'onDownload',
+  KeyS: 'onShare',
+  ArrowLeft: 'onPrevious',
+  ArrowRight: 'onNext',
+  Escape: 'onEscape',
+};
+
+const TYPING_ELEMENTS = ['INPUT', 'TEXTAREA'];
+
+function shouldIgnoreKeydown(event: KeyboardEvent): boolean {
+  const target = event.target as HTMLElement;
+  const isTyping =
+    TYPING_ELEMENTS.includes(target.tagName) || target.isContentEditable;
+  const hasModifier = event.ctrlKey || event.metaKey || event.altKey;
+  return isTyping || hasModifier;
+}
+
+function isHelpKey(event: KeyboardEvent): boolean {
+  return event.key === '?' || (event.shiftKey && event.code === 'Slash');
+}
+
 export function useKeyboardShortcuts(options: KeyboardShortcutsOptions) {
   const handleKeydown = (event: KeyboardEvent) => {
-    // Skip if user is typing in an input
-    const target = event.target as HTMLElement;
-    if (
-      target.tagName === 'INPUT' ||
-      target.tagName === 'TEXTAREA' ||
-      target.isContentEditable
-    ) {
+    if (shouldIgnoreKeydown(event)) {return;}
+
+    const handler = KEYBOARD_SHORTCUTS[event.code];
+    if (handler) {
+      if (event.code !== 'Escape') {event.preventDefault();}
+      options[handler]?.();
       return;
     }
 
-    // Skip if modifier keys are pressed (allow browser shortcuts)
-    if (event.ctrlKey || event.metaKey || event.altKey) {
-      return;
-    }
-
-    switch (event.code) {
-      case 'Space':
-        event.preventDefault();
-        options.onGenerate?.();
-        break;
-      case 'KeyC':
-        event.preventDefault();
-        options.onCopy?.();
-        break;
-      case 'KeyD':
-        event.preventDefault();
-        options.onDownload?.();
-        break;
-      case 'KeyS':
-        event.preventDefault();
-        options.onShare?.();
-        break;
-      case 'ArrowLeft':
-        event.preventDefault();
-        options.onPrevious?.();
-        break;
-      case 'ArrowRight':
-        event.preventDefault();
-        options.onNext?.();
-        break;
-      case 'Escape':
-        options.onEscape?.();
-        break;
-    }
-
-    if (event.key === '?' || (event.shiftKey && event.code === 'Slash')) {
+    if (isHelpKey(event)) {
       event.preventDefault();
       options.onHelp?.();
     }

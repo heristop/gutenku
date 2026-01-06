@@ -100,65 +100,75 @@ const select = (option: string) => {
   triggerRef.value?.focus();
 };
 
+const openDropdown = () => {
+  isOpen.value = true;
+  highlightedIndex.value = selectedIndex.value >= 0 ? selectedIndex.value : 0;
+  nextTick(updateDropdownPosition);
+};
+
+const handleEnterSpace = (event: KeyboardEvent) => {
+  event.preventDefault();
+  if (isOpen.value && highlightedIndex.value >= 0) {
+    select(flatOptions.value[highlightedIndex.value]);
+  } else {
+    toggle();
+  }
+};
+
+const handleArrowDown = (event: KeyboardEvent) => {
+  event.preventDefault();
+  if (!isOpen.value) {
+    openDropdown();
+  } else {
+    highlightedIndex.value = Math.min(
+      highlightedIndex.value + 1,
+      flatOptions.value.length - 1,
+    );
+  }
+};
+
+const handleArrowUp = (event: KeyboardEvent) => {
+  event.preventDefault();
+  if (isOpen.value) {
+    highlightedIndex.value = Math.max(highlightedIndex.value - 1, 0);
+  }
+};
+
+const handleEscape = (event: KeyboardEvent) => {
+  event.preventDefault();
+  close();
+  triggerRef.value?.focus();
+};
+
+const handleHome = (event: KeyboardEvent) => {
+  if (isOpen.value) {
+    event.preventDefault();
+    highlightedIndex.value = 0;
+  }
+};
+
+const handleEnd = (event: KeyboardEvent) => {
+  if (isOpen.value) {
+    event.preventDefault();
+    highlightedIndex.value = flatOptions.value.length - 1;
+  }
+};
+
 const handleKeydown = (event: KeyboardEvent) => {
   if (props.disabled || props.loading) {return;}
 
-  switch (event.key) {
-    case 'Enter':
-    case ' ':
-      event.preventDefault();
-      if (isOpen.value && highlightedIndex.value >= 0) {
-        select(flatOptions.value[highlightedIndex.value]);
-      } else {
-        toggle();
-      }
-      break;
+  const handlers: Record<string, (e: KeyboardEvent) => void> = {
+    Enter: handleEnterSpace,
+    ' ': handleEnterSpace,
+    ArrowDown: handleArrowDown,
+    ArrowUp: handleArrowUp,
+    Escape: handleEscape,
+    Tab: close,
+    Home: handleHome,
+    End: handleEnd,
+  };
 
-    case 'ArrowDown':
-      event.preventDefault();
-      if (!isOpen.value) {
-        isOpen.value = true;
-        highlightedIndex.value = selectedIndex.value >= 0 ? selectedIndex.value : 0;
-        nextTick(updateDropdownPosition);
-      } else {
-        highlightedIndex.value = Math.min(
-          highlightedIndex.value + 1,
-          flatOptions.value.length - 1,
-        );
-      }
-      break;
-
-    case 'ArrowUp':
-      event.preventDefault();
-      if (isOpen.value) {
-        highlightedIndex.value = Math.max(highlightedIndex.value - 1, 0);
-      }
-      break;
-
-    case 'Escape':
-      event.preventDefault();
-      close();
-      triggerRef.value?.focus();
-      break;
-
-    case 'Tab':
-      close();
-      break;
-
-    case 'Home':
-      if (isOpen.value) {
-        event.preventDefault();
-        highlightedIndex.value = 0;
-      }
-      break;
-
-    case 'End':
-      if (isOpen.value) {
-        event.preventDefault();
-        highlightedIndex.value = flatOptions.value.length - 1;
-      }
-      break;
-  }
+  handlers[event.key]?.(event);
 };
 
 // Scroll highlighted option into view

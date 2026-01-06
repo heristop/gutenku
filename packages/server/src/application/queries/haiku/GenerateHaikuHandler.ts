@@ -34,39 +34,28 @@ export class GenerateHaikuHandler implements IQueryHandler<
   ) {}
 
   async execute(query: GenerateHaikuQuery): Promise<HaikuValue> {
-    let haiku: HaikuValue = null;
-    const minCachedDocs = Number.parseInt(process.env.MIN_CACHED_DOCS, 10);
+    this.configureGenerator(query);
 
-    // Daily mode: use deterministic extraction from cache
-    if (query.useDaily) {
-      const date = query.date || getTodayUTC();
-      const seed = dateToSeed(date);
+    let haiku = await this.tryDailyMode(query);
+    haiku ??= await this.tryOpenAIGeneration(query);
+    haiku ??= await this.tryStandardGeneration(query);
 
-      log.info({ date, seed, useDaily: true }, 'Daily haiku mode');
-
-      // Pass date to exclude haikus created today (ensures determinism)
-      haiku = await this.haikuRepository.extractDeterministicFromCache(
-        seed,
-        minCachedDocs,
-        date,
-      );
-
-      if (haiku) {
-        log.info({ seed, cacheUsed: true }, 'Daily haiku extracted from cache');
-      } else {
-        log.info(
-          { seed },
-          'Daily haiku cache miss, falling back to generation',
-        );
-      }
+    if (query.appendImg !== false) {
+      haiku = await this.haikuGenerator.appendImg(haiku, query.useImageAI);
     }
 
-    // Configure generator for both daily fallback and craft mode
+    this.recordStats(haiku);
+    return haiku;
+  }
+
+  private configureGenerator(query: GenerateHaikuQuery): void {
+    const minCachedDocs = Number.parseInt(process.env.MIN_CACHED_DOCS, 10);
+
     this.haikuGenerator.configure({
       cache: {
         minCachedDocs,
-        ttl: 48 * 60 * 60 * 1000, // 48 hours (allows yesterday's haikus for daily selection)
-        enabled: query.useCache && !query.useDaily, // Disable random cache in daily mode
+        ttl: 48 * 60 * 60 * 1000,
+        enabled: query.useCache && !query.useDaily,
       },
       score: {
         markovChain: query.markovMinScore,
@@ -78,56 +67,82 @@ export class GenerateHaikuHandler implements IQueryHandler<
       },
       theme: query.theme,
     });
+  }
 
-    const OPENAI_SELECTION_MODE =
-      query.useAI && undefined !== process.env.OPENAI_API_KEY;
+  private async tryDailyMode(
+    query: GenerateHaikuQuery,
+  ): Promise<HaikuValue | null> {
+    if (!query.useDaily) {return null;}
+
+    const date = query.date || getTodayUTC();
+    const seed = dateToSeed(date);
+    const minCachedDocs = Number.parseInt(process.env.MIN_CACHED_DOCS, 10);
+
+    log.info({ date, seed, useDaily: true }, 'Daily haiku mode');
+
+    const haiku = await this.haikuRepository.extractDeterministicFromCache(
+      seed,
+      minCachedDocs,
+      date,
+    );
+
+    if (haiku) {
+      log.info({ seed, cacheUsed: true }, 'Daily haiku extracted from cache');
+    } else {
+      log.info({ seed }, 'Daily haiku cache miss, falling back to generation');
+    }
+
+    return haiku;
+  }
+
+  private async tryOpenAIGeneration(
+    query: GenerateHaikuQuery,
+  ): Promise<HaikuValue | null> {
+    const isOpenAIEnabled =
+      query.useAI && process.env.OPENAI_API_KEY !== undefined;
 
     log.info(
       {
         useAI: query.useAI,
         hasApiKey: !!process.env.OPENAI_API_KEY,
-        OPENAI_SELECTION_MODE,
+        isOpenAIEnabled,
       },
       'OpenAI mode check',
     );
 
-    // Try OpenAI generation if enabled and no daily haiku yet
-    if (haiku === null && OPENAI_SELECTION_MODE === true) {
-      this.openAIGenerator.configure({
-        apiKey: process.env.OPENAI_API_KEY,
-        selectionCount: query.selectionCount,
-        temperature: {
-          description: query.descriptionTemperature,
-        },
-      });
+    if (!isOpenAIEnabled) {return null;}
 
-      haiku = await this.openAIGenerator.generate();
-      log.info(
-        {
-          hasTitle: !!haiku?.title,
-          hasEmoticons: !!haiku?.book?.emoticons,
-          hasTranslations: !!haiku?.translations,
-        },
-        'OpenAI generation result',
-      );
-    }
+    this.openAIGenerator.configure({
+      apiKey: process.env.OPENAI_API_KEY,
+      selectionCount: query.selectionCount,
+      temperature: { description: query.descriptionTemperature },
+    });
 
-    // Fallback to standard generation
-    if (haiku === null) {
-      haiku = await this.haikuGenerator
-        .filter(query.filter ? query.filter.split(' ') : [])
-        .generate();
-    }
+    const haiku = await this.openAIGenerator.generate();
 
-    if (query.appendImg !== false) {
-      haiku = await this.haikuGenerator.appendImg(haiku, query.useImageAI);
-    }
-
-    if (haiku !== null && haiku.cacheUsed !== true) {
-      // Fire-and-forget - don't block the response
-      this.globalStatsRepository.incrementHaikuCount().catch(() => {});
-    }
+    log.info(
+      {
+        hasTitle: !!haiku?.title,
+        hasEmoticons: !!haiku?.book?.emoticons,
+        hasTranslations: !!haiku?.translations,
+      },
+      'OpenAI generation result',
+    );
 
     return haiku;
+  }
+
+  private async tryStandardGeneration(
+    query: GenerateHaikuQuery,
+  ): Promise<HaikuValue | null> {
+    return this.haikuGenerator
+      .filter(query.filter ? query.filter.split(' ') : [])
+      .generate();
+  }
+
+  private recordStats(haiku: HaikuValue | null): void {
+    if (haiku !== null && haiku.cacheUsed !== true) {
+      this.globalStatsRepository.incrementHaikuCount().catch(() => {});
+    }
   }
 }

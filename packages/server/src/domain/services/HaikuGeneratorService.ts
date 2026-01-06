@@ -30,8 +30,56 @@ import { MaxAttemptsException } from '~/domain/exceptions';
 
 const log = createLogger('haiku');
 
+interface CacheConfig {
+  minCachedDocs: number;
+  ttl: number;
+  enabled: boolean;
+}
+
+interface ScoreConfig {
+  sentiment: number | null;
+  markovChain: number | null;
+  pos: number | null;
+  trigram: number | null;
+  tfidf: number | null;
+  phonetics: number | null;
+}
+
+interface GeneratorConfig {
+  cache: CacheConfig;
+  score: ScoreConfig;
+  theme: string;
+}
+
+interface ScoreThresholds {
+  sentiment: number;
+  markov: number;
+  pos: number;
+  trigram: number;
+  tfidf: number;
+  phonetics: number;
+}
+
+interface QuoteCandidate {
+  quote: string;
+  index: number;
+}
+
 @singleton()
 export default class HaikuGeneratorService implements IGenerator {
+  private static readonly DEFAULT_CONFIG: GeneratorConfig = {
+    cache: { minCachedDocs: 100, ttl: 0, enabled: false },
+    score: {
+      sentiment: null,
+      markovChain: null,
+      pos: null,
+      trigram: null,
+      tfidf: null,
+      phonetics: null,
+    },
+    theme: 'random',
+  };
+
   private readonly maxAttempts = 500;
   private readonly maxAttemptsInBook = 50;
   private readonly chunkSize = 10;
@@ -43,12 +91,12 @@ export default class HaikuGeneratorService implements IGenerator {
   private executionTime: number;
   private filterWords: string[];
   private filterWordsRegex: RegExp | null = null;
-  private sentimentMinScore: number;
-  private markovMinScore: number;
-  private posMinScore: number;
-  private trigramMinScore: number;
-  private tfidfMinScore: number;
-  private phoneticsMinScore: number;
+  private sentimentMinScore: number | null;
+  private markovMinScore: number | null;
+  private posMinScore: number | null;
+  private trigramMinScore: number | null;
+  private tfidfMinScore: number | null;
+  private phoneticsMinScore: number | null;
 
   constructor(
     @inject('IHaikuRepository')
@@ -68,33 +116,22 @@ export default class HaikuGeneratorService implements IGenerator {
     this.filterWords = [];
   }
 
-  configure(options?: {
-    cache: {
-      minCachedDocs: number;
-      ttl: number;
-      enabled: boolean;
-    };
-    score: {
-      sentiment: number;
-      markovChain: number;
-      pos: number;
-      trigram: number;
-      tfidf: number;
-      phonetics: number;
-    };
-    theme: string;
-  }): HaikuGeneratorService {
-    this.minCachedDocs = options?.cache.minCachedDocs ?? 100;
-    this.useCache = options?.cache.enabled ?? false;
-    this.ttl = options?.cache.ttl ?? 0;
-    this.theme = options?.theme ?? 'random';
+  configure(options?: Partial<GeneratorConfig>): HaikuGeneratorService {
+    const defaults = HaikuGeneratorService.DEFAULT_CONFIG;
+    const cache = { ...defaults.cache, ...options?.cache };
+    const score = { ...defaults.score, ...options?.score };
+
+    this.minCachedDocs = cache.minCachedDocs;
+    this.useCache = cache.enabled;
+    this.ttl = cache.ttl;
+    this.theme = options?.theme ?? defaults.theme;
     this.filterWords = [];
-    this.sentimentMinScore = options?.score.sentiment ?? null;
-    this.markovMinScore = options?.score.markovChain ?? null;
-    this.posMinScore = options?.score.pos ?? null;
-    this.trigramMinScore = options?.score.trigram ?? null;
-    this.tfidfMinScore = options?.score.tfidf ?? null;
-    this.phoneticsMinScore = options?.score.phonetics ?? null;
+    this.sentimentMinScore = score.sentiment;
+    this.markovMinScore = score.markovChain;
+    this.posMinScore = score.pos;
+    this.trigramMinScore = score.trigram;
+    this.tfidfMinScore = score.tfidf;
+    this.phoneticsMinScore = score.phonetics;
 
     return this;
   }
@@ -359,144 +396,26 @@ export default class HaikuGeneratorService implements IGenerator {
     return filteredQuotes;
   }
 
-  selectHaikuVerses(quotes: { quote: string; index: number }[]): string[] {
+  selectHaikuVerses(quotes: QuoteCandidate[]): string[] {
     const syllableCounts = [5, 7, 5];
-
-    const sentimentMinScore =
-      this.sentimentMinScore ??
-      Number.parseFloat(process.env.SENTIMENT_MIN_SCORE || '0');
-    const markovMinScore =
-      this.markovMinScore ??
-      Number.parseFloat(process.env.MARKOV_MIN_SCORE || '0');
-    const posMinScore =
-      this.posMinScore ?? Number.parseFloat(process.env.POS_MIN_SCORE || '0');
-    const trigramMinScore =
-      this.trigramMinScore ??
-      Number.parseFloat(process.env.TRIGRAM_MIN_SCORE || '0');
-    const tfidfMinScore =
-      this.tfidfMinScore ??
-      Number.parseFloat(process.env.TFIDF_MIN_SCORE || '0');
-    const phoneticsMinScore =
-      this.phoneticsMinScore ??
-      Number.parseFloat(process.env.PHONETICS_MIN_SCORE || '0');
-
-    const selectedVerses: { quote: string; index: number }[] = [];
+    const thresholds = this.getScoreThresholds();
+    const selectedVerses: QuoteCandidate[] = [];
     const usedIndices = new Set<number>();
 
     for (let i = 0; i < syllableCounts.length; i++) {
-      const count = syllableCounts[i];
+      const targetSyllables = syllableCounts[i];
 
-      const matchingQuotes = quotes.filter(({ quote, index }) => {
-        if (usedIndices.has(index)) {
-          return false;
-        }
-
-        quote = quote.replaceAll('\n', ' ');
-
-        if (i === 0 && this.naturalLanguage.startWithConjunction(quote)) {
-          return false;
-        }
-
-        if (this.isQuoteInvalid(quote)) {
-          return false;
-        }
-
-        const syllableCount = this.naturalLanguage.countSyllables(quote);
-
-        if (syllableCount !== count) {
-          return false;
-        }
-
-        log.debug({ quote: quote.split(' ') }, 'Evaluating quote');
-
-        const sentimentScore = this.naturalLanguage.analyzeSentiment(quote);
-
-        if (sentimentScore < sentimentMinScore) {
-          return false;
-        }
-
-        log.debug(
-          { sentimentScore, min: sentimentMinScore },
-          'Sentiment score',
-        );
-
-        if (posMinScore > 0) {
-          const grammarAnalysis = this.naturalLanguage.analyzeGrammar(quote);
-
-          if (grammarAnalysis.score < posMinScore) {
-            return false;
-          }
-
-          log.debug(
-            { posScore: grammarAnalysis.score, min: posMinScore },
-            'POS score',
-          );
-        }
-
-        if (tfidfMinScore > 0) {
-          const tfidfScore = this.naturalLanguage.scoreDistinctiveness(quote);
-
-          if (tfidfScore < tfidfMinScore) {
-            return false;
-          }
-
-          log.debug({ tfidfScore, min: tfidfMinScore }, 'TF-IDF score');
-        }
-
-        if (selectedVerses.length > 0) {
-          const lastVerseIndex = selectedVerses.at(-1).index;
-
-          if (index <= lastVerseIndex) {
-            return false;
-          }
-
-          const quotesToEvaluate = [
-            ...selectedVerses.map((verse) => verse.quote),
-            quote,
-          ];
-
-          const markovScore =
-            this.markovEvaluator.evaluateHaiku(quotesToEvaluate);
-
-          if (markovScore < markovMinScore) {
-            return false;
-          }
-
-          log.debug({ markovScore, min: markovMinScore }, 'Markov score');
-
-          if (trigramMinScore > 0) {
-            const trigramScore =
-              this.markovEvaluator.evaluateHaikuTrigrams(quotesToEvaluate);
-
-            if (trigramScore < trigramMinScore) {
-              return false;
-            }
-
-            log.debug({ trigramScore, min: trigramMinScore }, 'Trigram score');
-          }
-
-          if (phoneticsMinScore > 0 && selectedVerses.length === 2) {
-            const phoneticsAnalysis =
-              this.naturalLanguage.analyzePhonetics(quotesToEvaluate);
-
-            if (phoneticsAnalysis.alliterationScore < phoneticsMinScore) {
-              return false;
-            }
-
-            log.debug(
-              {
-                phoneticsScore: phoneticsAnalysis.alliterationScore,
-                min: phoneticsMinScore,
-              },
-              'Phonetics score',
-            );
-          }
-
-          this.eventBus.publish(new QuoteGeneratedEvent({ quote }));
-        }
-
-        return true;
-      });
+      const matchingQuotes = quotes.filter(({ quote, index }) =>
+        this.isQuoteValidForVerse(
+          quote,
+          index,
+          targetSyllables,
+          i === 0,
+          usedIndices,
+          selectedVerses,
+          thresholds,
+        ),
+      );
 
       if (matchingQuotes.length === 0) {
         return [];
@@ -510,6 +429,143 @@ export default class HaikuGeneratorService implements IGenerator {
     }
 
     return selectedVerses.map(({ quote }) => quote);
+  }
+
+  private getScoreThresholds(): ScoreThresholds {
+    return {
+      sentiment:
+        this.sentimentMinScore ??
+        Number.parseFloat(process.env.SENTIMENT_MIN_SCORE || '0'),
+      markov:
+        this.markovMinScore ??
+        Number.parseFloat(process.env.MARKOV_MIN_SCORE || '0'),
+      pos:
+        this.posMinScore ??
+        Number.parseFloat(process.env.POS_MIN_SCORE || '0'),
+      trigram:
+        this.trigramMinScore ??
+        Number.parseFloat(process.env.TRIGRAM_MIN_SCORE || '0'),
+      tfidf:
+        this.tfidfMinScore ??
+        Number.parseFloat(process.env.TFIDF_MIN_SCORE || '0'),
+      phonetics:
+        this.phoneticsMinScore ??
+        Number.parseFloat(process.env.PHONETICS_MIN_SCORE || '0'),
+    };
+  }
+
+  private isQuoteValidForVerse(
+    rawQuote: string,
+    index: number,
+    targetSyllables: number,
+    isFirstVerse: boolean,
+    usedIndices: Set<number>,
+    selectedVerses: QuoteCandidate[],
+    thresholds: ScoreThresholds,
+  ): boolean {
+    if (usedIndices.has(index)) {return false;}
+
+    const quote = rawQuote.replaceAll('\n', ' ');
+
+    if (!this.passesBasicValidation(quote, targetSyllables, isFirstVerse)) {
+      return false;
+    }
+
+    if (!this.passesScoreValidation(quote, thresholds)) {
+      return false;
+    }
+
+    if (selectedVerses.length > 0) {
+      return this.passesSequenceValidation(
+        quote,
+        index,
+        selectedVerses,
+        thresholds,
+      );
+    }
+
+    return true;
+  }
+
+  private passesBasicValidation(
+    quote: string,
+    targetSyllables: number,
+    isFirstVerse: boolean,
+  ): boolean {
+    if (isFirstVerse && this.naturalLanguage.startWithConjunction(quote)) {
+      return false;
+    }
+
+    if (this.isQuoteInvalid(quote)) {return false;}
+
+    const syllableCount = this.naturalLanguage.countSyllables(quote);
+    return syllableCount === targetSyllables;
+  }
+
+  private passesScoreValidation(
+    quote: string,
+    thresholds: ScoreThresholds,
+  ): boolean {
+    log.debug({ quote: quote.split(' ') }, 'Evaluating quote');
+
+    const sentimentScore = this.naturalLanguage.analyzeSentiment(quote);
+    if (sentimentScore < thresholds.sentiment) {return false;}
+    log.debug(
+      { sentimentScore, min: thresholds.sentiment },
+      'Sentiment score',
+    );
+
+    if (thresholds.pos > 0) {
+      const grammarAnalysis = this.naturalLanguage.analyzeGrammar(quote);
+      if (grammarAnalysis.score < thresholds.pos) {return false;}
+      log.debug({ posScore: grammarAnalysis.score, min: thresholds.pos }, 'POS score');
+    }
+
+    if (thresholds.tfidf > 0) {
+      const tfidfScore = this.naturalLanguage.scoreDistinctiveness(quote);
+      if (tfidfScore < thresholds.tfidf) {return false;}
+      log.debug({ tfidfScore, min: thresholds.tfidf }, 'TF-IDF score');
+    }
+
+    return true;
+  }
+
+  private passesSequenceValidation(
+    quote: string,
+    index: number,
+    selectedVerses: QuoteCandidate[],
+    thresholds: ScoreThresholds,
+  ): boolean {
+    const lastVerseIndex = selectedVerses.at(-1)!.index;
+    if (index <= lastVerseIndex) {return false;}
+
+    const quotesToEvaluate = [...selectedVerses.map((v) => v.quote), quote];
+
+    const markovScore = this.markovEvaluator.evaluateHaiku(quotesToEvaluate);
+    if (markovScore < thresholds.markov) {return false;}
+    log.debug({ markovScore, min: thresholds.markov }, 'Markov score');
+
+    if (thresholds.trigram > 0) {
+      const trigramScore =
+        this.markovEvaluator.evaluateHaikuTrigrams(quotesToEvaluate);
+      if (trigramScore < thresholds.trigram) {return false;}
+      log.debug({ trigramScore, min: thresholds.trigram }, 'Trigram score');
+    }
+
+    if (thresholds.phonetics > 0 && selectedVerses.length === 2) {
+      const phoneticsAnalysis =
+        this.naturalLanguage.analyzePhonetics(quotesToEvaluate);
+      if (phoneticsAnalysis.alliterationScore < thresholds.phonetics) {
+        return false;
+      }
+      log.debug(
+        { phoneticsScore: phoneticsAnalysis.alliterationScore, min: thresholds.phonetics },
+        'Phonetics score',
+      );
+    }
+
+    this.eventBus.publish(new QuoteGeneratedEvent({ quote }));
+    return true;
   }
 
   isQuoteInvalid(quote: string): boolean {
