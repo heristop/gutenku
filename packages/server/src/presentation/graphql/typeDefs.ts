@@ -100,6 +100,8 @@ const typeDefs = `#graphql
         haiku(
             useAI: Boolean,
             useCache: Boolean,
+            useDaily: Boolean,
+            date: String,
             appendImg: Boolean,
             useImageAI: Boolean,
             selectionCount: Int,

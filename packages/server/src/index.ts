@@ -5,6 +5,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import helmet from 'helmet';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { rateLimit } from 'express-rate-limit';
 import { container } from 'tsyringe';
 import { ApolloServer } from '@apollo/server';
@@ -21,7 +23,9 @@ import MongoConnection from '~/infrastructure/services/MongoConnection';
 import { createLogger } from '~/infrastructure/services/Logger';
 import '~/infrastructure/di/container';
 
-dotenv.config();
+// Use explicit path for dotenv to work correctly in PM2 cluster mode
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const log = createLogger('server');
 const isProduction = process.env.NODE_ENV === 'production';

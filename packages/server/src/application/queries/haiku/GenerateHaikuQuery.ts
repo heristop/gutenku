@@ -4,6 +4,8 @@ import type { HaikuValue, HaikuVariables } from '~/shared/types';
 export class GenerateHaikuQuery extends Query<HaikuValue> {
   public readonly useAI: boolean;
   public readonly useCache: boolean;
+  public readonly useDaily: boolean;
+  public readonly date?: string;
   public readonly appendImg: boolean;
   public readonly useImageAI: boolean;
   public readonly selectionCount: number;
@@ -21,6 +23,8 @@ export class GenerateHaikuQuery extends Query<HaikuValue> {
     super();
     this.useAI = variables.useAI;
     this.useCache = variables.useCache;
+    this.useDaily = variables.useDaily;
+    this.date = variables.date;
     this.appendImg = variables.appendImg;
     this.useImageAI = variables.useImageAI;
     this.selectionCount = variables.selectionCount;
@@ -39,6 +43,8 @@ export class GenerateHaikuQuery extends Query<HaikuValue> {
     return {
       useAI: this.useAI,
       useCache: this.useCache,
+      useDaily: this.useDaily,
+      date: this.date,
       appendImg: this.appendImg,
       useImageAI: this.useImageAI,
       selectionCount: this.selectionCount,

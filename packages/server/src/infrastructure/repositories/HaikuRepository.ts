@@ -1,5 +1,6 @@
 import { inject, injectable } from 'tsyringe';
 import { createLogger } from '~/infrastructure/services/Logger';
+import { seededRandom } from '~/shared/helpers/SeededRandom';
 
 const log = createLogger('haiku-repo');
 import type { HaikuDocument, HaikuValue } from '~/shared/types';
@@ -99,5 +100,59 @@ export default class HaikuRepository implements IHaikuRepository {
     });
 
     return haikuValues;
+  }
+
+  /**
+   * Extract a deterministic haiku from cache using seeded random selection.
+   * Ensures the same haiku is returned for the same seed (date-based).
+   */
+  async extractDeterministicFromCache(
+    seed: number,
+    minCachedDocs: number,
+  ): Promise<HaikuValue | null> {
+    if (!this.db) {
+      return null;
+    }
+
+    try {
+      const haikusCollection = this.db.collection('haikus');
+
+      // Fetch all haikus sorted by _id for deterministic ordering
+      const allHaikus = await haikusCollection
+        .find({})
+        .sort({ _id: 1 })
+        .toArray();
+
+      const count = allHaikus.length;
+
+      if (count < minCachedDocs) {
+        log.info(
+          { count, minCachedDocs },
+          'Not enough cached documents for deterministic extraction',
+        );
+        return null;
+      }
+
+      // Use seeded random to select index deterministically
+      const random = seededRandom(seed);
+      const index = Math.floor(random() * count);
+
+      log.debug({ seed, index, count }, 'Deterministic cache extraction');
+
+      const selected = allHaikus[index] as unknown as HaikuDocument;
+      return {
+        book: selected.book,
+        cacheUsed: true,
+        chapter: selected.chapter,
+        rawVerses: selected.rawVerses,
+        verses: selected.verses,
+      };
+    } catch (error) {
+      log.warn(
+        { err: error },
+        'Deterministic cache extraction failed, falling back to generation',
+      );
+      return null;
+    }
   }
 }

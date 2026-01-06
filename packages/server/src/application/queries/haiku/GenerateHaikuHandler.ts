@@ -8,6 +8,11 @@ import {
   type IGlobalStatsRepository,
   IGlobalStatsRepositoryToken,
 } from '~/domain/repositories/IGlobalStatsRepository';
+import {
+  type IHaikuRepository,
+  IHaikuRepositoryToken,
+} from '~/domain/repositories/IHaikuRepository';
+import { dateToSeed, getTodayUTC } from '~/shared/helpers/SeededRandom';
 import { createLogger } from '~/infrastructure/services/Logger';
 
 const log = createLogger('haiku-handler');
@@ -24,16 +29,42 @@ export class GenerateHaikuHandler implements IQueryHandler<
     private readonly openAIGenerator: OpenAIGeneratorService,
     @inject(IGlobalStatsRepositoryToken)
     private readonly globalStatsRepository: IGlobalStatsRepository,
+    @inject(IHaikuRepositoryToken)
+    private readonly haikuRepository: IHaikuRepository,
   ) {}
 
   async execute(query: GenerateHaikuQuery): Promise<HaikuValue> {
     let haiku: HaikuValue = null;
+    const minCachedDocs = Number.parseInt(process.env.MIN_CACHED_DOCS, 10);
 
+    // Daily mode: use deterministic extraction from cache
+    if (query.useDaily) {
+      const date = query.date || getTodayUTC();
+      const seed = dateToSeed(date);
+
+      log.info({ date, seed, useDaily: true }, 'Daily haiku mode');
+
+      haiku = await this.haikuRepository.extractDeterministicFromCache(
+        seed,
+        minCachedDocs,
+      );
+
+      if (haiku) {
+        log.info({ seed, cacheUsed: true }, 'Daily haiku extracted from cache');
+      } else {
+        log.info(
+          { seed },
+          'Daily haiku cache miss, falling back to generation',
+        );
+      }
+    }
+
+    // Configure generator for both daily fallback and craft mode
     this.haikuGenerator.configure({
       cache: {
-        minCachedDocs: Number.parseInt(process.env.MIN_CACHED_DOCS, 10),
+        minCachedDocs,
         ttl: 24 * 60 * 60 * 1000, // 24 hours
-        enabled: query.useCache,
+        enabled: query.useCache && !query.useDaily, // Disable random cache in daily mode
       },
       score: {
         markovChain: query.markovMinScore,
@@ -58,7 +89,8 @@ export class GenerateHaikuHandler implements IQueryHandler<
       'OpenAI mode check',
     );
 
-    if (OPENAI_SELECTION_MODE === true) {
+    // Try OpenAI generation if enabled and no daily haiku yet
+    if (haiku === null && OPENAI_SELECTION_MODE === true) {
       this.openAIGenerator.configure({
         apiKey: process.env.OPENAI_API_KEY,
         selectionCount: query.selectionCount,
@@ -78,6 +110,7 @@ export class GenerateHaikuHandler implements IQueryHandler<
       );
     }
 
+    // Fallback to standard generation
     if (haiku === null) {
       haiku = await this.haikuGenerator
         .filter(query.filter ? query.filter.split(' ') : [])

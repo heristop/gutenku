@@ -33,6 +33,8 @@ export interface HaikuDocument {
 export interface HaikuVariables {
   useAI: boolean;
   useCache: boolean;
+  useDaily: boolean;
+  date?: string;
   appendImg: boolean;
   useImageAI: boolean;
   selectionCount: number;

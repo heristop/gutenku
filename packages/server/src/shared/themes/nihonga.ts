@@ -1,6 +1,4 @@
-import { createRequire } from 'node:module';
-const require = createRequire(import.meta.url);
-const OpenAI = require('openai').default;
+import OpenAI from 'openai';
 import Canvas from 'canvas';
 import type { HaikuValue } from '~/shared/types';
 import {
@@ -19,15 +17,16 @@ export default {
     const canvas = Canvas.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
     const ctx = canvas.getContext('2d');
 
-    const backgroundImageData = await generateNihongaBackground(haiku);
-    const background = await Canvas.loadImage(backgroundImageData);
-
     ctx.globalAlpha = 1;
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.globalAlpha = 0.7;
-    drawImageCover(ctx, background, canvas.width, canvas.height);
+    const backgroundImageData = await generateNihongaBackground(haiku);
+    if (backgroundImageData) {
+      const background = await Canvas.loadImage(backgroundImageData);
+      ctx.globalAlpha = 0.7;
+      drawImageCover(ctx, background, canvas.width, canvas.height);
+    }
 
     ctx.globalAlpha = 0.65;
     ctx.fillStyle = '#DFEEEA';
@@ -65,12 +64,15 @@ export default {
   },
 };
 
-async function generateNihongaBackground(haiku: HaikuValue): Promise<Buffer> {
-  const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
+async function generateNihongaBackground(
+  haiku: HaikuValue,
+): Promise<Buffer | null> {
+  try {
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
 
-  const prompt = `THE HAIKU IS YOUR PRIMARY INSPIRATION. Study these verses deeply and translate their imagery into visual art:
+    const prompt = `THE HAIKU IS YOUR PRIMARY INSPIRATION. Study these verses deeply and translate their imagery into visual art:
 
 "${haiku.verses[0]}"
 "${haiku.verses[1]}"
@@ -88,21 +90,30 @@ Art style: Traditional nihonga (Japanese painting) with mineral pigments on silk
 
 CRITICAL: Absolutely NO text, letters, characters, kanji, hiragana, katakana, or any written symbols in the image. Pure visual art only.`;
 
-  const response = await openai.images.generate({
-    model: process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1.5',
-    n: 1,
-    output_format: 'png',
-    prompt: prompt,
-    quality: process.env.OPENAI_IMAGE_QUALITY || 'high',
-    size: '1024x1536',
-    user: 'gutenku-nihonga-theme',
-  });
+    const response = await openai.images.generate({
+      model: process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1.5',
+      n: 1,
+      output_format: 'png',
+      prompt: prompt,
+      quality: (process.env.OPENAI_IMAGE_QUALITY || 'high') as
+        | 'high'
+        | 'low'
+        | 'medium'
+        | 'auto',
+      size: '1024x1536',
+      user: 'gutenku-nihonga-theme',
+    });
 
-  const imageBase64 = response.data[0].b64_json;
+    const imageBase64 = response.data[0].b64_json;
 
-  if (!imageBase64) {
-    throw new Error('No image data returned from GPT-Image API');
+    if (!imageBase64) {
+      console.error('No image data returned from OpenAI GPT-Image API');
+      return null;
+    }
+
+    return Buffer.from(imageBase64, 'base64');
+  } catch (error) {
+    console.error('OpenAI image generation failed for nihonga theme:', error);
+    return null;
   }
-
-  return Buffer.from(imageBase64, 'base64');
 }
