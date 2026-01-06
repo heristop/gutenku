@@ -1,5 +1,13 @@
 <script lang="ts" setup>
-import { computed, ref, watch, useTemplateRef, onUnmounted, type Component, type Ref } from 'vue';
+import {
+  computed,
+  ref,
+  watch,
+  useTemplateRef,
+  onUnmounted,
+  type Component,
+  type Ref,
+} from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import {
@@ -58,7 +66,10 @@ const {
 const isDev = import.meta.env.DEV;
 
 const expanded = ref(true);
-const { value: showAdvanced, toggle: toggleAdvanced } = useExpandedState('appConfig-advanced', false);
+const { value: showAdvanced, toggle: toggleAdvanced } = useExpandedState(
+  'appConfig-advanced',
+  false,
+);
 
 const pulseTimeouts: ReturnType<typeof setTimeout>[] = [];
 
@@ -219,10 +230,9 @@ function resetAdvancedConfig(): void {
                       aria-hidden="true"
                     />
                     <span class="config-panel__label-text">Selection</span>
-                    <span
-                      class="config-panel__value"
-                      >{{ optionSelectionCount }}</span
-                    >
+                    <span class="config-panel__value">{{
+                      optionSelectionCount
+                    }}</span>
                   </div>
                   <ZenSlider
                     v-model="optionSelectionCount"
@@ -245,10 +255,9 @@ function resetAdvancedConfig(): void {
                       aria-hidden="true"
                     />
                     <span class="config-panel__label-text">Temperature</span>
-                    <span
-                      class="config-panel__value"
-                      >{{ optionDescriptionTemperature.toFixed(1) }}</span
-                    >
+                    <span class="config-panel__value">{{
+                      optionDescriptionTemperature.toFixed(1)
+                    }}</span>
                   </div>
                   <ZenSlider
                     v-model="optionDescriptionTemperature"
@@ -272,16 +281,13 @@ function resetAdvancedConfig(): void {
                 class="config-panel__icon text-primary"
                 aria-hidden="true"
               />
-              <span
-                class="config-panel__label-text"
-                >{{ t('config.filters.sentiment') }}</span
-              >
+              <span class="config-panel__label-text">{{
+                t('config.filters.sentiment')
+              }}</span>
               <span
                 class="config-panel__value"
                 :class="{ 'config-panel__value--pulse': sentimentPulse }"
-                >{{
-                optionMinSentimentScore.toFixed(2)
-                }}</span
+                >{{ optionMinSentimentScore.toFixed(2) }}</span
               >
             </div>
             <ZenSlider
@@ -291,7 +297,12 @@ function resetAdvancedConfig(): void {
               :step="0.05"
               size="sm"
               :aria-label="t('config.filters.sentiment')"
-              :aria-valuetext="t('config.sliderValue', { label: t('config.filters.sentiment'), value: optionMinSentimentScore.toFixed(2) })"
+              :aria-valuetext="
+                t('config.sliderValue', {
+                  label: t('config.filters.sentiment'),
+                  value: optionMinSentimentScore.toFixed(2),
+                })
+              "
             />
           </div>
 
@@ -306,7 +317,11 @@ function resetAdvancedConfig(): void {
               >
                 <Settings2 :size="16" class="config-panel__advanced-icon" />
                 <span class="config-panel__advanced-text">
-                  {{ showAdvanced ? t('config.hideAdvanced') : t('config.showAdvanced') }}
+                  {{
+                    showAdvanced
+                      ? t('config.hideAdvanced')
+                      : t('config.showAdvanced')
+                  }}
                 </span>
                 <component
                   :is="showAdvanced ? ChevronUp : ChevronDown"
@@ -325,16 +340,13 @@ function resetAdvancedConfig(): void {
               >
                 <div class="config-panel__label">
                   <Link :size="20" class="config-panel__icon text-primary" />
-                  <span
-                    class="config-panel__label-text"
-                    >{{ t('config.filters.markov') }}</span
-                  >
+                  <span class="config-panel__label-text">{{
+                    t('config.filters.markov')
+                  }}</span>
                   <span
                     class="config-panel__value"
                     :class="{ 'config-panel__value--pulse': markovPulse }"
-                    >{{
-                optionMinMarkovScore.toFixed(2)
-                    }}</span
+                    >{{ optionMinMarkovScore.toFixed(2) }}</span
                   >
                 </div>
                 <ZenSlider
@@ -344,7 +356,12 @@ function resetAdvancedConfig(): void {
                   :step="0.05"
                   size="sm"
                   :aria-label="t('config.filters.markov')"
-                  :aria-valuetext="t('config.sliderValue', { label: t('config.filters.markov'), value: optionMinMarkovScore.toFixed(2) })"
+                  :aria-valuetext="
+                    t('config.sliderValue', {
+                      label: t('config.filters.markov'),
+                      value: optionMinMarkovScore.toFixed(2),
+                    })
+                  "
                 />
               </div>
 
@@ -355,16 +372,13 @@ function resetAdvancedConfig(): void {
                       :size="20"
                       class="config-panel__icon text-primary"
                     />
-                    <span
-                      class="config-panel__label-text"
-                      >{{ t('config.filters.grammar') }}</span
-                    >
+                    <span class="config-panel__label-text">{{
+                      t('config.filters.grammar')
+                    }}</span>
                     <span
                       class="config-panel__value"
                       :class="{ 'config-panel__value--pulse': posPulse }"
-                      >{{
-                  optionMinPosScore.toFixed(2)
-                      }}</span
+                      >{{ optionMinPosScore.toFixed(2) }}</span
                     >
                   </div>
                   <ZenSlider
@@ -374,7 +388,12 @@ function resetAdvancedConfig(): void {
                     :step="0.05"
                     size="sm"
                     :aria-label="t('config.filters.grammar')"
-                    :aria-valuetext="t('config.sliderValue', { label: t('config.filters.grammar'), value: optionMinPosScore.toFixed(2) })"
+                    :aria-valuetext="
+                      t('config.sliderValue', {
+                        label: t('config.filters.grammar'),
+                        value: optionMinPosScore.toFixed(2),
+                      })
+                    "
                   />
                 </div>
 
@@ -384,16 +403,13 @@ function resetAdvancedConfig(): void {
                       :size="20"
                       class="config-panel__icon text-primary"
                     />
-                    <span
-                      class="config-panel__label-text"
-                      >{{ t('config.filters.trigram') }}</span
-                    >
+                    <span class="config-panel__label-text">{{
+                      t('config.filters.trigram')
+                    }}</span>
                     <span
                       class="config-panel__value"
                       :class="{ 'config-panel__value--pulse': trigramPulse }"
-                      >{{
-                  optionMinTrigramScore.toFixed(2)
-                      }}</span
+                      >{{ optionMinTrigramScore.toFixed(2) }}</span
                     >
                   </div>
                   <ZenSlider
@@ -403,23 +419,25 @@ function resetAdvancedConfig(): void {
                     :step="0.05"
                     size="sm"
                     :aria-label="t('config.filters.trigram')"
-                    :aria-valuetext="t('config.sliderValue', { label: t('config.filters.trigram'), value: optionMinTrigramScore.toFixed(2) })"
+                    :aria-valuetext="
+                      t('config.sliderValue', {
+                        label: t('config.filters.trigram'),
+                        value: optionMinTrigramScore.toFixed(2),
+                      })
+                    "
                   />
                 </div>
 
                 <div class="config-panel__section">
                   <div class="config-panel__label">
                     <Hash :size="20" class="config-panel__icon text-primary" />
-                    <span
-                      class="config-panel__label-text"
-                      >{{ t('config.filters.tfidf') }}</span
-                    >
+                    <span class="config-panel__label-text">{{
+                      t('config.filters.tfidf')
+                    }}</span>
                     <span
                       class="config-panel__value"
                       :class="{ 'config-panel__value--pulse': tfidfPulse }"
-                      >{{
-                  optionMinTfidfScore.toFixed(2)
-                      }}</span
+                      >{{ optionMinTfidfScore.toFixed(2) }}</span
                     >
                   </div>
                   <ZenSlider
@@ -429,7 +447,12 @@ function resetAdvancedConfig(): void {
                     :step="0.05"
                     size="sm"
                     :aria-label="t('config.filters.tfidf')"
-                    :aria-valuetext="t('config.sliderValue', { label: t('config.filters.tfidf'), value: optionMinTfidfScore.toFixed(2) })"
+                    :aria-valuetext="
+                      t('config.sliderValue', {
+                        label: t('config.filters.tfidf'),
+                        value: optionMinTfidfScore.toFixed(2),
+                      })
+                    "
                   />
                 </div>
 
@@ -439,16 +462,13 @@ function resetAdvancedConfig(): void {
                       :size="20"
                       class="config-panel__icon text-primary"
                     />
-                    <span
-                      class="config-panel__label-text"
-                      >{{ t('config.filters.phonetics') }}</span
-                    >
+                    <span class="config-panel__label-text">{{
+                      t('config.filters.phonetics')
+                    }}</span>
                     <span
                       class="config-panel__value"
                       :class="{ 'config-panel__value--pulse': phoneticsPulse }"
-                      >{{
-                      optionMinPhoneticsScore.toFixed(2)
-                      }}</span
+                      >{{ optionMinPhoneticsScore.toFixed(2) }}</span
                     >
                   </div>
                   <ZenSlider
@@ -458,7 +478,12 @@ function resetAdvancedConfig(): void {
                     :step="0.05"
                     size="sm"
                     :aria-label="t('config.filters.phonetics')"
-                    :aria-valuetext="t('config.sliderValue', { label: t('config.filters.phonetics'), value: optionMinPhoneticsScore.toFixed(2) })"
+                    :aria-valuetext="
+                      t('config.sliderValue', {
+                        label: t('config.filters.phonetics'),
+                        value: optionMinPhoneticsScore.toFixed(2),
+                      })
+                    "
                   />
                 </div>
               </template>
@@ -555,7 +580,11 @@ function resetAdvancedConfig(): void {
 
     &:hover {
       color: var(--gutenku-text-primary);
-      background: color-mix(in oklch, var(--gutenku-theme-primary-oklch) 5%, transparent);
+      background: color-mix(
+        in oklch,
+        var(--gutenku-theme-primary-oklch) 5%,
+        transparent
+      );
       border-color: var(--gutenku-border-visible-hover);
     }
 
@@ -568,7 +597,11 @@ function resetAdvancedConfig(): void {
   &__dev-section {
     padding: 0.75rem;
     margin-bottom: var(--gutenku-space-4);
-    background: color-mix(in oklch, var(--gutenku-theme-primary-oklch) 8%, transparent);
+    background: color-mix(
+      in oklch,
+      var(--gutenku-theme-primary-oklch) 8%,
+      transparent
+    );
     border: 1px dashed var(--gutenku-zen-primary);
     border-radius: var(--gutenku-radius-sm);
   }
@@ -592,6 +625,10 @@ function resetAdvancedConfig(): void {
 
   &__toggle-row {
     margin-top: 0.25rem;
+
+    :deep(.zen-switch__label) {
+      font-size: 0.65rem;
+    }
   }
 
   &__dev-params {
@@ -657,8 +694,13 @@ function resetAdvancedConfig(): void {
     font-size: 0.85rem;
     font-weight: 600;
     padding: 0.3rem 0.5rem;
-    background: color-mix(in oklch, var(--gutenku-theme-primary-oklch) 10%, transparent);
-    border: 1px solid color-mix(in oklch, var(--gutenku-theme-primary-oklch) 30%, transparent);
+    background: color-mix(
+      in oklch,
+      var(--gutenku-theme-primary-oklch) 10%,
+      transparent
+    );
+    border: 1px solid
+      color-mix(in oklch, var(--gutenku-theme-primary-oklch) 30%, transparent);
     border-radius: var(--gutenku-radius-sm);
     min-width: 2.5rem;
     text-align: center;
@@ -666,14 +708,23 @@ function resetAdvancedConfig(): void {
     transition: all 0.2s ease;
 
     &:hover {
-      background: color-mix(in oklch, var(--gutenku-theme-primary-oklch) 15%, transparent);
+      background: color-mix(
+        in oklch,
+        var(--gutenku-theme-primary-oklch) 15%,
+        transparent
+      );
       transform: scale(1.05);
     }
 
     &--pulse {
       transform: scale(1.15);
-      background: color-mix(in oklch, var(--gutenku-theme-primary-oklch) 25%, transparent);
-      box-shadow: 0 0 12px color-mix(in oklch, var(--gutenku-theme-primary-oklch) 40%, transparent);
+      background: color-mix(
+        in oklch,
+        var(--gutenku-theme-primary-oklch) 25%,
+        transparent
+      );
+      box-shadow: 0 0 12px
+        color-mix(in oklch, var(--gutenku-theme-primary-oklch) 40%, transparent);
     }
   }
 }

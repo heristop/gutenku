@@ -252,6 +252,168 @@ describe('Daily Haiku', () => {
     });
   });
 
+  describe('48-hour TTL strategy', () => {
+    const TTL_48_HOURS = 48 * 60 * 60 * 1000;
+
+    interface MockHaikuWithExpiry {
+      id: string;
+      createdAt: string;
+      expireAt: Date;
+      title: string;
+    }
+
+    function createHaikuWithTTL(
+      id: string,
+      createdAt: string,
+      ttl: number,
+    ): MockHaikuWithExpiry {
+      return {
+        id,
+        createdAt,
+        expireAt: new Date(new Date(createdAt).getTime() + ttl),
+        title: `Haiku ${id}`,
+      };
+    }
+
+    function isExpired(haiku: MockHaikuWithExpiry, now: Date): boolean {
+      return haiku.expireAt <= now;
+    }
+
+    function getAvailableHaikus(
+      haikus: MockHaikuWithExpiry[],
+      now: Date,
+    ): MockHaikuWithExpiry[] {
+      return haikus.filter((h) => !isExpired(h, now));
+    }
+
+    function getEligibleForDaily(
+      haikus: MockHaikuWithExpiry[],
+      excludeDate: string,
+      now: Date,
+    ): MockHaikuWithExpiry[] {
+      const excludeTimestamp = `${excludeDate}T00:00:00.000Z`;
+      return getAvailableHaikus(haikus, now).filter(
+        (h) => h.createdAt < excludeTimestamp,
+      );
+    }
+
+    it('should have yesterday haikus available with 48h TTL', () => {
+      // Day 1: Create haikus
+      const day1 = '2026-01-05T12:00:00.000Z';
+      const haikus = [
+        createHaikuWithTTL('h1', day1, TTL_48_HOURS),
+        createHaikuWithTTL('h2', '2026-01-05T14:00:00.000Z', TTL_48_HOURS),
+      ];
+
+      // Day 2: Check availability
+      const day2 = new Date('2026-01-06T12:00:00.000Z');
+      const available = getAvailableHaikus(haikus, day2);
+
+      // Yesterday's haikus should still be available (< 48h)
+      expect(available).toHaveLength(2);
+    });
+
+    it('should expire haikus after 48 hours', () => {
+      const createdAt = '2026-01-05T12:00:00.000Z';
+      const haiku = createHaikuWithTTL('h1', createdAt, TTL_48_HOURS);
+
+      // At 47 hours - should NOT be expired
+      const at47h = new Date('2026-01-07T11:00:00.000Z');
+      expect(isExpired(haiku, at47h)).toBeFalsy();
+
+      // At 49 hours - should be expired
+      const at49h = new Date('2026-01-07T13:00:00.000Z');
+      expect(isExpired(haiku, at49h)).toBeTruthy();
+    });
+
+    it('should have eligible haikus for daily selection on Day 2', () => {
+      // Day 1: Create haikus
+      const haikus = [
+        createHaikuWithTTL('h1', '2026-01-05T10:00:00.000Z', TTL_48_HOURS),
+        createHaikuWithTTL('h2', '2026-01-05T15:00:00.000Z', TTL_48_HOURS),
+      ];
+
+      // Day 2: Check eligibility for daily haiku
+      const day2Now = new Date('2026-01-06T12:00:00.000Z');
+      const eligible = getEligibleForDaily(haikus, '2026-01-06', day2Now);
+
+      // Day 1 haikus are eligible (created before Day 2, not expired)
+      expect(eligible).toHaveLength(2);
+    });
+
+    it('should NOT have eligible haikus on Day 1 (only today haikus exist)', () => {
+      // Day 1: Create haikus
+      const haikus = [
+        createHaikuWithTTL('h1', '2026-01-05T10:00:00.000Z', TTL_48_HOURS),
+        createHaikuWithTTL('h2', '2026-01-05T15:00:00.000Z', TTL_48_HOURS),
+      ];
+
+      // Day 1: Check eligibility (exclude today = Day 1)
+      const day1Now = new Date('2026-01-05T18:00:00.000Z');
+      const eligible = getEligibleForDaily(haikus, '2026-01-05', day1Now);
+
+      // No haikus eligible (all from today)
+      expect(eligible).toHaveLength(0);
+    });
+
+    it('should handle Day 3 correctly (Day 1 expired, Day 2 available)', () => {
+      const haikus = [
+        // Day 1 haikus - will expire on Day 3
+        createHaikuWithTTL('h1-day1', '2026-01-05T10:00:00.000Z', TTL_48_HOURS),
+        // Day 2 haikus - still available on Day 3
+        createHaikuWithTTL('h2-day2', '2026-01-06T10:00:00.000Z', TTL_48_HOURS),
+        // Day 3 haikus - excluded from daily
+        createHaikuWithTTL('h3-day3', '2026-01-07T10:00:00.000Z', TTL_48_HOURS),
+      ];
+
+      // Day 3 afternoon
+      const day3Now = new Date('2026-01-07T14:00:00.000Z');
+      const eligible = getEligibleForDaily(haikus, '2026-01-07', day3Now);
+
+      // Only Day 2 haiku is eligible:
+      // - Day 1 expired (created 2026-01-05T10:00, expires 2026-01-07T10:00)
+      // - Day 3 excluded (created today)
+      expect(eligible).toHaveLength(1);
+      expect(eligible[0].id).toBe('h2-day2');
+    });
+
+    it('should maintain daily pool across rolling 48h window', () => {
+      // Simulate 5 days of haiku generation
+      const haikus: MockHaikuWithExpiry[] = [];
+
+      for (let day = 1; day <= 5; day++) {
+        const dateStr = `2026-01-0${day}T12:00:00.000Z`;
+        haikus.push(createHaikuWithTTL(`h-day${day}`, dateStr, TTL_48_HOURS));
+      }
+
+      // On Day 5 at 10:00 (before Day 3 expires at 12:00)
+      const day5Morning = new Date('2026-01-05T10:00:00.000Z');
+      const eligible = getEligibleForDaily(haikus, '2026-01-05', day5Morning);
+
+      // Day 1, 2 expired; Day 3, 4 eligible; Day 5 excluded
+      // Day 3 created Jan 3 at 12:00 → expires Jan 5 at 12:00 → still valid at 10:00
+      expect(eligible).toHaveLength(2);
+      expect(eligible.map((h) => h.id).sort()).toEqual(['h-day3', 'h-day4']);
+    });
+
+    it('should show only Day 4 eligible when Day 3 expires', () => {
+      const haikus: MockHaikuWithExpiry[] = [];
+
+      for (let day = 1; day <= 5; day++) {
+        const dateStr = `2026-01-0${day}T12:00:00.000Z`;
+        haikus.push(createHaikuWithTTL(`h-day${day}`, dateStr, TTL_48_HOURS));
+      }
+
+      // On Day 5 at 18:00 (after Day 3 expires at 12:00)
+      const day5Afternoon = new Date('2026-01-05T18:00:00.000Z');
+      const eligible = getEligibleForDaily(haikus, '2026-01-05', day5Afternoon);
+
+      // Day 1, 2, 3 expired; Day 4 eligible; Day 5 excluded
+      expect(eligible).toHaveLength(1);
+      expect(eligible[0].id).toBe('h-day4');
+    });
+  });
+
   describe('Edge cases', () => {
     it('should handle empty string date gracefully', () => {
       // This tests the robustness of dateToSeed

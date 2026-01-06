@@ -34,7 +34,8 @@ const storageState = props.storageKey
   : null;
 
 const isExpanded = computed({
-  get: () => modelValue.value ?? storageState?.value.value ?? props.defaultExpanded,
+  get: () =>
+    modelValue.value ?? storageState?.value.value ?? props.defaultExpanded,
   set: (val: boolean) => {
     if (modelValue.value !== undefined) {
       modelValue.value = val;
@@ -67,7 +68,9 @@ const mouseX = ref('50%');
 const mouseY = ref('50%');
 
 function handleMouseMove(event: MouseEvent) {
-  if (!headerRef.value) {return;}
+  if (!headerRef.value) {
+    return;
+  }
   const rect = headerRef.value.getBoundingClientRect();
   const x = ((event.clientX - rect.left) / rect.width) * 100;
   const y = ((event.clientY - rect.top) / rect.height) * 100;
@@ -83,7 +86,9 @@ const inkRipple = ref<{ x: number; y: number; active: boolean }>({
 });
 
 function handleClick(event: MouseEvent) {
-  if (!headerRef.value) {return;}
+  if (!headerRef.value) {
+    return;
+  }
   const rect = headerRef.value.getBoundingClientRect();
   inkRipple.value = {
     x: event.clientX - rect.left,
@@ -256,7 +261,8 @@ $ink-easing: cubic-bezier(0.22, 1, 0.36, 1);
   &:focus-visible {
     outline: 2px solid var(--gutenku-zen-primary);
     outline-offset: 2px;
-    box-shadow: 0 0 0 4px color-mix(in oklch, var(--gutenku-zen-primary) 20%, transparent);
+    box-shadow: 0 0 0 4px
+      color-mix(in oklch, var(--gutenku-zen-primary) 20%, transparent);
   }
 
   &:hover {
@@ -269,7 +275,6 @@ $ink-easing: cubic-bezier(0.22, 1, 0.36, 1);
   &:active {
     transform: scale(0.995);
   }
-
 }
 
 // Ink wash hover effect (follows cursor)
@@ -329,7 +334,6 @@ $ink-easing: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .zen-accordion__title {
-  font-family: 'JMH Typewriter', monospace;
   font-size: 1rem;
   font-weight: 500;
   color: var(--gutenku-text-primary);
@@ -486,7 +490,8 @@ $ink-easing: cubic-bezier(0.22, 1, 0.36, 1);
   .zen-accordion__header {
     &:focus-visible {
       outline-color: var(--gutenku-zen-accent);
-      box-shadow: 0 0 0 4px color-mix(in oklch, var(--gutenku-zen-accent) 25%, transparent);
+      box-shadow: 0 0 0 4px
+        color-mix(in oklch, var(--gutenku-zen-accent) 25%, transparent);
     }
   }
 

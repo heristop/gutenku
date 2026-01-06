@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted, type Ref } from 'vue';
+import { ref, watch, onMounted, onUnmounted, type Ref } from 'vue';
 import { useSwipe, useVibrate, useMediaQuery } from '@vueuse/core';
 
 // Chrome requires a tap before vibrate() works
@@ -294,39 +294,56 @@ export function useLongPress(
 
   const handleEnd = () => cancelGesture();
 
-  onMounted(() => {
-    isTouchDevice.value =
-      'ontouchstart' in globalThis || navigator.maxTouchPoints > 0;
+  let currentEl: HTMLElement | null = null;
 
-    if (elementRef.value) {
-      const el = elementRef.value;
+  function attachListeners(el: HTMLElement) {
+    el.addEventListener('touchstart', handleTouchStart, { passive: true });
+    el.addEventListener('touchmove', handleTouchMove, { passive: true });
+    el.addEventListener('touchend', handleTouchEnd);
+    el.addEventListener('touchcancel', handleEnd);
+    el.addEventListener('pointerdown', handlePointerDown);
+    el.addEventListener('pointerup', handleEnd);
+    el.addEventListener('pointerleave', handleEnd);
+    el.addEventListener('pointercancel', handleEnd);
+  }
 
-      el.addEventListener('touchstart', handleTouchStart, { passive: true });
-      el.addEventListener('touchmove', handleTouchMove, { passive: true });
-      el.addEventListener('touchend', handleTouchEnd);
-      el.addEventListener('touchcancel', handleEnd);
+  function detachListeners(el: HTMLElement) {
+    el.removeEventListener('touchstart', handleTouchStart);
+    el.removeEventListener('touchmove', handleTouchMove);
+    el.removeEventListener('touchend', handleTouchEnd);
+    el.removeEventListener('touchcancel', handleEnd);
+    el.removeEventListener('pointerdown', handlePointerDown);
+    el.removeEventListener('pointerup', handleEnd);
+    el.removeEventListener('pointerleave', handleEnd);
+    el.removeEventListener('pointercancel', handleEnd);
+  }
 
-      el.addEventListener('pointerdown', handlePointerDown);
-      el.addEventListener('pointerup', handleEnd);
-      el.addEventListener('pointerleave', handleEnd);
-      el.addEventListener('pointercancel', handleEnd);
-    }
-  });
+  // Watch for element ref changes (handles template ref timing)
+  watch(
+    elementRef,
+    (newEl, oldEl) => {
+      // Detach from old element
+      if (oldEl && currentEl) {
+        detachListeners(currentEl);
+        currentEl = null;
+      }
+
+      // Attach to new element
+      if (newEl) {
+        isTouchDevice.value =
+          'ontouchstart' in globalThis || navigator.maxTouchPoints > 0;
+        attachListeners(newEl);
+        currentEl = newEl;
+      }
+    },
+    { immediate: true },
+  );
 
   onUnmounted(() => {
     cancelGesture();
-
-    if (elementRef.value) {
-      const el = elementRef.value;
-
-      el.removeEventListener('touchstart', handleTouchStart);
-      el.removeEventListener('touchmove', handleTouchMove);
-      el.removeEventListener('touchend', handleTouchEnd);
-      el.removeEventListener('touchcancel', handleEnd);
-      el.removeEventListener('pointerdown', handlePointerDown);
-      el.removeEventListener('pointerup', handleEnd);
-      el.removeEventListener('pointerleave', handleEnd);
-      el.removeEventListener('pointercancel', handleEnd);
+    if (currentEl) {
+      detachListeners(currentEl);
+      currentEl = null;
     }
   });
 

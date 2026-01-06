@@ -56,7 +56,6 @@ const shortcuts = [
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-family: 'JMH Typewriter', monospace !important;
     letter-spacing: 0.5px;
     padding-bottom: 0.75rem;
     border-bottom: 1px solid var(--gutenku-paper-border);
@@ -71,7 +70,8 @@ const shortcuts = [
     align-items: center;
     justify-content: space-between;
     padding: 0.5rem 0;
-    border-bottom: 1px solid color-mix(in oklch, var(--gutenku-paper-border) 50%, transparent);
+    border-bottom: 1px solid
+      color-mix(in oklch, var(--gutenku-paper-border) 50%, transparent);
 
     &:last-child {
       border-bottom: none;
@@ -89,7 +89,6 @@ const shortcuts = [
     justify-content: center;
     min-width: 2rem;
     padding: 0.25rem 0.5rem;
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.85rem;
     background: var(--gutenku-paper-bg-aged);
     border: 1px solid var(--gutenku-paper-border);

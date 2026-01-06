@@ -461,7 +461,6 @@ useKeyboardShortcuts({
   }
 
   &__primary {
-    width: 100%;
     max-width: 280px;
     display: flex;
     justify-content: center;

@@ -36,7 +36,7 @@ export interface CraftingMessage {
 
 interface Stats {
   haikusGenerated: number;
-  cachedHaikus: number;
+  dailyHaikuViews: number;
   booksBrowsed: number;
   totalExecutionTime: number;
   books: string[];
@@ -90,7 +90,7 @@ export const useHaikuStore = defineStore(
 
     const stats = ref<Stats>({
       haikusGenerated: 0,
-      cachedHaikus: 0,
+      dailyHaikuViews: 0,
       booksBrowsed: 0,
       totalExecutionTime: 0,
       books: [],
@@ -145,16 +145,20 @@ export const useHaikuStore = defineStore(
 
     // Helper: Update stats for new haiku
     function updateStats(newHaiku: HaikuValue): void {
-      if (newHaiku.cacheUsed === true) {
-        stats.value.cachedHaikus += 1;
-        return;
+      const isDaily = isDailyHaiku.value;
+
+      // Track daily haiku views
+      if (isDaily) {
+        stats.value.dailyHaikuViews += 1;
+      } else if (newHaiku.cacheUsed !== true) {
+        // Track crafted haikus (non-cached, non-daily)
+        stats.value.haikusGenerated += 1;
+        if (typeof newHaiku.executionTime === 'number') {
+          stats.value.totalExecutionTime += newHaiku.executionTime;
+        }
       }
 
-      stats.value.haikusGenerated += 1;
-      if (typeof newHaiku.executionTime === 'number') {
-        stats.value.totalExecutionTime += newHaiku.executionTime;
-      }
-
+      // Always track books (for both daily and crafted haikus)
       const bookTitle = newHaiku.book?.title?.trim();
       if (!bookTitle) {
         return;

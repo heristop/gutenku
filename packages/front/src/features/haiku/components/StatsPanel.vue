@@ -2,7 +2,7 @@
 import { computed, ref, watch, useTemplateRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
-import { BookOpenText, Star } from 'lucide-vue-next';
+import { BookOpenText, BookUp2 } from 'lucide-vue-next';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
 import { useInView } from '@/features/haiku/composables/in-view';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
@@ -28,7 +28,7 @@ const topBooks = computed(() => {
 const expanded = ref(true);
 
 const animatedHaikus = ref(0);
-const animatedCached = ref(0);
+const animatedDaily = ref(0);
 const animatedBooks = ref(0);
 const animatedTime = ref(0);
 const hasAnimated = ref(false);
@@ -36,7 +36,7 @@ const hasAnimated = ref(false);
 // Pulse states for value updates
 const pulsingHaikus = ref(false);
 const pulsingBooks = ref(false);
-const pulsingCached = ref(false);
+const pulsingDaily = ref(false);
 const pulsingTime = ref(false);
 
 function triggerPulse(pulseRef: typeof pulsingHaikus) {
@@ -75,7 +75,9 @@ function animateValue(
 }
 
 function triggerAnimations() {
-  if (hasAnimated.value) {return;}
+  if (hasAnimated.value) {
+    return;
+  }
   hasAnimated.value = true;
 
   setTimeout(() => {
@@ -91,8 +93,8 @@ function triggerAnimations() {
   }, 200);
 
   setTimeout(() => {
-    animateValue(0, stats.value.cachedHaikus, 800, (v) => {
-      animatedCached.value = Math.round(v);
+    animateValue(0, stats.value.dailyHaikuViews, 800, (v) => {
+      animatedDaily.value = Math.round(v);
     });
   }, 300);
 
@@ -118,7 +120,9 @@ watch(
   (val, oldVal) => {
     if (hasAnimated.value) {
       animatedHaikus.value = val;
-      if (val !== oldVal) {triggerPulse(pulsingHaikus);}
+      if (val !== oldVal) {
+        triggerPulse(pulsingHaikus);
+      }
     }
   },
 );
@@ -127,23 +131,29 @@ watch(
   (val, oldVal) => {
     if (hasAnimated.value) {
       animatedBooks.value = val;
-      if (val !== oldVal) {triggerPulse(pulsingBooks);}
+      if (val !== oldVal) {
+        triggerPulse(pulsingBooks);
+      }
     }
   },
 );
 watch(
-  () => stats.value.cachedHaikus,
+  () => stats.value.dailyHaikuViews,
   (val, oldVal) => {
     if (hasAnimated.value) {
-      animatedCached.value = val;
-      if (val !== oldVal) {triggerPulse(pulsingCached);}
+      animatedDaily.value = val;
+      if (val !== oldVal) {
+        triggerPulse(pulsingDaily);
+      }
     }
   },
 );
 watch(avgTime, (val, oldVal) => {
   if (hasAnimated.value) {
     animatedTime.value = Number.parseFloat(val);
-    if (val !== oldVal) {triggerPulse(pulsingTime);}
+    if (val !== oldVal) {
+      triggerPulse(pulsingTime);
+    }
   }
 });
 </script>
@@ -171,13 +181,13 @@ watch(avgTime, (val, oldVal) => {
           <div class="stats-panel__metrics-grid">
             <div class="stats-panel__metric">
               <div class="stats-panel__metric-label">
-                {{ t('stats.metrics.haikuForged') }}
+                {{ t('stats.metrics.dailyViews') }}
               </div>
               <div
                 class="stats-panel__metric-value"
-                :class="{ 'stats-panel__metric-value--pulse': pulsingHaikus }"
+                :class="{ 'stats-panel__metric-value--pulse': pulsingDaily }"
               >
-                {{ animatedHaikus }}
+                {{ animatedDaily }}
               </div>
             </div>
             <div class="stats-panel__metric">
@@ -193,13 +203,13 @@ watch(avgTime, (val, oldVal) => {
             </div>
             <div class="stats-panel__metric">
               <div class="stats-panel__metric-label">
-                {{ t('stats.metrics.fromCache') }}
+                {{ t('stats.metrics.haikuForged') }}
               </div>
               <div
                 class="stats-panel__metric-value"
-                :class="{ 'stats-panel__metric-value--pulse': pulsingCached }"
+                :class="{ 'stats-panel__metric-value--pulse': pulsingHaikus }"
               >
-                {{ animatedCached }}
+                {{ animatedHaikus }}
               </div>
             </div>
             <div class="stats-panel__metric">
@@ -218,11 +228,10 @@ watch(avgTime, (val, oldVal) => {
 
         <div class="stats-panel__books-section">
           <div class="stats-panel__books-header">
-            <Star :size="18" class="stats-panel__books-icon" />
-            <span
-              class="stats-panel__books-title"
-              >{{ t('stats.topBooks') }}</span
-            >
+            <BookUp2 :size="18" class="stats-panel__books-icon" />
+            <span class="stats-panel__books-title">{{
+              t('stats.topBooks')
+            }}</span>
           </div>
           <div class="stats-panel__books-list">
             <div
@@ -298,7 +307,9 @@ watch(avgTime, (val, oldVal) => {
     font-size: 1rem;
     font-weight: 700;
     color: var(--gutenku-text-primary);
-    transition: transform 0.2s ease, color 0.2s ease;
+    transition:
+      transform 0.2s ease,
+      color 0.2s ease;
 
     &--pulse {
       animation: value-pulse 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -314,6 +325,7 @@ watch(avgTime, (val, oldVal) => {
     align-items: center;
     font-size: 0.875rem;
     font-weight: 500;
+    margin-top: 1rem;
     margin-bottom: 0.5rem;
     color: var(--gutenku-text-primary);
   }

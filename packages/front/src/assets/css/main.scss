@@ -1685,6 +1685,18 @@ body {
     font-family: 'JMH Typewriter', monospace !important;
     font-size: inherit !important;
   }
+
+  // Exception: Keep dev mode section in typewriter font
+  .config-panel__dev-section,
+  .config-panel__dev-section .zen-switch,
+  .config-panel__dev-section .zen-switch__label {
+    font-family: 'JMH Typewriter', monospace !important;
+  }
+
+  // Exception: Keep toolbar header badge in typewriter font
+  .toolbar-panel__header-badge {
+    font-family: 'JMH Typewriter', monospace !important;
+  }
 }
 
 .book {
@@ -1986,11 +1998,11 @@ body {
   .book-page {
     box-shadow: none !important;
     border: none !important;
-    background: white !important;
     padding: 2cm !important;
     margin: 0 !important;
     min-height: auto !important;
     page-break-inside: avoid;
+    background: var(--gutenku-paper-bg) !important;
 
     &::before,
     &::after {

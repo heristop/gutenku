@@ -103,7 +103,7 @@ const cardClasses = computed(() => [
   transform: translateZ(0);
   backface-visibility: hidden;
 
-  background: var(--gutenku-paper-bg);
+  background: oklch(0.98 0.01 85 / 0.7);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid oklch(1 0 0 / 0.3);

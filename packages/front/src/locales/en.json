@@ -303,8 +303,10 @@
   "haikuChapter": {
     "ariaLabel": "Book chapter excerpt with highlighted haiku verses",
     "disclosure": {
-      "hidden": "Click anywhere on the text to reveal content",
-      "visible": "Click anywhere to hide content"
+      "hidden": "Long press to reveal",
+      "visible": "Long press to hide",
+      "hiddenDesktop": "Click to reveal content",
+      "visibleDesktop": "Click to hide content"
     },
     "discloseHide": "Disclose / Hide",
     "showFull": "Show Full Chapter",
@@ -346,7 +348,7 @@
   "toolbar": {
     "title": "Haiku Actions",
     "ariaLabel": "Haiku toolbar actions",
-    "generate": "Craft New Haiku",
+    "generate": "Craft Haiku",
     "extract": "Extract",
     "generating": "Crafting",
     "extracting": "Extracting",
@@ -376,7 +378,7 @@
     "metrics": {
       "haikuForged": "Haikus created",
       "booksBrowsed": "Books used",
-      "fromCache": "From cache",
+      "dailyViews": "Daily views",
       "avgTime": "Avg time"
     },
     "cacheUsage": "Cache usage",

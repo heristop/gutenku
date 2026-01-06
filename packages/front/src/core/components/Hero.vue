@@ -24,7 +24,11 @@ let quoteInterval: ReturnType<typeof setInterval> | null = null;
 
 // Animated counter
 const targetCount = computed(() => globalStats.value.totalHaikusGenerated ?? 0);
-const { count: animatedCount, isAnimating: isCountAnimating, animate: animateCounter } = useAnimatedCounter(targetCount);
+const {
+  count: animatedCount,
+  isAnimating: isCountAnimating,
+  animate: animateCounter,
+} = useAnimatedCounter(targetCount);
 
 onMounted(() => {
   // Start quote rotation
@@ -70,7 +74,11 @@ onUnmounted(() => {
         <div class="hero__illustration-glow" aria-hidden="true" />
         <img
           src="/gutenmage-640.webp"
-          srcset="/gutenmage-320.webp 320w, /gutenmage-640.webp 640w, /gutenmage-1024.webp 1024w"
+          srcset="
+            /gutenmage-320.webp   320w,
+            /gutenmage-640.webp   640w,
+            /gutenmage-1024.webp 1024w
+          "
           sizes="(max-width: 600px) 240px, (max-width: 768px) 280px, 320px"
           alt=""
           aria-hidden="true"
@@ -118,11 +126,9 @@ onUnmounted(() => {
             aria-hidden="true"
             >{{ animatedCount.toLocaleString() }}</span
           >
-          <span
-            class="hero__label"
-            aria-hidden="true"
-            >{{ t('hero.stats.haikusCrafted') }}</span
-          >
+          <span class="hero__label" aria-hidden="true">{{
+            t('hero.stats.haikusCrafted')
+          }}</span>
         </div>
       </div>
     </div>
@@ -163,7 +169,8 @@ onUnmounted(() => {
 }
 
 @keyframes breathe {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -172,7 +179,8 @@ onUnmounted(() => {
 }
 
 @keyframes ink-diffuse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.5;
   }
   50% {
@@ -198,18 +206,35 @@ onUnmounted(() => {
 }
 
 @keyframes illustration-breathe {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-1.5px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1.5px);
+  }
 }
 
 @keyframes glow-pulse {
-  0%, 100% { opacity: 0.15; transform: scale(1); }
-  50% { opacity: 0.25; transform: scale(1.05); }
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.25;
+    transform: scale(1.05);
+  }
 }
 
 @keyframes gentle-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
 }
 
 // Staggered entrance animations
@@ -492,7 +517,6 @@ onUnmounted(() => {
   }
 
   &__counter {
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--gutenku-zen-primary);
@@ -505,7 +529,6 @@ onUnmounted(() => {
   }
 
   &__label {
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.8rem;
     color: var(--gutenku-text-secondary);
     letter-spacing: 0.02em;
@@ -552,7 +575,6 @@ onUnmounted(() => {
     background: oklch(0.25 0.03 192 / 0.4);
     border-color: oklch(0.5 0.1 192 / 0.2);
   }
-
 
   .hero__counter {
     color: var(--gutenku-zen-accent);

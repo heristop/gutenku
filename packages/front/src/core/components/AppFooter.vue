@@ -294,7 +294,6 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
 
   &__link {
     position: relative;
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.9rem;
     color: var(--gutenku-text-secondary);
     text-decoration: none;
@@ -438,7 +437,6 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
 
 .footer-copyright {
   position: relative;
-  font-family: 'JMH Typewriter', monospace;
   font-size: 0.875rem;
   color: var(--gutenku-text-secondary);
   background: transparent;

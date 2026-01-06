@@ -65,7 +65,7 @@ export class GenerateHaikuHandler implements IQueryHandler<
     this.haikuGenerator.configure({
       cache: {
         minCachedDocs,
-        ttl: 24 * 60 * 60 * 1000, // 24 hours
+        ttl: 48 * 60 * 60 * 1000, // 48 hours (allows yesterday's haikus for daily selection)
         enabled: query.useCache && !query.useDaily, // Disable random cache in daily mode
       },
       score: {

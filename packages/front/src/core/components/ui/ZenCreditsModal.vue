@@ -1,6 +1,12 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
-import { ExternalLink, Instagram, Github, Linkedin, Twitter } from 'lucide-vue-next';
+import {
+  ExternalLink,
+  Instagram,
+  Github,
+  Linkedin,
+  Twitter,
+} from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 import ZenModal from '@/core/components/ui/ZenModal.vue';
 import ZenButton from '@/core/components/ui/ZenButton.vue';
@@ -160,7 +166,6 @@ const haikuLines = computed(() => [
 
   &__author {
     position: relative;
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.95rem;
     color: var(--gutenku-text-primary);
     margin: 0 0 1rem;
@@ -176,7 +181,6 @@ const haikuLines = computed(() => [
   }
 
   &__year {
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.9rem;
     color: var(--gutenku-text-muted);
     margin: 0 0 1.5rem;
@@ -260,7 +264,6 @@ const haikuLines = computed(() => [
 
   &__feedback {
     position: relative;
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.8rem;
     color: var(--gutenku-text-muted);
     margin: 1rem 0 0;

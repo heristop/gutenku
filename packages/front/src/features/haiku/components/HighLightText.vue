@@ -1,5 +1,11 @@
 <script lang="ts">
-import { defineComponent, ref, watchEffect, computed, type PropType } from 'vue';
+import {
+  defineComponent,
+  ref,
+  watchEffect,
+  computed,
+  type PropType,
+} from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
@@ -21,7 +27,9 @@ export default defineComponent({
 
     const formattedText = ref('');
 
-    const highlightCount = computed(() => props.lines.filter((l) => l && l.trim()).length);
+    const highlightCount = computed(
+      () => props.lines.filter((l) => l && l.trim()).length,
+    );
     const ariaDescription = computed(() =>
       t('highlightText.ariaDescription', { count: highlightCount.value }),
     );
@@ -33,12 +41,9 @@ export default defineComponent({
         props.lines.forEach((line) => {
           // Filter out empty strings, whitespace-only strings, and newlines
           if (line && line.trim() && line.trim().length > 0) {
-            rawText = rawText.replaceAll(
-              new RegExp(line.toString(), 'g'),
-              (match) => {
-                return `<mark>${match}</mark>`;
-              },
-            );
+            rawText = rawText.replace(line.toString(), (match) => {
+              return `<mark>${match}</mark>`;
+            });
           }
         });
 
