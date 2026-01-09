@@ -7,11 +7,10 @@ settings:
 importers:
 
   .:
-    dependencies:
+    devDependencies:
       '@commitlint/config-conventional':
         specifier: ^20.3.1
         version: 20.3.1
-    devDependencies:
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -307,7 +306,11 @@ importers:
         specifier: file:../../private/gutenguess/packages/server
         version: link:../../private/gutenguess/packages/server
 
-  packages/shared: {}
+  packages/shared:
+    devDependencies:
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
 
   private/gutenguess/packages/front:
     dependencies:
@@ -409,7 +412,11 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
-  private/gutenguess/packages/shared: {}
+  private/gutenguess/packages/shared:
+    devDependencies:
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
 
 packages:
 
