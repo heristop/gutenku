@@ -16,7 +16,7 @@ export default class MongoConnection {
     try {
       await mongoose.connect(`${uri}/${database}`, {
         connectTimeoutMS: 10000,
-        maxPoolSize: 10,
+        maxPoolSize: 20,
         serverSelectionTimeoutMS: 5000,
         socketTimeoutMS: 45000,
       });

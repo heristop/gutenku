@@ -14,9 +14,17 @@ const STATS_DOC_ID = 'global_stats';
 @injectable()
 export default class GlobalStatsRepository implements IGlobalStatsRepository {
   private db: Connection;
+  private statsCache: GlobalStatsValue | null = null;
+  private statsCacheExpiry = 0;
+  private static readonly CACHE_TTL_MS = 30000; // 30 seconds
 
   constructor(@inject(MongoConnection) mongoConnection: MongoConnection) {
     this.db = mongoConnection.db;
+  }
+
+  private invalidateCache(): void {
+    this.statsCache = null;
+    this.statsCacheExpiry = 0;
   }
 
   async incrementHaikuCount(): Promise<void> {
@@ -34,6 +42,7 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
         },
         { upsert: true },
       );
+      this.invalidateCache();
     } catch (error) {
       log.warn({ err: error }, 'Failed to increment haiku count');
     }
@@ -60,6 +69,7 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
         update,
         { upsert: true },
       );
+      this.invalidateCache();
     } catch (error) {
       log.warn({ err: error }, 'Failed to increment game count');
     }
@@ -74,15 +84,27 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
       };
     }
 
+    // Return cached value if still valid
+    const now = Date.now();
+    if (this.statsCache && now < this.statsCacheExpiry) {
+      return this.statsCache;
+    }
+
     try {
       const collection = this.db.collection('globalstats');
       const doc = await collection.findOne({ _id: STATS_DOC_ID } as object);
 
-      return {
+      const stats: GlobalStatsValue = {
         totalHaikusGenerated: (doc?.totalHaikusGenerated as number) ?? 0,
         totalGamesPlayed: (doc?.totalGamesPlayed as number) ?? 0,
         totalGamesWon: (doc?.totalGamesWon as number) ?? 0,
       };
+
+      // Cache the result
+      this.statsCache = stats;
+      this.statsCacheExpiry = now + GlobalStatsRepository.CACHE_TTL_MS;
+
+      return stats;
     } catch (error) {
       log.warn({ err: error }, 'Failed to get global stats');
       return {

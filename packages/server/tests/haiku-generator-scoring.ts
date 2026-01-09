@@ -111,9 +111,9 @@ describe('HaikuGeneratorService - scoring tests', () => {
     });
 
     const quotes = [
-      { index: 0, quote: 'one two three four five' },
-      { index: 1, quote: 'one two three four five six seven' },
-      { index: 2, quote: 'one two three four five' },
+      { index: 0, quote: 'one two three four five', syllableCount: 5 },
+      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
     deps.naturalLanguage.startWithConjunction = () => false;
@@ -144,9 +144,9 @@ describe('HaikuGeneratorService - scoring tests', () => {
     });
 
     const quotes = [
-      { index: 0, quote: 'one two three four five' },
-      { index: 1, quote: 'one two three four five six seven' },
-      { index: 2, quote: 'one two three four five' },
+      { index: 0, quote: 'one two three four five', syllableCount: 5 },
+      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
     deps.naturalLanguage.startWithConjunction = () => false;
@@ -177,9 +177,9 @@ describe('HaikuGeneratorService - scoring tests', () => {
     });
 
     const quotes = [
-      { index: 0, quote: 'one two three four five' },
-      { index: 1, quote: 'one two three four five six seven' },
-      { index: 2, quote: 'one two three four five' },
+      { index: 0, quote: 'one two three four five', syllableCount: 5 },
+      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
     deps.naturalLanguage.startWithConjunction = () => false;
@@ -210,9 +210,9 @@ describe('HaikuGeneratorService - scoring tests', () => {
     });
 
     const quotes = [
-      { index: 0, quote: 'one two three four five' },
-      { index: 1, quote: 'one two three four five six seven' },
-      { index: 2, quote: 'one two three four five' },
+      { index: 0, quote: 'one two three four five', syllableCount: 5 },
+      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
     deps.naturalLanguage.startWithConjunction = () => false;
@@ -243,9 +243,9 @@ describe('HaikuGeneratorService - scoring tests', () => {
     });
 
     const quotes = [
-      { index: 0, quote: 'one two three four five' },
-      { index: 1, quote: 'one two three four five six seven' },
-      { index: 2, quote: 'one two three four five' },
+      { index: 0, quote: 'one two three four five', syllableCount: 5 },
+      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
     deps.naturalLanguage.startWithConjunction = () => false;
@@ -276,9 +276,9 @@ describe('HaikuGeneratorService - scoring tests', () => {
     });
 
     const quotes = [
-      { index: 0, quote: 'one two three four five' },
-      { index: 1, quote: 'one two three four five six seven' },
-      { index: 2, quote: 'one two three four five' },
+      { index: 0, quote: 'one two three four five', syllableCount: 5 },
+      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
     deps.naturalLanguage.startWithConjunction = () => false;
@@ -311,9 +311,9 @@ describe('HaikuGeneratorService - scoring tests', () => {
     });
 
     const quotes = [
-      { index: 0, quote: 'one two three four five' },
-      { index: 1, quote: 'one two three four five six seven' },
-      { index: 2, quote: 'one two three four five' },
+      { index: 0, quote: 'one two three four five', syllableCount: 5 },
+      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
     deps.naturalLanguage.startWithConjunction = () => false;
@@ -346,9 +346,9 @@ describe('HaikuGeneratorService - scoring tests', () => {
     });
 
     const quotes = [
-      { index: 0, quote: 'one two three four five' },
-      { index: 1, quote: 'one two three four five six seven' },
-      { index: 2, quote: 'one two three four five' },
+      { index: 0, quote: 'one two three four five', syllableCount: 5 },
+      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
     deps.naturalLanguage.startWithConjunction = () => false;

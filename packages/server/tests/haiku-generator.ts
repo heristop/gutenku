@@ -130,9 +130,9 @@ describe('HaikuGeneratorService', () => {
     const { svc, deps } = makeService();
     // Make syllable count match (we use word count as syllables in this stub)
     const quotes = [
-      { index: 0, quote: 'one two three four five' }, // 5
-      { index: 1, quote: 'one two three four five six seven' }, // 7
-      { index: 2, quote: 'one two three four five' }, // 5
+      { index: 0, quote: 'one two three four five', syllableCount: 5 }, // 5
+      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 }, // 7
+      { index: 2, quote: 'one two three four five', syllableCount: 5 }, // 5
     ];
     deps.naturalLanguage.startWithConjunction = () => false;
     deps.naturalLanguage.analyzeSentiment = () => 1;
@@ -255,9 +255,9 @@ describe('HaikuGeneratorService', () => {
 
     // Make quotes with matching syllable counts
     const quotes = [
-      { index: 0, quote: 'one two three four five' }, // 5 syllables
-      { index: 1, quote: 'one two three four five six seven' }, // 7 syllables
-      { index: 2, quote: 'one two three four five' }, // 5 syllables
+      { index: 0, quote: 'one two three four five', syllableCount: 5 }, // 5 syllables
+      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 }, // 7 syllables
+      { index: 2, quote: 'one two three four five', syllableCount: 5 }, // 5 syllables
     ];
 
     deps.naturalLanguage.startWithConjunction = () => false;
@@ -273,9 +273,9 @@ describe('HaikuGeneratorService', () => {
     process.env.MARKOV_MIN_SCORE = '0.5';
 
     const quotes = [
-      { index: 0, quote: 'one two three four five' },
-      { index: 1, quote: 'one two three four five six seven' },
-      { index: 2, quote: 'one two three four five' },
+      { index: 0, quote: 'one two three four five', syllableCount: 5 },
+      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
     deps.naturalLanguage.startWithConjunction = () => false;
@@ -292,9 +292,9 @@ describe('HaikuGeneratorService', () => {
 
     // Quotes with non-sequential indices
     const quotes = [
-      { index: 5, quote: 'one two three four five' },
-      { index: 3, quote: 'one two three four five six seven' }, // Lower index
-      { index: 10, quote: 'one two three four five' },
+      { index: 5, quote: 'one two three four five', syllableCount: 5 },
+      { index: 3, quote: 'one two three four five six seven', syllableCount: 7 }, // Lower index
+      { index: 10, quote: 'alpha beta gamma delta epsilon', syllableCount: 5 },
     ];
 
     deps.naturalLanguage.startWithConjunction = () => false;
@@ -338,9 +338,9 @@ describe('HaikuGeneratorService', () => {
     const { svc, deps } = makeService();
 
     const quotes = [
-      { index: 0, quote: 'and one two three four' }, // starts with conjunction
-      { index: 1, quote: 'one two three four five six seven' },
-      { index: 2, quote: 'one two three four five' },
+      { index: 0, quote: 'and one two three four', syllableCount: 5 }, // starts with conjunction
+      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
     deps.naturalLanguage.startWithConjunction = (q: string) =>
@@ -369,9 +369,9 @@ describe('HaikuGeneratorService', () => {
     const { svc, deps } = makeService();
 
     const quotes = [
-      { index: 0, quote: 'one two three four five' },
-      { index: 1, quote: 'one two three four five six seven' },
-      { index: 2, quote: 'one two three four five' },
+      { index: 0, quote: 'one two three four five', syllableCount: 5 },
+      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
     deps.naturalLanguage.startWithConjunction = () => false;
@@ -388,9 +388,9 @@ describe('HaikuGeneratorService', () => {
     const { svc, deps } = makeService();
 
     const quotes = [
-      { index: 0, quote: 'one two three' }, // Wrong syllable count
-      { index: 1, quote: 'one two three' },
-      { index: 2, quote: 'one two three' },
+      { index: 0, quote: 'one two three', syllableCount: 3 }, // Wrong syllable count
+      { index: 1, quote: 'one two three', syllableCount: 3 },
+      { index: 2, quote: 'one two three', syllableCount: 3 },
     ];
 
     deps.naturalLanguage.startWithConjunction = () => false;

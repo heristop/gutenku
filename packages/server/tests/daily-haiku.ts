@@ -7,7 +7,7 @@ describe('Daily Haiku', () => {
      * Tests the string comparison logic used in MongoDB query:
      * { createdAt: { $lt: excludeTimestamp } }
      *
-     * This ensures haikus created today are excluded from daily selection.
+     * Haikus created today are excluded from daily selection.
      */
 
     it('should exclude haikus created on the current day', () => {

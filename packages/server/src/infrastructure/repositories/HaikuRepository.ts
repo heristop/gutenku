@@ -119,23 +119,19 @@ export default class HaikuRepository implements IHaikuRepository {
     try {
       const haikusCollection = this.db.collection('haikus');
 
-      // Fetch haikus created before excludeDate, sorted by _id for deterministic ordering
-      // This ensures new haikus added today don't change the daily selection
       // Convert excludeDate (YYYY-MM-DD) to ISO timestamp at midnight for consistent comparison
       const excludeTimestamp = `${excludeDate}T00:00:00.000Z`;
+      const matchFilter = { createdAt: { $lt: excludeTimestamp } };
 
-      // Include documents without createdAt (legacy) OR with createdAt before today
-      const allHaikus = await haikusCollection
-        .find({
-          $or: [
-            { createdAt: { $exists: false } },
-            { createdAt: { $lt: excludeTimestamp } },
-          ],
-        })
-        .sort({ _id: 1 })
+      // First, get count of eligible documents (avoids loading all into memory)
+      const countResult = await haikusCollection
+        .aggregate(
+          [{ $match: matchFilter }, { $count: 'total' }],
+          { maxTimeMS: 5000 },
+        )
         .toArray();
 
-      const count = allHaikus.length;
+      const count = countResult[0]?.total || 0;
 
       if (count < minCachedDocs) {
         log.info(
@@ -149,12 +145,29 @@ export default class HaikuRepository implements IHaikuRepository {
       const random = seededRandom(seed);
       const index = Math.floor(random() * count);
 
+      // Fetch only the selected document using aggregation with $skip and $limit
+      const result = await haikusCollection
+        .aggregate(
+          [
+            { $match: matchFilter },
+            { $sort: { _id: 1 } },
+            { $skip: index },
+            { $limit: 1 },
+          ],
+          { maxTimeMS: 5000 },
+        )
+        .toArray();
+
+      if (result.length === 0) {
+        return null;
+      }
+
       log.info(
         { seed, index, count, excludeDate, excludeTimestamp },
         'Deterministic cache extraction',
       );
 
-      const selected = allHaikus[index] as unknown as HaikuDocument;
+      const selected = result[0] as unknown as HaikuDocument;
       return {
         book: selected.book,
         cacheUsed: true,

@@ -88,7 +88,7 @@ onMounted(() => {
 
   // Fetch stats and animate counter
   fetchGlobalStats().then(() => {
-    setTimeout(animateCounter, 400); // Reduced wait for faster animations
+    setTimeout(animateCounter, 400); // Delay counter animation after stats load
   });
 });
 
@@ -202,7 +202,7 @@ onUnmounted(() => {
   }
 }
 
-// LCP-optimized entrance - starts visible to avoid paint blocking
+// LCP entrance - visible from start to prevent paint blocking
 @keyframes hero-entrance-lcp {
   from {
     opacity: 1;
@@ -279,6 +279,21 @@ onUnmounted(() => {
   }
 }
 
+// Deferred LCP enhancement - applies filter/opacity after initial paint
+@keyframes lcp-enhance {
+  to {
+    opacity: 0.95;
+    filter: grayscale(15%);
+  }
+}
+
+@keyframes lcp-enhance-dark {
+  to {
+    opacity: 0.95;
+    filter: brightness(0.85) grayscale(20%);
+  }
+}
+
 @keyframes glow-pulse {
   0%,
   100% {
@@ -301,8 +316,8 @@ onUnmounted(() => {
   }
 }
 
-// Staggered entrance animations - optimized for LCP
-// stagger-1 contains LCP image - no backwards to avoid paint blocking
+// Staggered entrance animations
+// stagger-1 contains LCP image - no backwards to prevent paint blocking
 .stagger-1 {
   opacity: 1;
   animation: hero-entrance-lcp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0s
@@ -499,11 +514,12 @@ onUnmounted(() => {
     position: relative;
     width: 240px;
     height: auto;
-    opacity: 0.95;
-    filter: grayscale(15%);
-    animation: illustration-breathe 5s ease-in-out infinite;
     z-index: 1;
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    // Defer filter/opacity until after LCP paint
+    animation:
+      lcp-enhance 0.01s ease-out 0.1s forwards,
+      illustration-breathe 5s ease-in-out 0.5s infinite;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 
     @media (min-width: 600px) {
       width: 280px;
@@ -514,7 +530,9 @@ onUnmounted(() => {
     }
 
     [data-theme='dark'] & {
-      filter: brightness(0.85) grayscale(20%);
+      animation:
+        lcp-enhance-dark 0.01s ease-out 0.1s forwards,
+        illustration-breathe 5s ease-in-out 0.5s infinite;
     }
   }
 
@@ -529,19 +547,16 @@ onUnmounted(() => {
     margin-top: -0.5rem; // Pull closer to illustration
   }
 
-  // Tagline/Verse container - fixed height to prevent CLS
+  // Tagline/Verse container
   &__tagline {
     position: relative;
     min-height: 2.5rem;
-    height: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0;
     padding: 0.5rem 1.5rem;
     z-index: 1;
-    overflow: hidden;
-    contain: layout size;
   }
 
   // Description - primary content

@@ -10,6 +10,14 @@ import natural, {
 } from 'natural';
 import { syllable } from 'syllable';
 import { singleton } from 'tsyringe';
+import {
+  BLACKLISTED_CHARS_PATTERN,
+  INVALID_START_WORDS_PATTERN,
+  INVALID_END_WORDS_PATTERN,
+  UPPERCASE_TEXT_PATTERN,
+  LOST_LETTER_PATTERN,
+  CONJUNCTION_START_PATTERN,
+} from '~/shared/constants/validation';
 
 export interface GrammarAnalysis {
   hasNoun: boolean;
@@ -23,6 +31,14 @@ export interface PhoneticsAnalysis {
   uniqueSounds: number;
   totalWords: number;
 }
+
+// Blacklist patterns for quote validation (using shared patterns)
+const BLACKLIST_REGEXES = [
+  INVALID_START_WORDS_PATTERN,
+  INVALID_END_WORDS_PATTERN,
+  BLACKLISTED_CHARS_PATTERN,
+  LOST_LETTER_PATTERN,
+];
 
 @singleton()
 export default class NaturalLanguageService {
@@ -78,34 +94,20 @@ export default class NaturalLanguageService {
   }
 
   hasUpperCaseWords(quote: string): boolean {
-    return /^[A-Z\s!:.?]+$/g.test(quote);
+    return UPPERCASE_TEXT_PATTERN.test(quote);
   }
 
   hasBlacklistedCharsInQuote(text: string): boolean {
-    const firstWordsRegex = /^(said|cried|inquired)/i;
-    const lastWordsRegex = /(or|and|of)$/i;
-    const specialCharsRegex =
-      /(@|[0-9]|Mr|Mrs|Dr|#|\[|\|\(|\)|"|“|”|‘|’|\/|--|:|,|_|—|\+|=|{|}|\]|\*|\$|%|\r|\n|;|~|&|\/)/g;
-    const lostLetter = /\b[A-Z]\b$/;
-
-    const regexList = [
-      firstWordsRegex,
-      lastWordsRegex,
-      specialCharsRegex,
-      lostLetter,
-    ];
-
-    for (const regex of regexList) {
+    for (const regex of BLACKLIST_REGEXES) {
       if (regex.test(text)) {
         return true;
       }
     }
-
     return false;
   }
 
   startWithConjunction(text: string): boolean {
-    return /^(and|but|or|of)/i.test(text);
+    return CONJUNCTION_START_PATTERN.test(text);
   }
 
   countSyllables(quote: string): number {

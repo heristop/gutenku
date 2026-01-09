@@ -23,7 +23,6 @@ import { useHaikuStore } from '@/features/haiku/store/haiku';
 import { useHaikuHighlighter } from '@/features/haiku/composables/haiku-highlighter';
 import { useTextCompacting } from '@/features/haiku/composables/text-compacting';
 import { useBotDetection } from '@/core/composables/bot-detection';
-import { useLongPress } from '@/core/composables/touch-gestures';
 import HighLightText from '@/features/haiku/components/HighLightText.vue';
 import ZenTooltip from '@/core/components/ui/ZenTooltip.vue';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
@@ -96,35 +95,15 @@ const compactedTooltip = computed(() =>
 );
 const { compactText } = useTextCompacting();
 
-// Long press for mobile, click for desktop
-const { isPressed, progress, isTouchDevice } = useLongPress(bookContentRef, {
-  delay: 500,
-  onLongPress: () => {
-    blackMarker.value = !blackMarker.value;
-  },
-});
-
-// Compute disclosure text based on device type
+// Compute disclosure text
 const disclosureTextComputed = computed(() => {
-  if (isTouchDevice.value) {
-    return blackMarker.value
-      ? t('haikuChapter.disclosure.hidden')
-      : t('haikuChapter.disclosure.visible');
-  }
   return blackMarker.value
-    ? t('haikuChapter.disclosure.hiddenDesktop')
-    : t('haikuChapter.disclosure.visibleDesktop');
+    ? t('haikuChapter.disclosure.hidden')
+    : t('haikuChapter.disclosure.visible');
 });
 
 function toggle(): void {
   blackMarker.value = !blackMarker.value;
-}
-
-function handleClick(): void {
-  // On desktop (non-touch), toggle on click
-  if (!isTouchDevice.value) {
-    toggle();
-  }
 }
 
 function toggleCompactedView(): void {
@@ -306,32 +285,11 @@ onUnmounted(() => {
       ref="bookContentRef"
       type="button"
       class="book-content"
-      :class="{ 'is-pressing': isPressed }"
       :aria-expanded="!blackMarker"
       :aria-label="disclosureTextComputed"
-      @click="handleClick"
+      @click="toggle"
       @contextmenu.prevent
     >
-      <!-- Long press progress indicator (mobile only) -->
-      <Transition name="long-press-fade">
-        <div v-if="isPressed && isTouchDevice" class="long-press-indicator">
-          <div class="long-press-indicator__glow" />
-          <svg viewBox="0 0 100 100" class="progress-ring">
-            <circle class="progress-ring__background" cx="50" cy="50" r="42" />
-            <circle
-              class="progress-ring__progress"
-              cx="50"
-              cy="50"
-              r="42"
-              :style="{ strokeDashoffset: 264 - (264 * progress) / 100 }"
-            />
-          </svg>
-          <div class="long-press-indicator__icon">
-            <Lightbulb v-if="blackMarker" :size="24" />
-            <LightbulbOff v-else :size="24" />
-          </div>
-        </div>
-      </Transition>
       <h2
         :class="{
           'stabilo-hidden': blackMarker,
@@ -685,146 +643,6 @@ onUnmounted(() => {
   &:focus-visible {
     outline: 2px solid var(--gutenku-zen-accent);
     outline-offset: 4px;
-  }
-
-  &.is-pressing {
-    transform: scale(0.995);
-  }
-}
-
-.long-press-indicator {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 88px;
-  height: 88px;
-  z-index: 100;
-  pointer-events: none;
-
-  &__glow {
-    position: absolute;
-    inset: -8px;
-    border-radius: 50%;
-    background: radial-gradient(
-      circle,
-      var(--gutenku-zen-water, oklch(0.85 0.05 195 / 0.15)) 0%,
-      transparent 70%
-    );
-    animation: long-press-glow 0.5s ease-out;
-  }
-
-  &__icon {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: var(--gutenku-zen-primary, oklch(0.45 0.1 195));
-    animation: long-press-icon-pulse 0.3s ease-out;
-
-    svg {
-      filter: drop-shadow(0 2px 4px oklch(0 0 0 / 0.15));
-    }
-  }
-
-  .progress-ring {
-    width: 100%;
-    height: 100%;
-    transform: rotate(-90deg);
-    filter: drop-shadow(0 2px 8px oklch(0.45 0.1 195 / 0.3));
-  }
-
-  .progress-ring__background {
-    fill: oklch(1 0 0 / 0.5);
-    stroke: var(--gutenku-zen-water, oklch(0.85 0.05 195 / 0.6));
-    stroke-width: 3;
-  }
-
-  .progress-ring__progress {
-    fill: none;
-    stroke: var(--gutenku-zen-primary, oklch(0.45 0.1 195));
-    stroke-width: 5;
-    stroke-linecap: round;
-    stroke-dasharray: 264;
-    stroke-dashoffset: 264;
-    transition: stroke-dashoffset 0.05s linear;
-  }
-}
-
-@keyframes long-press-glow {
-  0% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes long-press-icon-pulse {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.5);
-  }
-  50% {
-    transform: translate(-50%, -50%) scale(1.1);
-  }
-  100% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-.long-press-fade-enter-active {
-  transition: all 0.15s ease-out;
-}
-
-.long-press-fade-leave-active {
-  transition: all 0.2s ease-in;
-}
-
-.long-press-fade-enter-from {
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(0.7);
-}
-
-.long-press-fade-leave-to {
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(0.9);
-}
-
-// Hide long press indicator on desktop
-@media (pointer: fine) {
-  .long-press-indicator {
-    display: none;
-  }
-}
-
-[data-theme='dark'] .long-press-indicator {
-  &__glow {
-    background: radial-gradient(
-      circle,
-      oklch(0.5 0.08 195 / 0.12) 0%,
-      transparent 70%
-    );
-  }
-
-  &__icon {
-    color: var(--gutenku-zen-accent, oklch(0.65 0.1 195));
-  }
-
-  .progress-ring {
-    filter: drop-shadow(0 2px 8px oklch(0.6 0.1 195 / 0.3));
-  }
-
-  .progress-ring__background {
-    fill: oklch(0.15 0.02 195 / 0.5);
-    stroke: oklch(0.3 0.05 195 / 0.6);
-  }
-
-  .progress-ring__progress {
-    stroke: var(--gutenku-zen-accent, oklch(0.65 0.1 195));
   }
 }
 

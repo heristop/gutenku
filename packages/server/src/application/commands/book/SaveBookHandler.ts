@@ -76,10 +76,8 @@ export class SaveBookHandler implements ICommandHandler<
 
       const chapterIds = await this.chapterRepository.createMany(chapterInputs);
 
-      // Link chapters to book
-      for (const chapterId of chapterIds) {
-        await this.bookRepository.addChapter(bookDbId, chapterId);
-      }
+      // Link chapters to book (single database call)
+      await this.bookRepository.addChapters(bookDbId, chapterIds);
 
       return {
         bookId: command.bookId,

@@ -17,14 +17,15 @@ export default class ChapterRepository implements IChapterRepository {
       )
         .sort({ score: { $meta: 'textScore' } })
         .populate('book')
+        .lean()
         .exec();
     }
 
-    return await ChapterModel.find().populate('book').exec();
+    return await ChapterModel.find().populate('book').lean().exec();
   }
 
   async getChapterById(id: string) {
-    return await ChapterModel.findById(id).populate('book').exec();
+    return await ChapterModel.findById(id).populate('book').lean().exec();
   }
 
   async getFilteredChapters(filterWords: string[]): Promise<ChapterValue[]> {
@@ -37,15 +38,18 @@ export default class ChapterRepository implements IChapterRepository {
       .sort({ score: { $meta: 'textScore' } })
       .limit(100)
       .populate('book')
+      .lean()
       .exec();
   }
 
   async getChaptersByBookReference(reference: string): Promise<ChapterValue[]> {
-    const book = await BookModel.findOne({ reference }).exec();
+    const book = await BookModel.findOne({ reference }).lean().exec();
     if (!book) {
       return [];
     }
-    return await ChapterModel.find({ book: book._id }).populate('book').exec();
+    // Skip populate since we already have the book - attach it manually
+    const chapters = await ChapterModel.find({ book: book._id }).lean().exec();
+    return chapters.map((chapter) => ({ ...chapter, book })) as ChapterValue[];
   }
 
   async createMany(chapters: CreateChapterInput[]): Promise<string[]> {

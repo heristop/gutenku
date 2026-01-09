@@ -303,10 +303,8 @@
   "haikuChapter": {
     "ariaLabel": "Book chapter excerpt with highlighted haiku verses",
     "disclosure": {
-      "hidden": "Long press to reveal",
-      "visible": "Long press to hide",
-      "hiddenDesktop": "Click to reveal content",
-      "visibleDesktop": "Click to hide content"
+      "hidden": "Click on text to reveal",
+      "visible": "Click on text to hide"
     },
     "discloseHide": "Disclose / Hide",
     "showFull": "Show Full Chapter",

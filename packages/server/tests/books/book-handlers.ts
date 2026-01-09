@@ -32,6 +32,7 @@ describe('Book Command Handlers', () => {
         findByReference: vi.fn(),
         create: vi.fn(),
         addChapter: vi.fn(),
+        addChapters: vi.fn(),
         deleteByReference: vi.fn(),
       };
       handler = new DeleteBookHandler(mockBookRepo);
@@ -151,6 +152,7 @@ describe('Book Command Handlers', () => {
         findByReference: vi.fn(),
         create: vi.fn(),
         addChapter: vi.fn(),
+        addChapters: vi.fn(),
         deleteByReference: vi.fn(),
       };
       mockChapterRepo = {
@@ -217,7 +219,7 @@ describe('Book Command Handlers', () => {
         'ch1-id',
         'ch2-id',
       ]);
-      vi.mocked(mockBookRepo.addChapter).mockResolvedValue();
+      vi.mocked(mockBookRepo.addChapters).mockResolvedValue();
 
       const command = new SaveBookCommand(12345, '/data');
       const result = await handler.execute(command);
@@ -232,7 +234,10 @@ describe('Book Command Handlers', () => {
         author: 'Test Author',
       });
       expect(mockChapterRepo.createMany).toHaveBeenCalled();
-      expect(mockBookRepo.addChapter).toHaveBeenCalledTimes(2);
+      expect(mockBookRepo.addChapters).toHaveBeenCalledWith('book-db-id', [
+        'ch1-id',
+        'ch2-id',
+      ]);
     });
 
     it('returns failure if file read fails', async () => {

@@ -17,7 +17,7 @@ withDefaults(defineProps<Props>(), {
 <style lang="scss" scoped>
 .zen-quote {
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   font-family: 'JMH Typewriter', monospace;
   font-style: italic;
   color: var(--gutenku-zen-primary);

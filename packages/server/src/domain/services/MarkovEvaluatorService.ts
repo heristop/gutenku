@@ -27,18 +27,19 @@ export class MarkovEvaluatorService {
       return 0;
     }
 
+    const lowerHaiku = haiku.map((v) => v.toLowerCase());
     let totalScore = 0;
 
-    for (let i = 0; i < haiku.length - 1; i++) {
+    for (let i = 0; i < lowerHaiku.length - 1; i++) {
       const score = this.markovChain.evaluateTransition(
-        haiku[i].toLowerCase(),
-        haiku[i + 1].toLowerCase(),
+        lowerHaiku[i],
+        lowerHaiku[i + 1],
       );
 
       totalScore += score;
     }
 
-    return (totalScore / (haiku.length - 1)) * 10;
+    return (totalScore / (lowerHaiku.length - 1)) * 10;
   }
 
   public evaluateHaikuTrigrams(haiku: string[]): number {
@@ -46,17 +47,18 @@ export class MarkovEvaluatorService {
       return 0;
     }
 
+    const lowerHaiku = haiku.map((v) => v.toLowerCase());
     let totalScore = 0;
 
-    for (let i = 0; i < haiku.length - 1; i++) {
+    for (let i = 0; i < lowerHaiku.length - 1; i++) {
       const score = this.markovChain.evaluateTrigramTransition(
-        haiku[i].toLowerCase(),
-        haiku[i + 1].toLowerCase(),
+        lowerHaiku[i],
+        lowerHaiku[i + 1],
       );
 
       totalScore += score;
     }
 
-    return (totalScore / (haiku.length - 1)) * 10;
+    return (totalScore / (lowerHaiku.length - 1)) * 10;
   }
 }

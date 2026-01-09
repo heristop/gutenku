@@ -5,12 +5,15 @@ import { createLogger } from '~/infrastructure/services/Logger';
 const log = createLogger('markov');
 import { inject, singleton } from 'tsyringe';
 
-const FANBOYS_LIST = ['for', 'and', 'nor', 'but', 'or', 'yet', 'so'];
+const FANBOYS_SET = new Set(['for', 'and', 'nor', 'but', 'or', 'yet', 'so']);
 
 @singleton()
 export class MarkovChainService {
   private bigrams: Map<string, Map<string, number>>;
   private trigrams: Map<string, Map<string, number>>;
+  // Cache transition totals to avoid repeated array reductions
+  private bigramTotals: Map<string, number>;
+  private trigramTotals: Map<string, number>;
   private totalBigrams: number;
   private totalTrigrams: number;
   private loaded = false;
@@ -21,6 +24,8 @@ export class MarkovChainService {
   ) {
     this.bigrams = new Map();
     this.trigrams = new Map();
+    this.bigramTotals = new Map();
+    this.trigramTotals = new Map();
     this.totalBigrams = 0;
     this.totalTrigrams = 0;
   }
@@ -35,7 +40,7 @@ export class MarkovChainService {
 
       const wordList: string[] = [];
       words.forEach((word: string) => {
-        if (!FANBOYS_LIST.includes(word.toLowerCase())) {
+        if (!FANBOYS_SET.has(word.toLowerCase())) {
           wordList.push(word);
         }
       });
@@ -52,6 +57,8 @@ export class MarkovChainService {
 
         if (transitions) {
           transitions.set(to, (transitions.get(to) || 0) + 1);
+          // Update cached total for this key
+          this.bigramTotals.set(from, (this.bigramTotals.get(from) || 0) + 1);
         }
 
         this.totalBigrams++;
@@ -69,6 +76,8 @@ export class MarkovChainService {
 
         if (transitions) {
           transitions.set(next, (transitions.get(next) || 0) + 1);
+          // Update cached total for this key
+          this.trigramTotals.set(key, (this.trigramTotals.get(key) || 0) + 1);
         }
 
         this.totalTrigrams++;
@@ -93,11 +102,9 @@ export class MarkovChainService {
       const count = transitions.get(firstWordTo);
 
       if (count) {
-        const totalTransitions = [...transitions.values()].reduce(
-          (a, b) => a + b,
-          0,
-        );
-        return count / totalTransitions;
+        // Use cached total instead of array reduction
+        const totalTransitions = this.bigramTotals.get(lastWordFrom) || 0;
+        return totalTransitions > 0 ? count / totalTransitions : 0;
       }
     }
 
@@ -121,11 +128,9 @@ export class MarkovChainService {
       const count = transitions.get(firstWordTo);
 
       if (count) {
-        const totalTransitions = [...transitions.values()].reduce(
-          (a, b) => a + b,
-          0,
-        );
-        return count / totalTransitions;
+        // Use cached total instead of array reduction
+        const totalTransitions = this.trigramTotals.get(key) || 0;
+        return totalTransitions > 0 ? count / totalTransitions : 0;
       }
     }
 
@@ -136,6 +141,8 @@ export class MarkovChainService {
     const data = JSON.stringify({
       bigrams: Array.from(this.bigrams, ([key, value]) => [key, [...value]]),
       trigrams: Array.from(this.trigrams, ([key, value]) => [key, [...value]]),
+      bigramTotals: Array.from(this.bigramTotals),
+      trigramTotals: Array.from(this.trigramTotals),
       totalBigrams: this.totalBigrams,
       totalTrigrams: this.totalTrigrams,
     });
@@ -167,6 +174,20 @@ export class MarkovChainService {
       );
       this.totalBigrams = jsonData.totalBigrams;
 
+      // Load or compute bigram totals (backward compatible)
+      if (jsonData.bigramTotals) {
+        this.bigramTotals = new Map(jsonData.bigramTotals);
+      } else {
+        // Compute totals from bigrams for old model files
+        for (const [key, transitions] of this.bigrams) {
+          let total = 0;
+          for (const count of transitions.values()) {
+            total += count;
+          }
+          this.bigramTotals.set(key, total);
+        }
+      }
+
       if (jsonData.trigrams) {
         this.trigrams = new Map(
           jsonData.trigrams.map(
@@ -177,6 +198,20 @@ export class MarkovChainService {
           ),
         );
         this.totalTrigrams = jsonData.totalTrigrams || 0;
+
+        // Load or compute trigram totals (backward compatible)
+        if (jsonData.trigramTotals) {
+          this.trigramTotals = new Map(jsonData.trigramTotals);
+        } else {
+          // Compute totals from trigrams for old model files
+          for (const [key, transitions] of this.trigrams) {
+            let total = 0;
+            for (const count of transitions.values()) {
+              total += count;
+            }
+            this.trigramTotals.set(key, total);
+          }
+        }
       }
 
       this.loaded = true;

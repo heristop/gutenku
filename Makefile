@@ -19,7 +19,7 @@ help:
 	@echo "  start         Start server + frontend (without Docker)"
 	@echo ""
 	@echo "Build & Test:"
-	@echo "  build         Build the frontend for production"
+	@echo "  build         Build the backend and frontend for local/production"
 	@echo "  test          Run all tests"
 	@echo "  lint          Run linters on all packages"
 	@echo ""

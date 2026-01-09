@@ -4,6 +4,14 @@ import {
   InvalidSyllableCountException,
   BlacklistedCharacterException,
 } from '~/domain/exceptions';
+import {
+  BLACKLISTED_CHARS_PATTERN,
+  INVALID_START_WORDS_PATTERN,
+  INVALID_END_WORDS_PATTERN,
+  UPPERCASE_TEXT_PATTERN,
+  LOST_LETTER_PATTERN,
+  CONJUNCTION_START_PATTERN,
+} from '~/shared/constants/validation';
 
 export interface VerseProps {
   readonly text: string;
@@ -12,13 +20,6 @@ export interface VerseProps {
 }
 
 export class Verse {
-  private static readonly BLACKLISTED_CHARS_REGEX =
-    /(@|[0-9]|Mr|Mrs|Dr|#|\[|\||\(|\)|"|"|"|'|'|\/|--|:|,|_|—|\+|=|{|}|\]|\*|\$|%|\r|\n|;|~|&|\/)/g;
-  private static readonly FIRST_WORDS_REGEX = /^(said|cried|inquired)/i;
-  private static readonly LAST_WORDS_REGEX = /(or|and|of)$/i;
-  private static readonly CONJUNCTION_START_REGEX = /^(and|but|or|of)/i;
-  private static readonly UPPERCASE_REGEX = /^[A-Z\s!:.?]+$/;
-  private static readonly LOST_LETTER_REGEX = /\b[A-Z]\b$/;
   private static readonly MAX_LENGTH = 30;
 
   private readonly _text: string;
@@ -57,37 +58,37 @@ export class Verse {
       throw new BlacklistedCharacterException(normalizedText);
     }
 
-    if (this.UPPERCASE_REGEX.test(normalizedText)) {
+    if (UPPERCASE_TEXT_PATTERN.test(normalizedText)) {
       throw new InvalidVerseException(normalizedText, {
         reason: 'uppercase',
       });
     }
 
-    if (this.FIRST_WORDS_REGEX.test(normalizedText)) {
+    if (INVALID_START_WORDS_PATTERN.test(normalizedText)) {
       throw new InvalidVerseException(normalizedText, {
         reason: 'invalid_start_word',
       });
     }
 
-    if (this.LAST_WORDS_REGEX.test(normalizedText)) {
+    if (INVALID_END_WORDS_PATTERN.test(normalizedText)) {
       throw new InvalidVerseException(normalizedText, {
         reason: 'invalid_end_word',
       });
     }
 
-    if (this.LOST_LETTER_REGEX.test(normalizedText)) {
+    if (LOST_LETTER_PATTERN.test(normalizedText)) {
       throw new InvalidVerseException(normalizedText, {
         reason: 'lost_letter',
       });
     }
 
-    if (normalizedText.length >= this.MAX_LENGTH) {
+    if (normalizedText.length >= Verse.MAX_LENGTH) {
       throw new InvalidVerseException(normalizedText, {
         reason: 'length',
       });
     }
 
-    if (isFirstVerse && this.CONJUNCTION_START_REGEX.test(normalizedText)) {
+    if (isFirstVerse && CONJUNCTION_START_PATTERN.test(normalizedText)) {
       throw new InvalidVerseException(normalizedText, {
         reason: 'conjunction_start',
       });
@@ -108,7 +109,7 @@ export class Verse {
   }
 
   private static hasBlacklistedChars(text: string): boolean {
-    return this.BLACKLISTED_CHARS_REGEX.test(text);
+    return BLACKLISTED_CHARS_PATTERN.test(text);
   }
 
   private static cleanText(text: string): string {

@@ -64,6 +64,7 @@ GutenKu transforms classic literature from Project Gutenberg into haiku poetry u
 git clone https://github.com/heristop/gutenku.git
 cd gutenku
 make install
+make build
 make dev
 ```
 

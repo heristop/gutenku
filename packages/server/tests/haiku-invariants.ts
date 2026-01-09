@@ -113,9 +113,9 @@ describe('HaikuGeneratorService invariants (domain-level)', () => {
     );
 
     const quotes = [
-      { index: 0, quote: 'An old silent pond' }, // ~5 syllables
-      { index: 1, quote: 'A frog jumps into the pond' }, // ~7 syllables
-      { index: 2, quote: 'Splash! Silence again' }, // ~5 syllables
+      { index: 0, quote: 'An old silent pond', syllableCount: 5 },
+      { index: 1, quote: 'A frog jumps into the pond', syllableCount: 7 },
+      { index: 2, quote: 'Splash! Silence again', syllableCount: 5 },
     ];
 
     const selected = gen.selectHaikuVerses(quotes);
@@ -138,10 +138,10 @@ describe('HaikuGeneratorService invariants (domain-level)', () => {
     );
 
     const quotes = [
-      { index: 0, quote: 'And old silent pond' }, // 5 but starts with conjunction (invalid for first)
-      { index: 1, quote: 'An old silent pond' }, // Valid 5 (first)
-      { index: 2, quote: 'A frog jumps into the pond' }, // Valid 7 (second)
-      { index: 3, quote: 'Under autumn sky' }, // Valid 5 (third)
+      { index: 0, quote: 'And old silent pond', syllableCount: 5 }, // starts with conjunction (invalid for first)
+      { index: 1, quote: 'An old silent pond', syllableCount: 5 }, // Valid 5 (first)
+      { index: 2, quote: 'A frog jumps into the pond', syllableCount: 7 }, // Valid 7 (second)
+      { index: 3, quote: 'Under autumn sky', syllableCount: 5 }, // Valid 5 (third)
     ];
 
     const selected = gen.selectHaikuVerses(quotes);
@@ -165,10 +165,10 @@ describe('HaikuGeneratorService invariants (domain-level)', () => {
     );
 
     const quotes = [
-      { index: 0, quote: 'one two three four five' }, // 5 syllables (words)
-      { index: 1, quote: 'one two three four five six seven' }, // 7
-      { index: 2, quote: 'one two three four five' }, // 5
-      { index: 3, quote: 'alpha beta gamma delta epsilon zeta eta theta' }, // 8+ not 5/7
+      { index: 0, quote: 'one two three four five', syllableCount: 5 },
+      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 2, quote: 'one two three four five', syllableCount: 5 },
+      { index: 3, quote: 'alpha beta gamma delta epsilon zeta eta theta', syllableCount: 17 },
     ];
 
     process.env.MIN_QUOTES_COUNT = '1';

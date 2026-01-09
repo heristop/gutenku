@@ -63,6 +63,7 @@ interface ScoreThresholds {
 interface QuoteCandidate {
   quote: string;
   index: number;
+  syllableCount: number;
 }
 
 @singleton()
@@ -83,6 +84,7 @@ export default class HaikuGeneratorService implements IGenerator {
   private readonly maxAttempts = 500;
   private readonly maxAttemptsInBook = 50;
   private readonly chunkSize = 10;
+  private readonly bookPoolSize = 10;
 
   private minCachedDocs: number;
   private ttl: number;
@@ -97,6 +99,8 @@ export default class HaikuGeneratorService implements IGenerator {
   private trigramMinScore: number | null;
   private tfidfMinScore: number | null;
   private phoneticsMinScore: number | null;
+  private bookPool: BookValueWithChapters[] = [];
+  private cachedThresholds: ScoreThresholds | null = null;
 
   constructor(
     @inject('IHaikuRepository')
@@ -132,6 +136,21 @@ export default class HaikuGeneratorService implements IGenerator {
     this.trigramMinScore = score.trigram;
     this.tfidfMinScore = score.tfidf;
     this.phoneticsMinScore = score.phonetics;
+    this.bookPool = []; // Clear pool for fresh generation
+
+    // Cache thresholds to avoid repeated env var parsing
+    this.cachedThresholds = {
+      sentiment:
+        score.sentiment ?? Number.parseFloat(process.env.SENTIMENT_MIN_SCORE || '0'),
+      markov:
+        score.markovChain ?? Number.parseFloat(process.env.MARKOV_MIN_SCORE || '0'),
+      pos: score.pos ?? Number.parseFloat(process.env.POS_MIN_SCORE || '0'),
+      trigram:
+        score.trigram ?? Number.parseFloat(process.env.TRIGRAM_MIN_SCORE || '0'),
+      tfidf: score.tfidf ?? Number.parseFloat(process.env.TFIDF_MIN_SCORE || '0'),
+      phonetics:
+        score.phonetics ?? Number.parseFloat(process.env.PHONETICS_MIN_SCORE || '0'),
+    };
 
     return this;
   }
@@ -156,6 +175,20 @@ export default class HaikuGeneratorService implements IGenerator {
       size,
       this.minCachedDocs,
     );
+  }
+
+  private async getBookFromPool(): Promise<BookValueWithChapters> {
+    if (this.bookPool.length === 0) {
+      // Refill the pool with multiple books in one query
+      this.bookPool = await this.bookRepository.selectRandomBooks(
+        this.bookPoolSize,
+      );
+    }
+    // Pop a book from the pool (or fallback to single fetch if pool still empty)
+    if (this.bookPool.length > 0) {
+      return this.bookPool.pop()!;
+    }
+    return this.bookRepository.selectRandomBook();
   }
 
   async generate(): Promise<HaikuValue | null> {
@@ -222,7 +255,7 @@ export default class HaikuGeneratorService implements IGenerator {
     }
 
     if (chapters.length === 0) {
-      book = await this.bookRepository.selectRandomBook();
+      book = await this.getBookFromPool();
     }
 
     while (verses.length < 3 && i < this.maxAttempts) {
@@ -282,7 +315,7 @@ export default class HaikuGeneratorService implements IGenerator {
         book = chapter.book;
       } else {
         if (!book) {
-          book = await this.bookRepository.selectRandomBook();
+          book = await this.getBookFromPool();
         }
         chapter = this.selectRandomChapter(book);
       }
@@ -306,7 +339,7 @@ export default class HaikuGeneratorService implements IGenerator {
       }
 
       if (currentIteration % this.maxAttemptsInBook === 0) {
-        book = await this.bookRepository.selectRandomBook();
+        book = await this.getBookFromPool();
       }
     }
 
@@ -360,7 +393,7 @@ export default class HaikuGeneratorService implements IGenerator {
     return book.chapters[index.toString()];
   }
 
-  extractQuotes(chapter: string): { quote: string; index: number }[] {
+  extractQuotes(chapter: string): QuoteCandidate[] {
     const sentences =
       this.naturalLanguage.extractSentencesByPunctuation(chapter);
     const quotes = sentences.map((quote, index) => ({ index, quote }));
@@ -370,12 +403,14 @@ export default class HaikuGeneratorService implements IGenerator {
 
   filterQuotesCountingSyllables(
     quotes: { quote: string; index: number }[],
-  ): { quote: string; index: number }[] {
-    const filteredQuotes = quotes.filter(({ quote }) => {
+  ): QuoteCandidate[] {
+    const filteredQuotes: QuoteCandidate[] = [];
+
+    for (const { quote, index } of quotes) {
       const words = this.naturalLanguage.extractWords(quote);
 
       if (!words) {
-        return false;
+        continue;
       }
 
       const syllableCount = words.reduce(
@@ -383,8 +418,10 @@ export default class HaikuGeneratorService implements IGenerator {
         0,
       );
 
-      return syllableCount === 5 || syllableCount === 7;
-    });
+      if (syllableCount === 5 || syllableCount === 7) {
+        filteredQuotes.push({ quote, index, syllableCount });
+      }
+    }
 
     const minQuotesCount =
       Number.parseInt(process.env.MIN_QUOTES_COUNT, 10) || 12;
@@ -405,13 +442,15 @@ export default class HaikuGeneratorService implements IGenerator {
     for (let i = 0; i < syllableCounts.length; i++) {
       const targetSyllables = syllableCounts[i];
 
-      const matchingQuotes = quotes.filter(({ quote, index }) =>
+      // Pre-filter by syllable count first (cheap), then apply expensive validation
+      const syllableMatches = quotes.filter(
+        (q) => q.syllableCount === targetSyllables && !usedIndices.has(q.index),
+      );
+
+      const matchingQuotes = syllableMatches.filter((candidate) =>
         this.isQuoteValidForVerse(
-          quote,
-          index,
-          targetSyllables,
+          candidate,
           i === 0,
-          usedIndices,
           selectedVerses,
           thresholds,
         ),
@@ -432,42 +471,31 @@ export default class HaikuGeneratorService implements IGenerator {
   }
 
   private getScoreThresholds(): ScoreThresholds {
+    // Return cached thresholds if available
+    if (this.cachedThresholds) {
+      return this.cachedThresholds;
+    }
+    // Fallback for unconfigured usage (shouldn't happen in normal flow)
     return {
-      sentiment:
-        this.sentimentMinScore ??
-        Number.parseFloat(process.env.SENTIMENT_MIN_SCORE || '0'),
-      markov:
-        this.markovMinScore ??
-        Number.parseFloat(process.env.MARKOV_MIN_SCORE || '0'),
-      pos:
-        this.posMinScore ??
-        Number.parseFloat(process.env.POS_MIN_SCORE || '0'),
-      trigram:
-        this.trigramMinScore ??
-        Number.parseFloat(process.env.TRIGRAM_MIN_SCORE || '0'),
-      tfidf:
-        this.tfidfMinScore ??
-        Number.parseFloat(process.env.TFIDF_MIN_SCORE || '0'),
-      phonetics:
-        this.phoneticsMinScore ??
-        Number.parseFloat(process.env.PHONETICS_MIN_SCORE || '0'),
+      sentiment: Number.parseFloat(process.env.SENTIMENT_MIN_SCORE || '0'),
+      markov: Number.parseFloat(process.env.MARKOV_MIN_SCORE || '0'),
+      pos: Number.parseFloat(process.env.POS_MIN_SCORE || '0'),
+      trigram: Number.parseFloat(process.env.TRIGRAM_MIN_SCORE || '0'),
+      tfidf: Number.parseFloat(process.env.TFIDF_MIN_SCORE || '0'),
+      phonetics: Number.parseFloat(process.env.PHONETICS_MIN_SCORE || '0'),
     };
   }
 
   private isQuoteValidForVerse(
-    rawQuote: string,
-    index: number,
-    targetSyllables: number,
+    candidate: QuoteCandidate,
     isFirstVerse: boolean,
-    usedIndices: Set<number>,
     selectedVerses: QuoteCandidate[],
     thresholds: ScoreThresholds,
   ): boolean {
-    if (usedIndices.has(index)) {return false;}
+    // Normalize quote once here instead of multiple times in validation chain
+    const quote = candidate.quote.replaceAll('\n', ' ');
 
-    const quote = rawQuote.replaceAll('\n', ' ');
-
-    if (!this.passesBasicValidation(quote, targetSyllables, isFirstVerse)) {
+    if (!this.passesBasicValidation(quote, isFirstVerse)) {
       return false;
     }
 
@@ -478,7 +506,7 @@ export default class HaikuGeneratorService implements IGenerator {
     if (selectedVerses.length > 0) {
       return this.passesSequenceValidation(
         quote,
-        index,
+        candidate.index,
         selectedVerses,
         thresholds,
       );
@@ -487,19 +515,13 @@ export default class HaikuGeneratorService implements IGenerator {
     return true;
   }
 
-  private passesBasicValidation(
-    quote: string,
-    targetSyllables: number,
-    isFirstVerse: boolean,
-  ): boolean {
+  private passesBasicValidation(quote: string, isFirstVerse: boolean): boolean {
     if (isFirstVerse && this.naturalLanguage.startWithConjunction(quote)) {
       return false;
     }
 
-    if (this.isQuoteInvalid(quote)) {return false;}
-
-    const syllableCount = this.naturalLanguage.countSyllables(quote);
-    return syllableCount === targetSyllables;
+    // Quote already normalized, no need to replace newlines again
+    return !this.isQuoteInvalid(quote);
   }
 
   private passesScoreValidation(
@@ -569,8 +591,7 @@ export default class HaikuGeneratorService implements IGenerator {
   }
 
   isQuoteInvalid(quote: string): boolean {
-    quote = quote.replaceAll('\n', '');
-
+    // Assumes quote is already normalized (newlines replaced with spaces)
     if (this.naturalLanguage.hasUpperCaseWords(quote)) {
       return true;
     }

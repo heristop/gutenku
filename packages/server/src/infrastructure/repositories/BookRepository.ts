@@ -38,14 +38,25 @@ export default class BookRepository implements IBookRepository {
   }
 
   async getBookById(id: string) {
-    return await BookModel.findById(id).populate('chapters').exec();
+    return await BookModel.findById(id).populate('chapters').lean().exec();
   }
 
-  async selectRandomBook(): Promise<BookValue> {
+  async selectRandomBook(retries = 5): Promise<BookValue> {
+    const books = await this.selectRandomBooks(1);
+    if (books.length === 0) {
+      if (retries <= 0) {
+        throw new Error('Failed to find book with chapters after max retries');
+      }
+      return this.selectRandomBook(retries - 1);
+    }
+    return books[0];
+  }
+
+  async selectRandomBooks(count: number): Promise<BookValue[]> {
     const randomBooks = await BookModel.aggregate(
       [
         { $match: { 'chapters.0': { $exists: true } } },
-        { $sample: { size: 1 } },
+        { $sample: { size: count } },
         {
           $lookup: {
             as: 'chapters',
@@ -58,17 +69,10 @@ export default class BookRepository implements IBookRepository {
       { maxTimeMS: 5000 },
     );
 
-    if (!randomBooks || randomBooks.length === 0) {
-      throw new Error('No book found');
-    }
-
-    const randomBook = randomBooks[0];
-
-    if (!randomBook.chapters || randomBook.chapters.length === 0) {
-      return this.selectRandomBook();
-    }
-
-    return randomBook;
+    // Filter out books with empty chapters (edge case from lookup)
+    return (randomBooks || []).filter(
+      (book) => book.chapters && book.chapters.length > 0,
+    );
   }
 
   async existsByReference(reference: number): Promise<boolean> {
@@ -103,8 +107,16 @@ export default class BookRepository implements IBookRepository {
     }).exec();
   }
 
+  async addChapters(bookId: string, chapterIds: string[]): Promise<void> {
+    if (chapterIds.length === 0) return;
+    await BookModel.findByIdAndUpdate(bookId, {
+      $push: { chapters: { $each: chapterIds } },
+    }).exec();
+  }
+
   async deleteByReference(reference: number): Promise<DeleteBookResult> {
-    const book = await BookModel.findOne({
+    // Use findOneAndDelete to combine find + delete in one operation
+    const book = await BookModel.findOneAndDelete({
       reference: String(reference),
     }).exec();
 
@@ -116,9 +128,6 @@ export default class BookRepository implements IBookRepository {
     const chapterResult = await ChapterModel.deleteMany({
       book: book._id,
     }).exec();
-
-    // Delete the book
-    await BookModel.deleteOne({ _id: book._id }).exec();
 
     return {
       deleted: true,

@@ -52,8 +52,8 @@ export const urqlClient = new Client({
       },
     }),
   ],
-  // Use cache-and-network for better performance with fresh data
-  // Haiku generation queries should override with 'network-only' when fresh data is critical
+  // cache-and-network: serve from cache while fetching fresh data
+  // Haiku generation queries override with 'network-only' to avoid stale results
   requestPolicy: 'cache-and-network',
   fetchOptions: () => ({
     method: 'POST',
