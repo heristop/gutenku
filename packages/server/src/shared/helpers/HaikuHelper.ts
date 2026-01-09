@@ -1,12 +1,16 @@
 import type { ContextVerses } from '~/shared/types';
 
+// Pre-compiled regex for sentence splitting
+const SENTENCE_SPLIT_REGEX = /(?<=[.,;!?])\s+/;
+
 export function findContext(
   text: string,
   substring: string,
   numWords = 5,
   numSentences = 2,
+  preSplitSentences?: string[],
 ) {
-  const sentences = text.split(/(?<=[.,;!?])\s+/);
+  const sentences = preSplitSentences ?? text.split(SENTENCE_SPLIT_REGEX);
 
   const index = text.indexOf(substring);
 
@@ -55,8 +59,18 @@ export function extractContextVerses(
   verses: string[],
   chapter: string,
 ): ContextVerses[] {
+  // Clean chapter and split sentences once before the loop
+  const cleanedChapter = chapter.replaceAll('\n', ' ');
+  const sentences = cleanedChapter.split(SENTENCE_SPLIT_REGEX);
+
   return verses.map((verse) =>
-    findContext(chapter.replaceAll('\n', ' '), verse.replaceAll('\n', ' ')),
+    findContext(
+      cleanedChapter,
+      verse.replaceAll('\n', ' '),
+      5,
+      2,
+      sentences,
+    ),
   );
 }
 

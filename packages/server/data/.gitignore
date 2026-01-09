@@ -5,3 +5,7 @@
 # And book data module
 !gutenguess-books.ts
 !index.ts
+# And common names list
+!common-names.ts
+# And nature words list
+!nature-words.ts

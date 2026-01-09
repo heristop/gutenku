@@ -9,6 +9,10 @@ import {
   type IOpenAIClient,
   IOpenAIClientToken,
 } from '~/domain/gateways/IOpenAIClient';
+import {
+  calculateHaikuQuality,
+  type HaikuQualityScore,
+} from '~/shared/constants/validation';
 
 @singleton()
 export default class OpenAIGeneratorService implements IGenerator {
@@ -174,11 +178,17 @@ export default class OpenAIGeneratorService implements IGenerator {
   }
 
   private async generateSelectionPrompt(): Promise<string> {
-    const prompt = `Please select the most relevant haiku from the following list of ${this.selectionCount}, considering factors such as correct grammatical structure, consistency between the three lines, the ability to capture the beauty of nature, the conveyance of tranquility and peace, and the presentation of a profound moment of insight`;
+    const prompt = `Please select the best haiku from the following list of ${this.selectionCount}. Consider:
+- Grammatical structure and flow between lines
+- Nature imagery (higher nature_words score is better)
+- No repeated words (lower repeated_words is better)
+- Strong opening (lower weak_starts is better)
+- Overall quality score (higher is better)
+- The ability to capture tranquility and a profound moment of insight`;
 
     const haikus = await this.fetchHaikus();
 
-    return `${prompt} (Use the following format: {"id":[Id],"reason":"<brief explanation of why this haiku instead of others>"})\n${haikus.join('\n')}\nSTOP\n`;
+    return `${prompt}\n(Use the following format: {"id":[Id],"reason":"<brief explanation of why this haiku instead of others>"})\n${haikus.join('\n')}\nSTOP\n`;
   }
 
   private async generateDescription(
@@ -311,10 +321,21 @@ export default class OpenAIGeneratorService implements IGenerator {
       'Haiku generation complete',
     );
 
+    // Calculate quality scores and format for LLM selection
     this.haikuSelection.forEach((haiku, i: number) => {
-      const verses = `[Id]: ${i}\n[Verses]: ${haiku.verses.join('\n')}\n`;
-      log.debug({ id: i, verses: haiku.verses }, 'Haiku candidate');
-      haikus.push(verses);
+      const quality = calculateHaikuQuality(haiku.verses);
+      const entry = [
+        `[Id]: ${i}`,
+        `[Verses]: ${haiku.verses.join(' / ')}`,
+        `[Quality]: nature_words=${quality.natureWords}, repeated_words=${quality.repeatedWords}, weak_starts=${quality.weakStarts}, score=${quality.totalScore}`,
+        '',
+      ].join('\n');
+
+      log.debug(
+        { id: i, verses: haiku.verses, quality },
+        'Haiku candidate with quality score',
+      );
+      haikus.push(entry);
     });
 
     return haikus;

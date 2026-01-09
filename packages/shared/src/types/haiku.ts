@@ -38,6 +38,13 @@ export interface HaikuCandidate {
   book: { title: string; author: string };
 }
 
+export interface HaikuQualityScore {
+  natureWords: number;
+  repeatedWords: number;
+  weakStarts: number;
+  totalScore: number;
+}
+
 export interface HaikuValue {
   book: BookValue;
   chapter: ChapterValue;
@@ -54,6 +61,7 @@ export interface HaikuValue {
   executionTime?: number;
   selectionInfo?: SelectionInfo;
   candidates?: HaikuCandidate[];
+  quality?: HaikuQualityScore;
 }
 
 export interface HaikuResponseData {

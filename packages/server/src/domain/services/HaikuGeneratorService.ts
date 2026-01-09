@@ -27,6 +27,11 @@ import {
   cleanVerses,
 } from '~/shared/helpers/HaikuHelper';
 import { MaxAttemptsException } from '~/domain/exceptions';
+import {
+  countRepeatedWords,
+  hasWeakStart,
+  calculateHaikuQuality,
+} from '~/shared/constants/validation';
 
 const log = createLogger('haiku');
 
@@ -58,6 +63,9 @@ interface ScoreThresholds {
   trigram: number;
   tfidf: number;
   phonetics: number;
+  // Soft scoring thresholds (0 = disabled)
+  maxRepeatedWords: number;
+  allowWeakStart: boolean;
 }
 
 interface QuoteCandidate {
@@ -93,6 +101,7 @@ export default class HaikuGeneratorService implements IGenerator {
   private executionTime: number;
   private filterWords: string[];
   private filterWordsRegex: RegExp | null = null;
+  private filterWordsKey: string | null = null;
   private sentimentMinScore: number | null;
   private markovMinScore: number | null;
   private posMinScore: number | null;
@@ -101,6 +110,7 @@ export default class HaikuGeneratorService implements IGenerator {
   private phoneticsMinScore: number | null;
   private bookPool: BookValueWithChapters[] = [];
   private cachedThresholds: ScoreThresholds | null = null;
+  private sentimentCache = new Map<string, number>();
 
   constructor(
     @inject('IHaikuRepository')
@@ -137,6 +147,7 @@ export default class HaikuGeneratorService implements IGenerator {
     this.tfidfMinScore = score.tfidf;
     this.phoneticsMinScore = score.phonetics;
     this.bookPool = []; // Clear pool for fresh generation
+    this.sentimentCache.clear(); // Clear sentiment cache
 
     // Cache thresholds to avoid repeated env var parsing
     this.cachedThresholds = {
@@ -150,12 +161,22 @@ export default class HaikuGeneratorService implements IGenerator {
       tfidf: score.tfidf ?? Number.parseFloat(process.env.TFIDF_MIN_SCORE || '0'),
       phonetics:
         score.phonetics ?? Number.parseFloat(process.env.PHONETICS_MIN_SCORE || '0'),
+      // Soft scoring (0 = disabled, allows any repetition; -1 = reject all weak starts)
+      maxRepeatedWords: Number.parseInt(process.env.MAX_REPEATED_WORDS || '0', 10),
+      allowWeakStart: process.env.REJECT_WEAK_START !== 'true',
     };
 
     return this;
   }
 
   filter(filterWords: string[]): HaikuGeneratorService {
+    // Check if filter words changed to avoid unnecessary regex compilation
+    const newKey = filterWords.length > 0 ? [...filterWords].sort().join('|') : null;
+    if (this.filterWordsKey === newKey) {
+      return this; // Already compiled for these words
+    }
+
+    this.filterWordsKey = newKey;
     this.filterWords = filterWords;
 
     if (filterWords.length > 0) {
@@ -370,6 +391,7 @@ export default class HaikuGeneratorService implements IGenerator {
     verses: string[],
   ): HaikuValue {
     const executionTime = (Date.now() - this.executionTime) / 1000;
+    const cleanedVerses = cleanVerses(verses);
 
     return {
       book: {
@@ -383,7 +405,8 @@ export default class HaikuGeneratorService implements IGenerator {
       context: extractContextVerses(verses, chapter.content),
       executionTime: executionTime,
       rawVerses: verses,
-      verses: cleanVerses(verses),
+      verses: cleanedVerses,
+      quality: calculateHaikuQuality(cleanedVerses),
     };
   }
 
@@ -396,6 +419,12 @@ export default class HaikuGeneratorService implements IGenerator {
   extractQuotes(chapter: string): QuoteCandidate[] {
     const sentences =
       this.naturalLanguage.extractSentencesByPunctuation(chapter);
+
+    // Initialize TF-IDF corpus for distinctiveness scoring
+    if (this.cachedThresholds?.tfidf > 0) {
+      this.naturalLanguage.initTfIdf(sentences);
+    }
+
     const quotes = sentences.map((quote, index) => ({ index, quote }));
 
     return this.filterQuotesCountingSyllables(quotes);
@@ -483,6 +512,8 @@ export default class HaikuGeneratorService implements IGenerator {
       trigram: Number.parseFloat(process.env.TRIGRAM_MIN_SCORE || '0'),
       tfidf: Number.parseFloat(process.env.TFIDF_MIN_SCORE || '0'),
       phonetics: Number.parseFloat(process.env.PHONETICS_MIN_SCORE || '0'),
+      maxRepeatedWords: Number.parseInt(process.env.MAX_REPEATED_WORDS || '0', 10),
+      allowWeakStart: process.env.REJECT_WEAK_START !== 'true',
     };
   }
 
@@ -495,7 +526,7 @@ export default class HaikuGeneratorService implements IGenerator {
     // Normalize quote once here instead of multiple times in validation chain
     const quote = candidate.quote.replaceAll('\n', ' ');
 
-    if (!this.passesBasicValidation(quote, isFirstVerse)) {
+    if (!this.passesBasicValidation(quote, isFirstVerse, thresholds)) {
       return false;
     }
 
@@ -515,13 +546,35 @@ export default class HaikuGeneratorService implements IGenerator {
     return true;
   }
 
-  private passesBasicValidation(quote: string, isFirstVerse: boolean): boolean {
+  private passesBasicValidation(
+    quote: string,
+    isFirstVerse: boolean,
+    thresholds: ScoreThresholds,
+  ): boolean {
     if (isFirstVerse && this.naturalLanguage.startWithConjunction(quote)) {
       return false;
     }
 
     // Quote already normalized, no need to replace newlines again
-    return !this.isQuoteInvalid(quote);
+    if (this.isQuoteInvalid(quote)) {
+      return false;
+    }
+
+    // Soft scoring: reject weak starts if configured
+    if (!thresholds.allowWeakStart && hasWeakStart(quote)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  private getCachedSentiment(quote: string): number {
+    let score = this.sentimentCache.get(quote);
+    if (score === undefined) {
+      score = this.naturalLanguage.analyzeSentiment(quote);
+      this.sentimentCache.set(quote, score);
+    }
+    return score;
   }
 
   private passesScoreValidation(
@@ -530,7 +583,7 @@ export default class HaikuGeneratorService implements IGenerator {
   ): boolean {
     log.debug({ quote: quote.split(' ') }, 'Evaluating quote');
 
-    const sentimentScore = this.naturalLanguage.analyzeSentiment(quote);
+    const sentimentScore = this.getCachedSentiment(quote);
     if (sentimentScore < thresholds.sentiment) {return false;}
     log.debug(
       { sentimentScore, min: thresholds.sentiment },
@@ -563,6 +616,15 @@ export default class HaikuGeneratorService implements IGenerator {
 
     const quotesToEvaluate = [...selectedVerses.map((v) => v.quote), quote];
 
+    // Soft scoring: check word repetition across verses
+    if (thresholds.maxRepeatedWords > 0) {
+      const repeatedCount = countRepeatedWords(quotesToEvaluate);
+      if (repeatedCount > thresholds.maxRepeatedWords) {
+        return false;
+      }
+      log.debug({ repeatedCount, max: thresholds.maxRepeatedWords }, 'Repeated words');
+    }
+
     const markovScore = this.markovEvaluator.evaluateHaiku(quotesToEvaluate);
     if (markovScore < thresholds.markov) {return false;}
     log.debug({ markovScore, min: thresholds.markov }, 'Markov score');
@@ -574,7 +636,8 @@ export default class HaikuGeneratorService implements IGenerator {
       log.debug({ trigramScore, min: thresholds.trigram }, 'Trigram score');
     }
 
-    if (thresholds.phonetics > 0 && selectedVerses.length === 2) {
+    // Check phonetics (alliteration) across all verses, not just the 3rd
+    if (thresholds.phonetics > 0) {
       const phoneticsAnalysis =
         this.naturalLanguage.analyzePhonetics(quotesToEvaluate);
       if (phoneticsAnalysis.alliterationScore < thresholds.phonetics) {

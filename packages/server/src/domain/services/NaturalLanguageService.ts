@@ -11,12 +11,10 @@ import natural, {
 import { syllable } from 'syllable';
 import { singleton } from 'tsyringe';
 import {
-  BLACKLISTED_CHARS_PATTERN,
-  INVALID_START_WORDS_PATTERN,
-  INVALID_END_WORDS_PATTERN,
   UPPERCASE_TEXT_PATTERN,
-  LOST_LETTER_PATTERN,
   CONJUNCTION_START_PATTERN,
+  COMBINED_BLACKLIST_PATTERN,
+  containsCommonName,
 } from '~/shared/constants/validation';
 
 export interface GrammarAnalysis {
@@ -31,14 +29,6 @@ export interface PhoneticsAnalysis {
   uniqueSounds: number;
   totalWords: number;
 }
-
-// Blacklist patterns for quote validation (using shared patterns)
-const BLACKLIST_REGEXES = [
-  INVALID_START_WORDS_PATTERN,
-  INVALID_END_WORDS_PATTERN,
-  BLACKLISTED_CHARS_PATTERN,
-  LOST_LETTER_PATTERN,
-];
 
 @singleton()
 export default class NaturalLanguageService {
@@ -98,12 +88,7 @@ export default class NaturalLanguageService {
   }
 
   hasBlacklistedCharsInQuote(text: string): boolean {
-    for (const regex of BLACKLIST_REGEXES) {
-      if (regex.test(text)) {
-        return true;
-      }
-    }
-    return false;
+    return COMBINED_BLACKLIST_PATTERN.test(text) || containsCommonName(text);
   }
 
   startWithConjunction(text: string): boolean {

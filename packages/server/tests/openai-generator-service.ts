@@ -462,8 +462,10 @@ describe('OpenAIGeneratorService - private methods', () => {
     // @ts-expect-error - accessing private method
     const result = await service.generateSelectionPrompt();
 
-    expect(result).toContain('Please select the most relevant haiku');
+    expect(result).toContain('Please select the best haiku');
     expect(result).toContain('Use the following format: {"id":[Id],"reason":');
+    expect(result).toContain('[Quality]:');
+    expect(result).toContain('nature_words=');
     expect(result).toContain('STOP');
   });
 });

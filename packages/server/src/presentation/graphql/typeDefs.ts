@@ -41,6 +41,13 @@ const typeDefs = `#graphql
         book: CandidateBook!
     }
 
+    type HaikuQuality {
+        natureWords: Int!
+        repeatedWords: Int!
+        weakStarts: Int!
+        totalScore: Int!
+    }
+
     type Haiku {
         book: Book!
         chapter: Chapter!
@@ -57,6 +64,7 @@ const typeDefs = `#graphql
         executionTime: Float
         selectionInfo: SelectionInfo
         candidates: [HaikuCandidate!]
+        quality: HaikuQuality
     }
 
     type GlobalStats {
