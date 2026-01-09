@@ -1240,7 +1240,9 @@ describe('GetDailyPuzzleHandler with Chapter Repository', () => {
     const result = await handler.execute(query);
 
     // Emoticon hint should be limited to visibleEmoticonCount
-    const emoticonHint = result.puzzle.hints.find((h) => h.type === 'emoticons');
+    const emoticonHint = result.puzzle.hints.find(
+      (h) => h.type === 'emoticons',
+    );
     expect(emoticonHint).toBeDefined();
     // Check that content length is limited (grapheme count)
     const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
@@ -1362,7 +1364,7 @@ describe('SubmitGuessHandler Quote Fallback', () => {
     let foundExclusionCase = false;
 
     for (let day = 1; day <= 500; day++) {
-      const month = Math.floor((day - 1) / 28) % 12 + 1;
+      const month = (Math.floor((day - 1) / 28) % 12) + 1;
       const dayOfMonth = ((day - 1) % 28) + 1;
       const year = 2026 + Math.floor((day - 1) / 336);
       const date = `${year}-${String(month).padStart(2, '0')}-${String(dayOfMonth).padStart(2, '0')}`;
@@ -1425,5 +1427,120 @@ describe('GetDailyPuzzleHandler Book Selection', () => {
         puzzleResult.availableBooks.some((b) => b.reference === correctBookRef),
       ).toBeTruthy();
     }
+  });
+});
+
+describe('GetPuzzleVersionHandler', () => {
+  let handler: InstanceType<
+    typeof import('../../src/application/queries/puzzle/GetPuzzleVersionHandler').GetPuzzleVersionHandler
+  >;
+
+  beforeEach(async () => {
+    const { GetPuzzleVersionHandler } =
+      await import('../../src/application/queries/puzzle/GetPuzzleVersionHandler');
+    handler = new GetPuzzleVersionHandler();
+  });
+
+  it('returns version with puzzle number and book count', async () => {
+    const { GetPuzzleVersionQuery } =
+      await import('../../src/application/queries/puzzle/GetPuzzleVersionQuery');
+
+    const query = new GetPuzzleVersionQuery('2026-01-09');
+    const result = await handler.execute(query);
+
+    expect(result.puzzleNumber).toBeGreaterThan(0);
+    expect(result.version).toContain(String(result.puzzleNumber));
+    expect(result.version).toMatch(/^\d+-\d+$/);
+  });
+
+  it('returns consistent version for same date', async () => {
+    const { GetPuzzleVersionQuery } =
+      await import('../../src/application/queries/puzzle/GetPuzzleVersionQuery');
+
+    const query1 = new GetPuzzleVersionQuery('2026-01-15');
+    const query2 = new GetPuzzleVersionQuery('2026-01-15');
+
+    const result1 = await handler.execute(query1);
+    const result2 = await handler.execute(query2);
+
+    expect(result1.version).toBe(result2.version);
+    expect(result1.puzzleNumber).toBe(result2.puzzleNumber);
+  });
+
+  it('returns different puzzle numbers for different dates', async () => {
+    const { GetPuzzleVersionQuery } =
+      await import('../../src/application/queries/puzzle/GetPuzzleVersionQuery');
+
+    const query1 = new GetPuzzleVersionQuery('2026-01-15');
+    const query2 = new GetPuzzleVersionQuery('2026-01-16');
+
+    const result1 = await handler.execute(query1);
+    const result2 = await handler.execute(query2);
+
+    expect(result1.puzzleNumber).not.toBe(result2.puzzleNumber);
+    expect(result1.version).not.toBe(result2.version);
+  });
+
+  it('returns puzzle number 1 for launch date', async () => {
+    const { GetPuzzleVersionQuery } =
+      await import('../../src/application/queries/puzzle/GetPuzzleVersionQuery');
+
+    const query = new GetPuzzleVersionQuery('2026-01-01');
+    const result = await handler.execute(query);
+
+    expect(result.puzzleNumber).toBe(1);
+    expect(result.version.startsWith('1-')).toBeTruthy();
+  });
+
+  it('increments puzzle number correctly', async () => {
+    const { GetPuzzleVersionQuery } =
+      await import('../../src/application/queries/puzzle/GetPuzzleVersionQuery');
+
+    const query1 = new GetPuzzleVersionQuery('2026-01-01');
+    const query2 = new GetPuzzleVersionQuery('2026-01-02');
+    const query3 = new GetPuzzleVersionQuery('2026-01-03');
+
+    const result1 = await handler.execute(query1);
+    const result2 = await handler.execute(query2);
+    const result3 = await handler.execute(query3);
+
+    expect(result1.puzzleNumber).toBe(1);
+    expect(result2.puzzleNumber).toBe(2);
+    expect(result3.puzzleNumber).toBe(3);
+  });
+
+  it('includes book count in version string', async () => {
+    const { GetPuzzleVersionQuery } =
+      await import('../../src/application/queries/puzzle/GetPuzzleVersionQuery');
+    const { getGutenGuessBooks } = await import('../../data');
+
+    const query = new GetPuzzleVersionQuery('2026-01-09');
+    const result = await handler.execute(query);
+
+    const bookCount = getGutenGuessBooks().length;
+    const expectedVersion = `${result.puzzleNumber}-${bookCount}`;
+
+    expect(result.version).toBe(expectedVersion);
+  });
+});
+
+describe('GetPuzzleVersionQuery', () => {
+  it('stores date parameter', async () => {
+    const { GetPuzzleVersionQuery } =
+      await import('../../src/application/queries/puzzle/GetPuzzleVersionQuery');
+
+    const query = new GetPuzzleVersionQuery('2026-01-09');
+    expect(query.date).toBe('2026-01-09');
+  });
+
+  it('handles different date formats', async () => {
+    const { GetPuzzleVersionQuery } =
+      await import('../../src/application/queries/puzzle/GetPuzzleVersionQuery');
+
+    const query1 = new GetPuzzleVersionQuery('2026-01-01');
+    const query2 = new GetPuzzleVersionQuery('2026-12-31');
+
+    expect(query1.date).toBe('2026-01-01');
+    expect(query2.date).toBe('2026-12-31');
   });
 });

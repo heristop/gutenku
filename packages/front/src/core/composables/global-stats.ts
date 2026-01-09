@@ -39,9 +39,8 @@ export function useGlobalStats() {
       if (result.data?.globalStats) {
         globalStats.value = result.data.globalStats;
       }
-    } catch (e) {
+    } catch {
       error.value = 'Failed to load global stats';
-      console.error('Global stats fetch error:', e);
     } finally {
       loading.value = false;
     }

@@ -26,10 +26,10 @@
   "dependencies": {
     "@apollo/server": "^5.2.0",
     "@as-integrations/express5": "^1.1.2",
-    "@graphql-tools/schema": "^10.0.30",
+    "@graphql-tools/schema": "^10.0.31",
     "@gutenku/shared": "workspace:*",
     "axios": "^1.13.2",
-    "body-parser": "^2.2.1",
+    "body-parser": "^2.2.2",
     "canvas": "^3.2.0",
     "cli-progress": "^3.12.0",
     "commander": "^14.0.2",
@@ -45,7 +45,7 @@
     "graphql-ws": "^6.0.6",
     "helmet": "^8.1.0",
     "mongo-sanitize": "^1.1.0",
-    "mongoose": "^9.1.1",
+    "mongoose": "^9.1.2",
     "natural": "^8.1.0",
     "node-fetch": "^3.3.2",
     "openai": "^6.15.0",
@@ -58,7 +58,7 @@
     "syllable": "^5.0.1",
     "terminal-image": "^4.2.0",
     "tsyringe": "^4.10.0",
-    "ws": "^8.18.3",
+    "ws": "^8.19.0",
     "zod": "^4.3.5"
   },
   "devDependencies": {

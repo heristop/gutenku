@@ -2,12 +2,20 @@
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useHead } from '@unhead/vue';
+import { useMediaQuery } from '@vueuse/core';
 import DefaultView from './View.vue';
 import ZenToast from '@/core/components/ui/ZenToast.vue';
 import ThemeToggle from '@/core/components/ThemeToggle.vue';
 import AppFooter from '@/core/components/AppFooter.vue';
 
 const route = useRoute();
+
+// Disable floating particles for reduced motion or mobile (performance)
+const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+const isMobile = useMediaQuery('(max-width: 767px)');
+const showParticles = computed(
+  () => !prefersReducedMotion.value && !isMobile.value,
+);
 
 function skipToMain(): void {
   const targets = [
@@ -33,40 +41,49 @@ const canonicalUrl = computed(
 useHead({
   title: computed(() => (route.meta.title as string) || 'GutenKu'),
   link: [{ rel: 'canonical', href: canonicalUrl }],
-  meta: [
-    {
-      name: 'description',
-      content: computed(
-        () =>
+  meta: computed(() => {
+    const baseMeta = [
+      {
+        name: 'description',
+        content:
           (route.meta.description as string) ||
           'AI Haiku Generator & Literary Games',
-      ),
-    },
-    {
-      property: 'og:title',
-      content: computed(() => (route.meta.title as string) || 'GutenKu'),
-    },
-    {
-      property: 'og:description',
-      content: computed(
-        () =>
+      },
+      {
+        property: 'og:title',
+        content: (route.meta.title as string) || 'GutenKu',
+      },
+      {
+        property: 'og:description',
+        content:
           (route.meta.description as string) ||
           'AI Haiku Generator & Literary Games',
-      ),
-    },
-    {
-      name: 'twitter:title',
-      content: computed(() => (route.meta.title as string) || 'GutenKu'),
-    },
-    {
-      name: 'twitter:description',
-      content: computed(
-        () =>
+      },
+      {
+        property: 'og:url',
+        content: canonicalUrl.value,
+      },
+      {
+        name: 'twitter:title',
+        content: (route.meta.title as string) || 'GutenKu',
+      },
+      {
+        name: 'twitter:description',
+        content:
           (route.meta.description as string) ||
           'AI Haiku Generator & Literary Games',
-      ),
-    },
-  ],
+      },
+    ];
+
+    if (route.meta.robots) {
+      baseMeta.push({
+        name: 'robots',
+        content: route.meta.robots as string,
+      });
+    }
+
+    return baseMeta;
+  }),
 });
 </script>
 
@@ -79,8 +96,8 @@ useHead({
       </header>
       <div class="light-beam-overlay" aria-hidden="true" />
 
-      <!-- Floating particles -->
-      <div class="floating-particles" aria-hidden="true">
+      <!-- Floating particles (disabled on mobile and reduced motion for performance) -->
+      <div v-if="showParticles" class="floating-particles" aria-hidden="true">
         <div class="floating-particles__particle" />
         <div class="floating-particles__particle" />
         <div class="floating-particles__particle" />

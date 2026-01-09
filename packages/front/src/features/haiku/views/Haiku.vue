@@ -14,15 +14,14 @@ import { Feather } from 'lucide-vue-next';
 import InkBrushNav from '@/core/components/ui/InkBrushNav.vue';
 import ZenSkeleton from '@/core/components/ZenSkeleton.vue';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
-import { withViewTransition } from '@/core/composables/view-transition';
 import { useToast } from '@/core/composables/toast';
-import { usePullToRefresh } from '@/core/composables/pull-to-refresh';
 import { usePwaInstall } from '@/core/composables/pwa-install';
+import { usePullToRefresh } from '@/core/composables/pull-to-refresh';
 import { closeWSClient } from '@/client';
-import PullToRefresh from '@/core/components/PullToRefresh.vue';
 import HaikuTitle from '@/features/haiku/components/HaikuTitle.vue';
 import AppLoading from '@/core/components/AppLoading.vue';
 
+// Async components with SSR-safe loading
 const HaikuCanvas = defineAsyncComponent({
   loader: () => import('@/features/haiku/components/HaikuCanvas.vue'),
   loadingComponent: ZenSkeleton,
@@ -55,6 +54,12 @@ const SocialPreviewCard = defineAsyncComponent(
   () => import('@/features/haiku/components/SocialPreviewCard.vue'),
 );
 
+const PullToRefresh = defineAsyncComponent(
+  () => import('@/core/components/PullToRefresh.vue'),
+);
+
+// Note: PullToRefresh is async because it's not needed during SSR
+
 const isDev = import.meta.env.DEV;
 
 const { t, tm } = useI18n();
@@ -80,6 +85,7 @@ watch(haiku, (newHaiku) => {
   }
 });
 
+// Pull-to-refresh (SSR-safe: browser APIs accessed in onMounted)
 const containerRef = ref<HTMLElement | null>(null);
 const { pullDistance, isRefreshing, shouldRelease, progress } =
   usePullToRefresh(containerRef, { onRefresh: fetchNewHaiku });
@@ -157,7 +163,7 @@ onUnmounted(closeWSClient);
           <HaikuChapter v-if="haiku" class="haiku-section__chapter" />
 
           <div
-            v-else-if="loading"
+            v-if="!haiku && loading"
             class="haiku-section__chapter haiku-section__placeholder"
           >
             <div class="placeholder-header">

@@ -13,6 +13,10 @@ export class PubSubService {
     return this.pubSub;
   }
 
+  public publish<T>(trigger: string, payload: T): Promise<void> {
+    return this.pubSub.publish(trigger, payload);
+  }
+
   public iterator<T = unknown>(
     triggers: string | readonly string[],
   ): AsyncIterableIterator<T> {

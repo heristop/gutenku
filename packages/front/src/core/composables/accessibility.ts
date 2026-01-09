@@ -5,6 +5,33 @@ const DYSLEXIA_STORAGE_KEY = 'gutenku-dyslexia-enabled';
 // Shared state (singleton pattern)
 const dyslexiaEnabled = ref(false);
 let isInitialized = false;
+let fontLoaded = false;
+
+// Lazy load OpenDyslexic font only when needed
+async function loadOpenDyslexicFont() {
+  if (fontLoaded || import.meta.env.SSR) {
+    return;
+  }
+
+  try {
+    // Dynamically import the font URL (Vite will handle the path)
+    const fontModule =
+      await import('@/assets/fonts/OpenDyslexic-Regular.woff2');
+    const fontUrl = fontModule.default;
+
+    const fontFace = new FontFace('OpenDyslexic', `url(${fontUrl})`, {
+      weight: 'normal',
+      style: 'normal',
+      display: 'swap',
+    });
+
+    await fontFace.load();
+    document.fonts.add(fontFace);
+    fontLoaded = true;
+  } catch {
+    // Font loading failed silently - fallback fonts will be used
+  }
+}
 
 function initializeFromStorage() {
   if (import.meta.env.SSR || isInitialized) {
@@ -17,9 +44,14 @@ function initializeFromStorage() {
   isInitialized = true;
 }
 
-function applyDyslexia(enabled: boolean) {
+async function applyDyslexia(enabled: boolean) {
   if (import.meta.env.SSR) {
     return;
+  }
+
+  // Load font on-demand when enabling dyslexia mode
+  if (enabled) {
+    await loadOpenDyslexicFont();
   }
 
   document.documentElement.setAttribute('data-dyslexia', enabled.toString());

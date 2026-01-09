@@ -21,6 +21,7 @@ import resolvers from '~/presentation/graphql/resolvers';
 import typeDefs from '~/presentation/graphql/typeDefs';
 import MongoConnection from '~/infrastructure/services/MongoConnection';
 import { createLogger } from '~/infrastructure/services/Logger';
+import { initPuzzleScheduler } from '~/infrastructure/schedulers/PuzzleScheduler';
 import '~/infrastructure/di/container';
 
 // Use explicit path for dotenv to work correctly in PM2 cluster mode
@@ -175,6 +176,10 @@ async function main() {
       'Subscription endpoint ready at ws://localhost:%d/graphql-ws',
       port,
     );
+
+    // Start midnight puzzle scheduler for WebSocket notifications
+    initPuzzleScheduler();
+    log.info('Puzzle scheduler initialized');
   } catch (err) {
     log.error({ err }, 'Error starting the node server');
   }

@@ -20,7 +20,39 @@ const quotes = [
 const currentQuoteIndex = ref(0);
 const currentQuote = computed(() => quotes[currentQuoteIndex.value]);
 
+// Hero element ref for IntersectionObserver
+const heroRef = ref<{ $el: HTMLElement } | null>(null);
+const isVisible = ref(true);
+
 let quoteInterval: ReturnType<typeof setInterval> | null = null;
+let intersectionObserver: IntersectionObserver | null = null;
+
+// Quote rotation control - pause when not visible
+function startQuoteRotation() {
+  if (quoteInterval) {
+    return;
+  }
+  quoteInterval = setInterval(() => {
+    if (isVisible.value) {
+      currentQuoteIndex.value = (currentQuoteIndex.value + 1) % quotes.length;
+    }
+  }, 5000);
+}
+
+function stopQuoteRotation() {
+  if (quoteInterval) {
+    clearInterval(quoteInterval);
+    quoteInterval = null;
+  }
+}
+
+function handleVisibilityChange() {
+  if (document.hidden) {
+    stopQuoteRotation();
+  } else if (isVisible.value) {
+    startQuoteRotation();
+  }
+}
 
 // Animated counter
 const targetCount = computed(() => globalStats.value.totalHaikusGenerated ?? 0);
@@ -31,26 +63,45 @@ const {
 } = useAnimatedCounter(targetCount);
 
 onMounted(() => {
+  // Setup IntersectionObserver to pause quote rotation when not visible
+  const heroEl = heroRef.value?.$el;
+  if (heroEl) {
+    intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        isVisible.value = entries[0].isIntersecting;
+        if (isVisible.value) {
+          startQuoteRotation();
+        } else {
+          stopQuoteRotation();
+        }
+      },
+      { threshold: 0.1 },
+    );
+    intersectionObserver.observe(heroEl);
+  }
+
+  // Also pause on document visibility change (tab hidden)
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+
   // Start quote rotation
-  quoteInterval = setInterval(() => {
-    currentQuoteIndex.value = (currentQuoteIndex.value + 1) % quotes.length;
-  }, 5000);
+  startQuoteRotation();
 
   // Fetch stats and animate counter
   fetchGlobalStats().then(() => {
-    setTimeout(animateCounter, 600); // Wait for entrance animation
+    setTimeout(animateCounter, 400); // Reduced wait for faster animations
   });
 });
 
 onUnmounted(() => {
-  if (quoteInterval) {
-    clearInterval(quoteInterval);
-  }
+  stopQuoteRotation();
+  intersectionObserver?.disconnect();
+  document.removeEventListener('visibilitychange', handleVisibilityChange);
 });
 </script>
 
 <template>
   <ZenCard
+    ref="heroRef"
     variant="default"
     class="hero"
     role="complementary"
@@ -86,6 +137,7 @@ onUnmounted(() => {
           width="640"
           height="427"
           loading="eager"
+          fetchpriority="high"
           draggable="false"
           @contextmenu.prevent
         />
@@ -147,6 +199,18 @@ onUnmounted(() => {
     opacity: 1;
     transform: translateY(0);
     filter: blur(0);
+  }
+}
+
+// LCP-optimized entrance - starts visible to avoid paint blocking
+@keyframes hero-entrance-lcp {
+  from {
+    opacity: 1;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -237,25 +301,37 @@ onUnmounted(() => {
   }
 }
 
-// Staggered entrance animations
+// Staggered entrance animations - optimized for LCP
+// stagger-1 contains LCP image - no backwards to avoid paint blocking
 .stagger-1 {
-  animation: hero-entrance 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0s both;
+  opacity: 1;
+  animation: hero-entrance-lcp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0s
+    forwards;
 }
 
+// Non-LCP elements can use backwards safely
 .stagger-2 {
-  animation: hero-entrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+  opacity: 1;
+  animation: hero-entrance 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s
+    backwards;
 }
 
 .stagger-3 {
-  animation: hero-entrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+  opacity: 1;
+  animation: hero-entrance 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s
+    backwards;
 }
 
 .stagger-4 {
-  animation: hero-entrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.45s both;
+  opacity: 1;
+  animation: hero-entrance 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s
+    backwards;
 }
 
 .stagger-5 {
-  animation: hero-entrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s both;
+  opacity: 1;
+  animation: hero-entrance 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s
+    backwards;
 }
 
 .bookmark-ribbon {
@@ -275,7 +351,7 @@ onUnmounted(() => {
     margin-bottom: 1rem !important;
   }
 
-  // Ink wash background
+  // Ink wash background - contained to prevent repaints
   &__ink-wash {
     position: absolute;
     inset: 0;
@@ -295,9 +371,10 @@ onUnmounted(() => {
     animation: ink-diffuse 10s ease-in-out infinite;
     pointer-events: none;
     z-index: 0;
+    contain: paint;
   }
 
-  // Floating ink drops
+  // Floating ink drops - strictly contained
   &__ink-drops {
     position: absolute;
     inset: 0;
@@ -305,6 +382,7 @@ onUnmounted(() => {
     border-radius: inherit;
     pointer-events: none;
     z-index: 0;
+    contain: strict;
   }
 
   .ink-drop {
@@ -315,6 +393,8 @@ onUnmounted(() => {
     border-radius: 50%;
     opacity: 0;
     animation: ink-float linear infinite;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
 
     &:nth-child(1) {
       left: 15%;
@@ -449,16 +529,19 @@ onUnmounted(() => {
     margin-top: -0.5rem; // Pull closer to illustration
   }
 
-  // Tagline/Verse container
+  // Tagline/Verse container - fixed height to prevent CLS
   &__tagline {
     position: relative;
-    min-height: 1.5rem;
+    min-height: 2.5rem;
+    height: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0;
     padding: 0.5rem 1.5rem;
     z-index: 1;
+    overflow: hidden;
+    contain: layout size;
   }
 
   // Description - primary content
@@ -521,6 +604,9 @@ onUnmounted(() => {
     font-weight: 600;
     color: var(--gutenku-zen-primary);
     letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+    min-width: 4ch;
+    text-align: center;
     transition: transform 0.1s ease;
 
     &--animating {

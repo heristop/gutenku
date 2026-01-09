@@ -60,6 +60,11 @@ export interface HaikuResponseData {
   haiku: HaikuValue;
 }
 
+export interface HaikuVersion {
+  date: string;
+  version: string;
+}
+
 export interface ChapterResponseData {
   chapters: ChapterValue[];
 }
@@ -147,6 +152,24 @@ export interface GlobalStats {
   totalHaikusGenerated: number;
   totalGamesPlayed: number;
   totalGamesWon: number;
+}
+
+// GutenGuess Puzzle Constants
+export const GUTENGUESS_LAUNCH_DATE = '2026-01-01';
+
+export interface PuzzleVersion {
+  puzzleNumber: number;
+  version: string;
+}
+
+/**
+ * Calculate puzzle number (days since launch)
+ */
+export function getPuzzleNumber(dateStr: string): number {
+  const launchDate = new Date(GUTENGUESS_LAUNCH_DATE);
+  const date = new Date(dateStr);
+  const diffTime = date.getTime() - launchDate.getTime();
+  return Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
 }
 
 // Caption Generator Utilities

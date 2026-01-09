@@ -119,19 +119,12 @@ onMounted(() => {
   }
 }
 
+// Home content - hero visible immediately for LCP, only grid animates
 .home-content {
-  opacity: 0;
-  transform: translateY(20px);
-  transition:
-    opacity 0.5s ease-out,
-    transform 0.5s ease-out;
-
-  &--visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  opacity: 1;
 }
 
+// Preview grid fades in after hero - content-visibility for below-fold optimization
 .preview-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -139,6 +132,18 @@ onMounted(() => {
   max-width: 900px;
   margin: 0.5rem auto 4rem;
   padding: 0 1rem;
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 0.4s ease-out,
+    transform 0.4s ease-out;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 400px;
+
+  .home-content--visible & {
+    opacity: 1;
+    transform: translateY(0);
+  }
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
@@ -155,7 +160,7 @@ onMounted(() => {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .home-content {
+  .preview-grid {
     opacity: 1;
     transform: none;
     transition: none;

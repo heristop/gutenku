@@ -150,8 +150,9 @@ export default defineConfig(({ isSsrBuild }) => ({
       preload: 'media',
     },
     includedRoutes(paths) {
-      // Only pre-render Home and 404
-      return paths.filter((path) => path === '/' || path.startsWith('/404'));
+      // Pre-render main routes for SEO (async components use ssr: false)
+      const ssgRoutes = ['/', '/haiku'];
+      return [...new Set([...paths, ...ssgRoutes])];
     },
   },
 }));

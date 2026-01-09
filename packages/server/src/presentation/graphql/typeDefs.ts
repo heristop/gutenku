@@ -92,6 +92,16 @@ const typeDefs = `#graphql
         allHints: [PuzzleHint!]
     }
 
+    type PuzzleVersion {
+        puzzleNumber: Int!
+        version: String!
+    }
+
+    type HaikuVersion {
+        date: String!
+        version: String!
+    }
+
     type Query {
         books(filter: String): [Book]
         book(id: ID!): Book!
@@ -119,10 +129,13 @@ const typeDefs = `#graphql
         dailyPuzzle(date: String!, revealedRounds: [Int!], visibleEmoticonCount: Int, revealedHaikuCount: Int): DailyPuzzleResponse!
         submitGuess(date: String!, guessedBookId: ID!, currentRound: Int!): GuessResult!
         reduceBooks(date: String!): [Book!]!
+        puzzleVersion(date: String!): PuzzleVersion!
+        haikuVersion(date: String!): HaikuVersion!
     }
 
     type Subscription {
-        quoteGenerated: String,
+        quoteGenerated: String
+        puzzleAvailable: PuzzleVersion
     }
 `;
 

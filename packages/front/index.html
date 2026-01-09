@@ -35,7 +35,6 @@
     <meta name="robots" content="index, follow" />
     <link rel="alternate" hreflang="en" href="https://gutenku.xyz/" />
     <link rel="alternate" hreflang="x-default" href="https://gutenku.xyz/" />
-    <link rel="canonical" href="https://gutenku.xyz/" />
 
     <!-- Preconnect for external services -->
     <link rel="preconnect" href="https://beamanalytics.b-cdn.net" />
@@ -53,6 +52,12 @@
       content="Generate beautiful haikus from classic literature using AI. Play GutenGuess - a daily book guessing game."
     />
     <meta property="og:image" content="https://gutenku.xyz/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="GutenKu - AI Haiku Generator featuring zen-inspired poetry from classic literature"
+    />
     <meta property="og:site_name" content="GutenKu" />
     <meta property="og:locale" content="en_US" />
 
@@ -159,29 +164,6 @@
                 }
               }
             ]
-          },
-          {
-            "@type": "BreadcrumbList",
-            "itemListElement": [
-              {
-                "@type": "ListItem",
-                "position": 1,
-                "name": "Home",
-                "item": "https://gutenku.xyz/"
-              },
-              {
-                "@type": "ListItem",
-                "position": 2,
-                "name": "Haiku Generator",
-                "item": "https://gutenku.xyz/haiku"
-              },
-              {
-                "@type": "ListItem",
-                "position": 3,
-                "name": "GutenGuess Game",
-                "item": "https://gutenku.xyz/game"
-              }
-            ]
           }
         ]
       }
@@ -224,6 +206,14 @@
       as="font"
       type="font/woff2"
       crossorigin
+    />
+    <!-- Preload LCP hero image -->
+    <link
+      rel="preload"
+      as="image"
+      href="/gutenmage-640.webp"
+      imagesrcset="/gutenmage-320.webp 320w, /gutenmage-640.webp 640w, /gutenmage-1024.webp 1024w"
+      imagesizes="(max-width: 600px) 240px, (max-width: 768px) 280px, 320px"
     />
     <title>GutenKu - AI Haiku Generator & Literary Guessing Game</title>
   </head>

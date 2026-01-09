@@ -172,7 +172,7 @@ export function useLongPress(
 
   let observationTimer: ReturnType<typeof setTimeout> | null = null;
   let pressTimer: ReturnType<typeof setTimeout> | null = null;
-  let progressInterval: ReturnType<typeof setInterval> | null = null;
+  let progressAnimationId: number | null = null;
   let startTime = 0;
   let longPressTriggered = false;
   let gesturePhase: GesturePhase = 'idle';
@@ -183,11 +183,17 @@ export function useLongPress(
     startTime = Date.now();
     longPressTriggered = false;
 
-    progressInterval = setInterval(() => {
+    // Use requestAnimationFrame for smoother progress updates
+    function updateProgress() {
       const elapsed = Date.now() - startTime;
       progress.value = Math.min((elapsed / delay) * 100, 100);
       onProgress?.(progress.value);
-    }, 16);
+
+      if (progress.value < 100 && gesturePhase === 'committed') {
+        progressAnimationId = requestAnimationFrame(updateProgress);
+      }
+    }
+    progressAnimationId = requestAnimationFrame(updateProgress);
 
     pressTimer = setTimeout(() => {
       longPressTriggered = true;
@@ -212,9 +218,9 @@ export function useLongPress(
       clearTimeout(pressTimer);
       pressTimer = null;
     }
-    if (progressInterval) {
-      clearInterval(progressInterval);
-      progressInterval = null;
+    if (progressAnimationId) {
+      cancelAnimationFrame(progressAnimationId);
+      progressAnimationId = null;
     }
   }
 

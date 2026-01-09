@@ -9,6 +9,7 @@ export interface IHaikuRepository {
     minCachedDocs: number,
     excludeDate: string,
   ): Promise<HaikuValue | null>;
+  getCacheCount(): Promise<number>;
 }
 
 export const IHaikuRepositoryToken = 'IHaikuRepository';

@@ -170,4 +170,17 @@ export default class HaikuRepository implements IHaikuRepository {
       return null;
     }
   }
+
+  async getCacheCount(): Promise<number> {
+    if (!this.db) {
+      return 0;
+    }
+
+    try {
+      const haikusCollection = this.db.collection('haikus');
+      return await haikusCollection.countDocuments();
+    } catch {
+      return 0;
+    }
+  }
 }

@@ -22,8 +22,8 @@
 @layer utilities {
   ::view-transition-old(root),
   ::view-transition-new(root) {
-    animation-duration: 700ms;
-    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    animation-duration: 350ms;
+    animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
     mix-blend-mode: normal;
   }
 
@@ -39,16 +39,10 @@
   @keyframes zen-ink-wash-out {
     0% {
       opacity: 1;
-      filter: blur(0) saturate(1);
       transform: scale(1);
-    }
-    50% {
-      opacity: 0.6;
-      filter: blur(2px) saturate(0.8);
     }
     100% {
       opacity: 0;
-      filter: blur(6px) saturate(0.5);
       transform: scale(0.98);
     }
   }
@@ -56,18 +50,11 @@
   @keyframes zen-ink-wash-in {
     0% {
       clip-path: circle(0% at calc(100% - 2.5rem) 2.5rem);
-      opacity: 0.8;
-      filter: blur(2px);
-    }
-    40% {
-      clip-path: circle(35% at calc(100% - 2.5rem) 2.5rem);
-      opacity: 0.95;
-      filter: blur(1px);
+      opacity: 0.9;
     }
     100% {
       clip-path: circle(150% at calc(100% - 2.5rem) 2.5rem);
       opacity: 1;
-      filter: blur(0);
     }
   }
 
@@ -459,10 +446,11 @@
         var(--gutenku-zen-accent) 0%,
         transparent 70%
       );
-      transform: scale(0);
+      transform: scale(0) translateZ(0);
       opacity: 0;
       pointer-events: none;
       z-index: 5;
+      will-change: transform, opacity;
 
       &--active {
         animation: water-ripple-expand 1s cubic-bezier(0, 0.5, 0.5, 1) forwards;
@@ -472,14 +460,14 @@
 
   @keyframes water-ripple-expand {
     0% {
-      transform: scale(0);
+      transform: scale(0) translateZ(0);
       opacity: 0.4;
     }
     50% {
       opacity: 0.2;
     }
     100% {
-      transform: scale(4);
+      transform: scale(4) translateZ(0);
       opacity: 0;
     }
   }

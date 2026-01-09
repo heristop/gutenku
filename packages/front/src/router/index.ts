@@ -55,6 +55,7 @@ export const routes: RouteRecordRaw[] = [
         meta: {
           title: 'Page Not Found - GutenKu',
           description: 'The requested page was not found.',
+          robots: 'noindex, nofollow',
         },
       },
     ],

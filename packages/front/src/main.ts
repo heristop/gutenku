@@ -36,8 +36,9 @@ export const createApp = ViteSSG(
       pinia.state.value = initialState.pinia;
     }
 
-    // Motion plugin - client only (requires DOM)
+    // Motion plugin
     if (isClient) {
+      // Client: full motion support
       app.use(MotionPlugin, {
         directives: {
           'zen-fade': {
@@ -69,6 +70,13 @@ export const createApp = ViteSSG(
 
       // Load fonts on client
       loadFonts();
+    } else {
+      // SSR: register no-op directive to prevent errors
+      app.directive('motion', {
+        getSSRProps() {
+          return {};
+        },
+      });
     }
 
     app.use(i18n);

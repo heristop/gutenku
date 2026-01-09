@@ -9,6 +9,7 @@ interface Props {
   height?: string | number;
   fit?: 'cover' | 'contain' | 'fill';
   lazy?: boolean;
+  priority?: boolean;
   placeholder?: 'shimmer' | 'blur' | 'none';
   fallback?: string;
   reveal?: boolean;
@@ -22,6 +23,7 @@ const props = withDefaults(defineProps<Props>(), {
   height: undefined,
   fit: 'cover',
   lazy: true,
+  priority: false,
   placeholder: 'shimmer',
   fallback: undefined,
   reveal: true,
@@ -51,20 +53,35 @@ const imageClasses = computed(() => [
   },
 ]);
 
-// Container styles
+// Container styles with fallback aspect-ratio
 const containerStyle = computed(() => {
   const style: Record<string, string> = {};
 
+  // Use explicit aspectRatio if provided, otherwise calculate from width/height
   if (props.aspectRatio) {
     style.aspectRatio = props.aspectRatio;
+  } else if (props.width && props.height) {
+    const w =
+      typeof props.width === 'number'
+        ? props.width
+        : Number.parseInt(props.width, 10);
+    const h =
+      typeof props.height === 'number'
+        ? props.height
+        : Number.parseInt(props.height, 10);
+    if (w && h) {
+      style.aspectRatio = `${w} / ${h}`;
+    }
   }
 
   if (props.width) {
-    style.width = typeof props.width === 'number' ? `${props.width}px` : props.width;
+    style.width =
+      typeof props.width === 'number' ? `${props.width}px` : props.width;
   }
 
   if (props.height) {
-    style.height = typeof props.height === 'number' ? `${props.height}px` : props.height;
+    style.height =
+      typeof props.height === 'number' ? `${props.height}px` : props.height;
   }
 
   if (props.viewTransitionName) {
@@ -72,6 +89,19 @@ const containerStyle = computed(() => {
   }
 
   return style;
+});
+
+// Determine loading attribute based on priority and lazy props
+const loadingAttr = computed(() => {
+  if (props.priority) {
+    return 'eager';
+  }
+  return props.lazy ? 'lazy' : 'eager';
+});
+
+// Determine fetchpriority attribute
+const fetchPriorityAttr = computed(() => {
+  return props.priority ? 'high' : undefined;
 });
 
 // Image styles
@@ -140,7 +170,8 @@ watch(
       ref="imgRef"
       :src="currentSrc"
       :alt="alt"
-      :loading="lazy ? 'lazy' : 'eager'"
+      :loading="loadingAttr"
+      :fetchpriority="fetchPriorityAttr"
       :style="imageStyle"
       class="zen-image__img"
       :class="{ 'zen-image__img--loaded': isLoaded }"

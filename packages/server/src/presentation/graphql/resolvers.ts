@@ -9,12 +9,17 @@ import {
   GetChapterByIdQuery,
   GetAllChaptersQuery,
 } from '~/application/queries/chapters';
-import { GenerateHaikuQuery } from '~/application/queries/haiku';
+import {
+  GenerateHaikuQuery,
+  GetHaikuVersionQuery,
+} from '~/application/queries/haiku';
 import {
   GetDailyPuzzleQuery,
   SubmitGuessQuery,
   ReduceBooksQuery,
+  GetPuzzleVersionQuery,
 } from '~/application/queries/puzzle';
+import type { PuzzleVersion, HaikuVersion } from '@gutenku/shared';
 import { GetGlobalStatsQuery } from '~/application/queries/stats';
 import { PubSubService } from '~/infrastructure/services/PubSubService';
 
@@ -88,12 +93,31 @@ const resolvers = {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
       return queryBus.execute(new ReduceBooksQuery(date));
     },
+    puzzleVersion: async (_, { date }: { date: string }) => {
+      const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
+      return queryBus.execute(new GetPuzzleVersionQuery(date));
+    },
+    haikuVersion: async (
+      _,
+      { date }: { date: string },
+    ): Promise<HaikuVersion> => {
+      const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
+      return queryBus.execute(new GetHaikuVersionQuery(date));
+    },
   },
   Subscription: {
     quoteGenerated: {
       subscribe: () =>
         pubSubService.iterator<{ quoteGenerated: string }>(['QUOTE_GENERATED']),
       resolve: (payload: { quoteGenerated: string }) => payload.quoteGenerated,
+    },
+    puzzleAvailable: {
+      subscribe: () =>
+        pubSubService.iterator<{ puzzleAvailable: PuzzleVersion }>([
+          'PUZZLE_AVAILABLE',
+        ]),
+      resolve: (payload: { puzzleAvailable: PuzzleVersion }) =>
+        payload.puzzleAvailable,
     },
   },
 };

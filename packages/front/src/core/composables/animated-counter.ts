@@ -4,6 +4,8 @@ export interface AnimatedCounterOptions {
   duration?: number;
   easing?: (x: number) => number;
   startValue?: number;
+  /** Delay animation start to avoid blocking LCP (default: 100ms) */
+  initialDelay?: number;
 }
 
 function easeOutQuart(x: number): number {
@@ -14,11 +16,18 @@ export function useAnimatedCounter(
   target: Ref<number>,
   options: AnimatedCounterOptions = {},
 ) {
-  const { duration = 2000, easing = easeOutQuart, startValue = 0 } = options;
+  const {
+    duration = 2000,
+    easing = easeOutQuart,
+    startValue = 0,
+    initialDelay = 100,
+  } = options;
 
   const count = ref(startValue);
   const isAnimating = ref(false);
   let animationFrame: number | null = null;
+  let delayTimeout: ReturnType<typeof setTimeout> | null = null;
+  let isFirstAnimation = true;
 
   function animate() {
     if (target.value === 0) {
@@ -49,6 +58,10 @@ export function useAnimatedCounter(
   }
 
   function stop() {
+    if (delayTimeout) {
+      clearTimeout(delayTimeout);
+      delayTimeout = null;
+    }
     if (animationFrame) {
       cancelAnimationFrame(animationFrame);
       animationFrame = null;
@@ -58,7 +71,13 @@ export function useAnimatedCounter(
 
   watch(target, (newValue, oldValue) => {
     if (newValue !== oldValue && newValue > 0) {
-      animate();
+      // Delay first animation to allow LCP to paint
+      if (isFirstAnimation && initialDelay > 0) {
+        isFirstAnimation = false;
+        delayTimeout = setTimeout(animate, initialDelay);
+      } else {
+        animate();
+      }
     }
   });
 

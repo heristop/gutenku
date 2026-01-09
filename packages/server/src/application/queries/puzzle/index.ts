@@ -4,3 +4,5 @@ export * from './SubmitGuessQuery';
 export * from './SubmitGuessHandler';
 export * from './ReduceBooksQuery';
 export * from './ReduceBooksHandler';
+export * from './GetPuzzleVersionQuery';
+export * from './GetPuzzleVersionHandler';

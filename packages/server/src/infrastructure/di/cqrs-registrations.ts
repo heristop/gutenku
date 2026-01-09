@@ -13,9 +13,11 @@ import { SelectRandomBookHandler } from '~/application/queries/books/SelectRando
 import { GetAllChaptersHandler } from '~/application/queries/chapters/GetAllChaptersHandler';
 import { GetChapterByIdHandler } from '~/application/queries/chapters/GetChapterByIdHandler';
 import { GenerateHaikuHandler } from '~/application/queries/haiku/GenerateHaikuHandler';
+import { GetHaikuVersionHandler } from '~/application/queries/haiku/GetHaikuVersionHandler';
 import { GetDailyPuzzleHandler } from '~/application/queries/puzzle/GetDailyPuzzleHandler';
 import { SubmitGuessHandler } from '~/application/queries/puzzle/SubmitGuessHandler';
 import { ReduceBooksHandler } from '~/application/queries/puzzle/ReduceBooksHandler';
+import { GetPuzzleVersionHandler } from '~/application/queries/puzzle/GetPuzzleVersionHandler';
 import { GetGlobalStatsHandler } from '~/application/queries/stats/GetGlobalStatsHandler';
 import { CacheHaikuHandler } from '~/application/commands/haiku/CacheHaikuHandler';
 import { FetchBookHandler } from '~/application/commands/book/FetchBookHandler';
@@ -45,6 +47,9 @@ container.register(createQueryHandlerToken('GetChapterByIdQuery'), {
 container.register(createQueryHandlerToken('GenerateHaikuQuery'), {
   useClass: GenerateHaikuHandler,
 });
+container.register(createQueryHandlerToken('GetHaikuVersionQuery'), {
+  useClass: GetHaikuVersionHandler,
+});
 container.register(createQueryHandlerToken('GetDailyPuzzleQuery'), {
   useClass: GetDailyPuzzleHandler,
 });
@@ -53,6 +58,9 @@ container.register(createQueryHandlerToken('SubmitGuessQuery'), {
 });
 container.register(createQueryHandlerToken('ReduceBooksQuery'), {
   useClass: ReduceBooksHandler,
+});
+container.register(createQueryHandlerToken('GetPuzzleVersionQuery'), {
+  useClass: GetPuzzleVersionHandler,
 });
 container.register(createQueryHandlerToken('GetGlobalStatsQuery'), {
   useClass: GetGlobalStatsHandler,

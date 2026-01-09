@@ -1,12 +1,24 @@
 import { defineStore } from 'pinia';
 import { ref, computed, markRaw } from 'vue';
-import type { HaikuValue } from '@gutenku/shared';
+import type { HaikuValue, HaikuVersion } from '@gutenku/shared';
 import { gql, type CombinedError } from '@urql/vue';
 import { Sparkles, type LucideIcon } from 'lucide-vue-next';
 import { urqlClient } from '@/client';
 import type { PersistenceOptions } from 'pinia-plugin-persistedstate';
 
-// SSR-safe persist config - only enable on client
+const HAIKU_VERSION_QUERY = gql`
+  query HaikuVersion($date: String!) {
+    haikuVersion(date: $date) {
+      date
+      version
+    }
+  }
+`;
+
+function getTodayUTC(): string {
+  return new Date().toISOString().split('T')[0];
+}
+
 const getPersistConfig = (): PersistenceOptions | false => {
   if (import.meta.env.SSR) {
     return false;
@@ -23,7 +35,24 @@ const getPersistConfig = (): PersistenceOptions | false => {
       'optionMinTfidfScore',
       'optionMinPhoneticsScore',
       'stats',
+      'cachedVersion',
+      'cachedDailyHaiku',
     ],
+    afterHydrate: (ctx) => {
+      const today = getTodayUTC();
+      const state = ctx.store.$state as {
+        cachedVersion: string | null;
+        cachedDailyHaiku: HaikuValue | null;
+      };
+
+      if (state.cachedVersion) {
+        const cachedDate = state.cachedVersion.split('-').slice(0, 3).join('-');
+        if (cachedDate !== today) {
+          state.cachedVersion = null;
+          state.cachedDailyHaiku = null;
+        }
+      }
+    },
   };
 };
 
@@ -71,6 +100,8 @@ export const useHaikuStore = defineStore(
     const craftingMessages = ref<CraftingMessage[]>([]);
     const history = ref<HaikuValue[]>([]);
     const historyIndex = ref(-1);
+    const cachedVersion = ref<string | null>(null);
+    const cachedDailyHaiku = ref<HaikuValue | null>(null);
 
     // Options state
     const optionDrawerOpened = ref(false);
@@ -192,12 +223,54 @@ export const useHaikuStore = defineStore(
       }
     }
 
+    async function checkHaikuVersion(date: string): Promise<string | null> {
+      try {
+        const result = await urqlClient
+          .query<{ haikuVersion: HaikuVersion }>(HAIKU_VERSION_QUERY, { date })
+          .toPromise();
+        return result.data?.haikuVersion?.version ?? null;
+      } catch {
+        return null;
+      }
+    }
+
+    async function tryUseCachedDailyHaiku(
+      date: string,
+    ): Promise<HaikuValue | null> {
+      if (!cachedDailyHaiku.value || !cachedVersion.value) {
+        return null;
+      }
+      const serverVersion = await checkHaikuVersion(date);
+      if (serverVersion && serverVersion === cachedVersion.value) {
+        return cachedDailyHaiku.value;
+      }
+      return null;
+    }
+
+    async function cacheDailyHaiku(
+      newHaiku: HaikuValue,
+      date: string,
+    ): Promise<void> {
+      cachedDailyHaiku.value = newHaiku;
+      cachedVersion.value = await checkHaikuVersion(date);
+    }
+
     // Actions
     async function fetchNewHaiku(): Promise<void> {
       let subscriptionCleanup: (() => void) | null = null;
 
-      // Track if this fetch is for the daily haiku
       const fetchingDaily = shouldUseDaily.value;
+      const today = getTodayUTC();
+
+      if (fetchingDaily) {
+        const cached = await tryUseCachedDailyHaiku(today);
+        if (cached) {
+          haiku.value = cached;
+          isDailyHaiku.value = true;
+          firstLoaded.value = true;
+          return;
+        }
+      }
 
       try {
         loading.value = true;
@@ -295,9 +368,6 @@ export const useHaikuStore = defineStore(
           }
         `;
 
-        // Get today's date in UTC (YYYY-MM-DD format)
-        const today = new Date().toISOString().split('T')[0];
-
         const variables = {
           useAi: optionUseAI.value,
           useCache: shouldUseCache.value,
@@ -336,6 +406,10 @@ export const useHaikuStore = defineStore(
           isDailyHaiku.value = fetchingDaily;
           addToHistory(newHaiku);
           updateStats(newHaiku);
+
+          if (fetchingDaily) {
+            await cacheDailyHaiku(newHaiku, today);
+          }
         }
       } catch (err: unknown) {
         handleFetchError(err);
@@ -385,6 +459,8 @@ export const useHaikuStore = defineStore(
       craftingMessages,
       history,
       historyIndex,
+      cachedVersion,
+      cachedDailyHaiku,
       optionDrawerOpened,
       optionUseCache,
       optionUseAI,

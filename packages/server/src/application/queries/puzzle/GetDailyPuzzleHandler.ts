@@ -2,10 +2,11 @@ import { inject, injectable } from 'tsyringe';
 import { syllable } from 'syllable';
 import type { IQueryHandler } from '~/application/cqrs/IQueryHandler';
 import type { GetDailyPuzzleQuery } from './GetDailyPuzzleQuery';
-import type {
-  DailyPuzzleResponse,
-  PuzzleHint,
-  BookValue,
+import {
+  getPuzzleNumber,
+  type DailyPuzzleResponse,
+  type PuzzleHint,
+  type BookValue,
 } from '@gutenku/shared';
 import { getGutenGuessBooks, type GutenGuessBook } from '~~/data';
 import {
@@ -16,9 +17,6 @@ import NaturalLanguageService from '~/domain/services/NaturalLanguageService';
 import { cleanVerses } from '~/shared/helpers/HaikuHelper';
 import { dailyPuzzleSchema } from '~/infrastructure/validation/schemas';
 
-// Launch date for puzzle numbering (adjust as needed)
-const LAUNCH_DATE = new Date('2026-01-01');
-
 // Limit the number of books shown in the selection dropdown
 const SELECTABLE_BOOKS_LIMIT = 50;
 
@@ -27,7 +25,7 @@ const SELECTABLE_BOOKS_LIMIT = 50;
  */
 function seededRandom(seed: number): () => number {
   return function () {
-    let t = (seed += 0x6D2B79F5);
+    let t = (seed += 0x6d2b79f5);
     t = Math.imul(t ^ (t >>> 15), t | 1);
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
     // eslint-disable-next-line unicorn/prefer-math-trunc -- >>> 0 converts to unsigned 32-bit int
@@ -41,15 +39,6 @@ function seededRandom(seed: number): () => number {
 function dateToSeed(dateStr: string): number {
   const [year, month, day] = dateStr.split('-').map(Number);
   return year * 10000 + month * 100 + day;
-}
-
-/**
- * Calculate puzzle number (days since launch)
- */
-function getPuzzleNumber(dateStr: string): number {
-  const date = new Date(dateStr);
-  const diffTime = date.getTime() - LAUNCH_DATE.getTime();
-  return Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
 }
 
 /**

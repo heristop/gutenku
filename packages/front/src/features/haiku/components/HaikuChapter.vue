@@ -1,5 +1,14 @@
 <script lang="ts" setup>
-import { onMounted, ref, computed, watch, onUnmounted, nextTick } from 'vue';
+import {
+  onMounted,
+  ref,
+  computed,
+  watch,
+  onUnmounted,
+  nextTick,
+  shallowRef,
+} from 'vue';
+import { useDebounceFn } from '@vueuse/core';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import {
@@ -32,26 +41,30 @@ const isCompacted = ref(true);
 const chapterRef = ref<{ $el: HTMLElement } | null>(null);
 const bookContentRef = ref<HTMLElement | null>(null);
 
-const cardRect = ref<DOMRect | null>(null);
+const cardPosition = shallowRef({ top: 0, left: 0, width: 0 });
 const chapterEl = computed(() => chapterRef.value?.$el as HTMLElement | null);
 
-function updateCardRect() {
+// Throttle rect updates to ~60fps max to prevent layout thrashing
+const updateCardRect = useDebounceFn(() => {
   if (chapterEl.value) {
-    cardRect.value = chapterEl.value.getBoundingClientRect();
+    const rect = chapterEl.value.getBoundingClientRect();
+    cardPosition.value = {
+      top: rect.top,
+      left: rect.left,
+      width: rect.width,
+    };
   }
-}
+}, 16);
 
+// Use CSS custom properties for smoother updates
 const craftingStyle = computed(() => {
-  if (!cardRect.value) {
+  if (!cardPosition.value.width) {
     return {};
   }
   return {
-    position: 'fixed' as const,
-    top: `${cardRect.value.top + 16}px`,
-    left: `${cardRect.value.left + cardRect.value.width / 2}px`,
-    transform: 'translateX(-50%)',
-    width: `${Math.min(cardRect.value.width - 64, 400)}px`,
-    zIndex: 1000,
+    '--crafting-top': `${cardPosition.value.top + 16}px`,
+    '--crafting-left': `${cardPosition.value.left + cardPosition.value.width / 2}px`,
+    '--crafting-width': `${Math.min(cardPosition.value.width - 64, 400)}px`,
   };
 });
 
@@ -64,13 +77,14 @@ watch(loading, (isLoading) => {
 watch(
   craftingMessages,
   (messages) => {
-    if (messages.length > 0 && !cardRect.value) {
+    if (messages.length > 0 && !cardPosition.value.width) {
       nextTick(updateCardRect);
     }
   },
   { immediate: true },
 );
 
+let resizeObserver: ResizeObserver | null = null;
 let scrollListener: (() => void) | null = null;
 
 const { applyToAllHighlights } = useHaikuHighlighter();
@@ -151,13 +165,19 @@ onMounted(() => {
   detectBot();
   applyToAllHighlights();
 
+  // Use ResizeObserver for efficient layout updates
+  if (chapterEl.value) {
+    resizeObserver = new ResizeObserver(updateCardRect);
+    resizeObserver.observe(chapterEl.value);
+  }
+
+  // Only listen to scroll when loading (for fixed positioning)
   scrollListener = () => {
     if (loading.value) {
       updateCardRect();
     }
   };
   window.addEventListener('scroll', scrollListener, { passive: true });
-  window.addEventListener('resize', scrollListener, { passive: true });
 });
 
 watch(
@@ -175,9 +195,9 @@ watch(loading, (isLoading) => {
 });
 
 onUnmounted(() => {
+  resizeObserver?.disconnect();
   if (scrollListener) {
     window.removeEventListener('scroll', scrollListener);
-    window.removeEventListener('resize', scrollListener);
   }
 });
 </script>
@@ -201,7 +221,7 @@ onUnmounted(() => {
     <Teleport to="body">
       <Transition name="crafting-fade">
         <div
-          v-if="craftingMessages.length > 0 && cardRect"
+          v-if="craftingMessages.length > 0 && cardPosition.width"
           class="crafting-messages-teleported"
           :style="craftingStyle"
           role="log"
@@ -1152,6 +1172,13 @@ onUnmounted(() => {
 }
 
 .crafting-messages-teleported {
+  position: fixed;
+  top: var(--crafting-top);
+  left: var(--crafting-left);
+  transform: translateX(-50%);
+  width: var(--crafting-width);
+  z-index: 1000;
+  will-change: top, left;
   padding: 0.75rem 1rem;
   background: var(--gutenku-paper-bg, #f5f0e8);
   border-radius: var(--gutenku-radius-md, 8px);

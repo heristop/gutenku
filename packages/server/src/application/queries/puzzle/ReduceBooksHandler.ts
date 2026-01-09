@@ -1,22 +1,19 @@
 import { injectable } from 'tsyringe';
 import type { IQueryHandler } from '~/application/cqrs/IQueryHandler';
 import type { ReduceBooksQuery } from './ReduceBooksQuery';
-import type { BookValue } from '@gutenku/shared';
+import { getPuzzleNumber, type BookValue } from '@gutenku/shared';
 import { getGutenGuessBooks, type GutenGuessBook } from '~~/data';
 import { z } from 'zod';
 
 // Limit when using the book reduction lifeline
 const REDUCED_BOOKS_LIMIT = 30;
 
-// Launch date for puzzle numbering (must match GetDailyPuzzleHandler)
-const LAUNCH_DATE = new Date('2026-01-01');
-
 /**
  * Mulberry32 seeded PRNG for deterministic random selection
  */
 function seededRandom(seed: number): () => number {
   return function () {
-    let t = (seed += 0x6D2B79F5);
+    let t = (seed += 0x6d2b79f5);
     t = Math.imul(t ^ (t >>> 15), t | 1);
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
     // eslint-disable-next-line unicorn/prefer-math-trunc -- >>> 0 converts to unsigned 32-bit int
@@ -31,15 +28,6 @@ function dateToReduceSeed(dateStr: string): number {
   const [year, month, day] = dateStr.split('-').map(Number);
   // Add offset to differentiate from main puzzle seed
   return year * 10000 + month * 100 + day + 7777;
-}
-
-/**
- * Calculate puzzle number (days since launch)
- */
-function getPuzzleNumber(dateStr: string): number {
-  const date = new Date(dateStr);
-  const diffTime = date.getTime() - LAUNCH_DATE.getTime();
-  return Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
 }
 
 /**
