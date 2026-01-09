@@ -141,8 +141,8 @@ export class MarkovChainService {
     const data = JSON.stringify({
       bigrams: Array.from(this.bigrams, ([key, value]) => [key, [...value]]),
       trigrams: Array.from(this.trigrams, ([key, value]) => [key, [...value]]),
-      bigramTotals: Array.from(this.bigramTotals),
-      trigramTotals: Array.from(this.trigramTotals),
+      bigramTotals: [...this.bigramTotals],
+      trigramTotals: [...this.trigramTotals],
       totalBigrams: this.totalBigrams,
       totalTrigrams: this.totalTrigrams,
     });
@@ -178,14 +178,7 @@ export class MarkovChainService {
       if (jsonData.bigramTotals) {
         this.bigramTotals = new Map(jsonData.bigramTotals);
       } else {
-        // Compute totals from bigrams for old model files
-        for (const [key, transitions] of this.bigrams) {
-          let total = 0;
-          for (const count of transitions.values()) {
-            total += count;
-          }
-          this.bigramTotals.set(key, total);
-        }
+        this.computeBigramTotals();
       }
 
       if (jsonData.trigrams) {
@@ -203,14 +196,7 @@ export class MarkovChainService {
         if (jsonData.trigramTotals) {
           this.trigramTotals = new Map(jsonData.trigramTotals);
         } else {
-          // Compute totals from trigrams for old model files
-          for (const [key, transitions] of this.trigrams) {
-            let total = 0;
-            for (const count of transitions.values()) {
-              total += count;
-            }
-            this.trigramTotals.set(key, total);
-          }
+          this.computeTrigramTotals();
         }
       }
 
@@ -219,6 +205,26 @@ export class MarkovChainService {
     } catch (error) {
       log.error({ err: error }, 'Error loading model');
       return false;
+    }
+  }
+
+  private computeBigramTotals(): void {
+    for (const [key, transitions] of this.bigrams) {
+      let total = 0;
+      for (const count of transitions.values()) {
+        total += count;
+      }
+      this.bigramTotals.set(key, total);
+    }
+  }
+
+  private computeTrigramTotals(): void {
+    for (const [key, transitions] of this.trigrams) {
+      let total = 0;
+      for (const count of transitions.values()) {
+        total += count;
+      }
+      this.trigramTotals.set(key, total);
     }
   }
 }

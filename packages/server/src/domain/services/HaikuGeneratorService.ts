@@ -32,47 +32,15 @@ import {
   hasWeakStart,
   calculateHaikuQuality,
 } from '~/shared/constants/validation';
+import type {
+  CacheConfig,
+  ScoreConfig,
+  GeneratorConfig,
+  ScoreThresholds,
+  QuoteCandidate,
+} from './HaikuGeneratorTypes';
 
 const log = createLogger('haiku');
-
-interface CacheConfig {
-  minCachedDocs: number;
-  ttl: number;
-  enabled: boolean;
-}
-
-interface ScoreConfig {
-  sentiment: number | null;
-  markovChain: number | null;
-  pos: number | null;
-  trigram: number | null;
-  tfidf: number | null;
-  phonetics: number | null;
-}
-
-interface GeneratorConfig {
-  cache: CacheConfig;
-  score: ScoreConfig;
-  theme: string;
-}
-
-interface ScoreThresholds {
-  sentiment: number;
-  markov: number;
-  pos: number;
-  trigram: number;
-  tfidf: number;
-  phonetics: number;
-  // Soft scoring thresholds (0 = disabled)
-  maxRepeatedWords: number;
-  allowWeakStart: boolean;
-}
-
-interface QuoteCandidate {
-  quote: string;
-  index: number;
-  syllableCount: number;
-}
 
 @singleton()
 export default class HaikuGeneratorService implements IGenerator {
@@ -135,38 +103,44 @@ export default class HaikuGeneratorService implements IGenerator {
     const cache = { ...defaults.cache, ...options?.cache };
     const score = { ...defaults.score, ...options?.score };
 
+    this.applyCacheConfig(cache);
+    this.applyScoreConfig(score);
+    this.theme = options?.theme ?? defaults.theme;
+    this.filterWords = [];
+    this.bookPool = [];
+    this.sentimentCache.clear();
+    this.cachedThresholds = this.buildThresholds(score);
+
+    return this;
+  }
+
+  private applyCacheConfig(cache: CacheConfig): void {
     this.minCachedDocs = cache.minCachedDocs;
     this.useCache = cache.enabled;
     this.ttl = cache.ttl;
-    this.theme = options?.theme ?? defaults.theme;
-    this.filterWords = [];
+  }
+
+  private applyScoreConfig(score: ScoreConfig): void {
     this.sentimentMinScore = score.sentiment;
     this.markovMinScore = score.markovChain;
     this.posMinScore = score.pos;
     this.trigramMinScore = score.trigram;
     this.tfidfMinScore = score.tfidf;
     this.phoneticsMinScore = score.phonetics;
-    this.bookPool = []; // Clear pool for fresh generation
-    this.sentimentCache.clear(); // Clear sentiment cache
+  }
 
-    // Cache thresholds to avoid repeated env var parsing
-    this.cachedThresholds = {
-      sentiment:
-        score.sentiment ?? Number.parseFloat(process.env.SENTIMENT_MIN_SCORE || '0'),
-      markov:
-        score.markovChain ?? Number.parseFloat(process.env.MARKOV_MIN_SCORE || '0'),
-      pos: score.pos ?? Number.parseFloat(process.env.POS_MIN_SCORE || '0'),
-      trigram:
-        score.trigram ?? Number.parseFloat(process.env.TRIGRAM_MIN_SCORE || '0'),
-      tfidf: score.tfidf ?? Number.parseFloat(process.env.TFIDF_MIN_SCORE || '0'),
-      phonetics:
-        score.phonetics ?? Number.parseFloat(process.env.PHONETICS_MIN_SCORE || '0'),
-      // Soft scoring (0 = disabled, allows any repetition; -1 = reject all weak starts)
+  private buildThresholds(score: ScoreConfig): ScoreThresholds {
+    const env = (key: string, def = '0') => Number.parseFloat(process.env[key] || def);
+    return {
+      sentiment: score.sentiment ?? env('SENTIMENT_MIN_SCORE'),
+      markov: score.markovChain ?? env('MARKOV_MIN_SCORE'),
+      pos: score.pos ?? env('POS_MIN_SCORE'),
+      trigram: score.trigram ?? env('TRIGRAM_MIN_SCORE'),
+      tfidf: score.tfidf ?? env('TFIDF_MIN_SCORE'),
+      phonetics: score.phonetics ?? env('PHONETICS_MIN_SCORE'),
       maxRepeatedWords: Number.parseInt(process.env.MAX_REPEATED_WORDS || '0', 10),
       allowWeakStart: process.env.REJECT_WEAK_START !== 'true',
     };
-
-    return this;
   }
 
   filter(filterWords: string[]): HaikuGeneratorService {
@@ -411,23 +385,13 @@ export default class HaikuGeneratorService implements IGenerator {
   }
 
   selectRandomChapter(book: BookValueWithChapters): string {
-    const index = Math.floor(Math.random() * book.chapters.length);
-
-    return book.chapters[index.toString()];
+    return book.chapters[Math.floor(Math.random() * book.chapters.length).toString()];
   }
 
   extractQuotes(chapter: string): QuoteCandidate[] {
-    const sentences =
-      this.naturalLanguage.extractSentencesByPunctuation(chapter);
-
-    // Initialize TF-IDF corpus for distinctiveness scoring
-    if (this.cachedThresholds?.tfidf > 0) {
-      this.naturalLanguage.initTfIdf(sentences);
-    }
-
-    const quotes = sentences.map((quote, index) => ({ index, quote }));
-
-    return this.filterQuotesCountingSyllables(quotes);
+    const sentences = this.naturalLanguage.extractSentencesByPunctuation(chapter);
+    if (this.cachedThresholds?.tfidf > 0) {this.naturalLanguage.initTfIdf(sentences);}
+    return this.filterQuotesCountingSyllables(sentences.map((quote, index) => ({ index, quote })));
   }
 
   filterQuotesCountingSyllables(
@@ -500,80 +464,32 @@ export default class HaikuGeneratorService implements IGenerator {
   }
 
   private getScoreThresholds(): ScoreThresholds {
-    // Return cached thresholds if available
-    if (this.cachedThresholds) {
-      return this.cachedThresholds;
-    }
-    // Fallback for unconfigured usage (shouldn't happen in normal flow)
-    return {
-      sentiment: Number.parseFloat(process.env.SENTIMENT_MIN_SCORE || '0'),
-      markov: Number.parseFloat(process.env.MARKOV_MIN_SCORE || '0'),
-      pos: Number.parseFloat(process.env.POS_MIN_SCORE || '0'),
-      trigram: Number.parseFloat(process.env.TRIGRAM_MIN_SCORE || '0'),
-      tfidf: Number.parseFloat(process.env.TFIDF_MIN_SCORE || '0'),
-      phonetics: Number.parseFloat(process.env.PHONETICS_MIN_SCORE || '0'),
-      maxRepeatedWords: Number.parseInt(process.env.MAX_REPEATED_WORDS || '0', 10),
-      allowWeakStart: process.env.REJECT_WEAK_START !== 'true',
-    };
+    return this.cachedThresholds ?? this.buildThresholds(HaikuGeneratorService.DEFAULT_CONFIG.score);
   }
 
   private isQuoteValidForVerse(
-    candidate: QuoteCandidate,
-    isFirstVerse: boolean,
-    selectedVerses: QuoteCandidate[],
-    thresholds: ScoreThresholds,
+    candidate: QuoteCandidate, isFirstVerse: boolean,
+    selectedVerses: QuoteCandidate[], thresholds: ScoreThresholds,
   ): boolean {
-    // Normalize quote once here instead of multiple times in validation chain
     const quote = candidate.quote.replaceAll('\n', ' ');
-
-    if (!this.passesBasicValidation(quote, isFirstVerse, thresholds)) {
-      return false;
-    }
-
-    if (!this.passesScoreValidation(quote, thresholds)) {
-      return false;
-    }
-
+    if (!this.passesBasicValidation(quote, isFirstVerse, thresholds)) {return false;}
+    if (!this.passesScoreValidation(quote, thresholds)) {return false;}
     if (selectedVerses.length > 0) {
-      return this.passesSequenceValidation(
-        quote,
-        candidate.index,
-        selectedVerses,
-        thresholds,
-      );
+      return this.passesSequenceValidation(quote, candidate.index, selectedVerses, thresholds);
     }
-
     return true;
   }
 
-  private passesBasicValidation(
-    quote: string,
-    isFirstVerse: boolean,
-    thresholds: ScoreThresholds,
-  ): boolean {
-    if (isFirstVerse && this.naturalLanguage.startWithConjunction(quote)) {
-      return false;
-    }
-
-    // Quote already normalized, no need to replace newlines again
-    if (this.isQuoteInvalid(quote)) {
-      return false;
-    }
-
-    // Soft scoring: reject weak starts if configured
-    if (!thresholds.allowWeakStart && hasWeakStart(quote)) {
-      return false;
-    }
-
+  private passesBasicValidation(quote: string, isFirstVerse: boolean, thresholds: ScoreThresholds): boolean {
+    if (isFirstVerse && this.naturalLanguage.startWithConjunction(quote)) {return false;}
+    if (this.isQuoteInvalid(quote)) {return false;}
+    if (!thresholds.allowWeakStart && hasWeakStart(quote)) {return false;}
     return true;
   }
 
   private getCachedSentiment(quote: string): number {
     let score = this.sentimentCache.get(quote);
-    if (score === undefined) {
-      score = this.naturalLanguage.analyzeSentiment(quote);
-      this.sentimentCache.set(quote, score);
-    }
+    if (score === undefined) {this.sentimentCache.set(quote, score = this.naturalLanguage.analyzeSentiment(quote));}
     return score;
   }
 

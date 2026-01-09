@@ -11,12 +11,12 @@ describe('Stats panel', () => {
   });
 
   it('shows core metrics and updates after generation', () => {
-    // Scroll to stats panel and wait for animation to complete
-    cy.get('.stats-panel').scrollIntoView();
-    // Wait for IntersectionObserver + animation (300ms delay + 500ms transition)
-    cy.get('.stats-panel.is-visible', { timeout: 10000 })
-      .should('exist')
-      .and('have.css', 'opacity', '1');
+    // Scroll to stats panel and wait for IntersectionObserver to trigger
+    cy.get('.stats-panel').scrollIntoView({ duration: 100 });
+    // Wait for element to gain is-visible class (IntersectionObserver + 300ms delay)
+    cy.get('.stats-panel', { timeout: 10000 }).should('have.class', 'is-visible');
+    // Wait for CSS transition to complete (600ms)
+    cy.get('.stats-panel').should('have.css', 'opacity', '1');
 
     cy.contains('Haikus created').should('exist');
     cy.contains('Books used').should('exist');

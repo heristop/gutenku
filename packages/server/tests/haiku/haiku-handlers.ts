@@ -13,16 +13,8 @@ import type { HaikuValue, HaikuVariables } from '../../src/shared/types';
 const createMockHaiku = (overrides: Partial<HaikuValue> = {}): HaikuValue => ({
   title: 'Test Haiku',
   verses: ['first verse here', 'second verse longer', 'third verse end'],
-  book: {
-    reference: '12345',
-    title: 'Test Book',
-    author: 'Test Author',
-    emoticons: '📚✨',
-  },
-  chapter: {
-    reference: '1',
-    title: 'Chapter 1',
-  },
+  book: { reference: '12345', title: 'Test Book', author: 'Test Author', emoticons: '📚✨' },
+  chapter: { reference: '1', title: 'Chapter 1' },
   translations: {},
   description: 'A test haiku',
   cacheUsed: false,

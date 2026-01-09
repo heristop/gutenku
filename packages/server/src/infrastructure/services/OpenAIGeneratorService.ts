@@ -9,10 +9,7 @@ import {
   type IOpenAIClient,
   IOpenAIClientToken,
 } from '~/domain/gateways/IOpenAIClient';
-import {
-  calculateHaikuQuality,
-  type HaikuQualityScore,
-} from '~/shared/constants/validation';
+import { calculateHaikuQuality } from '~/shared/constants/validation';
 
 @singleton()
 export default class OpenAIGeneratorService implements IGenerator {

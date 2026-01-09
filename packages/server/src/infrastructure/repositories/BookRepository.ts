@@ -108,7 +108,7 @@ export default class BookRepository implements IBookRepository {
   }
 
   async addChapters(bookId: string, chapterIds: string[]): Promise<void> {
-    if (chapterIds.length === 0) return;
+    if (chapterIds.length === 0) {return;}
     await BookModel.findByIdAndUpdate(bookId, {
       $push: { chapters: { $each: chapterIds } },
     }).exec();

@@ -280,6 +280,56 @@ export const useHaikuStore = defineStore(
       }
     }
 
+    // Helper: Setup crafting message subscription
+    function setupCraftingSubscription(): () => void {
+      const subscriptionQuery = gql`
+        subscription QuoteGenerated {
+          quoteGenerated
+        }
+      `;
+
+      const { unsubscribe } = urqlClient
+        .subscription(subscriptionQuery, {})
+        .subscribe((result) => {
+          if (result.data?.quoteGenerated) {
+            const existingMessages = craftingMessages.value.map((m) => ({
+              ...m,
+              id: m.id || crypto.randomUUID(),
+            }));
+            craftingMessages.value = [
+              {
+                id: crypto.randomUUID(),
+                text: result.data.quoteGenerated,
+                timestamp: Date.now(),
+                icon: markRaw(Sparkles),
+              },
+              ...existingMessages,
+            ];
+          }
+        });
+
+      return unsubscribe;
+    }
+
+    // Helper: Process fetched haiku
+    function processNewHaiku(
+      newHaiku: HaikuValue | null,
+      fetchingDaily: boolean,
+      today: string,
+    ): void {
+      haiku.value = (newHaiku ?? (null as unknown as HaikuValue)) as HaikuValue;
+
+      if (newHaiku) {
+        isDailyHaiku.value = fetchingDaily;
+        addToHistory(newHaiku);
+        updateStats(newHaiku);
+
+        if (fetchingDaily) {
+          cacheDailyHaiku(newHaiku, today);
+        }
+      }
+    }
+
     // Actions
     async function fetchNewHaiku(): Promise<void> {
       let subscriptionCleanup: (() => void) | null = null;
@@ -301,34 +351,7 @@ export const useHaikuStore = defineStore(
         error.value = '';
         craftingMessages.value = [];
 
-        // Subscribe to crafting messages
-        const subscriptionQuery = gql`
-          subscription QuoteGenerated {
-            quoteGenerated
-          }
-        `;
-
-        const { unsubscribe } = urqlClient
-          .subscription(subscriptionQuery, {})
-          .subscribe((result) => {
-            if (result.data?.quoteGenerated) {
-              const existingMessages = craftingMessages.value.map((m) => ({
-                ...m,
-                id: m.id || crypto.randomUUID(),
-              }));
-              craftingMessages.value = [
-                {
-                  id: crypto.randomUUID(),
-                  text: result.data.quoteGenerated,
-                  timestamp: Date.now(),
-                  icon: markRaw(Sparkles),
-                },
-                ...existingMessages,
-              ];
-            }
-          });
-
-        subscriptionCleanup = unsubscribe;
+        subscriptionCleanup = setupCraftingSubscription();
 
         const queryHaiku = gql`
           query Query(
@@ -422,20 +445,7 @@ export const useHaikuStore = defineStore(
           throw result.error;
         }
 
-        const newHaiku = result.data?.haiku ?? null;
-        haiku.value = (newHaiku ??
-          (null as unknown as HaikuValue)) as HaikuValue;
-
-        if (newHaiku) {
-          isDailyHaiku.value = fetchingDaily;
-          addToHistory(newHaiku);
-          updateStats(newHaiku);
-
-          // Cache daily haiku for future visits
-          if (fetchingDaily) {
-            cacheDailyHaiku(newHaiku, today);
-          }
-        }
+        processNewHaiku(result.data?.haiku ?? null, fetchingDaily, today);
       } catch (err: unknown) {
         handleFetchError(err);
       } finally {

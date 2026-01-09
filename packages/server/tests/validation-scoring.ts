@@ -65,53 +65,53 @@ describe('Validation - Word Repetition Detection', () => {
 
 describe('Validation - Weak Start Detection', () => {
   it('detects "it" as weak start', () => {
-    expect(hasWeakStart('It was a dark night')).toBe(true);
-    expect(hasWeakStart('it rains today')).toBe(true);
+    expect(hasWeakStart('It was a dark night')).toBeTruthy();
+    expect(hasWeakStart('it rains today')).toBeTruthy();
   });
 
   it('detects "there" as weak start', () => {
-    expect(hasWeakStart('There is a tree')).toBe(true);
-    expect(hasWeakStart('there was silence')).toBe(true);
+    expect(hasWeakStart('There is a tree')).toBeTruthy();
+    expect(hasWeakStart('there was silence')).toBeTruthy();
   });
 
   it('detects "this" as weak start', () => {
-    expect(hasWeakStart('This is the way')).toBe(true);
+    expect(hasWeakStart('This is the way')).toBeTruthy();
   });
 
   it('detects "that" as weak start', () => {
-    expect(hasWeakStart('That old oak tree')).toBe(true);
+    expect(hasWeakStart('That old oak tree')).toBeTruthy();
   });
 
   it('detects pronouns as weak start', () => {
-    expect(hasWeakStart('They went away')).toBe(true);
-    expect(hasWeakStart('We saw the moon')).toBe(true);
-    expect(hasWeakStart('He walked alone')).toBe(true);
-    expect(hasWeakStart('She smiled softly')).toBe(true);
-    expect(hasWeakStart('I remember now')).toBe(true);
+    expect(hasWeakStart('They went away')).toBeTruthy();
+    expect(hasWeakStart('We saw the moon')).toBeTruthy();
+    expect(hasWeakStart('He walked alone')).toBeTruthy();
+    expect(hasWeakStart('She smiled softly')).toBeTruthy();
+    expect(hasWeakStart('I remember now')).toBeTruthy();
   });
 
   it('returns false for strong starts', () => {
-    expect(hasWeakStart('Ancient oak tree')).toBe(false);
-    expect(hasWeakStart('Moon rises high')).toBe(false);
-    expect(hasWeakStart('Silence falls soft')).toBe(false);
-    expect(hasWeakStart('Water flows down')).toBe(false);
+    expect(hasWeakStart('Ancient oak tree')).toBeFalsy();
+    expect(hasWeakStart('Moon rises high')).toBeFalsy();
+    expect(hasWeakStart('Silence falls soft')).toBeFalsy();
+    expect(hasWeakStart('Water flows down')).toBeFalsy();
   });
 
   it('requires space after weak word', () => {
     // "Italy" starts with "It" but should not match
-    expect(hasWeakStart('Italy beckons')).toBe(false);
-    expect(hasWeakStart('Thesis complete')).toBe(false);
-    expect(hasWeakStart('Weather changes')).toBe(false);
+    expect(hasWeakStart('Italy beckons')).toBeFalsy();
+    expect(hasWeakStart('Thesis complete')).toBeFalsy();
+    expect(hasWeakStart('Weather changes')).toBeFalsy();
   });
 
   it('is case-insensitive', () => {
-    expect(hasWeakStart('IT WAS LOUD')).toBe(true);
-    expect(hasWeakStart('THERE WAS PEACE')).toBe(true);
+    expect(hasWeakStart('IT WAS LOUD')).toBeTruthy();
+    expect(hasWeakStart('THERE WAS PEACE')).toBeTruthy();
   });
 
   it('pattern matches correctly', () => {
-    expect(WEAK_START_PATTERN.test('it rains')).toBe(true);
-    expect(WEAK_START_PATTERN.test('Item found')).toBe(false);
+    expect(WEAK_START_PATTERN.test('it rains')).toBeTruthy();
+    expect(WEAK_START_PATTERN.test('Item found')).toBeFalsy();
   });
 });
 
@@ -262,38 +262,38 @@ describe('Validation - Haiku Quality Score', () => {
 
 describe('Validation - Common Name Detection', () => {
   it('detects common English first names', () => {
-    expect(containsCommonName('John walked away')).toBe(true);
-    expect(containsCommonName('Mary smiled')).toBe(true);
-    expect(containsCommonName('William spoke')).toBe(true);
+    expect(containsCommonName('John walked away')).toBeTruthy();
+    expect(containsCommonName('Mary smiled')).toBeTruthy();
+    expect(containsCommonName('William spoke')).toBeTruthy();
   });
 
   it('detects classic literature character names', () => {
-    expect(containsCommonName('Pip ran fast')).toBe(true);
-    expect(containsCommonName('Darcy stood')).toBe(true);
-    expect(containsCommonName('Hamlet pondered')).toBe(true);
+    expect(containsCommonName('Pip ran fast')).toBeTruthy();
+    expect(containsCommonName('Darcy stood')).toBeTruthy();
+    expect(containsCommonName('Hamlet pondered')).toBeTruthy();
   });
 
   it('detects Indian epic names', () => {
-    expect(containsCommonName('Rama spoke')).toBe(true);
-    expect(containsCommonName('Arjuna fought')).toBe(true);
-    expect(containsCommonName('Krishna smiled')).toBe(true);
+    expect(containsCommonName('Rama spoke')).toBeTruthy();
+    expect(containsCommonName('Arjuna fought')).toBeTruthy();
+    expect(containsCommonName('Krishna smiled')).toBeTruthy();
   });
 
   it('returns false for text without names', () => {
-    expect(containsCommonName('ancient tree stands')).toBe(false);
-    expect(containsCommonName('moon rises high')).toBe(false);
+    expect(containsCommonName('ancient tree stands')).toBeFalsy();
+    expect(containsCommonName('moon rises high')).toBeFalsy();
   });
 
   it('is case-insensitive', () => {
-    expect(containsCommonName('JOHN walked')).toBe(true);
-    expect(containsCommonName('mary smiled')).toBe(true);
+    expect(containsCommonName('JOHN walked')).toBeTruthy();
+    expect(containsCommonName('mary smiled')).toBeTruthy();
   });
 
   it('handles empty text', () => {
-    expect(containsCommonName('')).toBe(false);
+    expect(containsCommonName('')).toBeFalsy();
   });
 
   it('handles text with only spaces', () => {
-    expect(containsCommonName('   ')).toBe(false);
+    expect(containsCommonName('   ')).toBeFalsy();
   });
 });
