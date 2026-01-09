@@ -135,7 +135,6 @@ const typeDefs = `#graphql
 
     type Subscription {
         quoteGenerated: String
-        puzzleAvailable: PuzzleVersion
     }
 `;
 

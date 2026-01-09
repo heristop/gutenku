@@ -93,7 +93,10 @@ const resolvers = {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
       return queryBus.execute(new ReduceBooksQuery(date));
     },
-    puzzleVersion: async (_, { date }: { date: string }) => {
+    puzzleVersion: async (
+      _,
+      { date }: { date: string },
+    ): Promise<PuzzleVersion> => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
       return queryBus.execute(new GetPuzzleVersionQuery(date));
     },
@@ -110,14 +113,6 @@ const resolvers = {
       subscribe: () =>
         pubSubService.iterator<{ quoteGenerated: string }>(['QUOTE_GENERATED']),
       resolve: (payload: { quoteGenerated: string }) => payload.quoteGenerated,
-    },
-    puzzleAvailable: {
-      subscribe: () =>
-        pubSubService.iterator<{ puzzleAvailable: PuzzleVersion }>([
-          'PUZZLE_AVAILABLE',
-        ]),
-      resolve: (payload: { puzzleAvailable: PuzzleVersion }) =>
-        payload.puzzleAvailable,
     },
   },
 };

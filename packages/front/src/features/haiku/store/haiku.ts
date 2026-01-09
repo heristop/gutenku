@@ -1,10 +1,24 @@
 import { defineStore } from 'pinia';
 import { ref, computed, markRaw } from 'vue';
-import type { HaikuValue } from '@gutenku/shared';
+import type { HaikuValue, HaikuVersion } from '@gutenku/shared';
 import { gql, type CombinedError } from '@urql/vue';
 import { Sparkles, type LucideIcon } from 'lucide-vue-next';
 import { urqlClient } from '@/client';
 import type { PersistenceOptions } from 'pinia-plugin-persistedstate';
+
+const HAIKU_VERSION_QUERY = gql`
+  query HaikuVersion($date: String!) {
+    haikuVersion(date: $date) {
+      date
+      version
+    }
+  }
+`;
+
+interface CachedDailyHaiku {
+  haiku: HaikuValue;
+  date: string;
+}
 
 function getTodayUTC(): string {
   return new Date().toISOString().split('T')[0];
@@ -26,7 +40,21 @@ const getPersistConfig = (): PersistenceOptions | false => {
       'optionMinTfidfScore',
       'optionMinPhoneticsScore',
       'stats',
+      'cachedVersion',
+      'cachedDailyHaiku',
     ],
+    afterHydrate: (ctx) => {
+      const store = ctx.store;
+      // Validate cached data on hydration
+      if (store.cachedDailyHaiku && store.cachedVersion) {
+        const today = getTodayUTC();
+        if (store.cachedDailyHaiku.date !== today) {
+          // Clear stale cache from previous day
+          store.cachedDailyHaiku = null;
+          store.cachedVersion = null;
+        }
+      }
+    },
   };
 };
 
@@ -99,6 +127,10 @@ export const useHaikuStore = defineStore(
       books: [],
       bookCounts: {},
     });
+
+    // Version caching state
+    const cachedVersion = ref<string | null>(null);
+    const cachedDailyHaiku = ref<CachedDailyHaiku | null>(null);
 
     // Getters
     const networkError = computed(() => error.value === 'network-error');
@@ -175,6 +207,59 @@ export const useHaikuStore = defineStore(
         (stats.value.bookCounts[bookTitle] || 0) + 1;
     }
 
+    // Helper: Check if cached daily haiku is still valid
+    async function checkHaikuVersion(date: string): Promise<boolean> {
+      try {
+        const result = await urqlClient
+          .query<{ haikuVersion: HaikuVersion }>(HAIKU_VERSION_QUERY, { date })
+          .toPromise();
+
+        if (result.error || !result.data?.haikuVersion) {
+          return false;
+        }
+
+        const serverVersion = result.data.haikuVersion.version;
+        return cachedVersion.value === serverVersion;
+      } catch {
+        return false;
+      }
+    }
+
+    // Helper: Try to use cached daily haiku
+    function tryUseCachedDailyHaiku(today: string): boolean {
+      if (
+        cachedDailyHaiku.value &&
+        cachedDailyHaiku.value.date === today &&
+        cachedVersion.value
+      ) {
+        haiku.value = cachedDailyHaiku.value.haiku;
+        isDailyHaiku.value = true;
+        addToHistory(cachedDailyHaiku.value.haiku);
+        updateStats(cachedDailyHaiku.value.haiku);
+        return true;
+      }
+      return false;
+    }
+
+    // Helper: Cache daily haiku with version
+    async function cacheDailyHaiku(
+      newHaiku: HaikuValue,
+      date: string,
+    ): Promise<void> {
+      try {
+        const result = await urqlClient
+          .query<{ haikuVersion: HaikuVersion }>(HAIKU_VERSION_QUERY, { date })
+          .toPromise();
+
+        if (result.data?.haikuVersion) {
+          cachedVersion.value = result.data.haikuVersion.version;
+          cachedDailyHaiku.value = { haiku: newHaiku, date };
+        }
+      } catch {
+        // Silently fail - caching is optional
+      }
+    }
+
     // Helper: Handle fetch error
     function handleFetchError(err: unknown): void {
       error.value = 'network-error';
@@ -201,6 +286,15 @@ export const useHaikuStore = defineStore(
 
       const fetchingDaily = shouldUseDaily.value;
       const today = getTodayUTC();
+
+      // Check version cache for daily haiku
+      if (fetchingDaily && cachedDailyHaiku.value?.date === today) {
+        const isValid = await checkHaikuVersion(today);
+        if (isValid && tryUseCachedDailyHaiku(today)) {
+          firstLoaded.value = true;
+          return;
+        }
+      }
 
       try {
         loading.value = true;
@@ -336,6 +430,11 @@ export const useHaikuStore = defineStore(
           isDailyHaiku.value = fetchingDaily;
           addToHistory(newHaiku);
           updateStats(newHaiku);
+
+          // Cache daily haiku for future visits
+          if (fetchingDaily) {
+            cacheDailyHaiku(newHaiku, today);
+          }
         }
       } catch (err: unknown) {
         handleFetchError(err);
@@ -400,6 +499,8 @@ export const useHaikuStore = defineStore(
       optionDescriptionTemperature,
       optionSelectionCount,
       stats,
+      cachedVersion,
+      cachedDailyHaiku,
       // Getters
       networkError,
       notificationError,
