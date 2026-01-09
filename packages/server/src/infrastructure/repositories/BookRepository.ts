@@ -42,18 +42,21 @@ export default class BookRepository implements IBookRepository {
   }
 
   async selectRandomBook(): Promise<BookValue> {
-    const randomBooks = await BookModel.aggregate([
-      { $match: { 'chapters.0': { $exists: true } } },
-      { $sample: { size: 1 } },
-      {
-        $lookup: {
-          as: 'chapters',
-          foreignField: '_id',
-          from: 'chapters',
-          localField: 'chapters',
+    const randomBooks = await BookModel.aggregate(
+      [
+        { $match: { 'chapters.0': { $exists: true } } },
+        { $sample: { size: 1 } },
+        {
+          $lookup: {
+            as: 'chapters',
+            foreignField: '_id',
+            from: 'chapters',
+            localField: 'chapters',
+          },
         },
-      },
-    ]);
+      ],
+      { maxTimeMS: 5000 },
+    );
 
     if (!randomBooks || randomBooks.length === 0) {
       throw new Error('No book found');
