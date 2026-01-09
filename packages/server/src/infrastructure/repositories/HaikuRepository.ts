@@ -178,7 +178,7 @@ export default class HaikuRepository implements IHaikuRepository {
 
     try {
       const haikusCollection = this.db.collection('haikus');
-      return await haikusCollection.countDocuments();
+      return await haikusCollection.estimatedDocumentCount();
     } catch {
       return 0;
     }
