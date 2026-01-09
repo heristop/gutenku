@@ -17,7 +17,7 @@
     "extract": "pnpm --filter @gutenku/server extract",
     "train": "pnpm --filter @gutenku/server train",
     "post": "pnpm --filter @gutenku/server post",
-    "build": "pnpm -r --if-present --filter '!./private/**' run build",
+    "build": "pnpm --filter @gutenguess/shared run build && pnpm -r --if-present --filter '!./private/**' run build",
     "prepare": "husky",
     "submodule:update": "./scripts/update-submodule.sh"
   },
