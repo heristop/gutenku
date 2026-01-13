@@ -38,7 +38,7 @@ function getLatestArticle() {
 const latestArticle = getLatestArticle();
 
 const { locale } = useI18n();
-const { showToast } = useToast();
+const { success: showSuccess, error: showError } = useToast();
 const content = ref('');
 const loading = ref(true);
 const showContent = ref(false);
@@ -77,9 +77,9 @@ function scrollToTop() {
 async function copyLink() {
   try {
     await navigator.clipboard.writeText(globalThis.location.href);
-    showToast({ message: 'Link copied!', type: 'success' });
+    showSuccess('Link copied!');
   } catch {
-    showToast({ message: 'Failed to copy', type: 'error' });
+    showError('Failed to copy');
   }
 }
 

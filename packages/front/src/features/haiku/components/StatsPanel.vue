@@ -56,6 +56,12 @@ function animateValue(
   duration: number,
   callback: (value: number) => void,
 ) {
+  // Skip animation during SSR
+  if (typeof window === 'undefined') {
+    callback(end);
+    return;
+  }
+
   const startTime = performance.now();
 
   function update(currentTime: number) {

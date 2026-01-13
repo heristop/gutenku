@@ -52,7 +52,7 @@ const strokeOffset = computed(() => {
 
 // Animate value on mount or when value changes
 function animateValue() {
-  if (!props.animated) {
+  if (!props.animated || typeof window === 'undefined') {
     displayedValue.value = normalizedValue.value;
     return;
   }

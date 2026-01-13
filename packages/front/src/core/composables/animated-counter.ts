@@ -1,5 +1,7 @@
 import { ref, watch, onUnmounted, type Ref } from 'vue';
 
+const isClient = typeof window !== 'undefined';
+
 export interface AnimatedCounterOptions {
   duration?: number;
   easing?: (x: number) => number;
@@ -30,7 +32,8 @@ export function useAnimatedCounter(
   let isFirstAnimation = true;
 
   function animate() {
-    if (target.value === 0) {
+    if (!isClient || target.value === 0) {
+      count.value = target.value;
       return;
     }
 

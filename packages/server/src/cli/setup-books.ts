@@ -101,7 +101,7 @@ try {
 
   // Print summary
   console.log(pc.bold('\n═══ Import Summary ═══\n'));
-  console.log(pc.green(`✓ Success:  ${result.successCount}`));
+  console.log(pc.green(`✓ Success:  ${result.newCount}`));
   console.log(pc.red(`✗ Failed:   ${result.failedCount}`));
   console.log(pc.yellow(`⏩ Skipped:  ${result.skippedCount}`));
 
