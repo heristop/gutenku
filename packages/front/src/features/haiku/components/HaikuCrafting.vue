@@ -5,11 +5,14 @@ import { useI18n } from 'vue-i18n';
 import { useLoadingMessages } from '@/core/composables/loading-messages';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
 import ZenProgress from '@/core/components/ui/ZenProgress.vue';
+import ZenHaiku from '@/core/components/ui/ZenHaiku.vue';
 
 interface Message {
   text: string;
   timestamp: number;
   icon: Component;
+  verses?: string[];
+  score?: number;
 }
 
 defineProps<{
@@ -74,13 +77,25 @@ const { message: craftingMessage } = useLoadingMessages({
                 :class="{
                   'latest-message': index === 0,
                   'fade-message': index > 2,
+                  'has-verses': message.verses?.length,
                 }"
                 :style="{ animationDelay: `${index * 50}ms` }"
               >
                 <span class="message-icon" aria-hidden="true">
                   <component :is="message.icon" :size="18" />
                 </span>
-                <span class="message-text">{{ message.text }}</span>
+
+                <!-- Verse messages: use ZenHaiku -->
+                <ZenHaiku
+                  v-if="message.verses?.length"
+                  :lines="message.verses"
+                  size="sm"
+                  :animated="index === 0"
+                  class="message-haiku"
+                />
+
+                <!-- Regular text messages -->
+                <span v-else class="message-text">{{ message.text }}</span>
               </div>
             </div>
           </div>
@@ -108,7 +123,6 @@ const { message: craftingMessage } = useLoadingMessages({
 </template>
 
 <style lang="scss" scoped>
-// Component-specific styles (base styling handled by ZenCard variant="book")
 .haiku-crafting {
   margin-bottom: 1.5rem;
 
@@ -259,6 +273,34 @@ const { message: craftingMessage } = useLoadingMessages({
   max-width: calc(100% - 3rem);
 }
 
+.message-haiku {
+  flex: 1;
+  max-width: calc(100% - 3rem);
+
+  :deep(.zen-haiku) {
+    padding: 0.25rem 0;
+    background: transparent;
+    min-height: auto;
+  }
+
+  :deep(.haiku-line) {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+}
+
+.craft-message.has-verses {
+  align-items: flex-start;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+
+  &.latest-message {
+    .message-haiku :deep(.haiku-line) {
+      font-weight: 500;
+    }
+  }
+}
+
 .progress-container {
   margin-top: 2rem;
   text-align: center;
@@ -279,7 +321,6 @@ const { message: craftingMessage } = useLoadingMessages({
   z-index: 3;
 }
 
-// Animations
 @keyframes craft-pulse {
   0%,
   100% {
@@ -290,7 +331,6 @@ const { message: craftingMessage } = useLoadingMessages({
   }
 }
 
-// Ink appearing on paper animation
 @keyframes ink-appear {
   0% {
     opacity: 0;
@@ -309,7 +349,6 @@ const { message: craftingMessage } = useLoadingMessages({
   }
 }
 
-// Border stroke animation (like a pen drawing down)
 @keyframes stroke-reveal {
   from {
     transform: scaleY(0);
@@ -323,7 +362,6 @@ const { message: craftingMessage } = useLoadingMessages({
   animation: ink-appear 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   position: relative;
 
-  // Pen stroke effect on border
   &::before {
     content: '';
     position: absolute;
@@ -375,7 +413,6 @@ const { message: craftingMessage } = useLoadingMessages({
   }
 }
 
-// Reduced motion
 @media (prefers-reduced-motion: reduce) {
   .book-header .craft-icon-container {
     animation: none;

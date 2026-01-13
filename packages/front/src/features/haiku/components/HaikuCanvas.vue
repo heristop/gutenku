@@ -316,7 +316,7 @@ const onImageLoad = () => {
 
 .zen-loading-skeleton {
   aspect-ratio: 3/4;
-  background: var(--gutenku-paper-bg-aged);
+  background: var(--gutenku-paper-bg);
   border-radius: var(--gutenku-radius-sm);
   position: relative;
   display: flex;

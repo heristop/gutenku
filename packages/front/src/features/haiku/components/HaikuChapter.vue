@@ -27,6 +27,7 @@ import HighLightText from '@/features/haiku/components/HighLightText.vue';
 import ZenTooltip from '@/core/components/ui/ZenTooltip.vue';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
 import ZenButton from '@/core/components/ui/ZenButton.vue';
+import ZenHaiku from '@/core/components/ui/ZenHaiku.vue';
 
 const { t } = useI18n();
 
@@ -43,7 +44,6 @@ const bookContentRef = ref<HTMLElement | null>(null);
 const cardPosition = shallowRef({ top: 0, left: 0, width: 0 });
 const chapterEl = computed(() => chapterRef.value?.$el as HTMLElement | null);
 
-// Throttle rect updates to ~60fps max to prevent layout thrashing
 const updateCardRect = useDebounceFn(() => {
   if (chapterEl.value) {
     const rect = chapterEl.value.getBoundingClientRect();
@@ -55,7 +55,6 @@ const updateCardRect = useDebounceFn(() => {
   }
 }, 16);
 
-// Use CSS custom properties for smoother updates
 const craftingStyle = computed(() => {
   if (!cardPosition.value.width) {
     return {};
@@ -144,13 +143,11 @@ onMounted(() => {
   detectBot();
   applyToAllHighlights();
 
-  // Use ResizeObserver for efficient layout updates
   if (chapterEl.value) {
     resizeObserver = new ResizeObserver(updateCardRect);
     resizeObserver.observe(chapterEl.value);
   }
 
-  // Only listen to scroll when loading (for fixed positioning)
   scrollListener = () => {
     if (loading.value) {
       updateCardRect();
@@ -175,6 +172,7 @@ watch(loading, (isLoading) => {
 
 onUnmounted(() => {
   resizeObserver?.disconnect();
+
   if (scrollListener) {
     window.removeEventListener('scroll', scrollListener);
   }
@@ -211,12 +209,23 @@ onUnmounted(() => {
               v-for="(msg, index) in craftingMessages.slice(0, 6)"
               :key="msg.id || `msg-${msg.timestamp}-${index}`"
               class="crafting-message"
-              :class="{ latest: index === 0 }"
+              :class="{ latest: index === 0, 'has-verses': msg.verses?.length }"
             >
               <span class="message-icon" aria-hidden="true">
                 <component :is="msg.icon" :size="16" />
               </span>
-              <span class="message-text">{{ msg.text }}</span>
+
+              <!-- Verse messages: use ZenHaiku -->
+              <ZenHaiku
+                v-if="msg.verses?.length"
+                :lines="msg.verses"
+                size="sm"
+                :animated="index === 0"
+                class="message-haiku"
+              />
+
+              <!-- Regular text messages -->
+              <span v-else class="message-text">{{ msg.text }}</span>
             </div>
           </TransitionGroup>
         </div>
@@ -307,7 +316,7 @@ onUnmounted(() => {
         }"
         class="book-author"
       >
-        {{ haiku.book.author }}
+        <span class="by-prefix">{{ $t('common.by') }}</span> {{ haiku.book.author }}
       </div>
 
       <div class="chapter-content" :class="{ expandable: !isCompacted }">
@@ -328,20 +337,22 @@ onUnmounted(() => {
       </div>
     </button>
 
-    <a
-      v-if="haiku.book.reference"
-      :href="`https://www.gutenberg.org/ebooks/${haiku.book.reference}`"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="gutenberg-link"
-      :aria-label="t('haikuChapter.readOnGutenberg')"
-      @click.stop
-    >
-      <BookOpen :size="16" />
-      <span>{{ t('haikuChapter.readOnGutenberg') }}</span>
-    </a>
-
     <div class="page-number">— {{ pageNumber }} —</div>
+
+    <!-- Book Footer Links -->
+    <div v-if="haiku.book.reference" class="book-footer">
+      <a
+        :href="`https://www.gutenberg.org/ebooks/${haiku.book.reference}`"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="book-footer__link"
+        :aria-label="t('haikuChapter.readOnGutenberg')"
+        @click.stop
+      >
+        <BookOpen :size="16" class="book-footer__icon" />
+        <span>{{ t('haikuChapter.readOnGutenberg') }}</span>
+      </a>
+    </div>
   </ZenCard>
 </template>
 
@@ -392,7 +403,6 @@ onUnmounted(() => {
   margin-bottom: 2rem;
   padding-bottom: 1rem;
 
-  // Ink wash separator
   &::after {
     content: '';
     position: absolute;
@@ -569,7 +579,6 @@ onUnmounted(() => {
   }
 }
 
-// Dark mode for toggle buttons
 [data-theme='dark'] .book-header {
   .toggle-btn.zen-btn {
     background:
@@ -662,11 +671,11 @@ onUnmounted(() => {
       transparent,
       transparent 0.1em,
       oklch(0 0 0 / 0.7) 0.1em,
-      oklch(0 0 0 / 0.7) 1.3em,
-      transparent 1.3em,
-      transparent 1.4em
+      oklch(0 0 0 / 0.7) 1.37em,
+      transparent 1.37em,
+      transparent 1.47em
     );
-    background-size: 100% 1.4em;
+    background-size: 100% 1.47em;
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='35' viewBox='0 0 100 35'%3E%3Cpath d='M0,4 L8,3.7 L15,4.2 L23,3.9 L32,4.1 L42,3.8 L52,4.3 L62,3.9 L72,4.1 L82,3.8 L92,4.2 L100,4 L100,31 L92,31.3 L82,30.9 L72,31.2 L62,31 L52,31.4 L42,30.8 L32,31.3 L23,31 L15,31.2 L8,30.9 L0,31.1 Z' fill='white'/%3E%3C/svg%3E");
     -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='35' viewBox='0 0 100 35'%3E%3Cpath d='M0,4 L8,3.7 L15,4.2 L23,3.9 L32,4.1 L42,3.8 L52,4.3 L62,3.9 L72,4.1 L82,3.8 L92,4.2 L100,4 L100,31 L92,31.3 L82,30.9 L72,31.2 L62,31 L52,31.4 L42,30.8 L32,31.3 L23,31 L15,31.2 L8,30.9 L0,31.1 Z' fill='white'/%3E%3C/svg%3E");
     mask-repeat: repeat;
@@ -690,8 +699,7 @@ onUnmounted(() => {
   font-style: italic;
   transition: all 0.3s ease;
 
-  &::before {
-    content: 'by ';
+  .by-prefix {
     font-style: normal;
     opacity: 0.7;
   }
@@ -701,11 +709,11 @@ onUnmounted(() => {
       transparent,
       transparent 0.1em,
       oklch(0 0 0 / 0.7) 0.1em,
-      oklch(0 0 0 / 0.7) 1.1em,
-      transparent 1.1em,
-      transparent 1.2em
+      oklch(0 0 0 / 0.7) 1.16em,
+      transparent 1.16em,
+      transparent 1.26em
     );
-    background-size: 100% 1.2em;
+    background-size: 100% 1.26em;
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='35' viewBox='0 0 100 35'%3E%3Cpath d='M0,4 L8,3.7 L15,4.2 L23,3.9 L32,4.1 L42,3.8 L52,4.3 L62,3.9 L72,4.1 L82,3.8 L92,4.2 L100,4 L100,31 L92,31.3 L82,30.9 L72,31.2 L62,31 L52,31.4 L42,30.8 L32,31.3 L23,31 L15,31.2 L8,30.9 L0,31.1 Z' fill='white'/%3E%3C/svg%3E");
     -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='35' viewBox='0 0 100 35'%3E%3Cpath d='M0,4 L8,3.7 L15,4.2 L23,3.9 L32,4.1 L42,3.8 L52,4.3 L62,3.9 L72,4.1 L82,3.8 L92,4.2 L100,4 L100,31 L92,31.3 L82,30.9 L72,31.2 L62,31 L52,31.4 L42,30.8 L32,31.3 L23,31 L15,31.2 L8,30.9 L0,31.1 Z' fill='white'/%3E%3C/svg%3E");
     mask-repeat: repeat;
@@ -721,35 +729,92 @@ onUnmounted(() => {
   }
 }
 
-.gutenberg-link {
-  display: inline-flex;
+// Book footer - links below page number
+.book-footer {
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  width: 100%;
-  font-size: 0.85rem;
-  color: var(--gutenku-text-muted);
-  text-decoration: none;
-  margin-top: 1rem;
-  margin-bottom: 3rem;
-  transition: all 0.2s ease;
+  margin-top: 0.5rem;
+  animation: footer-fade-in 0.6s ease-out 0.3s both;
 
-  svg {
-    transition: transform 0.2s ease;
-  }
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.8rem;
+    font-family: inherit;
+    color: var(--gutenku-text-muted);
+    text-decoration: none;
+    background: none;
+    border: 0;
+    padding: 0.25rem 0.5rem;
+    margin: 0;
+    cursor: pointer;
+    border-radius: var(--gutenku-radius-sm);
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    -webkit-appearance: none;
+    appearance: none;
 
-  &:hover {
-    color: var(--gutenku-zen-primary);
-
-    svg {
+    &:hover {
+      color: var(--gutenku-zen-primary);
+      background: oklch(0.5 0.08 195 / 0.08);
       transform: translateY(-1px);
+
+      .book-footer__icon {
+        transform: scale(1.1);
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--gutenku-zen-primary);
+      outline-offset: 2px;
     }
   }
 
-  [data-theme='dark'] & {
+  &__icon {
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+}
+
+@keyframes footer-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Dark theme
+[data-theme='dark'] .book-footer {
+  &__link {
     &:hover {
       color: var(--gutenku-zen-accent);
+      background: oklch(0.5 0.08 195 / 0.12);
     }
+  }
+}
+
+// Mobile responsive
+@media (max-width: 600px) {
+  .book-footer {
+    &__link {
+      font-size: 0.8rem;
+    }
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .book-footer {
+    animation: none;
+  }
+
+  .book-footer__link,
+  .book-footer__icon {
+    transition: none;
   }
 }
 
@@ -791,11 +856,11 @@ onUnmounted(() => {
             transparent,
             transparent 0.1em,
             oklch(0 0 0 / 0.7) 0.1em,
-            oklch(0 0 0 / 0.7) 1.1em,
-            transparent 1.1em,
-            transparent 1.2em
+            oklch(0 0 0 / 0.7) 1.16em,
+            transparent 1.16em,
+            transparent 1.26em
           );
-          background-size: 100% 1.2em;
+          background-size: 100% 1.26em;
           mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='35' viewBox='0 0 100 35'%3E%3Cpath d='M0,4 L8,3.7 L15,4.2 L23,3.9 L32,4.1 L42,3.8 L52,4.3 L62,3.9 L72,4.1 L82,3.8 L92,4.2 L100,4 L100,31 L92,31.3 L82,30.9 L72,31.2 L62,31 L52,31.4 L42,30.8 L32,31.3 L23,31 L15,31.2 L8,30.9 L0,31.1 Z' fill='white'/%3E%3C/svg%3E");
           -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='35' viewBox='0 0 100 35'%3E%3Cpath d='M0,4 L8,3.7 L15,4.2 L23,3.9 L32,4.1 L42,3.8 L52,4.3 L62,3.9 L72,4.1 L82,3.8 L92,4.2 L100,4 L100,31 L92,31.3 L82,30.9 L72,31.2 L62,31 L52,31.4 L42,30.8 L32,31.3 L23,31 L15,31.2 L8,30.9 L0,31.1 Z' fill='white'/%3E%3C/svg%3E");
           mask-repeat: repeat;
@@ -957,7 +1022,6 @@ onUnmounted(() => {
   }
 }
 
-// Dark mode for daily header
 [data-theme='dark'] .book-header {
   .daily-header__line {
     background: linear-gradient(
@@ -1041,6 +1105,26 @@ onUnmounted(() => {
     flex: 1;
     color: var(--gutenku-text-primary, #2c2c2c);
     word-break: break-word;
+  }
+
+  .message-haiku {
+    flex: 1;
+
+    :deep(.zen-haiku) {
+      padding: 0.25rem 0;
+      background: transparent;
+      min-height: auto;
+    }
+
+    :deep(.haiku-line) {
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+  }
+
+  .crafting-message.has-verses {
+    padding-top: 0.375rem;
+    padding-bottom: 0.375rem;
   }
 }
 

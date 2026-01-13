@@ -49,10 +49,13 @@ export function useTextCompacting(options: CompactingOptions = {}) {
 
         // Create compacted section with proper punctuation
         let section = '';
+
         if (prevSentence) {
           section += ensurePunctuation(prevSentence) + ' ';
         }
+
         section += ensurePunctuation(verseSentence);
+
         if (nextSentence) {
           section += ' ' + ensurePunctuation(nextSentence);
         }

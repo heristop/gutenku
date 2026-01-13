@@ -39,9 +39,12 @@ function isHelpKey(event: KeyboardEvent): boolean {
 
 export function useKeyboardShortcuts(options: KeyboardShortcutsOptions) {
   const handleKeydown = (event: KeyboardEvent) => {
-    if (shouldIgnoreKeydown(event)) {return;}
+    if (shouldIgnoreKeydown(event)) {
+      return;
+    }
 
     const handler = KEYBOARD_SHORTCUTS[event.code];
+
     if (handler) {
       if (event.code !== 'Escape') {event.preventDefault();}
       options[handler]?.();

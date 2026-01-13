@@ -20,8 +20,8 @@ import { usePullToRefresh } from '@/core/composables/pull-to-refresh';
 import { closeWSClient } from '@/client';
 import HaikuTitle from '@/features/haiku/components/HaikuTitle.vue';
 import AppLoading from '@/core/components/AppLoading.vue';
+import SumieCat from '@/core/components/decorative/SumieCat.vue';
 
-// Async components with SSR-safe loading
 const HaikuCanvas = defineAsyncComponent({
   loader: () => import('@/features/haiku/components/HaikuCanvas.vue'),
   loadingComponent: ZenSkeleton,
@@ -38,17 +38,15 @@ const ToolbarPanel = defineAsyncComponent({
   loadingComponent: ZenSkeleton,
 });
 
-const ConfigPanel = defineAsyncComponent({
-  loader: () => import('@/features/haiku/components/ConfigPanel.vue'),
-  loadingComponent: ZenSkeleton,
-  delay: 300,
-});
-
 const StatsPanel = defineAsyncComponent({
   loader: () => import('@/features/haiku/components/StatsPanel.vue'),
   loadingComponent: ZenSkeleton,
   delay: 300,
 });
+
+const ScoringCard = defineAsyncComponent(
+  () => import('@/features/haiku/components/ScoringCard.vue'),
+);
 
 const SocialPreviewCard = defineAsyncComponent(
   () => import('@/features/haiku/components/SocialPreviewCard.vue'),
@@ -58,17 +56,15 @@ const PullToRefresh = defineAsyncComponent(
   () => import('@/core/components/PullToRefresh.vue'),
 );
 
-// Note: PullToRefresh is async because it's not needed during SSR
-
 const isDev = import.meta.env.DEV;
 
 const { t, tm } = useI18n();
 const { error: showError } = useToast();
 
 useSeoMeta({
-  ogTitle: 'Free AI Haiku Generator - GutenKu',
+  ogTitle: 'Haiku Generator - GutenKu',
   ogDescription:
-    'Free haiku generator powered by AI. Create beautiful zen poetry from classic literature. No signup required.',
+    'Haiku Generator powered by AI. Create beautiful zen poetry from classic literature. No signup required.',
   ogImage: 'https://gutenku.xyz/og-image.png',
   twitterImage: 'https://gutenku.xyz/og-image.png',
 });
@@ -85,7 +81,6 @@ watch(haiku, (newHaiku) => {
   }
 });
 
-// Pull-to-refresh (SSR-safe: browser APIs accessed in onMounted)
 const containerRef = ref<HTMLElement | null>(null);
 const { pullDistance, isRefreshing, shouldRelease, progress } =
   usePullToRefresh(containerRef, { onRefresh: fetchNewHaiku });
@@ -120,7 +115,7 @@ function handleRetry() {
 
 onMounted(fetchNewHaiku);
 
-// Close WebSocket when leaving page to allow bfcache
+// Close WebSocket to prevent blocking bfcache
 onUnmounted(closeWSClient);
 </script>
 
@@ -135,11 +130,7 @@ onUnmounted(closeWSClient);
 
     <InkBrushNav />
 
-    <div v-if="!firstLoaded && !networkError" class="haiku-page__loading">
-      <AppLoading :text="loadingLabel" :splash="true" />
-    </div>
-
-    <div v-else-if="networkError" class="haiku-page__error" role="alert">
+    <div v-if="networkError" class="haiku-page__error" role="alert">
       <AppLoading
         :splash="true"
         error
@@ -157,13 +148,18 @@ onUnmounted(closeWSClient);
       :aria-label="t('home.haikuContentLabel')"
     >
       <div class="haiku-grid">
+        <!-- Cat wrapper for mobile - shows above main content -->
+        <div class="haiku-cat-wrapper haiku-cat-wrapper--mobile">
+          <SumieCat v-if="loading || !haiku" />
+        </div>
+
         <article class="haiku-grid__main" :aria-label="t('haiku.articleLabel')">
           <HaikuTitle class="haiku-section__title" />
 
           <HaikuChapter v-if="haiku" class="haiku-section__chapter" />
 
           <div
-            v-if="!haiku && loading"
+            v-if="!haiku"
             class="haiku-section__chapter haiku-section__placeholder"
           >
             <div class="placeholder-header">
@@ -183,23 +179,33 @@ onUnmounted(closeWSClient);
             <ZenSkeleton variant="text" :lines="5" />
           </div>
 
-          <SocialPreviewCard
-            v-if="isDev && optionUseAI"
-            class="haiku-section__preview"
-          />
         </article>
 
         <aside
           class="haiku-grid__sidebar haiku-page__sidebar"
           :aria-label="t('haiku.controlsLabel')"
         >
-          <ToolbarPanel class="haiku-section__toolbar" />
+          <!-- Cat wrapper for desktop - shows above toolbar -->
+          <div class="toolbar-wrapper haiku-cat-wrapper--desktop">
+            <SumieCat v-if="loading || !haiku" />
+            <ToolbarPanel class="haiku-section__toolbar" />
+          </div>
+
+          <SocialPreviewCard
+            v-if="isDev && optionUseAI"
+            class="haiku-section__preview"
+          />
+
+          <ScoringCard
+            v-if="haiku?.quality"
+            :quality="haiku.quality"
+            :visible="!loading"
+            class="haiku-section__scoring"
+          />
 
           <HaikuCanvas class="haiku-section__canvas" />
 
           <StatsPanel class="haiku-section__stats" />
-
-          <ConfigPanel />
         </aside>
       </div>
     </main>
@@ -210,8 +216,6 @@ onUnmounted(closeWSClient);
 .haiku-page {
   min-height: 100vh;
   view-transition-name: haiku-page;
-
-  // Container layout
   width: 100%;
   margin-inline: auto;
   padding: 0.5rem 0.5rem 2rem;
@@ -220,6 +224,10 @@ onUnmounted(closeWSClient);
     max-width: 900px;
     padding: 1rem 1rem 2rem;
   }
+}
+
+.haiku-section__chapter {
+  background: var(--gutenku-paper-bg) !important;
 }
 
 .haiku-page__loading,
@@ -302,9 +310,23 @@ onUnmounted(closeWSClient);
   }
 }
 
-// Spacing for child components
 .haiku-section__title {
   margin-bottom: var(--gutenku-space-6);
+}
+
+.haiku-section__scoring {
+  margin-top: var(--gutenku-space-2);
+  margin-bottom: var(--gutenku-space-6);
+}
+
+.haiku-section__stats {
+  margin-top: var(--gutenku-space-4);
+}
+
+.haiku-section__toolbar {
+  @media (max-width: 960px) {
+    display: none;
+  }
 }
 
 .haiku-section__preview {
@@ -361,6 +383,43 @@ onUnmounted(closeWSClient);
 [data-theme='dark'] .placeholder-header {
   &__icon {
     color: var(--gutenku-zen-accent);
+  }
+}
+
+// Wrapper for ToolbarPanel to position cat above
+.toolbar-wrapper {
+  position: relative;
+  overflow: visible;
+}
+
+// Cat wrappers - show appropriate one based on screen size
+.haiku-cat-wrapper {
+  position: relative;
+  height: 48px;
+  overflow: visible;
+
+  @media (max-width: 767px) {
+    height: 40px;
+  }
+}
+
+.haiku-cat-wrapper--mobile {
+  display: block;
+  order: -1; // Show at top on mobile
+  margin-bottom: 0.5rem;
+
+  @media (min-width: 961px) {
+    display: none;
+  }
+}
+
+.haiku-cat-wrapper--desktop {
+  :deep(.sumi-cat-container) {
+    display: none;
+
+    @media (min-width: 961px) {
+      display: block;
+    }
   }
 }
 </style>

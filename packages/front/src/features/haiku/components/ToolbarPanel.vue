@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref, useTemplateRef, onMounted } from 'vue';
+import { computed, ref, watch, useTemplateRef, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useMediaQuery } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
@@ -11,7 +11,12 @@ import {
   Download,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Feather,
+  Repeat,
+  Square,
+  Trophy,
+  Image as ImageIcon,
 } from 'lucide-vue-next';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
 import { useClipboard } from '@/core/composables/clipboard';
@@ -29,6 +34,13 @@ import SwipeHint from '@/core/components/ui/SwipeHint.vue';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
 import ZenButton from '@/core/components/ui/ZenButton.vue';
 import ZenPaginationDots from '@/core/components/ui/ZenPaginationDots.vue';
+import ZenSlider from '@/core/components/ui/ZenSlider.vue';
+import ZenSwitch from '@/core/components/ui/ZenSwitch.vue';
+import ZenExpandTransition from '@/core/components/ui/ZenExpandTransition.vue';
+import ZenProgress from '@/core/components/ui/ZenProgress.vue';
+
+const isDev = import.meta.env.DEV;
+const devOptionsExpanded = ref(false);
 
 const { t } = useI18n();
 const { success, error } = useToast();
@@ -38,13 +50,100 @@ const generateBtnRef = ref<HTMLElement | null>(null);
 const { isInView } = useInView(cardRef, { delay: 0 });
 
 const haikuStore = useHaikuStore();
-const { fetchNewHaiku, goBack, goForward } = haikuStore;
-const { haiku, loading, firstLoaded } = storeToRefs(haikuStore);
+const { fetchNewHaiku, goBack, goForward, stopGeneration } = haikuStore;
+const {
+  haiku,
+  loading,
+  firstLoaded,
+  optionIterations,
+  optionUseAI,
+  optionImageAI,
+  isGenerating,
+  generationProgress,
+} = storeToRefs(haikuStore);
 
 const historyLength = computed(() => haikuStore.historyLength);
 const historyPosition = computed(() => haikuStore.historyPosition);
 const canGoBack = computed(() => haikuStore.canGoBack);
 const canGoForward = computed(() => haikuStore.canGoForward);
+
+const progressPercent = computed(() => {
+  if (generationProgress.value.total === 0) {
+    return 0;
+  }
+  return Math.round(
+    (generationProgress.value.current / generationProgress.value.total) * 100,
+  );
+});
+
+const WOW_DURATION = 600;
+const scoreWow = ref(false);
+let lastBestScore = 0;
+
+watch(
+  () => generationProgress.value.bestScore,
+  (newScore) => {
+    if (newScore > lastBestScore && newScore > 0) {
+      scoreWow.value = true;
+      setTimeout(() => {
+        scoreWow.value = false;
+      }, WOW_DURATION);
+    }
+    lastBestScore = newScore;
+  },
+);
+
+watch(isGenerating, (generating) => {
+  if (generating) {
+    lastBestScore = 0;
+  }
+});
+
+const showCelebration = ref(false);
+watch(isGenerating, (generating, wasGenerating) => {
+  if (wasGenerating && !generating && generationProgress.value.bestScore > 0) {
+    showCelebration.value = true;
+    setTimeout(() => {
+      showCelebration.value = false;
+    }, 1500);
+  }
+});
+
+const iterationTimes = ref<number[]>([]);
+const lastIterationTime = ref(Date.now());
+
+watch(
+  () => generationProgress.value.current,
+  (current, prev) => {
+    if (current > prev && current > 0) {
+      const elapsed = Date.now() - lastIterationTime.value;
+      iterationTimes.value.push(elapsed);
+      lastIterationTime.value = Date.now();
+    }
+  },
+);
+
+watch(isGenerating, (generating) => {
+  if (generating) {
+    iterationTimes.value = [];
+    lastIterationTime.value = Date.now();
+  }
+});
+
+const estimatedTimeLeft = computed(() => {
+  if (iterationTimes.value.length === 0) {
+    return null;
+  }
+  const avgTime =
+    iterationTimes.value.reduce((a, b) => a + b, 0) /
+    iterationTimes.value.length;
+  const remaining =
+    generationProgress.value.total - generationProgress.value.current;
+  return Math.ceil((avgTime * remaining) / 1000);
+});
+
+// Iteration presets
+const iterationPresets = [1, 5, 10, 25, 50];
 
 const { copy, copied } = useClipboard();
 const { share, shared } = useShare();
@@ -120,7 +219,9 @@ async function copyHaiku(): Promise<void> {
   if (!haiku.value?.verses) {
     return;
   }
+
   const copySuccess = await copy(haiku.value.verses.join('\n'));
+
   if (copySuccess) {
     success(t('toolbar.copySuccess'));
   } else {
@@ -132,7 +233,9 @@ async function shareHaiku(): Promise<void> {
   if (!haiku.value) {
     return;
   }
+
   const shareSuccess = await share(haiku.value);
+
   if (shareSuccess) {
     success(t('toolbar.shareSuccess'));
   }
@@ -181,12 +284,17 @@ useKeyboardShortcuts({
 <template>
   <ZenCard
     ref="cardRef"
-    variant="default"
+    variant="panel"
     :loading="loading"
     :aria-label="t('toolbar.ariaLabel')"
     class="toolbar-panel toolbar-panel--card toolbar-container animate-in"
     :class="{ 'is-visible': isInView }"
   >
+    <!-- Celebration shimmer effect -->
+    <div v-if="showCelebration" class="toolbar-panel__celebration">
+      <div class="toolbar-panel__shimmer" />
+    </div>
+
     <!-- Header -->
     <div class="toolbar-panel__header">
       <span class="toolbar-panel__header-icon" aria-hidden="true">
@@ -201,33 +309,38 @@ useKeyboardShortcuts({
     </div>
 
     <div class="toolbar-panel__primary">
-      <ZenTooltip :text="generateTooltip" position="top">
+      <ZenTooltip
+        :text="isGenerating ? t('toolbar.stopTooltip') : generateTooltip"
+        position="top"
+      >
         <span
           ref="generateBtnRef"
           class="generate-btn-wrapper"
-          :class="{ 'is-pressing': isLongPressing }"
+          :class="{ 'is-pressing': isLongPressing && !isGenerating }"
         >
           <ZenButton
-            :loading="loading"
-            :disabled="loading"
-            :aria-label="generateTooltip"
+            :loading="loading && !isGenerating"
+            :disabled="loading && !isGenerating"
+            :aria-label="isGenerating ? t('toolbar.stopTooltip') : generateTooltip"
             class="toolbar-panel__button toolbar-panel__button--generate"
             :class="{
-              'toolbar-panel__button--loading': loading,
+              'toolbar-panel__button--loading': loading && !isGenerating,
               'toolbar-panel__button--pulse': showPulse && !isTouchDevice,
+              'toolbar-panel__button--stop': isGenerating,
             }"
             data-cy="fetch-btn"
             size="lg"
-            @click="extractGenerate"
+            @click="isGenerating ? stopGeneration() : extractGenerate()"
           >
             <template #icon-left>
-              <Sparkles :size="20" />
+              <Square v-if="isGenerating" :size="20" />
+              <Sparkles v-else :size="20" />
             </template>
-            {{ buttonLabel }}
+            {{ isGenerating ? t('toolbar.stop') : buttonLabel }}
           </ZenButton>
 
           <svg
-            v-if="isTouchDevice && isLongPressing"
+            v-if="isTouchDevice && isLongPressing && !isGenerating"
             class="long-press-progress"
             viewBox="0 0 44 44"
           >
@@ -245,6 +358,107 @@ useKeyboardShortcuts({
         </span>
       </ZenTooltip>
     </div>
+
+    <!-- Iterations control (shown after first load, hidden during generation) -->
+    <ZenExpandTransition>
+      <div v-if="firstLoaded && !isGenerating" class="toolbar-panel__config">
+        <div class="toolbar-panel__ink-separator" aria-hidden="true" />
+        <div class="toolbar-panel__config-row">
+          <Repeat :size="18" class="toolbar-panel__config-icon" aria-hidden="true" />
+          <span class="toolbar-panel__config-label">{{ t('toolbar.iterations') }}</span>
+          <span class="toolbar-panel__config-value">{{ optionIterations }}</span>
+        </div>
+        <ZenSlider
+          v-model="optionIterations"
+          :min="1"
+          :max="50"
+          :step="1"
+          size="sm"
+          :aria-label="t('toolbar.iterations')"
+        />
+        <div class="toolbar-panel__presets">
+          <button
+            v-for="preset in iterationPresets"
+            :key="preset"
+            class="toolbar-panel__preset"
+            :class="{ 'toolbar-panel__preset--active': optionIterations === preset }"
+            :aria-pressed="optionIterations === preset"
+            @click="optionIterations = preset"
+          >
+            {{ preset }}
+          </button>
+        </div>
+        <template v-if="isDev">
+          <div class="toolbar-panel__ink-separator" aria-hidden="true" />
+          <div class="toolbar-panel__dev-section">
+            <!-- Collapsible Header -->
+            <button
+              class="toolbar-panel__dev-header"
+              type="button"
+              :aria-expanded="devOptionsExpanded"
+              aria-controls="dev-options-content"
+              @click="devOptionsExpanded = !devOptionsExpanded"
+            >
+              <span class="toolbar-panel__dev-badge">DEV</span>
+              <span class="toolbar-panel__dev-title">Developer Options</span>
+              <ChevronDown
+                :size="16"
+                class="toolbar-panel__dev-chevron"
+                :class="{ 'toolbar-panel__dev-chevron--open': devOptionsExpanded }"
+              />
+            </button>
+
+            <!-- Collapsible Content -->
+            <ZenExpandTransition>
+              <div v-if="devOptionsExpanded" id="dev-options-content" class="toolbar-panel__dev-content">
+                <div class="toolbar-panel__dev-option">
+                  <Sparkles :size="14" class="toolbar-panel__dev-icon" />
+                  <ZenSwitch v-model="optionUseAI" label="AI Text" size="sm" />
+                </div>
+                <div class="toolbar-panel__dev-option">
+                  <ImageIcon :size="14" class="toolbar-panel__dev-icon" />
+                  <ZenSwitch v-model="optionImageAI" label="AI Image" size="sm" />
+                </div>
+              </div>
+            </ZenExpandTransition>
+          </div>
+        </template>
+      </div>
+    </ZenExpandTransition>
+
+    <!-- Progress display (visible during generation) -->
+    <ZenExpandTransition>
+      <div v-if="isGenerating" class="toolbar-panel__progress">
+        <div class="toolbar-panel__ink-separator" aria-hidden="true" />
+        <div class="toolbar-panel__progress-header">
+          <div class="toolbar-panel__progress-info">
+            <span class="toolbar-panel__progress-label">{{ t('toolbar.generating') }}</span>
+            <span class="toolbar-panel__progress-count">
+              {{ generationProgress.current }} / {{ generationProgress.total }}
+            </span>
+            <span v-if="estimatedTimeLeft" class="toolbar-panel__progress-eta">
+              • ~{{ estimatedTimeLeft }}s
+            </span>
+          </div>
+          <div
+            class="toolbar-panel__progress-score"
+            :class="{ 'toolbar-panel__progress-score--wow': scoreWow }"
+          >
+            <Trophy
+              :size="16"
+              class="toolbar-panel__score-icon"
+              :class="{ 'toolbar-panel__score-icon--bounce': scoreWow }"
+            />
+            <span>{{ generationProgress.bestScore.toFixed(1) }}</span>
+          </div>
+        </div>
+        <ZenProgress
+          :model-value="progressPercent"
+          :height="4"
+          :aria-label="t('toolbar.generating')"
+        />
+      </div>
+    </ZenExpandTransition>
 
     <div class="toolbar-panel__secondary">
       <ZenTooltip
@@ -411,8 +625,8 @@ useKeyboardShortcuts({
 .toolbar-panel {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 1rem;
+  width: 100%;
   padding: 1.5rem;
   margin-bottom: var(--gutenku-space-6);
 
@@ -455,7 +669,7 @@ useKeyboardShortcuts({
   }
 
   &__primary {
-    max-width: 280px;
+    width: 100%;
     display: flex;
     justify-content: center;
   }
@@ -465,13 +679,15 @@ useKeyboardShortcuts({
     gap: 0.5rem;
     align-items: center;
     justify-content: center;
-    padding: 0.75rem 0;
+    padding: 0.25rem 0;
   }
 
   &__action-btn.zen-btn {
+    aspect-ratio: 1;
     width: 2.5rem !important;
     height: 2.5rem !important;
     min-width: 2.5rem !important;
+    min-height: 2.5rem !important;
     padding: 0 !important;
     border-radius: var(--gutenku-radius-md);
     transition: all 0.2s ease;
@@ -527,6 +743,320 @@ useKeyboardShortcuts({
     &--pulse {
       animation: generate-pulse 2.5s ease-in-out infinite;
     }
+
+    &--stop {
+      background: var(--gutenku-error, #ef4444) !important;
+      border-color: var(--gutenku-error, #ef4444) !important;
+
+      &:hover {
+        opacity: 0.9;
+      }
+    }
+  }
+
+  &__config {
+    width: 100%;
+    padding: 0.5rem 0 1rem;
+  }
+
+  &__config-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  &__config-icon {
+    color: var(--gutenku-zen-primary);
+    margin-right: 0.5rem;
+    opacity: 0.8;
+  }
+
+  &__config-label {
+    flex: 1;
+    font-family: 'JMH Typewriter', monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--gutenku-text-primary);
+  }
+
+  &__config-value {
+    font-family: 'JMH Typewriter', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    background: color-mix(
+      in oklch,
+      var(--gutenku-theme-primary-oklch) 10%,
+      transparent
+    );
+    border: 1px solid
+      color-mix(in oklch, var(--gutenku-theme-primary-oklch) 25%, transparent);
+    border-radius: var(--gutenku-radius-sm);
+    color: var(--gutenku-zen-primary);
+    min-width: 2.5rem;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  &__progress {
+    width: 100%;
+    padding: 0.5rem 0 1rem;
+  }
+
+  &__progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  &__progress-info {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem 0.5rem;
+    flex-wrap: wrap;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__progress-label {
+    font-family: 'JMH Typewriter', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gutenku-text-muted);
+  }
+
+  &__progress-count {
+    font-family: 'JMH Typewriter', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--gutenku-text-primary);
+  }
+
+  &__progress-eta {
+    font-family: 'JMH Typewriter', monospace;
+    font-size: 0.75rem;
+    color: var(--gutenku-text-muted);
+    white-space: nowrap;
+  }
+
+  &__progress-score {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-family: 'JMH Typewriter', monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    background: color-mix(
+      in oklch,
+      var(--gutenku-theme-primary-oklch) 12%,
+      transparent
+    );
+    border-radius: var(--gutenku-radius-sm);
+    color: var(--gutenku-zen-primary);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    &--wow {
+      transform: scale(1.15);
+      background: color-mix(
+        in oklch,
+        var(--gutenku-theme-primary-oklch) 30%,
+        transparent
+      );
+      box-shadow:
+        0 0 12px
+          color-mix(
+            in oklch,
+            var(--gutenku-theme-primary-oklch) 40%,
+            transparent
+          ),
+        0 0 24px
+          color-mix(
+            in oklch,
+            var(--gutenku-theme-primary-oklch) 20%,
+            transparent
+          );
+    }
+  }
+
+  &__score-icon {
+    flex-shrink: 0;
+
+    &--bounce {
+      animation: trophy-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+  }
+
+  &__celebration {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    border-radius: inherit;
+    z-index: 10;
+  }
+
+  &__shimmer {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in oklch, var(--gutenku-zen-primary) 20%, transparent) 50%,
+      transparent 100%
+    );
+    animation: shimmer-sweep 1s ease-out forwards;
+  }
+
+  &__presets {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  &__ink-separator {
+    height: 1px;
+    margin: 0.75rem 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--gutenku-zen-accent) 20%,
+      var(--gutenku-zen-accent) 80%,
+      transparent 100%
+    );
+    opacity: 0.4;
+  }
+
+  &__preset {
+    font-family: 'JMH Typewriter', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.3rem 0.6rem;
+    border: none;
+    border-radius: var(--gutenku-radius-sm);
+    background: transparent;
+    color: var(--gutenku-text-muted);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+
+    // Subtle ink dot indicator
+    &::before {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      width: 3px;
+      height: 3px;
+      background: var(--gutenku-zen-primary);
+      border-radius: 50%;
+      transform: translateX(-50%) scale(0);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    &:hover {
+      color: var(--gutenku-zen-primary);
+      transform: translateY(-1px);
+    }
+
+    &--active {
+      background: color-mix(
+        in oklch,
+        var(--gutenku-zen-primary) 15%,
+        transparent
+      );
+      color: var(--gutenku-zen-primary);
+      font-weight: 700;
+
+      &::before {
+        transform: translateX(-50%) scale(1);
+      }
+    }
+  }
+
+  &__dev-section {
+    background: color-mix(in oklch, var(--gutenku-zen-primary) 5%, transparent);
+    border: 1px dashed color-mix(in oklch, var(--gutenku-zen-primary) 20%, transparent);
+    border-radius: var(--gutenku-radius-md);
+    overflow: hidden;
+  }
+
+  &__dev-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: color-mix(in oklch, var(--gutenku-zen-primary) 8%, transparent);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--gutenku-zen-accent);
+      outline-offset: -2px;
+    }
+  }
+
+  &__dev-badge {
+    font-family: 'JMH Typewriter', monospace;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.15rem 0.4rem;
+    background: color-mix(in oklch, var(--gutenku-zen-primary) 20%, transparent);
+    color: var(--gutenku-zen-primary);
+    border-radius: var(--gutenku-radius-sm);
+  }
+
+  &__dev-title {
+    flex: 1;
+    font-family: 'JMH Typewriter', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--gutenku-text-muted);
+    text-align: left;
+  }
+
+  &__dev-chevron {
+    color: var(--gutenku-text-muted);
+    transition: transform 0.2s ease;
+
+    &--open {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__dev-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-top: 1px dashed color-mix(in oklch, var(--gutenku-zen-primary) 15%, transparent);
+  }
+
+  &__dev-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__dev-icon {
+    color: var(--gutenku-zen-primary);
+    opacity: 0.7;
+    flex-shrink: 0;
   }
 
   &__navigation {
@@ -574,6 +1104,28 @@ useKeyboardShortcuts({
   &__header-subtitle {
     color: var(--gutenku-text-muted);
   }
+
+  &__dev-section {
+    background: color-mix(in oklch, var(--gutenku-zen-accent) 8%, transparent);
+    border-color: color-mix(in oklch, var(--gutenku-zen-accent) 25%, transparent);
+  }
+
+  &__dev-header:hover {
+    background: color-mix(in oklch, var(--gutenku-zen-accent) 12%, transparent);
+  }
+
+  &__dev-badge {
+    background: color-mix(in oklch, var(--gutenku-zen-accent) 25%, transparent);
+    color: var(--gutenku-zen-accent);
+  }
+
+  &__dev-content {
+    border-top-color: color-mix(in oklch, var(--gutenku-zen-accent) 20%, transparent);
+  }
+
+  &__dev-icon {
+    color: var(--gutenku-zen-accent);
+  }
 }
 
 @keyframes btn-stagger-in {
@@ -614,6 +1166,33 @@ useKeyboardShortcuts({
   }
 }
 
+@keyframes trophy-bounce {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.3) rotate(-8deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(8deg);
+  }
+  75% {
+    transform: scale(1.1) rotate(-4deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes shimmer-sweep {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
 @media (max-width: 768px) {
   .toolbar-panel {
     &__button.zen-btn {
@@ -624,6 +1203,7 @@ useKeyboardShortcuts({
       width: 2.75rem !important;
       height: 2.75rem !important;
       min-width: 2.75rem !important;
+      min-height: 2.75rem !important;
     }
   }
 }
@@ -666,6 +1246,34 @@ useKeyboardShortcuts({
       &:hover {
         transform: none;
       }
+    }
+
+    &__preset {
+      transition: none;
+
+      &:hover {
+        transform: none;
+      }
+
+      &::before {
+        transition: none;
+      }
+    }
+
+    &__shimmer {
+      animation: none;
+    }
+
+    &__celebration {
+      display: none;
+    }
+
+    &__dev-header {
+      transition: none;
+    }
+
+    &__dev-chevron {
+      transition: none;
     }
   }
 }

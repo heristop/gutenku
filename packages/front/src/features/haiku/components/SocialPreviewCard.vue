@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, useTemplateRef } from 'vue';
 import { storeToRefs } from 'pinia';
-import { Share2, Copy, Check } from 'lucide-vue-next';
+import { Share2, Copy, Check, Sparkles } from 'lucide-vue-next';
 import { generateSocialCaption, type HaikuValue } from '@gutenku/shared';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
 import { useInView } from '@/features/haiku/composables/in-view';
@@ -19,7 +19,6 @@ const { haiku, loading } = storeToRefs(store);
 const expanded = ref(true);
 const { copy, copied } = useClipboard();
 
-// Check if haiku has valid social data (title and translations from OpenAI)
 const hasValidData = computed(() => {
   const h = haiku.value;
   return h?.title && (h?.translations?.fr || h?.translations?.jp);
@@ -70,7 +69,10 @@ function copyCaption() {
           </ZenButton>
         </div>
         <div v-else class="social-panel__placeholder">
-          <p>Generate a new haiku to see AI description</p>
+          <Sparkles :size="24" class="social-panel__placeholder-icon" />
+          <p class="social-panel__placeholder-text">
+            Generate a new haiku to see AI description
+          </p>
         </div>
       </div>
     </ZenAccordion>
@@ -116,10 +118,26 @@ function copyCaption() {
   }
 
   &__placeholder {
-    text-align: center;
-    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.5rem 1rem;
+    background: var(--gutenku-zen-soft);
+    border-radius: var(--gutenku-radius-md);
+    border: 1px dashed var(--gutenku-border);
+  }
+
+  &__placeholder-icon {
+    color: var(--gutenku-zen-primary);
+    opacity: 0.6;
+  }
+
+  &__placeholder-text {
+    margin: 0;
+    font-size: 0.875rem;
     color: var(--gutenku-text-muted);
-    font-style: italic;
+    text-align: center;
   }
 }
 </style>

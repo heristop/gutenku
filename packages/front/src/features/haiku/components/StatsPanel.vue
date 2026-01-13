@@ -431,6 +431,11 @@ watch(avgTime, (val, oldVal) => {
 }
 
 [data-theme='dark'] .stats-panel {
+  &__inner {
+    background: var(--gutenku-paper-bg);
+    border: 1px solid oklch(0.72 0.04 178 / 0.3);
+  }
+
   &__title,
   &__books-title,
   &__book-title,
@@ -480,7 +485,7 @@ watch(avgTime, (val, oldVal) => {
 
   [data-theme='dark'] .stats-panel {
     &__inner {
-      background: oklch(0.12 0.02 60 / 0.8);
+      background: var(--gutenku-paper-bg);
       border: 1px solid oklch(0.72 0.04 178 / 0.3);
     }
   }

@@ -43,13 +43,13 @@ onMounted(startTypewriter);
         >
       </h1>
 
-      <ZenQuote
-        v-if="showQuote"
-        :key="currentQuote"
-        class="poetry-quote poetry-quote--animate"
-      >
-        {{ poetryQuotes[currentQuote] }}
-      </ZenQuote>
+      <p v-if="showQuote" class="poetry-quote">
+        <Transition name="quote-fade" mode="out-in">
+          <ZenQuote :key="currentQuote">
+            {{ poetryQuotes[currentQuote] }}
+          </ZenQuote>
+        </Transition>
+      </p>
     </div>
   </ZenCard>
 </template>
@@ -69,7 +69,7 @@ onMounted(startTypewriter);
   );
 
   [data-theme='dark'] & {
-    background: oklch(0.18 0.02 70 / 0.5) !important;
+    background: oklch(0.26 0.025 55 / 0.65) !important;
     backdrop-filter: blur(12px);
   }
 
@@ -143,36 +143,17 @@ onMounted(startTypewriter);
 }
 
 .poetry-quote {
-  display: block;
-  margin: 1rem 0 0 0;
-  line-height: 1.4;
-
-  &--animate {
-    animation: quote-fade-in 0.5s ease-out forwards;
-  }
-
-  @media (max-width: 768px) {
-    font-size: 0.85rem;
-  }
-}
-
-@keyframes quote-fade-in {
-  0% {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  position: relative;
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0.5rem 1.5rem;
+  z-index: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .poetry-quote--animate {
-    animation: none;
-    opacity: 1;
-  }
-
   .typewriter-cursor {
     animation: none;
     opacity: 0.4;

@@ -1,19 +1,15 @@
 import { defineStore } from 'pinia';
 import { ref, computed, markRaw } from 'vue';
 import type { HaikuValue, HaikuVersion } from '@gutenku/shared';
-import { gql, type CombinedError } from '@urql/vue';
-import { Sparkles, type LucideIcon } from 'lucide-vue-next';
+import type { CombinedError } from '@urql/vue';
+import { Leaf, type LucideIcon } from 'lucide-vue-next';
 import { urqlClient } from '@/client';
 import type { PersistenceOptions } from 'pinia-plugin-persistedstate';
-
-const HAIKU_VERSION_QUERY = gql`
-  query HaikuVersion($date: String!) {
-    haikuVersion(date: $date) {
-      date
-      version
-    }
-  }
-`;
+import {
+  HAIKU_VERSION_QUERY,
+  DAILY_HAIKU_QUERY,
+  ITERATIVE_HAIKU_SUBSCRIPTION,
+} from './queries';
 
 interface CachedDailyHaiku {
   haiku: HaikuValue;
@@ -22,6 +18,12 @@ interface CachedDailyHaiku {
 
 function getTodayUTC(): string {
   return new Date().toISOString().split('T')[0];
+}
+
+export interface GenerationProgress {
+  current: number;
+  total: number;
+  bestScore: number;
 }
 
 const getPersistConfig = (): PersistenceOptions | false => {
@@ -33,18 +35,14 @@ const getPersistConfig = (): PersistenceOptions | false => {
     pick: [
       'optionDrawerOpened',
       'optionTheme',
-      'optionMinSentimentScore',
-      'optionMinMarkovScore',
-      'optionMinPosScore',
-      'optionMinTrigramScore',
-      'optionMinTfidfScore',
-      'optionMinPhoneticsScore',
+      'optionIterations',
       'stats',
       'cachedVersion',
       'cachedDailyHaiku',
     ],
     afterHydrate: (ctx) => {
       const store = ctx.store;
+
       // Validate cached data on hydration
       if (store.cachedDailyHaiku && store.cachedVersion) {
         const today = getTodayUTC();
@@ -63,6 +61,8 @@ export interface CraftingMessage {
   text: string;
   timestamp: number;
   icon: LucideIcon;
+  verses?: string[];
+  score?: number;
 }
 
 interface Stats {
@@ -93,7 +93,6 @@ const MAX_HISTORY_SIZE = 10;
 export const useHaikuStore = defineStore(
   'haiku',
   () => {
-    // State
     const haiku = ref<HaikuValue>(null as unknown as HaikuValue);
     const loading = ref(false);
     const firstLoaded = ref(false);
@@ -103,21 +102,20 @@ export const useHaikuStore = defineStore(
     const history = ref<HaikuValue[]>([]);
     const historyIndex = ref(-1);
 
-    // Options state
     const optionDrawerOpened = ref(false);
     const optionUseCache = ref(true);
     const optionUseAI = ref(false);
     const optionImageAI = ref(false);
     const optionTheme = ref('random');
-    const optionFilter = ref('');
-    const optionMinSentimentScore = ref(0.1);
-    const optionMinMarkovScore = ref(0.1);
-    const optionMinPosScore = ref(0);
-    const optionMinTrigramScore = ref(0);
-    const optionMinTfidfScore = ref(0);
-    const optionMinPhoneticsScore = ref(0);
-    const optionDescriptionTemperature = ref(0.7);
-    const optionSelectionCount = ref(1);
+    const optionIterations = ref(1);
+
+    const isGenerating = ref(false);
+    const generationProgress = ref<GenerationProgress>({
+      current: 0,
+      total: 0,
+      bestScore: 0,
+    });
+    let generationUnsubscribe: (() => void) | null = null;
 
     const stats = ref<Stats>({
       haikusGenerated: 0,
@@ -128,11 +126,9 @@ export const useHaikuStore = defineStore(
       bookCounts: {},
     });
 
-    // Version caching state
     const cachedVersion = ref<string | null>(null);
     const cachedDailyHaiku = ref<CachedDailyHaiku | null>(null);
 
-    // Getters
     const networkError = computed(() => error.value === 'network-error');
     const notificationError = computed(() => error.value !== '');
 
@@ -166,35 +162,33 @@ export const useHaikuStore = defineStore(
     const historyLength = computed(() => history.value.length);
     const historyPosition = computed(() => historyIndex.value + 1);
 
-    // Helper: Add haiku to history
     function addToHistory(newHaiku: HaikuValue): void {
       if (historyIndex.value < history.value.length - 1) {
         history.value = history.value.slice(0, historyIndex.value + 1);
       }
       history.value.push(newHaiku);
+
       if (history.value.length > MAX_HISTORY_SIZE) {
         history.value.shift();
       }
       historyIndex.value = history.value.length - 1;
     }
 
-    // Helper: Update stats for new haiku
     function updateStats(newHaiku: HaikuValue): void {
       const isDaily = isDailyHaiku.value;
 
-      // Track daily haiku views
       if (isDaily) {
         stats.value.dailyHaikuViews += 1;
       } else if (newHaiku.cacheUsed !== true) {
-        // Track crafted haikus (non-cached, non-daily)
         stats.value.haikusGenerated += 1;
+
         if (typeof newHaiku.executionTime === 'number') {
           stats.value.totalExecutionTime += newHaiku.executionTime;
         }
       }
 
-      // Always track books (for both daily and crafted haikus)
       const bookTitle = newHaiku.book?.title?.trim();
+
       if (!bookTitle) {
         return;
       }
@@ -203,11 +197,11 @@ export const useHaikuStore = defineStore(
         stats.value.books.push(bookTitle);
         stats.value.booksBrowsed = stats.value.books.length;
       }
+
       stats.value.bookCounts[bookTitle] =
         (stats.value.bookCounts[bookTitle] || 0) + 1;
     }
 
-    // Helper: Check if cached daily haiku is still valid
     async function checkHaikuVersion(date: string): Promise<boolean> {
       try {
         const result = await urqlClient
@@ -225,7 +219,6 @@ export const useHaikuStore = defineStore(
       }
     }
 
-    // Helper: Try to use cached daily haiku
     function tryUseCachedDailyHaiku(today: string): boolean {
       if (
         cachedDailyHaiku.value &&
@@ -241,7 +234,6 @@ export const useHaikuStore = defineStore(
       return false;
     }
 
-    // Helper: Cache daily haiku with version
     async function cacheDailyHaiku(
       newHaiku: HaikuValue,
       date: string,
@@ -256,17 +248,17 @@ export const useHaikuStore = defineStore(
           cachedDailyHaiku.value = { haiku: newHaiku, date };
         }
       } catch {
-        // Silently fail - caching is optional
+        // Ignore cache errors
       }
     }
 
-    // Helper: Handle fetch error
     function handleFetchError(err: unknown): void {
       error.value = 'network-error';
 
       const isMaxAttemptsError = (e: unknown): boolean => {
         const combinedError = e as CombinedError;
         const graphErrors = combinedError?.graphQLErrors;
+
         if (graphErrors?.some((g) => g.message === 'max-attempts-error')) {
           return true;
         }
@@ -280,38 +272,6 @@ export const useHaikuStore = defineStore(
       }
     }
 
-    // Helper: Setup crafting message subscription
-    function setupCraftingSubscription(): () => void {
-      const subscriptionQuery = gql`
-        subscription QuoteGenerated {
-          quoteGenerated
-        }
-      `;
-
-      const { unsubscribe } = urqlClient
-        .subscription(subscriptionQuery, {})
-        .subscribe((result) => {
-          if (result.data?.quoteGenerated) {
-            const existingMessages = craftingMessages.value.map((m) => ({
-              ...m,
-              id: m.id || crypto.randomUUID(),
-            }));
-            craftingMessages.value = [
-              {
-                id: crypto.randomUUID(),
-                text: result.data.quoteGenerated,
-                timestamp: Date.now(),
-                icon: markRaw(Sparkles),
-              },
-              ...existingMessages,
-            ];
-          }
-        });
-
-      return unsubscribe;
-    }
-
-    // Helper: Process fetched haiku
     function processNewHaiku(
       newHaiku: HaikuValue | null,
       fetchingDaily: boolean,
@@ -330,14 +290,10 @@ export const useHaikuStore = defineStore(
       }
     }
 
-    // Actions
     async function fetchNewHaiku(): Promise<void> {
-      let subscriptionCleanup: (() => void) | null = null;
-
       const fetchingDaily = shouldUseDaily.value;
       const today = getTodayUTC();
 
-      // Check version cache for daily haiku
       if (fetchingDaily && cachedDailyHaiku.value?.date === today) {
         const isValid = await checkHaikuVersion(today);
         if (isValid && tryUseCachedDailyHaiku(today)) {
@@ -346,112 +302,131 @@ export const useHaikuStore = defineStore(
         }
       }
 
+      if (fetchingDaily) {
+        await fetchDailyHaiku(today);
+        return;
+      }
+
+      await fetchIterativeHaiku();
+    }
+
+    async function fetchDailyHaiku(today: string): Promise<void> {
       try {
         loading.value = true;
         error.value = '';
         craftingMessages.value = [];
 
-        subscriptionCleanup = setupCraftingSubscription();
-
-        const queryHaiku = gql`
-          query Query(
-            $useAi: Boolean
-            $useCache: Boolean
-            $useDaily: Boolean
-            $date: String
-            $useImageAI: Boolean
-            $theme: String
-            $filter: String
-            $sentimentMinScore: Float
-            $markovMinScore: Float
-            $posMinScore: Float
-            $trigramMinScore: Float
-            $tfidfMinScore: Float
-            $phoneticsMinScore: Float
-            $descriptionTemperature: Float
-            $selectionCount: Int
-          ) {
-            haiku(
-              useAI: $useAi
-              useCache: $useCache
-              useDaily: $useDaily
-              date: $date
-              useImageAI: $useImageAI
-              theme: $theme
-              filter: $filter
-              sentimentMinScore: $sentimentMinScore
-              markovMinScore: $markovMinScore
-              posMinScore: $posMinScore
-              trigramMinScore: $trigramMinScore
-              tfidfMinScore: $tfidfMinScore
-              phoneticsMinScore: $phoneticsMinScore
-              descriptionTemperature: $descriptionTemperature
-              selectionCount: $selectionCount
-            ) {
-              book {
-                reference
-                title
-                author
-                emoticons
-              }
-              chapter {
-                content
-                title
-              }
-              verses
-              rawVerses
-              image
-              title
-              description
-              hashtags
-              translations {
-                fr
-                jp
-                es
-              }
-              cacheUsed
-              executionTime
-            }
-          }
-        `;
-
         const variables = {
-          useAi: optionUseAI.value,
-          useCache: shouldUseCache.value,
-          useDaily: shouldUseDaily.value,
-          date: shouldUseDaily.value ? today : undefined,
-          useImageAI:
-            optionImageAI.value && import.meta.env.DEV ? true : undefined,
+          useCache: true,
+          useDaily: true,
+          date: today,
           theme: optionTheme.value,
-          filter: optionFilter.value,
-          sentimentMinScore: optionMinSentimentScore.value,
-          markovMinScore: optionMinMarkovScore.value,
-          posMinScore: optionMinPosScore.value,
-          trigramMinScore: optionMinTrigramScore.value,
-          tfidfMinScore: optionMinTfidfScore.value,
-          phoneticsMinScore: optionMinPhoneticsScore.value,
-          descriptionTemperature: optionDescriptionTemperature.value,
-          selectionCount: import.meta.env.DEV
-            ? optionSelectionCount.value
-            : undefined,
-          appendImg: true,
         };
 
         const result = await urqlClient
-          .query<{ haiku: HaikuValue | null }>(queryHaiku, variables)
+          .query<{ haiku: HaikuValue | null }>(DAILY_HAIKU_QUERY, variables)
           .toPromise();
 
         if (result.error) {
           throw result.error;
         }
 
-        processNewHaiku(result.data?.haiku ?? null, fetchingDaily, today);
+        processNewHaiku(result.data?.haiku ?? null, true, today);
       } catch (err: unknown) {
         handleFetchError(err);
       } finally {
-        if (subscriptionCleanup) {
-          subscriptionCleanup();
-        }
+        firstLoaded.value = true;
+        loading.value = false;
+      }
+    }
+
+    async function fetchIterativeHaiku(): Promise<void> {
+      const today = getTodayUTC();
+
+      try {
+        loading.value = true;
+        isGenerating.value = true;
+        error.value = '';
+        craftingMessages.value = [];
+        generationProgress.value = {
+          current: 0,
+          total: optionIterations.value,
+          bestScore: 0,
+        };
+
+        const variables = {
+          iterations: optionIterations.value,
+          theme: optionTheme.value,
+        };
+
+        await new Promise<void>((resolve, reject) => {
+          let lastDisplayedScore = -Infinity;
+
+          interface HaikuGenerationResult {
+            data?: {
+              haikuGeneration?: {
+                currentIteration: number;
+                totalIterations: number;
+                bestScore: number;
+                isComplete: boolean;
+                bestHaiku?: HaikuValue;
+              };
+            };
+            error?: Error;
+          }
+
+          const { unsubscribe } = urqlClient
+            .subscription(ITERATIVE_HAIKU_SUBSCRIPTION, variables)
+            .subscribe((result: HaikuGenerationResult) => {
+              if (result.error) {
+                reject(result.error);
+                return;
+              }
+
+              const progress = result.data?.haikuGeneration;
+
+              if (progress) {
+                generationProgress.value = {
+                  current: progress.currentIteration,
+                  total: progress.totalIterations,
+                  bestScore: progress.bestScore,
+                };
+
+                if (
+                  progress.bestHaiku?.verses &&
+                  progress.bestScore > lastDisplayedScore
+                ) {
+                  lastDisplayedScore = progress.bestScore;
+                  craftingMessages.value = [
+                    {
+                      id: crypto.randomUUID(),
+                      text: progress.bestHaiku.verses.join(' / '),
+                      verses: progress.bestHaiku.verses,
+                      score: progress.bestScore,
+                      timestamp: Date.now(),
+                      icon: markRaw(Leaf),
+                    },
+                    ...craftingMessages.value,
+                  ];
+                }
+
+                if (progress.isComplete && progress.bestHaiku) {
+                  processNewHaiku(progress.bestHaiku, false, today);
+                  resolve();
+                }
+              }
+            });
+
+          generationUnsubscribe = () => {
+            unsubscribe();
+            resolve();
+          };
+        });
+      } catch (err: unknown) {
+        handleFetchError(err);
+      } finally {
+        generationUnsubscribe = null;
+        isGenerating.value = false;
         firstLoaded.value = true;
         loading.value = false;
       }
@@ -476,12 +451,15 @@ export const useHaikuStore = defineStore(
     }
 
     function resetConfigToDefaults(): void {
-      optionMinSentimentScore.value = 0.1;
-      optionMinMarkovScore.value = 0.1;
-      optionMinPosScore.value = 0;
-      optionMinTrigramScore.value = 0;
-      optionMinTfidfScore.value = 0;
-      optionMinPhoneticsScore.value = 0;
+      optionIterations.value = 1;
+    }
+
+    function stopGeneration(): void {
+      if (generationUnsubscribe) {
+        generationUnsubscribe();
+        generationUnsubscribe = null;
+      }
+      isGenerating.value = false;
     }
 
     return {
@@ -499,15 +477,9 @@ export const useHaikuStore = defineStore(
       optionUseAI,
       optionImageAI,
       optionTheme,
-      optionFilter,
-      optionMinSentimentScore,
-      optionMinMarkovScore,
-      optionMinPosScore,
-      optionMinTrigramScore,
-      optionMinTfidfScore,
-      optionMinPhoneticsScore,
-      optionDescriptionTemperature,
-      optionSelectionCount,
+      optionIterations,
+      isGenerating,
+      generationProgress,
       stats,
       cachedVersion,
       cachedDailyHaiku,
@@ -528,6 +500,7 @@ export const useHaikuStore = defineStore(
       goBack,
       goForward,
       resetConfigToDefaults,
+      stopGeneration,
     };
   },
   {
