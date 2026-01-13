@@ -330,7 +330,8 @@ onMounted(() => {
 <style lang="scss" scoped>
 .theme-toggle-wrapper {
   position: fixed;
-  top: 0;
+  top: -20px;
+  padding-top: 20px;
   right: 1.5rem;
   z-index: 1000;
   display: flex;
