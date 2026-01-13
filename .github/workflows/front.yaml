@@ -38,6 +38,9 @@ jobs:
       - name: Lint CSS
         run: pnpm --filter @gutenku/front lint:css
 
+      - name: Build shared
+        run: pnpm --filter @gutenku/shared build
+
       - name: Build
         run: pnpm --filter @gutenku/front build
 

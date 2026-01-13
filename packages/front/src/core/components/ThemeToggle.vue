@@ -114,11 +114,13 @@ function toggleSystemPreference() {
 
 // Desktop tooltips
 const lightDarkTooltip = computed(() =>
-  isDarkMode.value ? t('theme.switchToLight') : t('theme.switchToDark')
+  isDarkMode.value ? t('theme.switchToLight') : t('theme.switchToDark'),
 );
 
 const systemTooltip = computed(() =>
-  systemPreferenceEnabled.value ? t('theme.disableSystem') : t('theme.enableSystem')
+  systemPreferenceEnabled.value
+    ? t('theme.disableSystem')
+    : t('theme.enableSystem'),
 );
 
 // Silk thread animation state
@@ -144,14 +146,14 @@ function handleSystemClick() {
 // Initialize on mount
 onMounted(() => {
   // Detect touch devices
-  isTouchDevice.value = 'ontouchstart' in globalThis || navigator.maxTouchPoints > 0;
+  isTouchDevice.value =
+    'ontouchstart' in globalThis || navigator.maxTouchPoints > 0;
 
   // Trigger entrance animation after a small delay
   setTimeout(() => {
     triggerBounce();
   }, 300);
 });
-
 </script>
 
 <template>
@@ -183,14 +185,22 @@ onMounted(() => {
   </ZenTooltip>
 
   <!-- Default variant: floating button (desktop only) -->
-  <div v-else class="theme-toggle-wrapper" :class="{ 'theme-toggle-wrapper--animating': isAnimating }">
+  <div
+    v-else
+    class="theme-toggle-wrapper"
+    :class="{ 'theme-toggle-wrapper--animating': isAnimating }"
+  >
     <!-- Top silk thread -->
     <div class="silk-thread silk-thread--top" aria-hidden="true">
       <div class="silk-thread__line" />
     </div>
 
     <!-- Main theme toggle (light/dark only) -->
-    <ZenTooltip :text="lightDarkTooltip" position="left" :disabled="isTouchDevice">
+    <ZenTooltip
+      :text="lightDarkTooltip"
+      position="left"
+      :disabled="isTouchDevice"
+    >
       <button
         class="theme-toggle"
         :aria-label="lightDarkTooltip"
@@ -243,11 +253,12 @@ onMounted(() => {
     </div>
 
     <!-- Locale toggle -->
-    <div
-      class="locale-wrapper"
-      @keydown="handleLocaleKeydown"
-    >
-      <ZenTooltip :text="t('locale.switch')" position="left" :disabled="isTouchDevice">
+    <div class="locale-wrapper" @keydown="handleLocaleKeydown">
+      <ZenTooltip
+        :text="t('locale.switch')"
+        position="left"
+        :disabled="isTouchDevice"
+      >
         <button
           type="button"
           class="locale-toggle"
@@ -256,7 +267,9 @@ onMounted(() => {
           aria-haspopup="listbox"
           @click="toggleLocaleDropdown"
         >
-          <span class="locale-toggle__code">{{ currentLocale.toUpperCase() }}</span>
+          <span class="locale-toggle__code">{{
+            currentLocale.toUpperCase()
+          }}</span>
         </button>
       </ZenTooltip>
       <Transition name="locale-dropdown">
@@ -273,7 +286,9 @@ onMounted(() => {
             role="option"
             :aria-selected="locale === currentLocale"
             class="locale-dropdown__option"
-            :class="{ 'locale-dropdown__option--active': locale === currentLocale }"
+            :class="{
+              'locale-dropdown__option--active': locale === currentLocale,
+            }"
             @click="selectLocale(locale)"
           >
             {{ getLocaleLabel(locale) }}
@@ -293,7 +308,11 @@ onMounted(() => {
     </div>
 
     <!-- Accessibility toggle -->
-    <ZenTooltip :text="dyslexiaTooltip" position="left" :disabled="isTouchDevice">
+    <ZenTooltip
+      :text="dyslexiaTooltip"
+      position="left"
+      :disabled="isTouchDevice"
+    >
       <button
         type="button"
         class="a11y-toggle"
@@ -312,13 +331,14 @@ onMounted(() => {
 .theme-toggle-wrapper {
   position: fixed;
   top: 0;
-  right: 1rem;
+  right: 1.5rem;
   z-index: 1000;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0;
   contain: layout;
+  overflow: hidden;
 
   // Hover glow effect on threads
   &:hover .silk-thread__line {
@@ -405,7 +425,8 @@ onMounted(() => {
 
 // Shimmer animation
 @keyframes shimmer {
-  0%, 100% {
+  0%,
+  100% {
     top: -100%;
     opacity: 0;
   }
@@ -416,7 +437,8 @@ onMounted(() => {
     top: 100%;
     opacity: 1;
   }
-  40%, 100% {
+  40%,
+  100% {
     top: 100%;
     opacity: 0;
   }
@@ -439,15 +461,33 @@ onMounted(() => {
   }
 
   // Stagger animation - cascade effect like a chain
-  > *:nth-child(1) { animation-delay: 0ms; }
-  > *:nth-child(2) { animation-delay: 0ms; }
-  > *:nth-child(3) { animation-delay: 25ms; }
-  > *:nth-child(4) { animation-delay: 50ms; }
-  > *:nth-child(5) { animation-delay: 75ms; }
-  > *:nth-child(6) { animation-delay: 100ms; }
-  > *:nth-child(7) { animation-delay: 125ms; }
-  > *:nth-child(8) { animation-delay: 150ms; }
-  > *:nth-child(9) { animation-delay: 175ms; }
+  > *:nth-child(1) {
+    animation-delay: 0ms;
+  }
+  > *:nth-child(2) {
+    animation-delay: 0ms;
+  }
+  > *:nth-child(3) {
+    animation-delay: 25ms;
+  }
+  > *:nth-child(4) {
+    animation-delay: 50ms;
+  }
+  > *:nth-child(5) {
+    animation-delay: 75ms;
+  }
+  > *:nth-child(6) {
+    animation-delay: 100ms;
+  }
+  > *:nth-child(7) {
+    animation-delay: 125ms;
+  }
+  > *:nth-child(8) {
+    animation-delay: 150ms;
+  }
+  > *:nth-child(9) {
+    animation-delay: 175ms;
+  }
 }
 
 // Main elastic drop - gravity pull then spring bounce
@@ -625,7 +665,11 @@ onMounted(() => {
 
   &:hover {
     background:
-      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.2) 0%, transparent 50%),
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.2) 0%,
+        transparent 50%
+      ),
       var(--gutenku-zen-primary);
     border-color: var(--gutenku-zen-primary);
     transform: translateY(-2px) scale(1.05);
@@ -645,7 +689,9 @@ onMounted(() => {
     box-shadow:
       0 1px 4px oklch(0.45 0.08 195 / 0.2),
       inset 0 2px 4px oklch(0 0 0 / 0.1);
-    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    transition:
+      transform 0.1s ease,
+      box-shadow 0.1s ease;
   }
 
   &:focus-visible {
@@ -665,7 +711,11 @@ onMounted(() => {
 [data-theme='dark'] {
   .theme-toggle {
     background:
-      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.08) 0%, transparent 50%),
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.08) 0%,
+        transparent 50%
+      ),
       oklch(0.25 0.04 195 / 0.7);
     border-color: oklch(0.5 0.08 195 / 0.3);
     box-shadow:
@@ -674,7 +724,11 @@ onMounted(() => {
 
     &:hover {
       background:
-        radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.12) 0%, transparent 50%),
+        radial-gradient(
+          circle at 30% 30%,
+          oklch(1 0 0 / 0.12) 0%,
+          transparent 50%
+        ),
         var(--gutenku-zen-accent);
       border-color: var(--gutenku-zen-accent);
       box-shadow:
@@ -823,7 +877,11 @@ onMounted(() => {
 
   &:hover {
     background:
-      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.15) 0%, transparent 50%),
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.15) 0%,
+        transparent 50%
+      ),
       var(--gutenku-zen-primary);
     border-color: var(--gutenku-zen-primary);
     transform: scale(1.05);
@@ -937,7 +995,11 @@ onMounted(() => {
 
   &:hover {
     background:
-      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.15) 0%, transparent 50%),
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.15) 0%,
+        transparent 50%
+      ),
       var(--gutenku-zen-primary);
     border-color: var(--gutenku-zen-primary);
     transform: scale(1.05);
@@ -955,7 +1017,11 @@ onMounted(() => {
 
   &--active {
     background:
-      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.15) 0%, transparent 50%),
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.15) 0%,
+        transparent 50%
+      ),
       var(--gutenku-zen-primary);
     border-color: var(--gutenku-zen-primary);
     color: white;
@@ -985,7 +1051,11 @@ onMounted(() => {
 
   &:hover {
     background:
-      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.15) 0%, transparent 50%),
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.15) 0%,
+        transparent 50%
+      ),
       var(--gutenku-zen-primary);
     border-color: var(--gutenku-zen-primary);
     transform: scale(1.05);
@@ -999,7 +1069,11 @@ onMounted(() => {
 
   &--active {
     background:
-      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.15) 0%, transparent 50%),
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.15) 0%,
+        transparent 50%
+      ),
       var(--gutenku-zen-primary);
     border-color: var(--gutenku-zen-primary);
     color: white;
@@ -1010,7 +1084,11 @@ onMounted(() => {
 [data-theme='dark'] {
   .locale-toggle {
     background:
-      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.06) 0%, transparent 50%),
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.06) 0%,
+        transparent 50%
+      ),
       oklch(0.25 0.04 195 / 0.6);
     border-color: oklch(0.5 0.08 195 / 0.25);
 
@@ -1020,7 +1098,11 @@ onMounted(() => {
 
     &:hover {
       background:
-        radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.1) 0%, transparent 50%),
+        radial-gradient(
+          circle at 30% 30%,
+          oklch(1 0 0 / 0.1) 0%,
+          transparent 50%
+        ),
         var(--gutenku-zen-accent);
       border-color: var(--gutenku-zen-accent);
 
@@ -1059,14 +1141,22 @@ onMounted(() => {
 
   .system-toggle {
     background:
-      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.06) 0%, transparent 50%),
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.06) 0%,
+        transparent 50%
+      ),
       oklch(0.25 0.04 195 / 0.6);
     border-color: oklch(0.5 0.08 195 / 0.25);
     color: var(--gutenku-zen-accent);
 
     &:hover {
       background:
-        radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.1) 0%, transparent 50%),
+        radial-gradient(
+          circle at 30% 30%,
+          oklch(1 0 0 / 0.1) 0%,
+          transparent 50%
+        ),
         var(--gutenku-zen-accent);
       border-color: var(--gutenku-zen-accent);
       color: oklch(0.12 0.02 195);
@@ -1074,7 +1164,11 @@ onMounted(() => {
 
     &--active {
       background:
-        radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.1) 0%, transparent 50%),
+        radial-gradient(
+          circle at 30% 30%,
+          oklch(1 0 0 / 0.1) 0%,
+          transparent 50%
+        ),
         var(--gutenku-zen-accent);
       border-color: var(--gutenku-zen-accent);
       color: oklch(0.12 0.02 195);
@@ -1083,14 +1177,22 @@ onMounted(() => {
 
   .a11y-toggle {
     background:
-      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.06) 0%, transparent 50%),
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.06) 0%,
+        transparent 50%
+      ),
       oklch(0.25 0.04 195 / 0.6);
     border-color: oklch(0.5 0.08 195 / 0.25);
     color: var(--gutenku-zen-accent);
 
     &:hover {
       background:
-        radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.1) 0%, transparent 50%),
+        radial-gradient(
+          circle at 30% 30%,
+          oklch(1 0 0 / 0.1) 0%,
+          transparent 50%
+        ),
         var(--gutenku-zen-accent);
       border-color: var(--gutenku-zen-accent);
       color: oklch(0.12 0.02 195);
@@ -1098,7 +1200,11 @@ onMounted(() => {
 
     &--active {
       background:
-        radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.1) 0%, transparent 50%),
+        radial-gradient(
+          circle at 30% 30%,
+          oklch(1 0 0 / 0.1) 0%,
+          transparent 50%
+        ),
         var(--gutenku-zen-accent);
       border-color: var(--gutenku-zen-accent);
       color: oklch(0.12 0.02 195);

@@ -20,7 +20,10 @@ const { stats, loading } = storeToRefs(store);
 const avgTime = computed(() => store.avgExecutionTime.toFixed(2));
 
 const topBooks = computed(() => {
-  const entries = Object.entries(stats.value.bookCounts || {});
+  const entries = Object.entries(stats.value.bookCounts || {}) as [
+    string,
+    number,
+  ][];
   entries.sort((a, b) => b[1] - a[1]);
   return entries.slice(0, 3);
 });

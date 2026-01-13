@@ -42,22 +42,18 @@ let lastScore = 0;
 
 // Animated total score for card display
 const cardScoreTarget = computed(() => props.quality?.totalScore ?? 0);
-const { count: animatedCardScore, animate: animateCardScore } = useAnimatedCounter(
-  cardScoreTarget,
-  {
+const { count: animatedCardScore, animate: animateCardScore } =
+  useAnimatedCounter(cardScoreTarget, {
     duration: 800,
     initialDelay: 300,
-  },
-);
+  });
 
 // Animated total score for modal
-const { count: animatedModalScore, animate: animateModalScore } = useAnimatedCounter(
-  cardScoreTarget,
-  {
+const { count: animatedModalScore, animate: animateModalScore } =
+  useAnimatedCounter(cardScoreTarget, {
     duration: 1200,
     initialDelay: 200,
-  },
-);
+  });
 
 // Trigger card animation when becomes visible
 watch(
@@ -136,11 +132,10 @@ const categories = computed(() => [
 ]);
 
 // Normalize metrics to 0-1 range for RadialProgress
-function normalizeMetric(
-  key: keyof HaikuQualityScore,
-  value: number,
-): number {
-  const normalizers: Partial<Record<keyof HaikuQualityScore, (v: number) => number>> = {
+function normalizeMetric(key: keyof HaikuQualityScore, value: number): number {
+  const normalizers: Partial<
+    Record<keyof HaikuQualityScore, (v: number) => number>
+  > = {
     // Already 0-1
     sentiment: (v) => v,
     grammar: (v) => v,
@@ -167,15 +162,12 @@ function normalizeMetric(
 }
 
 // Get raw value for display tooltip
-function getDisplayValue(
-  key: keyof HaikuQualityScore,
-  value: number,
-): string {
-  if (['trigramFlow', 'markovFlow'].includes(key)) {
+function getDisplayValue(key: keyof HaikuQualityScore, value: number): string {
+  if (['trigramFlow', 'markovFlow'].includes(key as string)) {
     return value.toFixed(1);
   }
 
-  if (['natureWords', 'repeatedWords', 'weakStarts'].includes(key)) {
+  if (['natureWords', 'repeatedWords', 'weakStarts'].includes(key as string)) {
     return value.toString();
   }
   return `${Math.round(value * 100)}%`;
@@ -201,7 +193,9 @@ function getDelay(categoryIndex: number, metricIndex: number): number {
       <Trophy :size="24" class="scoring-card__header-icon" aria-hidden="true" />
       <div class="scoring-card__header-content">
         <h2 class="scoring-card__header-title">{{ t('scoring.title') }}</h2>
-        <span class="scoring-card__header-subtitle">{{ t('scoring.subtitle') }}</span>
+        <span class="scoring-card__header-subtitle">{{
+          t('scoring.subtitle')
+        }}</span>
       </div>
     </div>
 
@@ -221,7 +215,9 @@ function getDelay(categoryIndex: number, metricIndex: number): number {
         />
         <div class="scoring-card__score-info">
           <span class="scoring-card__score-value">{{ animatedCardScore }}</span>
-          <span class="scoring-card__score-label">{{ t('scoring.total') }}</span>
+          <span class="scoring-card__score-label">{{
+            t('scoring.total')
+          }}</span>
         </div>
       </div>
     </div>
@@ -294,7 +290,9 @@ function getDelay(categoryIndex: number, metricIndex: number): number {
               :key="metric"
               class="scoring-modal__metric"
               :class="{ 'scoring-modal__metric--revealed': isRevealed }"
-              :style="{ '--stagger-delay': `${getDelay(catIndex, metricIndex)}ms` }"
+              :style="{
+                '--stagger-delay': `${getDelay(catIndex, metricIndex)}ms`,
+              }"
               :title="getDisplayValue(metric, quality[metric])"
             >
               <RadialProgress
@@ -382,7 +380,8 @@ $spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
     &--wow {
       transform: scale(1.05);
       box-shadow:
-        0 0 20px color-mix(in oklch, var(--gutenku-zen-primary) 30%, transparent),
+        0 0 20px
+          color-mix(in oklch, var(--gutenku-zen-primary) 30%, transparent),
         0 4px 12px oklch(0 0 0 / 0.1);
     }
   }
@@ -429,7 +428,11 @@ $spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
     &:hover {
       color: var(--gutenku-zen-primary);
       border-color: var(--gutenku-zen-primary);
-      background: color-mix(in oklch, var(--gutenku-zen-primary) 8%, transparent);
+      background: color-mix(
+        in oklch,
+        var(--gutenku-zen-primary) 8%,
+        transparent
+      );
       transform: translateY(-1px);
     }
 
@@ -626,7 +629,8 @@ $spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
 
       &--wow {
         box-shadow:
-          0 0 20px color-mix(in oklch, var(--gutenku-zen-accent) 40%, transparent),
+          0 0 20px
+            color-mix(in oklch, var(--gutenku-zen-accent) 40%, transparent),
           0 4px 12px oklch(0 0 0 / 0.2);
       }
     }
@@ -634,7 +638,11 @@ $spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
     &__details-btn:hover {
       color: var(--gutenku-zen-accent);
       border-color: var(--gutenku-zen-accent);
-      background: color-mix(in oklch, var(--gutenku-zen-accent) 10%, transparent);
+      background: color-mix(
+        in oklch,
+        var(--gutenku-zen-accent) 10%,
+        transparent
+      );
     }
   }
 
