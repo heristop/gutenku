@@ -1,6 +1,5 @@
 {
   "name": "gutenku",
-  "version": "2.0.0",
   "private": true,
   "license": "GPL-3.0",
   "scripts": {
@@ -11,7 +10,7 @@
     "format:check": "oxfmt --check",
     "test": "pnpm -r --if-present --filter '!./private/**' run test",
     "start": "pnpm --filter @gutenku/server dev",
-    "dev": "pnpm -r --if-present --filter '!./private/**' --parallel run dev",
+    "dev": "pnpm --filter @gutenku/shared build && pnpm -r --if-present --filter '!./private/**' --parallel run dev",
     "setup": "pnpm --filter @gutenku/server run setup:books",
     "setup:reset": "pnpm --filter @gutenku/server run setup:books:reset",
     "extract": "pnpm --filter @gutenku/server extract",
@@ -19,15 +18,16 @@
     "post": "pnpm --filter @gutenku/server post",
     "build": "pnpm --filter @gutenguess/shared run build && pnpm -r --if-present --filter '!./private/**' run build",
     "prepare": "husky",
-    "submodule:update": "./scripts/update-submodule.sh"
+    "submodule:update": "./scripts/update-submodule.sh",
+    "setup:covers": "./scripts/setup-covers.sh"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^20.3.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
-    "oxfmt": "^0.23.0",
-    "oxlint": "^1.38.0",
-    "tsdown": "0.19.0-beta.5"
+    "oxfmt": "^0.24.0",
+    "oxlint": "^1.39.0",
+    "tsdown": "0.20.0-beta.1"
   },
   "packageManager": "pnpm@10.27.0"
 }

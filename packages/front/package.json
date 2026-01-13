@@ -1,6 +1,6 @@
 {
   "name": "@gutenku/front",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -19,13 +19,14 @@
   "dependencies": {
     "@fingerprintjs/botd": "^2.0.0",
     "@gutenku/shared": "workspace:*",
-    "@unhead/vue": "^2.1.1",
+    "@unhead/vue": "^2.1.2",
     "@urql/vue": "^2.0.0",
     "@vueuse/core": "^14.1.0",
     "@vueuse/motion": "^3.0.3",
     "graphql": "^16.12.0",
     "graphql-ws": "^6.0.6",
     "lucide-vue-next": "^0.562.0",
+    "marked": "^17.0.1",
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",
     "vue": "^3.5.26",
@@ -33,10 +34,10 @@
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
-    "@babel/types": "^7.28.5",
+    "@babel/types": "^7.28.6",
     "@intlify/unplugin-vue-i18n": "^11.0.3",
     "@lhci/cli": "^0.15.1",
-    "@types/node": "^25.0.3",
+    "@types/node": "^25.0.6",
     "@types/webfontloader": "^1.6.38",
     "@types/zen-observable": "^0.8.7",
     "@vitejs/plugin-vue": "^6.0.3",
