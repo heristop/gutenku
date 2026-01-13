@@ -16,6 +16,7 @@
   font-weight: normal;
   font-style: normal;
   font-display: swap;
+  size-adjust: 105%;
 }
 
 /* OpenDyslexic font is loaded dynamically via accessibility.ts only when needed */

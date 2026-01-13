@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
 import {
   ExternalLink,
   Instagram,
@@ -17,11 +16,11 @@ const modelValue = defineModel<boolean>({ default: false });
 const { t } = useI18n();
 const currentYear = new Date().getFullYear();
 
-const haikuLines = computed(() => [
-  t('footer.credits.line1'),
-  t('footer.credits.line2'),
-  t('footer.credits.line3'),
-]);
+const haikuLines = [
+  'Code flows like water',
+  'heristop crafts each pixel',
+  'Haiku born from books',
+];
 </script>
 
 <template>
@@ -36,38 +35,54 @@ const haikuLines = computed(() => [
     <!-- Haiku content -->
     <ZenHaiku :lines="haikuLines" class="zen-credits-modal__haiku" />
 
-    <!-- Author -->
-    <p class="zen-credits-modal__author">
-      {{ t('footer.credits.craftedBy') }} <strong>heristop</strong>
-    </p>
+    <!-- Credits info card -->
+    <div class="zen-credits-modal__info">
+      <!-- Author -->
+      <p class="zen-credits-modal__author">
+        {{ t('footer.credits.craftedBy') }} <strong>heristop</strong>
+      </p>
 
-    <!-- Hanko stamp -->
-    <div class="zen-credits-modal__hanko" aria-hidden="true">
-      <svg viewBox="0 0 40 40">
-        <circle
-          cx="20"
-          cy="20"
-          r="18"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        />
-        <text
-          x="20"
-          y="24"
-          text-anchor="middle"
-          font-size="12"
-          fill="currentColor"
+      <!-- Hanko stamp -->
+      <div class="zen-credits-modal__hanko" aria-hidden="true">
+        <svg viewBox="0 0 40 40">
+          <circle
+            cx="20"
+            cy="20"
+            r="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          />
+          <text
+            x="20"
+            y="24"
+            text-anchor="middle"
+            font-size="12"
+            fill="currentColor"
+          >
+            俳
+          </text>
+        </svg>
+      </div>
+
+      <!-- Year -->
+      <p class="zen-credits-modal__year">
+        ～ {{ t('footer.credits.years', { year: currentYear }) }} ～
+      </p>
+
+      <!-- Inspiration -->
+      <p class="zen-credits-modal__inspiration">
+        {{ t('footer.credits.inspiredBy') }}
+        <a
+          href="https://www.instagram.com/haiku_mariniere/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="zen-credits-modal__inspiration-link"
         >
-          俳
-        </text>
-      </svg>
+          Haiku Marinière
+        </a>
+      </p>
     </div>
-
-    <!-- Year -->
-    <p class="zen-credits-modal__year">
-      ～ {{ t('footer.credits.years', { year: currentYear }) }} ～
-    </p>
 
     <!-- Portfolio Link -->
     <div class="zen-credits-modal__links">
@@ -164,11 +179,22 @@ const haikuLines = computed(() => [
     margin-bottom: 1.5rem;
   }
 
+  &__info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+    background: var(--gutenku-paper-bg-aged);
+    border-radius: var(--gutenku-radius-md);
+    border: 1px solid var(--gutenku-paper-border);
+  }
+
   &__author {
     position: relative;
     font-size: 0.95rem;
     color: var(--gutenku-text-primary);
-    margin: 0 0 1rem;
+    margin: 0;
     opacity: 0;
     animation: fade-in 0.3s ease forwards;
     animation-delay: 1.4s;
@@ -181,9 +207,9 @@ const haikuLines = computed(() => [
   }
 
   &__year {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--gutenku-text-muted);
-    margin: 0 0 1.5rem;
+    margin: 0.25rem 0 0;
     opacity: 0;
     animation: fade-in 0.3s ease forwards;
     animation-delay: 1.8s;
@@ -191,11 +217,38 @@ const haikuLines = computed(() => [
     position: relative;
   }
 
+  &__inspiration {
+    position: relative;
+    font-size: 0.8rem;
+    color: var(--gutenku-text-muted);
+    margin: 0.75rem 0 0;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--gutenku-paper-border);
+    opacity: 0;
+    animation: fade-in 0.3s ease forwards;
+    animation-delay: 2s;
+    z-index: 1;
+    width: 100%;
+    text-align: center;
+  }
+
+  &__inspiration-link {
+    color: var(--gutenku-zen-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: var(--gutenku-zen-secondary);
+      text-decoration: underline;
+    }
+  }
+
   &__hanko {
     position: relative;
     width: 40px;
     height: 40px;
-    margin: 0 auto 0.75rem;
+    margin: 0.5rem auto 0;
     color: oklch(0.55 0.2 25);
     opacity: 0;
     transform: scale(0) rotate(-15deg);
@@ -216,7 +269,7 @@ const haikuLines = computed(() => [
     gap: 1.5rem;
     opacity: 0;
     animation: fade-in 0.3s ease forwards;
-    animation-delay: 2s;
+    animation-delay: 2.2s;
     z-index: 1;
   }
 
@@ -233,7 +286,7 @@ const haikuLines = computed(() => [
     margin-top: 1rem;
     opacity: 0;
     animation: fade-in 0.3s ease forwards;
-    animation-delay: 2.2s;
+    animation-delay: 2.4s;
     z-index: 1;
   }
 
@@ -269,8 +322,10 @@ const haikuLines = computed(() => [
     margin: 1rem 0 0;
     opacity: 0;
     animation: fade-in 0.3s ease forwards;
-    animation-delay: 2.4s;
+    animation-delay: 2.6s;
     z-index: 1;
+    text-align: center;
+    width: 100%;
   }
 }
 
@@ -304,6 +359,23 @@ const haikuLines = computed(() => [
 
 // Dark theme
 [data-theme='dark'] .zen-credits-modal {
+  &__info {
+    background: var(--gutenku-paper-bg);
+    border-color: oklch(1 0 0 / 0.1);
+  }
+
+  &__inspiration {
+    border-color: oklch(1 0 0 / 0.1);
+  }
+
+  &__inspiration-link {
+    color: var(--gutenku-zen-accent);
+
+    &:hover {
+      color: var(--gutenku-zen-primary);
+    }
+  }
+
   &__social-link {
     border-color: oklch(1 0 0 / 0.15);
 
@@ -319,6 +391,7 @@ const haikuLines = computed(() => [
 @media (prefers-reduced-motion: reduce) {
   .zen-credits-modal {
     &__author,
+    &__inspiration,
     &__year,
     &__hanko,
     &__links,
@@ -329,7 +402,8 @@ const haikuLines = computed(() => [
       transform: none;
     }
 
-    &__social-link {
+    &__social-link,
+    &__inspiration-link {
       transition: none;
     }
   }

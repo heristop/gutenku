@@ -165,7 +165,7 @@ const cardClasses = computed(() => [
       oklch(0.45 0.06 170 / 0.85) 50%,
       transparent 100%
     );
-    animation: ink-breathe 0.8s ease-in-out infinite;
+    animation: ink-breathe 2s ease-in-out infinite;
     z-index: 10;
     border-radius: 1px;
     overflow: hidden;
@@ -197,7 +197,7 @@ const cardClasses = computed(() => [
         oklch(1 0 0 / 0.5) 50%,
         transparent 100%
       );
-      animation: ink-shimmer 0.8s ease-in-out infinite;
+      animation: ink-shimmer 2s ease-in-out infinite;
     }
   }
 
@@ -268,8 +268,6 @@ const cardClasses = computed(() => [
   }
 
   &--panel {
-    margin: 1rem 0;
-
     .zen-card__content {
       padding: 0.125rem 0.25rem;
     }
@@ -290,7 +288,7 @@ const cardClasses = computed(() => [
 }
 
 [data-theme='dark'] .zen-card {
-  background: oklch(0.18 0.02 70 / 0.6);
+  background: oklch(0.26 0.025 55 / 0.75);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid oklch(1 0 0 / 0.08);

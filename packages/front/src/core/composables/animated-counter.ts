@@ -4,7 +4,7 @@ export interface AnimatedCounterOptions {
   duration?: number;
   easing?: (x: number) => number;
   startValue?: number;
-  /** Delay animation start to avoid blocking LCP (default: 100ms) */
+  /** Delay before first animation in ms (default: 100) */
   initialDelay?: number;
 }
 
@@ -62,6 +62,7 @@ export function useAnimatedCounter(
       clearTimeout(delayTimeout);
       delayTimeout = null;
     }
+
     if (animationFrame) {
       cancelAnimationFrame(animationFrame);
       animationFrame = null;
@@ -71,7 +72,7 @@ export function useAnimatedCounter(
 
   watch(target, (newValue, oldValue) => {
     if (newValue !== oldValue && newValue > 0) {
-      // Delay first animation to allow LCP to paint
+      // Defer first animation for LCP
       if (isFirstAnimation && initialDelay > 0) {
         isFirstAnimation = false;
         delayTimeout = setTimeout(animate, initialDelay);

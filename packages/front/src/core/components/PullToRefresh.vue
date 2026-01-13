@@ -18,6 +18,7 @@ const statusText = computed(() => {
   if (props.isRefreshing) {
     return t('pullToRefresh.refreshing');
   }
+
   if (props.shouldRelease) {
     return t('pullToRefresh.release');
   }

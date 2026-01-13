@@ -66,6 +66,7 @@ const component = computed(() => {
   if (props.to) {
     return RouterLink;
   }
+
   if (props.href) {
     return 'a';
   }
@@ -79,6 +80,7 @@ const componentProps = computed(() => {
       'aria-disabled': isDisabled.value || undefined,
     };
   }
+
   if (props.href) {
     return {
       href: props.href,

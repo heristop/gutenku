@@ -133,6 +133,7 @@ export function useLoadingMessages(options: UseLoadingMessagesOptions = {}): {
     if (options.messages && options.messages.length) {
       return options.messages;
     }
+
     if (options.context && MESSAGE_POOLS[options.context]) {
       return MESSAGE_POOLS[options.context];
     }

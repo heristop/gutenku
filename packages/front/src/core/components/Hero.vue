@@ -10,15 +10,10 @@ import { useAnimatedCounter } from '@/core/composables/animated-counter';
 const { t } = useI18n();
 const { globalStats, fetchGlobalStats } = useGlobalStats();
 
-// Quote rotation - hardcoded to avoid i18n array issues
-const quotes = [
-  'Poetry from prose',
-  'Where words fail, poetry speaks',
-  'In seventeen syllables, infinite worlds',
-  'Literature breathes life into silence',
-];
+// Quote rotation - uses i18n for translations
+const quoteKeys = ['0', '1', '2', '3', '4'] as const;
 const currentQuoteIndex = ref(0);
-const currentQuote = computed(() => quotes[currentQuoteIndex.value]);
+const currentQuote = computed(() => t(`haikuTitle.quotes.${quoteKeys[currentQuoteIndex.value]}`));
 
 // Hero element ref for IntersectionObserver
 const heroRef = ref<{ $el: HTMLElement } | null>(null);
@@ -27,14 +22,15 @@ const isVisible = ref(true);
 let quoteInterval: ReturnType<typeof setInterval> | null = null;
 let intersectionObserver: IntersectionObserver | null = null;
 
-// Quote rotation control - pause when not visible
+// Quote rotation - pauses when not visible
 function startQuoteRotation() {
   if (quoteInterval) {
     return;
   }
+
   quoteInterval = setInterval(() => {
     if (isVisible.value) {
-      currentQuoteIndex.value = (currentQuoteIndex.value + 1) % quotes.length;
+      currentQuoteIndex.value = (currentQuoteIndex.value + 1) % quoteKeys.length;
     }
   }, 5000);
 }
@@ -63,7 +59,7 @@ const {
 } = useAnimatedCounter(targetCount);
 
 onMounted(() => {
-  // Setup IntersectionObserver to pause quote rotation when not visible
+  // IntersectionObserver pauses quote rotation when hero is off-screen
   const heroEl = heroRef.value?.$el;
   if (heroEl) {
     intersectionObserver = new IntersectionObserver(
@@ -80,15 +76,14 @@ onMounted(() => {
     intersectionObserver.observe(heroEl);
   }
 
-  // Also pause on document visibility change (tab hidden)
+  // Pause when tab is hidden
   document.addEventListener('visibilitychange', handleVisibilityChange);
 
-  // Start quote rotation
   startQuoteRotation();
 
-  // Fetch stats and animate counter
+  // Load stats and animate counter
   fetchGlobalStats().then(() => {
-    setTimeout(animateCounter, 400); // Delay counter animation after stats load
+    setTimeout(animateCounter, 400);
   });
 });
 
@@ -118,9 +113,9 @@ onUnmounted(() => {
     <!-- Bookmark ribbon -->
     <div class="bookmark-ribbon" aria-hidden="true" />
 
-    <!-- Hero layout: stacked centered -->
+    <!-- Hero layout -->
     <div class="hero__layout">
-      <!-- GutenMage illustration - prominent and centered -->
+      <!-- GutenMage illustration -->
       <div class="hero__illustration-wrapper stagger-1">
         <div class="hero__illustration-glow" aria-hidden="true" />
         <img
@@ -145,7 +140,7 @@ onUnmounted(() => {
 
       <!-- Content column -->
       <div class="hero__content">
-        <!-- Rotating quote with typewriter effect -->
+        <!-- Rotating quote -->
         <p
           class="hero__tagline stagger-2"
           aria-live="polite"
@@ -202,7 +197,7 @@ onUnmounted(() => {
   }
 }
 
-// LCP entrance - visible from start to prevent paint blocking
+// LCP entrance animation
 @keyframes hero-entrance-lcp {
   from {
     opacity: 1;
@@ -279,7 +274,7 @@ onUnmounted(() => {
   }
 }
 
-// Deferred LCP enhancement - applies filter/opacity after initial paint
+// LCP post-paint enhancement
 @keyframes lcp-enhance {
   to {
     opacity: 0.95;
@@ -317,14 +312,14 @@ onUnmounted(() => {
 }
 
 // Staggered entrance animations
-// stagger-1 contains LCP image - no backwards to prevent paint blocking
+// stagger-1 contains LCP image
 .stagger-1 {
   opacity: 1;
   animation: hero-entrance-lcp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0s
     forwards;
 }
 
-// Non-LCP elements can use backwards safely
+// Non-LCP elements
 .stagger-2 {
   opacity: 1;
   animation: hero-entrance 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s
@@ -351,7 +346,7 @@ onUnmounted(() => {
 
 .bookmark-ribbon {
   animation: bookmark-entrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
-  top: -12px; // Moved down from default -20px
+  top: -12px;
 }
 
 .hero {
@@ -362,11 +357,10 @@ onUnmounted(() => {
   margin-bottom: var(--gutenku-space-4);
 
   @media (max-width: 600px) {
-    margin-top: 2.5rem;
     margin-bottom: 1rem !important;
   }
 
-  // Ink wash background - contained to prevent repaints
+  // Ink wash background
   &__ink-wash {
     position: absolute;
     inset: 0;
@@ -389,7 +383,7 @@ onUnmounted(() => {
     contain: paint;
   }
 
-  // Floating ink drops - strictly contained
+  // Floating ink drops
   &__ink-drops {
     position: absolute;
     inset: 0;
@@ -443,7 +437,7 @@ onUnmounted(() => {
     }
   }
 
-  // Stacked centered layout - tight spacing
+  // Layout
   &__layout {
     position: relative;
     display: flex;
@@ -454,7 +448,7 @@ onUnmounted(() => {
     text-align: center;
   }
 
-  // Illustration - larger and prominent
+  // Illustration
   &__illustration-wrapper {
     position: relative;
     flex-shrink: 0;
@@ -515,7 +509,6 @@ onUnmounted(() => {
     width: 240px;
     height: auto;
     z-index: 1;
-    // Defer filter/opacity until after LCP paint
     animation:
       lcp-enhance 0.01s ease-out 0.1s forwards,
       illustration-breathe 5s ease-in-out 0.5s infinite;
@@ -536,7 +529,7 @@ onUnmounted(() => {
     }
   }
 
-  // Content column - tighter spacing
+  // Content column
   &__content {
     display: flex;
     flex-direction: column;
@@ -544,10 +537,10 @@ onUnmounted(() => {
     text-align: center;
     max-width: 500px;
     gap: 0.4rem;
-    margin-top: -0.5rem; // Pull closer to illustration
+    margin-top: -0.5rem;
   }
 
-  // Tagline/Verse container
+  // Tagline
   &__tagline {
     position: relative;
     min-height: 2.5rem;
@@ -559,7 +552,7 @@ onUnmounted(() => {
     z-index: 1;
   }
 
-  // Description - primary content
+  // Description
   &__description {
     position: relative;
     z-index: 1;
@@ -577,7 +570,7 @@ onUnmounted(() => {
     }
   }
 
-  // Stats badge - compact with Lucide icon
+  // Stats badge
   &__stats-badge {
     position: relative;
     display: inline-flex;
@@ -634,26 +627,6 @@ onUnmounted(() => {
     color: var(--gutenku-text-secondary);
     letter-spacing: 0.02em;
   }
-}
-
-// Quote fade transition
-.quote-fade-enter-active {
-  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.quote-fade-leave-active {
-  transition: all 0.3s ease-out;
-}
-
-.quote-fade-enter-from {
-  opacity: 0;
-  transform: translateY(12px) scale(0.98);
-  filter: blur(2px);
-}
-
-.quote-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-8px) scale(0.98);
 }
 
 // Dark theme
@@ -716,17 +689,6 @@ onUnmounted(() => {
 
   .hero__stats-badge {
     animation: none;
-  }
-
-  .quote-fade-enter-active,
-  .quote-fade-leave-active {
-    transition: opacity 0.2s ease;
-  }
-
-  .quote-fade-enter-from,
-  .quote-fade-leave-to {
-    transform: none;
-    filter: none;
   }
 }
 </style>

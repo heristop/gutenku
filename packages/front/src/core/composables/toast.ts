@@ -54,6 +54,7 @@ function addToast(
 
 function removeToast(id: number) {
   const index = toasts.value.findIndex((t) => t.id === id);
+
   if (index > -1) {
     toasts.value.splice(index, 1);
   }

@@ -20,7 +20,7 @@ withDefaults(defineProps<Props>(), {
   align-items: baseline;
   font-family: 'JMH Typewriter', monospace;
   font-style: italic;
-  color: var(--gutenku-zen-primary);
+  color: var(--gutenku-text-primary);
   opacity: 0.75;
 
   // Decorative quotes
@@ -28,7 +28,7 @@ withDefaults(defineProps<Props>(), {
   &::after {
     font-family: Georgia, serif;
     color: var(--gutenku-zen-primary);
-    opacity: 0.25;
+    opacity: 0.4;
     line-height: 1;
   }
 
@@ -80,6 +80,11 @@ withDefaults(defineProps<Props>(), {
 }
 
 [data-theme='dark'] .zen-quote {
-  color: var(--gutenku-zen-accent);
+  color: var(--gutenku-text-primary);
+
+  &::before,
+  &::after {
+    color: var(--gutenku-zen-accent);
+  }
 }
 </style>

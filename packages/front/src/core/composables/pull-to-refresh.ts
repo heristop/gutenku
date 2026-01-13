@@ -27,9 +27,11 @@ function getElement(ref: ComponentOrElement): HTMLElement | Document {
   if (!ref) {
     return document;
   }
+
   if ('$el' in ref && ref.$el instanceof HTMLElement) {
     return ref.$el;
   }
+
   if (ref instanceof HTMLElement) {
     return ref;
   }

@@ -214,10 +214,12 @@ export function useLongPress(
       clearTimeout(observationTimer);
       observationTimer = null;
     }
+
     if (pressTimer) {
       clearTimeout(pressTimer);
       pressTimer = null;
     }
+
     if (progressAnimationId) {
       cancelAnimationFrame(progressAnimationId);
       progressAnimationId = null;
@@ -278,6 +280,7 @@ export function useLongPress(
     if (e.pointerType === 'touch' || e.pointerType === 'pen') {
       return;
     }
+
     if (gesturePhase === 'idle') {
       gesturePhase = 'committed';
       isPressed.value = true;

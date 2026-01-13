@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { CloudOff, RefreshCw, Sparkles } from 'lucide-vue-next';
 import ZenButton from '@/core/components/ui/ZenButton.vue';
 import InkDropLoader from '@/core/components/InkDropLoader.vue';
+import SumieCat from '@/core/components/decorative/SumieCat.vue';
 import {
   useLoadingMessages,
   type LoadingMessage,
@@ -112,7 +113,9 @@ const currentIcon = computed<Component>(() => currentMessage.value.icon);
       </div>
 
       <!-- Splash mode -->
-      <div v-if="displayMessage.text" class="loading-splash">
+      <div v-if="displayMessage.text" class="loading-splash-wrapper">
+        <SumieCat v-if="!error" :duration="20" />
+        <div class="loading-splash">
         <div class="loading-particles" aria-hidden="true">
           <div v-for="i in 6" :key="i" :class="`particle particle-${i}`" />
         </div>
@@ -152,6 +155,7 @@ const currentIcon = computed<Component>(() => currentMessage.value.icon);
               :class="{ 'loading-message--error': error }"
             >
               <component
+                v-if="!error"
                 :is="currentIcon"
                 :size="16"
                 class="loading-message-icon"
@@ -178,6 +182,7 @@ const currentIcon = computed<Component>(() => currentMessage.value.icon);
           </template>
           {{ retryLabel || t('common.retry') }}
         </ZenButton>
+        </div>
       </div>
     </div>
   </div>
@@ -218,6 +223,11 @@ const currentIcon = computed<Component>(() => currentMessage.value.icon);
   align-items: center;
   justify-content: center;
   color: var(--gutenku-zen-primary);
+}
+
+// Splash wrapper for cat positioning
+.loading-splash-wrapper {
+  position: relative;
 }
 
 // Splash card

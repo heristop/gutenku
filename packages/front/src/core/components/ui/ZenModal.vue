@@ -14,6 +14,7 @@ interface Props {
   showDivider?: boolean;
   description?: string;
   lockBodyScroll?: boolean;
+  fullscreen?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -25,6 +26,7 @@ const props = withDefaults(defineProps<Props>(), {
   showDivider: false,
   description: '',
   lockBodyScroll: true,
+  fullscreen: false,
 });
 
 const emit = defineEmits<{
@@ -53,12 +55,18 @@ const maxWidthStyle = computed(() =>
   typeof props.maxWidth === 'number' ? `${props.maxWidth}px` : props.maxWidth,
 );
 
+const overlayClasses = computed(() => [
+  'zen-modal-overlay',
+  { 'zen-modal-overlay--fullscreen': props.fullscreen },
+]);
+
 const modalClasses = computed(() => [
   'zen-modal',
   'gutenku-paper',
   props.contentClass,
   `zen-modal--${props.variant}`,
   { 'zen-modal--with-divider': props.showDivider },
+  { 'zen-modal--fullscreen': props.fullscreen },
 ]);
 
 // WCAG 2.2: Get all focusable elements within the modal
@@ -89,6 +97,7 @@ function handleKeydown(e: KeyboardEvent) {
 
   if (e.key === 'Tab') {
     const focusableElements = getFocusableElements();
+
     if (focusableElements.length === 0) {
       return;
     }
@@ -177,7 +186,7 @@ onBeforeUnmount(() => {
     <Transition name="zen-modal">
       <div
         v-if="modelValue"
-        class="zen-modal-overlay"
+        :class="overlayClasses"
         role="presentation"
         @click="handleOverlayClick"
       >
@@ -559,6 +568,7 @@ onBeforeUnmount(() => {
   }
 
   .zen-modal {
+    max-width: 100% !important;
     max-height: 100vh;
     max-height: 100dvh;
     border-radius: var(--gutenku-radius-xl, 16px) var(--gutenku-radius-xl, 16px)
@@ -600,6 +610,24 @@ onBeforeUnmount(() => {
 
   .zen-modal-leave-to .zen-modal {
     transform: translateY(100%);
+  }
+}
+
+// Fullscreen mode for mobile/tablet
+@media (max-width: 768px) {
+  .zen-modal-overlay--fullscreen {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .zen-modal--fullscreen {
+    margin: 0;
+    max-width: 100% !important;
+    width: 100%;
+    max-height: 100vh;
+    max-height: 100dvh;
+    border-radius: var(--gutenku-radius-xl, 16px) var(--gutenku-radius-xl, 16px) 0 0;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0));
   }
 }
 </style>

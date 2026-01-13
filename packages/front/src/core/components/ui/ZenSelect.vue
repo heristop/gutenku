@@ -68,7 +68,9 @@ const selectedIndex = computed(() =>
 );
 
 const updateDropdownPosition = () => {
-  if (!triggerRef.value) {return;}
+  if (!triggerRef.value) {
+    return;
+  }
 
   const rect = triggerRef.value.getBoundingClientRect();
   dropdownStyle.value = {
@@ -81,8 +83,12 @@ const updateDropdownPosition = () => {
 };
 
 const toggle = () => {
-  if (props.disabled || props.loading) {return;}
+  if (props.disabled || props.loading) {
+    return;
+  }
+
   isOpen.value = !isOpen.value;
+
   if (isOpen.value) {
     highlightedIndex.value = selectedIndex.value >= 0 ? selectedIndex.value : 0;
     nextTick(updateDropdownPosition);
@@ -108,6 +114,7 @@ const openDropdown = () => {
 
 const handleEnterSpace = (event: KeyboardEvent) => {
   event.preventDefault();
+
   if (isOpen.value && highlightedIndex.value >= 0) {
     select(flatOptions.value[highlightedIndex.value]);
   } else {
@@ -117,6 +124,7 @@ const handleEnterSpace = (event: KeyboardEvent) => {
 
 const handleArrowDown = (event: KeyboardEvent) => {
   event.preventDefault();
+
   if (!isOpen.value) {
     openDropdown();
   } else {
@@ -129,6 +137,7 @@ const handleArrowDown = (event: KeyboardEvent) => {
 
 const handleArrowUp = (event: KeyboardEvent) => {
   event.preventDefault();
+
   if (isOpen.value) {
     highlightedIndex.value = Math.max(highlightedIndex.value - 1, 0);
   }
@@ -155,7 +164,9 @@ const handleEnd = (event: KeyboardEvent) => {
 };
 
 const handleKeydown = (event: KeyboardEvent) => {
-  if (props.disabled || props.loading) {return;}
+  if (props.disabled || props.loading) {
+    return;
+  }
 
   const handlers: Record<string, (e: KeyboardEvent) => void> = {
     Enter: handleEnterSpace,
@@ -181,6 +192,7 @@ watch(highlightedIndex, (index) => {
 // Click outside handler
 const handleClickOutside = (event: MouseEvent) => {
   const target = event.target as Node;
+
   if (
     triggerRef.value &&
     !triggerRef.value.contains(target) &&

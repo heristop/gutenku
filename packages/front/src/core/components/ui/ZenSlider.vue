@@ -41,7 +41,10 @@ const roundToStep = (value: number) => {
 };
 
 const updateFromPosition = (clientX: number) => {
-  if (!trackRef.value || props.disabled) {return;}
+  if (!trackRef.value || props.disabled) {
+    return;
+  }
+
   const rect = trackRef.value.getBoundingClientRect();
   const percent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
   const rawValue = props.min + percent * (props.max - props.min);
@@ -49,7 +52,10 @@ const updateFromPosition = (clientX: number) => {
 };
 
 const handleMouseDown = (e: MouseEvent) => {
-  if (props.disabled) {return;}
+  if (props.disabled) {
+    return;
+  }
+
   isDragging.value = true;
   updateFromPosition(e.clientX);
   document.addEventListener('mousemove', handleMouseMove);
@@ -67,7 +73,10 @@ const handleMouseUp = () => {
 };
 
 const handleTouchStart = (e: TouchEvent) => {
-  if (props.disabled) {return;}
+  if (props.disabled) {
+    return;
+  }
+
   isDragging.value = true;
   updateFromPosition(e.touches[0].clientX);
 };
@@ -84,7 +93,10 @@ const handleTouchEnd = () => {
 };
 
 const handleKeydown = (e: KeyboardEvent) => {
-  if (props.disabled) {return;}
+  if (props.disabled) {
+    return;
+  }
+
   const largeStep = (props.max - props.min) * 0.1;
 
   switch (e.key) {

@@ -106,6 +106,7 @@ export function useTheme() {
     if (enabled) {
       colorMode.value = 'auto';
     }
+
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem(SYSTEM_PREF_STORAGE_KEY, enabled.toString());
     }

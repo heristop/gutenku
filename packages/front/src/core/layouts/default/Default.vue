@@ -7,10 +7,13 @@ import DefaultView from './View.vue';
 import ZenToast from '@/core/components/ui/ZenToast.vue';
 import ThemeToggle from '@/core/components/ThemeToggle.vue';
 import AppFooter from '@/core/components/AppFooter.vue';
+import { useLocaleSeo } from '@/core/composables/locale-seo';
 
 const route = useRoute();
+const { hreflangLinks, ogLocale, ogLocaleAlternates, htmlLang } =
+  useLocaleSeo();
 
-// Disable floating particles for reduced motion or mobile (performance)
+// Disable floating particles for reduced motion or mobile
 const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
 const isMobile = useMediaQuery('(max-width: 767px)');
 const showParticles = computed(
@@ -38,11 +41,35 @@ const canonicalUrl = computed(
   () => `https://gutenku.xyz${route.path === '/' ? '' : route.path}`,
 );
 
+// Preload LCP hero image on home page only
+const shouldPreloadHeroImage = computed(() => route.path === '/');
+
 useHead({
   title: computed(() => (route.meta.title as string) || 'GutenKu'),
-  link: [{ rel: 'canonical', href: canonicalUrl }],
+  htmlAttrs: {
+    lang: htmlLang,
+  },
+  link: computed(() => {
+    const links: Array<Record<string, string>> = [
+      { rel: 'canonical', href: canonicalUrl.value },
+      // hreflang alternate links for i18n SEO
+      ...hreflangLinks.value,
+    ];
+
+    if (shouldPreloadHeroImage.value) {
+      links.push({
+        rel: 'preload',
+        as: 'image',
+        href: '/gutenmage-640.webp',
+        imagesrcset:
+          '/gutenmage-320.webp 320w, /gutenmage-640.webp 640w, /gutenmage-1024.webp 1024w',
+        imagesizes: '(max-width: 600px) 240px, (max-width: 768px) 280px, 320px',
+      });
+    }
+    return links;
+  }),
   meta: computed(() => {
-    const baseMeta = [
+    const baseMeta: Array<Record<string, string>> = [
       {
         name: 'description',
         content:
@@ -63,6 +90,11 @@ useHead({
         property: 'og:url',
         content: canonicalUrl.value,
       },
+      // og:locale for current language
+      {
+        property: 'og:locale',
+        content: ogLocale.value,
+      },
       {
         name: 'twitter:title',
         content: (route.meta.title as string) || 'GutenKu',
@@ -74,6 +106,14 @@ useHead({
           'AI Haiku Generator & Literary Games',
       },
     ];
+
+    // og:locale:alternate for other languages
+    for (const altLocale of ogLocaleAlternates.value) {
+      baseMeta.push({
+        property: 'og:locale:alternate',
+        content: altLocale,
+      });
+    }
 
     if (route.meta.robots) {
       baseMeta.push({
@@ -96,7 +136,7 @@ useHead({
       </header>
       <div class="light-beam-overlay" aria-hidden="true" />
 
-      <!-- Floating particles (disabled on mobile and reduced motion for performance) -->
+      <!-- Floating particles (disabled on mobile and reduced motion) -->
       <div v-if="showParticles" class="floating-particles" aria-hidden="true">
         <div class="floating-particles__particle" />
         <div class="floating-particles__particle" />
@@ -120,7 +160,7 @@ useHead({
 </template>
 
 <style lang="scss" scoped>
-// CSS containment for decorative elements (improves CLS and paint performance)
+// CSS containment for decorative elements
 .floating-particles {
   contain: strict;
   content-visibility: auto;

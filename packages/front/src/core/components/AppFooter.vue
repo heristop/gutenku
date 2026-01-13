@@ -6,9 +6,29 @@ import ZenTooltip from '@/core/components/ui/ZenTooltip.vue';
 import ZenCreditsModal from '@/core/components/ui/ZenCreditsModal.vue';
 import ThemeToggle from '@/core/components/ThemeToggle.vue';
 import AccessibilityToggle from '@/core/components/AccessibilityToggle.vue';
+import { useLocale } from '@/core/composables/locale';
 
 const { t } = useI18n();
+const { currentLocale, availableLocales, setLocale, getLocaleLabel } = useLocale();
 const currentYear = new Date().getFullYear();
+
+// Locale dropdown state
+const localeDropdownOpen = ref(false);
+
+function toggleLocaleDropdown() {
+  localeDropdownOpen.value = !localeDropdownOpen.value;
+}
+
+function selectLocale(locale: typeof currentLocale.value) {
+  setLocale(locale);
+  localeDropdownOpen.value = false;
+}
+
+function handleLocaleKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape') {
+    localeDropdownOpen.value = false;
+  }
+}
 const showCredits = ref(false);
 
 const inkRipple = ref<{ x: number; y: number; active: boolean }>({
@@ -145,10 +165,48 @@ function openSocialLink(url: string) {
         />
       </svg>
 
-      <!-- Theme & Accessibility Toggles -->
+      <!-- Theme, Language & Accessibility Toggles -->
       <div class="footer-toggles">
         <ThemeToggle variant="footer" class="stagger-7" />
-        <AccessibilityToggle class="stagger-8" />
+        <div class="footer-locale-wrapper stagger-8" @keydown="handleLocaleKeydown">
+          <button
+            type="button"
+            class="footer-locale"
+            :aria-label="t('locale.switch')"
+            :aria-expanded="localeDropdownOpen"
+            aria-haspopup="listbox"
+            @click="toggleLocaleDropdown"
+          >
+            <span class="footer-locale__code">{{ currentLocale.toUpperCase() }}</span>
+          </button>
+          <Transition name="locale-dropdown">
+            <ul
+              v-if="localeDropdownOpen"
+              class="footer-locale__dropdown"
+              role="listbox"
+              :aria-label="t('locale.switch')"
+              @click.stop
+            >
+              <li
+                v-for="locale in availableLocales"
+                :key="locale"
+                role="option"
+                :aria-selected="locale === currentLocale"
+                class="footer-locale__option"
+                :class="{ 'footer-locale__option--active': locale === currentLocale }"
+                @click="selectLocale(locale)"
+              >
+                {{ getLocaleLabel(locale) }}
+              </li>
+            </ul>
+          </Transition>
+          <div
+            v-if="localeDropdownOpen"
+            class="footer-locale__backdrop"
+            @click="localeDropdownOpen = false"
+          />
+        </div>
+        <AccessibilityToggle class="stagger-9" />
       </div>
     </div>
 
@@ -285,6 +343,10 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
 
 .stagger-8 {
   animation: social-pop-in 0.25s $ease-zen-out 0.25s both;
+}
+
+.stagger-9 {
+  animation: social-pop-in 0.25s $ease-zen-out 0.28s both;
 }
 
 .footer-nav {
@@ -487,6 +549,123 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   gap: 0.5rem;
 }
 
+.footer-locale-wrapper {
+  position: relative;
+  z-index: 100;
+}
+
+.footer-locale {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1.5px solid oklch(0.45 0.1 195 / 0.2);
+  border-radius: var(--gutenku-radius-full);
+  background: var(--gutenku-zen-water);
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+
+  &:hover {
+    background: var(--gutenku-zen-primary);
+    border-color: var(--gutenku-zen-primary);
+    transform: scale(1.05);
+
+    .footer-locale__code {
+      color: white;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--gutenku-zen-primary);
+    outline-offset: 2px;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &__code {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--gutenku-zen-primary);
+    transition: color 0.2s ease;
+  }
+
+  &__dropdown {
+    position: absolute;
+    bottom: calc(100% + 0.5rem);
+    right: 0;
+    min-width: 8rem;
+    padding: 0.5rem;
+    margin: 0;
+    list-style: none;
+    background: oklch(0.98 0.008 85);
+    border: 1.5px solid oklch(0.45 0.1 195 / 0.2);
+    border-radius: var(--gutenku-radius-md);
+    box-shadow:
+      0 -4px 12px oklch(0 0 0 / 0.1),
+      0 -2px 4px oklch(0 0 0 / 0.05);
+    z-index: 101;
+  }
+
+  &__option {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--gutenku-text-primary);
+    border-radius: var(--gutenku-radius-sm);
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+    // Minimum touch target
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+
+    &:hover {
+      background: oklch(0.45 0.1 195 / 0.1);
+      color: var(--gutenku-zen-primary);
+    }
+
+    &--active {
+      background: var(--gutenku-zen-primary);
+      color: white;
+
+      &:hover {
+        background: var(--gutenku-zen-primary);
+        color: white;
+      }
+    }
+  }
+
+  &__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+  }
+}
+
+// Locale dropdown transition
+.locale-dropdown-enter-active,
+.locale-dropdown-leave-active {
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.locale-dropdown-enter-from,
+.locale-dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(0.5rem);
+}
+
 [data-theme='dark'] {
   .app-footer {
     background: oklch(0.2 0.02 55 / 0.3);
@@ -562,6 +741,55 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   .ink-ripple {
     background: var(--gutenku-zen-accent);
   }
+
+  .footer-locale {
+    background: oklch(0.25 0.04 195 / 0.7);
+    border-color: oklch(0.5 0.08 195 / 0.3);
+
+    &:hover {
+      background: var(--gutenku-zen-accent);
+      border-color: var(--gutenku-zen-accent);
+
+      .footer-locale__code {
+        color: oklch(0.12 0.02 195);
+      }
+    }
+
+    &:focus-visible {
+      outline-color: var(--gutenku-zen-accent);
+    }
+  }
+
+  .footer-locale__code {
+    color: var(--gutenku-zen-accent);
+  }
+
+  .footer-locale__dropdown {
+    background: oklch(0.2 0.03 195);
+    border-color: oklch(0.5 0.08 195 / 0.3);
+    box-shadow:
+      0 -4px 12px oklch(0 0 0 / 0.3),
+      0 -2px 4px oklch(0 0 0 / 0.2);
+  }
+
+  .footer-locale__option {
+    color: var(--gutenku-text-primary);
+
+    &:hover {
+      background: oklch(0.6 0.1 195 / 0.2);
+      color: var(--gutenku-zen-accent);
+    }
+
+    &--active {
+      background: var(--gutenku-zen-accent);
+      color: oklch(0.12 0.02 195);
+
+      &:hover {
+        background: var(--gutenku-zen-accent);
+        color: oklch(0.12 0.02 195);
+      }
+    }
+  }
 }
 
 @media (max-width: 600px) {
@@ -600,6 +828,7 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   .stagger-6,
   .stagger-7,
   .stagger-8,
+  .stagger-9,
   .ink-stroke {
     animation: none;
     opacity: 1;
@@ -613,8 +842,31 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
 
   .ink-circle,
   .ink-ripple,
-  .footer-nav__underline {
+  .footer-nav__underline,
+  .footer-locale {
     transition: none;
+  }
+
+  .footer-locale__code,
+  .footer-locale__option {
+    transition: none;
+  }
+
+  .locale-dropdown-enter-active,
+  .locale-dropdown-leave-active {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .footer-locale__dropdown {
+    border: 2px solid CanvasText;
+  }
+
+  .footer-locale__option--active {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
   }
 }
 </style>

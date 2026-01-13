@@ -32,7 +32,7 @@ export function useHapticFeedback() {
     try {
       navigator.vibrate(patterns[pattern]);
     } catch {
-      // Silently fail if vibration not supported
+      // Ignore unsupported vibration
     }
   }
 

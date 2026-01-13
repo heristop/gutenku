@@ -15,7 +15,9 @@ const supportsViewTransition = (): boolean => {
 
 // Intercept link clicks to trigger View Transition
 onBeforeMount(() => {
-  if (!supportsViewTransition()) {return;}
+  if (!supportsViewTransition()) {
+    return;
+  }
 
   // Override router navigation to use View Transitions
   const originalPush = router.push.bind(router);

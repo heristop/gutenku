@@ -7,6 +7,14 @@ const globalStats = ref<GlobalStats>({
   totalHaikusGenerated: 0,
   totalGamesPlayed: 0,
   totalGamesWon: 0,
+  totalEmoticonScratches: 0,
+  totalHaikuReveals: 0,
+  todayHaikusGenerated: 0,
+  todayAverageEmoticonScratches: 0,
+  todayAverageHaikuReveals: 0,
+  todayGamesPlayed: 0,
+  todayGamesWon: 0,
+  todayTotalHints: 0,
 });
 
 const loading = ref(false);
@@ -24,6 +32,14 @@ export function useGlobalStats() {
             totalHaikusGenerated
             totalGamesPlayed
             totalGamesWon
+            totalEmoticonScratches
+            totalHaikuReveals
+            todayHaikusGenerated
+            todayAverageEmoticonScratches
+            todayAverageHaikuReveals
+            todayGamesPlayed
+            todayGamesWon
+            todayTotalHints
           }
         }
       `;

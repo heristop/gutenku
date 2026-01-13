@@ -33,9 +33,13 @@ const tooltipStyle = ref<Record<string, string>>({});
 
 let showTimeout: ReturnType<typeof setTimeout> | null = null;
 let hideTimeout: ReturnType<typeof setTimeout> | null = null;
+let longPressTimeout: ReturnType<typeof setTimeout> | null = null;
+const LONG_PRESS_DELAY = 500;
 
 function show() {
-  if (props.disabled) {return;}
+  if (props.disabled) {
+    return;
+  }
 
   if (hideTimeout) {
     clearTimeout(hideTimeout);
@@ -60,7 +64,9 @@ function hide() {
 }
 
 function handleClickOutside(event: MouseEvent | TouchEvent) {
-  if (!isTouchDevice.value || !isVisible.value) {return;}
+  if (!isTouchDevice.value || !isVisible.value) {
+    return;
+  }
 
   const target = event.target as Node;
   if (
@@ -74,7 +80,9 @@ function handleClickOutside(event: MouseEvent | TouchEvent) {
 }
 
 function updatePosition() {
-  if (!triggerRef.value || !tooltipRef.value) {return;}
+  if (!triggerRef.value || !tooltipRef.value) {
+    return;
+  }
 
   const triggerRect = triggerRef.value.getBoundingClientRect();
   const tooltipRect = tooltipRef.value.getBoundingClientRect();
@@ -128,6 +136,28 @@ function handleFocusOut() {
   hide();
 }
 
+function handleTouchStart() {
+  if (!isTouchDevice.value || props.disabled) {
+    return;
+  }
+
+  longPressTimeout = setTimeout(() => show(), LONG_PRESS_DELAY);
+}
+
+function handleTouchEnd() {
+  if (longPressTimeout) {
+    clearTimeout(longPressTimeout);
+    longPressTimeout = null;
+  }
+}
+
+function handleTouchMove() {
+  if (longPressTimeout) {
+    clearTimeout(longPressTimeout);
+    longPressTimeout = null;
+  }
+}
+
 onMounted(() => {
   isTouchDevice.value = 'ontouchstart' in globalThis || navigator.maxTouchPoints > 0;
 
@@ -146,6 +176,7 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside);
   if (showTimeout) {clearTimeout(showTimeout);}
   if (hideTimeout) {clearTimeout(hideTimeout);}
+  if (longPressTimeout) {clearTimeout(longPressTimeout);}
 });
 </script>
 
@@ -158,6 +189,9 @@ onUnmounted(() => {
     v-bind="attrs"
     @mouseenter="!isTouchDevice && show()"
     @mouseleave="!isTouchDevice && hide()"
+    @touchstart.passive="handleTouchStart"
+    @touchend.passive="handleTouchEnd"
+    @touchmove.passive="handleTouchMove"
     @focusin="handleFocusIn"
     @focusout="handleFocusOut"
     @keydown="handleKeydown"
