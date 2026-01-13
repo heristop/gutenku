@@ -61,6 +61,7 @@ export default defineConfig(({ isSsrBuild }) => ({
       registerType: 'autoUpdate',
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,webp,woff2}'],
+        globIgnores: ['**/bundle-stats.html'],
         // Exclude SEO/static files from navigation fallback
         navigateFallbackDenylist: [
           /^\/sitemap\.xml$/,
