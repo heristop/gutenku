@@ -53,7 +53,7 @@ function extractMetadata(content: string): {
     if (trimmed.startsWith('#')) {
       continue;
     }
-    // Found a paragraph - clean it up
+    // Strip markdown formatting
     description = trimmed
       .replaceAll(/\*\*([^*]+)\*\*/g, '$1') // Remove bold
       .replaceAll(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Remove links

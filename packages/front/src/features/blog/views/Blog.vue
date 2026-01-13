@@ -491,7 +491,6 @@ useSeoMeta({
       margin: 1.5rem auto;
       text-align: center;
       overflow-x: auto;
-      // CSS containment to isolate from parent styles
       contain: layout style;
 
       svg {
@@ -501,7 +500,7 @@ useSeoMeta({
         margin: 0 auto;
       }
 
-      // Target foreignObject labels specifically to prevent drop cap bleeding
+      // Prevent drop cap from affecting mermaid labels
       foreignObject {
         div,
         span,

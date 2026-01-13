@@ -182,12 +182,12 @@ describe('Haiku Page', () => {
     });
 
     it('supports keyboard interaction', () => {
-      // Verify button is focusable (keyboard accessible)
+      // Button is focusable
       cy.get('[data-cy=fetch-btn]')
         .focus()
         .should('have.focus')
         .and('not.have.attr', 'tabindex', '-1');
-      // Verify button can be activated (click after focus simulates keyboard activation)
+      // Button activates on interaction
       cy.get('[data-cy=fetch-btn]').click();
       // Button should show stop state while generating
       cy.get('[data-cy=fetch-btn].toolbar-panel__button--stop', {

@@ -83,14 +83,24 @@ describe('Blog Page', () => {
 
   describe('Back to Top', () => {
     it('shows back to top button after scrolling', () => {
+      // Wait for content to load first
+      cy.get('.blog-page__article', { timeout: 10000 }).should('exist');
       cy.get('.blog-page__back-to-top').should('not.exist');
-      cy.scrollTo('bottom');
+      // Scroll down past threshold (400px)
+      cy.scrollTo(0, 500);
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(300); // Wait for transition
       cy.get('.blog-page__back-to-top', { timeout: 5000 }).should('be.visible');
     });
 
     it('scrolls to top when clicked', () => {
-      cy.scrollTo('bottom');
+      cy.get('.blog-page__article', { timeout: 10000 }).should('exist');
+      cy.scrollTo(0, 500);
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(300);
       cy.get('.blog-page__back-to-top', { timeout: 5000 }).click();
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(500); // Wait for smooth scroll
       cy.window().its('scrollY').should('be.lessThan', 100);
     });
   });
@@ -136,7 +146,7 @@ describe('Blog Page', () => {
   describe('Accessibility', () => {
     it('has proper heading hierarchy', () => {
       cy.get('.blog-page__article', { timeout: 10000 }).should('exist');
-      // Article should start with h1 or contain headings
+      // Check for heading elements
       cy.get('.blog-page__article').within(() => {
         cy.get('h1, h2, h3').should('have.length.at.least', 1);
       });
@@ -155,7 +165,10 @@ describe('Blog Page', () => {
     });
 
     it('back to top button is keyboard accessible', () => {
-      cy.scrollTo('bottom');
+      cy.get('.blog-page__article', { timeout: 10000 }).should('exist');
+      cy.scrollTo(0, 500);
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(300);
       cy.get('.blog-page__back-to-top', { timeout: 5000 })
         .focus()
         .should('have.focus');
