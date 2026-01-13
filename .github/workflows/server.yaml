@@ -35,6 +35,9 @@ jobs:
       - name: Lint
         run: pnpm --filter @gutenku/server lint
 
+      - name: Build shared packages
+        run: pnpm --filter @gutenku/shared --filter @gutenguess/shared build
+
       - name: Build
         run: pnpm --filter @gutenku/server build
 
