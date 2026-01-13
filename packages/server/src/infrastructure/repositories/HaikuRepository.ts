@@ -104,8 +104,8 @@ export default class HaikuRepository implements IHaikuRepository {
 
   /**
    * Extract a deterministic haiku from cache using seeded random selection.
-   * Ensures the same haiku is returned for the same seed (date-based).
-   * Excludes haikus created on or after excludeDate to maintain determinism.
+   * Returns the same haiku for the same seed (date-based).
+   * Excludes haikus created on or after excludeDate for deterministic results.
    */
   async extractDeterministicFromCache(
     seed: number,

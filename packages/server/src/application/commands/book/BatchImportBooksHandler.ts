@@ -24,6 +24,7 @@ export class BatchImportBooksHandler implements ICommandHandler<
     const results: Array<{
       bookId: number;
       success: boolean;
+      alreadyExists: boolean;
       chaptersCount: number;
       title?: string;
       error?: string;
@@ -48,6 +49,7 @@ export class BatchImportBooksHandler implements ICommandHandler<
         results.push({
           bookId,
           success: result.saved,
+          alreadyExists: result.alreadyExists,
           chaptersCount: result.chaptersCount,
           title: result.title,
           error: result.error,
@@ -56,6 +58,7 @@ export class BatchImportBooksHandler implements ICommandHandler<
         results.push({
           bookId,
           success: false,
+          alreadyExists: false,
           chaptersCount: 0,
           error: error instanceof Error ? error.message : 'Unknown error',
         });
@@ -64,19 +67,23 @@ export class BatchImportBooksHandler implements ICommandHandler<
       command.onProgress?.(bookId, i + 1, total, title);
     }
 
-    const successCount = results.filter((r) => r.success).length;
-    const failedCount = results.filter(
-      (r) => !r.success && r.error !== undefined,
-    ).length;
-    const skippedCount = results.filter(
-      (r) => !r.success && r.error === undefined,
-    ).length;
+    // New books: saved successfully and not already existing
+    const newCount = results.filter((r) => r.success && !r.alreadyExists).length;
+    // Skipped: already exists (not new, no error)
+    const skippedCount = results.filter((r) => r.alreadyExists).length;
+    // Failed: has an error
+    const failedCount = results.filter((r) => !r.success && r.error).length;
+    // Total chapters from new books only
+    const totalChapters = results
+      .filter((r) => r.success && !r.alreadyExists)
+      .reduce((sum, r) => sum + r.chaptersCount, 0);
 
     return {
       totalBooks: command.bookIds.length,
-      successCount,
-      failedCount,
+      newCount,
       skippedCount,
+      failedCount,
+      totalChapters,
       results,
     };
   }

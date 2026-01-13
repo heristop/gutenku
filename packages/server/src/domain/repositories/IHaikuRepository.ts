@@ -1,4 +1,4 @@
-import type { HaikuValue } from '../../shared/types';
+import type { HaikuValue } from '~/shared/types';
 
 export interface IHaikuRepository {
   createCacheWithTTL(haiku: HaikuValue, ttl: number): Promise<void>;

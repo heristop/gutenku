@@ -7,7 +7,7 @@ import path from 'node:path';
 import pc from 'picocolors';
 import ora from 'ora';
 import cliProgress from 'cli-progress';
-import { BOOK_IDS } from './book-ids';
+import { BOOK_IDS } from '../shared/constants/book-ids';
 import MongoConnection from '~/infrastructure/services/MongoConnection';
 import '~/infrastructure/di/container';
 import {

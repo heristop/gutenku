@@ -7,6 +7,7 @@ export class GetDailyPuzzleQuery extends Query<DailyPuzzleResponse> {
     public readonly revealedRounds: number[] = [],
     public readonly visibleEmoticonCount?: number,
     public readonly revealedHaikuCount?: number,
+    public readonly locale: string = 'en',
   ) {
     super();
   }

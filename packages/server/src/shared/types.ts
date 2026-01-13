@@ -12,12 +12,21 @@ export type {
 } from '@gutenku/shared';
 
 // Server-only types
+export type ExtractionMethod = 'punctuation' | 'chunk';
+
 export interface BookValueWithChapters {
   reference: string;
   title: string;
   author: string;
   chapters?: string[] | Types.ObjectId[];
   emoticons?: string;
+}
+
+export interface ChapterWithBook {
+  _id?: Types.ObjectId | string;
+  title?: string;
+  content: string;
+  book: BookValueWithChapters;
 }
 
 export interface HaikuDocument {
@@ -46,6 +55,12 @@ export interface HaikuVariables {
   trigramMinScore: number;
   tfidfMinScore: number;
   phoneticsMinScore: number;
+  uniquenessMinScore: number;
+  verseDistanceMinScore: number;
+  lineLengthBalanceMinScore: number;
+  imageryDensityMinScore: number;
+  semanticCoherenceMinScore: number;
+  verbPresenceMinScore: number;
   descriptionTemperature: number;
 }
 

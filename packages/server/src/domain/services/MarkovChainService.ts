@@ -7,6 +7,9 @@ import { inject, singleton } from 'tsyringe';
 
 const FANBOYS_SET = new Set(['for', 'and', 'nor', 'but', 'or', 'yet', 'so']);
 
+// Smoothing constant for Laplace smoothing
+const SMOOTHING_ALPHA = 0.01;
+
 @singleton()
 export class MarkovChainService {
   private bigrams: Map<string, Map<string, number>>;
@@ -16,6 +19,7 @@ export class MarkovChainService {
   private trigramTotals: Map<string, number>;
   private totalBigrams: number;
   private totalTrigrams: number;
+  private vocabulary: Set<string>;
   private loaded = false;
 
   constructor(
@@ -28,6 +32,7 @@ export class MarkovChainService {
     this.trigramTotals = new Map();
     this.totalBigrams = 0;
     this.totalTrigrams = 0;
+    this.vocabulary = new Set();
   }
 
   public train(text: string): void {
@@ -40,8 +45,10 @@ export class MarkovChainService {
 
       const wordList: string[] = [];
       words.forEach((word: string) => {
-        if (!FANBOYS_SET.has(word.toLowerCase())) {
-          wordList.push(word);
+        const lowerWord = word.toLowerCase();
+        if (!FANBOYS_SET.has(lowerWord)) {
+          wordList.push(word); // Keep original case
+          this.vocabulary.add(lowerWord);
         }
       });
 
@@ -54,7 +61,6 @@ export class MarkovChainService {
         }
 
         const transitions = this.bigrams.get(from);
-
         if (transitions) {
           transitions.set(to, (transitions.get(to) || 0) + 1);
           // Update cached total for this key
@@ -73,7 +79,6 @@ export class MarkovChainService {
         }
 
         const transitions = this.trigrams.get(key);
-
         if (transitions) {
           transitions.set(next, (transitions.get(next) || 0) + 1);
           // Update cached total for this key
@@ -88,16 +93,13 @@ export class MarkovChainService {
   public evaluateTransition(from: string, to: string): number {
     const fromWords = this.naturalLanguage.extractWords(from);
     const toWords = this.naturalLanguage.extractWords(to);
-
     if (fromWords.length === 0 || toWords.length === 0) {
       return 0;
     }
 
     const lastWordFrom = fromWords.at(-1);
     const firstWordTo = toWords[0];
-
     const transitions = this.bigrams.get(lastWordFrom);
-
     if (transitions) {
       const count = transitions.get(firstWordTo);
 
@@ -114,16 +116,13 @@ export class MarkovChainService {
   public evaluateTrigramTransition(from: string, to: string): number {
     const fromWords = this.naturalLanguage.extractWords(from);
     const toWords = this.naturalLanguage.extractWords(to);
-
     if (fromWords.length < 2 || toWords.length === 0) {
       return 0;
     }
 
     const key = `${fromWords.at(-2)} ${fromWords.at(-1)}`;
     const firstWordTo = toWords[0];
-
     const transitions = this.trigrams.get(key);
-
     if (transitions) {
       const count = transitions.get(firstWordTo);
 
@@ -137,6 +136,66 @@ export class MarkovChainService {
     return 0;
   }
 
+  /**
+   * Evaluate bigram transition with Laplace smoothing.
+   * Prevents zero probability for unseen transitions.
+   */
+  public evaluateTransitionSmoothed(from: string, to: string): number {
+    const fromWords = this.naturalLanguage.extractWords(from);
+    const toWords = this.naturalLanguage.extractWords(to);
+    if (fromWords.length === 0 || toWords.length === 0) {
+      return SMOOTHING_ALPHA / (SMOOTHING_ALPHA * this.vocabulary.size || 1);
+    }
+
+    const lastWordFrom = fromWords.at(-1)?.toLowerCase();
+    const firstWordTo = toWords[0].toLowerCase();
+
+    const transitions = this.bigrams.get(lastWordFrom);
+    const totalTransitions = this.bigramTotals.get(lastWordFrom) || 0;
+    const vocabSize = this.vocabulary.size || 1;
+
+    const count = transitions?.get(firstWordTo) || 0;
+
+    // Laplace smoothing: (count + alpha) / (total + alpha * vocabSize)
+    return (count + SMOOTHING_ALPHA) / (totalTransitions + SMOOTHING_ALPHA * vocabSize);
+  }
+
+  /**
+   * Evaluate trigram transition with Laplace smoothing.
+   */
+  public evaluateTrigramTransitionSmoothed(from: string, to: string): number {
+    const fromWords = this.naturalLanguage.extractWords(from);
+    const toWords = this.naturalLanguage.extractWords(to);
+    if (fromWords.length < 2 || toWords.length === 0) {
+      return SMOOTHING_ALPHA / (SMOOTHING_ALPHA * this.vocabulary.size || 1);
+    }
+
+    const key = `${fromWords.at(-2)?.toLowerCase()} ${fromWords.at(-1)?.toLowerCase()}`;
+    const firstWordTo = toWords[0].toLowerCase();
+
+    const transitions = this.trigrams.get(key);
+    const totalTransitions = this.trigramTotals.get(key) || 0;
+    const vocabSize = this.vocabulary.size || 1;
+
+    const count = transitions?.get(firstWordTo) || 0;
+
+    return (count + SMOOTHING_ALPHA) / (totalTransitions + SMOOTHING_ALPHA * vocabSize);
+  }
+
+  /**
+   * Backoff strategy: tries bigrams first, falls back to trigrams when bigram returns 0.
+   * Uses unsmoothed probabilities for strict filtering.
+   */
+  public evaluateWithBackoff(from: string, to: string): number {
+    const bigramScore = this.evaluateTransition(from, to);
+
+    if (bigramScore > 0) {
+      return bigramScore;
+    }
+    // Fallback to trigram when bigram has no data
+    return this.evaluateTrigramTransition(from, to);
+  }
+
   public async saveModel(): Promise<boolean> {
     const data = JSON.stringify({
       bigrams: Array.from(this.bigrams, ([key, value]) => [key, [...value]]),
@@ -145,6 +204,7 @@ export class MarkovChainService {
       trigramTotals: [...this.trigramTotals],
       totalBigrams: this.totalBigrams,
       totalTrigrams: this.totalTrigrams,
+      vocabulary: [...this.vocabulary],
     });
 
     try {
@@ -180,7 +240,6 @@ export class MarkovChainService {
       } else {
         this.computeBigramTotals();
       }
-
       if (jsonData.trigrams) {
         this.trigrams = new Map(
           jsonData.trigrams.map(
@@ -198,6 +257,13 @@ export class MarkovChainService {
         } else {
           this.computeTrigramTotals();
         }
+      }
+
+      // Load or compute vocabulary (backward compatible)
+      if (jsonData.vocabulary) {
+        this.vocabulary = new Set(jsonData.vocabulary);
+      } else {
+        this.computeVocabulary();
       }
 
       this.loaded = true;
@@ -225,6 +291,18 @@ export class MarkovChainService {
         total += count;
       }
       this.trigramTotals.set(key, total);
+    }
+  }
+
+  private computeVocabulary(): void {
+    // Backward compatibility: build vocabulary from bigram keys
+    for (const key of this.bigrams.keys()) {
+      this.vocabulary.add(key);
+    }
+    for (const transitions of this.bigrams.values()) {
+      for (const word of transitions.keys()) {
+        this.vocabulary.add(word);
+      }
     }
   }
 }

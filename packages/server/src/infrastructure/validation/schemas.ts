@@ -76,6 +76,7 @@ export function safeValidateInput<T>(
   data: unknown,
 ): { success: true; data: T } | { success: false; error: z.ZodError } {
   const result = schema.safeParse(data);
+
   if (result.success) {
     return { success: true, data: result.data };
   }

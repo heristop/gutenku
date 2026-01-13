@@ -1,5 +1,5 @@
 import { injectable } from 'tsyringe';
-import type { ChapterValue } from '~/shared/types';
+import type { ChapterValue, ChapterWithBook } from '~/shared/types';
 import type {
   IChapterRepository,
   CreateChapterInput,
@@ -28,10 +28,16 @@ export default class ChapterRepository implements IChapterRepository {
     return await ChapterModel.findById(id).populate('book').lean().exec();
   }
 
-  async getFilteredChapters(filterWords: string[]): Promise<ChapterValue[]> {
-    const searchTerms = filterWords.join(' ');
+  async getFilteredChapters(filterWords: string[]): Promise<ChapterWithBook[]> {
+    const validWords = filterWords.filter((w) => w.trim() !== '');
 
-    return await ChapterModel.find(
+    if (validWords.length === 0) {
+      return [];
+    }
+
+    const searchTerms = validWords.join(' ');
+
+    const results = await ChapterModel.find(
       { $text: { $search: searchTerms } },
       { score: { $meta: 'textScore' } },
     )
@@ -40,10 +46,13 @@ export default class ChapterRepository implements IChapterRepository {
       .populate('book')
       .lean()
       .exec();
+
+    return results as unknown as ChapterWithBook[];
   }
 
   async getChaptersByBookReference(reference: string): Promise<ChapterValue[]> {
     const book = await BookModel.findOne({ reference }).lean().exec();
+
     if (!book) {
       return [];
     }

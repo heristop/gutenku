@@ -3,6 +3,7 @@ import { createLogger } from '~/infrastructure/services/Logger';
 import type {
   IGlobalStatsRepository,
   GlobalStatsValue,
+  HintStats,
 } from '~/domain/repositories/IGlobalStatsRepository';
 import MongoConnection from '~/infrastructure/services/MongoConnection';
 import type { Connection } from 'mongoose';
@@ -10,6 +11,8 @@ import type { Connection } from 'mongoose';
 const log = createLogger('global-stats-repo');
 
 const STATS_DOC_ID = 'global_stats';
+
+type StatsDocument = Record<string, unknown>;
 
 @injectable()
 export default class GlobalStatsRepository implements IGlobalStatsRepository {
@@ -27,6 +30,52 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
     this.statsCacheExpiry = 0;
   }
 
+  private getTodayString(): string {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  private num(doc: StatsDocument | null, key: string): number {
+    return (doc?.[key] as number) ?? 0;
+  }
+
+  private dailyNum(doc: StatsDocument | null, key: string, isDayStale: boolean): number {
+    return isDayStale ? 0 : this.num(doc, key);
+  }
+
+  private buildDailyReset(today: string): Record<string, unknown> {
+    return {
+      currentDay: today,
+      todayHaikusGenerated: 0,
+      todayGamesPlayed: 0,
+      todayGamesWon: 0,
+      todayEmoticonScratches: 0,
+      todayHaikuReveals: 0,
+    };
+  }
+
+  private parseDocument(doc: StatsDocument | null, today: string): GlobalStatsValue {
+    const docDay = (doc?.currentDay as string) ?? '';
+    const isDayStale = docDay !== today;
+
+    return {
+      totalHaikusGenerated: this.num(doc, 'totalHaikusGenerated'),
+      totalGamesPlayed: this.num(doc, 'totalGamesPlayed'),
+      totalGamesWon: this.num(doc, 'totalGamesWon'),
+      totalEmoticonScratches: this.num(doc, 'totalEmoticonScratches'),
+      totalHaikuReveals: this.num(doc, 'totalHaikuReveals'),
+      todayHaikusGenerated: this.dailyNum(doc, 'todayHaikusGenerated', isDayStale),
+      todayEmoticonScratches: this.dailyNum(doc, 'todayEmoticonScratches', isDayStale),
+      todayHaikuReveals: this.dailyNum(doc, 'todayHaikuReveals', isDayStale),
+      todayGamesPlayed: this.dailyNum(doc, 'todayGamesPlayed', isDayStale),
+      todayGamesWon: this.dailyNum(doc, 'todayGamesWon', isDayStale),
+      currentDay: today,
+    };
+  }
+
+  private getDefaultStats(): GlobalStatsValue {
+    return this.parseDocument(null, this.getTodayString());
+  }
+
   async incrementHaikuCount(): Promise<void> {
     if (!this.db) {
       return;
@@ -34,12 +83,23 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
 
     try {
       const collection = this.db.collection('globalstats');
+      const today = this.getTodayString();
+      const currentDoc = await collection.findOne({ _id: STATS_DOC_ID } as object);
+      const currentDay = (currentDoc?.currentDay as string) ?? '';
+      const isNewDay = currentDay !== today;
+
+      const inc: Record<string, number> = { totalHaikusGenerated: 1 };
+      let set: Record<string, unknown> = { lastUpdated: new Date() };
+
+      if (isNewDay) {
+        set = { ...set, ...this.buildDailyReset(today), todayHaikusGenerated: 1 };
+      } else {
+        inc.todayHaikusGenerated = 1;
+      }
+
       await collection.findOneAndUpdate(
         { _id: STATS_DOC_ID } as object,
-        {
-          $inc: { totalHaikusGenerated: 1 },
-          $set: { lastUpdated: new Date() },
-        },
+        { $inc: inc, $set: set },
         { upsert: true },
       );
       this.invalidateCache();
@@ -48,25 +108,53 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
     }
   }
 
-  async incrementGamePlayed(won: boolean): Promise<void> {
+  async incrementGamePlayed(won: boolean, hints?: HintStats): Promise<void> {
     if (!this.db) {
       return;
     }
 
     try {
-      const update: Record<string, unknown> = {
-        $inc: { totalGamesPlayed: 1 },
-        $set: { lastUpdated: new Date() },
-      };
+      const collection = this.db.collection('globalstats');
+      const today = this.getTodayString();
+      const currentDoc = await collection.findOne({ _id: STATS_DOC_ID } as object);
+      const currentDay = (currentDoc?.currentDay as string) ?? '';
+      const isNewDay = currentDay !== today;
+
+      const inc: Record<string, number> = { totalGamesPlayed: 1 };
+      let set: Record<string, unknown> = { lastUpdated: new Date() };
 
       if (won) {
-        (update.$inc as Record<string, number>).totalGamesWon = 1;
+        inc.totalGamesWon = 1;
       }
 
-      const collection = this.db.collection('globalstats');
+      if (hints) {
+        inc.totalEmoticonScratches = hints.emoticonScratches;
+        inc.totalHaikuReveals = hints.haikuReveals;
+      }
+
+      if (isNewDay) {
+        set = {
+          ...set,
+          ...this.buildDailyReset(today),
+          todayGamesPlayed: 1,
+          todayGamesWon: won ? 1 : 0,
+          todayEmoticonScratches: hints?.emoticonScratches ?? 0,
+          todayHaikuReveals: hints?.haikuReveals ?? 0,
+        };
+      } else {
+        inc.todayGamesPlayed = 1;
+        if (won) {
+          inc.todayGamesWon = 1;
+        }
+        if (hints) {
+          inc.todayEmoticonScratches = hints.emoticonScratches;
+          inc.todayHaikuReveals = hints.haikuReveals;
+        }
+      }
+
       await collection.findOneAndUpdate(
         { _id: STATS_DOC_ID } as object,
-        update,
+        { $inc: inc, $set: set },
         { upsert: true },
       );
       this.invalidateCache();
@@ -77,41 +165,31 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
 
   async getGlobalStats(): Promise<GlobalStatsValue> {
     if (!this.db) {
-      return {
-        totalHaikusGenerated: 0,
-        totalGamesPlayed: 0,
-        totalGamesWon: 0,
-      };
+      return this.getDefaultStats();
     }
 
-    // Return cached value if still valid
     const now = Date.now();
+    const today = this.getTodayString();
+
     if (this.statsCache && now < this.statsCacheExpiry) {
-      return this.statsCache;
+      if (this.statsCache.currentDay === today) {
+        return this.statsCache;
+      }
+      this.invalidateCache();
     }
 
     try {
       const collection = this.db.collection('globalstats');
       const doc = await collection.findOne({ _id: STATS_DOC_ID } as object);
+      const stats = this.parseDocument(doc as StatsDocument, today);
 
-      const stats: GlobalStatsValue = {
-        totalHaikusGenerated: (doc?.totalHaikusGenerated as number) ?? 0,
-        totalGamesPlayed: (doc?.totalGamesPlayed as number) ?? 0,
-        totalGamesWon: (doc?.totalGamesWon as number) ?? 0,
-      };
-
-      // Cache the result
       this.statsCache = stats;
       this.statsCacheExpiry = now + GlobalStatsRepository.CACHE_TTL_MS;
 
       return stats;
     } catch (error) {
       log.warn({ err: error }, 'Failed to get global stats');
-      return {
-        totalHaikusGenerated: 0,
-        totalGamesPlayed: 0,
-        totalGamesWon: 0,
-      };
+      return this.getDefaultStats();
     }
   }
 }

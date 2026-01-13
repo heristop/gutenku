@@ -19,7 +19,10 @@ import { SubmitGuessHandler } from '~/application/queries/puzzle/SubmitGuessHand
 import { ReduceBooksHandler } from '~/application/queries/puzzle/ReduceBooksHandler';
 import { GetPuzzleVersionHandler } from '~/application/queries/puzzle/GetPuzzleVersionHandler';
 import { GetGlobalStatsHandler } from '~/application/queries/stats/GetGlobalStatsHandler';
+import { VerifyEmailHandler } from '~/application/queries/email/VerifyEmailHandler';
+import { UnsubscribeEmailHandler } from '~/application/queries/email/UnsubscribeEmailHandler';
 import { CacheHaikuHandler } from '~/application/commands/haiku/CacheHaikuHandler';
+import { SubscribeEmailHandler } from '~/application/commands/email/SubscribeEmailHandler';
 import { FetchBookHandler } from '~/application/commands/book/FetchBookHandler';
 import { DeleteBookHandler } from '~/application/commands/book/DeleteBookHandler';
 import { SaveBookHandler } from '~/application/commands/book/SaveBookHandler';
@@ -88,4 +91,16 @@ container.register(createCommandHandlerToken('ImportBookCommand'), {
 
 container.register(createCommandHandlerToken('BatchImportBooksCommand'), {
   useClass: BatchImportBooksHandler,
+});
+
+container.register(createQueryHandlerToken('VerifyEmailQuery'), {
+  useClass: VerifyEmailHandler,
+});
+
+container.register(createQueryHandlerToken('UnsubscribeEmailQuery'), {
+  useClass: UnsubscribeEmailHandler,
+});
+
+container.register(createCommandHandlerToken('SubscribeEmailCommand'), {
+  useClass: SubscribeEmailHandler,
 });

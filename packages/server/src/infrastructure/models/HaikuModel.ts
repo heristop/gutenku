@@ -26,6 +26,27 @@ const HaikuSchema = new Schema({
     type: Array<string>,
     required: true,
   },
+  extractionMethod: {
+    type: String,
+    enum: ['punctuation', 'chunk'],
+  },
+  quality: {
+    natureWords: Number,
+    repeatedWords: Number,
+    weakStarts: Number,
+    sentiment: Number,
+    grammar: Number,
+    trigramFlow: Number,
+    markovFlow: Number,
+    uniqueness: Number,
+    alliteration: Number,
+    verseDistance: Number,
+    lineLengthBalance: Number,
+    imageryDensity: Number,
+    semanticCoherence: Number,
+    verbPresence: Number,
+    totalScore: Number,
+  },
 });
 
 // Indexes and TTL expiration

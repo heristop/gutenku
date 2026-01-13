@@ -1,6 +1,11 @@
 import { container } from 'tsyringe';
 import type { HaikuValue, HaikuVariables } from '~/shared/types';
-import { type IQueryBus, IQueryBusToken } from '~/application/cqrs';
+import {
+  type IQueryBus,
+  IQueryBusToken,
+  type ICommandBus,
+  ICommandBusToken,
+} from '~/application/cqrs';
 import {
   GetBookByIdQuery,
   GetAllBooksQuery,
@@ -14,17 +19,21 @@ import {
   GetHaikuVersionQuery,
 } from '~/application/queries/haiku';
 import {
+  GenerateHaikuIterativeHandler,
+  type HaikuProgress,
+  type IterativeHaikuArgs,
+} from '~/application/queries/haiku/GenerateHaikuIterativeHandler';
+import {
   GetDailyPuzzleQuery,
   SubmitGuessQuery,
   ReduceBooksQuery,
   GetPuzzleVersionQuery,
 } from '~/application/queries/puzzle';
+import { VerifyEmailQuery } from '~/application/queries/email/VerifyEmailQuery';
+import { UnsubscribeEmailQuery } from '~/application/queries/email/UnsubscribeEmailQuery';
+import { SubscribeEmailCommand } from '~/application/commands/email/SubscribeEmailCommand';
 import type { PuzzleVersion, HaikuVersion } from '@gutenku/shared';
 import { GetGlobalStatsQuery } from '~/application/queries/stats';
-import { PubSubService } from '~/infrastructure/services/PubSubService';
-
-// Instantiate PubSub singleton
-const pubSubService = container.resolve(PubSubService);
 
 const resolvers = {
   Query: {
@@ -50,7 +59,26 @@ const resolvers = {
     },
     globalStats: async () => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
-      return queryBus.execute(new GetGlobalStatsQuery());
+      const stats = await queryBus.execute(new GetGlobalStatsQuery());
+
+      // Compute averages for today
+      const todayGames = stats.todayGamesPlayed || 0;
+      const todayAverageEmoticonScratches = todayGames > 0
+        ? stats.todayEmoticonScratches / todayGames
+        : 0;
+      const todayAverageHaikuReveals = todayGames > 0
+        ? stats.todayHaikuReveals / todayGames
+        : 0;
+
+      // Compute total hints used today
+      const todayTotalHints = stats.todayEmoticonScratches + stats.todayHaikuReveals;
+
+      return {
+        ...stats,
+        todayAverageEmoticonScratches,
+        todayAverageHaikuReveals,
+        todayTotalHints,
+      };
     },
     dailyPuzzle: async (
       _,
@@ -59,11 +87,13 @@ const resolvers = {
         revealedRounds,
         visibleEmoticonCount,
         revealedHaikuCount,
+        locale,
       }: {
         date: string;
         revealedRounds?: number[];
         visibleEmoticonCount?: number;
         revealedHaikuCount?: number;
+        locale?: string;
       },
     ) => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
@@ -73,6 +103,7 @@ const resolvers = {
           revealedRounds || [],
           visibleEmoticonCount,
           revealedHaikuCount,
+          locale || 'en',
         ),
       );
     },
@@ -82,11 +113,19 @@ const resolvers = {
         date,
         guessedBookId,
         currentRound,
-      }: { date: string; guessedBookId: string; currentRound: number },
+        hints,
+        locale,
+      }: {
+        date: string;
+        guessedBookId: string;
+        currentRound: number;
+        hints?: { emoticonScratches: number; haikuReveals: number };
+        locale?: string;
+      },
     ) => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
       return queryBus.execute(
-        new SubmitGuessQuery(date, guessedBookId, currentRound),
+        new SubmitGuessQuery(date, guessedBookId, currentRound, hints, locale || 'en'),
       );
     },
     reduceBooks: async (_, { date }: { date: string }) => {
@@ -107,12 +146,32 @@ const resolvers = {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
       return queryBus.execute(new GetHaikuVersionQuery(date));
     },
+    verifyEmail: async (_, { token }: { token: string }) => {
+      const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
+      return queryBus.execute(new VerifyEmailQuery(token));
+    },
+    unsubscribeEmail: async (_, { token }: { token: string }) => {
+      const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
+      return queryBus.execute(new UnsubscribeEmailQuery(token));
+    },
+  },
+  Mutation: {
+    subscribeEmail: async (_, { email }: { email: string }) => {
+      const commandBus = container.resolve<ICommandBus>(ICommandBusToken);
+      return commandBus.execute(new SubscribeEmailCommand(email));
+    },
   },
   Subscription: {
-    quoteGenerated: {
-      subscribe: () =>
-        pubSubService.iterator<{ quoteGenerated: string }>(['QUOTE_GENERATED']),
-      resolve: (payload: { quoteGenerated: string }) => payload.quoteGenerated,
+    haikuGeneration: {
+      subscribe: async function* (
+        _: unknown,
+        args: IterativeHaikuArgs,
+      ): AsyncGenerator<{ haikuGeneration: HaikuProgress }> {
+        const handler = container.resolve(GenerateHaikuIterativeHandler);
+        for await (const progress of handler.generate(args)) {
+          yield { haikuGeneration: progress };
+        }
+      },
     },
   },
 };

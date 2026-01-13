@@ -1,4 +1,4 @@
-import type { ChapterValue } from '../../shared/types';
+import type { ChapterValue, ChapterWithBook } from '~/shared/types';
 
 export interface CreateChapterInput {
   title: string;
@@ -9,7 +9,7 @@ export interface CreateChapterInput {
 export interface IChapterRepository {
   getAllChapters(filter: string | null): Promise<ChapterValue[]>;
   getChapterById(id: string): Promise<ChapterValue | null>;
-  getFilteredChapters(filterWords: string[]): Promise<ChapterValue[]>;
+  getFilteredChapters(filterWords: string[]): Promise<ChapterWithBook[]>;
   getChaptersByBookReference(reference: string): Promise<ChapterValue[]>;
 
   // Chapter import operations

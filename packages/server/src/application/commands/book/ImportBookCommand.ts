@@ -5,6 +5,7 @@ export interface ImportBookResult {
   fetched: boolean;
   deleted: boolean;
   saved: boolean;
+  alreadyExists: boolean;
   chaptersCount: number;
   title?: string;
   error?: string;

@@ -25,6 +25,7 @@ export async function post(haiku: HaikuValue, options?: SocialPostOptions) {
   log.debug({ caption }, 'Social caption prepared');
 
   // Publish to Discord if configured
+
   if (process.env.DISCORD_WEBHOOK_URL) {
     await publishToDiscord(haiku, caption);
   }

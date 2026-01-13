@@ -41,6 +41,7 @@ export class ImportBookHandler implements ICommandHandler<
         fetched: false,
         deleted,
         saved: false,
+        alreadyExists: false,
         chaptersCount: 0,
         error: 'Failed to fetch book from Gutenberg',
       };
@@ -56,6 +57,7 @@ export class ImportBookHandler implements ICommandHandler<
       fetched: true,
       deleted,
       saved: saveResult.success,
+      alreadyExists: saveResult.alreadyExists,
       chaptersCount: saveResult.chaptersCount,
       title: saveResult.title,
       error: saveResult.error,

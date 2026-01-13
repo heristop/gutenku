@@ -2,12 +2,14 @@ import { Command } from '~/application/cqrs/ICommand';
 
 export interface BatchImportResult {
   totalBooks: number;
-  successCount: number;
-  failedCount: number;
+  newCount: number;
   skippedCount: number;
+  failedCount: number;
+  totalChapters: number;
   results: Array<{
     bookId: number;
     success: boolean;
+    alreadyExists: boolean;
     chaptersCount: number;
     title?: string;
     error?: string;

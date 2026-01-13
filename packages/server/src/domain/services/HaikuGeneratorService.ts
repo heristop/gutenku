@@ -7,10 +7,13 @@ import type {
   BookValue,
   BookValueWithChapters,
   ChapterValue,
+  ChapterWithBook,
+  ExtractionMethod,
   HaikuValue,
 } from '~/shared/types';
 import { MarkovEvaluatorService } from '~/domain/services/MarkovEvaluatorService';
 import NaturalLanguageService from '~/domain/services/NaturalLanguageService';
+import { HaikuValidatorService } from '~/domain/services/HaikuValidatorService';
 import {
   type ICanvasService,
   ICanvasServiceToken,
@@ -19,18 +22,26 @@ import type { IGenerator } from '~/domain/interfaces/IGenerator';
 import type { IHaikuRepository } from '~/domain/repositories/IHaikuRepository';
 import type { IChapterRepository } from '~/domain/repositories/IChapterRepository';
 import type { IBookRepository } from '~/domain/repositories/IBookRepository';
-import { PubSubService } from '~/infrastructure/services/PubSubService';
-import { type IEventBus, IEventBusToken } from '~/domain/events/IEventBus';
-import { QuoteGeneratedEvent } from '~/domain/events/QuoteGeneratedEvent';
 import {
   extractContextVerses,
   cleanVerses,
 } from '~/shared/helpers/HaikuHelper';
 import { MaxAttemptsException } from '~/domain/exceptions';
 import {
-  countRepeatedWords,
-  hasWeakStart,
   calculateHaikuQuality,
+  MIN_QUOTES_THRESHOLD,
+  DEFAULT_SENTIMENT_MIN_SCORE,
+  DEFAULT_MARKOV_MIN_SCORE,
+  DEFAULT_GRAMMAR_MIN_SCORE,
+  DEFAULT_TRIGRAM_MIN_SCORE,
+  DEFAULT_UNIQUENESS_MIN_SCORE,
+  DEFAULT_ALLITERATION_MIN_SCORE,
+  DEFAULT_VERSE_DISTANCE_MIN_SCORE,
+  DEFAULT_LINE_BALANCE_MIN_SCORE,
+  DEFAULT_IMAGERY_MIN_SCORE,
+  DEFAULT_COHERENCE_MIN_SCORE,
+  DEFAULT_VERB_MIN_SCORE,
+  type QualityMetrics,
 } from '~/shared/constants/validation';
 import type {
   CacheConfig,
@@ -38,6 +49,7 @@ import type {
   GeneratorConfig,
   ScoreThresholds,
   QuoteCandidate,
+  RejectionStats,
 } from './HaikuGeneratorTypes';
 
 const log = createLogger('haiku');
@@ -53,6 +65,12 @@ export default class HaikuGeneratorService implements IGenerator {
       trigram: null,
       tfidf: null,
       phonetics: null,
+      uniqueness: null,
+      verseDistance: null,
+      lineLengthBalance: null,
+      imageryDensity: null,
+      semanticCoherence: null,
+      verbPresence: null,
     },
     theme: 'random',
   };
@@ -76,9 +94,12 @@ export default class HaikuGeneratorService implements IGenerator {
   private trigramMinScore: number | null;
   private tfidfMinScore: number | null;
   private phoneticsMinScore: number | null;
+  private uniquenessMinScore: number | null;
+
   private bookPool: BookValueWithChapters[] = [];
   private cachedThresholds: ScoreThresholds | null = null;
-  private sentimentCache = new Map<string, number>();
+  private lastExtractionMethod: ExtractionMethod = 'punctuation';
+  private validator: HaikuValidatorService;
 
   constructor(
     @inject('IHaikuRepository')
@@ -92,10 +113,9 @@ export default class HaikuGeneratorService implements IGenerator {
     private readonly naturalLanguage: NaturalLanguageService,
     @inject(ICanvasServiceToken)
     private readonly canvasService: ICanvasService,
-    @inject(PubSubService) private readonly pubSubService: PubSubService,
-    @inject(IEventBusToken) private readonly eventBus: IEventBus,
   ) {
     this.filterWords = [];
+    this.validator = new HaikuValidatorService(naturalLanguage, markovEvaluator);
   }
 
   configure(options?: Partial<GeneratorConfig>): HaikuGeneratorService {
@@ -108,10 +128,19 @@ export default class HaikuGeneratorService implements IGenerator {
     this.theme = options?.theme ?? defaults.theme;
     this.filterWords = [];
     this.bookPool = [];
-    this.sentimentCache.clear();
+    this.validator.clearCache();
     this.cachedThresholds = this.buildThresholds(score);
+    this.validator.resetRejectionStats();
 
     return this;
+  }
+
+  getRejectionStats(): RejectionStats {
+    return this.validator.getRejectionStats();
+  }
+
+  resetRejectionStats(): void {
+    this.validator.resetRejectionStats();
   }
 
   private applyCacheConfig(cache: CacheConfig): void {
@@ -127,32 +156,38 @@ export default class HaikuGeneratorService implements IGenerator {
     this.trigramMinScore = score.trigram;
     this.tfidfMinScore = score.tfidf;
     this.phoneticsMinScore = score.phonetics;
+    this.uniquenessMinScore = score.uniqueness;
   }
 
   private buildThresholds(score: ScoreConfig): ScoreThresholds {
-    const env = (key: string, def = '0') => Number.parseFloat(process.env[key] || def);
     return {
-      sentiment: score.sentiment ?? env('SENTIMENT_MIN_SCORE'),
-      markov: score.markovChain ?? env('MARKOV_MIN_SCORE'),
-      pos: score.pos ?? env('POS_MIN_SCORE'),
-      trigram: score.trigram ?? env('TRIGRAM_MIN_SCORE'),
-      tfidf: score.tfidf ?? env('TFIDF_MIN_SCORE'),
-      phonetics: score.phonetics ?? env('PHONETICS_MIN_SCORE'),
-      maxRepeatedWords: Number.parseInt(process.env.MAX_REPEATED_WORDS || '0', 10),
-      allowWeakStart: process.env.REJECT_WEAK_START !== 'true',
+      sentiment: score.sentiment ?? DEFAULT_SENTIMENT_MIN_SCORE,
+      markov: score.markovChain ?? DEFAULT_MARKOV_MIN_SCORE,
+      pos: score.pos ?? DEFAULT_GRAMMAR_MIN_SCORE,
+      trigram: score.trigram ?? DEFAULT_TRIGRAM_MIN_SCORE,
+      tfidf: score.tfidf ?? 0,
+      phonetics: score.phonetics ?? DEFAULT_ALLITERATION_MIN_SCORE,
+      uniqueness: score.uniqueness ?? DEFAULT_UNIQUENESS_MIN_SCORE,
+      verseDistance: score.verseDistance ?? DEFAULT_VERSE_DISTANCE_MIN_SCORE,
+      lineLengthBalance: score.lineLengthBalance ?? DEFAULT_LINE_BALANCE_MIN_SCORE,
+      imageryDensity: score.imageryDensity ?? DEFAULT_IMAGERY_MIN_SCORE,
+      semanticCoherence: score.semanticCoherence ?? DEFAULT_COHERENCE_MIN_SCORE,
+      verbPresence: score.verbPresence ?? DEFAULT_VERB_MIN_SCORE,
+      maxRepeatedWords: 0,
+      allowWeakStart: true,
     };
   }
 
   filter(filterWords: string[]): HaikuGeneratorService {
     // Check if filter words changed to avoid unnecessary regex compilation
     const newKey = filterWords.length > 0 ? [...filterWords].sort().join('|') : null;
+
     if (this.filterWordsKey === newKey) {
       return this; // Already compiled for these words
     }
 
     this.filterWordsKey = newKey;
     this.filterWords = filterWords;
-
     if (filterWords.length > 0) {
       const escapedWords = filterWords.map((word) =>
         word.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&'),
@@ -174,12 +209,11 @@ export default class HaikuGeneratorService implements IGenerator {
 
   private async getBookFromPool(): Promise<BookValueWithChapters> {
     if (this.bookPool.length === 0) {
-      // Refill the pool with multiple books in one query
       this.bookPool = await this.bookRepository.selectRandomBooks(
         this.bookPoolSize,
       );
     }
-    // Pop a book from the pool (or fallback to single fetch if pool still empty)
+
     if (this.bookPool.length > 0) {
       return this.bookPool.pop()!;
     }
@@ -188,7 +222,6 @@ export default class HaikuGeneratorService implements IGenerator {
 
   async generate(): Promise<HaikuValue | null> {
     this.executionTime = Date.now();
-
     if (this.useCache === true) {
       const haiku = await this.haikuRepository.extractOneFromCache(
         this.minCachedDocs,
@@ -229,7 +262,7 @@ export default class HaikuGeneratorService implements IGenerator {
 
     const result = await this.buildFromDbWithYielding();
 
-    if (result) {
+    if (result && this.useCache) {
       await this.haikuRepository.createCacheWithTTL(result, this.ttl);
     }
 
@@ -240,7 +273,7 @@ export default class HaikuGeneratorService implements IGenerator {
     let verses = [];
     let book = null;
     let chapter = null;
-    let chapters = [];
+    let chapters: ChapterWithBook[] = [];
     let i = 1;
 
     if (this.filterWords.length > 0) {
@@ -248,10 +281,12 @@ export default class HaikuGeneratorService implements IGenerator {
         this.filterWords,
       );
     }
-
     if (chapters.length === 0) {
       book = await this.getBookFromPool();
     }
+
+    let indices: number[] = [];
+    let totalQuotes = 0;
 
     while (verses.length < 3 && i < this.maxAttempts) {
       const chunkResult = await this.processChunk(
@@ -262,10 +297,11 @@ export default class HaikuGeneratorService implements IGenerator {
       );
 
       verses = chunkResult.verses;
+      indices = chunkResult.indices;
+      totalQuotes = chunkResult.totalQuotes;
       chapter = chunkResult.chapter;
       book = chunkResult.book;
       i = chunkResult.nextIteration;
-
       if (verses.length >= 3) {
         break;
       }
@@ -274,7 +310,6 @@ export default class HaikuGeneratorService implements IGenerator {
         setImmediate(resolve);
       });
     }
-
     if (verses.length < 3) {
       throw new MaxAttemptsException({
         maxAttempts: this.maxAttempts,
@@ -283,21 +318,25 @@ export default class HaikuGeneratorService implements IGenerator {
       });
     }
 
-    return this.buildHaiku(book, chapter, verses);
+    return this.buildHaiku(book, chapter, verses, indices, totalQuotes);
   }
 
   private async processChunk(
-    chapters: ChapterValue[],
+    chapters: ChapterWithBook[],
     currentBook: BookValueWithChapters | null,
     startIteration: number,
     chunkSize: number,
   ): Promise<{
     verses: string[];
+    indices: number[];
+    totalQuotes: number;
     chapter: ChapterValue;
     book: BookValueWithChapters;
     nextIteration: number;
   }> {
-    let verses = [];
+    let verses: string[] = [];
+    let indices: number[] = [];
+    let totalQuotes = 0;
     let book = currentBook;
     let chapter = null;
 
@@ -315,24 +354,27 @@ export default class HaikuGeneratorService implements IGenerator {
         chapter = this.selectRandomChapter(book);
       }
 
-      verses = this.getVerses(chapter);
-
+      const result = this.getVerses(chapter);
+      verses = result.verses;
+      indices = result.indices;
+      totalQuotes = result.totalQuotes;
       if (
         this.filterWords.length > 0 &&
         !this.verseContainsFilterWord(verses)
       ) {
         verses = [];
+        indices = [];
       }
-
       if (verses.length >= 3) {
         return {
           book,
           chapter,
           nextIteration: currentIteration + 1,
           verses,
+          indices,
+          totalQuotes,
         };
       }
-
       if (currentIteration % this.maxAttemptsInBook === 0) {
         book = await this.getBookFromPool();
       }
@@ -343,13 +385,24 @@ export default class HaikuGeneratorService implements IGenerator {
       chapter,
       nextIteration: startIteration + chunkSize,
       verses,
+      indices,
+      totalQuotes,
     };
   }
 
-  getVerses(chapter: ChapterValue): string[] {
+  getVerses(chapter: ChapterValue): { verses: string[]; indices: number[]; totalQuotes: number } {
     const quotes = this.extractQuotes(chapter.content);
+    if (quotes.length === 0) {
+      return { verses: [], indices: [], totalQuotes: 0 };
+    }
 
-    return quotes.length > 0 ? this.selectHaikuVerses(quotes) : [];
+    const result = this.selectHaikuVerses(quotes, quotes.length);
+
+    if (result === null) {
+      return { verses: [], indices: [], totalQuotes: quotes.length };
+    }
+
+    return { verses: result.verses, indices: result.indices, totalQuotes: quotes.length };
   }
 
   verseContainsFilterWord(verses: string[]): boolean {
@@ -363,6 +416,8 @@ export default class HaikuGeneratorService implements IGenerator {
     book: BookValue,
     chapter: ChapterValue,
     verses: string[],
+    indices: number[] = [],
+    totalQuotes = 0,
   ): HaikuValue {
     const executionTime = (Date.now() - this.executionTime) / 1000;
     const cleanedVerses = cleanVerses(verses);
@@ -380,7 +435,11 @@ export default class HaikuGeneratorService implements IGenerator {
       executionTime: executionTime,
       rawVerses: verses,
       verses: cleanedVerses,
-      quality: calculateHaikuQuality(cleanedVerses),
+      quality: calculateHaikuQuality(
+        cleanedVerses,
+        this.calculateQualityMetrics(cleanedVerses, indices, totalQuotes),
+      ),
+      extractionMethod: this.lastExtractionMethod,
     };
   }
 
@@ -388,45 +447,107 @@ export default class HaikuGeneratorService implements IGenerator {
     return book.chapters[Math.floor(Math.random() * book.chapters.length).toString()];
   }
 
-  extractQuotes(chapter: string): QuoteCandidate[] {
-    const sentences = this.naturalLanguage.extractSentencesByPunctuation(chapter);
-    if (this.cachedThresholds?.tfidf > 0) {this.naturalLanguage.initTfIdf(sentences);}
-    return this.filterQuotesCountingSyllables(sentences.map((quote, index) => ({ index, quote })));
+  private calculateQualityMetrics(
+    verses: string[],
+    verseIndices: number[] = [],
+    totalQuotes = 0,
+  ): QualityMetrics {
+    if (verses.length === 0) {
+      return { sentiment: 0.5, grammar: 0, trigramFlow: 0, markovFlow: 0, alliteration: 0 };
+    }
+
+    const sentimentSum = verses.reduce(
+      (acc, verse) => acc + this.naturalLanguage.analyzeSentiment(verse),
+      0,
+    );
+    const sentiment = sentimentSum / verses.length;
+
+    const grammarSum = verses.reduce(
+      (acc, verse) => acc + this.naturalLanguage.analyzeGrammar(verse).score,
+      0,
+    );
+    const grammar = grammarSum / verses.length;
+
+    const trigramFlow = this.markovEvaluator.evaluateHaikuTrigrams(verses);
+    const markovFlow = this.markovEvaluator.evaluateHaiku(verses);
+
+    const phonetics = this.naturalLanguage.analyzePhonetics(verses);
+    const alliteration = phonetics.alliterationScore;
+
+    const posResults = verses.flatMap((v) => this.naturalLanguage.getPOSTags(v));
+
+    return {
+      sentiment,
+      grammar,
+      trigramFlow,
+      markovFlow,
+      alliteration,
+      verseIndices,
+      totalQuotes,
+      posResults,
+    };
   }
 
-  filterQuotesCountingSyllables(
-    quotes: { quote: string; index: number }[],
-  ): QuoteCandidate[] {
-    const filteredQuotes: QuoteCandidate[] = [];
+  extractQuotes(chapter: string): QuoteCandidate[] {
+    const nl = this.naturalLanguage;
+    const extractors: [ExtractionMethod, () => string[]][] = [
+      ['punctuation', () => nl.extractSentencesByPunctuation(chapter)],
+      ['chunk', () => nl.extractWordChunks(chapter)],
+    ];
+    for (const [name, fn] of extractors) {
+      const sentences = fn();
 
+      if (this.cachedThresholds?.tfidf > 0) {
+        nl.initTfIdf(sentences);
+      }
+      let quotes = this.filterQuotesCountingSyllables(sentences.map((quote, index) => ({ index, quote })));
+
+      if (name === 'chunk') {
+        quotes = quotes.filter((q) => {
+          const grammar = nl.analyzeGrammar(q.quote);
+          if (grammar.score < 0.5) {
+            return false;
+          }
+
+          const words = q.quote.split(/\s+/);
+          for (let i = 1; i < words.length; i++) {
+            if (words[i] && /^[A-Z]/.test(words[i])) {
+              return false;
+            }
+          }
+          return true;
+        });
+      }
+
+      const minRequired = MIN_QUOTES_THRESHOLD[name];
+
+      if (quotes.length >= minRequired) {
+        this.lastExtractionMethod = name;
+        log.debug({ method: name, count: quotes.length, threshold: minRequired }, 'Extraction succeeded');
+        return quotes;
+      }
+    }
+    return [];
+  }
+
+  filterQuotesCountingSyllables(quotes: { quote: string; index: number }[]): QuoteCandidate[] {
+    const filtered: QuoteCandidate[] = [];
     for (const { quote, index } of quotes) {
       const words = this.naturalLanguage.extractWords(quote);
-
-      if (!words) {
-        continue;
-      }
-
-      const syllableCount = words.reduce(
-        (count, word) => count + syllable(word),
-        0,
-      );
+      if (!words) {continue;}
+      const syllableCount = words.reduce((c, w) => c + syllable(w), 0);
 
       if (syllableCount === 5 || syllableCount === 7) {
-        filteredQuotes.push({ quote, index, syllableCount });
+        filtered.push({ quote, index, syllableCount });
       }
     }
-
-    const minQuotesCount =
-      Number.parseInt(process.env.MIN_QUOTES_COUNT, 10) || 12;
-
-    if (minQuotesCount && filteredQuotes.length < minQuotesCount) {
-      return [];
-    }
-
-    return filteredQuotes;
+    return filtered;
   }
 
-  selectHaikuVerses(quotes: QuoteCandidate[]): string[] {
+  selectHaikuVerses(
+    quotes: QuoteCandidate[],
+    totalQuotes?: number,
+  ): { verses: string[]; indices: number[] } | null {
     const syllableCounts = [5, 7, 5];
     const thresholds = this.getScoreThresholds();
     const selectedVerses: QuoteCandidate[] = [];
@@ -435,22 +556,15 @@ export default class HaikuGeneratorService implements IGenerator {
     for (let i = 0; i < syllableCounts.length; i++) {
       const targetSyllables = syllableCounts[i];
 
-      // Pre-filter by syllable count first (cheap), then apply expensive validation
       const syllableMatches = quotes.filter(
         (q) => q.syllableCount === targetSyllables && !usedIndices.has(q.index),
       );
 
       const matchingQuotes = syllableMatches.filter((candidate) =>
-        this.isQuoteValidForVerse(
-          candidate,
-          i === 0,
-          selectedVerses,
-          thresholds,
-        ),
+        this.validator.isQuoteValidForVerse(candidate, i === 0, selectedVerses, thresholds),
       );
-
       if (matchingQuotes.length === 0) {
-        return [];
+        return null;
       }
 
       const randomIndex = Math.floor(Math.random() * matchingQuotes.length);
@@ -460,131 +574,21 @@ export default class HaikuGeneratorService implements IGenerator {
       usedIndices.add(selectedQuote.index);
     }
 
-    return selectedVerses.map(({ quote }) => quote);
+    const verses = selectedVerses.map(({ quote }) => quote);
+    const indices = selectedVerses.map(({ index }) => index);
+    const total = totalQuotes ?? quotes.length;
+    if (!this.validator.passesFullHaikuFilters(verses, indices, total, thresholds)) {
+      return null;
+    }
+
+    return { verses, indices };
   }
 
   private getScoreThresholds(): ScoreThresholds {
     return this.cachedThresholds ?? this.buildThresholds(HaikuGeneratorService.DEFAULT_CONFIG.score);
   }
 
-  private isQuoteValidForVerse(
-    candidate: QuoteCandidate, isFirstVerse: boolean,
-    selectedVerses: QuoteCandidate[], thresholds: ScoreThresholds,
-  ): boolean {
-    const quote = candidate.quote.replaceAll('\n', ' ');
-    if (!this.passesBasicValidation(quote, isFirstVerse, thresholds)) {return false;}
-    if (!this.passesScoreValidation(quote, thresholds)) {return false;}
-    if (selectedVerses.length > 0) {
-      return this.passesSequenceValidation(quote, candidate.index, selectedVerses, thresholds);
-    }
-    return true;
-  }
-
-  private passesBasicValidation(quote: string, isFirstVerse: boolean, thresholds: ScoreThresholds): boolean {
-    if (isFirstVerse && this.naturalLanguage.startWithConjunction(quote)) {return false;}
-    if (this.isQuoteInvalid(quote)) {return false;}
-    if (!thresholds.allowWeakStart && hasWeakStart(quote)) {return false;}
-    return true;
-  }
-
-  private getCachedSentiment(quote: string): number {
-    let score = this.sentimentCache.get(quote);
-    if (score === undefined) {this.sentimentCache.set(quote, score = this.naturalLanguage.analyzeSentiment(quote));}
-    return score;
-  }
-
-  private passesScoreValidation(
-    quote: string,
-    thresholds: ScoreThresholds,
-  ): boolean {
-    log.debug({ quote: quote.split(' ') }, 'Evaluating quote');
-
-    const sentimentScore = this.getCachedSentiment(quote);
-    if (sentimentScore < thresholds.sentiment) {return false;}
-    log.debug(
-      { sentimentScore, min: thresholds.sentiment },
-      'Sentiment score',
-    );
-
-    if (thresholds.pos > 0) {
-      const grammarAnalysis = this.naturalLanguage.analyzeGrammar(quote);
-      if (grammarAnalysis.score < thresholds.pos) {return false;}
-      log.debug({ posScore: grammarAnalysis.score, min: thresholds.pos }, 'POS score');
-    }
-
-    if (thresholds.tfidf > 0) {
-      const tfidfScore = this.naturalLanguage.scoreDistinctiveness(quote);
-      if (tfidfScore < thresholds.tfidf) {return false;}
-      log.debug({ tfidfScore, min: thresholds.tfidf }, 'TF-IDF score');
-    }
-
-    return true;
-  }
-
-  private passesSequenceValidation(
-    quote: string,
-    index: number,
-    selectedVerses: QuoteCandidate[],
-    thresholds: ScoreThresholds,
-  ): boolean {
-    const lastVerseIndex = selectedVerses.at(-1)!.index;
-    if (index <= lastVerseIndex) {return false;}
-
-    const quotesToEvaluate = [...selectedVerses.map((v) => v.quote), quote];
-
-    // Soft scoring: check word repetition across verses
-    if (thresholds.maxRepeatedWords > 0) {
-      const repeatedCount = countRepeatedWords(quotesToEvaluate);
-      if (repeatedCount > thresholds.maxRepeatedWords) {
-        return false;
-      }
-      log.debug({ repeatedCount, max: thresholds.maxRepeatedWords }, 'Repeated words');
-    }
-
-    const markovScore = this.markovEvaluator.evaluateHaiku(quotesToEvaluate);
-    if (markovScore < thresholds.markov) {return false;}
-    log.debug({ markovScore, min: thresholds.markov }, 'Markov score');
-
-    if (thresholds.trigram > 0) {
-      const trigramScore =
-        this.markovEvaluator.evaluateHaikuTrigrams(quotesToEvaluate);
-      if (trigramScore < thresholds.trigram) {return false;}
-      log.debug({ trigramScore, min: thresholds.trigram }, 'Trigram score');
-    }
-
-    // Check phonetics (alliteration) across all verses, not just the 3rd
-    if (thresholds.phonetics > 0) {
-      const phoneticsAnalysis =
-        this.naturalLanguage.analyzePhonetics(quotesToEvaluate);
-      if (phoneticsAnalysis.alliterationScore < thresholds.phonetics) {
-        return false;
-      }
-      log.debug(
-        { phoneticsScore: phoneticsAnalysis.alliterationScore, min: thresholds.phonetics },
-        'Phonetics score',
-      );
-    }
-
-    this.eventBus.publish(new QuoteGeneratedEvent({ quote }));
-    return true;
-  }
-
   isQuoteInvalid(quote: string): boolean {
-    // Assumes quote is already normalized (newlines replaced with spaces)
-    if (this.naturalLanguage.hasUpperCaseWords(quote)) {
-      return true;
-    }
-
-    if (this.naturalLanguage.hasBlacklistedCharsInQuote(quote)) {
-      return true;
-    }
-
-    if (
-      quote.length >= Number.parseInt(process.env.VERSE_MAX_LENGTH || '30', 10)
-    ) {
-      return true;
-    }
-
-    return false;
+    return this.validator.isQuoteInvalid(quote);
   }
 }

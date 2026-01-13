@@ -22,7 +22,6 @@ function seededRandom(seed: number): () => number {
     let t = (seed += 0x6D2B79F5);
     t = Math.imul(t ^ (t >>> 15), t | 1);
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    // eslint-disable-next-line unicorn/prefer-math-trunc -- >>> 0 converts to unsigned 32-bit int
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
@@ -55,21 +54,53 @@ function selectDailyBook(dateStr: string): GutenGuessBook {
 }
 
 /**
+ * Supported locales for hint translations.
+ */
+type HintLocale = 'en' | 'fr' | 'ja';
+
+/**
  * Hint pool with difficulty ratings (lower = revealed earlier, higher = more revealing).
  */
 interface HintDefinition {
   type: PuzzleHint['type'];
   difficulty: number;
-  generator: (book: GutenGuessBook, random: () => number) => string;
+  generator: (book: GutenGuessBook, random: () => number, locale: HintLocale) => string;
 }
 
 const HINT_POOL: HintDefinition[] = [
   {
     type: 'title_word_count',
     difficulty: 2,
+    generator: (book, _random, locale) => {
+      const title = book.title[locale] || book.title.en;
+      // For Japanese, count ideograms (graphemes) since there are no space-separated words
+      if (locale === 'ja') {
+        const segmenter = new Intl.Segmenter('ja', { granularity: 'grapheme' });
+        const ideogramCount = [...segmenter.segment(title)].length;
+        return `${ideogramCount}`;
+      }
+      const count = title.split(/\s+/).length;
+      return `${count}`;
+    },
+  },
+  {
+    type: 'book_length',
+    difficulty: 2,
     generator: (book) => {
-      const count = book.title.split(/\s+/).length;
-      return `${count} word${count !== 1 ? 's' : ''}`;
+      const wc = book.wordCount;
+      if (wc < 40000) {
+        return 'short';
+      }
+
+      if (wc < 80000) {
+        return 'medium';
+      }
+
+      if (wc < 150000) {
+        return 'long';
+      }
+
+      return 'epic';
     },
   },
   {
@@ -85,7 +116,7 @@ const HINT_POOL: HintDefinition[] = [
   {
     type: 'protagonist',
     difficulty: 4,
-    generator: (book) => book.protagonist,
+    generator: (book, _random, locale) => book.protagonist[locale] || book.protagonist.en,
   },
   {
     type: 'publication_century',
@@ -105,17 +136,25 @@ const HINT_POOL: HintDefinition[] = [
   {
     type: 'quote',
     difficulty: 6,
-    generator: (book, random) => {
+    generator: (book, random, locale) => {
       const quoteIndex = Math.floor(random() * book.notableQuotes.length);
-      return (
-        book.notableQuotes[quoteIndex] || 'A famous quote from this book...'
-      );
+      const quote = book.notableQuotes[quoteIndex];
+
+      if (!quote) {
+        return 'A famous quote from this book...';
+      }
+
+      return quote[locale] || quote.en;
     },
   },
   {
     type: 'first_letter',
     difficulty: 7,
-    generator: (book) => `${book.title[0].toUpperCase()}...`,
+    generator: (book, _random, locale) => {
+      const title = book.title[locale] || book.title.en;
+      const firstChar = [...title][0]; // Multi-byte character support
+      return `${firstChar.toUpperCase()}...`;
+    },
   },
   {
     type: 'author_nationality',
@@ -145,7 +184,7 @@ function shuffleWithSeed<T>(array: T[], random: () => number): T[] {
  * Generate 6 hints for the book: emoticons (round 1) + 5 randomly selected hints from pool.
  * Excludes era/publication_century pairs. Sorts by difficulty. Uses seeded PRNG.
  */
-function generateAllHints(book: GutenGuessBook, dateStr: string): PuzzleHint[] {
+function generateAllHints(book: GutenGuessBook, dateStr: string, locale: HintLocale = 'en'): PuzzleHint[] {
   const seed = dateToSeed(dateStr);
   const random = seededRandom(seed);
 
@@ -175,6 +214,7 @@ function generateAllHints(book: GutenGuessBook, dateStr: string): PuzzleHint[] {
     const replacement = remaining.find(
       (h) => h.type !== 'era' && h.type !== 'publication_century',
     );
+
     if (replacement) {
       selectedHints[eraIndex] = replacement;
     }
@@ -189,7 +229,7 @@ function generateAllHints(book: GutenGuessBook, dateStr: string): PuzzleHint[] {
     hints.push({
       round: i + 2,
       type: hintDef.type,
-      content: hintDef.generator(book, random),
+      content: hintDef.generator(book, random, locale),
     });
   }
 
@@ -203,20 +243,21 @@ function generateHintForRound(
   book: GutenGuessBook,
   dateStr: string,
   round: number,
+  locale: HintLocale = 'en',
 ): PuzzleHint {
-  return generateAllHints(book, dateStr)[round - 1];
+  return generateAllHints(book, dateStr, locale)[round - 1];
 }
 
 /**
- * Convert GutenGuessBook to BookValue
+ * Convert GutenGuessBook to BookValue with localized title and summary
  */
-function bookToValue(book: GutenGuessBook): BookValue {
+function bookToValue(book: GutenGuessBook, locale: HintLocale = 'en'): BookValue {
   return {
     reference: book.id.toString(),
-    title: book.title,
+    title: book.title[locale] || book.title.en,
     author: book.author,
     emoticons: book.emoticons,
-    summary: book.summary,
+    summary: book.summary[locale] || book.summary.en,
   };
 }
 
@@ -240,17 +281,26 @@ export class SubmitGuessHandler implements IQueryHandler<
 
     const { date, guessedBookId, currentRound } = validated;
 
+    // Get locale from query, default to 'en', validate it's a supported locale
+    const locale = (['en', 'fr', 'ja'].includes(query.locale) ? query.locale : 'en') as HintLocale;
+
     // Get the correct book for today
     const correctBook = selectDailyBook(date);
     const isCorrect = correctBook.id.toString() === guessedBookId;
 
+    // Prepare hint stats for stats tracking
+    const hintStats = query.hints ? {
+      emoticonScratches: query.hints.emoticonScratches,
+      haikuReveals: query.hints.haikuReveals,
+    } : undefined;
+
     if (isCorrect) {
       // Fire-and-forget - don't block the response
-      this.globalStatsRepository.incrementGamePlayed(true).catch(() => {});
+      this.globalStatsRepository.incrementGamePlayed(true, hintStats).catch(() => {});
       return {
         isCorrect: true,
-        correctBook: bookToValue(correctBook),
-        allHints: generateAllHints(correctBook, date),
+        correctBook: bookToValue(correctBook, locale),
+        allHints: generateAllHints(correctBook, date, locale),
       };
     }
 
@@ -260,17 +310,17 @@ export class SubmitGuessHandler implements IQueryHandler<
     if (nextRound <= 6) {
       return {
         isCorrect: false,
-        nextHint: generateHintForRound(correctBook, date, nextRound),
+        nextHint: generateHintForRound(correctBook, date, nextRound, locale),
       };
     }
 
     // Game over - reveal the correct book and all hints
     // Fire-and-forget - don't block the response
-    this.globalStatsRepository.incrementGamePlayed(false).catch(() => {});
+    this.globalStatsRepository.incrementGamePlayed(false, hintStats).catch(() => {});
     return {
       isCorrect: false,
-      correctBook: bookToValue(correctBook),
-      allHints: generateAllHints(correctBook, date),
+      correctBook: bookToValue(correctBook, locale),
+      allHints: generateAllHints(correctBook, date, locale),
     };
   }
 }

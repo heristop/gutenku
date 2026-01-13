@@ -31,6 +31,7 @@ export class MarkovEvaluatorService {
     let totalScore = 0;
 
     for (let i = 0; i < lowerHaiku.length - 1; i++) {
+      // Use original bigram evaluation (now with lowercase model)
       const score = this.markovChain.evaluateTransition(
         lowerHaiku[i],
         lowerHaiku[i + 1],

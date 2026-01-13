@@ -73,14 +73,36 @@ export default class NaturalLanguageService {
     return this.cleanExtraDot(text).split(/[.?!,;]+[\s]+/g);
   }
 
+  extractByExpandedClauses(text: string): string[] {
+    return this.cleanExtraDot(text)
+      .split(/[:;,\-—]+\s+/g)
+      .filter((s) => s.trim().length > 0);
+  }
+
+  extractWordChunks(text: string): string[] {
+    const words = this.extractWords(this.cleanExtraDot(text));
+
+    if (!words || words.length < 2) {
+      return [];
+    }
+    const chunks: string[] = [];
+    for (let size = 2; size <= 4; size++) {
+      for (let i = 0; i <= words.length - size; i += size) {
+        chunks.push(words.slice(i, i + size).join(' '));
+      }
+    }
+    return chunks;
+  }
+
   cleanExtraDot(text: string): string {
     return text.replaceAll(/(Mr|Mrs|Dr|St)\./g, '$1');
   }
 
   analyzeSentiment(quote: string): number {
     const words = this.extractWords(quote);
-
-    return this.sentimentAnalyzer.getSentiment(words);
+    const rawScore = this.sentimentAnalyzer.getSentiment(words);
+    // Normalize from [-5, +5] to [0, 1]
+    return Math.max(0, Math.min(1, (rawScore + 5) / 10));
   }
 
   hasUpperCaseWords(quote: string): boolean {
@@ -97,7 +119,6 @@ export default class NaturalLanguageService {
 
   countSyllables(quote: string): number {
     const words = this.extractWords(quote);
-
     if (!words) {
       return 0;
     }
@@ -105,9 +126,18 @@ export default class NaturalLanguageService {
     return words.reduce((count, word) => count + syllable(word), 0);
   }
 
+  getPOSTags(text: string): Array<{ word: string; tag: string }> {
+    const words = this.extractWords(text);
+
+    if (!words || words.length === 0) {
+      return [];
+    }
+    const tagged = this.posTagger.tag(words);
+    return tagged.taggedWords.map((tw) => ({ word: tw.token, tag: tw.tag }));
+  }
+
   analyzeGrammar(quote: string): GrammarAnalysis {
     const words = this.extractWords(quote);
-
     if (!words || words.length === 0) {
       return { hasNoun: false, hasVerb: false, hasAdjective: false, score: 0 };
     }
@@ -156,7 +186,6 @@ export default class NaturalLanguageService {
     }
 
     const words = this.extractWords(quote);
-
     if (!words || words.length === 0) {
       return 0;
     }
@@ -179,7 +208,6 @@ export default class NaturalLanguageService {
         allWords.push(...words);
       }
     }
-
     if (allWords.length < 2) {
       return { alliterationScore: 0, uniqueSounds: 0, totalWords: 0 };
     }

@@ -1,6 +1,7 @@
 import { inject, singleton } from 'tsyringe';
 import { RawBookText } from '~/domain/value-objects/RawBookText';
 import { ParsedBook } from '~/domain/value-objects/ParsedBook';
+import { BookMetadata } from '~/domain/value-objects/BookMetadata';
 import { BookMetadataExtractorService } from './BookMetadataExtractorService';
 import {
   ChapterSplitterService,
@@ -46,13 +47,13 @@ export class BookParserService {
     const warnings: string[] = [];
 
     const metadata = this.metadataExtractor.tryExtract(rawText);
+
     if (!metadata.title) {
       errors.push(`Failed to extract title from book ${rawText.gutenbergId}`);
     }
     if (!metadata.author) {
       errors.push(`Failed to extract author from book ${rawText.gutenbergId}`);
     }
-
     if (errors.length > 0) {
       return {
         parsedBook: null,
@@ -69,7 +70,6 @@ export class BookParserService {
     }
 
     const splitResult = this.chapterSplitter.split(rawText);
-
     if (!splitResult.patternUsed) {
       warnings.push(
         'No chapter pattern matched, using entire text as single chapter',
@@ -90,7 +90,6 @@ export class BookParserService {
     const minChapters =
       options?.validation?.minChapters ??
       ChapterValidatorService.getDefaultConfig().minChapters;
-
     if (validationResult.validChapters.length < minChapters) {
       errors.push(
         `Insufficient chapters: found ${validationResult.validChapters.length}, required ${minChapters}`,
@@ -123,7 +122,12 @@ export class BookParserService {
       };
     }
 
-    const bookMetadata = this.metadataExtractor.extract(rawText);
+    // Reuse metadata from tryExtract (already validated as non-null above)
+    const bookMetadata = BookMetadata.create({
+      title: metadata.title!,
+      author: metadata.author!,
+      gutenbergId: rawText.gutenbergId,
+    });
     const parsedBook = ParsedBook.create({
       metadata: bookMetadata,
       chapters: validationResult.validChapters,

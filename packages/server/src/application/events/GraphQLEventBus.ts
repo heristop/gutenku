@@ -1,24 +1,10 @@
-import { inject, injectable } from 'tsyringe';
+import { injectable } from 'tsyringe';
 import type { IEventBus } from '~/domain/events/IEventBus';
 import type { DomainEvent } from '~/domain/events/DomainEvent';
-import {
-  type IMessagePublisher,
-  IMessagePublisherToken,
-} from '~/application/messaging/IMessagePublisher';
-import { QuoteGeneratedEvent } from '~/domain/events/QuoteGeneratedEvent';
 
 @injectable()
 export class GraphQLEventBus implements IEventBus {
-  constructor(
-    @inject(IMessagePublisherToken)
-    private readonly publisher: IMessagePublisher,
-  ) {}
-
-  async publish<E extends DomainEvent<unknown>>(event: E): Promise<void> {
-    if (event instanceof QuoteGeneratedEvent) {
-      await this.publisher.publish(event.type, {
-        quoteGenerated: event.payload.quote,
-      });
-    }
+  async publish<E extends DomainEvent<unknown>>(_event: E): Promise<void> {
+    // No events currently published via GraphQL subscriptions
   }
 }

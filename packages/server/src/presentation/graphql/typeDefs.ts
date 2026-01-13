@@ -39,13 +39,25 @@ const typeDefs = `#graphql
     type HaikuCandidate {
         verses: [String!]!
         book: CandidateBook!
+        quality: HaikuQuality
     }
 
     type HaikuQuality {
         natureWords: Int!
         repeatedWords: Int!
         weakStarts: Int!
-        totalScore: Int!
+        sentiment: Float!
+        grammar: Float!
+        trigramFlow: Float!
+        markovFlow: Float!
+        uniqueness: Float!
+        alliteration: Float!
+        verseDistance: Float!
+        lineLengthBalance: Float!
+        imageryDensity: Float!
+        semanticCoherence: Float!
+        verbPresence: Float!
+        totalScore: Float!
     }
 
     type Haiku {
@@ -65,12 +77,26 @@ const typeDefs = `#graphql
         selectionInfo: SelectionInfo
         candidates: [HaikuCandidate!]
         quality: HaikuQuality
+        extractionMethod: String
     }
 
     type GlobalStats {
         totalHaikusGenerated: Int!
         totalGamesPlayed: Int!
         totalGamesWon: Int!
+        totalEmoticonScratches: Int!
+        totalHaikuReveals: Int!
+        todayHaikusGenerated: Int!
+        todayAverageEmoticonScratches: Float!
+        todayAverageHaikuReveals: Float!
+        todayGamesPlayed: Int!
+        todayGamesWon: Int!
+        todayTotalHints: Int!
+    }
+
+    input HintUsageInput {
+        emoticonScratches: Int!
+        haikuReveals: Int!
     }
 
     type PuzzleHint {
@@ -131,18 +157,43 @@ const typeDefs = `#graphql
             trigramMinScore: Float,
             tfidfMinScore: Float,
             phoneticsMinScore: Float,
+            uniquenessMinScore: Float,
+            verseDistanceMinScore: Float,
+            lineLengthBalanceMinScore: Float,
+            imageryDensityMinScore: Float,
+            semanticCoherenceMinScore: Float,
+            verbPresenceMinScore: Float,
             descriptionTemperature: Float
         ): Haiku
         globalStats: GlobalStats!
-        dailyPuzzle(date: String!, revealedRounds: [Int!], visibleEmoticonCount: Int, revealedHaikuCount: Int): DailyPuzzleResponse!
-        submitGuess(date: String!, guessedBookId: ID!, currentRound: Int!): GuessResult!
+        dailyPuzzle(date: String!, revealedRounds: [Int!], visibleEmoticonCount: Int, revealedHaikuCount: Int, locale: String): DailyPuzzleResponse!
+        submitGuess(date: String!, guessedBookId: ID!, currentRound: Int!, hints: HintUsageInput, locale: String): GuessResult!
         reduceBooks(date: String!): [Book!]!
         puzzleVersion(date: String!): PuzzleVersion!
         haikuVersion(date: String!): HaikuVersion!
+        verifyEmail(token: String!): SubscriptionResult!
+        unsubscribeEmail(token: String!): SubscriptionResult!
+    }
+
+    type HaikuProgress {
+        currentIteration: Int!
+        totalIterations: Int!
+        bestScore: Float!
+        bestHaiku: Haiku
+        isComplete: Boolean!
     }
 
     type Subscription {
-        quoteGenerated: String
+        haikuGeneration(iterations: Int!, theme: String, filter: String): HaikuProgress!
+    }
+
+    type SubscriptionResult {
+        success: Boolean!
+        message: String!
+    }
+
+    type Mutation {
+        subscribeEmail(email: String!): SubscriptionResult!
     }
 `;
 

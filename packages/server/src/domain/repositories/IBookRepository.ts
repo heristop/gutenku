@@ -1,4 +1,4 @@
-import type { BookValue } from '../../shared/types';
+import type { BookValue } from '~/shared/types';
 
 export interface CreateBookInput {
   reference: number;

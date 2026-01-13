@@ -9,11 +9,11 @@ import {
   type IOpenAIClient,
   IOpenAIClientToken,
 } from '~/domain/gateways/IOpenAIClient';
-import { calculateHaikuQuality } from '~/shared/constants/validation';
 
 @singleton()
 export default class OpenAIGeneratorService implements IGenerator {
-  private readonly MAX_SELECTION_COUNT: number = 20;
+  private readonly MAX_SELECTION_COUNT: number = 50;
+  private readonly GPT_SELECTION_POOL_SIZE: number = 5;
   private readonly MODEL = 'gpt-5.2';
   private readonly DEFAULT_TEMPERATURE = 0.7;
   private readonly EMOTICONS_TEMPERATURE = 0.1;
@@ -93,18 +93,46 @@ export default class OpenAIGeneratorService implements IGenerator {
         'OpenAI selection response received',
       );
 
-      const output = JSON.parse(answer);
-      const index = output.id;
-      const reason = output.reason || '';
+      let index: number;
+      let reason: string;
+
+      try {
+        // Extract JSON from response (may contain surrounding text)
+        const jsonMatch = answer?.match(/\{[\s\S]*"id"[\s\S]*\}/);
+        const jsonStr = jsonMatch ? jsonMatch[0] : answer;
+        const output = JSON.parse(jsonStr);
+        index = output.id;
+        reason = output.reason || '';
+      } catch (parseError) {
+        // Fallback: use first haiku (highest score from sorting)
+        log.warn(
+          { rawAnswer: answer, err: parseError },
+          'JSON parse failed, using top-scored haiku',
+        );
+        index = 0;
+        reason = 'Selected by score (parse error)';
+      }
+
+      // Validate index is within bounds
+
+      if (index < 0 || index >= this.haikuSelection.length) {
+        log.warn(
+          { index, haikuCount: this.haikuSelection.length },
+          'Invalid index from GPT, falling back to first haiku',
+        );
+        index = 0;
+        reason = `Default selection: index ${index} out of bounds`;
+      }
 
       log.info({ selectedIndex: index, reason }, 'Selected haiku index');
 
       const generatedCount = this.haikuSelection.length;
 
-      // Store candidates before clearing
+      // Store candidates with quality scores
       const allCandidates = this.haikuSelection.map((h) => ({
         verses: h.verses,
         book: { title: h.book.title, author: h.book.author },
+        quality: h.quality,
       }));
 
       haiku = this.haikuSelection[index];
@@ -119,52 +147,7 @@ export default class OpenAIGeneratorService implements IGenerator {
 
       haiku.candidates = allCandidates;
 
-      const [descResult, transResult, emojisResult] = await Promise.allSettled([
-        this.generateDescription(haiku.verses),
-        this.generateTranslations(haiku.verses),
-        this.generateBookmojis(haiku.book),
-      ]);
-
-      if (descResult.status === 'fulfilled') {
-        haiku.title = descResult.value.title;
-        haiku.description = descResult.value.description;
-        haiku.hashtags = descResult.value.hashtags;
-      } else {
-        haiku.title = 'Untitled Haiku';
-        haiku.description = 'A beautiful haiku';
-        haiku.hashtags = '#haiku #poetry #nature #zen #peaceful #gutenku';
-      }
-
-      if (transResult.status === 'fulfilled') {
-        haiku.translations = transResult.value;
-      } else {
-        haiku.translations = {
-          de: haiku.verses.join(' / '),
-          es: haiku.verses.join(' / '),
-          fr: haiku.verses.join(' / '),
-          it: haiku.verses.join(' / '),
-          jp: haiku.verses.join(' / '),
-        };
-      }
-
-      log.info(
-        {
-          emojisStatus: emojisResult.status,
-          emojisValue:
-            emojisResult.status === 'fulfilled' ? emojisResult.value : null,
-          emojisReason:
-            emojisResult.status === 'rejected'
-              ? (emojisResult.reason as Error)?.message
-              : null,
-        },
-        'Emoticons result from Promise.allSettled',
-      );
-
-      if (emojisResult.status === 'fulfilled' && emojisResult.value) {
-        haiku.book.emoticons = emojisResult.value;
-      } else {
-        haiku.book.emoticons = '';
-      }
+      await this.enrichHaikuWithMetadata(haiku);
 
       return haiku;
     } catch (error) {
@@ -174,16 +157,71 @@ export default class OpenAIGeneratorService implements IGenerator {
     }
   }
 
-  private async generateSelectionPrompt(): Promise<string> {
-    const prompt = `Please select the best haiku from the following list of ${this.selectionCount}. Consider:
-- Grammatical structure and flow between lines
-- Nature imagery (higher nature_words score is better)
-- No repeated words (lower repeated_words is better)
-- Strong opening (lower weak_starts is better)
-- Overall quality score (higher is better)
-- The ability to capture tranquility and a profound moment of insight`;
+  private async enrichHaikuWithMetadata(haiku: HaikuValue): Promise<void> {
+    const [descResult, transResult, emojisResult] = await Promise.allSettled([
+      this.generateDescription(haiku.verses),
+      this.generateTranslations(haiku.verses),
+      this.generateBookmojis(haiku.book),
+    ]);
 
+    if (descResult.status === 'fulfilled') {
+      haiku.title = descResult.value.title;
+      haiku.description = descResult.value.description;
+      haiku.hashtags = descResult.value.hashtags;
+    } else {
+      haiku.title = 'Untitled Haiku';
+      haiku.description = 'A beautiful haiku';
+      haiku.hashtags = '#haiku #poetry #nature #zen #peaceful #gutenku';
+    }
+
+    if (transResult.status === 'fulfilled') {
+      haiku.translations = transResult.value;
+    } else {
+      haiku.translations = {
+        de: haiku.verses.join(' / '),
+        es: haiku.verses.join(' / '),
+        fr: haiku.verses.join(' / '),
+        it: haiku.verses.join(' / '),
+        jp: haiku.verses.join(' / '),
+      };
+    }
+
+    log.info(
+      {
+        emojisStatus: emojisResult.status,
+        emojisValue:
+          emojisResult.status === 'fulfilled' ? emojisResult.value : null,
+        emojisReason:
+          emojisResult.status === 'rejected'
+            ? (emojisResult.reason as Error)?.message
+            : null,
+      },
+      'Emoticons result from Promise.allSettled',
+    );
+
+    if (emojisResult.status === 'fulfilled' && emojisResult.value) {
+      haiku.book.emoticons = emojisResult.value;
+    } else {
+      haiku.book.emoticons = '';
+    }
+  }
+
+  private async generateSelectionPrompt(): Promise<string> {
     const haikus = await this.fetchHaikus();
+
+    const prompt = `Select the best haiku from these ${this.haikuSelection.length} top-scored candidates (pre-filtered from ${this.selectionCount}). Evaluation criteria:
+- Nature imagery (nature_words: count of seasonal/natural terms)
+- Word variety (repeated_words: repetition count, uniqueness: ratio of unique words)
+- Opening strength (weak_starts: count of weak opening words)
+- Sentiment (sentiment: 0-1 scale)
+- Grammar (grammar: noun+verb presence)
+- Flow (markov_flow, trigram_flow: transition probability scores)
+- Sound patterns (alliteration: phonetic repetition score)
+- Narrative coherence (verse_distance: quote proximity, coherence: word overlap)
+- Imagery (imagery: sensory word density)
+- Line balance (line_balance: character length consistency)
+- Verb usage (verb_presence: active verb count)
+- Overall: tranquility and moment of insight`;
 
     return `${prompt}\n(Use the following format: {"id":[Id],"reason":"<brief explanation of why this haiku instead of others>"})\n${haikus.join('\n')}\nSTOP\n`;
   }
@@ -299,6 +337,7 @@ export default class OpenAIGeneratorService implements IGenerator {
           'Generating haiku',
         );
         const haiku = await this.haikuGeneratorService.buildFromDb();
+
         if (haiku) {
           this.haikuSelection.push(haiku);
           log.info(
@@ -318,23 +357,71 @@ export default class OpenAIGeneratorService implements IGenerator {
       'Haiku generation complete',
     );
 
-    // Calculate quality scores and format for LLM selection
-    this.haikuSelection.forEach((haiku, i: number) => {
-      const quality = calculateHaikuQuality(haiku.verses);
-      const entry = [
-        `[Id]: ${i}`,
-        `[Verses]: ${haiku.verses.join(' / ')}`,
-        `[Quality]: nature_words=${quality.natureWords}, repeated_words=${quality.repeatedWords}, weak_starts=${quality.weakStarts}, score=${quality.totalScore}`,
-        '',
-      ].join('\n');
-
-      log.debug(
-        { id: i, verses: haiku.verses, quality },
-        'Haiku candidate with quality score',
-      );
-      haikus.push(entry);
+    // Sort by totalScore descending
+    this.haikuSelection.sort((a, b) => {
+      const scoreA = a.quality?.totalScore ?? 0;
+      const scoreB = b.quality?.totalScore ?? 0;
+      return scoreB - scoreA;
     });
 
+    const topCandidates = this.haikuSelection.slice(
+      0,
+      this.GPT_SELECTION_POOL_SIZE,
+    );
+
+    log.info(
+      {
+        totalGenerated: this.haikuSelection.length,
+        topCandidatesCount: topCandidates.length,
+        topScores: topCandidates.map((h) => h.quality?.totalScore ?? 0),
+      },
+      'Selected top candidates for GPT',
+    );
+
+    this.haikuSelection = topCandidates;
+
+    // Format candidates with quality metrics
+    for (const [i, haiku] of this.haikuSelection.entries()) {
+      const entry = this.formatHaikuCandidate(haiku, i);
+      haikus.push(entry);
+    }
+
     return haikus;
+  }
+
+  private formatHaikuCandidate(haiku: HaikuValue, index: number): string {
+    const q = haiku.quality;
+    const qualityDetails = this.formatQualityDetails(q);
+
+    log.debug(
+      { id: index, verses: haiku.verses, quality: q },
+      'Haiku candidate with quality score',
+    );
+
+    return `[Id]: ${index}\n[Verses]: ${haiku.verses.join(' / ')}\n[Quality]: ${qualityDetails}\n`;
+  }
+
+  private formatQualityDetails(q?: HaikuValue['quality']): string {
+    if (!q) {
+      return 'nature_words=0, repeated_words=0, weak_starts=0, sentiment=0.50, grammar=0.00, markov_flow=0.00, trigram_flow=0.00, uniqueness=0.00, alliteration=0.00, verse_distance=0.00, line_balance=0.00, imagery=0.00, coherence=0.00, verb_presence=0.00, total_score=0.00';
+    }
+    const parts = [
+      `nature_words=${q.natureWords}`,
+      `repeated_words=${q.repeatedWords}`,
+      `weak_starts=${q.weakStarts}`,
+      `sentiment=${q.sentiment.toFixed(2)}`,
+      `grammar=${q.grammar.toFixed(2)}`,
+      `markov_flow=${q.markovFlow.toFixed(2)}`,
+      `trigram_flow=${q.trigramFlow.toFixed(2)}`,
+      `uniqueness=${q.uniqueness.toFixed(2)}`,
+      `alliteration=${q.alliteration.toFixed(2)}`,
+      `verse_distance=${q.verseDistance.toFixed(2)}`,
+      `line_balance=${q.lineLengthBalance.toFixed(2)}`,
+      `imagery=${q.imageryDensity.toFixed(2)}`,
+      `coherence=${q.semanticCoherence.toFixed(2)}`,
+      `verb_presence=${q.verbPresence.toFixed(2)}`,
+      `total_score=${q.totalScore.toFixed(2)}`,
+    ];
+    return parts.join(', ');
   }
 }

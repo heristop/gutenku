@@ -11,6 +11,12 @@ export interface ScoreConfig {
   trigram: number | null;
   tfidf: number | null;
   phonetics: number | null;
+  uniqueness: number | null;
+  verseDistance: number | null;
+  lineLengthBalance: number | null;
+  imageryDensity: number | null;
+  semanticCoherence: number | null;
+  verbPresence: number | null;
 }
 
 export interface GeneratorConfig {
@@ -26,8 +32,31 @@ export interface ScoreThresholds {
   trigram: number;
   tfidf: number;
   phonetics: number;
+  uniqueness: number;
+  verseDistance: number;
+  lineLengthBalance: number;
+  imageryDensity: number;
+  semanticCoherence: number;
+  verbPresence: number;
   maxRepeatedWords: number;
   allowWeakStart: boolean;
+}
+
+export interface RejectionStats {
+  sentiment: number;
+  markov: number;
+  grammar: number;
+  trigram: number;
+  tfidf: number;
+  phonetics: number;
+  uniqueness: number;
+  verseDistance: number;
+  lineLengthBalance: number;
+  imageryDensity: number;
+  semanticCoherence: number;
+  verbPresence: number;
+  basic: number;
+  total: number;
 }
 
 export interface QuoteCandidate {

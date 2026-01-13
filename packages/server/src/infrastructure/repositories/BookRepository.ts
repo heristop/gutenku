@@ -43,6 +43,7 @@ export default class BookRepository implements IBookRepository {
 
   async selectRandomBook(retries = 5): Promise<BookValue> {
     const books = await this.selectRandomBooks(1);
+
     if (books.length === 0) {
       if (retries <= 0) {
         throw new Error('Failed to find book with chapters after max retries');
@@ -108,7 +109,10 @@ export default class BookRepository implements IBookRepository {
   }
 
   async addChapters(bookId: string, chapterIds: string[]): Promise<void> {
-    if (chapterIds.length === 0) {return;}
+    if (chapterIds.length === 0) {
+      return;
+    }
+
     await BookModel.findByIdAndUpdate(bookId, {
       $push: { chapters: { $each: chapterIds } },
     }).exec();

@@ -30,7 +30,10 @@ export class ChapterValidatorService {
     excludeGutenbergTemplate: true,
   };
 
-  private readonly gutenbergPattern = /GUTENBERG/i;
+  // Match Gutenberg template patterns (PROJECT GUTENBERG + optional markers)
+  // Avoids false positives on historical "Johannes Gutenberg" references
+  private readonly gutenbergPattern =
+    /(?:\*{3}\s*(?:START|END)\s+OF\s+(?:THE\s+)?)?PROJECT\s+GUTENBERG/i;
 
   validate(
     rawChapters: string[],
@@ -53,7 +56,6 @@ export class ChapterValidatorService {
     for (let i = 0; i < rawChapters.length; i++) {
       const chapter = rawChapters[i];
       const validation = this.validateChapter(chapter, mergedConfig);
-
       if (validation.isValid) {
         try {
           const chapterContent = ChapterContent.create({
@@ -97,7 +99,6 @@ export class ChapterValidatorService {
     ) {
       reasons.push('Contains Gutenberg template text');
     }
-
     if (!this.hasSufficientParagraphs(content, config.minParagraphs)) {
       reasons.push(
         `Insufficient paragraphs (requires ${config.minParagraphs})`,
@@ -119,7 +120,10 @@ export class ChapterValidatorService {
   }
 
   countParagraphs(content: string): number {
-    return content.split('\n').filter((line) => line.trim().length > 0).length;
+    // Split on blank lines to count paragraphs, not individual lines
+    return content
+      .split(/\n\s*\n/)
+      .filter((paragraph) => paragraph.trim().length > 0).length;
   }
 
   static getDefaultConfig(): ValidationConfig {
