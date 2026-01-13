@@ -60,13 +60,18 @@ function selectDailyBook(dateStr: string): GutenGuessBook {
   return shuffledBooks[positionInCycle];
 }
 
+type HintLocale = 'en' | 'fr' | 'ja';
+
 /**
- * Convert GutenGuessBook to BookValue
+ * Convert GutenGuessBook to BookValue with localized title
  */
-function bookToValue(book: GutenGuessBook): BookValue {
+function bookToValue(
+  book: GutenGuessBook,
+  locale: HintLocale = 'en',
+): BookValue {
   return {
     reference: book.id.toString(),
-    title: book.title.en,
+    title: book.title[locale] || book.title.en,
     author: book.author,
   };
 }
@@ -85,6 +90,11 @@ export class ReduceBooksHandler implements IQueryHandler<
     // Validate input
     const validated = reduceBooksSchema.parse({ date: query.date });
     const { date } = validated;
+
+    // Get locale from query, validate it's supported
+    const locale = (
+      ['en', 'fr', 'ja'].includes(query.locale) ? query.locale : 'en'
+    ) as HintLocale;
 
     // Get the correct book for today (must be included)
     const correctBook = selectDailyBook(date);
@@ -107,6 +117,6 @@ export class ReduceBooksHandler implements IQueryHandler<
       random,
     );
 
-    return finalBooks.map(bookToValue);
+    return finalBooks.map((book) => bookToValue(book, locale));
   }
 }

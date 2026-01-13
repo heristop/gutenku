@@ -1,6 +1,6 @@
 import { ref, watch, onUnmounted, type Ref } from 'vue';
 
-const isClient = typeof window !== 'undefined';
+const isClient = typeof document !== 'undefined';
 
 export interface AnimatedCounterOptions {
   duration?: number;

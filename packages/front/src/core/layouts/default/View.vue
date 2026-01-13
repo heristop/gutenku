@@ -25,19 +25,25 @@ onBeforeMount(() => {
 
   const navigateWithTransition = async (
     method: typeof originalPush,
-    to: Parameters<typeof originalPush>[0]
+    to: Parameters<typeof originalPush>[0],
   ) => {
     return new Promise((resolve) => {
-      (document as Document & {
-        startViewTransition: (cb: () => void) => { finished: Promise<void> }
-      }).startViewTransition(() => {
+      (
+        document as Document & {
+          startViewTransition: (cb: () => void) => { finished: Promise<void> };
+        }
+      ).startViewTransition(() => {
         method(to).then(resolve);
       });
     });
   };
 
-  router.push = (to) => navigateWithTransition(originalPush, to) as ReturnType<typeof originalPush>;
-  router.replace = (to) => navigateWithTransition(originalReplace, to) as ReturnType<typeof originalReplace>;
+  router.push = (to) =>
+    navigateWithTransition(originalPush, to) as ReturnType<typeof originalPush>;
+  router.replace = (to) =>
+    navigateWithTransition(originalReplace, to) as ReturnType<
+      typeof originalReplace
+    >;
 });
 </script>
 
@@ -49,11 +55,9 @@ onBeforeMount(() => {
 
 <style lang="scss" scoped>
 .gutenku-app-background {
-  transition: var(--gutenku-transition-zen);
   flex: 1;
+  transition: var(--gutenku-transition-zen);
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  min-height: 100dvh;
 }
 </style>

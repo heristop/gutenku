@@ -13,7 +13,9 @@ const { globalStats, fetchGlobalStats } = useGlobalStats();
 // Quote rotation - uses i18n for translations
 const quoteKeys = ['0', '1', '2', '3', '4'] as const;
 const currentQuoteIndex = ref(0);
-const currentQuote = computed(() => t(`haikuTitle.quotes.${quoteKeys[currentQuoteIndex.value]}`));
+const currentQuote = computed(() =>
+  t(`haikuTitle.quotes.${quoteKeys[currentQuoteIndex.value]}`),
+);
 
 // Hero element ref for IntersectionObserver
 const heroRef = ref<{ $el: HTMLElement } | null>(null);
@@ -30,7 +32,8 @@ function startQuoteRotation() {
 
   quoteInterval = setInterval(() => {
     if (isVisible.value) {
-      currentQuoteIndex.value = (currentQuoteIndex.value + 1) % quoteKeys.length;
+      currentQuoteIndex.value =
+        (currentQuoteIndex.value + 1) % quoteKeys.length;
     }
   }, 5000);
 }
@@ -113,6 +116,25 @@ onUnmounted(() => {
     <!-- Bookmark ribbon -->
     <div class="bookmark-ribbon" aria-hidden="true" />
 
+    <!-- Social Proof Badge -->
+    <div
+      v-if="targetCount > 0"
+      class="hero__stats-badge stagger-4"
+      role="status"
+      :aria-label="`${animatedCount.toLocaleString()} ${t('hero.stats.haikusCrafted')}`"
+    >
+      <Sparkles class="hero__stats-icon" :size="14" aria-hidden="true" />
+      <span
+        class="hero__counter"
+        :class="{ 'hero__counter--animating': isCountAnimating }"
+        aria-hidden="true"
+        >{{ animatedCount.toLocaleString() }}</span
+      >
+      <span class="hero__label" aria-hidden="true">{{
+        t('hero.stats.haikusCrafted')
+      }}</span>
+    </div>
+
     <!-- Hero layout -->
     <div class="hero__layout">
       <!-- GutenMage illustration -->
@@ -157,25 +179,6 @@ onUnmounted(() => {
         <div class="hero__description stagger-3" role="article">
           <!-- eslint-disable-next-line vue/no-v-html -->
           <p v-html="t('hero.description')" />
-        </div>
-
-        <!-- Social Proof Badge -->
-        <div
-          v-if="targetCount > 0"
-          class="hero__stats-badge stagger-4"
-          role="status"
-          :aria-label="`${animatedCount.toLocaleString()} ${t('hero.stats.haikusCrafted')}`"
-        >
-          <Sparkles class="hero__stats-icon" :size="14" aria-hidden="true" />
-          <span
-            class="hero__counter"
-            :class="{ 'hero__counter--animating': isCountAnimating }"
-            aria-hidden="true"
-            >{{ animatedCount.toLocaleString() }}</span
-          >
-          <span class="hero__label" aria-hidden="true">{{
-            t('hero.stats.haikusCrafted')
-          }}</span>
         </div>
       </div>
     </div>
@@ -353,10 +356,12 @@ onUnmounted(() => {
   position: relative;
   overflow: visible;
   text-align: center;
-  padding: var(--gutenku-space-2) var(--gutenku-space-3) var(--gutenku-space-3);
-  margin-bottom: var(--gutenku-space-4);
+  padding: var(--gutenku-space-2) var(--gutenku-space-6) var(--gutenku-space-8);
+  margin-bottom: var(--gutenku-space-2);
 
   @media (max-width: 600px) {
+    padding: var(--gutenku-space-1) var(--gutenku-space-3)
+      var(--gutenku-space-6);
     margin-bottom: 1rem !important;
   }
 
@@ -443,7 +448,7 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0;
     z-index: 1;
     text-align: center;
   }
@@ -535,9 +540,14 @@ onUnmounted(() => {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    max-width: 500px;
-    gap: 0.4rem;
-    margin-top: -0.5rem;
+    max-width: 600px;
+    gap: 0.25rem;
+    margin-top: -0.75rem;
+
+    @media (max-width: 600px) {
+      gap: 0.4rem;
+      margin-top: -0.25rem;
+    }
   }
 
   // Tagline
@@ -550,6 +560,11 @@ onUnmounted(() => {
     margin: 0;
     padding: 0.5rem 1.5rem;
     z-index: 1;
+
+    @media (max-width: 600px) {
+      min-height: 2rem;
+      padding: 0.25rem 1rem;
+    }
   }
 
   // Description
@@ -561,7 +576,7 @@ onUnmounted(() => {
       margin: 0;
       line-height: 1.6;
       font-size: 0.95rem;
-      max-width: 52ch;
+      max-width: 72ch;
       color: var(--gutenku-text-primary);
 
       @media (min-width: 600px) {
@@ -572,21 +587,19 @@ onUnmounted(() => {
 
   // Stats badge
   &__stats-badge {
-    position: relative;
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.35rem;
-    padding: 0.4rem 0.85rem;
-    margin-top: 0.6rem;
-    margin-bottom: 0.8rem;
+    padding: 0.35rem 0.75rem;
     background: var(--gutenku-zen-water);
     border: 1px solid oklch(0.45 0.08 192 / 0.12);
     border-radius: 2rem;
-    z-index: 1;
+    z-index: 2;
     cursor: default;
-    animation: gentle-float 6s ease-in-out infinite;
-    animation-delay: 1s;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 
     &:hover {

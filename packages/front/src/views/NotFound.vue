@@ -5,7 +5,6 @@ import { Home } from 'lucide-vue-next';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
 import ZenButton from '@/core/components/ui/ZenButton.vue';
 import ZenHaiku from '@/core/components/ui/ZenHaiku.vue';
-import InkBrushNav from '@/core/components/ui/InkBrushNav.vue';
 
 const { t } = useI18n();
 
@@ -26,8 +25,6 @@ onMounted(() => {
 
 <template>
   <div class="not-found">
-    <InkBrushNav />
-
     <div class="not-found__content">
       <Transition name="fade-up">
         <ZenCard
@@ -138,7 +135,8 @@ onMounted(() => {
     }
 
     [data-theme='dark'] & {
-      filter: brightness(0.9) grayscale(15%) drop-shadow(0 4px 12px oklch(0.5 0.1 195 / 0.3));
+      filter: brightness(0.9) grayscale(15%)
+        drop-shadow(0 4px 12px oklch(0.5 0.1 195 / 0.3));
     }
   }
 
@@ -199,7 +197,6 @@ onMounted(() => {
       animation: brush-in 0.8s ease-out 0.5s both;
     }
   }
-
 }
 
 // Animations

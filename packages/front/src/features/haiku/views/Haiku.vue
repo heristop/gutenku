@@ -11,7 +11,6 @@ import { useI18n } from 'vue-i18n';
 import { useSeoMeta } from '@unhead/vue';
 import { storeToRefs } from 'pinia';
 import { Feather } from 'lucide-vue-next';
-import InkBrushNav from '@/core/components/ui/InkBrushNav.vue';
 import ZenSkeleton from '@/core/components/ZenSkeleton.vue';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
 import { useToast } from '@/core/composables/toast';
@@ -128,8 +127,6 @@ onUnmounted(closeWSClient);
       :progress="progress"
     />
 
-    <InkBrushNav />
-
     <div v-if="networkError" class="haiku-page__error" role="alert">
       <AppLoading
         :splash="true"
@@ -178,7 +175,6 @@ onUnmounted(closeWSClient);
             <ZenSkeleton variant="title" :lines="1" />
             <ZenSkeleton variant="text" :lines="5" />
           </div>
-
         </article>
 
         <aside

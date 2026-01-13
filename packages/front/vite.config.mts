@@ -114,6 +114,7 @@ export default defineConfig(({ isSsrBuild }) => ({
     alias: {
       '@/features/game': gameModulePath,
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@content': fileURLToPath(new URL('./content', import.meta.url)),
     },
     extensions: ['.js', '.json', '.jsx', '.mjs', '.ts', '.tsx', '.vue'],
     // Private game module uses main project's dependencies

@@ -9,7 +9,8 @@ import AccessibilityToggle from '@/core/components/AccessibilityToggle.vue';
 import { useLocale } from '@/core/composables/locale';
 
 const { t } = useI18n();
-const { currentLocale, availableLocales, setLocale, getLocaleLabel } = useLocale();
+const { currentLocale, availableLocales, setLocale, getLocaleLabel } =
+  useLocale();
 const currentYear = new Date().getFullYear();
 
 // Locale dropdown state
@@ -81,7 +82,7 @@ function openSocialLink(url: string) {
           v-for="link in navLinks"
           :key="link.to"
           :to="link.to"
-          class="footer-nav__link"
+          class="footer-nav__link link-highlight"
         >
           <span class="footer-nav__text">{{ t(link.label) }}</span>
           <span class="footer-nav__underline" aria-hidden="true" />
@@ -168,7 +169,10 @@ function openSocialLink(url: string) {
       <!-- Theme, Language & Accessibility Toggles -->
       <div class="footer-toggles">
         <ThemeToggle variant="footer" class="stagger-7" />
-        <div class="footer-locale-wrapper stagger-8" @keydown="handleLocaleKeydown">
+        <div
+          class="footer-locale-wrapper stagger-8"
+          @keydown="handleLocaleKeydown"
+        >
           <button
             type="button"
             class="footer-locale"
@@ -177,7 +181,9 @@ function openSocialLink(url: string) {
             aria-haspopup="listbox"
             @click="toggleLocaleDropdown"
           >
-            <span class="footer-locale__code">{{ currentLocale.toUpperCase() }}</span>
+            <span class="footer-locale__code">{{
+              currentLocale.toUpperCase()
+            }}</span>
           </button>
           <Transition name="locale-dropdown">
             <ul
@@ -193,7 +199,9 @@ function openSocialLink(url: string) {
                 role="option"
                 :aria-selected="locale === currentLocale"
                 class="footer-locale__option"
-                :class="{ 'footer-locale__option--active': locale === currentLocale }"
+                :class="{
+                  'footer-locale__option--active': locale === currentLocale,
+                }"
                 @click="selectLocale(locale)"
               >
                 {{ getLocaleLabel(locale) }}

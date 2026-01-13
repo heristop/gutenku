@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useRoute, useRouter, RouterLink } from 'vue-router';
-import { Leaf, Lightbulb, Sun, Moon, Monitor, ALargeSmall, Feather } from 'lucide-vue-next';
+import {
+  Leaf,
+  Lightbulb,
+  Sun,
+  Moon,
+  Monitor,
+  ALargeSmall,
+  Feather,
+} from 'lucide-vue-next';
 import ToriiIcon from '@/core/components/icons/ToriiIcon.vue';
 import { withViewTransition } from '@/core/composables/view-transition';
 import { useI18n } from 'vue-i18n';
@@ -13,7 +21,8 @@ import { useAccessibility } from '@/core/composables/accessibility';
 const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
-const { currentLocale, availableLocales, setLocale, getLocaleLabel } = useLocale();
+const { currentLocale, availableLocales, setLocale, getLocaleLabel } =
+  useLocale();
 const {
   isDarkMode,
   systemPreferenceEnabled,
@@ -229,10 +238,7 @@ function handleClick(event: MouseEvent, to: string) {
       </button>
 
       <!-- Locale toggle -->
-      <div
-        class="ink-nav__locale-wrapper"
-        @keydown="handleLocaleKeydown"
-      >
+      <div class="ink-nav__locale-wrapper" @keydown="handleLocaleKeydown">
         <button
           type="button"
           class="ink-nav__toggle-btn"
@@ -241,7 +247,9 @@ function handleClick(event: MouseEvent, to: string) {
           aria-haspopup="listbox"
           @click="toggleLocaleDropdown"
         >
-          <span class="ink-nav__locale-code">{{ currentLocale.toUpperCase() }}</span>
+          <span class="ink-nav__locale-code">{{
+            currentLocale.toUpperCase()
+          }}</span>
         </button>
         <Transition name="locale-dropdown">
           <ul
@@ -257,7 +265,9 @@ function handleClick(event: MouseEvent, to: string) {
               role="option"
               :aria-selected="locale === currentLocale"
               class="ink-nav__locale-option"
-              :class="{ 'ink-nav__locale-option--active': locale === currentLocale }"
+              :class="{
+                'ink-nav__locale-option--active': locale === currentLocale,
+              }"
               @click="selectLocale(locale)"
             >
               {{ getLocaleLabel(locale) }}
@@ -295,13 +305,13 @@ function handleClick(event: MouseEvent, to: string) {
   gap: 1.25rem;
   padding: 1rem 0.5rem 1.25rem;
   margin-top: 0.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 
   // Small mobile (< 375px)
   @media (min-width: 375px) {
     gap: 1.5rem;
     padding: 1.25rem 1rem 1.5rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.75rem;
   }
 
   // Tablet and up - back to single row
@@ -309,7 +319,7 @@ function handleClick(event: MouseEvent, to: string) {
     display: block;
     padding: 1.5rem 1rem 1.75rem;
     margin-top: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
   }
 
   &__container {
@@ -570,7 +580,11 @@ function handleClick(event: MouseEvent, to: string) {
     border: 1.5px solid oklch(0.45 0.1 195 / 0.2);
     border-radius: var(--gutenku-radius-full);
     background:
-      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.1) 0%, transparent 50%),
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.1) 0%,
+        transparent 50%
+      ),
       var(--gutenku-zen-water);
     color: var(--gutenku-zen-primary);
     cursor: pointer;
@@ -582,7 +596,11 @@ function handleClick(event: MouseEvent, to: string) {
 
     &:hover {
       background:
-        radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.15) 0%, transparent 50%),
+        radial-gradient(
+          circle at 30% 30%,
+          oklch(1 0 0 / 0.15) 0%,
+          transparent 50%
+        ),
         var(--gutenku-zen-primary);
       border-color: var(--gutenku-zen-primary);
       transform: scale(1.05);
@@ -600,7 +618,11 @@ function handleClick(event: MouseEvent, to: string) {
 
     &--active {
       background:
-        radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.15) 0%, transparent 50%),
+        radial-gradient(
+          circle at 30% 30%,
+          oklch(1 0 0 / 0.15) 0%,
+          transparent 50%
+        ),
         var(--gutenku-zen-primary);
       border-color: var(--gutenku-zen-primary);
       color: white;
@@ -785,14 +807,22 @@ function handleClick(event: MouseEvent, to: string) {
 
   &__toggle-btn {
     background:
-      radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.06) 0%, transparent 50%),
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.06) 0%,
+        transparent 50%
+      ),
       oklch(0.25 0.04 195 / 0.6);
     border: 2px solid oklch(0.85 0.1 195 / 0.8);
     color: var(--gutenku-zen-accent);
 
     &:hover {
       background:
-        radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.1) 0%, transparent 50%),
+        radial-gradient(
+          circle at 30% 30%,
+          oklch(1 0 0 / 0.1) 0%,
+          transparent 50%
+        ),
         var(--gutenku-zen-accent);
       border-color: var(--gutenku-zen-accent);
       color: oklch(0.12 0.02 195);
@@ -804,7 +834,11 @@ function handleClick(event: MouseEvent, to: string) {
 
     &--active {
       background:
-        radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.1) 0%, transparent 50%),
+        radial-gradient(
+          circle at 30% 30%,
+          oklch(1 0 0 / 0.1) 0%,
+          transparent 50%
+        ),
         var(--gutenku-zen-accent);
       border-color: var(--gutenku-zen-accent);
       color: oklch(0.12 0.02 195);

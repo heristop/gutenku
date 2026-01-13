@@ -2,11 +2,11 @@
 import { defineAsyncComponent, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useSeoMeta } from '@unhead/vue';
+import { ChevronDown } from 'lucide-vue-next';
 import { withViewTransition } from '@/core/composables/view-transition';
 import { usePullToRefresh } from '@/core/composables/pull-to-refresh';
 import { useGlobalStats } from '@/core/composables/global-stats';
 import ZenSkeleton from '@/core/components/ZenSkeleton.vue';
-import InkBrushNav from '@/core/components/ui/InkBrushNav.vue';
 import PullToRefresh from '@/core/components/PullToRefresh.vue';
 import Hero from '@/core/components/Hero.vue';
 import { GAME_ENABLED, GamePreview } from '@/features/game';
@@ -51,8 +51,6 @@ onMounted(() => {
       :progress="progress"
     />
 
-    <InkBrushNav />
-
     <main
       class="home-content"
       :class="{ 'home-content--visible': showContent }"
@@ -64,6 +62,11 @@ onMounted(() => {
       <!-- Introduction Section -->
       <div class="hero-wrapper">
         <Hero />
+      </div>
+
+      <!-- Mobile scroll indicator -->
+      <div class="scroll-indicator" aria-hidden="true">
+        <ChevronDown :size="24" />
       </div>
 
       <!-- Preview Cards Grid -->
@@ -85,14 +88,13 @@ onMounted(() => {
 .home-container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  flex: 1;
+  justify-content: flex-start;
   width: 100%;
   margin-inline: auto;
-  padding: 1rem 0.5rem 0.5rem;
+  padding: 0 0.5rem 0.25rem;
 
   @media (min-width: 600px) {
-    padding: 1rem 1rem 0.5rem;
+    padding: 0 1rem 0.25rem;
   }
 
   @media (min-width: 960px) {
@@ -109,13 +111,14 @@ onMounted(() => {
 }
 
 .hero-wrapper {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0.25rem;
+  margin: 0 auto 0.75rem;
+  padding: 0;
   width: 100%;
 
   @media (min-width: 600px) {
-    padding: 0.75rem;
+    max-width: 800px;
+    padding: 0.25rem;
+    margin-bottom: 0.5rem;
   }
 }
 
@@ -128,9 +131,9 @@ onMounted(() => {
 .preview-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
+  gap: 1rem;
   max-width: 900px;
-  margin: 0.5rem auto 4rem;
+  margin: 0.25rem auto 1.5rem;
   padding: 0 1rem;
   opacity: 0;
   transform: translateY(12px);
@@ -148,9 +151,9 @@ onMounted(() => {
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
     gap: 1.25rem;
-    padding: 0 0.75rem;
+    padding: 0;
     margin-top: 0;
-    margin-bottom: 4.5rem;
+    margin-bottom: 2rem;
   }
 
   &--single {
@@ -164,6 +167,37 @@ onMounted(() => {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+}
+
+// Mobile scroll indicator
+.scroll-indicator {
+  display: none;
+
+  @media (max-width: 768px) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 0 1rem;
+    color: var(--gutenku-zen-primary);
+    opacity: 0.6;
+    animation: scroll-bounce 2s ease-in-out infinite;
+  }
+}
+
+@keyframes scroll-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-indicator {
+    animation: none;
   }
 }
 </style>

@@ -1,122 +1,41 @@
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref, computed } from 'vue';
-import { marked } from 'marked';
-import { Loader2, ArrowUp, Twitter, Linkedin, Link } from 'lucide-vue-next';
-import { useI18n } from 'vue-i18n';
-import InkBrushNav from '@/core/components/ui/InkBrushNav.vue';
+import { Loader2, ArrowUp } from 'lucide-vue-next';
+import { useSeoMeta } from '@unhead/vue';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
-import { useToast } from '@/core/composables/toast';
+import BlogShareButtons from '../components/BlogShareButtons.vue';
+import { useArticle, useReadingProgress } from '../composables';
 
-// Import all markdown files from content directory
-const articles = import.meta.glob('../../content/*.md', {
-  query: '?raw',
-  import: 'default',
-  eager: true,
-}) as Record<string, string>;
+const { article, content, loading, showContent, readingTime, formattedDate } =
+  useArticle();
+const { readingProgress, showBackToTop, scrollToTop } = useReadingProgress();
 
-// Get the latest article (sorted by filename which contains date)
-function getLatestArticle() {
-  const sortedPaths = Object.keys(articles).sort().reverse();
-  const latestPath = sortedPaths[0];
+// Dynamic meta tags based on latest article
+const baseUrl = 'https://gutenku.xyz';
+const ogImage = article.image.startsWith('/')
+  ? `${baseUrl}${article.image}`
+  : article.image;
 
-  if (!latestPath) {
-    return { content: '', date: new Date(), filename: '' };
-  }
-
-  // Extract date from filename (format: YYYY-MM-DD-title.md)
-  const filename = latestPath.split('/').pop() || '';
-  const dateMatch = filename.match(/^(\d{4}-\d{2}-\d{2})/);
-  const date = dateMatch ? new Date(dateMatch[1]) : new Date();
-
-  return {
-    content: articles[latestPath],
-    date,
-    filename,
-  };
-}
-
-const latestArticle = getLatestArticle();
-
-const { locale } = useI18n();
-const { success: showSuccess, error: showError } = useToast();
-const content = ref('');
-const loading = ref(true);
-const showContent = ref(false);
-const readingProgress = ref(0);
-const showBackToTop = ref(false);
-
-// Reading time calculation (average 200 words per minute)
-const readingTime = computed(() => {
-  const wordCount = latestArticle.content.split(/\s+/).length;
-  const minutes = Math.ceil(wordCount / 200);
-  return minutes;
-});
-
-const formattedDate = computed(() => {
-  return latestArticle.date.toLocaleDateString(locale.value, {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-});
-
-// Scroll handling for progress bar and back to top
-function handleScroll() {
-  const scrollTop = window.scrollY;
-  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-  readingProgress.value = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-  showBackToTop.value = scrollTop > 400;
-}
-
-function scrollToTop() {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// Share functions
-async function copyLink() {
-  try {
-    await navigator.clipboard.writeText(globalThis.location.href);
-    showSuccess('Link copied!');
-  } catch {
-    showError('Failed to copy');
-  }
-}
-
-function shareOnTwitter() {
-  const url = encodeURIComponent(globalThis.location.href);
-  const text = encodeURIComponent('GutenKu - AI Haiku Generator from Classic Literature');
-  globalThis.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
-}
-
-function shareOnLinkedIn() {
-  const url = encodeURIComponent(globalThis.location.href);
-  globalThis.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
-}
-
-onMounted(async () => {
-  content.value = await marked(latestArticle.content);
-  loading.value = false;
-
-  // Trigger fade-in animation after content loads
-  setTimeout(() => {
-    showContent.value = true;
-  }, 50);
-
-  window.addEventListener('scroll', handleScroll, { passive: true });
-});
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll);
+useSeoMeta({
+  title: `${article.title} | GutenKu Blog`,
+  description: article.description,
+  ogTitle: article.title,
+  ogDescription: article.description,
+  ogImage,
+  ogType: 'article',
+  twitterCard: 'summary_large_image',
+  twitterTitle: article.title,
+  twitterDescription: article.description,
+  twitterImage: ogImage,
 });
 </script>
 
 <template>
   <div class="blog-page">
     <!-- Reading progress bar -->
-    <div class="blog-page__progress" :style="{ width: `${readingProgress}%` }" />
-
-    <InkBrushNav />
+    <div
+      class="blog-page__progress"
+      :style="{ width: `${readingProgress}%` }"
+    />
 
     <header class="blog-page__header">
       <p class="blog-page__date">{{ formattedDate }}</p>
@@ -135,37 +54,7 @@ onUnmounted(() => {
     <Transition name="fade-up">
       <ZenCard v-if="!loading && showContent" class="blog-page__content">
         <article class="blog-page__article prose" v-html="content" />
-
-        <!-- Share section -->
-        <footer class="blog-page__share">
-          <p class="blog-page__share-label">Share this article</p>
-          <div class="blog-page__share-buttons">
-            <button
-              type="button"
-              class="blog-page__share-btn"
-              aria-label="Share on Twitter"
-              @click="shareOnTwitter"
-            >
-              <Twitter :size="18" />
-            </button>
-            <button
-              type="button"
-              class="blog-page__share-btn"
-              aria-label="Share on LinkedIn"
-              @click="shareOnLinkedIn"
-            >
-              <Linkedin :size="18" />
-            </button>
-            <button
-              type="button"
-              class="blog-page__share-btn"
-              aria-label="Copy link"
-              @click="copyLink"
-            >
-              <Link :size="18" />
-            </button>
-          </div>
-        </footer>
+        <BlogShareButtons />
       </ZenCard>
     </Transition>
 
@@ -188,11 +77,11 @@ onUnmounted(() => {
 .blog-page {
   max-width: 800px;
   margin: 0 auto;
-  padding: 0.75rem;
+  padding: 0.5rem;
   position: relative;
 
   @media (min-width: 375px) {
-    padding: 1rem;
+    padding: 0.5rem;
   }
 
   @media (min-width: 600px) {
@@ -206,8 +95,8 @@ onUnmounted(() => {
     height: 3px;
     background: linear-gradient(
       90deg,
-      var(--gutenku-zen-primary),
-      var(--gutenku-zen-accent)
+      var(--gutenku-zen-accent),
+      var(--gutenku-zen-primary)
     );
     z-index: 1000;
     transition: width 0.1s ease-out;
@@ -579,116 +468,208 @@ onUnmounted(() => {
       }
     }
 
-    :deep(table) {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 0.875rem 0;
-      font-size: 0.85rem;
+    :deep(img) {
       display: block;
-      overflow-x: auto;
+      max-width: 80%;
+      max-height: 240px;
+      object-fit: cover;
+      object-position: center;
+      margin: 1rem auto;
+      border-radius: var(--gutenku-radius-md);
+      box-shadow: 0 4px 16px oklch(0 0 0 / 0.08);
 
-      @media (min-width: 375px) {
-        font-size: 0.9rem;
+      @media (min-width: 600px) {
+        max-width: 75%;
+        max-height: 280px;
+        margin: 1.5rem auto;
+        border-radius: var(--gutenku-radius-lg);
+      }
+    }
+
+    :deep(.mermaid-diagram) {
+      display: block;
+      margin: 1.5rem auto;
+      text-align: center;
+      overflow-x: auto;
+      // CSS containment to isolate from parent styles
+      contain: layout style;
+
+      svg {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+      }
+
+      // Target foreignObject labels specifically to prevent drop cap bleeding
+      foreignObject {
+        div,
+        span,
+        p {
+          float: none !important;
+          font-size: 14px !important;
+          font-family: 'JMH Typewriter', monospace !important;
+          line-height: 1.4 !important;
+        }
+
+        // Prevent first-letter pseudo-element from applying
+        p::first-letter,
+        div::first-letter,
+        span::first-letter {
+          float: none !important;
+          font-size: inherit !important;
+          font-weight: normal !important;
+          margin: 0 !important;
+          color: inherit !important;
+        }
       }
 
       @media (min-width: 600px) {
+        margin: 2rem auto;
+      }
+    }
+
+    :deep(.promo-band) {
+      background: linear-gradient(
+        145deg,
+        oklch(0.96 0.015 90 / 0.6) 0%,
+        oklch(0.93 0.02 100 / 0.4) 50%,
+        oklch(0.96 0.015 90 / 0.6) 100%
+      );
+      padding: 1.5rem;
+      margin: 0.5rem 0;
+      text-align: center;
+      border-radius: var(--gutenku-radius-lg);
+
+      @media (min-width: 600px) {
+        padding: 2rem;
         margin: 1rem 0;
-        font-size: inherit;
-        display: table;
+      }
+
+      p:first-child {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--gutenku-zen-primary);
+        margin-bottom: 1rem;
+
+        &::first-letter {
+          float: none !important;
+          font-size: inherit !important;
+          font-weight: inherit !important;
+          margin: 0 !important;
+        }
+        letter-spacing: 0.01em;
+
+        @media (min-width: 600px) {
+          font-size: 1.3rem;
+        }
+      }
+
+      p:not(:first-child) {
+        font-size: 0.95rem;
+        color: var(--gutenku-text-primary);
+        line-height: 1.7;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      a {
+        color: var(--gutenku-zen-primary);
+        font-weight: 700;
+        text-decoration: none;
+        background: linear-gradient(
+          to bottom,
+          transparent 60%,
+          oklch(0.7 0.1 170 / 0.3) 60%
+        );
+        transition: background 0.2s ease;
+
+        &:hover {
+          background: linear-gradient(
+            to bottom,
+            transparent 40%,
+            oklch(0.7 0.1 170 / 0.5) 40%
+          );
+        }
+      }
+
+      img {
+        max-width: 100% !important;
+        max-height: none !important;
+        margin: 1.5rem auto 0 !important;
+        border-radius: var(--gutenku-radius-lg);
+        box-shadow:
+          0 4px 6px oklch(0 0 0 / 0.05),
+          0 10px 30px oklch(0 0 0 / 0.1);
+      }
+    }
+
+    :deep(table) {
+      width: auto;
+      max-width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem auto;
+      font-size: 0.9rem;
+      display: table;
+      background: linear-gradient(
+        135deg,
+        oklch(0.97 0.01 90 / 0.6) 0%,
+        oklch(0.95 0.015 80 / 0.4) 100%
+      );
+      border-radius: var(--gutenku-radius-md);
+      box-shadow: 0 2px 8px oklch(0 0 0 / 0.06);
+
+      @media (min-width: 600px) {
+        margin: 2rem auto;
+        font-size: 1rem;
       }
 
       th,
       td {
-        border: 1px solid var(--gutenku-paper-border);
-        padding: 0.375rem 0.5rem;
+        border: none;
+        border-bottom: 1px solid oklch(0.7 0.02 90 / 0.3);
+        padding: 0.75rem 1rem;
         text-align: left;
-        white-space: nowrap;
+        vertical-align: middle;
 
         @media (min-width: 600px) {
-          padding: 0.5rem;
-          white-space: normal;
+          padding: 1rem 1.5rem;
+        }
+
+        // First column - labels
+        &:first-child {
+          font-weight: 500;
+          color: var(--gutenku-zen-primary);
+          white-space: nowrap;
+        }
+
+        // Second column - values
+        &:last-child {
+          font-style: italic;
         }
       }
 
-      th {
-        background: var(--gutenku-paper-bg-aged);
-        font-weight: 600;
+      tr:last-child td {
+        border-bottom: none;
       }
-    }
-  }
 
-  &__share {
-    margin-top: 1.5rem;
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--gutenku-paper-border);
-    text-align: center;
+      // Hide header row
+      thead {
+        display: none;
+      }
 
-    @media (min-width: 375px) {
-      margin-top: 1.75rem;
-      padding-top: 1.375rem;
-    }
-
-    @media (min-width: 600px) {
-      margin-top: 2rem;
-      padding-top: 1.5rem;
-    }
-  }
-
-  &__share-label {
-    font-size: 0.8rem;
-    color: var(--gutenku-text-muted);
-    margin: 0 0 0.75rem;
-
-    @media (min-width: 375px) {
-      font-size: 0.85rem;
-      margin: 0 0 0.875rem;
-    }
-
-    @media (min-width: 600px) {
-      font-size: 0.875rem;
-      margin: 0 0 1rem;
-    }
-  }
-
-  &__share-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 0.625rem;
-
-    @media (min-width: 375px) {
-      gap: 0.75rem;
-    }
-  }
-
-  &__share-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    padding: 0;
-    border: 1px solid var(--gutenku-paper-border);
-    border-radius: var(--gutenku-radius-full);
-    background: transparent;
-    color: var(--gutenku-text-muted);
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    @media (min-width: 375px) {
-      width: 2.5rem;
-      height: 2.5rem;
-    }
-
-    &:hover {
-      color: var(--gutenku-zen-primary);
-      border-color: var(--gutenku-zen-primary);
-      background: oklch(0.45 0.1 195 / 0.1);
-      transform: translateY(-2px);
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--gutenku-zen-primary);
-      outline-offset: 2px;
+      // Style code elements as formula pills
+      code {
+        background: var(--gutenku-zen-primary);
+        color: white;
+        padding: 0.25rem 0.6rem;
+        border-radius: 2rem;
+        font-size: 0.9em;
+        font-family: inherit;
+        font-weight: 500;
+        white-space: nowrap;
+      }
     }
   }
 
@@ -804,12 +785,6 @@ onUnmounted(() => {
     );
   }
 
-  &__share-btn {
-    &:hover {
-      background: oklch(0.6 0.1 195 / 0.2);
-    }
-  }
-
   &__back-to-top {
     background: var(--gutenku-zen-accent);
     color: oklch(0.12 0.02 195);
@@ -829,7 +804,6 @@ onUnmounted(() => {
       transform: scaleX(1);
     }
 
-    &__share-btn,
     &__back-to-top {
       transition: none;
 

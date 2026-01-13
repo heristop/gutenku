@@ -17,7 +17,8 @@
     "types": ["node"],
     "paths": {
       "@/*": ["src/*"],
-      "@/features/game": ["src/features/game-stub"]
+      "@/features/game": ["src/features/game-stub"],
+      "@content/*": ["content/*"]
     }
   },
   "include": [

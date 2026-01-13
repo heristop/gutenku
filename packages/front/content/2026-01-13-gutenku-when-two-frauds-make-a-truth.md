@@ -1,8 +1,10 @@
-# GutenKu: When Two Frauds Make a Truth 🎭🤖
+# GutenKu: When Two Frauds Make a Truth
 
 _How I Built an AI to Expose the Beautiful Lies of "Found" Poetry_
 
-## The Skeptical Discovery 💡
+![Theater mask merging with circuit patterns - the duality of analog and digital fraud](/article/article-header.webp)
+
+## 🔍 The Skeptical Discovery
 
 I discovered **Dimitri Rataud's "Haiku Marinière"** on Instagram and immediately thought: _"This is brilliant... and possibly complete bullshit."_
 
@@ -18,16 +20,20 @@ So I thought: _"If I'm going to call out this beautiful fraud, I might as well b
 
 Enter **GutenKu** - my algorithmic mirror of analog pretension.
 
-## Two Frauds, Same Result 🎭
+## 🎭 Two Frauds, Same Result
 
-### The Analog Fraud (Dimitri's Version):
+### 🖌️ The Analog Fraud (Dimitri's Version):
+
+<img src="/article/haiku-mariniere-preview.webp" alt="Haiku Marinière - Dimitri Rataud's found poetry" style="width: 100%; max-width: 450px; display: block; margin: 1rem auto;" />
 
 - **The Claim:** "I reveal poetry hidden in ordinary pages"
 - **The Reality:** Selective word isolation presented as literary discovery
 - **The Success:** People project meaning onto curated randomness
 - **The Genius:** Understanding that presentation creates perception of profundity
 
-### The Digital Fraud (My Version):
+### 🤖 The Digital Fraud (My Version):
+
+<img src="/article/gutenku-preview.webp" alt="GutenKu - Daily algorithmic haiku generator" style="width: 100%; max-width: 450px; display: block; margin: 1rem auto;" />
 
 - **The Claim:** "AI discovers daily haiku in classic literature"
 - **The Reality:** Probabilistic text recombination with aesthetic templates
@@ -36,7 +42,7 @@ Enter **GutenKu** - my algorithmic mirror of analog pretension.
 
 Both are essentially **curation masquerading as creation**, but one uses black markers and the other uses machine learning.
 
-## What GutenKu Actually Does (The Honest Version) 🤖
+## ⚙️ What GutenKu Actually Does (The Honest Version)
 
 Let me be precise about what GutenKu is: **controlled combinatorial literature**, not an LLM narrative generator. There's no "understanding" of meaning here - just statistical recombination within strict constraints.
 
@@ -52,12 +58,16 @@ Let me be precise about what GutenKu is: **controlled combinatorial literature**
 
 **Today's algorithmic output:**
 
-> _"they all enjoy_ > _the whole big dear world with such_ > _pure simple pleasure"_
+![Today's haiku canvas sample](/article/haiku-canvas-sample.webp)
 
-The human reaction: "How beautiful!"
-The algorithmic reality: `statistical_recombination + aesthetic_template = perceived_poetry`
+| Perspective           | What happens                              |
+| :-------------------- | :---------------------------------------- |
+| **You see:**          | _"How beautiful!"_                        |
+| **The machine sees:** | `random words` + `nice layout` = `poetry` |
 
-## The Algorithmic Deception: What's Really Happening 🔬
+## 🧠 The Algorithmic Deception: What's Really Happening
+
+![Network of connected nodes with flowing Japanese calligraphy](/article/article-algorithmic.webp)
 
 ### The NLP & Markov Chain Stack
 
@@ -67,7 +77,12 @@ _Is this discovery or just very advanced autocomplete?_
 
 - **Sentiment Analysis:** Statistical correlation, not emotional understanding
 - **Syllable Counting:** Mechanical phonetic parsing, not rhythmic intuition
-- **GPT Curation:** Statistical modeling of human taste, not aesthetic judgment
+- **GPT Curation:** Picks among pre-scored finalists, not raw creativity
+- **Alliteration Detection:** Phonetic fingerprinting to spot repeated sounds
+- **Grammar Scoring:** Part-of-speech tagging to ensure noun-verb presence
+- **Verse Distance:** Preferring quotes close in the original text
+- **Nature Words:** Bonus points for seasonal vocabulary (kigo-inspired)
+- **Imagery Density:** Counting sensory words - colors, textures, sounds
 
 ### Technical Strengths
 
@@ -77,11 +92,42 @@ But here's what makes it work:
 - **Noise becomes poetic** - the cut-up effect transforms random fragments into evocative juxtapositions
 - **Classic texts offer rich, stable vocabulary** - Shakespeare and Austen provide lexical gold
 
+### The Scoring Machine
+
+Behind the apparent randomness lies a deterministic ranking system. Each haiku candidate receives a weighted score across 14 dimensions:
+
+```mermaid
+flowchart TD
+    A["Classic Book"] --> B["Extract phrases"]
+    B --> C{"5 or 7<br/>syllables?"}
+    C -->|No| X["Discard"]
+    C -->|Yes| D["Word Pool"]
+    D --> E["Build haiku<br/>(repeat n times)"]
+    E --> F["Line 1: 5 syl"]
+    F --> G["Line 2: 7 syl"]
+    G --> H["Line 3: 5 syl"]
+    H --> I["Calculate<br/>quality score"]
+    I --> E
+    E --> J["Sort by score"]
+    J --> K["Keep best 5"]
+    K --> L["GPT picks<br/>the winner"]
+    L --> M["Daily Haiku"]
+```
+
+- **Flow scores** - Markov probability that words naturally follow each other
+- **Uniqueness** - Penalizing repeated words, rewarding variety
+- **Verse distance** - How close the fragments were in the original text
+- **Nature presence** - Seasonal vocabulary (kigo) as quality signal
+- **Grammar completeness** - Noun + verb = higher score
+- **Sound patterns** - Alliteration bonus via phonetic analysis
+
+The algorithm doesn't randomly pick - it calculates, ranks, and selects the statistically "best" candidate. GPT only intervenes at the end, choosing among the top-scored finalists. The fraud isn't chaos; it's optimization pretending to be intuition.
+
 ### Structural Limits
 
 And what doesn't work:
 
-- **No global semantic coherence** - verses may contradict each other thematically
+- **Limited semantic coherence** - verses are scored for word overlap, but deep meaning remains accidental
 - **Some outputs are grammatically correct but emotionally flat** - technically valid, humanly empty
 - **Impossible to target specific intentions** - you can't ask for "a sad haiku about loss"
 
@@ -89,7 +135,7 @@ And what doesn't work:
 
 Even the visuals are algorithmic: random theme selection, mathematical scaling, predetermined palettes, fixed layouts. The "artistry" is variables plugged into templates.
 
-## The Philosophical Fraud We're All Complicit In 🎭
+## 💭 The Philosophical Fraud We're All Complicit In
 
 ### The Language We Use
 
@@ -121,7 +167,7 @@ When people read GutenKu's output, they bring their own:
 
 One is creation informed by consciousness. The other is simulation informed by data.
 
-## What Am I Actually Building? 🤔
+## 🔮 What Am I Actually Building?
 
 **Hypothesis 1: Linguistic Kaleidoscope**
 A pattern-generating machine that creates pleasing arrangements of words the same way a kaleidoscope creates pleasing arrangements of colored glass - beautiful, but not meaningful. Resonance without comprehension.
@@ -129,7 +175,9 @@ A pattern-generating machine that creates pleasing arrangements of words the sam
 **Hypothesis 2: Sophisticated Plagiarism**
 The darker possibility: recombining human creativity in ways statistically likely to appear original while being fundamentally derivative. Shakespeare's words, but not Shakespeare's mind.
 
-## The Beautiful, Uncomfortable Truth 🎨
+## 💡 The Beautiful, Uncomfortable Truth
+
+![Contemplative eye reflecting haiku text - poetry in the observer](/article/article-beautiful-truth.webp)
 
 Both Dimitri's analog approach and my digital version work for the same reason: **humans are meaning-making creatures who find poetry even in well-arranged randomness.**
 
@@ -144,7 +192,7 @@ The success of both projects proves something fascinating about human psychology
 
 **The ultimate question:** If any method can "find" poetry in Shakespeare, was the poetry already there, or are we just really good at making meaning from literary fragments?
 
-## My Confession as Creator 📝
+## 🙏 My Confession as Creator
 
 I built GutenKu to expose what I saw as the fundamental fraud in "found poetry" - but I may have created something more honest in its dishonesty. This fascination isn't new: 25 years ago, as a student inspired by Raymond Queneau's combinatorial poetry, I first explored generating haiku with Prolog (a French logic programming language rooted in AI and computational linguistics - cocorico!). The tools have changed; the fundamental question hasn't.
 
@@ -154,7 +202,23 @@ I built GutenKu to expose what I saw as the fundamental fraud in "found poetry" 
 
 Maybe the real discovery is this: **poetry isn't hidden in books waiting to be found - it's created in the moment when human consciousness encounters arranged words.**
 
-## Experience Both: Human and Algorithmic 🚀
+---
+
+<div class="promo-band">
+
+**GutenGuess is now live - and I'm thrilled to share it!**
+
+Can you outsmart the algorithm? [Play GutenGuess](https://gutenku.xyz/game) - a daily literary puzzle inspired by Wordle. One guess per day, same challenge for everyone. Your mission: identify which classic book inspired today's haiku. It's the ultimate test - can you recognize literature from algorithmic fragments?
+
+[![GutenGuess - The daily literary puzzle game](/article/gutenguess-capture.webp)](https://gutenku.xyz/game)
+
+</div>
+
+---
+
+## 🌐 Experience Both: Human and Algorithmic
+
+![Split composition: hand with brush on left, algorithmic patterns on right](/article/article-two-frauds.webp)
 
 **For Manual Curation:**
 
@@ -167,12 +231,6 @@ Maybe the real discovery is this: **poetry isn't hidden in books waiting to be f
 - Follow [@gutenku.poem](https://instagram.com/gutenku.poem) for template-generated aesthetics
 - Explore the [open-source code](https://github.com/heristop/gutenku) to see the fraud in action
 
-But why just observe? After years of building this "fraud," I wanted to push the experiment further - turning passive reading into active play:
-
-> **GutenGuess is now live - and I'm thrilled to share it!**
->
-> Can you outsmart the algorithm? [Play GutenGuess](https://gutenku.xyz/game) - a daily literary puzzle inspired by Wordle. One guess per day, same challenge for everyone. Your mission: identify which classic book inspired today's haiku. It's the ultimate test - can you recognize literature from algorithmic fragments?
-
 **And finally, for honest reflection:**
 
 - Does it matter if the process is "creative" if the result moves you?
@@ -180,7 +238,7 @@ But why just observe? After years of building this "fraud," I wanted to push the
 - Is Dimitri's manual selection fundamentally different from my algorithmic one?
 - Am I reading poetry, or creating poetry in the act of reading?
 
-## The Final Fraud: This Article 🎭
+## 🎪 The Final Fraud: This Article
 
 Here's the ultimate irony: I've spent 3,000 words critiquing both approaches as fraudulent, but you probably found insights, meaning, and even beauty in this criticism.
 
@@ -190,12 +248,12 @@ But maybe that's okay. Maybe the value isn't in authentic discovery but in creat
 
 **As today's algorithmic output presents:**
 
-> _"they all enjoy_ > _the whole big dear world with such_ > _pure simple pleasure"_
+> _"As the song ended / With dark and sable garments / Crowned his raven locks"_
 
 **The question remains:** Are you reading AI poetry, human poetry, or are you reading your own humanity reflected in aesthetically arranged word combinations?
 
 ---
 
-_The algorithm doesn't know. Dimitri's markers don't know. But you do._ 🤖📚
+_The algorithm doesn't know. Dimitri's markers don't know. But you do._
 
 _Oh, and this article? Not written with GutenKu. The cake is a lie._

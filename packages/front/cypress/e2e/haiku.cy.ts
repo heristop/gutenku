@@ -54,11 +54,14 @@ describe('Haiku Page', () => {
 
     it('can generate a new haiku', () => {
       cy.get('[data-cy=fetch-btn]').click();
-      // Button should be disabled while loading
-      cy.get('[data-cy=fetch-btn]').should('be.disabled');
-      // Wait for generation to complete
+      // Button should show stop state while generating (has --stop class)
+      cy.get('[data-cy=fetch-btn].toolbar-panel__button--stop', {
+        timeout: 5000,
+      }).should('exist');
+      // Wait for generation to complete (stop class removed)
       cy.get('[data-cy=fetch-btn]', { timeout: 30000 }).should(
-        'not.be.disabled',
+        'not.have.class',
+        'toolbar-panel__button--stop',
       );
     });
 
@@ -129,7 +132,7 @@ describe('Haiku Page', () => {
     });
 
     it('displays config panel', () => {
-      cy.get('.config-panel').should('exist');
+      cy.get('.toolbar-panel__config').should('exist');
     });
   });
 
@@ -186,9 +189,14 @@ describe('Haiku Page', () => {
         .and('not.have.attr', 'tabindex', '-1');
       // Verify button can be activated (click after focus simulates keyboard activation)
       cy.get('[data-cy=fetch-btn]').click();
-      cy.get('[data-cy=fetch-btn]').should('be.disabled');
+      // Button should show stop state while generating
+      cy.get('[data-cy=fetch-btn].toolbar-panel__button--stop', {
+        timeout: 5000,
+      }).should('exist');
+      // Wait for generation to complete
       cy.get('[data-cy=fetch-btn]', { timeout: 30000 }).should(
-        'not.be.disabled',
+        'not.have.class',
+        'toolbar-panel__button--stop',
       );
     });
   });

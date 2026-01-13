@@ -51,7 +51,9 @@ export const routes: RouteRecordRaw[] = [
         path: 'blog',
         name: 'Blog',
         component: () =>
-          import(/* webpackChunkName: "blog" */ '@/views/Blog.vue'),
+          import(
+            /* webpackChunkName: "blog" */ '@/features/blog/views/Blog.vue'
+          ),
         meta: {
           title: 'Blog - GutenKu',
           description:

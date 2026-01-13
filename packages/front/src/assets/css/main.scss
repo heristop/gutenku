@@ -1028,6 +1028,43 @@ body {
   }
 }
 
+// Link highlight style
+.link-highlight {
+  color: var(--gutenku-zen-primary);
+  font-weight: 600;
+  text-decoration: none;
+  background: linear-gradient(
+    to bottom,
+    transparent 60%,
+    oklch(0.7 0.1 170 / 0.3) 60%
+  );
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: linear-gradient(
+      to bottom,
+      transparent 40%,
+      oklch(0.7 0.1 170 / 0.5) 40%
+    );
+  }
+}
+
+[data-theme='dark'] .link-highlight {
+  background: linear-gradient(
+    to bottom,
+    transparent 60%,
+    oklch(0.6 0.08 180 / 0.3) 60%
+  );
+
+  &:hover {
+    background: linear-gradient(
+      to bottom,
+      transparent 40%,
+      oklch(0.6 0.08 180 / 0.5) 40%
+    );
+  }
+}
+
 // Typography Utility Classes
 .text-caption,
 .text-body-1,

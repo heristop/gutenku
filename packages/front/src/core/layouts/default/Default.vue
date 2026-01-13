@@ -7,6 +7,7 @@ import DefaultView from './View.vue';
 import ZenToast from '@/core/components/ui/ZenToast.vue';
 import ThemeToggle from '@/core/components/ThemeToggle.vue';
 import AppFooter from '@/core/components/AppFooter.vue';
+import InkBrushNav from '@/core/components/ui/InkBrushNav.vue';
 import { useLocaleSeo } from '@/core/composables/locale-seo';
 
 const route = useRoute();
@@ -151,6 +152,7 @@ useHead({
       <a href="#main-content" class="skip-link" @click.prevent="skipToMain">
         {{ $t('layout.skipLink') }}
       </a>
+      <InkBrushNav />
       <default-view />
       <footer role="contentinfo">
         <AppFooter />

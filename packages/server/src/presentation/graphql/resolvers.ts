@@ -63,15 +63,14 @@ const resolvers = {
 
       // Compute averages for today
       const todayGames = stats.todayGamesPlayed || 0;
-      const todayAverageEmoticonScratches = todayGames > 0
-        ? stats.todayEmoticonScratches / todayGames
-        : 0;
-      const todayAverageHaikuReveals = todayGames > 0
-        ? stats.todayHaikuReveals / todayGames
-        : 0;
+      const todayAverageEmoticonScratches =
+        todayGames > 0 ? stats.todayEmoticonScratches / todayGames : 0;
+      const todayAverageHaikuReveals =
+        todayGames > 0 ? stats.todayHaikuReveals / todayGames : 0;
 
       // Compute total hints used today
-      const todayTotalHints = stats.todayEmoticonScratches + stats.todayHaikuReveals;
+      const todayTotalHints =
+        stats.todayEmoticonScratches + stats.todayHaikuReveals;
 
       return {
         ...stats,
@@ -125,12 +124,21 @@ const resolvers = {
     ) => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
       return queryBus.execute(
-        new SubmitGuessQuery(date, guessedBookId, currentRound, hints, locale || 'en'),
+        new SubmitGuessQuery(
+          date,
+          guessedBookId,
+          currentRound,
+          hints,
+          locale || 'en',
+        ),
       );
     },
-    reduceBooks: async (_, { date }: { date: string }) => {
+    reduceBooks: async (
+      _,
+      { date, locale }: { date: string; locale?: string },
+    ) => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
-      return queryBus.execute(new ReduceBooksQuery(date));
+      return queryBus.execute(new ReduceBooksQuery(date, locale || 'en'));
     },
     puzzleVersion: async (
       _,

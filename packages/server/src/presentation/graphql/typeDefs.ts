@@ -168,7 +168,7 @@ const typeDefs = `#graphql
         globalStats: GlobalStats!
         dailyPuzzle(date: String!, revealedRounds: [Int!], visibleEmoticonCount: Int, revealedHaikuCount: Int, locale: String): DailyPuzzleResponse!
         submitGuess(date: String!, guessedBookId: ID!, currentRound: Int!, hints: HintUsageInput, locale: String): GuessResult!
-        reduceBooks(date: String!): [Book!]!
+        reduceBooks(date: String!, locale: String): [Book!]!
         puzzleVersion(date: String!): PuzzleVersion!
         haikuVersion(date: String!): HaikuVersion!
         verifyEmail(token: String!): SubscriptionResult!

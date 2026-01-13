@@ -20,7 +20,8 @@ defineSlots<{
   subtitle?: () => unknown;
 }>();
 
-const { translateX, translateY, handleMouseMove, handleMouseLeave } = useMouseParallax(15);
+const { translateX, translateY, handleMouseMove, handleMouseLeave } =
+  useMouseParallax(15);
 </script>
 
 <template>
@@ -214,7 +215,7 @@ const { translateX, translateY, handleMouseMove, handleMouseLeave } = useMousePa
 
 @media (max-width: 600px) {
   .preview-card {
-    margin: 0;
+    margin: 0 0.4rem;
   }
 
   .preview-card__header {

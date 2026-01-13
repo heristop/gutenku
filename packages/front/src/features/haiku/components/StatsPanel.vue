@@ -57,7 +57,7 @@ function animateValue(
   callback: (value: number) => void,
 ) {
   // Skip animation during SSR
-  if (typeof window === 'undefined') {
+  if (typeof document === 'undefined') {
     callback(end);
     return;
   }
