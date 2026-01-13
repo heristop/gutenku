@@ -17,6 +17,12 @@ export class GenerateHaikuQuery extends Query<HaikuValue> {
   public readonly trigramMinScore: number;
   public readonly tfidfMinScore: number;
   public readonly phoneticsMinScore: number;
+  public readonly uniquenessMinScore: number;
+  public readonly verseDistanceMinScore: number;
+  public readonly lineLengthBalanceMinScore: number;
+  public readonly imageryDensityMinScore: number;
+  public readonly semanticCoherenceMinScore: number;
+  public readonly verbPresenceMinScore: number;
   public readonly descriptionTemperature: number;
 
   constructor(variables: HaikuVariables) {
@@ -36,6 +42,12 @@ export class GenerateHaikuQuery extends Query<HaikuValue> {
     this.trigramMinScore = variables.trigramMinScore;
     this.tfidfMinScore = variables.tfidfMinScore;
     this.phoneticsMinScore = variables.phoneticsMinScore;
+    this.uniquenessMinScore = variables.uniquenessMinScore;
+    this.verseDistanceMinScore = variables.verseDistanceMinScore;
+    this.lineLengthBalanceMinScore = variables.lineLengthBalanceMinScore;
+    this.imageryDensityMinScore = variables.imageryDensityMinScore;
+    this.semanticCoherenceMinScore = variables.semanticCoherenceMinScore;
+    this.verbPresenceMinScore = variables.verbPresenceMinScore;
     this.descriptionTemperature = variables.descriptionTemperature;
   }
 
@@ -56,6 +68,12 @@ export class GenerateHaikuQuery extends Query<HaikuValue> {
       trigramMinScore: this.trigramMinScore,
       tfidfMinScore: this.tfidfMinScore,
       phoneticsMinScore: this.phoneticsMinScore,
+      uniquenessMinScore: this.uniquenessMinScore,
+      verseDistanceMinScore: this.verseDistanceMinScore,
+      lineLengthBalanceMinScore: this.lineLengthBalanceMinScore,
+      imageryDensityMinScore: this.imageryDensityMinScore,
+      semanticCoherenceMinScore: this.semanticCoherenceMinScore,
+      verbPresenceMinScore: this.verbPresenceMinScore,
       descriptionTemperature: this.descriptionTemperature,
     };
   }

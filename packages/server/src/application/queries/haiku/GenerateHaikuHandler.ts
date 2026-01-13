@@ -64,6 +64,12 @@ export class GenerateHaikuHandler implements IQueryHandler<
         trigram: query.trigramMinScore,
         tfidf: query.tfidfMinScore,
         phonetics: query.phoneticsMinScore,
+        uniqueness: query.uniquenessMinScore,
+        verseDistance: query.verseDistanceMinScore,
+        lineLengthBalance: query.lineLengthBalanceMinScore,
+        imageryDensity: query.imageryDensityMinScore,
+        semanticCoherence: query.semanticCoherenceMinScore,
+        verbPresence: query.verbPresenceMinScore,
       },
       theme: query.theme,
     });
@@ -72,7 +78,9 @@ export class GenerateHaikuHandler implements IQueryHandler<
   private async tryDailyMode(
     query: GenerateHaikuQuery,
   ): Promise<HaikuValue | null> {
-    if (!query.useDaily) {return null;}
+    if (!query.useDaily) {
+      return null;
+    }
 
     const date = query.date || getTodayUTC();
     const seed = dateToSeed(date);
@@ -110,7 +118,9 @@ export class GenerateHaikuHandler implements IQueryHandler<
       'OpenAI mode check',
     );
 
-    if (!isOpenAIEnabled) {return null;}
+    if (!isOpenAIEnabled) {
+      return null;
+    }
 
     this.openAIGenerator.configure({
       apiKey: process.env.OPENAI_API_KEY,
