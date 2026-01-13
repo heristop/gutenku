@@ -24,9 +24,11 @@ export const createApp = ViteSSG(
 
     // Pinia with SSG state serialization
     const pinia = createPinia();
+
     if (isClient) {
       pinia.use(piniaPluginPersistedstate);
     }
+
     app.use(pinia);
 
     // Serialize/restore Pinia state for SSG

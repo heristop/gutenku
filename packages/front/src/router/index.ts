@@ -42,9 +42,46 @@ export const routes: RouteRecordRaw[] = [
             /* webpackChunkName: "haiku" */ '@/features/haiku/views/Haiku.vue'
           ),
         meta: {
-          title: 'Free Haiku Generator - GutenKu',
+          title: 'Haiku Generator - GutenKu',
           description:
             'Free AI haiku generator inspired by classic literature. Create beautiful zen poetry from Project Gutenberg books.',
+        },
+      },
+      {
+        path: 'blog',
+        name: 'Blog',
+        component: () =>
+          import(/* webpackChunkName: "blog" */ '@/views/Blog.vue'),
+        meta: {
+          title: 'Blog - GutenKu',
+          description:
+            'Learn about GutenKu, an AI haiku generator inspired by Haiku Marinière that creates poetry from classic literature.',
+        },
+      },
+      {
+        path: 'verify-email',
+        name: 'VerifyEmail',
+        component: () =>
+          import(
+            /* webpackChunkName: "verify-email" */ '@/views/VerifyEmail.vue'
+          ),
+        meta: {
+          title: 'Verify Email - GutenKu',
+          description: 'Verify your email subscription.',
+          robots: 'noindex, nofollow',
+        },
+      },
+      {
+        path: 'unsubscribe',
+        name: 'Unsubscribe',
+        component: () =>
+          import(
+            /* webpackChunkName: "unsubscribe" */ '@/views/Unsubscribe.vue'
+          ),
+        meta: {
+          title: 'Unsubscribe - GutenKu',
+          description: 'Unsubscribe from email notifications.',
+          robots: 'noindex, nofollow',
         },
       },
       {

@@ -1,0 +1,405 @@
+{
+  "common": {
+    "back": "Retour",
+    "backToHome": "Retour à l'accueil",
+    "by": "par",
+    "close": "Fermer",
+    "cancel": "Annuler",
+    "clear": "Effacer",
+    "collapse": "Réduire",
+    "expand": "Développer",
+    "page": "Page",
+    "refresh": "Actualiser",
+    "retry": "Réessayer",
+    "retryWithReset": "Réinitialiser et réessayer",
+    "loading": "Chargement...",
+    "opensInNewTab": "s'ouvre dans un nouvel onglet",
+    "swipe": "Swiper",
+    "previous": "Page précédente",
+    "next": "Page suivante",
+    "skip": "Passer",
+    "pageNavigation": "Navigation de page",
+    "tapToDismiss": "Appuie pour fermer"
+  },
+  "nav": {
+    "mainNavigation": "Navigation principale",
+    "pageNavigation": "Navigation de page",
+    "home": "Aller à l'accueil",
+    "haiku": "Aller au générateur de haïku GutenKu",
+    "game": "Jouer à GutenGuess",
+    "homeLabel": "Accueil",
+    "haikuLabel": "GutenKu",
+    "gameLabel": "GutenGuess",
+    "blogLabel": "Blog",
+    "blog": "Aller au blog"
+  },
+  "haiku": {
+    "articleLabel": "Haïku généré et texte source",
+    "controlsLabel": "Contrôles et paramètres du haïku",
+    "dailyHaiku": "Haïku du jour"
+  },
+  "notFound": {
+    "verse1": "La page cherchée",
+    "verse2": "s'est égarée dans le vide—",
+    "verse3": "retournez au début.",
+    "returnHome": "Retour à l'accueil"
+  },
+  "theme": {
+    "currentLight": "Mode clair - clique pour utiliser le système",
+    "currentSystem": "Mode système - clique pour le mode sombre",
+    "currentDark": "Mode sombre - clique pour le mode clair",
+    "switchToLight": "Passer au mode clair",
+    "switchToDark": "Passer au mode sombre",
+    "systemPreference": "Utiliser le thème système",
+    "enableSystem": "Utiliser le thème système",
+    "disableSystem": "Désactiver le thème système"
+  },
+  "pullToRefresh": {
+    "pull": "Tire pour actualiser",
+    "release": "Relâche pour actualiser",
+    "refreshing": "Actualisation..."
+  },
+  "layout": {
+    "skipLink": "Aller au contenu principal"
+  },
+  "footer": {
+    "copyright": "heristop © 2023-{year}",
+    "openCredits": "Voir les crédits",
+    "help": "Aide et règles du jeu",
+    "ariaLabel": "Pied de page",
+    "navAriaLabel": "Navigation du pied de page",
+    "socialAriaLabel": "Liens sociaux",
+    "nav": {
+      "home": "Accueil",
+      "gutenku": "GutenKu",
+      "gutenguess": "GutenGuess"
+    },
+    "social": {
+      "instagram": "Instagram",
+      "gutenberg": "Gutenberg",
+      "github": "GitHub",
+      "linkedin": "LinkedIn",
+      "x": "X (Twitter)",
+      "bluesky": "Bluesky"
+    },
+    "credits": {
+      "ariaLabel": "Haïku des crédits",
+      "craftedBy": "Créé par",
+      "inspiredBy": "Inspiré par",
+      "years": "2023-{year}",
+      "github": "GitHub",
+      "portfolio": "Portfolio",
+      "githubLabel": "Visiter heristop sur GitHub (nouvel onglet)",
+      "portfolioLabel": "Visiter le portfolio de heristop (nouvel onglet)",
+      "feedback": "Questions ou idées ? Me contacter sur les réseaux sociaux !"
+    },
+    "accessibility": {
+      "dyslexia": "Mode dyslexie",
+      "dyslexiaOn": "Désactiver le mode dyslexie",
+      "dyslexiaOff": "Activer le mode dyslexie"
+    }
+  },
+  "hero": {
+    "ariaLabel": "À propos de GutenKu",
+    "description": "<strong>GutenKu</strong> crée des haïkus à partir de la littérature classique en utilisant la bibliothèque gratuite de Project Gutenberg.",
+    "stats": {
+      "haikusCrafted": "haïkus créés"
+    }
+  },
+  "haikuTitle": {
+    "quotes": {
+      "0": "Là où les mots échouent, la poésie parle",
+      "1": "En dix-sept syllabes, des mondes infinis",
+      "2": "Chaque haïku contient une saison de l'âme",
+      "3": "La littérature insuffle la vie au silence",
+      "4": "Des livres classiques aux vers modernes"
+    },
+    "theme": {
+      "systemDisableHint": "Désactive le thème système pour changer manuellement",
+      "switchToLight": "Passer au mode clair",
+      "switchToDark": "Passer au mode sombre",
+      "disableSystem": "Désactiver le thème système",
+      "enableSystem": "Activer le thème système"
+    }
+  },
+  "haikuChapter": {
+    "ariaLabel": "Extrait de chapitre avec vers de haïku surlignés",
+    "disclosure": {
+      "hidden": "Clique sur le texte pour révéler",
+      "visible": "Clique sur le texte pour masquer"
+    },
+    "discloseHide": "Afficher / Masquer",
+    "showFull": "Voir le chapitre complet",
+    "showCompacted": "Voir la vue compacte",
+    "swipeHint": "Glisse pour un nouveau haïku",
+    "readOnGutenberg": "Lire sur Gutenberg"
+  },
+  "haikuProcess": {
+    "steps": {
+      "literature": {
+        "title": "Littérature classique",
+        "description": "Source de la bibliothèque Project Gutenberg"
+      },
+      "haiku": {
+        "title": "Haïku IA",
+        "description": "Extraction de passages en syllabes 5-7-5"
+      },
+      "visual": {
+        "title": "Art visuel",
+        "description": "Création d'illustrations pour le haïku"
+      }
+    }
+  },
+  "haikuCrafting": {
+    "title": "Création du haïku",
+    "progress": "Création en cours...",
+    "pageNumber": "— Création —"
+  },
+  "haikuCanvas": {
+    "loading": "Création...",
+    "themeLabel": "Thème esthétique",
+    "ariaLabel": "Affichage de l'illustration du haïku",
+    "imageLabel": "Illustration du haïku : {verses}",
+    "themeChanged": "Thème esthétique changé en {theme}"
+  },
+  "highlightText": {
+    "ariaDescription": "Texte avec {count} vers de haïku surlignés"
+  },
+  "toolbar": {
+    "title": "Créateur de haïku",
+    "ariaLabel": "Actions de la barre d'outils haïku",
+    "generate": "Créer Haïku",
+    "extract": "Extraire",
+    "generating": "Création",
+    "extracting": "Extraction",
+    "generateTooltip": "Créer un nouveau haïku",
+    "subtitle": "Poésie des livres",
+    "iterations": "Itérations",
+    "stop": "Arrêter",
+    "stopTooltip": "Arrêter et utiliser le meilleur haïku",
+    "copyTooltip": "Copier le haïku",
+    "copySuccess": "Haïku copié !",
+    "copyError": "Impossible de copier. Réessayer.",
+    "copiedLabel": "Haïku copié dans le presse-papiers",
+    "shareTooltip": "Partager le haïku",
+    "shareSuccess": "Haïku partagé !",
+    "downloadTooltip": "Télécharger en image",
+    "downloadSuccess": "Image enregistrée !",
+    "downloadError": "Impossible d'enregistrer l'image. Réessayer.",
+    "previousTooltip": "Haïku précédent",
+    "nextTooltip": "Haïku suivant",
+    "historyLabel": "Navigation dans l'historique des haïkus",
+    "historyPosition": "Haïku {current} sur {total}"
+  },
+  "scoring": {
+    "title": "Score de qualité",
+    "subtitle": "Analyse du haïku",
+    "viewDetails": "Voir les détails",
+    "total": "Global",
+    "executionTime": "Temps de génération",
+    "categories": {
+      "language": "Langage",
+      "flow": "Fluidité",
+      "structure": "Structure",
+      "imagery": "Imagerie",
+      "penalties": "Pénalités"
+    },
+    "metrics": {
+      "sentiment": "Sentiment",
+      "grammar": "Grammaire",
+      "verbPresence": "Verbes",
+      "trigramFlow": "Trigramme",
+      "markovFlow": "Markov",
+      "alliteration": "Allitération",
+      "uniqueness": "Unicité",
+      "lineLengthBalance": "Équilibre",
+      "verseDistance": "Distance",
+      "imageryDensity": "Imagerie",
+      "semanticCoherence": "Cohérence",
+      "natureWords": "Nature",
+      "repeatedWords": "Répétitions",
+      "weakStarts": "Débuts faibles"
+    }
+  },
+  "stats": {
+    "title": "Tes stats",
+    "subtitle": "Historique de génération",
+    "ariaLabel": "Statistiques, clique pour développer",
+    "haikusGenerated": "{count} haïku créé | {count} haïkus créés",
+    "you": "Toi",
+    "global": "Global",
+    "metrics": {
+      "haikuForged": "Haïkus créés",
+      "booksBrowsed": "Livres utilisés",
+      "dailyViews": "Vues quotidiennes",
+      "avgTime": "Temps moyen"
+    },
+    "cacheUsage": "Utilisation du cache",
+    "topBooks": "Livres les plus utilisés",
+    "times": "{count} fois",
+    "bookRank": "Rang {rank}",
+    "emptyState": "Aucun haïku créé pour l'instant",
+    "tableHeaders": {
+      "rank": "Rang",
+      "book": "Titre du livre",
+      "count": "Utilisations"
+    }
+  },
+  "config": {
+    "title": "Configuration",
+    "subtitle": "Ajuster les paramètres de création",
+    "ariaLabel": "Configuration, clique pour développer",
+    "generateTooltip": "Créer avec les paramètres actuels",
+    "stopTooltip": "Arrêter et utiliser le meilleur haïku",
+    "resetTooltip": "Réinitialiser par défaut",
+    "advancedTooltip": "Ajuster les filtres de génération",
+    "showAdvanced": "Afficher avancé",
+    "hideAdvanced": "Masquer avancé",
+    "sliderValue": "{label} : {value}",
+    "generating": "Création",
+    "filters": {
+      "iterations": "Itérations"
+    }
+  },
+  "social": {
+    "ariaLabel": "À propos de GutenKu",
+    "linksAriaLabel": "Liens sociaux",
+    "description": "<strong>GutenKu</strong> est un générateur de haïkus qui utilise les livres de <span class=\"visually-hidden\">la</span> bibliothèque Project Gutenberg pour extraire des citations et créer des haïkus en <strong>5</strong>-<strong>7</strong>-<strong>5</strong>",
+    "links": {
+      "instagram": {
+        "name": "Instagram",
+        "label": "Voir les haïkus publiés sur Instagram"
+      },
+      "gutenberg": {
+        "name": "Gutenberg",
+        "label": "Visiter le site Project Gutenberg"
+      },
+      "github": {
+        "name": "GitHub",
+        "label": "Voir le code source sur GitHub"
+      }
+    }
+  },
+  "home": {
+    "tagline": "Haïkus de la littérature classique",
+    "haikusCrafted": "{count} haïkus créés",
+    "gamesPlayed": "{count} parties",
+    "winRate": "{rate}% gagnées",
+    "todayHaikusCrafted": "{count} haïkus créés aujourd'hui",
+    "todayWinRate": "{rate}% gagnés aujourd'hui",
+    "todayAvgHints": "moy {avg} indices",
+    "networkError": "Impossible de se connecter au serveur :(",
+    "haikuReady": "Haïku prêt",
+    "readyMessage": "Prêt à créer de la poésie",
+    "haikuContentLabel": "Contenu du haïku",
+    "loadingMessages": {
+      "0": "Recherche dans la littérature classique...",
+      "1": "Analyse des passages...",
+      "2": "Analyse du sentiment du texte...",
+      "3": "Composition des dix-sept syllabes...",
+      "4": "Sélection du thème esthétique...",
+      "5": "Création de l'illustration...",
+      "6": "Finalisation de ton haïku..."
+    }
+  },
+  "loadingMessages": {
+    "default": {
+      "0": "Recherche dans la littérature classique...",
+      "1": "Analyse des passages...",
+      "2": "Analyse du sentiment du texte...",
+      "3": "Composition des dix-sept syllabes...",
+      "4": "Sélection du thème esthétique...",
+      "5": "Création de l'illustration...",
+      "6": "Finalisation de ton haïku...",
+      "7": "Traitement de l'imagerie saisonnière...",
+      "8": "Comptage des syllabes : 5-7-5...",
+      "9": "Chargement des sources de texte...",
+      "10": "Récupération depuis la bibliothèque Gutenberg...",
+      "11": "Analyse du contenu du chapitre...",
+      "12": "Assemblage de la structure des vers...",
+      "13": "Filtrage des mots candidats...",
+      "14": "Validation du nombre de syllabes...",
+      "15": "Affinement des sauts de ligne...",
+      "16": "Vérification des contraintes du haïku...",
+      "17": "Formatage de la sortie...",
+      "18": "Construction de la séquence de vers...",
+      "19": "Analyse des motifs de mots...",
+      "20": "Application du kireji...",
+      "21": "Rendu dans le navigateur...",
+      "22": "Calcul des espacements...",
+      "23": "Chargement des ressources audio...",
+      "24": "Traitement de la grammaire du texte...",
+      "25": "Accès aux textes du domaine public...",
+      "26": "Sélection de l'imagerie...",
+      "27": "Indexation du matériel source...",
+      "28": "Traitement des motifs linguistiques...",
+      "29": "Ajustement de la ponctuation...",
+      "30": "Structuration des strophes...",
+      "31": "Conversion du texte en vers...",
+      "32": "Sélection du vocabulaire...",
+      "33": "Normalisation des métaphores...",
+      "34": "Capture des fragments de texte..."
+    },
+    "craft": {
+      "0": "Création de ton haïku...",
+      "1": "Assemblage des syllabes...",
+      "2": "Traitement de l'imagerie...",
+      "3": "Analyse du texte source...",
+      "4": "Construction du rythme des vers...",
+      "5": "Formatage des lignes...",
+      "6": "Positionnement des éléments...",
+      "7": "Ajout des sauts de ligne...",
+      "8": "Structuration des vers...",
+      "9": "Placement des pauses...",
+      "10": "Formatage des strophes...",
+      "11": "Comptage des syllabes...",
+      "12": "Ajustement du poids des mots...",
+      "13": "Référence aux règles du haïku...",
+      "14": "Application de la ponctuation...",
+      "15": "Finalisation de la structure..."
+    }
+  },
+  "subscription": {
+    "cta": "Reçois des rappels quotidiens",
+    "placeholder": "ton{'@'}email.com",
+    "subscribe": "S'abonner",
+    "checkEmail": "Vérifie ta boîte de réception pour confirmer !",
+    "alreadySubscribed": "Tu es déjà abonné !",
+    "error": "Échec de l'abonnement. Réessayer."
+  },
+  "verifyEmail": {
+    "verifying": "Vérification de ton email...",
+    "confirmed": "C'est fait !",
+    "success": "Ton email a été vérifié. Tu recevras les notifications quotidiennes.",
+    "failed": "Échec de la vérification. Le lien a peut-être expiré.",
+    "invalidLink": "Lien de vérification invalide.",
+    "oops": "Oups !",
+    "playNow": "Jouer à GutenGuess",
+    "backToGame": "Retour au jeu"
+  },
+  "unsubscribe": {
+    "processing": "Traitement...",
+    "done": "Désabonné",
+    "success": "Tu as été désabonné des notifications quotidiennes.",
+    "failed": "Échec du désabonnement. Réessayer.",
+    "invalidLink": "Lien de désabonnement invalide.",
+    "oops": "Oups !",
+    "backHome": "Retour à l'accueil"
+  },
+  "pwa": {
+    "bannerLabel": "Invitation à installer l'application",
+    "addToHomeScreen": "Ajouter GutenKu à l'écran d'accueil",
+    "installSubtitle": "Accès rapide aux haïkus et jeux",
+    "install": "Installer",
+    "installButton": "Installer l'application GutenKu",
+    "iosModalTitle": "Installer GutenKu",
+    "iosModalDescription": "Ajoute à ton écran d'accueil pour une meilleure expérience",
+    "iosStep1Title": "Appuie sur le bouton Partager",
+    "iosStep1Desc": "Trouve-le dans la barre d'outils Safari en bas",
+    "iosStep2Title": "Sur l'écran d'accueil",
+    "iosStep2Desc": "Fais défiler et appuie sur « Sur l'écran d'accueil »"
+  },
+  "locale": {
+    "switch": "Langue"
+  }
+}
