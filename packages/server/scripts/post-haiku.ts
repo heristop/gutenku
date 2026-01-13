@@ -34,6 +34,7 @@ program
   .option('--with-image-ai', 'use AI-generated themes for random', false)
   .option('--no-interaction')
   .option('--no-ai-description')
+  .option('-C, --no-cache', 'skip MongoDB cache, generate fresh')
   .option('--no-post');
 
 program.parse();
@@ -86,6 +87,14 @@ const query = `
                     title
                     author
                 }
+                quality {
+                    natureWords
+                    repeatedWords
+                    weakStarts
+                    sentiment
+                    markovFlow
+                    totalScore
+                }
             }
         }
     }
@@ -99,7 +108,7 @@ const variables = {
   theme: options.theme,
   useAi: options.aiDescription,
   useImageAI: options.withImageAi,
-  useCache: true,
+  useCache: options.cache,
 };
 
 const body = {
@@ -116,6 +125,7 @@ try {
     pc.dim(`AI Description: ${options.aiDescription ? 'yes' : 'no'}`),
   );
   console.log(pc.dim(`ImageAI: ${options.withImageAi ? 'yes' : 'no'}`));
+  console.log(pc.dim(`Cache: ${options.cache ? 'yes' : 'no'}`));
   console.log(pc.dim(`Interactive: ${options.interaction ? 'yes' : 'no'}`));
   console.log(
     pc.dim(`Selection Count: ${variables.selectionCount ?? 'default'}`),
@@ -123,7 +133,7 @@ try {
 
   const generateSpinner = ora('Generating haiku with image...').start();
 
-  // 3-minute timeout for AI generation (OpenAI calls + image rendering)
+  // 3-minute timeout for generation
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 180000);
 
@@ -158,15 +168,18 @@ try {
   }
 
   if (haiku.selectionInfo) {
-    const { generatedCount, selectedIndex } = haiku.selectionInfo;
+    const { requestedCount, generatedCount, selectedIndex } = haiku.selectionInfo;
+    const cacheStatus = options.cache ? '' : pc.yellow(' [fresh]');
     generateSpinner.succeed(
       pc.green(`Haiku generated`) +
         pc.dim(
-          ` (${generatedCount} candidates, selected #${selectedIndex + 1})`,
-        ),
+          ` (${requestedCount} requested → ${generatedCount} candidates → selected #${selectedIndex + 1})`,
+        ) +
+        cacheStatus,
     );
   } else {
-    generateSpinner.succeed(pc.green('Haiku generated'));
+    const cacheStatus = options.cache ? pc.dim(' (from cache)') : pc.yellow(' [fresh]');
+    generateSpinner.succeed(pc.green('Haiku generated') + cacheStatus);
   }
 
   const imageSpinner = ora('Processing image...').start();
@@ -194,9 +207,17 @@ try {
 
   imageSpinner.succeed(pc.green('Image processed'));
 
-  if (haiku.candidates && haiku.candidates.length > 1 && haiku.selectionInfo) {
-    console.log(pc.bold('\n═══ All Candidates ═══\n'));
-    const selectedIndex = haiku.selectionInfo.selectedIndex;
+  // Show candidates for fresh generations or when selection occurred
+  const showCandidates = haiku.candidates && haiku.candidates.length > 0 &&
+    (!options.cache || haiku.selectionInfo);
+
+  if (showCandidates && haiku.candidates) {
+    const headerText = !options.cache
+      ? `Top ${haiku.candidates.length} Candidates (scored & filtered)`
+      : 'All Candidates';
+    console.log(pc.bold(`\n═══ ${headerText} ═══\n`));
+
+    const selectedIndex = haiku.selectionInfo?.selectedIndex ?? -1;
 
     haiku.candidates.forEach((candidate, i) => {
       const isSelected = i === selectedIndex;
@@ -206,7 +227,15 @@ try {
         : pc.dim(`#${i + 1}`);
       const bookInfo = pc.dim(`(${candidate.book.title})`);
 
-      console.log(`${indexStr} ${marker} ${bookInfo}`);
+      // Display quality scores
+      const q = candidate.quality;
+      const scoreInfo = q
+        ? pc.magenta(
+            ` [score: ${q.totalScore?.toFixed(1)} | nature: ${q.natureWords} | flow: ${q.markovFlow?.toFixed(1)} | sentiment: ${q.sentiment?.toFixed(2)}]`,
+          )
+        : '';
+
+      console.log(`${indexStr} ${marker} ${bookInfo}${scoreInfo}`);
       candidate.verses.forEach((verse) => {
         const verseText = isSelected
           ? pc.cyan(`  ${verse}`)
@@ -216,7 +245,7 @@ try {
       console.log();
     });
 
-    if (haiku.selectionInfo.reason) {
+    if (haiku.selectionInfo?.reason) {
       console.log(pc.yellow('💡 Selection reason:'));
       console.log(pc.italic(`   ${haiku.selectionInfo.reason}\n`));
     }
@@ -225,10 +254,11 @@ try {
   console.log(pc.bold('═══ Generated Haiku ═══\n'));
 
   try {
-    const preview = await terminalImage.buffer(imageData, { width: 40 });
+    const preview = await terminalImage.buffer(imageData, { width: 50 });
     console.log(preview);
   } catch {
-    console.log(pc.dim('  [Image preview not available]'));
+    // Terminal doesn't support image protocol - show file path instead
+    console.log(pc.dim(`  📷 Image saved: ${haiku.imagePath}`));
   }
 
   console.log(pc.cyan('  ' + haiku.verses.join('\n  ')));
@@ -238,27 +268,34 @@ try {
   if (haiku.title) {
     console.log(`\n${pc.dim('Title:')} ${haiku.title}`);
   }
+
   if (haiku.description) {
     console.log(`${pc.dim('Description:')} ${haiku.description}`);
   }
+
   if (haiku.hashtags) {
     console.log(`${pc.dim('Hashtags:')} ${pc.blue(haiku.hashtags)}`);
   }
 
   if (haiku.translations) {
     console.log(pc.bold('\n═══ Translations ═══\n'));
+
     if (haiku.translations.fr) {
       console.log(`${pc.dim('FR:')} ${haiku.translations.fr}`);
     }
+
     if (haiku.translations.jp) {
       console.log(`${pc.dim('JP:')} ${haiku.translations.jp}`);
     }
+
     if (haiku.translations.es) {
       console.log(`${pc.dim('ES:')} ${haiku.translations.es}`);
     }
+
     if (haiku.translations.it) {
       console.log(`${pc.dim('IT:')} ${haiku.translations.it}`);
     }
+
     if (haiku.translations.de) {
       console.log(`${pc.dim('DE:')} ${haiku.translations.de}`);
     }
