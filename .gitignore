@@ -17,3 +17,6 @@ ecosystem.config.mjs
 *.njsproj
 *.sln
 *.sw?
+
+# Covers symlink (created by setup script if gutenguess submodule exists)
+packages/front/public/covers

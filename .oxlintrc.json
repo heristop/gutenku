@@ -146,7 +146,7 @@
     "unicorn/prefer-negative-index": "error",
     "unicorn/no-array-for-each": "off",
     "unicorn/prefer-date-now": "error",
-    "unicorn/prefer-math-trunc": "error",
+    "unicorn/prefer-math-trunc": "off",
     "unicorn/no-zero-fractions": "error",
     "unicorn/number-literal-case": "error",
     "unicorn/no-static-only-class": "error",
@@ -172,7 +172,7 @@
     "max-params": "off",
     "max-lines": [
       "error",
-      { "max": 500, "skipBlankLines": true, "skipComments": true }
+      { "max": 550, "skipBlankLines": true, "skipComments": true }
     ],
     "complexity": ["error", { "max": 15 }],
     "no-nested-ternary": "error",

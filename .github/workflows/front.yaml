@@ -38,11 +38,11 @@ jobs:
       - name: Lint CSS
         run: pnpm --filter @gutenku/front lint:css
 
-      - name: Typecheck
-        run: pnpm --filter @gutenku/front typecheck
-
       - name: Build
         run: pnpm --filter @gutenku/front build
+
+      - name: Typecheck
+        run: pnpm --filter @gutenku/front typecheck
 
       - name: Lighthouse CI
         run: pnpm --filter @gutenku/front lighthouse
