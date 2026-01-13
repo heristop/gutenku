@@ -37,15 +37,29 @@ const makeService = () => {
   }
   const markovEvaluator = {
     evaluateHaiku: vi.fn((_verses: string[]) => 1),
+    evaluateHaikuTrigrams: vi.fn((_verses: string[]) => 1),
     load: vi.fn(async () => {}),
   };
   const naturalLanguage = {
+    analyzeGrammar: vi.fn(() => ({ score: 1 })),
+    analyzePhonetics: vi.fn(() => ({ alliterationScore: 1 })),
     analyzeSentiment: (_t: string) => 1,
     countSyllables: (t: string) => t.split(/\s+/g).filter(Boolean).length,
+    extractByExpandedClauses: (t: string) => t.split(/[:;,\-—]+\s+/g).filter((s: string) => s.trim().length > 0),
+    extractSentences: (t: string) => t.split(/[.?!]+\s+/g),
     extractSentencesByPunctuation: (t: string) => t.split(/[.?!,;]+\s+/g),
+    extractWordChunks: (t: string) => {
+      const words = t.split(/\s+/g).filter(Boolean);
+      const chunks: string[] = [];
+      for (let i = 0; i <= words.length - 2; i += 2) {chunks.push(words.slice(i, i + 2).join(' '));}
+      return chunks;
+    },
     extractWords: (t: string) => t.split(/\s+/g).filter(Boolean),
+    getPOSTags: vi.fn(() => [{ word: 'test', tag: 'VB' }]),
     hasBlacklistedCharsInQuote: (_t: string) => false,
     hasUpperCaseWords: (_t: string) => false,
+    initTfIdf: vi.fn(),
+    scoreDistinctiveness: vi.fn(() => 1),
     startWithConjunction: (_t: string) => false,
   };
   class FakeCanvasService implements ICanvasService {
@@ -83,10 +97,8 @@ const makeService = () => {
 
 describe('HaikuGeneratorService', () => {
   beforeEach(() => {
-    process.env.MIN_QUOTES_COUNT = '0';
-    process.env.SENTIMENT_MIN_SCORE = '0';
-    process.env.MARKOV_MIN_SCORE = '0';
-    process.env.VERSE_MAX_LENGTH = '100';
+    // Score thresholds are now constants in validation.ts
+    // Use generator.configure() to set test-specific thresholds
   });
 
   it('buildHaiku constructs expected HaikuValue', () => {
@@ -112,7 +124,7 @@ describe('HaikuGeneratorService', () => {
     expect(['c1', 'c2']).toContain(id);
   });
 
-  it('isQuoteInvalid respects checks and env vars', () => {
+  it('isQuoteInvalid respects checks and max length constant', () => {
     const { svc, deps } = makeService();
     deps.naturalLanguage.hasUpperCaseWords = () => true;
     expect(svc.isQuoteInvalid('ANY')).toBeTruthy();
@@ -120,19 +132,31 @@ describe('HaikuGeneratorService', () => {
     deps.naturalLanguage.hasBlacklistedCharsInQuote = () => true;
     expect(svc.isQuoteInvalid('bad #')).toBeTruthy();
     deps.naturalLanguage.hasBlacklistedCharsInQuote = () => false;
-    process.env.VERSE_MAX_LENGTH = '3';
-    expect(svc.isQuoteInvalid('longer')).toBeTruthy();
-    process.env.VERSE_MAX_LENGTH = '100';
-    expect(svc.isQuoteInvalid('ok')).toBeFalsy();
+    // VERSE_MAX_LENGTH is now a constant (30) - test with string >= 30 chars
+    expect(svc.isQuoteInvalid('this is a very long quote that exceeds thirty characters')).toBeTruthy();
+    expect(svc.isQuoteInvalid('short quote here')).toBeFalsy();
   });
 
   it('selectHaikuVerses selects 5-7-5 with positive scores', () => {
     const { svc, deps } = makeService();
+    // Configure with zero thresholds to disable all scoring for this test
+    svc.configure({
+      score: {
+        sentiment: 0,
+        markovChain: 0,
+        pos: 0,
+        trigram: 0,
+        tfidf: 0,
+        phonetics: 0,
+        uniqueness: 0,
+      },
+    });
     // Make syllable count match (we use word count as syllables in this stub)
+    // Note: quotes must be < 30 chars (VERSE_MAX_LENGTH)
     const quotes = [
-      { index: 0, quote: 'one two three four five', syllableCount: 5 }, // 5
-      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 }, // 7
-      { index: 2, quote: 'one two three four five', syllableCount: 5 }, // 5
+      { index: 0, quote: 'one two three four five', syllableCount: 5 }, // 5 words, 23 chars
+      { index: 1, quote: 'six seven eight nine ten', syllableCount: 7 }, // 7 syllables, 24 chars
+      { index: 2, quote: 'one two three four five', syllableCount: 5 }, // 5 words, 23 chars
     ];
     deps.naturalLanguage.startWithConjunction = () => false;
     deps.naturalLanguage.analyzeSentiment = () => 1;
@@ -141,7 +165,8 @@ describe('HaikuGeneratorService', () => {
     const randSpy = vi.spyOn(Math, 'random').mockReturnValue(0);
     const result = svc.selectHaikuVerses(quotes);
     randSpy.mockRestore();
-    expect(result.length).toBe(3);
+    expect(result).not.toBeNull();
+    expect(result?.verses.length).toBe(3);
   });
 
   it('appendImg attaches base64 image', async () => {
@@ -213,12 +238,12 @@ describe('HaikuGeneratorService', () => {
     expect(svc.verseContainsFilterWord(verses)).toBeTruthy();
   });
 
-  it('getVerses returns empty array when no valid quotes', () => {
+  it('getVerses returns empty verses when no valid quotes', () => {
     const { svc, deps } = makeService();
     deps.naturalLanguage.extractSentencesByPunctuation = () => [];
     // @ts-expect-error – test stub allows partial chapter shape
     const result = svc.getVerses({ content: 'short' });
-    expect(result).toEqual([]);
+    expect(result.verses).toEqual([]);
   });
 
   it('extractQuotes filters by syllable count', () => {
@@ -234,10 +259,10 @@ describe('HaikuGeneratorService', () => {
     expect(result.length).toBeGreaterThanOrEqual(0);
   });
 
-  it('selectHaikuVerses returns empty when no matching quotes', () => {
+  it('selectHaikuVerses returns null when no matching quotes', () => {
     const { svc } = makeService();
     const result = svc.selectHaikuVerses([]);
-    expect(result).toEqual([]);
+    expect(result).toBeNull();
   });
 
   it('filterQuotesCountingSyllables returns empty when below MIN_QUOTES_COUNT', () => {
@@ -251,49 +276,84 @@ describe('HaikuGeneratorService', () => {
 
   it('selectHaikuVerses filters by sentiment score', () => {
     const { svc, deps } = makeService();
-    process.env.SENTIMENT_MIN_SCORE = '0.5';
+    // Configure with sentiment threshold of 0.5, disable all other filters
+    svc.configure({
+      score: {
+        sentiment: 0.5,
+        markovChain: 0,
+        pos: 0,
+        trigram: 0,
+        tfidf: 0,
+        phonetics: 0,
+        uniqueness: 0,
+      },
+    });
 
     // Make quotes with matching syllable counts
     const quotes = [
       { index: 0, quote: 'one two three four five', syllableCount: 5 }, // 5 syllables
-      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 }, // 7 syllables
+      { index: 1, quote: 'a b c d e f g', syllableCount: 7 }, // 7 syllables
       { index: 2, quote: 'one two three four five', syllableCount: 5 }, // 5 syllables
     ];
 
     deps.naturalLanguage.startWithConjunction = () => false;
-    deps.naturalLanguage.analyzeSentiment = () => 0.3; // Below min score
+    deps.naturalLanguage.analyzeSentiment = () => 0.3; // Below min score of 0.5
     deps.markovEvaluator.evaluateHaiku = () => 1;
 
     const result = svc.selectHaikuVerses(quotes);
-    expect(result).toEqual([]);
+    expect(result).toBeNull();
   });
 
   it('selectHaikuVerses filters by markov score', () => {
     const { svc, deps } = makeService();
-    process.env.MARKOV_MIN_SCORE = '0.5';
+    // Configure with markov threshold of 0.5, disable all other filters
+    svc.configure({
+      score: {
+        sentiment: 0,
+        markovChain: 0.5,
+        pos: 0,
+        trigram: 0,
+        tfidf: 0,
+        phonetics: 0,
+        uniqueness: 0,
+      },
+    });
 
     const quotes = [
       { index: 0, quote: 'one two three four five', syllableCount: 5 },
-      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 1, quote: 'a b c d e f g', syllableCount: 7 },
       { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
     deps.naturalLanguage.startWithConjunction = () => false;
     deps.naturalLanguage.analyzeSentiment = () => 1;
-    deps.markovEvaluator.evaluateHaiku = () => 0.1; // Below min score
+    deps.markovEvaluator.evaluateHaiku = () => 0.1; // Below min score of 0.5
 
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const result = svc.selectHaikuVerses(quotes);
-    expect(result.length).toBeLessThan(3);
+    // Should return null when markov filter rejects all candidates
+    expect(result).toBeNull();
   });
 
   it('selectHaikuVerses rejects quotes with index <= lastVerseIndex', () => {
     const { svc, deps } = makeService();
+    // Disable all filters for this test
+    svc.configure({
+      score: {
+        sentiment: 0,
+        markovChain: 0,
+        pos: 0,
+        trigram: 0,
+        tfidf: 0,
+        phonetics: 0,
+        uniqueness: 0,
+      },
+    });
 
     // Quotes with non-sequential indices
     const quotes = [
       { index: 5, quote: 'one two three four five', syllableCount: 5 },
-      { index: 3, quote: 'one two three four five six seven', syllableCount: 7 }, // Lower index
+      { index: 3, quote: 'a b c d e f g', syllableCount: 7 }, // Lower index
       { index: 10, quote: 'alpha beta gamma delta epsilon', syllableCount: 5 },
     ];
 
@@ -303,8 +363,8 @@ describe('HaikuGeneratorService', () => {
 
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const result = svc.selectHaikuVerses(quotes);
-    // Should fail since second quote has lower index than first
-    expect(result.length).toBeLessThan(3);
+    // Should return null since second quote has lower index than first
+    expect(result).toBeNull();
   });
 
   it('extractFromCache delegates to repository', async () => {
@@ -336,10 +396,22 @@ describe('HaikuGeneratorService', () => {
 
   it('selectHaikuVerses rejects first verse starting with conjunction', () => {
     const { svc, deps } = makeService();
+    // Disable all filters for this test
+    svc.configure({
+      score: {
+        sentiment: 0,
+        markovChain: 0,
+        pos: 0,
+        trigram: 0,
+        tfidf: 0,
+        phonetics: 0,
+        uniqueness: 0,
+      },
+    });
 
     const quotes = [
       { index: 0, quote: 'and one two three four', syllableCount: 5 }, // starts with conjunction
-      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 1, quote: 'a b c d e f g', syllableCount: 7 },
       { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
@@ -350,7 +422,7 @@ describe('HaikuGeneratorService', () => {
 
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const result = svc.selectHaikuVerses(quotes);
-    expect(result).toEqual([]);
+    expect(result).toBeNull();
   });
 
   it('filterQuotesCountingSyllables filters out quotes with null words', () => {
@@ -370,7 +442,7 @@ describe('HaikuGeneratorService', () => {
 
     const quotes = [
       { index: 0, quote: 'one two three four five', syllableCount: 5 },
-      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 1, quote: 'a b c d e f g', syllableCount: 7 },
       { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
@@ -381,7 +453,7 @@ describe('HaikuGeneratorService', () => {
 
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const result = svc.selectHaikuVerses(quotes);
-    expect(result).toEqual([]);
+    expect(result).toBeNull();
   });
 
   it('selectHaikuVerses rejects quotes that fail syllable count check', () => {
@@ -399,7 +471,7 @@ describe('HaikuGeneratorService', () => {
     deps.markovEvaluator.evaluateHaiku = () => 1;
 
     const result = svc.selectHaikuVerses(quotes);
-    expect(result).toEqual([]);
+    expect(result).toBeNull();
   });
 
   it('buildHaiku creates correct haiku structure with context', () => {
@@ -515,6 +587,6 @@ describe('HaikuGeneratorService - generate flow', () => {
     process.env.MIN_QUOTES_COUNT = '0';
     // @ts-expect-error - test with partial chapter
     const result = svc.getVerses({ content: 'test sentence.' });
-    expect(result).toEqual([]);
+    expect(result.verses).toEqual([]);
   });
 });

@@ -78,6 +78,7 @@ describe('Puzzle Edge Cases - Quote Fallback', () => {
 
     // Find quote hint if present
     const quoteHint = result.allHints!.find((h) => h.type === 'quote');
+
     if (quoteHint) {
       // Should use the fallback text since notableQuotes is empty
       expect(quoteHint.content).toBe('A famous quote from this book...');
@@ -102,6 +103,7 @@ describe('Puzzle Edge Cases - Quote Fallback', () => {
         const result = await handler.execute(query);
 
         const quoteHint = result.allHints?.find((h) => h.type === 'quote');
+
         if (quoteHint && quoteHint.content === 'A famous quote from this book...') {
           foundFallback = true;
           break;
@@ -147,6 +149,7 @@ describe('Puzzle Edge Cases - Book Selection Swap', () => {
 
         // The correct book should always be included
         // We can verify by checking that all 50 slots are filled when we have 60 books
+
         if (result.availableBooks.length === 50) {
           foundSwapCase = true;
         }
@@ -179,6 +182,7 @@ describe('Puzzle Edge Cases - Book Selection Swap', () => {
         for (const book of puzzleResult.availableBooks) {
           const guessQuery = new SubmitGuessQuery(date, book.reference, 1);
           const guessResult = await submitHandler.execute(guessQuery);
+
 
           if (guessResult.isCorrect) {
             correctBookFound = true;

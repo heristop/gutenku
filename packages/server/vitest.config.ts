@@ -11,7 +11,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['tests/**/*.ts'],
-    exclude: ['tests/fixtures/**'],
+    exclude: ['tests/fixtures/**', 'tests/helpers/**', 'tests/e2e/**'],
     globals: false,
     threads: false,
     pool: 'forks',

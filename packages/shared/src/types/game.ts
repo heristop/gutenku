@@ -2,6 +2,7 @@ import type { BookValue } from './haiku';
 
 export type HintType =
   | 'emoticons'
+  | 'book_length'
   | 'genre'
   | 'era'
   | 'quote'
@@ -75,6 +76,14 @@ export interface GlobalStats {
   totalHaikusGenerated: number;
   totalGamesPlayed: number;
   totalGamesWon: number;
+  totalEmoticonScratches: number;
+  totalHaikuReveals: number;
+  todayHaikusGenerated: number;
+  todayAverageEmoticonScratches: number;
+  todayAverageHaikuReveals: number;
+  todayGamesPlayed: number;
+  todayGamesWon: number;
+  todayTotalHints: number;
 }
 
 export interface PuzzleVersion {

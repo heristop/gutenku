@@ -6,14 +6,8 @@ const makeService = makeHaikuGeneratorService;
 
 describe('HaikuGeneratorService - scoring tests', () => {
   beforeEach(() => {
-    process.env.MIN_QUOTES_COUNT = '0';
-    process.env.SENTIMENT_MIN_SCORE = '0';
-    process.env.MARKOV_MIN_SCORE = '0';
-    process.env.POS_MIN_SCORE = '0';
-    process.env.TRIGRAM_MIN_SCORE = '0';
-    process.env.TFIDF_MIN_SCORE = '0';
-    process.env.PHONETICS_MIN_SCORE = '0';
-    process.env.VERSE_MAX_LENGTH = '100';
+    // Score thresholds are now constants in validation.ts
+    // Tests use svc.configure() to set explicit thresholds for each test
   });
 
   it('selectHaikuVerses applies POS score filter when configured', () => {
@@ -36,7 +30,7 @@ describe('HaikuGeneratorService - scoring tests', () => {
 
     const quotes = [
       { index: 0, quote: 'one two three four five', syllableCount: 5 },
-      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 1, quote: 'a b c d e f g', syllableCount: 7 },
       { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
@@ -46,7 +40,7 @@ describe('HaikuGeneratorService - scoring tests', () => {
 
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const result = svc.selectHaikuVerses(quotes);
-    expect(result).toEqual([]);
+    expect(result).toBeNull();
   });
 
   it('selectHaikuVerses passes POS score filter when score is high enough', () => {
@@ -69,7 +63,7 @@ describe('HaikuGeneratorService - scoring tests', () => {
 
     const quotes = [
       { index: 0, quote: 'one two three four five', syllableCount: 5 },
-      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 1, quote: 'a b c d e f g', syllableCount: 7 },
       { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
@@ -79,7 +73,8 @@ describe('HaikuGeneratorService - scoring tests', () => {
 
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const result = svc.selectHaikuVerses(quotes);
-    expect(result.length).toBe(3);
+    expect(result).not.toBeNull();
+    expect(result?.verses.length).toBe(3);
   });
 
   it('selectHaikuVerses applies TF-IDF score filter when configured', () => {
@@ -102,7 +97,7 @@ describe('HaikuGeneratorService - scoring tests', () => {
 
     const quotes = [
       { index: 0, quote: 'one two three four five', syllableCount: 5 },
-      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 1, quote: 'a b c d e f g', syllableCount: 7 },
       { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
@@ -112,7 +107,7 @@ describe('HaikuGeneratorService - scoring tests', () => {
 
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const result = svc.selectHaikuVerses(quotes);
-    expect(result).toEqual([]);
+    expect(result).toBeNull();
   });
 
   it('selectHaikuVerses passes TF-IDF score filter when score is high enough', () => {
@@ -135,7 +130,7 @@ describe('HaikuGeneratorService - scoring tests', () => {
 
     const quotes = [
       { index: 0, quote: 'one two three four five', syllableCount: 5 },
-      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 1, quote: 'a b c d e f g', syllableCount: 7 },
       { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
@@ -145,7 +140,8 @@ describe('HaikuGeneratorService - scoring tests', () => {
 
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const result = svc.selectHaikuVerses(quotes);
-    expect(result.length).toBe(3);
+    expect(result).not.toBeNull();
+    expect(result?.verses.length).toBe(3);
   });
 
   it('selectHaikuVerses applies trigram score filter when configured', () => {
@@ -168,7 +164,7 @@ describe('HaikuGeneratorService - scoring tests', () => {
 
     const quotes = [
       { index: 0, quote: 'one two three four five', syllableCount: 5 },
-      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 1, quote: 'a b c d e f g', syllableCount: 7 },
       { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
@@ -178,7 +174,8 @@ describe('HaikuGeneratorService - scoring tests', () => {
 
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const result = svc.selectHaikuVerses(quotes);
-    expect(result.length).toBeLessThan(3);
+    // Should return null when filter rejects candidates
+    expect(result).toBeNull();
   });
 
   it('selectHaikuVerses passes trigram score filter when score is high enough', () => {
@@ -201,7 +198,7 @@ describe('HaikuGeneratorService - scoring tests', () => {
 
     const quotes = [
       { index: 0, quote: 'one two three four five', syllableCount: 5 },
-      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 1, quote: 'a b c d e f g', syllableCount: 7 },
       { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
@@ -211,7 +208,8 @@ describe('HaikuGeneratorService - scoring tests', () => {
 
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const result = svc.selectHaikuVerses(quotes);
-    expect(result.length).toBe(3);
+    expect(result).not.toBeNull();
+    expect(result?.verses.length).toBe(3);
   });
 
   it('selectHaikuVerses applies phonetics score filter on third verse', () => {
@@ -236,7 +234,7 @@ describe('HaikuGeneratorService - scoring tests', () => {
 
     const quotes = [
       { index: 0, quote: 'one two three four five', syllableCount: 5 },
-      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 1, quote: 'a b c d e f g', syllableCount: 7 },
       { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
@@ -246,7 +244,8 @@ describe('HaikuGeneratorService - scoring tests', () => {
 
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const result = svc.selectHaikuVerses(quotes);
-    expect(result.length).toBeLessThan(3);
+    // Should return null when filter rejects candidates
+    expect(result).toBeNull();
   });
 
   it('selectHaikuVerses passes phonetics score filter when score is high enough', () => {
@@ -271,7 +270,7 @@ describe('HaikuGeneratorService - scoring tests', () => {
 
     const quotes = [
       { index: 0, quote: 'one two three four five', syllableCount: 5 },
-      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 1, quote: 'a b c d e f g', syllableCount: 7 },
       { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
@@ -281,27 +280,18 @@ describe('HaikuGeneratorService - scoring tests', () => {
 
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const result = svc.selectHaikuVerses(quotes);
-    expect(result.length).toBe(3);
+    expect(result).not.toBeNull();
+    expect(result?.verses.length).toBe(3);
   });
 });
 
 describe('HaikuGeneratorService - soft scoring tests', () => {
   beforeEach(() => {
-    process.env.MIN_QUOTES_COUNT = '0';
-    process.env.SENTIMENT_MIN_SCORE = '0';
-    process.env.MARKOV_MIN_SCORE = '0';
-    process.env.POS_MIN_SCORE = '0';
-    process.env.TRIGRAM_MIN_SCORE = '0';
-    process.env.TFIDF_MIN_SCORE = '0';
-    process.env.PHONETICS_MIN_SCORE = '0';
-    process.env.VERSE_MAX_LENGTH = '100';
-    process.env.MAX_REPEATED_WORDS = '0';
-    process.env.REJECT_WEAK_START = 'false';
+    // Note: REJECT_WEAK_START and MAX_REPEATED_WORDS are no longer env vars
+    // Weak starts are always allowed, repeated word check is disabled by default
   });
 
-  it('rejects verses with weak starts when REJECT_WEAK_START is true', () => {
-    process.env.REJECT_WEAK_START = 'true';
-
+  it('always allows verses with weak starts (feature disabled)', () => {
     const { svc, deps } = makeService();
 
     svc.configure({
@@ -317,10 +307,10 @@ describe('HaikuGeneratorService - soft scoring tests', () => {
       theme: 'default',
     });
 
-    // "it was" starts with weak word "it"
+    // "it was" starts with weak word "it" - but now allowed by default
     const quotes = [
       { index: 0, quote: 'it was a dark', syllableCount: 5 },
-      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 1, quote: 'a b c d e f g', syllableCount: 7 },
       { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
@@ -330,13 +320,12 @@ describe('HaikuGeneratorService - soft scoring tests', () => {
 
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const result = svc.selectHaikuVerses(quotes);
-    // First verse rejected due to weak start, no valid 5-syllable verse
-    expect(result).toEqual([]);
+    // Weak starts are allowed by default now
+    expect(result).not.toBeNull();
+    expect(result?.verses.length).toBe(3);
   });
 
-  it('allows verses with weak starts when REJECT_WEAK_START is false', () => {
-    process.env.REJECT_WEAK_START = 'false';
-
+  it('allows haiku with repeated words (feature disabled by default)', () => {
     const { svc, deps } = makeService();
 
     svc.configure({
@@ -352,40 +341,7 @@ describe('HaikuGeneratorService - soft scoring tests', () => {
       theme: 'default',
     });
 
-    const quotes = [
-      { index: 0, quote: 'it was a dark', syllableCount: 5 },
-      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
-      { index: 2, quote: 'one two three four five', syllableCount: 5 },
-    ];
-
-    deps.naturalLanguage.startWithConjunction = () => false;
-    deps.naturalLanguage.analyzeSentiment = () => 1;
-    deps.markovEvaluator.evaluateHaiku = () => 1;
-
-    vi.spyOn(Math, 'random').mockReturnValue(0);
-    const result = svc.selectHaikuVerses(quotes);
-    expect(result.length).toBe(3);
-  });
-
-  it('rejects haiku with too many repeated words when MAX_REPEATED_WORDS > 0', () => {
-    process.env.MAX_REPEATED_WORDS = '1';
-
-    const { svc, deps } = makeService();
-
-    svc.configure({
-      cache: { enabled: false, minCachedDocs: 10, ttl: 1000 },
-      score: {
-        sentiment: 0,
-        markovChain: 0,
-        pos: 0,
-        trigram: 0,
-        tfidf: 0,
-        phonetics: 0,
-      },
-      theme: 'default',
-    });
-
-    // "moon" appears in all 3 verses = 2 repeats, exceeds max of 1
+    // "moon" appears in all verses - allowed now since maxRepeatedWords is disabled
     const quotes = [
       { index: 0, quote: 'moon shines bright', syllableCount: 5 },
       { index: 1, quote: 'under the moon light soft', syllableCount: 7 },
@@ -398,13 +354,14 @@ describe('HaikuGeneratorService - soft scoring tests', () => {
 
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const result = svc.selectHaikuVerses(quotes);
-    // Third verse rejected due to too many repeated words
-    expect(result.length).toBeLessThan(3);
+    // Repeated words are now allowed (feature disabled by default)
+    expect(result).not.toBeNull();
+    expect(result?.verses.length).toBe(3);
   });
+});
 
-  it('allows haiku when repeated words within MAX_REPEATED_WORDS limit', () => {
-    process.env.MAX_REPEATED_WORDS = '3';
-
+describe('HaikuGeneratorService - uniqueness filter', () => {
+  it('applies uniqueness filter when configured', () => {
     const { svc, deps } = makeService();
 
     svc.configure({
@@ -416,14 +373,17 @@ describe('HaikuGeneratorService - soft scoring tests', () => {
         trigram: 0,
         tfidf: 0,
         phonetics: 0,
+        uniqueness: 0.9, // Very high threshold
       },
       theme: 'default',
     });
 
+    // Multiple repeated words = low uniqueness (~0.67)
+    // 9 words total: "the" x3 = 7 unique / 9 total = 0.78
     const quotes = [
-      { index: 0, quote: 'moon shines bright', syllableCount: 5 },
-      { index: 1, quote: 'under the moon light soft', syllableCount: 7 },
-      { index: 2, quote: 'moon fades at dawn', syllableCount: 5 },
+      { index: 0, quote: 'the moon shines', syllableCount: 5 },
+      { index: 1, quote: 'the moon glows at night', syllableCount: 7 },
+      { index: 2, quote: 'the moon fades', syllableCount: 5 },
     ];
 
     deps.naturalLanguage.startWithConjunction = () => false;
@@ -432,12 +392,11 @@ describe('HaikuGeneratorService - soft scoring tests', () => {
 
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const result = svc.selectHaikuVerses(quotes);
-    expect(result.length).toBe(3);
+    // Should return null when filter rejects candidates
+    expect(result).toBeNull();
   });
 
-  it('ignores repeated word check when MAX_REPEATED_WORDS is 0', () => {
-    process.env.MAX_REPEATED_WORDS = '0';
-
+  it('passes uniqueness filter when words are varied', () => {
     const { svc, deps } = makeService();
 
     svc.configure({
@@ -449,15 +408,16 @@ describe('HaikuGeneratorService - soft scoring tests', () => {
         trigram: 0,
         tfidf: 0,
         phonetics: 0,
+        uniqueness: 0.6,
       },
       theme: 'default',
     });
 
-    // Many repeated words but MAX_REPEATED_WORDS=0 means disabled
+    // All different words = high uniqueness
     const quotes = [
-      { index: 0, quote: 'moon moon moon', syllableCount: 5 },
-      { index: 1, quote: 'moon moon moon moon moon', syllableCount: 7 },
-      { index: 2, quote: 'moon moon moon', syllableCount: 5 },
+      { index: 0, quote: 'cherry blossom falls', syllableCount: 5 },
+      { index: 1, quote: 'gentle wind through branches', syllableCount: 7 },
+      { index: 2, quote: 'spring arrives today', syllableCount: 5 },
     ];
 
     deps.naturalLanguage.startWithConjunction = () => false;
@@ -466,22 +426,95 @@ describe('HaikuGeneratorService - soft scoring tests', () => {
 
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const result = svc.selectHaikuVerses(quotes);
-    expect(result.length).toBe(3);
+    expect(result).not.toBeNull();
+    expect(result?.verses.length).toBe(3);
+  });
+});
+
+describe('HaikuGeneratorService - rejection stats', () => {
+  it('tracks rejection stats for sentiment', () => {
+    const { svc, deps } = makeService();
+
+    deps.naturalLanguage.analyzeSentiment = vi.fn(() => 0.2);
+
+    svc.configure({
+      cache: { enabled: false, minCachedDocs: 10, ttl: 1000 },
+      score: {
+        sentiment: 0.5, // Will reject low sentiment
+        markovChain: 0,
+        pos: 0,
+        trigram: 0,
+        tfidf: 0,
+        phonetics: 0,
+        uniqueness: 0,
+      },
+      theme: 'default',
+    });
+
+    const quotes = [
+      { index: 0, quote: 'one two three four five', syllableCount: 5 },
+    ];
+
+    deps.naturalLanguage.startWithConjunction = () => false;
+
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    svc.selectHaikuVerses(quotes);
+
+    const stats = svc.getRejectionStats();
+    expect(stats.sentiment).toBeGreaterThan(0);
+    expect(stats.total).toBeGreaterThan(0);
+  });
+
+  it('resets rejection stats on configure', () => {
+    const { svc, deps } = makeService();
+
+    deps.naturalLanguage.analyzeSentiment = vi.fn(() => 0.2);
+
+    svc.configure({
+      cache: { enabled: false, minCachedDocs: 10, ttl: 1000 },
+      score: {
+        sentiment: 0.5,
+        markovChain: 0,
+        pos: 0,
+        trigram: 0,
+        tfidf: 0,
+        phonetics: 0,
+        uniqueness: 0,
+      },
+      theme: 'default',
+    });
+
+    const quotes = [
+      { index: 0, quote: 'one two three four five', syllableCount: 5 },
+    ];
+
+    deps.naturalLanguage.startWithConjunction = () => false;
+    svc.selectHaikuVerses(quotes);
+
+    // Reconfigure should reset stats
+    svc.configure({
+      cache: { enabled: false, minCachedDocs: 10, ttl: 1000 },
+      score: {
+        sentiment: 0,
+        markovChain: 0,
+        pos: 0,
+        trigram: 0,
+        tfidf: 0,
+        phonetics: 0,
+        uniqueness: 0,
+      },
+      theme: 'default',
+    });
+
+    const stats = svc.getRejectionStats();
+    expect(stats.sentiment).toBe(0);
+    expect(stats.total).toBe(0);
   });
 });
 
 describe('HaikuGeneratorService - phonetics on all verses', () => {
   beforeEach(() => {
-    process.env.MIN_QUOTES_COUNT = '0';
-    process.env.SENTIMENT_MIN_SCORE = '0';
-    process.env.MARKOV_MIN_SCORE = '0';
-    process.env.POS_MIN_SCORE = '0';
-    process.env.TRIGRAM_MIN_SCORE = '0';
-    process.env.TFIDF_MIN_SCORE = '0';
-    process.env.PHONETICS_MIN_SCORE = '0';
-    process.env.VERSE_MAX_LENGTH = '100';
-    process.env.MAX_REPEATED_WORDS = '0';
-    process.env.REJECT_WEAK_START = 'false';
+    // Score thresholds are now constants - use svc.configure() for test-specific values
   });
 
   it('applies phonetics filter on second verse (not just third)', () => {
@@ -507,7 +540,7 @@ describe('HaikuGeneratorService - phonetics on all verses', () => {
 
     const quotes = [
       { index: 0, quote: 'one two three four five', syllableCount: 5 },
-      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 1, quote: 'a b c d e f g', syllableCount: 7 },
       { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
@@ -521,7 +554,8 @@ describe('HaikuGeneratorService - phonetics on all verses', () => {
     // Phonetics is now checked on all verses, not just third
     // analyzePhonetics should be called when adding second verse
     expect(deps.naturalLanguage.analyzePhonetics).toHaveBeenCalled();
-    expect(result.length).toBeLessThan(3);
+    // Should return null when phonetics filter rejects candidates
+    expect(result).toBeNull();
   });
 
   it('analyzePhonetics is called for verse 2 and verse 3', () => {
@@ -546,7 +580,7 @@ describe('HaikuGeneratorService - phonetics on all verses', () => {
 
     const quotes = [
       { index: 0, quote: 'one two three four five', syllableCount: 5 },
-      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
+      { index: 1, quote: 'a b c d e f g', syllableCount: 7 },
       { index: 2, quote: 'one two three four five', syllableCount: 5 },
     ];
 
@@ -559,6 +593,7 @@ describe('HaikuGeneratorService - phonetics on all verses', () => {
 
     // Should be called for both verse 2 and verse 3
     expect(deps.naturalLanguage.analyzePhonetics).toHaveBeenCalledTimes(2);
-    expect(result.length).toBe(3);
+    expect(result).not.toBeNull();
+    expect(result?.verses.length).toBe(3);
   });
 });

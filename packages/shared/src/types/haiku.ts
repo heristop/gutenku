@@ -36,14 +36,28 @@ export interface SelectionInfo {
 export interface HaikuCandidate {
   verses: string[];
   book: { title: string; author: string };
+  quality?: HaikuQualityScore;
 }
 
 export interface HaikuQualityScore {
   natureWords: number;
   repeatedWords: number;
   weakStarts: number;
+  sentiment: number;
+  grammar: number;
+  trigramFlow: number;
+  markovFlow: number;
+  uniqueness: number;
+  alliteration: number;
+  verseDistance: number;
+  lineLengthBalance: number;
+  imageryDensity: number;
+  semanticCoherence: number;
+  verbPresence: number;
   totalScore: number;
 }
+
+export type ExtractionMethod = 'punctuation' | 'tokenizer' | 'clause' | 'chunk';
 
 export interface HaikuValue {
   book: BookValue;
@@ -62,6 +76,7 @@ export interface HaikuValue {
   selectionInfo?: SelectionInfo;
   candidates?: HaikuCandidate[];
   quality?: HaikuQualityScore;
+  extractionMethod?: ExtractionMethod;
 }
 
 export interface HaikuResponseData {

@@ -22,6 +22,7 @@ describe('BatchImportBooksHandler', () => {
         fetched: true,
         saved: true,
         deleted: false,
+        alreadyExists: false,
         chaptersCount: 5,
         title: 'Book One',
       })
@@ -30,6 +31,7 @@ describe('BatchImportBooksHandler', () => {
         fetched: true,
         saved: true,
         deleted: false,
+        alreadyExists: false,
         chaptersCount: 8,
         title: 'Book Two',
       });
@@ -38,9 +40,10 @@ describe('BatchImportBooksHandler', () => {
     const result = await handler.execute(command);
 
     expect(result.totalBooks).toBe(2);
-    expect(result.successCount).toBe(2);
+    expect(result.newCount).toBe(2);
     expect(result.failedCount).toBe(0);
     expect(result.skippedCount).toBe(0);
+    expect(result.totalChapters).toBe(13);
     expect(result.results).toHaveLength(2);
     expect(result.results[0].title).toBe('Book One');
     expect(result.results[1].title).toBe('Book Two');
@@ -53,6 +56,7 @@ describe('BatchImportBooksHandler', () => {
         fetched: true,
         saved: true,
         deleted: false,
+        alreadyExists: false,
         chaptersCount: 5,
         title: 'Book One',
       })
@@ -62,6 +66,7 @@ describe('BatchImportBooksHandler', () => {
         fetched: true,
         saved: true,
         deleted: false,
+        alreadyExists: false,
         chaptersCount: 3,
         title: 'Book Three',
       });
@@ -74,7 +79,7 @@ describe('BatchImportBooksHandler', () => {
     const result = await handler.execute(command);
 
     expect(result.totalBooks).toBe(3);
-    expect(result.successCount).toBe(2);
+    expect(result.newCount).toBe(2);
     expect(result.failedCount).toBe(1);
     expect(result.results[1].success).toBeFalsy();
     expect(result.results[1].error).toBe('Network error');
@@ -86,6 +91,7 @@ describe('BatchImportBooksHandler', () => {
       fetched: true,
       saved: false,
       deleted: false,
+      alreadyExists: false,
       chaptersCount: 0,
       error: 'Parse error',
     });
@@ -93,25 +99,26 @@ describe('BatchImportBooksHandler', () => {
     const command = new BatchImportBooksCommand([1001], false, '/data');
     const result = await handler.execute(command);
 
-    expect(result.successCount).toBe(0);
+    expect(result.newCount).toBe(0);
     expect(result.failedCount).toBe(1);
     expect(result.results[0].success).toBeFalsy();
     expect(result.results[0].error).toBe('Parse error');
   });
 
-  it('handles skipped books (no error, not saved)', async () => {
+  it('handles skipped books (already exists)', async () => {
     vi.mocked(mockCommandBus.execute).mockResolvedValueOnce({
       bookId: 1001,
       fetched: true,
       saved: false,
       deleted: false,
+      alreadyExists: true,
       chaptersCount: 0,
     });
 
     const command = new BatchImportBooksCommand([1001], false, '/data');
     const result = await handler.execute(command);
 
-    expect(result.successCount).toBe(0);
+    expect(result.newCount).toBe(0);
     expect(result.failedCount).toBe(0);
     expect(result.skippedCount).toBe(1);
   });
@@ -124,6 +131,7 @@ describe('BatchImportBooksHandler', () => {
         fetched: true,
         saved: true,
         deleted: false,
+        alreadyExists: false,
         chaptersCount: 5,
         title: 'Book One',
       })
@@ -132,6 +140,7 @@ describe('BatchImportBooksHandler', () => {
         fetched: true,
         saved: true,
         deleted: false,
+        alreadyExists: false,
         chaptersCount: 3,
         title: 'Book Two',
       });
@@ -155,6 +164,7 @@ describe('BatchImportBooksHandler', () => {
       fetched: true,
       saved: true,
       deleted: true,
+      alreadyExists: false,
       chaptersCount: 5,
       title: 'Book One',
     });
@@ -176,7 +186,7 @@ describe('BatchImportBooksHandler', () => {
     const result = await handler.execute(command);
 
     expect(result.totalBooks).toBe(0);
-    expect(result.successCount).toBe(0);
+    expect(result.newCount).toBe(0);
     expect(result.failedCount).toBe(0);
     expect(result.results).toHaveLength(0);
     expect(mockCommandBus.execute).not.toHaveBeenCalled();
@@ -201,6 +211,7 @@ describe('BatchImportBooksHandler', () => {
         fetched: true,
         saved: true,
         deleted: false,
+        alreadyExists: false,
         chaptersCount: 5,
         title: 'Book Three',
       });
@@ -213,7 +224,7 @@ describe('BatchImportBooksHandler', () => {
     const result = await handler.execute(command);
 
     expect(mockCommandBus.execute).toHaveBeenCalledTimes(3);
-    expect(result.successCount).toBe(1);
+    expect(result.newCount).toBe(1);
     expect(result.failedCount).toBe(2);
   });
 

@@ -317,7 +317,10 @@ describe('Puzzle Handlers', () => {
         setTimeout(resolve, 10);
       });
 
-      expect(mockStatsRepo.incrementGamePlayed).toHaveBeenCalledWith(true);
+      expect(mockStatsRepo.incrementGamePlayed).toHaveBeenCalledWith(
+        true,
+        undefined, // No hints passed in query
+      );
     });
 
     it('increments stats on game over (round 6 wrong)', async () => {
@@ -329,7 +332,10 @@ describe('Puzzle Handlers', () => {
         setTimeout(resolve, 10);
       });
 
-      expect(mockStatsRepo.incrementGamePlayed).toHaveBeenCalledWith(false);
+      expect(mockStatsRepo.incrementGamePlayed).toHaveBeenCalledWith(
+        false,
+        undefined, // No hints passed in query
+      );
     });
 
     it('does not increment stats on wrong guess before round 6', async () => {
@@ -844,8 +850,8 @@ describe('Hint Type Coverage', () => {
         (h) => h.type === 'title_word_count',
       );
       if (wordCountHint) {
-        // Should match pattern like "3 words" or "1 word"
-        expect(wordCountHint.content).toMatch(/^\d+ words?$/);
+        // Should match pattern like "3" (just the number, more i18n-friendly)
+        expect(wordCountHint.content).toMatch(/^\d+$/);
         foundWordCount = true;
         break;
       }

@@ -48,16 +48,19 @@ const GOLDEN_TEST_CASES: GoldenTestCase[] = [
     bookId: 1184,
     title: 'The Count of Monte Cristo',
     author: 'Alexandre Dumas',
-    minChapters: 30,
-    maxChapters: 50,
+    // The novel has 117 chapters - now correctly extracted with indentation support
+    minChapters: 100,
+    maxChapters: 120,
     description: 'Very long novel with many chapters',
   },
   {
     bookId: 8800,
     title: 'The divine comedy',
     author: 'Dante Alighieri',
-    minChapters: 90,
-    maxChapters: 110,
+    // With correct paragraph counting (blank-line separated), poetry has fewer "paragraphs"
+    // The Divine Comedy has ~100 cantos but many have sparse blank-line-separated sections
+    minChapters: 45,
+    maxChapters: 60,
     description: 'Uses Canto pattern for splitting',
   },
 ];

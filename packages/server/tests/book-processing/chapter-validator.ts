@@ -50,8 +50,8 @@ Second paragraph.`;
       expect(service.containsGutenbergTemplate(content)).toBeTruthy();
     });
 
-    it('detects lowercase gutenberg', () => {
-      const content = 'Some text with gutenberg template.';
+    it('detects lowercase project gutenberg', () => {
+      const content = 'Some text with project gutenberg template.';
 
       expect(service.containsGutenbergTemplate(content)).toBeTruthy();
     });
@@ -118,7 +118,7 @@ Second paragraph.`;
     });
 
     it('collects multiple rejection reasons', () => {
-      const content = 'Short.\nGUTENBERG';
+      const content = 'Short.\nPROJECT GUTENBERG';
       const config = ChapterValidatorService.getDefaultConfig();
 
       const result = service.validateChapter(content, config);
@@ -158,7 +158,7 @@ Second paragraph.`;
         Array(15).fill('Valid chapter 1.').join('\n\n'),
         'Short chapter', // Too short
         Array(15).fill('Valid chapter 2.').join('\n\n'),
-        Array(15).fill('Paragraph.').join('\n\n') + '\nGUTENBERG', // Has Gutenberg
+        Array(15).fill('Paragraph.').join('\n\n') + '\nPROJECT GUTENBERG', // Has Gutenberg
       ];
 
       const result = service.validate(chapters);

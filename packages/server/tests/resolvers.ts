@@ -124,7 +124,10 @@ describe('GraphQL resolvers', () => {
   });
 
   it('subscription exposes async iterator', async () => {
-    const sub = resolvers.Subscription.quoteGenerated.subscribe();
+    const sub = resolvers.Subscription.haikuGeneration.subscribe(undefined, {
+      iterations: 1,
+      theme: 'default',
+    });
     expect(typeof sub[Symbol.asyncIterator]).toBe('function');
   });
 
@@ -207,9 +210,9 @@ describe('GraphQL resolvers', () => {
     expect(result.winRate).toBe(0.75);
   });
 
-  it('subscription resolve function extracts quoteGenerated', () => {
-    const payload = { quoteGenerated: 'Test quote from book' };
-    const result = resolvers.Subscription.quoteGenerated.resolve(payload);
-    expect(result).toBe('Test quote from book');
+  it('haikuGeneration subscription is properly defined', () => {
+    expect(resolvers.Subscription.haikuGeneration).toBeDefined();
+    expect(resolvers.Subscription.haikuGeneration.subscribe).toBeDefined();
+    expect(typeof resolvers.Subscription.haikuGeneration.subscribe).toBe('function');
   });
 });

@@ -7,6 +7,34 @@ describe('ChapterSplitterService', () => {
   const service = new ChapterSplitterService();
 
   describe('chapter patterns', () => {
+    it('matches ROMAN numeral with title (I. A SCANDAL IN BOHEMIA)', () => {
+      const content = `
+Contents
+
+   I.     A Scandal in Bohemia
+   II.    The Red-Headed League
+
+
+I. A SCANDAL IN BOHEMIA
+
+To Sherlock Holmes she is always the woman.
+
+
+II. THE RED-HEADED LEAGUE
+
+I had called upon my friend, Mr. Sherlock Holmes.
+
+
+III. A CASE OF IDENTITY
+
+My dear fellow, said Sherlock Holmes.
+`;
+      const result = service.splitContent(content);
+
+      expect(result.chapters.length).toBeGreaterThan(2);
+      expect(result.patternUsed?.name).toBe('ROMAN_DOT_TITLE');
+    });
+
     it('matches CHAPTER with arabic numerals (CHAPTER 1)', () => {
       const content = `
 Some preamble text.
@@ -205,6 +233,65 @@ My dearest...
       expect(result.patternUsed?.name).toBe('LETTER');
     });
 
+    it('matches FABLE divisions (La Fontaine style)', () => {
+      const content = `
+Preface text here.
+
+
+    FABLE I.
+
+    THE GRASSHOPPER AND THE ANT.
+
+    The Grasshopper, so blithe and gay,
+    Sang the summer time away.
+
+
+    FABLE II.
+
+    THE RAVEN AND THE FOX.
+
+    Master Raven, perched upon a tree,
+    Held in his beak a savoury piece of cheese.
+
+
+    FABLE III.
+
+    THE FROG THAT WISHED TO MAKE HERSELF AS BIG AS THE OX.
+
+    A Frog, no bigger than a pullet's egg,
+    A fat Ox feeding in a meadow spied.
+`;
+      const result = service.splitContent(content);
+
+      expect(result.chapters.length).toBeGreaterThan(2);
+      expect(result.patternUsed?.name).toBe('FABLE');
+    });
+
+    it('matches ordinal BOOK divisions (THE FIRST BOOK, etc.)', () => {
+      const content = `
+Introduction text here.
+
+
+THE FIRST BOOK
+
+Content of the first book.
+
+
+THE SECOND BOOK
+
+Content of the second book.
+
+
+THE THIRD BOOK
+
+Content of the third book.
+`;
+      const result = service.splitContent(content);
+
+      expect(result.chapters.length).toBeGreaterThan(2);
+      expect(result.patternUsed?.name).toBe('ORDINAL_BOOK');
+    });
+
     it('matches bare numeric chapter markers', () => {
       const content = `
 Introduction.
@@ -248,6 +335,213 @@ Second chapter content.
       expect(['ROMAN_ONLY', 'CUSTOM_PREFIX']).toContain(
         result.patternUsed?.name,
       );
+    });
+
+    it('matches CHAPTER with em-dash title (Les Misérables style)', () => {
+      const content = `
+Preamble text.
+
+
+CHAPTER I—M. MYRIEL
+
+First chapter content here with the bishop.
+
+
+CHAPTER II—M. MYRIEL BECOMES M. WELCOME
+
+Second chapter content continues.
+
+
+CHAPTER III—A HARD BISHOPRIC
+
+Third chapter about the bishopric.
+`;
+      const result = service.splitContent(content);
+
+      expect(result.chapters.length).toBeGreaterThan(2);
+      expect(result.patternUsed?.name).toBe('CHAPTER_NUMERIC_ROMAN');
+    });
+
+    it('matches CHAPTER with en-dash title', () => {
+      const content = `
+Preamble.
+
+
+CHAPTER I–THE BEGINNING
+
+First chapter content.
+
+
+CHAPTER II–THE MIDDLE
+
+Second chapter content.
+`;
+      const result = service.splitContent(content);
+
+      expect(result.chapters.length).toBeGreaterThan(1);
+      expect(result.patternUsed?.name).toBe('CHAPTER_NUMERIC_ROMAN');
+    });
+
+    it('matches CHAPTER with colon title', () => {
+      const content = `
+Preamble.
+
+
+CHAPTER 1: THE ADVENTURE BEGINS
+
+First chapter content.
+
+
+CHAPTER 2: THE JOURNEY CONTINUES
+
+Second chapter content.
+`;
+      const result = service.splitContent(content);
+
+      expect(result.chapters.length).toBeGreaterThan(1);
+      expect(result.patternUsed?.name).toBe('CHAPTER_NUMERIC_ROMAN');
+    });
+
+    it('excludes TOC entries with dot leaders', () => {
+      const content = `
+TABLE OF CONTENTS
+
+
+CHAPTER I—M. MYRIEL.......................... 1
+
+
+CHAPTER II—M. MYRIEL BECOMES M. WELCOME..... 15
+
+
+THE ACTUAL BOOK STARTS HERE
+
+
+CHAPTER I—M. MYRIEL
+
+The actual first chapter content starts here with real text.
+
+
+CHAPTER II—M. MYRIEL BECOMES M. WELCOME
+
+The actual second chapter content.
+`;
+      const result = service.splitContent(content);
+
+      // Should only match the actual chapters (after "THE ACTUAL BOOK STARTS HERE")
+      // and not the TOC entries with dot leaders
+      expect(result.chapters.length).toBe(3); // Preamble + 2 chapters
+      // First segment should contain the TOC (not split by it)
+      expect(result.chapters[0]).toContain('TABLE OF CONTENTS');
+      expect(result.chapters[0]).toContain('........................');
+    });
+
+    it('excludes TOC entries with trailing page numbers', () => {
+      const content = `
+CONTENTS
+
+
+CHAPTER I    1
+
+
+CHAPTER II    15
+
+
+CHAPTER III    28
+
+
+MAIN TEXT
+
+
+CHAPTER I
+
+Actual chapter one content with real text.
+
+
+CHAPTER II
+
+Actual chapter two content.
+`;
+      const result = service.splitContent(content);
+
+      // Should skip TOC entries with "  1" style page numbers
+      expect(result.chapters.length).toBe(3); // Preamble/TOC + 2 chapters
+      expect(result.chapters[0]).toContain('CONTENTS');
+    });
+
+    it('excludes TOC header "CHAPTER ... PAGE" and uses ROMAN_ONLY instead', () => {
+      // This simulates books like "Coward or Hero?" that have:
+      // - A TOC header line with "CHAPTER" and "PAGE" columns
+      // - Actual chapters marked with just roman numerals (I., II., etc.)
+      const content = `
+Some preamble text.
+
+
+        CHAPTER                                            PAGE
+
+        I        THE CAPTAIN'S INDIGNATION                   13
+
+        II       MY NOSE                                     16
+
+
+------------------------------------------------------------------------
+
+
+                                   I.
+
+                       THE CAPTAIN'S INDIGNATION.
+
+
+First chapter content here with the captain being indignant.
+
+
+                                  II.
+
+                              MY NOSE.
+
+
+Second chapter content about a nose.
+
+
+                                  III.
+
+                     COLONEL BOISSOT'S SYSTEM.
+
+
+Third chapter content about a system.
+`;
+      const result = service.splitContent(content);
+
+      // Should use ROMAN_ONLY pattern (I., II., III.), not CHAPTER_NAMED
+      expect(result.patternUsed?.name).toBe('ROMAN_ONLY');
+      expect(result.chapters.length).toBeGreaterThan(2);
+      // First segment should contain the TOC (not split by it)
+      expect(result.chapters[0]).toContain('CHAPTER');
+      expect(result.chapters[0]).toContain('PAGE');
+    });
+
+    it('matches roman numerals with trailing period (I., II., etc.)', () => {
+      const content = `
+Preamble text.
+
+
+                                   I.
+
+First chapter content.
+
+
+                                  II.
+
+Second chapter content.
+
+
+                                  III.
+
+Third chapter content.
+`;
+      const result = service.splitContent(content);
+
+      expect(result.patternUsed?.name).toBe('ROMAN_ONLY');
+      expect(result.chapters.length).toBe(4); // Preamble + 3 chapters
     });
   });
 
@@ -340,10 +634,10 @@ Second chapter content here with enough text.
   });
 
   describe('getPatterns', () => {
-    it('returns all 15 patterns', () => {
+    it('returns all 21 patterns', () => {
       const patterns = service.getPatterns();
 
-      expect(patterns.length).toBe(15);
+      expect(patterns.length).toBe(21);
     });
 
     it('patterns have name and pattern properties', () => {

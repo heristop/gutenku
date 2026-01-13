@@ -55,6 +55,9 @@ class FakeMarkovEvaluatorService {
   evaluateHaiku(_v: string[]): number {
     return 1;
   }
+  evaluateHaikuTrigrams(_v: string[]): number {
+    return 1;
+  }
   async load(): Promise<void> {}
 }
 class FakeCanvasService implements ICanvasService {
@@ -72,13 +75,8 @@ class FakeEventBus implements IEventBus {
 
 describe('HaikuGeneratorService invariants (domain-level)', () => {
   beforeEach(() => {
-    // Make selection permissive so we focus on invariants only
-    process.env.MIN_QUOTES_COUNT = '1';
-    process.env.SENTIMENT_MIN_SCORE = '-1000';
-    process.env.MARKOV_MIN_SCORE = '-1000';
-    process.env.VERSE_MAX_LENGTH = '1000';
-
     // Deterministic selection (always pick first matching)
+    // Note: Score thresholds are now constants - configure generator for tests
     vi.spyOn(Math, 'random').mockReturnValue(0);
   });
 
@@ -96,8 +94,8 @@ describe('HaikuGeneratorService invariants (domain-level)', () => {
 
     expect(gen.isQuoteInvalid('AND I WANT TO BE')).toBeTruthy();
     expect(gen.isQuoteInvalid('I #want to be')).toBeTruthy();
-    process.env.VERSE_MAX_LENGTH = '5';
-    expect(gen.isQuoteInvalid('too long here')).toBeTruthy();
+    // VERSE_MAX_LENGTH is now a constant (30), so test with a string >= 30 chars
+    expect(gen.isQuoteInvalid('this is a very long quote that exceeds thirty characters')).toBeTruthy();
   });
 
   it('selects 5-7-5 verses in increasing order', () => {
@@ -111,18 +109,36 @@ describe('HaikuGeneratorService invariants (domain-level)', () => {
       new PubSubService(),
       new FakeEventBus(),
     );
+    // Configure with negative thresholds to disable all scoring for this test
+    gen.configure({
+      score: {
+        sentiment: -1000,
+        markovChain: -1000,
+        pos: 0,
+        trigram: 0,
+        tfidf: 0,
+        phonetics: 0,
+        uniqueness: 0,
+        verseDistance: 0,
+        lineLengthBalance: 0,
+        imageryDensity: 0,
+        semanticCoherence: 0,
+        verbPresence: 0,
+      },
+    });
 
     const quotes = [
-      { index: 0, quote: 'An old silent pond', syllableCount: 5 },
-      { index: 1, quote: 'A frog jumps into the pond', syllableCount: 7 },
-      { index: 2, quote: 'Splash! Silence again', syllableCount: 5 },
+      { index: 0, quote: 'an old silent pond', syllableCount: 5 },
+      { index: 1, quote: 'a frog jumps into the pond', syllableCount: 7 },
+      { index: 2, quote: 'silence returns now', syllableCount: 5 },
     ];
 
-    const selected = gen.selectHaikuVerses(quotes);
-    expect(selected).toHaveLength(3);
-    expect(selected[0]).toBe('An old silent pond');
-    expect(selected[1]).toBe('A frog jumps into the pond');
-    expect(selected[2]).toBe('Splash! Silence again');
+    const result = gen.selectHaikuVerses(quotes);
+    expect(result).not.toBeNull();
+    expect(result?.verses).toHaveLength(3);
+    expect(result?.verses[0]).toBe('an old silent pond');
+    expect(result?.verses[1]).toBe('a frog jumps into the pond');
+    expect(result?.verses[2]).toBe('silence returns now');
   });
 
   it('does not allow the first verse to start with a conjunction', () => {
@@ -136,23 +152,41 @@ describe('HaikuGeneratorService invariants (domain-level)', () => {
       new PubSubService(),
       new FakeEventBus(),
     );
+    // Configure with negative thresholds to disable all scoring for this test
+    gen.configure({
+      score: {
+        sentiment: -1000,
+        markovChain: -1000,
+        pos: 0,
+        trigram: 0,
+        tfidf: 0,
+        phonetics: 0,
+        uniqueness: 0,
+        verseDistance: 0,
+        lineLengthBalance: 0,
+        imageryDensity: 0,
+        semanticCoherence: 0,
+        verbPresence: 0,
+      },
+    });
 
     const quotes = [
       { index: 0, quote: 'And old silent pond', syllableCount: 5 }, // starts with conjunction (invalid for first)
-      { index: 1, quote: 'An old silent pond', syllableCount: 5 }, // Valid 5 (first)
-      { index: 2, quote: 'A frog jumps into the pond', syllableCount: 7 }, // Valid 7 (second)
-      { index: 3, quote: 'Under autumn sky', syllableCount: 5 }, // Valid 5 (third)
+      { index: 1, quote: 'an old silent pond', syllableCount: 5 }, // Valid 5 (first) - lowercase to avoid uppercase check
+      { index: 2, quote: 'a frog jumps into the pond', syllableCount: 7 }, // Valid 7 (second)
+      { index: 3, quote: 'under autumn sky', syllableCount: 5 }, // Valid 5 (third)
     ];
 
-    const selected = gen.selectHaikuVerses(quotes);
-    expect(selected).toHaveLength(3);
+    const result = gen.selectHaikuVerses(quotes);
+    expect(result).not.toBeNull();
+    expect(result?.verses).toHaveLength(3);
     // Should pick the later valid 5-syllable verse
-    expect(selected[0]).toBe('An old silent pond');
-    expect(selected[1]).toBe('A frog jumps into the pond');
-    expect(selected[2]).toBe('Under autumn sky');
+    expect(result?.verses[0]).toBe('an old silent pond');
+    expect(result?.verses[1]).toBe('a frog jumps into the pond');
+    expect(result?.verses[2]).toBe('under autumn sky');
   });
 
-  it('filters quotes by syllable count and respects MIN_QUOTES_COUNT', () => {
+  it('filters quotes by syllable count (5 or 7 only)', () => {
     const gen = new HaikuGeneratorService(
       new FakeHaikuRepository(),
       new FakeChapterRepository(),
@@ -165,18 +199,16 @@ describe('HaikuGeneratorService invariants (domain-level)', () => {
     );
 
     const quotes = [
-      { index: 0, quote: 'one two three four five', syllableCount: 5 },
-      { index: 1, quote: 'one two three four five six seven', syllableCount: 7 },
-      { index: 2, quote: 'one two three four five', syllableCount: 5 },
-      { index: 3, quote: 'alpha beta gamma delta epsilon zeta eta theta', syllableCount: 17 },
+      { index: 0, quote: 'one two three four five' }, // 5 syllables
+      { index: 1, quote: 'a b c d e f g' }, // 7 syllables
+      { index: 2, quote: 'one two three four five' }, // 5 syllables (duplicate)
+      { index: 3, quote: 'alpha beta gamma delta epsilon zeta eta theta' }, // 17 syllables (rejected)
     ];
 
-    process.env.MIN_QUOTES_COUNT = '1';
     const filtered = gen.filterQuotesCountingSyllables(quotes);
-    expect(filtered.length).toBeGreaterThan(0);
 
-    process.env.MIN_QUOTES_COUNT = '100';
-    const gated = gen.filterQuotesCountingSyllables(quotes);
-    expect(gated).toEqual([]);
+    // Should only include 5 and 7 syllable quotes
+    expect(filtered.length).toBe(3);
+    expect(filtered.every((q) => q.syllableCount === 5 || q.syllableCount === 7)).toBeTruthy();
   });
 });

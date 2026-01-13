@@ -44,7 +44,9 @@ describe('GutenGuess Books Data', () => {
       expect(book.id).toBeDefined();
       expect(typeof book.id).toBe('number');
       expect(book.title).toBeDefined();
-      expect(typeof book.title).toBe('string');
+      expect(typeof book.title).toBe('object');
+      expect(book.title.en).toBeDefined();
+      expect(typeof book.title.en).toBe('string');
       expect(book.author).toBeDefined();
       expect(typeof book.author).toBe('string');
       expect(book.genre).toBeDefined();

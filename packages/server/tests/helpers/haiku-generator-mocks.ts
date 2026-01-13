@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { vi } from 'vitest';
 import HaikuGeneratorService from '../../src/domain/services/HaikuGeneratorService';
 import type { IHaikuRepository } from '../../src/domain/repositories/IHaikuRepository';
@@ -51,13 +52,22 @@ export const createNaturalLanguage = () => ({
   analyzePhonetics: vi.fn(() => ({ alliterationScore: 1 })),
   analyzeSentiment: (_t: string) => 1,
   countSyllables: (t: string) => t.split(/\s+/g).filter(Boolean).length,
+  extractByExpandedClauses: (t: string) => t.split(/[:;,\-—]+\s+/g).filter((s: string) => s.trim().length > 0),
+  extractSentences: (t: string) => t.split(/[.?!]+\s+/g),
   extractSentencesByPunctuation: (t: string) => t.split(/[.?!,;]+\s+/g),
+  extractWordChunks: (t: string) => {
+    const words = t.split(/\s+/g).filter(Boolean);
+    const chunks: string[] = [];
+    for (let i = 0; i <= words.length - 2; i += 2) {chunks.push(words.slice(i, i + 2).join(' '));}
+    return chunks;
+  },
   extractWords: (t: string) => t.split(/\s+/g).filter(Boolean),
+  getPOSTags: vi.fn(() => [{ word: 'test', tag: 'VB' }]),
   hasBlacklistedCharsInQuote: (_t: string) => false,
   hasUpperCaseWords: (_t: string) => false,
+  initTfIdf: vi.fn(),
   scoreDistinctiveness: vi.fn(() => 1),
   startWithConjunction: (_t: string) => false,
-  initTfIdf: vi.fn(),
 });
 
 export const makeHaikuGeneratorService = () => {

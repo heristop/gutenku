@@ -89,7 +89,7 @@ describe('OpenAIGeneratorService', () => {
     });
 
     // @ts-expect-error - accessing private property
-    expect(service.selectionCount).toBe(20);
+    expect(service.selectionCount).toBe(50);
   });
 
   it('configure ignores selectionCount <= 0 and uses env default', () => {
@@ -158,7 +158,7 @@ describe('OpenAIGeneratorService - generate', () => {
     vi.clearAllMocks();
   });
 
-  it('generate returns haiku with all enrichments on success', async () => {
+  it('generate returns haiku with metadata on success', async () => {
     // Mock selection response
     vi.mocked(mockOpenAIClient.chatCompletionsCreate)
       .mockResolvedValueOnce({
@@ -458,11 +458,69 @@ describe('OpenAIGeneratorService - private methods', () => {
     expect(result[0]).toContain('[Verses]:');
   });
 
+  it('fetchHaikus sorts by totalScore and keeps top 5', async () => {
+    // Create haikus with different scores
+    const createScoredHaiku = (index: number, score: number): HaikuValue => ({
+      book: { title: `Book ${index}`, author: `Author ${index}`, reference: `ref-${index}` },
+      chapter: { content: `Chapter ${index}` },
+      verses: [`verse-${index}-1`, `verse-${index}-2`, `verse-${index}-3`],
+      rawVerses: [`verse-${index}-1`, `verse-${index}-2`, `verse-${index}-3`],
+      cacheUsed: false,
+      executionTime: 100,
+      context: [],
+      quality: {
+        natureWords: 1,
+        repeatedWords: 0,
+        weakStarts: 0,
+        sentiment: 0.5,
+        grammar: 0.5,
+        trigramFlow: 5,
+        markovFlow: 5,
+        uniqueness: 0.8,
+        alliteration: 0.2,
+        verseDistance: 0.5,
+        lineLengthBalance: 0.7,
+        imageryDensity: 0.3,
+        semanticCoherence: 0.6,
+        verbPresence: 0.5,
+        totalScore: score,
+      },
+    });
+
+    // Generate 10 haikus with scores 1-10
+    let callCount = 0;
+    vi.mocked(mockHaikuGenerator.buildFromDb).mockImplementation(async () => {
+      callCount++;
+      return createScoredHaiku(callCount, callCount); // Score equals index
+    });
+
+    // Configure with selectionCount = 10
+    service.configure({
+      apiKey: 'test-key',
+      selectionCount: 10,
+      temperature: { description: 0.5 },
+    });
+
+    // @ts-expect-error - accessing private method
+    const result = await service.fetchHaikus();
+
+    // Should only have 5 haikus (GPT_SELECTION_POOL_SIZE = 5)
+    expect(result.length).toBe(5);
+
+    // First haiku should have highest score (10)
+    expect(result[0]).toContain('verse-10');
+    expect(result[0]).toContain('total_score=10.00');
+
+    // Last haiku should have score 6 (top 5 are: 10, 9, 8, 7, 6)
+    expect(result[4]).toContain('verse-6');
+    expect(result[4]).toContain('total_score=6.00');
+  });
+
   it('generateSelectionPrompt creates correct prompt format', async () => {
     // @ts-expect-error - accessing private method
     const result = await service.generateSelectionPrompt();
 
-    expect(result).toContain('Please select the best haiku');
+    expect(result).toContain('Select the best haiku');
     expect(result).toContain('Use the following format: {"id":[Id],"reason":');
     expect(result).toContain('[Quality]:');
     expect(result).toContain('nature_words=');

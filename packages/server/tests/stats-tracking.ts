@@ -54,6 +54,7 @@ function updateStats(
 
   // Always track books (for both daily and crafted haikus)
   const bookTitle = newHaiku.book?.title?.trim();
+
   if (!bookTitle) {
     return;
   }

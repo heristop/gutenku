@@ -46,6 +46,7 @@ describe('GraphQL Query: books', () => {
     expect(errors).toBeUndefined();
     expect(data).toBeDefined();
     expect(isBooksData(data)).toBeTruthy();
+
     if (isBooksData(data)) {
       expect(data.books.length).toBe(0);
     }
