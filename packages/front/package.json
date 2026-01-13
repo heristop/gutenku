@@ -37,7 +37,7 @@
     "@babel/types": "^7.28.6",
     "@intlify/unplugin-vue-i18n": "^11.0.3",
     "@lhci/cli": "^0.15.1",
-    "@types/node": "^25.0.6",
+    "@types/node": "^25.0.7",
     "@types/webfontloader": "^1.6.38",
     "@types/zen-observable": "^0.8.7",
     "@vitejs/plugin-vue": "^6.0.3",
