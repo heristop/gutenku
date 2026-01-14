@@ -12,6 +12,7 @@ const globalStats = ref<GlobalStats>({
   todayHaikusGenerated: 0,
   todayAverageEmoticonScratches: 0,
   todayAverageHaikuReveals: 0,
+  todayAverageHints: 0,
   todayGamesPlayed: 0,
   todayGamesWon: 0,
   todayTotalHints: 0,
@@ -37,6 +38,7 @@ export function useGlobalStats() {
             todayHaikusGenerated
             todayAverageEmoticonScratches
             todayAverageHaikuReveals
+            todayAverageHints
             todayGamesPlayed
             todayGamesWon
             todayTotalHints

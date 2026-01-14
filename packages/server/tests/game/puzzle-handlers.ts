@@ -319,7 +319,7 @@ describe('Puzzle Handlers', () => {
 
       expect(mockStatsRepo.incrementGamePlayed).toHaveBeenCalledWith(
         true,
-        undefined, // No hints passed in query
+        { emoticonScratches: 0, haikuReveals: 0, roundHints: 0 }, // Round 1 = 0 round hints
       );
     });
 
@@ -334,7 +334,7 @@ describe('Puzzle Handlers', () => {
 
       expect(mockStatsRepo.incrementGamePlayed).toHaveBeenCalledWith(
         false,
-        undefined, // No hints passed in query
+        { emoticonScratches: 0, haikuReveals: 0, roundHints: 5 }, // Round 6 = 5 round hints
       );
     });
 
@@ -1442,16 +1442,14 @@ describe('GetPuzzleVersionHandler', () => {
   >;
 
   beforeEach(async () => {
-    const { GetPuzzleVersionHandler } = await import(
-      '../../src/application/queries/puzzle/GetPuzzleVersionHandler'
-    );
+    const { GetPuzzleVersionHandler } =
+      await import('../../src/application/queries/puzzle/GetPuzzleVersionHandler');
     handler = new GetPuzzleVersionHandler();
   });
 
   it('returns version with puzzle number and book count', async () => {
-    const { GetPuzzleVersionQuery } = await import(
-      '../../src/application/queries/puzzle/GetPuzzleVersionQuery'
-    );
+    const { GetPuzzleVersionQuery } =
+      await import('../../src/application/queries/puzzle/GetPuzzleVersionQuery');
 
     const query = new GetPuzzleVersionQuery('2026-01-09');
     const result = await handler.execute(query);
@@ -1462,9 +1460,8 @@ describe('GetPuzzleVersionHandler', () => {
   });
 
   it('returns consistent version for same date', async () => {
-    const { GetPuzzleVersionQuery } = await import(
-      '../../src/application/queries/puzzle/GetPuzzleVersionQuery'
-    );
+    const { GetPuzzleVersionQuery } =
+      await import('../../src/application/queries/puzzle/GetPuzzleVersionQuery');
 
     const query1 = new GetPuzzleVersionQuery('2026-01-15');
     const query2 = new GetPuzzleVersionQuery('2026-01-15');
@@ -1477,9 +1474,8 @@ describe('GetPuzzleVersionHandler', () => {
   });
 
   it('returns different puzzle numbers for different dates', async () => {
-    const { GetPuzzleVersionQuery } = await import(
-      '../../src/application/queries/puzzle/GetPuzzleVersionQuery'
-    );
+    const { GetPuzzleVersionQuery } =
+      await import('../../src/application/queries/puzzle/GetPuzzleVersionQuery');
 
     const query1 = new GetPuzzleVersionQuery('2026-01-15');
     const query2 = new GetPuzzleVersionQuery('2026-01-16');
@@ -1492,9 +1488,8 @@ describe('GetPuzzleVersionHandler', () => {
   });
 
   it('returns puzzle number 1 for launch date', async () => {
-    const { GetPuzzleVersionQuery } = await import(
-      '../../src/application/queries/puzzle/GetPuzzleVersionQuery'
-    );
+    const { GetPuzzleVersionQuery } =
+      await import('../../src/application/queries/puzzle/GetPuzzleVersionQuery');
 
     const query = new GetPuzzleVersionQuery('2026-01-01');
     const result = await handler.execute(query);
@@ -1504,9 +1499,8 @@ describe('GetPuzzleVersionHandler', () => {
   });
 
   it('increments puzzle number correctly', async () => {
-    const { GetPuzzleVersionQuery } = await import(
-      '../../src/application/queries/puzzle/GetPuzzleVersionQuery'
-    );
+    const { GetPuzzleVersionQuery } =
+      await import('../../src/application/queries/puzzle/GetPuzzleVersionQuery');
 
     const query1 = new GetPuzzleVersionQuery('2026-01-01');
     const query2 = new GetPuzzleVersionQuery('2026-01-02');
@@ -1522,9 +1516,8 @@ describe('GetPuzzleVersionHandler', () => {
   });
 
   it('includes book count in version string', async () => {
-    const { GetPuzzleVersionQuery } = await import(
-      '../../src/application/queries/puzzle/GetPuzzleVersionQuery'
-    );
+    const { GetPuzzleVersionQuery } =
+      await import('../../src/application/queries/puzzle/GetPuzzleVersionQuery');
     const { getGutenGuessBooks } = await import('../../data');
 
     const query = new GetPuzzleVersionQuery('2026-01-09');
@@ -1539,18 +1532,16 @@ describe('GetPuzzleVersionHandler', () => {
 
 describe('GetPuzzleVersionQuery', () => {
   it('stores date parameter', async () => {
-    const { GetPuzzleVersionQuery } = await import(
-      '../../src/application/queries/puzzle/GetPuzzleVersionQuery'
-    );
+    const { GetPuzzleVersionQuery } =
+      await import('../../src/application/queries/puzzle/GetPuzzleVersionQuery');
 
     const query = new GetPuzzleVersionQuery('2026-01-09');
     expect(query.date).toBe('2026-01-09');
   });
 
   it('handles different date formats', async () => {
-    const { GetPuzzleVersionQuery } = await import(
-      '../../src/application/queries/puzzle/GetPuzzleVersionQuery'
-    );
+    const { GetPuzzleVersionQuery } =
+      await import('../../src/application/queries/puzzle/GetPuzzleVersionQuery');
 
     const query1 = new GetPuzzleVersionQuery('2026-01-01');
     const query2 = new GetPuzzleVersionQuery('2026-12-31');
@@ -1559,4 +1550,3 @@ describe('GetPuzzleVersionQuery', () => {
     expect(query2.date).toBe('2026-12-31');
   });
 });
-

@@ -2,10 +2,7 @@ import 'reflect-metadata';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { container } from 'tsyringe';
 import resolvers from '../src/presentation/graphql/resolvers';
-import {
-  IQueryBusToken,
-  ICommandBusToken,
-} from '../src/application/cqrs';
+import { IQueryBusToken, ICommandBusToken } from '../src/application/cqrs';
 import { GenerateHaikuIterativeHandler } from '../src/application/queries/haiku/GenerateHaikuIterativeHandler';
 
 describe('GraphQL Resolvers', () => {
@@ -56,7 +53,10 @@ describe('GraphQL Resolvers', () => {
 
   describe('Query.chapter', () => {
     it('calls query bus with GetChapterByIdQuery', async () => {
-      mockQueryBus.execute.mockResolvedValue({ id: '456', content: 'Chapter content' });
+      mockQueryBus.execute.mockResolvedValue({
+        id: '456',
+        content: 'Chapter content',
+      });
 
       const result = await resolvers.Query.chapter(null, { id: '456' });
 
@@ -99,9 +99,11 @@ describe('GraphQL Resolvers', () => {
         totalGamesWon: 30,
         totalEmoticonScratches: 10,
         totalHaikuReveals: 5,
+        totalRoundHints: 20,
         todayHaikusGenerated: 5,
         todayEmoticonScratches: 3,
         todayHaikuReveals: 2,
+        todayRoundHints: 15,
         todayGamesPlayed: 10,
         todayGamesWon: 8,
         currentDay: '2026-01-12',
@@ -115,7 +117,8 @@ describe('GraphQL Resolvers', () => {
         ...stats,
         todayAverageEmoticonScratches: 0.3, // 3/10
         todayAverageHaikuReveals: 0.2, // 2/10
-        todayTotalHints: 5, // 3+2
+        todayAverageHints: 2, // (3+2+15)/10 = 20/10
+        todayTotalHints: 20, // 3+2+15
       });
     });
   });
@@ -279,10 +282,9 @@ describe('GraphQL Resolvers', () => {
         useValue: mockHandler as unknown as GenerateHaikuIterativeHandler,
       });
 
-      const generator = resolvers.Subscription.haikuGeneration.subscribe(
-        null,
-        { iterations: 2 },
-      );
+      const generator = resolvers.Subscription.haikuGeneration.subscribe(null, {
+        iterations: 2,
+      });
 
       const results: unknown[] = [];
       for await (const result of generator) {

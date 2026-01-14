@@ -309,12 +309,13 @@ export class SubmitGuessHandler implements IQueryHandler<
     const isCorrect = correctBook.id.toString() === guessedBookId;
 
     // Prepare hint stats for stats tracking
-    const hintStats = query.hints
-      ? {
-          emoticonScratches: query.hints.emoticonScratches,
-          haikuReveals: query.hints.haikuReveals,
-        }
-      : undefined;
+    // Round hints = currentRound - 1 (round 1 has no hint, round 2 has 1 hint revealed, etc.)
+    const roundHints = Math.max(0, currentRound - 1);
+    const hintStats = {
+      emoticonScratches: query.hints?.emoticonScratches ?? 0,
+      haikuReveals: query.hints?.haikuReveals ?? 0,
+      roundHints,
+    };
 
     if (isCorrect) {
       // Fire-and-forget - don't block the response

@@ -5,10 +5,12 @@ export interface GlobalStatsValue {
   // Hint tracking
   totalEmoticonScratches: number;
   totalHaikuReveals: number;
+  totalRoundHints: number;
   // Daily tracking
   todayHaikusGenerated: number;
   todayEmoticonScratches: number;
   todayHaikuReveals: number;
+  todayRoundHints: number;
   todayGamesPlayed: number;
   todayGamesWon: number;
   currentDay: string;
@@ -17,6 +19,7 @@ export interface GlobalStatsValue {
 export interface HintStats {
   emoticonScratches: number;
   haikuReveals: number;
+  roundHints: number;
 }
 
 export interface IGlobalStatsRepository {

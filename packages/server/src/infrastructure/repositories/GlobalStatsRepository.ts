@@ -38,7 +38,11 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
     return (doc?.[key] as number) ?? 0;
   }
 
-  private dailyNum(doc: StatsDocument | null, key: string, isDayStale: boolean): number {
+  private dailyNum(
+    doc: StatsDocument | null,
+    key: string,
+    isDayStale: boolean,
+  ): number {
     return isDayStale ? 0 : this.num(doc, key);
   }
 
@@ -50,10 +54,14 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
       todayGamesWon: 0,
       todayEmoticonScratches: 0,
       todayHaikuReveals: 0,
+      todayRoundHints: 0,
     };
   }
 
-  private parseDocument(doc: StatsDocument | null, today: string): GlobalStatsValue {
+  private parseDocument(
+    doc: StatsDocument | null,
+    today: string,
+  ): GlobalStatsValue {
     const docDay = (doc?.currentDay as string) ?? '';
     const isDayStale = docDay !== today;
 
@@ -63,9 +71,19 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
       totalGamesWon: this.num(doc, 'totalGamesWon'),
       totalEmoticonScratches: this.num(doc, 'totalEmoticonScratches'),
       totalHaikuReveals: this.num(doc, 'totalHaikuReveals'),
-      todayHaikusGenerated: this.dailyNum(doc, 'todayHaikusGenerated', isDayStale),
-      todayEmoticonScratches: this.dailyNum(doc, 'todayEmoticonScratches', isDayStale),
+      totalRoundHints: this.num(doc, 'totalRoundHints'),
+      todayHaikusGenerated: this.dailyNum(
+        doc,
+        'todayHaikusGenerated',
+        isDayStale,
+      ),
+      todayEmoticonScratches: this.dailyNum(
+        doc,
+        'todayEmoticonScratches',
+        isDayStale,
+      ),
       todayHaikuReveals: this.dailyNum(doc, 'todayHaikuReveals', isDayStale),
+      todayRoundHints: this.dailyNum(doc, 'todayRoundHints', isDayStale),
       todayGamesPlayed: this.dailyNum(doc, 'todayGamesPlayed', isDayStale),
       todayGamesWon: this.dailyNum(doc, 'todayGamesWon', isDayStale),
       currentDay: today,
@@ -84,7 +102,9 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
     try {
       const collection = this.db.collection('globalstats');
       const today = this.getTodayString();
-      const currentDoc = await collection.findOne({ _id: STATS_DOC_ID } as object);
+      const currentDoc = await collection.findOne({
+        _id: STATS_DOC_ID,
+      } as object);
       const currentDay = (currentDoc?.currentDay as string) ?? '';
       const isNewDay = currentDay !== today;
 
@@ -92,7 +112,11 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
       let set: Record<string, unknown> = { lastUpdated: new Date() };
 
       if (isNewDay) {
-        set = { ...set, ...this.buildDailyReset(today), todayHaikusGenerated: 1 };
+        set = {
+          ...set,
+          ...this.buildDailyReset(today),
+          todayHaikusGenerated: 1,
+        };
       } else {
         inc.todayHaikusGenerated = 1;
       }
@@ -108,6 +132,49 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
     }
   }
 
+  private buildGameIncrements(
+    won: boolean,
+    hints: HintStats | undefined,
+    isNewDay: boolean,
+  ): Record<string, number> {
+    const inc: Record<string, number> = { totalGamesPlayed: 1 };
+    if (won) {inc.totalGamesWon = 1;}
+    if (hints) {
+      inc.totalEmoticonScratches = hints.emoticonScratches;
+      inc.totalHaikuReveals = hints.haikuReveals;
+      inc.totalRoundHints = hints.roundHints;
+    }
+    if (!isNewDay) {
+      inc.todayGamesPlayed = 1;
+      if (won) {inc.todayGamesWon = 1;}
+      if (hints) {
+        inc.todayEmoticonScratches = hints.emoticonScratches;
+        inc.todayHaikuReveals = hints.haikuReveals;
+        inc.todayRoundHints = hints.roundHints;
+      }
+    }
+    return inc;
+  }
+
+  private buildGameSetFields(
+    won: boolean,
+    hints: HintStats | undefined,
+    isNewDay: boolean,
+    today: string,
+  ): Record<string, unknown> {
+    const set: Record<string, unknown> = { lastUpdated: new Date() };
+    if (isNewDay) {
+      Object.assign(set, this.buildDailyReset(today), {
+        todayGamesPlayed: 1,
+        todayGamesWon: won ? 1 : 0,
+        todayEmoticonScratches: hints?.emoticonScratches ?? 0,
+        todayHaikuReveals: hints?.haikuReveals ?? 0,
+        todayRoundHints: hints?.roundHints ?? 0,
+      });
+    }
+    return set;
+  }
+
   async incrementGamePlayed(won: boolean, hints?: HintStats): Promise<void> {
     if (!this.db) {
       return;
@@ -116,41 +183,14 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
     try {
       const collection = this.db.collection('globalstats');
       const today = this.getTodayString();
-      const currentDoc = await collection.findOne({ _id: STATS_DOC_ID } as object);
+      const currentDoc = await collection.findOne({
+        _id: STATS_DOC_ID,
+      } as object);
       const currentDay = (currentDoc?.currentDay as string) ?? '';
       const isNewDay = currentDay !== today;
 
-      const inc: Record<string, number> = { totalGamesPlayed: 1 };
-      let set: Record<string, unknown> = { lastUpdated: new Date() };
-
-      if (won) {
-        inc.totalGamesWon = 1;
-      }
-
-      if (hints) {
-        inc.totalEmoticonScratches = hints.emoticonScratches;
-        inc.totalHaikuReveals = hints.haikuReveals;
-      }
-
-      if (isNewDay) {
-        set = {
-          ...set,
-          ...this.buildDailyReset(today),
-          todayGamesPlayed: 1,
-          todayGamesWon: won ? 1 : 0,
-          todayEmoticonScratches: hints?.emoticonScratches ?? 0,
-          todayHaikuReveals: hints?.haikuReveals ?? 0,
-        };
-      } else {
-        inc.todayGamesPlayed = 1;
-        if (won) {
-          inc.todayGamesWon = 1;
-        }
-        if (hints) {
-          inc.todayEmoticonScratches = hints.emoticonScratches;
-          inc.todayHaikuReveals = hints.haikuReveals;
-        }
-      }
+      const inc = this.buildGameIncrements(won, hints, isNewDay);
+      const set = this.buildGameSetFields(won, hints, isNewDay, today);
 
       await collection.findOneAndUpdate(
         { _id: STATS_DOC_ID } as object,

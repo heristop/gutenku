@@ -81,6 +81,7 @@ export interface GlobalStats {
   todayHaikusGenerated: number;
   todayAverageEmoticonScratches: number;
   todayAverageHaikuReveals: number;
+  todayAverageHints: number;
   todayGamesPlayed: number;
   todayGamesWon: number;
   todayTotalHints: number;

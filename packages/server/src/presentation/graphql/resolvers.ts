@@ -68,14 +68,21 @@ const resolvers = {
       const todayAverageHaikuReveals =
         todayGames > 0 ? stats.todayHaikuReveals / todayGames : 0;
 
-      // Compute total hints used today
+      // Compute total hints used today (all types combined)
       const todayTotalHints =
-        stats.todayEmoticonScratches + stats.todayHaikuReveals;
+        stats.todayEmoticonScratches +
+        stats.todayHaikuReveals +
+        stats.todayRoundHints;
+
+      // Compute combined average hints (round hints + lifeline hints)
+      const todayAverageHints =
+        todayGames > 0 ? todayTotalHints / todayGames : 0;
 
       return {
         ...stats,
         todayAverageEmoticonScratches,
         todayAverageHaikuReveals,
+        todayAverageHints,
         todayTotalHints,
       };
     },

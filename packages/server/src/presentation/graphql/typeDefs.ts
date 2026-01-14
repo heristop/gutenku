@@ -91,6 +91,7 @@ const typeDefs = `#graphql
         todayHaikusGenerated: Int!
         todayAverageEmoticonScratches: Float!
         todayAverageHaikuReveals: Float!
+        todayAverageHints: Float!
         todayGamesPlayed: Int!
         todayGamesWon: Int!
         todayTotalHints: Int!
