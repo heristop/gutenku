@@ -30,6 +30,9 @@ function seededRandom(seed: number): () => number {
  * Convert date string to numeric seed
  */
 function dateToSeed(dateStr: string): number {
+  if (!dateStr) {
+    return 0;
+  }
   const [year, month, day] = dateStr.split('-').map(Number);
   return year * 10000 + month * 100 + day;
 }
@@ -64,7 +67,11 @@ type HintLocale = 'en' | 'fr' | 'ja';
 interface HintDefinition {
   type: PuzzleHint['type'];
   difficulty: number;
-  generator: (book: GutenGuessBook, random: () => number, locale: HintLocale) => string;
+  generator: (
+    book: GutenGuessBook,
+    random: () => number,
+    locale: HintLocale,
+  ) => string;
 }
 
 const HINT_POOL: HintDefinition[] = [
@@ -72,7 +79,10 @@ const HINT_POOL: HintDefinition[] = [
     type: 'title_word_count',
     difficulty: 2,
     generator: (book, _random, locale) => {
-      const title = book.title[locale] || book.title.en;
+      const title = book.title?.[locale] || book.title?.en || '';
+      if (!title) {
+        return '0';
+      }
       // For Japanese, count ideograms (graphemes) since there are no space-separated words
       if (locale === 'ja') {
         const segmenter = new Intl.Segmenter('ja', { granularity: 'grapheme' });
@@ -116,7 +126,8 @@ const HINT_POOL: HintDefinition[] = [
   {
     type: 'protagonist',
     difficulty: 4,
-    generator: (book, _random, locale) => book.protagonist[locale] || book.protagonist.en,
+    generator: (book, _random, locale) =>
+      book.protagonist[locale] || book.protagonist.en,
   },
   {
     type: 'publication_century',
@@ -164,7 +175,7 @@ const HINT_POOL: HintDefinition[] = [
   {
     type: 'author_name',
     difficulty: 10,
-    generator: (book) => book.author.split(' ')[0],
+    generator: (book) => book.author?.split(' ')[0] || 'Unknown',
   },
 ];
 
@@ -184,7 +195,11 @@ function shuffleWithSeed<T>(array: T[], random: () => number): T[] {
  * Generate 6 hints for the book: emoticons (round 1) + 5 randomly selected hints from pool.
  * Excludes era/publication_century pairs. Sorts by difficulty. Uses seeded PRNG.
  */
-function generateAllHints(book: GutenGuessBook, dateStr: string, locale: HintLocale = 'en'): PuzzleHint[] {
+function generateAllHints(
+  book: GutenGuessBook,
+  dateStr: string,
+  locale: HintLocale = 'en',
+): PuzzleHint[] {
   const seed = dateToSeed(dateStr);
   const random = seededRandom(seed);
 
@@ -251,7 +266,10 @@ function generateHintForRound(
 /**
  * Convert GutenGuessBook to BookValue with localized title and summary
  */
-function bookToValue(book: GutenGuessBook, locale: HintLocale = 'en'): BookValue {
+function bookToValue(
+  book: GutenGuessBook,
+  locale: HintLocale = 'en',
+): BookValue {
   return {
     reference: book.id.toString(),
     title: book.title[locale] || book.title.en,
@@ -282,21 +300,27 @@ export class SubmitGuessHandler implements IQueryHandler<
     const { date, guessedBookId, currentRound } = validated;
 
     // Get locale from query, default to 'en', validate it's a supported locale
-    const locale = (['en', 'fr', 'ja'].includes(query.locale) ? query.locale : 'en') as HintLocale;
+    const locale = (
+      ['en', 'fr', 'ja'].includes(query.locale) ? query.locale : 'en'
+    ) as HintLocale;
 
     // Get the correct book for today
     const correctBook = selectDailyBook(date);
     const isCorrect = correctBook.id.toString() === guessedBookId;
 
     // Prepare hint stats for stats tracking
-    const hintStats = query.hints ? {
-      emoticonScratches: query.hints.emoticonScratches,
-      haikuReveals: query.hints.haikuReveals,
-    } : undefined;
+    const hintStats = query.hints
+      ? {
+          emoticonScratches: query.hints.emoticonScratches,
+          haikuReveals: query.hints.haikuReveals,
+        }
+      : undefined;
 
     if (isCorrect) {
       // Fire-and-forget - don't block the response
-      this.globalStatsRepository.incrementGamePlayed(true, hintStats).catch(() => {});
+      this.globalStatsRepository
+        .incrementGamePlayed(true, hintStats)
+        .catch(() => {});
       return {
         isCorrect: true,
         correctBook: bookToValue(correctBook, locale),
@@ -316,7 +340,9 @@ export class SubmitGuessHandler implements IQueryHandler<
 
     // Game over - reveal the correct book and all hints
     // Fire-and-forget - don't block the response
-    this.globalStatsRepository.incrementGamePlayed(false, hintStats).catch(() => {});
+    this.globalStatsRepository
+      .incrementGamePlayed(false, hintStats)
+      .catch(() => {});
     return {
       isCorrect: false,
       correctBook: bookToValue(correctBook, locale),

@@ -24,6 +24,9 @@ function seededRandom(seed: number): () => number {
  * Convert date string to numeric seed, offset from main puzzle seed
  */
 function dateToReduceSeed(dateStr: string): number {
+  if (!dateStr) {
+    return 0;
+  }
   const [year, month, day] = dateStr.split('-').map(Number);
   // Add offset to differentiate from main puzzle seed
   return year * 10000 + month * 100 + day + 7777;
