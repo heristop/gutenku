@@ -182,6 +182,11 @@ onMounted(() => {
     color: var(--gutenku-zen-primary);
     opacity: 0.6;
     animation: scroll-bounce 2s ease-in-out infinite;
+
+    [data-theme='dark'] & {
+      color: var(--gutenku-zen-accent);
+      opacity: 0.8;
+    }
   }
 }
 

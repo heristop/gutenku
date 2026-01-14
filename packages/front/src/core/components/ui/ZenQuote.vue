@@ -53,15 +53,20 @@ withDefaults(defineProps<Props>(), {
   }
 
   &--md {
-    font-size: 0.95rem;
+    font-size: 0.8rem;
 
     &::before,
     &::after {
-      font-size: 1.5rem;
+      font-size: 1.25rem;
     }
 
     @media (min-width: 600px) {
       font-size: 1rem;
+
+      &::before,
+      &::after {
+        font-size: 1.5rem;
+      }
     }
   }
 

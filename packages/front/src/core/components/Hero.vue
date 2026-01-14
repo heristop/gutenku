@@ -461,6 +461,11 @@ onUnmounted(() => {
     justify-content: center;
     align-items: center;
     cursor: default;
+    margin-top: 2rem;
+
+    @media (min-width: 600px) {
+      margin-top: 0;
+    }
 
     &:hover .hero__illustration {
       transform: translateY(-6px) scale(1.02);
