@@ -128,6 +128,49 @@ try {
     );
   }
 
+  // Print recap table
+  console.log(pc.bold('\n═══ Books Recap ═══\n'));
+
+  // Calculate column widths
+  const idWidth = 6;
+  const chaptersWidth = 10;
+  const sourceWidth = 6;
+  const statusWidth = 8;
+  const titleWidth = 45;
+
+  // Table header
+  const headerLine = `${'ID'.padEnd(idWidth)} | ${'Title'.padEnd(titleWidth)} | ${'Chap.'.padEnd(chaptersWidth)} | ${'Source'.padEnd(sourceWidth)} | ${'Status'.padEnd(statusWidth)}`;
+  const separatorLine = '-'.repeat(headerLine.length);
+
+  console.log(pc.bold(headerLine));
+  console.log(separatorLine);
+
+  // Sort results by book ID for consistent display
+  const sortedResults = [...result.results].sort((a, b) => a.bookId - b.bookId);
+
+  for (const r of sortedResults) {
+    const id = String(r.bookId).padEnd(idWidth);
+    const title = (r.title || 'Unknown')
+      .substring(0, titleWidth)
+      .padEnd(titleWidth);
+    const chapters = String(r.chaptersCount).padEnd(chaptersWidth);
+    const source = (
+      r.source === 'db' ? pc.yellow('db') : pc.cyan('new')
+    ).padEnd(sourceWidth + 10); // +10 for color codes
+    const status = r.success
+      ? pc.green('✓'.padEnd(statusWidth))
+      : pc.red('✗'.padEnd(statusWidth));
+
+    console.log(`${id} | ${title} | ${chapters} | ${source} | ${status}`);
+  }
+
+  console.log(separatorLine);
+  console.log(
+    pc.bold(
+      `${'Total'.padEnd(idWidth)} | ${' '.padEnd(titleWidth)} | ${String(result.results.reduce((sum, r) => sum + r.chaptersCount, 0)).padEnd(chaptersWidth)} | ${' '.padEnd(sourceWidth)} | ${successful.length}/${result.results.length}`,
+    ),
+  );
+
   console.log(pc.bold(pc.green('\n✨ Done!\n')));
   process.exit(0);
 } catch (error) {
