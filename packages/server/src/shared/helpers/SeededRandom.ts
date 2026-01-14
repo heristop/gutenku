@@ -21,6 +21,9 @@ export function seededRandom(seed: number): () => number {
  * Example: "2026-01-06" -> 20260106
  */
 export function dateToSeed(dateStr: string): number {
+  if (!dateStr) {
+    return 0;
+  }
   const [year, month, day] = dateStr.split('-').map(Number);
   return year * 10000 + month * 100 + day;
 }
