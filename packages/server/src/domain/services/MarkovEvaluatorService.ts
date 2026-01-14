@@ -22,8 +22,30 @@ export class MarkovEvaluatorService {
     return this.markovChain.loadModel();
   }
 
+  public importTrainingData(data: {
+    bigrams: Map<string, Map<string, number>>;
+    trigrams: Map<string, Map<string, number>>;
+    bigramTotals: Map<string, number>;
+    trigramTotals: Map<string, number>;
+    totalBigrams: number;
+    totalTrigrams: number;
+    vocabulary: Set<string>;
+  }): void {
+    this.markovChain.importTrainingData(data);
+  }
+
   public isReady(): boolean {
     return this.markovChain.isModelLoaded();
+  }
+
+  public getStats(): {
+    bigrams: number;
+    trigrams: number;
+    vocabulary: number;
+    totalBigrams: number;
+    totalTrigrams: number;
+  } {
+    return this.markovChain.getStats();
   }
 
   public evaluateHaiku(haiku: string[]): number {
@@ -35,7 +57,6 @@ export class MarkovEvaluatorService {
     let totalScore = 0;
 
     for (let i = 0; i < lowerHaiku.length - 1; i++) {
-      // Use original bigram evaluation (now with lowercase model)
       const score = this.markovChain.evaluateTransition(
         lowerHaiku[i],
         lowerHaiku[i + 1],

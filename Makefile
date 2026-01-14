@@ -86,7 +86,7 @@ extract:
 	pnpm run extract
 
 train:
-	pnpm run train
+	pnpm run train --parallel
 
 # Clean up
 clean: docker-down

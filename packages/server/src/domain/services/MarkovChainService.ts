@@ -18,7 +18,7 @@ const MAX_MODEL_SIZE_BYTES = 500 * 1024 * 1024;
 export class MarkovChainService {
   private bigrams: Map<string, Map<string, number>>;
   private trigrams: Map<string, Map<string, number>>;
-  // Cache transition totals to avoid repeated array reductions
+  // Cached transition totals for performance
   private bigramTotals: Map<string, number>;
   private trigramTotals: Map<string, number>;
   private totalBigrams: number;
@@ -46,31 +46,30 @@ export class MarkovChainService {
 
     for (const sentence of sentences) {
       const words = this.naturalLanguage.extractWords(sentence);
-
       const wordList: string[] = [];
-      words.forEach((word: string) => {
+
+      for (const word of words) {
         const lowerWord = word.toLowerCase();
+
         if (!FANBOYS_SET.has(lowerWord)) {
-          wordList.push(word); // Keep original case
+          wordList.push(word);
           this.vocabulary.add(lowerWord);
         }
-      });
+      }
 
       for (let i = 0; i < wordList.length - 1; i++) {
         const from = wordList[i];
         const to = wordList[i + 1];
 
-        if (!this.bigrams.has(from)) {
-          this.bigrams.set(from, new Map());
+        let transitions = this.bigrams.get(from);
+
+        if (!transitions) {
+          transitions = new Map();
+          this.bigrams.set(from, transitions);
         }
 
-        const transitions = this.bigrams.get(from);
-        if (transitions) {
-          transitions.set(to, (transitions.get(to) || 0) + 1);
-          // Update cached total for this key
-          this.bigramTotals.set(from, (this.bigramTotals.get(from) || 0) + 1);
-        }
-
+        transitions.set(to, (transitions.get(to) || 0) + 1);
+        this.bigramTotals.set(from, (this.bigramTotals.get(from) || 0) + 1);
         this.totalBigrams++;
       }
 
@@ -78,20 +77,39 @@ export class MarkovChainService {
         const key = `${wordList[i]} ${wordList[i + 1]}`;
         const next = wordList[i + 2];
 
-        if (!this.trigrams.has(key)) {
-          this.trigrams.set(key, new Map());
+        let transitions = this.trigrams.get(key);
+
+        if (!transitions) {
+          transitions = new Map();
+          this.trigrams.set(key, transitions);
         }
 
-        const transitions = this.trigrams.get(key);
-        if (transitions) {
-          transitions.set(next, (transitions.get(next) || 0) + 1);
-          // Update cached total for this key
-          this.trigramTotals.set(key, (this.trigramTotals.get(key) || 0) + 1);
-        }
-
+        transitions.set(next, (transitions.get(next) || 0) + 1);
+        this.trigramTotals.set(key, (this.trigramTotals.get(key) || 0) + 1);
         this.totalTrigrams++;
       }
     }
+  }
+
+  /**
+   * Import pre-computed training data (e.g., from parallel training).
+   */
+  public importTrainingData(data: {
+    bigrams: Map<string, Map<string, number>>;
+    trigrams: Map<string, Map<string, number>>;
+    bigramTotals: Map<string, number>;
+    trigramTotals: Map<string, number>;
+    totalBigrams: number;
+    totalTrigrams: number;
+    vocabulary: Set<string>;
+  }): void {
+    this.bigrams = data.bigrams;
+    this.trigrams = data.trigrams;
+    this.bigramTotals = data.bigramTotals;
+    this.trigramTotals = data.trigramTotals;
+    this.totalBigrams = data.totalBigrams;
+    this.totalTrigrams = data.totalTrigrams;
+    this.vocabulary = data.vocabulary;
   }
 
   public evaluateTransition(from: string, to: string): number {
@@ -108,7 +126,6 @@ export class MarkovChainService {
       const count = transitions.get(firstWordTo);
 
       if (count) {
-        // Use cached total instead of array reduction
         const totalTransitions = this.bigramTotals.get(lastWordFrom) || 0;
         return totalTransitions > 0 ? count / totalTransitions : 0;
       }
@@ -131,7 +148,6 @@ export class MarkovChainService {
       const count = transitions.get(firstWordTo);
 
       if (count) {
-        // Use cached total instead of array reduction
         const totalTransitions = this.trigramTotals.get(key) || 0;
         return totalTransitions > 0 ? count / totalTransitions : 0;
       }
@@ -142,7 +158,6 @@ export class MarkovChainService {
 
   /**
    * Evaluate bigram transition with Laplace smoothing.
-   * Prevents zero probability for unseen transitions.
    */
   public evaluateTransitionSmoothed(from: string, to: string): number {
     const fromWords = this.naturalLanguage.extractWords(from);
@@ -193,8 +208,7 @@ export class MarkovChainService {
   }
 
   /**
-   * Backoff strategy: tries bigrams first, falls back to trigrams when bigram returns 0.
-   * Uses unsmoothed probabilities for strict filtering.
+   * Backoff strategy: tries bigrams first, falls back to trigrams on zero probability.
    */
   public evaluateWithBackoff(from: string, to: string): number {
     const bigramScore = this.evaluateTransition(from, to);
@@ -202,7 +216,7 @@ export class MarkovChainService {
     if (bigramScore > 0) {
       return bigramScore;
     }
-    // Fallback to trigram when bigram has no data
+
     return this.evaluateTrigramTransition(from, to);
   }
 
@@ -213,7 +227,6 @@ export class MarkovChainService {
 
     try {
       await this.writeModelToStream(stream);
-      log.info('Model saved successfully');
       return true;
     } catch (error) {
       log.error({ err: error }, 'Error saving model');
@@ -350,6 +363,22 @@ export class MarkovChainService {
 
   public isModelLoaded(): boolean {
     return this.loaded && this.bigrams.size > 0;
+  }
+
+  public getStats(): {
+    bigrams: number;
+    trigrams: number;
+    vocabulary: number;
+    totalBigrams: number;
+    totalTrigrams: number;
+  } {
+    return {
+      bigrams: this.bigrams.size,
+      trigrams: this.trigrams.size,
+      vocabulary: this.vocabulary.size,
+      totalBigrams: this.totalBigrams,
+      totalTrigrams: this.totalTrigrams,
+    };
   }
 
   public async loadModel(): Promise<boolean> {
