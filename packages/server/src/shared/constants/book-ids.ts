@@ -5,8 +5,6 @@
 export const BOOK_IDS: readonly number[] = [
   11, // Alice's Adventures in Wonderland
   16, // Peter Pan
-  21, // Aesop's Fables
-  26, // Paradise Lost
   36, // The War of the Worlds
   45, // Anne of Green Gables
   55, // The Wonderful Wizard of Oz
@@ -49,7 +47,6 @@ export const BOOK_IDS: readonly number[] = [
   3296, // The Confessions of St. Augustine
   3300, // An Inquiry into the Nature and Causes of the Wealth of Nations
   3306, // At Suvla Bay
-  3360, // Letters to His Son, 1766-1771
   3361, // The PG Edition of Chesterfield's Letters to His Son
   3362, // The Kentons
   3365, // Their Wedding Journey
