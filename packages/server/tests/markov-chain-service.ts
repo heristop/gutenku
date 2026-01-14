@@ -3,8 +3,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MarkovChainService } from '../src/domain/services/MarkovChainService';
 import NaturalLanguageService from '../src/domain/services/NaturalLanguageService';
 import fs from 'node:fs/promises';
+import { createWriteStream } from 'node:fs';
+import { EventEmitter } from 'node:events';
 
 vi.mock('node:fs/promises');
+vi.mock('node:fs', () => ({
+  createWriteStream: vi.fn(),
+}));
 
 describe('MarkovChainService', () => {
   let service: MarkovChainService;
@@ -34,7 +39,7 @@ describe('MarkovChainService', () => {
     it('filters out FANBOYS conjunctions', () => {
       service.train('cats and dogs for fun');
 
-      // 'and' and 'for' should be filtered out
+      // FANBOYS conjunctions filtered out
       const scoreAnd = service.evaluateTransition('cats', 'and');
       expect(scoreAnd).toBe(0);
     });
@@ -114,7 +119,10 @@ describe('MarkovChainService', () => {
     });
 
     it('returns 0 for unknown trigram', () => {
-      const score = service.evaluateTrigramTransition('elephant zebra', 'giraffe');
+      const score = service.evaluateTrigramTransition(
+        'elephant zebra',
+        'giraffe',
+      );
       expect(score).toBe(0);
     });
 
@@ -142,19 +150,22 @@ describe('MarkovChainService', () => {
       service.train('The cat sat on the mat');
     });
 
-    it('returns non-zero for known transition', () => {
+    it('returns score for known transition', () => {
       const score = service.evaluateTransitionSmoothed('cat', 'sat');
       expect(score).toBeGreaterThan(0);
     });
 
-    it('returns non-zero for unknown transition (smoothing)', () => {
+    it('returns score for unknown transition (smoothing)', () => {
       const score = service.evaluateTransitionSmoothed('elephant', 'zebra');
       expect(score).toBeGreaterThan(0);
     });
 
     it('known transitions have higher score than unknown', () => {
       const knownScore = service.evaluateTransitionSmoothed('cat', 'sat');
-      const unknownScore = service.evaluateTransitionSmoothed('elephant', 'zebra');
+      const unknownScore = service.evaluateTransitionSmoothed(
+        'elephant',
+        'zebra',
+      );
       expect(knownScore).toBeGreaterThan(unknownScore);
     });
 
@@ -169,13 +180,19 @@ describe('MarkovChainService', () => {
       service.train('The quick brown fox jumps over the lazy dog');
     });
 
-    it('returns non-zero for known trigram transition', () => {
-      const score = service.evaluateTrigramTransitionSmoothed('quick brown', 'fox');
+    it('returns score for known trigram transition', () => {
+      const score = service.evaluateTrigramTransitionSmoothed(
+        'quick brown',
+        'fox',
+      );
       expect(score).toBeGreaterThan(0);
     });
 
-    it('returns non-zero for unknown trigram transition (smoothing)', () => {
-      const score = service.evaluateTrigramTransitionSmoothed('elephant zebra', 'giraffe');
+    it('returns score for unknown trigram transition (smoothing)', () => {
+      const score = service.evaluateTrigramTransitionSmoothed(
+        'elephant zebra',
+        'giraffe',
+      );
       expect(score).toBeGreaterThan(0);
     });
 
@@ -207,9 +224,11 @@ describe('MarkovChainService', () => {
       service.train('alpha beta gamma. delta epsilon zeta.');
 
       const bigramScore = service.evaluateTransition('beta', 'gamma');
-      const trigramScore = service.evaluateTrigramTransition('alpha beta', 'gamma');
+      const trigramScore = service.evaluateTrigramTransition(
+        'alpha beta',
+        'gamma',
+      );
       const backoffScore = service.evaluateWithBackoff('alpha beta', 'gamma');
-
 
       if (bigramScore > 0) {
         expect(backoffScore).toBe(bigramScore);
@@ -220,22 +239,63 @@ describe('MarkovChainService', () => {
   });
 
   describe('saveModel', () => {
+    function createMockStream() {
+      const chunks: string[] = [];
+      const emitter = new EventEmitter();
+      const mockStream = {
+        write: vi.fn((data: string) => {
+          chunks.push(data);
+          return true;
+        }),
+        end: vi.fn(() => {
+          setImmediate(() => emitter.emit('finish'));
+        }),
+        on: vi.fn((event: string, handler: () => void) => {
+          emitter.on(event, handler);
+          return mockStream;
+        }),
+        once: vi.fn((event: string, handler: () => void) => {
+          emitter.once(event, handler);
+          return mockStream;
+        }),
+        destroy: vi.fn(),
+      };
+      return { mockStream, chunks };
+    }
+
     it('saves model to file', async () => {
-      vi.mocked(fs.writeFile).mockResolvedValue();
+      const { mockStream } = createMockStream();
+      vi.mocked(createWriteStream).mockReturnValue(mockStream as never);
       service.train('Hello world test');
 
       const result = await service.saveModel();
 
       expect(result).toBeTruthy();
-      expect(fs.writeFile).toHaveBeenCalledWith(
+      expect(createWriteStream).toHaveBeenCalledWith(
         './data/markov_model.json',
-        expect.any(String),
-        'utf8',
+        { encoding: 'utf8' },
       );
     });
 
     it('returns false on write error', async () => {
-      vi.mocked(fs.writeFile).mockRejectedValue(new Error('Write failed'));
+      const emitter = new EventEmitter();
+      const mockStream = {
+        write: vi.fn(() => true),
+        end: vi.fn(() => {
+          // Emit error
+          setImmediate(() => emitter.emit('error', new Error('Write failed')));
+        }),
+        on: vi.fn((event: string, handler: (err?: Error) => void) => {
+          emitter.on(event, handler);
+          return mockStream;
+        }),
+        once: vi.fn((event: string, handler: () => void) => {
+          emitter.once(event, handler);
+          return mockStream;
+        }),
+        destroy: vi.fn(),
+      };
+      vi.mocked(createWriteStream).mockReturnValue(mockStream as never);
       service.train('Hello world');
 
       const result = await service.saveModel();
@@ -243,13 +303,14 @@ describe('MarkovChainService', () => {
       expect(result).toBeFalsy();
     });
 
-    it('serializes vocabulary correctly', async () => {
-      vi.mocked(fs.writeFile).mockResolvedValue();
+    it('serializes vocabulary', async () => {
+      const { mockStream, chunks } = createMockStream();
+      vi.mocked(createWriteStream).mockReturnValue(mockStream as never);
       service.train('cat dog bird');
 
       await service.saveModel();
 
-      const savedData = vi.mocked(fs.writeFile).mock.calls[0][1] as string;
+      const savedData = chunks.join('');
       const parsed = JSON.parse(savedData);
 
       expect(parsed.vocabulary).toContain('cat');
@@ -264,20 +325,23 @@ describe('MarkovChainService', () => {
         ['cat', [['sat', 2]]],
         ['dog', [['ran', 1]]],
       ],
-      trigrams: [
-        ['cat sat', [['on', 1]]],
-      ],
+      trigrams: [['cat sat', [['on', 1]]]],
       bigramTotals: [
         ['cat', 2],
         ['dog', 1],
       ],
-      trigramTotals: [
-        ['cat sat', 1],
-      ],
+      trigramTotals: [['cat sat', 1]],
       totalBigrams: 3,
       totalTrigrams: 1,
       vocabulary: ['cat', 'sat', 'dog', 'ran', 'on'],
     };
+
+    beforeEach(() => {
+      // Mock fs.stat to return small file size
+      vi.mocked(fs.stat).mockResolvedValue({ size: 1024 } as unknown as Awaited<
+        ReturnType<typeof fs.stat>
+      >);
+    });
 
     it('loads model from file', async () => {
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(mockModelData));
@@ -340,7 +404,7 @@ describe('MarkovChainService', () => {
       const result = await service.loadModel();
 
       expect(result).toBeTruthy();
-      // Should still be able to evaluate (computes totals)
+      // Still evaluates (computes totals)
       const score = service.evaluateTransition('cat', 'sat');
       expect(score).toBeGreaterThan(0);
     });
@@ -355,7 +419,7 @@ describe('MarkovChainService', () => {
       const result = await service.loadModel();
 
       expect(result).toBeTruthy();
-      // Should still work with smoothing (computes vocabulary)
+      // Works with smoothing (computes vocabulary)
       const score = service.evaluateTransitionSmoothed('cat', 'sat');
       expect(score).toBeGreaterThan(0);
     });

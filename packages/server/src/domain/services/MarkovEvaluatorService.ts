@@ -22,6 +22,10 @@ export class MarkovEvaluatorService {
     return this.markovChain.loadModel();
   }
 
+  public isReady(): boolean {
+    return this.markovChain.isModelLoaded();
+  }
+
   public evaluateHaiku(haiku: string[]): number {
     if (haiku.length < 2) {
       return 0;

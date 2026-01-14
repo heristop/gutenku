@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { createWriteStream } from 'node:fs';
 import NaturalLanguageService from '~/domain/services/NaturalLanguageService';
 import { createLogger } from '~/infrastructure/services/Logger';
 
@@ -9,6 +10,9 @@ const FANBOYS_SET = new Set(['for', 'and', 'nor', 'but', 'or', 'yet', 'so']);
 
 // Smoothing constant for Laplace smoothing
 const SMOOTHING_ALPHA = 0.01;
+
+// Maximum model file size to attempt loading (500MB)
+const MAX_MODEL_SIZE_BYTES = 500 * 1024 * 1024;
 
 @singleton()
 export class MarkovChainService {
@@ -157,7 +161,10 @@ export class MarkovChainService {
     const count = transitions?.get(firstWordTo) || 0;
 
     // Laplace smoothing: (count + alpha) / (total + alpha * vocabSize)
-    return (count + SMOOTHING_ALPHA) / (totalTransitions + SMOOTHING_ALPHA * vocabSize);
+    return (
+      (count + SMOOTHING_ALPHA) /
+      (totalTransitions + SMOOTHING_ALPHA * vocabSize)
+    );
   }
 
   /**
@@ -179,7 +186,10 @@ export class MarkovChainService {
 
     const count = transitions?.get(firstWordTo) || 0;
 
-    return (count + SMOOTHING_ALPHA) / (totalTransitions + SMOOTHING_ALPHA * vocabSize);
+    return (
+      (count + SMOOTHING_ALPHA) /
+      (totalTransitions + SMOOTHING_ALPHA * vocabSize)
+    );
   }
 
   /**
@@ -197,24 +207,149 @@ export class MarkovChainService {
   }
 
   public async saveModel(): Promise<boolean> {
-    const data = JSON.stringify({
-      bigrams: Array.from(this.bigrams, ([key, value]) => [key, [...value]]),
-      trigrams: Array.from(this.trigrams, ([key, value]) => [key, [...value]]),
-      bigramTotals: [...this.bigramTotals],
-      trigramTotals: [...this.trigramTotals],
-      totalBigrams: this.totalBigrams,
-      totalTrigrams: this.totalTrigrams,
-      vocabulary: [...this.vocabulary],
+    const stream = createWriteStream('./data/markov_model.json', {
+      encoding: 'utf8',
     });
 
     try {
-      await fs.writeFile('./data/markov_model.json', data, 'utf8');
+      await this.writeModelToStream(stream);
       log.info('Model saved successfully');
       return true;
     } catch (error) {
       log.error({ err: error }, 'Error saving model');
+      stream.destroy();
       return false;
     }
+  }
+
+  private async writeModelToStream(
+    stream: ReturnType<typeof createWriteStream>,
+  ): Promise<void> {
+    const BATCH_SIZE = 10000;
+
+    const yieldToGC = (): Promise<void> =>
+      new Promise((resolve) => {
+        setImmediate(resolve);
+      });
+
+    const waitForDrain = (): Promise<void> =>
+      new Promise((resolve) => {
+        stream.once('drain', resolve);
+      });
+
+    // Write bigrams
+    stream.write('{"bigrams":[');
+    await this.writeMapEntries(
+      stream,
+      this.bigrams,
+      BATCH_SIZE,
+      yieldToGC,
+      waitForDrain,
+      true,
+    );
+
+    // Write trigrams
+    stream.write('],"trigrams":[');
+    await this.writeMapEntries(
+      stream,
+      this.trigrams,
+      BATCH_SIZE,
+      yieldToGC,
+      waitForDrain,
+      true,
+    );
+
+    // Write totals
+    stream.write('],"bigramTotals":[');
+    await this.writeMapEntries(
+      stream,
+      this.bigramTotals,
+      BATCH_SIZE,
+      yieldToGC,
+      waitForDrain,
+      false,
+    );
+
+    stream.write('],"trigramTotals":[');
+    await this.writeMapEntries(
+      stream,
+      this.trigramTotals,
+      BATCH_SIZE,
+      yieldToGC,
+      waitForDrain,
+      false,
+    );
+
+    stream.write('],"totalBigrams":');
+    stream.write(String(this.totalBigrams));
+    stream.write(',"totalTrigrams":');
+    stream.write(String(this.totalTrigrams));
+
+    // Write vocabulary
+    stream.write(',"vocabulary":[');
+    await this.writeSetEntries(stream, this.vocabulary, BATCH_SIZE, yieldToGC);
+    stream.write(']}');
+
+    // Wait for stream to finish
+    await new Promise<void>((resolve, reject) => {
+      stream.on('error', reject);
+      stream.on('finish', resolve);
+      stream.end();
+    });
+  }
+
+  private async writeMapEntries<K, V>(
+    stream: ReturnType<typeof createWriteStream>,
+    map: Map<K, V>,
+    batchSize: number,
+    yieldToGC: () => Promise<void>,
+    waitForDrain: () => Promise<void>,
+    spreadValue: boolean,
+  ): Promise<void> {
+    let first = true;
+    let count = 0;
+
+    for (const [key, value] of map) {
+      const prefix = first ? '' : ',';
+      first = false;
+      const data = spreadValue
+        ? [key, [...(value as Map<string, number>)]]
+        : [key, value];
+      const ok = stream.write(prefix + JSON.stringify(data));
+
+      if (!ok) {
+        await waitForDrain();
+      }
+
+      if (++count % batchSize === 0) {
+        await yieldToGC();
+      }
+    }
+  }
+
+  private async writeSetEntries(
+    stream: ReturnType<typeof createWriteStream>,
+    set: Set<string>,
+    batchSize: number,
+    yieldToGC: () => Promise<void>,
+  ): Promise<void> {
+    let first = true;
+    let count = 0;
+
+    for (const item of set) {
+      if (!first) {
+        stream.write(',');
+      }
+      first = false;
+      stream.write(JSON.stringify(item));
+      if (++count % batchSize === 0) {
+        await yieldToGC();
+      }
+    }
+  }
+
+  public isModelLoaded(): boolean {
+    return this.loaded && this.bigrams.size > 0;
   }
 
   public async loadModel(): Promise<boolean> {
@@ -223,6 +358,16 @@ export class MarkovChainService {
     }
 
     try {
+      const stats = await fs.stat('./data/markov_model.json');
+
+      if (stats.size > MAX_MODEL_SIZE_BYTES) {
+        log.warn(
+          { size: stats.size, maxSize: MAX_MODEL_SIZE_BYTES },
+          'Markov model file too large, skipping load to prevent OOM',
+        );
+        return false;
+      }
+
       const data = await fs.readFile('./data/markov_model.json', 'utf8');
       const jsonData = JSON.parse(data);
 
@@ -267,9 +412,16 @@ export class MarkovChainService {
       }
 
       this.loaded = true;
+      log.info(
+        { bigrams: this.bigrams.size, trigrams: this.trigrams.size },
+        'Markov model loaded',
+      );
       return true;
     } catch (error) {
-      log.error({ err: error }, 'Error loading model');
+      log.warn(
+        { err: error },
+        'Markov model not loaded - markov validation will be disabled',
+      );
       return false;
     }
   }

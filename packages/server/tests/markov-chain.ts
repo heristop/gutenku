@@ -1,18 +1,55 @@
 import 'reflect-metadata';
 import { describe, expect, it, vi } from 'vitest';
+import { EventEmitter } from 'node:events';
+
+// Shared state for mocks - needs to be module level for hoisted mocks
+const mockState = {
+  savedData: '',
+};
+
+// Mock node:fs for createWriteStream
+vi.mock('node:fs', async () => {
+  const { EventEmitter } = await import('node:events');
+  return {
+    createWriteStream: vi.fn(() => {
+      const chunks: string[] = [];
+      const emitter = new EventEmitter();
+      const mockStream = {
+        write: (data: string) => {
+          chunks.push(data);
+          return true;
+        },
+        end: () => {
+          mockState.savedData = chunks.join('');
+          setImmediate(() => emitter.emit('finish'));
+        },
+        on: (event: string, handler: () => void) => {
+          emitter.on(event, handler);
+          return mockStream;
+        },
+        once: (event: string, handler: () => void) => {
+          emitter.once(event, handler);
+          return mockStream;
+        },
+        destroy: vi.fn(),
+      };
+      return mockStream;
+    }),
+  };
+});
+
 // Mock fs/promises at module scope (factory hoisted)
 vi.mock('fs/promises', () => {
-  let data: string | undefined;
-  const writeFile = vi.fn(async (_path: string, content: string) => {
-    data = content;
-  });
   const readFile = vi.fn(
-    async (_path: string) => data ?? '{"bigrams": [], "totalBigrams": 0}',
+    async () => mockState.savedData || '{"bigrams": [], "totalBigrams": 0}',
   );
+  const writeFile = vi.fn();
+  const stat = vi.fn(async () => ({ size: 1024 })); // Return small file size
   return {
-    default: { writeFile, readFile },
+    default: { writeFile, readFile, stat },
     readFile,
     writeFile,
+    stat,
   };
 });
 import NaturalLanguageService from '../src/domain/services/NaturalLanguageService';
@@ -26,7 +63,7 @@ describe('MarkovChainService - training and evaluation', () => {
   The quick brown fox likes to jump high.
   The lazy dog sleeps soundly.`;
 
-  it('trains and yields non-zero transition score for known pairs', () => {
+  it('trains and returns transition score for known pairs', () => {
     markov.train(corpus);
     const score = markov.evaluateTransition('quick brown', 'fox likes');
     expect(score).toBeGreaterThanOrEqual(0);
@@ -69,7 +106,7 @@ describe('MarkovChainService - training and evaluation', () => {
     const nl2 = new NaturalLanguageService();
     const m = new MarkovChainService(nl2);
     m.train('The cat and the dog. For the win.');
-    // 'and' and 'for' should be filtered out
+    // FANBOYS conjunctions filtered out
     const score = m.evaluateTransition('cat', 'dog');
     expect(score).toBeGreaterThanOrEqual(0);
   });
@@ -103,7 +140,7 @@ describe('MarkovChainService - persistence', () => {
     const loadResult = await markovB.loadModel();
     expect(loadResult).toBeTruthy();
 
-    // Assert: transitions known to the model return a numeric score
+    // Transitions known to the model return a numeric score
     const s = markovB.evaluateTransition('Alpha', 'beta');
     expect(s).toBeGreaterThanOrEqual(0);
   });
@@ -140,11 +177,29 @@ describe('MarkovChainService - persistence', () => {
     const m = new MarkovChainService(nl);
     m.train('Test text.');
 
-    // Use the mocked module and make writeFile reject
-    const { writeFile } = await import('node:fs/promises');
-    vi.mocked(writeFile).mockRejectedValueOnce(new Error('Write failed'));
+    // Create a mock stream that emits an error on end
+    const emitter = new EventEmitter();
+    const mockStream = {
+      write: vi.fn(() => true),
+      end: vi.fn(() => {
+        setImmediate(() => emitter.emit('error', new Error('Write failed')));
+      }),
+      on: vi.fn((event: string, handler: (err?: Error) => void) => {
+        emitter.on(event, handler);
+        return mockStream;
+      }),
+      once: vi.fn((event: string, handler: () => void) => {
+        emitter.once(event, handler);
+        return mockStream;
+      }),
+      destroy: vi.fn(),
+    };
+
+    const { createWriteStream } = await import('node:fs');
+    vi.mocked(createWriteStream).mockReturnValue(mockStream as never);
 
     const result = await m.saveModel();
+
     expect(result).toBeFalsy();
   });
 
