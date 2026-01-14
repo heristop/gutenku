@@ -330,16 +330,13 @@ onMounted(() => {
 <style lang="scss" scoped>
 .theme-toggle-wrapper {
   position: fixed;
-  top: -20px;
-  padding-top: 20px;
+  top: 0;
   right: 1.5rem;
   z-index: 1000;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0;
-  contain: layout;
-  overflow: hidden;
 
   // Hover glow effect on threads
   &:hover .silk-thread__line {

@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://gutenku.xyz/</loc>
-    <lastmod>2026-01-12</lastmod>
+    <lastmod>2026-01-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -21,6 +21,18 @@
   <url>
     <loc>https://gutenku.xyz/blog</loc>
     <lastmod>2026-01-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://gutenku.xyz/blog/gutenku-when-two-frauds-make-a-truth</loc>
+    <lastmod>2026-01-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://gutenku.xyz/blog/gutenguess-daily-literary-puzzle</loc>
+    <lastmod>2026-01-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

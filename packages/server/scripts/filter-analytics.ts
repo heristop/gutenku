@@ -13,7 +13,10 @@ import pc from 'picocolors';
 import { container } from 'tsyringe';
 import mongoose from 'mongoose';
 import HaikuGeneratorService from '../src/domain/services/HaikuGeneratorService';
-import type { RejectionStats, ScoreConfig } from '../src/domain/services/HaikuGeneratorTypes';
+import type {
+  RejectionStats,
+  ScoreConfig,
+} from '../src/domain/services/HaikuGeneratorTypes';
 import type { HaikuQualityScore } from '@gutenku/shared';
 
 // Import container registrations (after dotenv)
@@ -218,6 +221,8 @@ async function runAnalytics(iterations: number = 50): Promise<void> {
       natureWords: 0,
       repeatedWords: 0,
       weakStarts: 0,
+      blacklistedVerses: 0,
+      properNouns: 0,
       sentiment: 0,
       grammar: 0,
       trigramFlow: 0,
@@ -248,6 +253,9 @@ async function runAnalytics(iterations: number = 50): Promise<void> {
           qualityAggregates.natureWords += haiku.quality.natureWords;
           qualityAggregates.repeatedWords += haiku.quality.repeatedWords;
           qualityAggregates.weakStarts += haiku.quality.weakStarts;
+          qualityAggregates.blacklistedVerses +=
+            haiku.quality.blacklistedVerses ?? 0;
+          qualityAggregates.properNouns += haiku.quality.properNouns ?? 0;
           qualityAggregates.sentiment += haiku.quality.sentiment;
           qualityAggregates.grammar += haiku.quality.grammar;
           qualityAggregates.trigramFlow += haiku.quality.trigramFlow;
@@ -255,9 +263,11 @@ async function runAnalytics(iterations: number = 50): Promise<void> {
           qualityAggregates.uniqueness += haiku.quality.uniqueness;
           qualityAggregates.alliteration += haiku.quality.alliteration;
           qualityAggregates.verseDistance += haiku.quality.verseDistance;
-          qualityAggregates.lineLengthBalance += haiku.quality.lineLengthBalance;
+          qualityAggregates.lineLengthBalance +=
+            haiku.quality.lineLengthBalance;
           qualityAggregates.imageryDensity += haiku.quality.imageryDensity;
-          qualityAggregates.semanticCoherence += haiku.quality.semanticCoherence;
+          qualityAggregates.semanticCoherence +=
+            haiku.quality.semanticCoherence;
           qualityAggregates.verbPresence += haiku.quality.verbPresence;
           qualityAggregates.totalScore += haiku.quality.totalScore;
         } else {
@@ -274,28 +284,47 @@ async function runAnalytics(iterations: number = 50): Promise<void> {
 
     const rejectionStats = generator.getRejectionStats();
     const successRate = (successes / iterations) * 100;
-    const avgQuality: HaikuQualityScore = successes > 0 ? {
-      natureWords: qualityAggregates.natureWords / successes,
-      repeatedWords: qualityAggregates.repeatedWords / successes,
-      weakStarts: qualityAggregates.weakStarts / successes,
-      sentiment: qualityAggregates.sentiment / successes,
-      grammar: qualityAggregates.grammar / successes,
-      trigramFlow: qualityAggregates.trigramFlow / successes,
-      markovFlow: qualityAggregates.markovFlow / successes,
-      uniqueness: qualityAggregates.uniqueness / successes,
-      alliteration: qualityAggregates.alliteration / successes,
-      verseDistance: qualityAggregates.verseDistance / successes,
-      lineLengthBalance: qualityAggregates.lineLengthBalance / successes,
-      imageryDensity: qualityAggregates.imageryDensity / successes,
-      semanticCoherence: qualityAggregates.semanticCoherence / successes,
-      verbPresence: qualityAggregates.verbPresence / successes,
-      totalScore: qualityAggregates.totalScore / successes,
-    } : {
-      natureWords: 0, repeatedWords: 0, weakStarts: 0, sentiment: 0,
-      grammar: 0, trigramFlow: 0, markovFlow: 0, uniqueness: 0, alliteration: 0,
-      verseDistance: 0, lineLengthBalance: 0, imageryDensity: 0,
-      semanticCoherence: 0, verbPresence: 0, totalScore: 0,
-    };
+    const avgQuality: HaikuQualityScore =
+      successes > 0
+        ? {
+            natureWords: qualityAggregates.natureWords / successes,
+            repeatedWords: qualityAggregates.repeatedWords / successes,
+            weakStarts: qualityAggregates.weakStarts / successes,
+            blacklistedVerses:
+              (qualityAggregates.blacklistedVerses ?? 0) / successes,
+            properNouns: (qualityAggregates.properNouns ?? 0) / successes,
+            sentiment: qualityAggregates.sentiment / successes,
+            grammar: qualityAggregates.grammar / successes,
+            trigramFlow: qualityAggregates.trigramFlow / successes,
+            markovFlow: qualityAggregates.markovFlow / successes,
+            uniqueness: qualityAggregates.uniqueness / successes,
+            alliteration: qualityAggregates.alliteration / successes,
+            verseDistance: qualityAggregates.verseDistance / successes,
+            lineLengthBalance: qualityAggregates.lineLengthBalance / successes,
+            imageryDensity: qualityAggregates.imageryDensity / successes,
+            semanticCoherence: qualityAggregates.semanticCoherence / successes,
+            verbPresence: qualityAggregates.verbPresence / successes,
+            totalScore: qualityAggregates.totalScore / successes,
+          }
+        : {
+            natureWords: 0,
+            repeatedWords: 0,
+            weakStarts: 0,
+            blacklistedVerses: 0,
+            properNouns: 0,
+            sentiment: 0,
+            grammar: 0,
+            trigramFlow: 0,
+            markovFlow: 0,
+            uniqueness: 0,
+            alliteration: 0,
+            verseDistance: 0,
+            lineLengthBalance: 0,
+            imageryDensity: 0,
+            semanticCoherence: 0,
+            verbPresence: 0,
+            totalScore: 0,
+          };
 
     results.push({
       config,
@@ -319,8 +348,12 @@ async function runAnalytics(iterations: number = 50): Promise<void> {
       }
       return pc.red;
     };
-    console.log(`\r  Success Rate: ${getSuccessRateColor()(successRate.toFixed(1) + '%')}`);
-    console.log(`  Avg Quality Score: ${pc.cyan(avgQuality.totalScore.toFixed(2))}`);
+    console.log(
+      `\r  Success Rate: ${getSuccessRateColor()(successRate.toFixed(1) + '%')}`,
+    );
+    console.log(
+      `  Avg Quality Score: ${pc.cyan(avgQuality.totalScore.toFixed(2))}`,
+    );
     console.log(`  Total Rejections: ${pc.dim(String(rejectionStats.total))}`);
   }
 
@@ -351,27 +384,59 @@ function printDetailedResults(results: AnalyticsResult[]): void {
 
     // Quality metrics
     console.log(pc.dim('\nQuality Metrics (averages):'));
-    console.log(`  Total Score:      ${pc.cyan(result.avgQuality.totalScore.toFixed(2))}`);
-    console.log(`  Nature Words:     ${result.avgQuality.natureWords.toFixed(2)}`);
-    console.log(`  Repeated Words:   ${result.avgQuality.repeatedWords.toFixed(2)}`);
-    console.log(`  Weak Starts:      ${result.avgQuality.weakStarts.toFixed(2)}`);
-    console.log(`  Sentiment:        ${result.avgQuality.sentiment.toFixed(3)}`);
+    console.log(
+      `  Total Score:      ${pc.cyan(result.avgQuality.totalScore.toFixed(2))}`,
+    );
+    console.log(
+      `  Nature Words:     ${result.avgQuality.natureWords.toFixed(2)}`,
+    );
+    console.log(
+      `  Repeated Words:   ${result.avgQuality.repeatedWords.toFixed(2)}`,
+    );
+    console.log(
+      `  Weak Starts:      ${result.avgQuality.weakStarts.toFixed(2)}`,
+    );
+    console.log(
+      `  Sentiment:        ${result.avgQuality.sentiment.toFixed(3)}`,
+    );
     console.log(`  Grammar:          ${result.avgQuality.grammar.toFixed(3)}`);
-    console.log(`  Trigram Flow:     ${result.avgQuality.trigramFlow.toFixed(3)}`);
-    console.log(`  Uniqueness:       ${result.avgQuality.uniqueness.toFixed(3)}`);
-    console.log(`  Alliteration:     ${result.avgQuality.alliteration.toFixed(3)}`);
+    console.log(
+      `  Trigram Flow:     ${result.avgQuality.trigramFlow.toFixed(3)}`,
+    );
+    console.log(
+      `  Uniqueness:       ${result.avgQuality.uniqueness.toFixed(3)}`,
+    );
+    console.log(
+      `  Alliteration:     ${result.avgQuality.alliteration.toFixed(3)}`,
+    );
 
     // Rejection breakdown
     console.log(pc.dim('\nRejection Breakdown:'));
     console.log(`  Total:            ${result.rejectionStats.total}`);
-    console.log(`  Basic:            ${result.rejectionStats.basic} (${formatRejectPercent(result.rejectionStats.basic, result.rejectionStats.total)})`);
-    console.log(`  Sentiment:        ${result.rejectionStats.sentiment} (${formatRejectPercent(result.rejectionStats.sentiment, result.rejectionStats.total)})`);
-    console.log(`  Grammar:          ${result.rejectionStats.grammar} (${formatRejectPercent(result.rejectionStats.grammar, result.rejectionStats.total)})`);
-    console.log(`  Markov:           ${result.rejectionStats.markov} (${formatRejectPercent(result.rejectionStats.markov, result.rejectionStats.total)})`);
-    console.log(`  Trigram:          ${result.rejectionStats.trigram} (${formatRejectPercent(result.rejectionStats.trigram, result.rejectionStats.total)})`);
-    console.log(`  Phonetics:        ${result.rejectionStats.phonetics} (${formatRejectPercent(result.rejectionStats.phonetics, result.rejectionStats.total)})`);
-    console.log(`  Uniqueness:       ${result.rejectionStats.uniqueness} (${formatRejectPercent(result.rejectionStats.uniqueness, result.rejectionStats.total)})`);
-    console.log(`  TF-IDF:           ${result.rejectionStats.tfidf} (${formatRejectPercent(result.rejectionStats.tfidf, result.rejectionStats.total)})`);
+    console.log(
+      `  Basic:            ${result.rejectionStats.basic} (${formatRejectPercent(result.rejectionStats.basic, result.rejectionStats.total)})`,
+    );
+    console.log(
+      `  Sentiment:        ${result.rejectionStats.sentiment} (${formatRejectPercent(result.rejectionStats.sentiment, result.rejectionStats.total)})`,
+    );
+    console.log(
+      `  Grammar:          ${result.rejectionStats.grammar} (${formatRejectPercent(result.rejectionStats.grammar, result.rejectionStats.total)})`,
+    );
+    console.log(
+      `  Markov:           ${result.rejectionStats.markov} (${formatRejectPercent(result.rejectionStats.markov, result.rejectionStats.total)})`,
+    );
+    console.log(
+      `  Trigram:          ${result.rejectionStats.trigram} (${formatRejectPercent(result.rejectionStats.trigram, result.rejectionStats.total)})`,
+    );
+    console.log(
+      `  Phonetics:        ${result.rejectionStats.phonetics} (${formatRejectPercent(result.rejectionStats.phonetics, result.rejectionStats.total)})`,
+    );
+    console.log(
+      `  Uniqueness:       ${result.rejectionStats.uniqueness} (${formatRejectPercent(result.rejectionStats.uniqueness, result.rejectionStats.total)})`,
+    );
+    console.log(
+      `  TF-IDF:           ${result.rejectionStats.tfidf} (${formatRejectPercent(result.rejectionStats.tfidf, result.rejectionStats.total)})`,
+    );
 
     // Quality score distribution
     if (result.qualityScores.length > 0) {
@@ -391,8 +456,12 @@ function printDetailedResults(results: AnalyticsResult[]): void {
     // Filter settings used
     console.log(pc.dim('\nFilter Settings:'));
     const s = result.config.score;
-    console.log(`  sentiment=${s.sentiment}, markov=${s.markovChain}, pos=${s.pos}`);
-    console.log(`  trigram=${s.trigram}, phonetics=${s.phonetics}, uniqueness=${s.uniqueness}`);
+    console.log(
+      `  sentiment=${s.sentiment}, markov=${s.markovChain}, pos=${s.pos}`,
+    );
+    console.log(
+      `  trigram=${s.trigram}, phonetics=${s.phonetics}, uniqueness=${s.uniqueness}`,
+    );
   }
 }
 
@@ -410,13 +479,13 @@ function findOptimalConfig(results: AnalyticsResult[]): void {
     successWeight: number;
   }
 
-  const scoredResults: ScoredResult[] = results.map(r => {
+  const scoredResults: ScoredResult[] = results.map((r) => {
     // Normalize metrics to [0, 1]
     const successNorm = r.successRate / 100;
     const qualityNorm = Math.max(0, Math.min(1, r.avgQuality.totalScore / 15)); // Assume max ~15
 
     // Composite score: 40% success rate, 60% quality
-    const compositeScore = (successNorm * 0.4) + (qualityNorm * 0.6);
+    const compositeScore = successNorm * 0.4 + qualityNorm * 0.6;
 
     return {
       result: r,
@@ -437,7 +506,9 @@ function findOptimalConfig(results: AnalyticsResult[]): void {
     const medals = ['🥇', '🥈', '🥉'];
     const medal = medals[rank - 1] ?? '  ';
     console.log(`${medal} #${rank}: ${pc.bold(sr.result.config.name)}`);
-    console.log(`      Composite: ${pc.cyan(sr.compositeScore.toFixed(3))} | Success: ${formatPercent(sr.result.successRate)} | Quality: ${sr.result.avgQuality.totalScore.toFixed(2)}`);
+    console.log(
+      `      Composite: ${pc.cyan(sr.compositeScore.toFixed(3))} | Success: ${formatPercent(sr.result.successRate)} | Quality: ${sr.result.avgQuality.totalScore.toFixed(2)}`,
+    );
   });
 
   // Best for different use cases
@@ -447,26 +518,32 @@ function findOptimalConfig(results: AnalyticsResult[]): void {
 
   // Best overall (highest composite)
   const bestOverall = scoredResults[0];
-  console.log(`\n${pc.green('Best Overall:')} ${pc.bold(bestOverall.result.config.name)}`);
+  console.log(
+    `\n${pc.green('Best Overall:')} ${pc.bold(bestOverall.result.config.name)}`,
+  );
   printConfigSummary(bestOverall.result);
 
   // Best for reliability (highest success rate with decent quality)
   const reliabilityFocused = [...results]
-    .filter(r => r.avgQuality.totalScore >= 5)
+    .filter((r) => r.avgQuality.totalScore >= 5)
     .sort((a, b) => b.successRate - a.successRate)[0];
 
   if (reliabilityFocused) {
-    console.log(`\n${pc.green('Best for Reliability:')} ${pc.bold(reliabilityFocused.config.name)}`);
+    console.log(
+      `\n${pc.green('Best for Reliability:')} ${pc.bold(reliabilityFocused.config.name)}`,
+    );
     printConfigSummary(reliabilityFocused);
   }
 
   // Best for quality (highest quality with decent success)
   const qualityFocused = [...results]
-    .filter(r => r.successRate >= 50)
+    .filter((r) => r.successRate >= 50)
     .sort((a, b) => b.avgQuality.totalScore - a.avgQuality.totalScore)[0];
 
   if (qualityFocused) {
-    console.log(`\n${pc.green('Best for Quality:')} ${pc.bold(qualityFocused.config.name)}`);
+    console.log(
+      `\n${pc.green('Best for Quality:')} ${pc.bold(qualityFocused.config.name)}`,
+    );
     printConfigSummary(qualityFocused);
   }
 
@@ -477,20 +554,26 @@ function findOptimalConfig(results: AnalyticsResult[]): void {
 
   const optimal = bestOverall.result.config.score;
   console.log('\nBased on analysis, recommended default filter settings:');
-  console.log(pc.cyan(`
+  console.log(
+    pc.cyan(`
   DEFAULT_SENTIMENT_MIN_SCORE = ${optimal.sentiment};
   DEFAULT_MARKOV_MIN_SCORE = ${optimal.markovChain};
   DEFAULT_GRAMMAR_MIN_SCORE = ${optimal.pos};
   DEFAULT_TRIGRAM_MIN_SCORE = ${optimal.trigram};
   DEFAULT_UNIQUENESS_MIN_SCORE = ${optimal.uniqueness};
   DEFAULT_ALLITERATION_MIN_SCORE = ${optimal.phonetics};
-`));
+`),
+  );
 }
 
 function printConfigSummary(result: AnalyticsResult): void {
   const s = result.config.score;
-  console.log(`   Success: ${formatPercent(result.successRate)} | Quality: ${result.avgQuality.totalScore.toFixed(2)}`);
-  console.log(`   Settings: sentiment=${s.sentiment}, markov=${s.markovChain}, pos=${s.pos}, trigram=${s.trigram}, phonetics=${s.phonetics}, uniqueness=${s.uniqueness}`);
+  console.log(
+    `   Success: ${formatPercent(result.successRate)} | Quality: ${result.avgQuality.totalScore.toFixed(2)}`,
+  );
+  console.log(
+    `   Settings: sentiment=${s.sentiment}, markov=${s.markovChain}, pos=${s.pos}, trigram=${s.trigram}, phonetics=${s.phonetics}, uniqueness=${s.uniqueness}`,
+  );
 }
 
 function formatPercent(value: number): string {
@@ -516,7 +599,7 @@ function calculateStdDev(values: number[]): number {
     return 0;
   }
   const mean = values.reduce((a, b) => a + b, 0) / values.length;
-  const squaredDiffs = values.map(v => Math.pow(v - mean, 2));
+  const squaredDiffs = values.map((v) => Math.pow(v - mean, 2));
   return Math.sqrt(squaredDiffs.reduce((a, b) => a + b, 0) / values.length);
 }
 
@@ -526,7 +609,7 @@ const iterations = args.includes('--iterations')
   ? Number.parseInt(args[args.indexOf('--iterations') + 1], 10)
   : 50;
 
-runAnalytics(iterations).catch(error => {
+runAnalytics(iterations).catch((error) => {
   console.error(pc.red('Fatal error:'), error);
   process.exit(1);
 });
