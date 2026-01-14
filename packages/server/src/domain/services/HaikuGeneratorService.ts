@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { promisify } from 'node:util';
 import { createLogger } from '~/infrastructure/services/Logger';
 import { unlink } from 'node:fs';
@@ -51,6 +52,7 @@ import type {
   QuoteCandidate,
   RejectionStats,
 } from './HaikuGeneratorTypes';
+import type { VersePools, VerseCandidate } from './genetic/types';
 
 const log = createLogger('haiku');
 
@@ -115,7 +117,10 @@ export default class HaikuGeneratorService implements IGenerator {
     private readonly canvasService: ICanvasService,
   ) {
     this.filterWords = [];
-    this.validator = new HaikuValidatorService(naturalLanguage, markovEvaluator);
+    this.validator = new HaikuValidatorService(
+      naturalLanguage,
+      markovEvaluator,
+    );
   }
 
   configure(options?: Partial<GeneratorConfig>): HaikuGeneratorService {
@@ -169,7 +174,8 @@ export default class HaikuGeneratorService implements IGenerator {
       phonetics: score.phonetics ?? DEFAULT_ALLITERATION_MIN_SCORE,
       uniqueness: score.uniqueness ?? DEFAULT_UNIQUENESS_MIN_SCORE,
       verseDistance: score.verseDistance ?? DEFAULT_VERSE_DISTANCE_MIN_SCORE,
-      lineLengthBalance: score.lineLengthBalance ?? DEFAULT_LINE_BALANCE_MIN_SCORE,
+      lineLengthBalance:
+        score.lineLengthBalance ?? DEFAULT_LINE_BALANCE_MIN_SCORE,
       imageryDensity: score.imageryDensity ?? DEFAULT_IMAGERY_MIN_SCORE,
       semanticCoherence: score.semanticCoherence ?? DEFAULT_COHERENCE_MIN_SCORE,
       verbPresence: score.verbPresence ?? DEFAULT_VERB_MIN_SCORE,
@@ -180,7 +186,8 @@ export default class HaikuGeneratorService implements IGenerator {
 
   filter(filterWords: string[]): HaikuGeneratorService {
     // Check if filter words changed to avoid unnecessary regex compilation
-    const newKey = filterWords.length > 0 ? [...filterWords].sort().join('|') : null;
+    const newKey =
+      filterWords.length > 0 ? [...filterWords].sort().join('|') : null;
 
     if (this.filterWordsKey === newKey) {
       return this; // Already compiled for these words
@@ -390,7 +397,11 @@ export default class HaikuGeneratorService implements IGenerator {
     };
   }
 
-  getVerses(chapter: ChapterValue): { verses: string[]; indices: number[]; totalQuotes: number } {
+  getVerses(chapter: ChapterValue): {
+    verses: string[];
+    indices: number[];
+    totalQuotes: number;
+  } {
     const quotes = this.extractQuotes(chapter.content);
     if (quotes.length === 0) {
       return { verses: [], indices: [], totalQuotes: 0 };
@@ -402,7 +413,11 @@ export default class HaikuGeneratorService implements IGenerator {
       return { verses: [], indices: [], totalQuotes: quotes.length };
     }
 
-    return { verses: result.verses, indices: result.indices, totalQuotes: quotes.length };
+    return {
+      verses: result.verses,
+      indices: result.indices,
+      totalQuotes: quotes.length,
+    };
   }
 
   verseContainsFilterWord(verses: string[]): boolean {
@@ -444,7 +459,9 @@ export default class HaikuGeneratorService implements IGenerator {
   }
 
   selectRandomChapter(book: BookValueWithChapters): string {
-    return book.chapters[Math.floor(Math.random() * book.chapters.length).toString()];
+    return book.chapters[
+      Math.floor(Math.random() * book.chapters.length).toString()
+    ];
   }
 
   private calculateQualityMetrics(
@@ -453,7 +470,13 @@ export default class HaikuGeneratorService implements IGenerator {
     totalQuotes = 0,
   ): QualityMetrics {
     if (verses.length === 0) {
-      return { sentiment: 0.5, grammar: 0, trigramFlow: 0, markovFlow: 0, alliteration: 0 };
+      return {
+        sentiment: 0.5,
+        grammar: 0,
+        trigramFlow: 0,
+        markovFlow: 0,
+        alliteration: 0,
+      };
     }
 
     const sentimentSum = verses.reduce(
@@ -474,7 +497,9 @@ export default class HaikuGeneratorService implements IGenerator {
     const phonetics = this.naturalLanguage.analyzePhonetics(verses);
     const alliteration = phonetics.alliterationScore;
 
-    const posResults = verses.flatMap((v) => this.naturalLanguage.getPOSTags(v));
+    const posResults = verses.flatMap((v) =>
+      this.naturalLanguage.getPOSTags(v),
+    );
 
     return {
       sentiment,
@@ -500,7 +525,9 @@ export default class HaikuGeneratorService implements IGenerator {
       if (this.cachedThresholds?.tfidf > 0) {
         nl.initTfIdf(sentences);
       }
-      let quotes = this.filterQuotesCountingSyllables(sentences.map((quote, index) => ({ index, quote })));
+      let quotes = this.filterQuotesCountingSyllables(
+        sentences.map((quote, index) => ({ index, quote })),
+      );
 
       if (name === 'chunk') {
         quotes = quotes.filter((q) => {
@@ -523,18 +550,25 @@ export default class HaikuGeneratorService implements IGenerator {
 
       if (quotes.length >= minRequired) {
         this.lastExtractionMethod = name;
-        log.debug({ method: name, count: quotes.length, threshold: minRequired }, 'Extraction succeeded');
+        log.debug(
+          { method: name, count: quotes.length, threshold: minRequired },
+          'Extraction succeeded',
+        );
         return quotes;
       }
     }
     return [];
   }
 
-  filterQuotesCountingSyllables(quotes: { quote: string; index: number }[]): QuoteCandidate[] {
+  filterQuotesCountingSyllables(
+    quotes: { quote: string; index: number }[],
+  ): QuoteCandidate[] {
     const filtered: QuoteCandidate[] = [];
     for (const { quote, index } of quotes) {
       const words = this.naturalLanguage.extractWords(quote);
-      if (!words) {continue;}
+      if (!words) {
+        continue;
+      }
       const syllableCount = words.reduce((c, w) => c + syllable(w), 0);
 
       if (syllableCount === 5 || syllableCount === 7) {
@@ -561,7 +595,12 @@ export default class HaikuGeneratorService implements IGenerator {
       );
 
       const matchingQuotes = syllableMatches.filter((candidate) =>
-        this.validator.isQuoteValidForVerse(candidate, i === 0, selectedVerses, thresholds),
+        this.validator.isQuoteValidForVerse(
+          candidate,
+          i === 0,
+          selectedVerses,
+          thresholds,
+        ),
       );
       if (matchingQuotes.length === 0) {
         return null;
@@ -577,7 +616,9 @@ export default class HaikuGeneratorService implements IGenerator {
     const verses = selectedVerses.map(({ quote }) => quote);
     const indices = selectedVerses.map(({ index }) => index);
     const total = totalQuotes ?? quotes.length;
-    if (!this.validator.passesFullHaikuFilters(verses, indices, total, thresholds)) {
+    if (
+      !this.validator.passesFullHaikuFilters(verses, indices, total, thresholds)
+    ) {
       return null;
     }
 
@@ -585,10 +626,62 @@ export default class HaikuGeneratorService implements IGenerator {
   }
 
   private getScoreThresholds(): ScoreThresholds {
-    return this.cachedThresholds ?? this.buildThresholds(HaikuGeneratorService.DEFAULT_CONFIG.score);
+    return (
+      this.cachedThresholds ??
+      this.buildThresholds(HaikuGeneratorService.DEFAULT_CONFIG.score)
+    );
   }
 
   isQuoteInvalid(quote: string): boolean {
     return this.validator.isQuoteInvalid(quote);
+  }
+
+  /**
+   * Extract verse pools from chapter content directly (for cases when chapter content is already available)
+   */
+  extractVersePoolsFromContent(
+    content: string,
+    bookId: string,
+    chapterId: string,
+  ): VersePools {
+    const quotes = this.extractQuotes(content);
+
+    const fiveSyllable: VerseCandidate[] = [];
+    const sevenSyllable: VerseCandidate[] = [];
+
+    for (const candidate of quotes) {
+      const verseCandidate: VerseCandidate = {
+        text: candidate.quote,
+        syllableCount: candidate.syllableCount as 5 | 7,
+        sourceIndex: candidate.index,
+      };
+
+      if (candidate.syllableCount === 5) {
+        fiveSyllable.push(verseCandidate);
+      } else if (candidate.syllableCount === 7) {
+        sevenSyllable.push(verseCandidate);
+      }
+    }
+
+    return {
+      fiveSyllable,
+      sevenSyllable,
+      bookId,
+      chapterId,
+    };
+  }
+
+  /**
+   * Get NaturalLanguageService for external use (e.g., by GA FitnessEvaluator)
+   */
+  getNaturalLanguageService(): NaturalLanguageService {
+    return this.naturalLanguage;
+  }
+
+  /**
+   * Get MarkovEvaluator for external use (e.g., by GA FitnessEvaluator)
+   */
+  getMarkovEvaluator(): MarkovEvaluatorService {
+    return this.markovEvaluator;
   }
 }

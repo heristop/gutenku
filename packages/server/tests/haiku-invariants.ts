@@ -95,7 +95,11 @@ describe('HaikuGeneratorService invariants (domain-level)', () => {
     expect(gen.isQuoteInvalid('AND I WANT TO BE')).toBeTruthy();
     expect(gen.isQuoteInvalid('I #want to be')).toBeTruthy();
     // VERSE_MAX_LENGTH is now a constant (30), so test with a string >= 30 chars
-    expect(gen.isQuoteInvalid('this is a very long quote that exceeds thirty characters')).toBeTruthy();
+    expect(
+      gen.isQuoteInvalid(
+        'this is a very long quote that exceeds thirty characters',
+      ),
+    ).toBeTruthy();
   });
 
   it('selects 5-7-5 verses in increasing order', () => {
@@ -200,7 +204,7 @@ describe('HaikuGeneratorService invariants (domain-level)', () => {
 
     const quotes = [
       { index: 0, quote: 'one two three four five' }, // 5 syllables
-      { index: 1, quote: 'a b c d e f g' }, // 7 syllables
+      { index: 1, quote: 'dancing in the gentle breeze' }, // 7 syllables (valid words)
       { index: 2, quote: 'one two three four five' }, // 5 syllables (duplicate)
       { index: 3, quote: 'alpha beta gamma delta epsilon zeta eta theta' }, // 17 syllables (rejected)
     ];
@@ -209,6 +213,8 @@ describe('HaikuGeneratorService invariants (domain-level)', () => {
 
     // Should only include 5 and 7 syllable quotes
     expect(filtered.length).toBe(3);
-    expect(filtered.every((q) => q.syllableCount === 5 || q.syllableCount === 7)).toBeTruthy();
+    expect(
+      filtered.every((q) => q.syllableCount === 5 || q.syllableCount === 7),
+    ).toBeTruthy();
   });
 });

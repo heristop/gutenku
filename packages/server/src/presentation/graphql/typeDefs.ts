@@ -181,6 +181,7 @@ const typeDefs = `#graphql
         bestScore: Float!
         bestHaiku: Haiku
         isComplete: Boolean!
+        stopReason: String
     }
 
     type Subscription {

@@ -12,10 +12,11 @@ import type { BookValue, ChapterValue, HaikuValue } from '../src/shared/types';
 import type { MarkovEvaluatorService } from '../src/domain/services/MarkovEvaluatorService';
 
 // Sample literary texts for testing extraction fallback
+// Each sentence should have 5 or 7 syllables and pass validation
 const RICH_PUNCTUATION_TEXT = `
-The old pond sits in silence. A frog jumps into the water. Splash! The silence returns.
-Autumn moonlight shines. A worm digs silently into a chestnut. The night grows cold.
-Spring rain falls gently. The willow tree bends low now. Green leaves touch water.
+Soft winds gently blow. Birds sing morning songs. Dew drops on the grass. Moonlight on water.
+Dancing in the breeze. Flowers bloom in spring. Leaves fall to the ground. Rivers flow downstream.
+Clouds drift through the sky. Stars shine in the night. Shadows on the wall. Sunlight warms the earth.
 `;
 
 const SPARSE_PUNCTUATION_TEXT = `
@@ -37,33 +38,58 @@ const MINIMAL_TEXT = `sunrise over mountains golden light spreads warmth birds s
 // Fake repositories
 class FakeHaikuRepository implements IHaikuRepository {
   async createCacheWithTTL(): Promise<void> {}
-  async extractFromCache(): Promise<HaikuValue[]> { return []; }
-  async extractOneFromCache(): Promise<HaikuValue | null> { return null; }
+  async extractFromCache(): Promise<HaikuValue[]> {
+    return [];
+  }
+  async extractOneFromCache(): Promise<HaikuValue | null> {
+    return null;
+  }
 }
 
 class FakeChapterRepository implements IChapterRepository {
-  async getAllChapters(): Promise<ChapterValue[]> { return []; }
-  async getChapterById(): Promise<ChapterValue | null> { return null; }
-  async getFilteredChapters(): Promise<ChapterValue[]> { return []; }
+  async getAllChapters(): Promise<ChapterValue[]> {
+    return [];
+  }
+  async getChapterById(): Promise<ChapterValue | null> {
+    return null;
+  }
+  async getFilteredChapters(): Promise<ChapterValue[]> {
+    return [];
+  }
 }
 
 class FakeBookRepository implements IBookRepository {
-  async getAllBooks(): Promise<BookValue[]> { return []; }
-  async getBookById(): Promise<BookValue | null> { return null; }
+  async getAllBooks(): Promise<BookValue[]> {
+    return [];
+  }
+  async getBookById(): Promise<BookValue | null> {
+    return null;
+  }
   async selectRandomBook(): Promise<BookValue> {
-    return { author: 'Test Author', chapters: ['ch1'], reference: 'test-ref', title: 'Test Book' } as unknown as BookValue;
+    return {
+      author: 'Test Author',
+      chapters: ['ch1'],
+      reference: 'test-ref',
+      title: 'Test Book',
+    } as unknown as BookValue;
   }
 }
 
 class FakeMarkovEvaluatorService {
-  evaluateHaiku(_v: string[]): number { return 1; }
-  evaluateHaikuTrigrams(_v: string[]): number { return 1; }
+  evaluateHaiku(_v: string[]): number {
+    return 1;
+  }
+  evaluateHaikuTrigrams(_v: string[]): number {
+    return 1;
+  }
   async load(): Promise<void> {}
 }
 
 class FakeCanvasService implements ICanvasService {
   useTheme(_t: string): void {}
-  async create(): Promise<string> { return '/tmp/test.png'; }
+  async create(): Promise<string> {
+    return '/tmp/test.png';
+  }
   async read(_p: string): Promise<{ data: Buffer; contentType: string }> {
     return { contentType: 'image/jpeg', data: Buffer.from('test') };
   }
@@ -221,28 +247,44 @@ describe('Haiku Pertinence Tests', () => {
 
       // Should only keep quotes with 5 or 7 syllables
       expect(filtered.length).toBeGreaterThanOrEqual(2);
-      expect(filtered.every((q) => q.syllableCount === 5 || q.syllableCount === 7)).toBeTruthy();
+      expect(
+        filtered.every((q) => q.syllableCount === 5 || q.syllableCount === 7),
+      ).toBeTruthy();
     });
   });
 
   describe('Verse Content Validity', () => {
     it('verses are extracted from source text', () => {
       const gen = createGenerator();
-      const sourceText = 'The old pond waits there. A frog leaps into water. The splash sounds clearly.';
+      const sourceText =
+        'The old pond waits there. A frog leaps into water. The splash sounds clearly.';
       const quotes = gen.extractQuotes(sourceText);
 
       for (const quote of quotes) {
-        expect(sourceText.toLowerCase()).toContain(quote.quote.toLowerCase().trim());
+        expect(sourceText.toLowerCase()).toContain(
+          quote.quote.toLowerCase().trim(),
+        );
       }
     });
 
     it('buildHaiku includes raw verses from source', () => {
       const gen = createGenerator();
-      const verses = ['An old silent pond', 'A frog jumps into the pond', 'Splash! Silence again'];
+      const verses = [
+        'An old silent pond',
+        'A frog jumps into the pond',
+        'Splash! Silence again',
+      ];
 
       const haiku = gen.buildHaiku(
-        { author: 'Basho', reference: 'basho-1', title: 'Classic Haiku' } as BookValue,
-        { content: 'Full chapter content here', title: 'Chapter 1' } as ChapterValue,
+        {
+          author: 'Basho',
+          reference: 'basho-1',
+          title: 'Classic Haiku',
+        } as BookValue,
+        {
+          content: 'Full chapter content here',
+          title: 'Chapter 1',
+        } as ChapterValue,
         verses,
       );
 
@@ -253,7 +295,11 @@ describe('Haiku Pertinence Tests', () => {
 
     it('cleaned verses remove trailing punctuation', () => {
       const gen = createGenerator();
-      const verses = ['An old silent pond,', 'A frog jumps into the pond.', 'Splash! Silence again!'];
+      const verses = [
+        'An old silent pond,',
+        'A frog jumps into the pond.',
+        'Splash! Silence again!',
+      ];
 
       const haiku = gen.buildHaiku(
         { author: 'a', reference: 'r', title: 't' } as BookValue,
@@ -270,7 +316,11 @@ describe('Haiku Pertinence Tests', () => {
   describe('Quality Scoring', () => {
     it('includes quality score in built haiku', () => {
       const gen = createGenerator();
-      const verses = ['The autumn wind blows', 'Leaves fall gently to the ground', 'Winter approaches'];
+      const verses = [
+        'The autumn wind blows',
+        'Leaves fall gently to the ground',
+        'Winter approaches',
+      ];
 
       const haiku = gen.buildHaiku(
         { author: 'a', reference: 'r', title: 't' } as BookValue,
@@ -287,7 +337,11 @@ describe('Haiku Pertinence Tests', () => {
 
     it('detects nature words in haiku', () => {
       const gen = createGenerator();
-      const versesWithNature = ['The autumn wind blows', 'Cherry blossoms fall softly', 'Moon rises tonight'];
+      const versesWithNature = [
+        'The autumn wind blows',
+        'Cherry blossoms fall softly',
+        'Moon rises tonight',
+      ];
 
       const haiku = gen.buildHaiku(
         { author: 'a', reference: 'r', title: 't' } as BookValue,
@@ -300,7 +354,11 @@ describe('Haiku Pertinence Tests', () => {
 
     it('penalizes repeated words', () => {
       const gen = createGenerator();
-      const versesWithRepeats = ['The wind blows the wind', 'Wind carries the leaves away', 'Wind whispers softly'];
+      const versesWithRepeats = [
+        'The wind blows the wind',
+        'Wind carries the leaves away',
+        'Wind whispers softly',
+      ];
 
       const haiku = gen.buildHaiku(
         { author: 'a', reference: 'r', title: 't' } as BookValue,
@@ -314,7 +372,11 @@ describe('Haiku Pertinence Tests', () => {
     it('detects weak starts (pronouns like it, there, this)', () => {
       const gen = createGenerator();
       // Weak starts are pronouns: it, there, this, that, they, we, he, she, i
-      const versesWithWeakStart = ['It was a dark night', 'There is no escape now', 'This is the ending'];
+      const versesWithWeakStart = [
+        'It was a dark night',
+        'There is no escape now',
+        'This is the ending',
+      ];
 
       const haiku = gen.buildHaiku(
         { author: 'a', reference: 'r', title: 't' } as BookValue,
@@ -350,7 +412,9 @@ describe('Haiku Pertinence Tests', () => {
       );
 
       expect(haiku).toHaveProperty('extractionMethod');
-      expect(['punctuation', 'tokenizer', 'clause', 'chunk']).toContain(haiku.extractionMethod);
+      expect(['punctuation', 'tokenizer', 'clause', 'chunk']).toContain(
+        haiku.extractionMethod,
+      );
     });
   });
 
@@ -396,7 +460,9 @@ describe('Haiku Pertinence Tests', () => {
     it('rejects quotes exceeding max length', () => {
       const gen = createGenerator();
       process.env.VERSE_MAX_LENGTH = '10';
-      expect(gen.isQuoteInvalid('this is a very long quote that exceeds the limit')).toBeTruthy();
+      expect(
+        gen.isQuoteInvalid('this is a very long quote that exceeds the limit'),
+      ).toBeTruthy();
     });
 
     it('accepts valid quotes', () => {
@@ -412,7 +478,12 @@ describe('Haiku Pertinence Tests', () => {
       const gen = createGenerator();
 
       const haiku = gen.buildHaiku(
-        { author: 'Jane Austen', reference: 'pride-prejudice', title: 'Pride and Prejudice', emoticons: '📚💕' } as BookValue,
+        {
+          author: 'Jane Austen',
+          reference: 'pride-prejudice',
+          title: 'Pride and Prejudice',
+          emoticons: '📚💕',
+        } as BookValue,
         { content: 'Chapter content', title: 'Chapter 1' } as ChapterValue,
         ['verse one', 'verse two', 'verse three'],
       );
@@ -426,7 +497,10 @@ describe('Haiku Pertinence Tests', () => {
     it('includes chapter in haiku', () => {
       const gen = createGenerator();
 
-      const chapter = { content: 'Full chapter content here', title: 'The Beginning' } as ChapterValue;
+      const chapter = {
+        content: 'Full chapter content here',
+        title: 'The Beginning',
+      } as ChapterValue;
       const haiku = gen.buildHaiku(
         { author: 'a', reference: 'r', title: 't' } as BookValue,
         chapter,
@@ -441,12 +515,17 @@ describe('Haiku Pertinence Tests', () => {
   describe('Context Extraction', () => {
     it('extracts context around verses from chapter', () => {
       const gen = createGenerator();
-      const chapterContent = 'Before the pond. An old silent pond waits. After the frog. A frog jumps into the pond now. The end comes. Splash! Silence again returns.';
+      const chapterContent =
+        'Before the pond. An old silent pond waits. After the frog. A frog jumps into the pond now. The end comes. Splash! Silence again returns.';
 
       const haiku = gen.buildHaiku(
         { author: 'a', reference: 'r', title: 't' } as BookValue,
         { content: chapterContent } as ChapterValue,
-        ['An old silent pond', 'A frog jumps into the pond', 'Splash! Silence again'],
+        [
+          'An old silent pond',
+          'A frog jumps into the pond',
+          'Splash! Silence again',
+        ],
       );
 
       expect(haiku.context).toBeDefined();

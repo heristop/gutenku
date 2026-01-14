@@ -448,9 +448,9 @@ describe('OpenAIGeneratorService - private methods', () => {
     expect(result).toBe('📚✨🌸');
   });
 
-  it('fetchHaikus formats haikus for selection', async () => {
+  it('fetchHaikusTraditional formats haikus for selection', async () => {
     // @ts-expect-error - accessing private method
-    const result = await service.fetchHaikus();
+    const result = await service.fetchHaikusTraditional();
 
     expect(Array.isArray(result)).toBeTruthy();
     expect(result.length).toBe(2);
@@ -458,10 +458,14 @@ describe('OpenAIGeneratorService - private methods', () => {
     expect(result[0]).toContain('[Verses]:');
   });
 
-  it('fetchHaikus sorts by totalScore and keeps top 5', async () => {
+  it('fetchHaikusTraditional sorts by totalScore and keeps top 5', async () => {
     // Create haikus with different scores
     const createScoredHaiku = (index: number, score: number): HaikuValue => ({
-      book: { title: `Book ${index}`, author: `Author ${index}`, reference: `ref-${index}` },
+      book: {
+        title: `Book ${index}`,
+        author: `Author ${index}`,
+        reference: `ref-${index}`,
+      },
       chapter: { content: `Chapter ${index}` },
       verses: [`verse-${index}-1`, `verse-${index}-2`, `verse-${index}-3`],
       rawVerses: [`verse-${index}-1`, `verse-${index}-2`, `verse-${index}-3`],
@@ -502,7 +506,7 @@ describe('OpenAIGeneratorService - private methods', () => {
     });
 
     // @ts-expect-error - accessing private method
-    const result = await service.fetchHaikus();
+    const result = await service.fetchHaikusTraditional();
 
     // Should only have 5 haikus (GPT_SELECTION_POOL_SIZE = 5)
     expect(result.length).toBe(5);

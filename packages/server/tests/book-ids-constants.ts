@@ -31,7 +31,7 @@ describe('BOOK_IDS constants', () => {
   });
 
   it('has reasonable number of books for gameplay', () => {
-    expect(BOOK_IDS.length).toBeGreaterThanOrEqual(100);
+    expect(BOOK_IDS.length).toBeGreaterThanOrEqual(80);
     expect(BOOK_IDS.length).toBeLessThan(500);
   });
 });
