@@ -13,7 +13,12 @@ import type { HaikuValue, HaikuVariables } from '../../src/shared/types';
 const createMockHaiku = (overrides: Partial<HaikuValue> = {}): HaikuValue => ({
   title: 'Test Haiku',
   verses: ['first verse here', 'second verse longer', 'third verse end'],
-  book: { reference: '12345', title: 'Test Book', author: 'Test Author', emoticons: '📚✨' },
+  book: {
+    reference: '12345',
+    title: 'Test Book',
+    author: 'Test Author',
+    emoticons: '📚✨',
+  },
   chapter: { reference: '1', title: 'Chapter 1' },
   translations: {},
   description: 'A test haiku',
@@ -58,6 +63,7 @@ describe('Haiku Handlers', () => {
       mockHaikuGenerator = {
         configure: vi.fn(),
         filter: vi.fn().mockReturnThis(),
+        setExtractionMethod: vi.fn().mockReturnThis(),
         generate: vi.fn(),
         appendImg: vi.fn(),
       } as unknown as HaikuGeneratorService;
@@ -326,7 +332,7 @@ describe('Haiku Handlers', () => {
       );
     });
 
-    it('configures OpenAI with correct parameters', async () => {
+    it('configures OpenAI with parameters', async () => {
       process.env.OPENAI_API_KEY = 'test-api-key';
       const mockHaiku = createMockHaiku();
       vi.mocked(mockOpenAIGenerator.generate).mockResolvedValue(mockHaiku);
@@ -429,7 +435,7 @@ describe('Haiku Handlers', () => {
       );
     });
 
-    it('propagates repository errors', async () => {
+    it('throws on repository errors', async () => {
       const mockHaiku = createMockHaiku();
       vi.mocked(mockHaikuRepo.createCacheWithTTL).mockRejectedValue(
         new Error('DB error'),
@@ -490,9 +496,8 @@ describe('GetHaikuVersionHandler', () => {
   let mockHaikuRepo: IHaikuRepository;
 
   beforeEach(async () => {
-    const { GetHaikuVersionHandler } = await import(
-      '../../src/application/queries/haiku/GetHaikuVersionHandler'
-    );
+    const { GetHaikuVersionHandler } =
+      await import('../../src/application/queries/haiku/GetHaikuVersionHandler');
 
     mockHaikuRepo = {
       getCacheCount: vi.fn(),
@@ -510,9 +515,8 @@ describe('GetHaikuVersionHandler', () => {
   });
 
   it('returns version with date and cache count', async () => {
-    const { GetHaikuVersionQuery } = await import(
-      '../../src/application/queries/haiku/GetHaikuVersionQuery'
-    );
+    const { GetHaikuVersionQuery } =
+      await import('../../src/application/queries/haiku/GetHaikuVersionQuery');
     vi.mocked(mockHaikuRepo.getCacheCount).mockResolvedValue(1500);
 
     const query = new GetHaikuVersionQuery('2026-01-09');
@@ -524,9 +528,8 @@ describe('GetHaikuVersionHandler', () => {
   });
 
   it('returns version with zero cache count', async () => {
-    const { GetHaikuVersionQuery } = await import(
-      '../../src/application/queries/haiku/GetHaikuVersionQuery'
-    );
+    const { GetHaikuVersionQuery } =
+      await import('../../src/application/queries/haiku/GetHaikuVersionQuery');
     vi.mocked(mockHaikuRepo.getCacheCount).mockResolvedValue(0);
 
     const query = new GetHaikuVersionQuery('2026-01-01');
@@ -537,9 +540,8 @@ describe('GetHaikuVersionHandler', () => {
   });
 
   it('returns different versions for different cache counts', async () => {
-    const { GetHaikuVersionQuery } = await import(
-      '../../src/application/queries/haiku/GetHaikuVersionQuery'
-    );
+    const { GetHaikuVersionQuery } =
+      await import('../../src/application/queries/haiku/GetHaikuVersionQuery');
     vi.mocked(mockHaikuRepo.getCacheCount).mockResolvedValueOnce(100);
     const query1 = new GetHaikuVersionQuery('2026-01-09');
     const result1 = await handler.execute(query1);
@@ -553,10 +555,9 @@ describe('GetHaikuVersionHandler', () => {
     expect(result1.version).not.toBe(result2.version);
   });
 
-  it('returns consistent version for same date and cache count', async () => {
-    const { GetHaikuVersionQuery } = await import(
-      '../../src/application/queries/haiku/GetHaikuVersionQuery'
-    );
+  it('returns same version for same date and cache count', async () => {
+    const { GetHaikuVersionQuery } =
+      await import('../../src/application/queries/haiku/GetHaikuVersionQuery');
     vi.mocked(mockHaikuRepo.getCacheCount).mockResolvedValue(500);
 
     const query1 = new GetHaikuVersionQuery('2026-01-15');
@@ -572,18 +573,16 @@ describe('GetHaikuVersionHandler', () => {
 
 describe('GetHaikuVersionQuery', () => {
   it('stores date parameter', async () => {
-    const { GetHaikuVersionQuery } = await import(
-      '../../src/application/queries/haiku/GetHaikuVersionQuery'
-    );
+    const { GetHaikuVersionQuery } =
+      await import('../../src/application/queries/haiku/GetHaikuVersionQuery');
 
     const query = new GetHaikuVersionQuery('2026-01-09');
     expect(query.date).toBe('2026-01-09');
   });
 
   it('handles different date formats', async () => {
-    const { GetHaikuVersionQuery } = await import(
-      '../../src/application/queries/haiku/GetHaikuVersionQuery'
-    );
+    const { GetHaikuVersionQuery } =
+      await import('../../src/application/queries/haiku/GetHaikuVersionQuery');
 
     const query1 = new GetHaikuVersionQuery('2026-01-01');
     const query2 = new GetHaikuVersionQuery('2026-12-31');
@@ -592,4 +591,3 @@ describe('GetHaikuVersionQuery', () => {
     expect(query2.date).toBe('2026-12-31');
   });
 });
-

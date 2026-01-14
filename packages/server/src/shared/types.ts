@@ -1,4 +1,8 @@
 import type { Types } from 'mongoose';
+import type {
+  HaikuQualityScore as SharedHaikuQualityScore,
+  ExtractionMethod as SharedExtractionMethod,
+} from '@gutenku/shared';
 
 // Re-export shared types
 export type {
@@ -6,14 +10,14 @@ export type {
   ChapterValue,
   ContextVerses,
   HaikuValue,
+  HaikuQualityScore,
   Translations,
   HaikuResponseData,
   ChapterResponseData,
   ExtractionMethod,
 } from '@gutenku/shared';
 
-// Server extends shared ExtractionMethod with additional types
-// Note: 'genetic_algorithm' is now defined in @gutenku/shared
+// Server extends shared ExtractionMethod
 
 export interface BookValueWithChapters {
   reference: string;
@@ -38,6 +42,8 @@ export interface HaikuDocument {
   };
   verses: string[];
   rawVerses: string[];
+  quality?: SharedHaikuQualityScore;
+  extractionMethod?: SharedExtractionMethod;
 }
 
 export interface HaikuVariables {
@@ -50,6 +56,7 @@ export interface HaikuVariables {
   selectionCount: number;
   theme: string;
   filter: string;
+  extractionMethod?: 'punctuation' | 'chunk' | 'ga';
   sentimentMinScore: number;
   markovMinScore: number;
   posMinScore: number;

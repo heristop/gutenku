@@ -145,8 +145,15 @@ export class GenerateHaikuHandler implements IQueryHandler<
   private async tryStandardGeneration(
     query: GenerateHaikuQuery,
   ): Promise<HaikuValue | null> {
+    const extractionMethod =
+      query.extractionMethod === 'punctuation' ||
+      query.extractionMethod === 'chunk'
+        ? query.extractionMethod
+        : null;
+
     return this.haikuGenerator
       .filter(query.filter ? query.filter.split(' ') : [])
+      .setExtractionMethod(extractionMethod)
       .generate();
   }
 

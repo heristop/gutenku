@@ -12,21 +12,31 @@ program
   .name('extract-haiku')
   .description('Generate haikus and select the best by score')
   .option('-n, --iterations <number>', 'number of haikus to generate', '1')
+  .option(
+    '-m, --method <method>',
+    'extraction method: punctuation, chunk, or auto (default)',
+    'auto',
+  )
   .parse();
 
 const options = program.opts();
 const iterations = Math.max(1, Number.parseInt(options.iterations, 10) || 1);
+const extractionMethod = ['punctuation', 'chunk'].includes(options.method)
+  ? options.method
+  : null;
 
 const query = `
   query Query(
       $useAi: Boolean,
       $useCache: Boolean,
-      $appendImg: Boolean
+      $appendImg: Boolean,
+      $extractionMethod: String
   ) {
       haiku(
           useAI: $useAi,
           useCache: $useCache,
-          appendImg: $appendImg
+          appendImg: $appendImg,
+          extractionMethod: $extractionMethod
       ) {
           book {
               title
@@ -34,7 +44,6 @@ const query = `
           }
           verses,
           rawVerses
-          context
           chapter {
               title,
               content
@@ -45,6 +54,8 @@ const query = `
               natureWords
               repeatedWords
               weakStarts
+              blacklistedVerses
+              properNouns
               sentiment
               grammar
               trigramFlow
@@ -66,9 +77,18 @@ const variables = {
   appendImg: false,
   useAi: false,
   useCache: false,
+  extractionMethod,
 };
 
-async function fetchHaiku(): Promise<HaikuValue | null> {
+interface GraphQLResponse {
+  data?: HaikuResponseData;
+  errors?: Array<{ message: string; extensions?: Record<string, unknown> }>;
+}
+
+async function fetchHaiku(): Promise<{
+  haiku: HaikuValue | null;
+  error?: string;
+}> {
   const response = await fetch(
     process.env.SERVER_URI || 'http://localhost:4000/graphql',
     {
@@ -78,13 +98,20 @@ async function fetchHaiku(): Promise<HaikuValue | null> {
     },
   );
 
-  const data = (await response.json()) as { data: HaikuResponseData };
-  return data.data?.haiku ?? null;
+  const data = (await response.json()) as GraphQLResponse;
+
+  if (data.errors && data.errors.length > 0) {
+    return { haiku: null, error: data.errors[0].message };
+  }
+
+  return { haiku: data.data?.haiku ?? null };
 }
 
-// Helper functions for quality score display
+// Quality score display functions
 function colorByThreshold(value: number, threshold: number): string {
-  return value >= threshold ? pc.green(value.toFixed(3)) : pc.yellow(value.toFixed(3));
+  return value >= threshold
+    ? pc.green(value.toFixed(3))
+    : pc.yellow(value.toFixed(3));
 }
 
 function colorByZero(value: number): string {
@@ -102,6 +129,60 @@ function colorSentiment(value: number): string {
   return pc.yellow(value.toFixed(3));
 }
 
+interface ScoreDisplay {
+  label: string;
+  getValue: (q: NonNullable<HaikuValue['quality']>) => string;
+}
+
+const scoreDisplays: ScoreDisplay[] = [
+  { label: 'Nature words:', getValue: (q) => pc.green(String(q.natureWords)) },
+  { label: 'Repeated words:', getValue: (q) => colorByZero(q.repeatedWords) },
+  { label: 'Weak starts:', getValue: (q) => colorByZero(q.weakStarts) },
+  {
+    label: 'Blacklisted:',
+    getValue: (q) => colorByZero(q.blacklistedVerses ?? 0),
+  },
+  { label: 'Proper nouns:', getValue: (q) => colorByZero(q.properNouns ?? 0) },
+  { label: 'Sentiment:', getValue: (q) => colorSentiment(q.sentiment ?? 0.5) },
+  { label: 'Grammar:', getValue: (q) => colorByThreshold(q.grammar ?? 0, 0.5) },
+  {
+    label: 'Trigram flow:',
+    getValue: (q) => colorByThreshold(q.trigramFlow ?? 0, 2),
+  },
+  {
+    label: 'Markov flow:',
+    getValue: (q) => colorByThreshold(q.markovFlow ?? 0, 2),
+  },
+  {
+    label: 'Uniqueness:',
+    getValue: (q) => colorByThreshold(q.uniqueness ?? 0, 0.7),
+  },
+  {
+    label: 'Alliteration:',
+    getValue: (q) => colorByThreshold(q.alliteration ?? 0, 0.3),
+  },
+  {
+    label: 'Verse Distance:',
+    getValue: (q) => pc.magenta((q.verseDistance ?? 0).toFixed(3)),
+  },
+  {
+    label: 'Line Balance:',
+    getValue: (q) => colorByThreshold(q.lineLengthBalance ?? 0, 0.5),
+  },
+  {
+    label: 'Imagery:',
+    getValue: (q) => colorByThreshold(q.imageryDensity ?? 0, 0.15),
+  },
+  {
+    label: 'Coherence:',
+    getValue: (q) => colorByThreshold(q.semanticCoherence ?? 0, 0.1),
+  },
+  {
+    label: 'Verb Presence:',
+    getValue: (q) => colorByThreshold(q.verbPresence ?? 0, 0.3),
+  },
+];
+
 function displayQualityScores(haiku: HaikuValue): void {
   if (!haiku.quality) {
     return;
@@ -110,28 +191,20 @@ function displayQualityScores(haiku: HaikuValue): void {
 
   console.log(pc.bold('\n═══ Quality Scores ═══\n'));
 
-  console.log(`${pc.dim('Nature words:')}     ${pc.green(String(q.natureWords))}`);
-  console.log(`${pc.dim('Repeated words:')}   ${colorByZero(q.repeatedWords)}`);
-  console.log(`${pc.dim('Weak starts:')}      ${colorByZero(q.weakStarts)}`);
-  console.log(`${pc.dim('Sentiment:')}        ${colorSentiment(q.sentiment ?? 0.5)}`);
-  console.log(`${pc.dim('Grammar:')}          ${colorByThreshold(q.grammar ?? 0, 0.5)}`);
-  console.log(`${pc.dim('Trigram flow:')}     ${colorByThreshold(q.trigramFlow ?? 0, 2)}`);
-  console.log(`${pc.dim('Markov flow:')}      ${colorByThreshold(q.markovFlow ?? 0, 2)}`);
-  console.log(`${pc.dim('Uniqueness:')}       ${colorByThreshold(q.uniqueness ?? 0, 0.7)}`);
-  console.log(`${pc.dim('Alliteration:')}     ${colorByThreshold(q.alliteration ?? 0, 0.3)}`);
-  console.log(`${pc.dim('Verse Distance:')}   ${pc.magenta((q.verseDistance ?? 0).toFixed(3))}`);
-  console.log(`${pc.dim('Line Balance:')}     ${colorByThreshold(q.lineLengthBalance ?? 0, 0.5)}`);
-  console.log(`${pc.dim('Imagery:')}          ${colorByThreshold(q.imageryDensity ?? 0, 0.15)}`);
-  console.log(`${pc.dim('Coherence:')}        ${colorByThreshold(q.semanticCoherence ?? 0, 0.1)}`);
-  console.log(`${pc.dim('Verb Presence:')}    ${colorByThreshold(q.verbPresence ?? 0, 0.3)}`);
+  for (const { label, getValue } of scoreDisplays) {
+    console.log(`${pc.dim(label.padEnd(17))} ${getValue(q)}`);
+  }
 
   const totalColor = q.totalScore >= 0 ? pc.green : pc.red;
-  console.log(`\n${pc.dim('Total score:')}      ${pc.bold(totalColor(q.totalScore.toFixed(2)))}`);
+  console.log(
+    `\n${pc.dim('Total score:')}      ${pc.bold(totalColor(q.totalScore.toFixed(2)))}`,
+  );
 }
 
 try {
   console.log(pc.bold('\n🎋 Haiku Extraction\n'));
   console.log(pc.dim(`Iterations: ${iterations}`));
+  console.log(pc.dim(`Method: ${extractionMethod ?? 'auto'}`));
 
   const candidates: HaikuValue[] = [];
   let bestHaiku: HaikuValue | null = null;
@@ -141,12 +214,15 @@ try {
   for (let i = 0; i < iterations; i++) {
     const spinner = ora(`Generating haiku ${i + 1}/${iterations}...`).start();
 
-    const haiku = await fetchHaiku();
+    const result = await fetchHaiku();
 
-    if (!haiku) {
-      spinner.fail(pc.red(`Failed to generate haiku ${i + 1}`));
+    if (!result.haiku) {
+      const errorMsg = result.error ? `: ${result.error}` : '';
+      spinner.fail(pc.red(`Failed to generate haiku ${i + 1}${errorMsg}`));
       continue;
     }
+
+    const haiku = result.haiku;
 
     const score = haiku.quality?.totalScore ?? 0;
     candidates.push(haiku);
@@ -159,8 +235,8 @@ try {
 
     spinner.succeed(
       pc.green(`Haiku ${i + 1}`) +
-      pc.dim(` (${haiku.book.title})`) +
-      pc.magenta(` [score: ${score.toFixed(2)}]`)
+        pc.dim(` (${haiku.book.title})`) +
+        pc.magenta(` [score: ${score.toFixed(2)}]`),
     );
   }
 
@@ -177,7 +253,9 @@ try {
       const score = haiku.quality?.totalScore ?? 0;
       const isBest = i === bestIndex;
       const marker = isBest ? pc.green('★ BEST') : '';
-      const indexStr = isBest ? pc.green(pc.bold(`#${i + 1}`)) : pc.dim(`#${i + 1}`);
+      const indexStr = isBest
+        ? pc.green(pc.bold(`#${i + 1}`))
+        : pc.dim(`#${i + 1}`);
       const scoreStr = pc.magenta(`[score: ${score.toFixed(2)}]`);
       const bookInfo = pc.dim(`(${haiku.book.title})`);
 

@@ -11,6 +11,7 @@ export class GenerateHaikuQuery extends Query<HaikuValue> {
   public readonly selectionCount: number;
   public readonly theme: string;
   public readonly filter: string;
+  public readonly extractionMethod?: 'punctuation' | 'chunk' | 'ga';
   public readonly sentimentMinScore: number;
   public readonly markovMinScore: number;
   public readonly posMinScore: number;
@@ -36,6 +37,7 @@ export class GenerateHaikuQuery extends Query<HaikuValue> {
     this.selectionCount = variables.selectionCount;
     this.theme = variables.theme;
     this.filter = variables.filter;
+    this.extractionMethod = variables.extractionMethod;
     this.sentimentMinScore = variables.sentimentMinScore;
     this.markovMinScore = variables.markovMinScore;
     this.posMinScore = variables.posMinScore;
@@ -62,6 +64,7 @@ export class GenerateHaikuQuery extends Query<HaikuValue> {
       selectionCount: this.selectionCount,
       theme: this.theme,
       filter: this.filter,
+      extractionMethod: this.extractionMethod,
       sentimentMinScore: this.sentimentMinScore,
       markovMinScore: this.markovMinScore,
       posMinScore: this.posMinScore,

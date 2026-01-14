@@ -101,6 +101,7 @@ export default class HaikuGeneratorService implements IGenerator {
   private bookPool: BookValueWithChapters[] = [];
   private cachedThresholds: ScoreThresholds | null = null;
   private lastExtractionMethod: ExtractionMethod = 'punctuation';
+  private forcedExtractionMethod: 'punctuation' | 'chunk' | null = null;
   private validator: HaikuValidatorService;
 
   constructor(
@@ -133,10 +134,18 @@ export default class HaikuGeneratorService implements IGenerator {
     this.theme = options?.theme ?? defaults.theme;
     this.filterWords = [];
     this.bookPool = [];
+    this.forcedExtractionMethod = null;
     this.validator.clearCache();
     this.cachedThresholds = this.buildThresholds(score);
     this.validator.resetRejectionStats();
 
+    return this;
+  }
+
+  setExtractionMethod(
+    method: 'punctuation' | 'chunk' | null,
+  ): HaikuGeneratorService {
+    this.forcedExtractionMethod = method;
     return this;
   }
 
@@ -261,6 +270,20 @@ export default class HaikuGeneratorService implements IGenerator {
 
   async prepare(): Promise<void> {
     await this.markovEvaluator.load();
+
+    if (!this.markovEvaluator.isReady()) {
+      log.warn('Markov model not available - disabling markov validation');
+      this.disableMarkovValidation();
+    }
+  }
+
+  private disableMarkovValidation(): void {
+    if (this.cachedThresholds) {
+      this.cachedThresholds.markov = 0;
+      this.cachedThresholds.trigram = 0;
+    }
+    this.markovMinScore = 0;
+    this.trigramMinScore = 0;
   }
 
   async buildFromDb(): Promise<HaikuValue | null> {
@@ -515,10 +538,15 @@ export default class HaikuGeneratorService implements IGenerator {
 
   extractQuotes(chapter: string): QuoteCandidate[] {
     const nl = this.naturalLanguage;
-    const extractors: [ExtractionMethod, () => string[]][] = [
+    const allExtractors: [ExtractionMethod, () => string[]][] = [
       ['punctuation', () => nl.extractSentencesByPunctuation(chapter)],
       ['chunk', () => nl.extractWordChunks(chapter)],
     ];
+
+    const extractors = this.forcedExtractionMethod
+      ? allExtractors.filter(([name]) => name === this.forcedExtractionMethod)
+      : allExtractors;
+
     for (const [name, fn] of extractors) {
       const sentences = fn();
 

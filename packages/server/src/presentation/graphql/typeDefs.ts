@@ -46,6 +46,8 @@ const typeDefs = `#graphql
         natureWords: Int!
         repeatedWords: Int!
         weakStarts: Int!
+        blacklistedVerses: Int!
+        properNouns: Int!
         sentiment: Float!
         grammar: Float!
         trigramFlow: Float!
@@ -151,6 +153,7 @@ const typeDefs = `#graphql
             selectionCount: Int,
             theme: String,
             filter: String,
+            extractionMethod: String,
             sentimentMinScore: Float,
             markovMinScore: Float,
             posMinScore: Float,

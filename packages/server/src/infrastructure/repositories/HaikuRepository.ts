@@ -96,6 +96,8 @@ export default class HaikuRepository implements IHaikuRepository {
         chapter: document.chapter,
         rawVerses: document.rawVerses,
         verses: document.verses,
+        quality: document.quality,
+        extractionMethod: document.extractionMethod,
       });
     });
 
@@ -103,9 +105,8 @@ export default class HaikuRepository implements IHaikuRepository {
   }
 
   /**
-   * Extract a deterministic haiku from cache using seeded random selection.
-   * Returns the same haiku for the same seed (date-based).
-   * Excludes haikus created on or after excludeDate for deterministic results.
+   * Get haiku from cache by seed (date-based).
+   * Excludes haikus created on or after excludeDate.
    */
   async extractDeterministicFromCache(
     seed: number,
@@ -119,16 +120,15 @@ export default class HaikuRepository implements IHaikuRepository {
     try {
       const haikusCollection = this.db.collection('haikus');
 
-      // Convert excludeDate (YYYY-MM-DD) to ISO timestamp at midnight for consistent comparison
+      // Convert excludeDate (YYYY-MM-DD) to ISO timestamp at midnight
       const excludeTimestamp = `${excludeDate}T00:00:00.000Z`;
       const matchFilter = { createdAt: { $lt: excludeTimestamp } };
 
-      // First, get count of eligible documents (avoids loading all into memory)
+      // Get count of eligible documents
       const countResult = await haikusCollection
-        .aggregate(
-          [{ $match: matchFilter }, { $count: 'total' }],
-          { maxTimeMS: 5000 },
-        )
+        .aggregate([{ $match: matchFilter }, { $count: 'total' }], {
+          maxTimeMS: 5000,
+        })
         .toArray();
 
       const count = countResult[0]?.total || 0;
@@ -141,11 +141,11 @@ export default class HaikuRepository implements IHaikuRepository {
         return null;
       }
 
-      // Use seeded random to select index deterministically
+      // Use seeded random to select index
       const random = seededRandom(seed);
       const index = Math.floor(random() * count);
 
-      // Fetch only the selected document using aggregation with $skip and $limit
+      // Fetch selected document
       const result = await haikusCollection
         .aggregate(
           [
@@ -174,6 +174,8 @@ export default class HaikuRepository implements IHaikuRepository {
         chapter: selected.chapter,
         rawVerses: selected.rawVerses,
         verses: selected.verses,
+        quality: selected.quality,
+        extractionMethod: selected.extractionMethod,
       };
     } catch (error) {
       log.warn(

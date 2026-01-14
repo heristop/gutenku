@@ -8,12 +8,11 @@ import type { ICanvasService } from '../src/domain/services/ICanvasService';
 import type { IEventBus } from '../src/domain/events/IEventBus';
 import { PubSubService } from '../src/infrastructure/services/PubSubService';
 
-// Mock fs.unlink used via promisify in appendImg
+// Mock fs.unlink
 vi.mock('fs', () => ({
   unlink: (_path: string, cb: (err: unknown) => void) => cb(null),
 }));
 
-// Factory to create service instance with mocked dependencies
 const makeService = () => {
   class FakeHaikuRepository implements IHaikuRepository {
     extractFromCache = vi.fn(async () => []);
@@ -39,19 +38,23 @@ const makeService = () => {
     evaluateHaiku: vi.fn((_verses: string[]) => 1),
     evaluateHaikuTrigrams: vi.fn((_verses: string[]) => 1),
     load: vi.fn(async () => {}),
+    isReady: vi.fn(() => true),
   };
   const naturalLanguage = {
     analyzeGrammar: vi.fn(() => ({ score: 1 })),
     analyzePhonetics: vi.fn(() => ({ alliterationScore: 1 })),
     analyzeSentiment: (_t: string) => 1,
     countSyllables: (t: string) => t.split(/\s+/g).filter(Boolean).length,
-    extractByExpandedClauses: (t: string) => t.split(/[:;,\-—]+\s+/g).filter((s: string) => s.trim().length > 0),
+    extractByExpandedClauses: (t: string) =>
+      t.split(/[:;,\-—]+\s+/g).filter((s: string) => s.trim().length > 0),
     extractSentences: (t: string) => t.split(/[.?!]+\s+/g),
     extractSentencesByPunctuation: (t: string) => t.split(/[.?!,;]+\s+/g),
     extractWordChunks: (t: string) => {
       const words = t.split(/\s+/g).filter(Boolean);
       const chunks: string[] = [];
-      for (let i = 0; i <= words.length - 2; i += 2) {chunks.push(words.slice(i, i + 2).join(' '));}
+      for (let i = 0; i <= words.length - 2; i += 2) {
+        chunks.push(words.slice(i, i + 2).join(' '));
+      }
       return chunks;
     },
     extractWords: (t: string) => t.split(/\s+/g).filter(Boolean),
@@ -96,10 +99,7 @@ const makeService = () => {
 };
 
 describe('HaikuGeneratorService', () => {
-  beforeEach(() => {
-    // Score thresholds are now constants in validation.ts
-    // Use generator.configure() to set test-specific thresholds
-  });
+  beforeEach(() => {});
 
   it('buildHaiku constructs expected HaikuValue', () => {
     const { svc } = makeService();
@@ -133,7 +133,11 @@ describe('HaikuGeneratorService', () => {
     expect(svc.isQuoteInvalid('bad #')).toBeTruthy();
     deps.naturalLanguage.hasBlacklistedCharsInQuote = () => false;
     // VERSE_MAX_LENGTH is now a constant (30) - test with string >= 30 chars
-    expect(svc.isQuoteInvalid('this is a very long quote that exceeds thirty characters')).toBeTruthy();
+    expect(
+      svc.isQuoteInvalid(
+        'this is a very long quote that exceeds thirty characters',
+      ),
+    ).toBeTruthy();
     expect(svc.isQuoteInvalid('short quote here')).toBeFalsy();
   });
 
@@ -182,7 +186,7 @@ describe('HaikuGeneratorService', () => {
     expect(typeof withImg.image).toBe('string');
   });
 
-  it('configure sets options correctly', () => {
+  it('configure sets options', () => {
     const { svc } = makeService();
     const result = svc.configure({
       cache: {
@@ -474,7 +478,7 @@ describe('HaikuGeneratorService', () => {
     expect(result).toBeNull();
   });
 
-  it('buildHaiku creates correct haiku structure with context', () => {
+  it('buildHaiku creates haiku structure with context', () => {
     const { svc } = makeService();
     // @ts-expect-error – test stub allows partial book shape
     const book = {
