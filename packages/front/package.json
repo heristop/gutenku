@@ -44,7 +44,7 @@
     "@vitejs/plugin-vue": "^6.0.3",
     "axe-core": "^4.11.1",
     "beasties": "^0.3.5",
-    "cypress": "^15.8.2",
+    "cypress": "^15.9.0",
     "cypress-axe": "^1.7.0",
     "postcss-html": "^1.8.1",
     "purgecss": "^7.0.2",

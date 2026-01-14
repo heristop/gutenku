@@ -106,11 +106,11 @@ importers:
         specifier: ^0.3.5
         version: 0.3.5
       cypress:
-        specifier: ^15.8.2
-        version: 15.8.2
+        specifier: ^15.9.0
+        version: 15.9.0
       cypress-axe:
         specifier: ^1.7.0
-        version: 1.7.0(axe-core@4.11.1)(cypress@15.8.2)
+        version: 1.7.0(axe-core@4.11.1)(cypress@15.9.0)
       postcss-html:
         specifier: ^1.8.1
         version: 1.8.1
@@ -222,6 +222,9 @@ importers:
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
+      log-update:
+        specifier: ^7.0.2
+        version: 7.0.2
       mongo-sanitize:
         specifier: ^1.1.0
         version: 1.1.0
@@ -252,9 +255,15 @@ importers:
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
+      seedrandom:
+        specifier: ^3.0.5
+        version: 3.0.5
       sharp:
         specifier: ^0.34.5
         version: 0.34.5
+      string-width:
+        specifier: ^8.1.0
+        version: 8.1.0
       syllable:
         specifier: ^5.0.1
         version: 5.0.1
@@ -289,6 +298,9 @@ importers:
       '@types/node-fetch':
         specifier: ^2.6.13
         version: 2.6.13
+      '@types/seedrandom':
+        specifier: ^3.0.8
+        version: 3.0.8
       '@types/ws':
         specifier: ^8.18.1
         version: 8.18.1
@@ -382,11 +394,11 @@ importers:
         specifier: ^4.11.1
         version: 4.11.1
       cypress:
-        specifier: ^15.8.2
-        version: 15.8.2
+        specifier: ^15.9.0
+        version: 15.9.0
       cypress-axe:
         specifier: ^1.7.0
-        version: 1.7.0(axe-core@4.11.1)(cypress@15.8.2)
+        version: 1.7.0(axe-core@4.11.1)(cypress@15.9.0)
       postcss-html:
         specifier: ^1.8.1
         version: 1.8.1
@@ -2876,9 +2888,6 @@ packages:
   '@types/node@16.9.1':
     resolution: {integrity: sha512-QpLcX9ZSsq3YYUUnD3nFDY8H7wctAhQj/TFKL8Ya8v5fMm3CFXxo8zStsLAl780ltoYoo1WvKUVGBQK+1ifr7g==}
 
-  '@types/node@20.19.29':
-    resolution: {integrity: sha512-YrT9ArrGaHForBaCNwFjoqJWmn8G1Pr7+BH/vwyLHciA9qT/wSiuOhxGCT50JA5xLvFBd6PIiGkE3afxcPE1nw==}
-
   '@types/node@25.0.8':
     resolution: {integrity: sha512-powIePYMmC3ibL0UJ2i2s0WIbq6cg6UyVFQxSCpaPxxzAaziRfimGivjdF943sSGV6RADVbk0Nvlm5P/FB44Zg==}
 
@@ -2896,6 +2905,9 @@ packages:
 
   '@types/responselike@1.0.3':
     resolution: {integrity: sha512-H/+L+UkTV33uf49PH5pCAUBVPNj2nDBXTN+qS1dOwyyg24l3CcicicCA7ca+HMvJBZcFgl5r8e+RR6elsb4Lyw==}
+
+  '@types/seedrandom@3.0.8':
+    resolution: {integrity: sha512-TY1eezMU2zH2ozQoAFAQFOPpvP15g+ZgSfTZt31AUUH/Rxtnz3H+A/Sv1Snw2/amp//omibc+AEkTaA8KUeOLQ==}
 
   '@types/send@1.2.1':
     resolution: {integrity: sha512-arsCikDvlU99zl1g69TcAB3mzZPpxgw0UQnaHeC1Nwb015xp8bknZv5rIfri9xTOcMuaVgvabfIRA7PSZVuZIQ==}
@@ -3795,8 +3807,8 @@ packages:
     resolution: {integrity: sha512-tRkV3HJ1ASwm19THiiLIXLO7Im7wlTuKnvkYaTkyoAPefqjNg7W7DHKUlGRxy9vxDvbyCYQkQozvptuMkGCg8A==}
     engines: {node: '>=4'}
 
-  cli-spinners@3.3.0:
-    resolution: {integrity: sha512-/+40ljC3ONVnYIttjMWrlL51nItDAbBrq2upN8BPyvGU/2n5Oxw3tbNwORCaNuNqLJnxGqOfjUuhsv7l5Q4IsQ==}
+  cli-spinners@3.4.0:
+    resolution: {integrity: sha512-bXfOC4QcT1tKXGorxL3wbJm6XJPDqEnij2gQ2m7ESQuE+/z9YFIWnl/5RpTiKWbMq3EVKR4fRLJGn6DVfu0mpw==}
     engines: {node: '>=18.20'}
 
   cli-table3@0.6.1:
@@ -4077,8 +4089,8 @@ packages:
       axe-core: ^3 || ^4
       cypress: ^10 || ^11 || ^12 || ^13 || ^14 || ^15
 
-  cypress@15.8.2:
-    resolution: {integrity: sha512-KGpuiE8o9l9eyVLPkig574t8zOXkEDKzI0a+RQwy4cfXzpaLipvTOv0t+QEEkLiw/8HbgMNZ0fbPKakJAB3USA==}
+  cypress@15.9.0:
+    resolution: {integrity: sha512-Ks6Bdilz3TtkLZtTQyqYaqtL/WT3X3APKaSLhTV96TmTyudzSjc6EJsJCHmBb7DxO+3R12q3Jkbjgm/iPgmwfg==}
     engines: {node: ^20.1.0 || ^22.0.0 || >=24.0.0}
     hasBin: true
 
@@ -6169,6 +6181,10 @@ packages:
     resolution: {integrity: sha512-9ie8ItPR6tjY5uYJh8K/Zrv/RMZ5VOlOWvtZdEHYSTFKZfIBPQa9tOAEeAWhd+AnIneLJ22w5fjOYtoutpWq5w==}
     engines: {node: '>=18'}
 
+  log-update@7.0.2:
+    resolution: {integrity: sha512-cSSF1K5w9juI2+JeSRAdaTUZJf6cJB0aWwWO1nQQkcWw44+bIfXmhZMwK2eEsv6tXvU3UfKX/kzcX6SP+1tLAw==}
+    engines: {node: '>=20'}
+
   logalot@2.1.0:
     resolution: {integrity: sha512-Ah4CgdSRfeCJagxQhcVNMi9BfGYyEKLa6d7OA6xSbld/Hg3Cf2QiOa1mDpmG7Ve8LOH6DN3mdttzjQAvWTyVkw==}
     engines: {node: '>=0.10.0'}
@@ -7724,6 +7740,9 @@ packages:
   secure-json-parse@4.1.0:
     resolution: {integrity: sha512-l4KnYfEyqYJxDwlNVyRfO2E4NTHfMKAWdUuA8J0yve2Dz/E/PdBepY03RvyJpssIpRFwJoCD55wA+mEDs6ByWA==}
 
+  seedrandom@3.0.5:
+    resolution: {integrity: sha512-8OwmbklUNzwezjGInmZ+2clQmExQPvomqjL7LFqOYqtmuxRgQYqOD3mHaU+MvZn5FLUeVxVfQjwLZW/n/JFuqg==}
+
   seek-bzip@1.0.6:
     resolution: {integrity: sha512-e1QtP3YL5tWww8uKaOCQ18UxIT2laNBXHjV/S2WYCiK4udiv8lkG89KRIoCjUagnAmCBurjF4zEVX2ByBbnCjQ==}
     hasBin: true
@@ -8557,9 +8576,6 @@ packages:
 
   underscore@1.13.7:
     resolution: {integrity: sha512-GMXzWtsc57XAtguZgaQViUOzs0KTkk8ojr3/xAxXLITqf/3EMwxC0inyETfDFjH/Krbhuep0HNbbjI9i/q3F3g==}
-
-  undici-types@6.21.0:
-    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
@@ -11580,7 +11596,7 @@ snapshots:
 
   '@types/conventional-commits-parser@5.0.2':
     dependencies:
-      '@types/node': 20.19.29
+      '@types/node': 25.0.8
 
   '@types/cors@2.8.19':
     dependencies:
@@ -11791,10 +11807,6 @@ snapshots:
 
   '@types/node@16.9.1': {}
 
-  '@types/node@20.19.29':
-    dependencies:
-      undici-types: 6.21.0
-
   '@types/node@25.0.8':
     dependencies:
       undici-types: 7.16.0
@@ -11810,6 +11822,8 @@ snapshots:
   '@types/responselike@1.0.3':
     dependencies:
       '@types/node': 25.0.8
+
+  '@types/seedrandom@3.0.8': {}
 
   '@types/send@1.2.1':
     dependencies:
@@ -12901,7 +12915,7 @@ snapshots:
     dependencies:
       string-width: 4.2.3
 
-  cli-spinners@3.3.0: {}
+  cli-spinners@3.4.0: {}
 
   cli-table3@0.6.1:
     dependencies:
@@ -13171,12 +13185,12 @@ snapshots:
 
   cycled@1.2.0: {}
 
-  cypress-axe@1.7.0(axe-core@4.11.1)(cypress@15.8.2):
+  cypress-axe@1.7.0(axe-core@4.11.1)(cypress@15.9.0):
     dependencies:
       axe-core: 4.11.1
-      cypress: 15.8.2
+      cypress: 15.9.0
 
-  cypress@15.8.2:
+  cypress@15.9.0:
     dependencies:
       '@cypress/request': 3.0.10
       '@cypress/xvfb': 1.2.4(supports-color@8.1.1)
@@ -15659,6 +15673,14 @@ snapshots:
       strip-ansi: 7.1.2
       wrap-ansi: 9.0.2
 
+  log-update@7.0.2:
+    dependencies:
+      ansi-escapes: 7.2.0
+      cli-cursor: 5.0.0
+      slice-ansi: 7.1.2
+      strip-ansi: 7.1.2
+      wrap-ansi: 9.0.2
+
   logalot@2.1.0:
     dependencies:
       figures: 1.7.0
@@ -16172,7 +16194,7 @@ snapshots:
     dependencies:
       chalk: 5.6.2
       cli-cursor: 5.0.0
-      cli-spinners: 3.3.0
+      cli-spinners: 3.4.0
       is-interactive: 2.0.0
       is-unicode-supported: 2.1.0
       log-symbols: 7.0.1
@@ -17226,6 +17248,8 @@ snapshots:
 
   secure-json-parse@4.1.0: {}
 
+  seedrandom@3.0.5: {}
+
   seek-bzip@1.0.6:
     dependencies:
       commander: 2.20.3
@@ -18224,8 +18248,6 @@ snapshots:
     optional: true
 
   underscore@1.13.7: {}
-
-  undici-types@6.21.0: {}
 
   undici-types@7.16.0: {}
 
