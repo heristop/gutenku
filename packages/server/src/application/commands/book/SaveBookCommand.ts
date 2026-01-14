@@ -7,6 +7,7 @@ export interface SaveBookResult {
   chaptersCount: number;
   title?: string;
   error?: string;
+  source?: 'db' | 'new';
 }
 
 export class SaveBookCommand extends Command<SaveBookResult> {

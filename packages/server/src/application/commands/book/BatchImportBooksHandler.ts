@@ -28,6 +28,7 @@ export class BatchImportBooksHandler implements ICommandHandler<
       chaptersCount: number;
       title?: string;
       error?: string;
+      source?: 'db' | 'new';
     }> = [];
 
     const total = command.bookIds.length;
@@ -53,6 +54,7 @@ export class BatchImportBooksHandler implements ICommandHandler<
           chaptersCount: result.chaptersCount,
           title: result.title,
           error: result.error,
+          source: result.source,
         });
       } catch (error) {
         results.push({
@@ -68,7 +70,9 @@ export class BatchImportBooksHandler implements ICommandHandler<
     }
 
     // New books: saved successfully and not already existing
-    const newCount = results.filter((r) => r.success && !r.alreadyExists).length;
+    const newCount = results.filter(
+      (r) => r.success && !r.alreadyExists,
+    ).length;
     // Skipped: already exists (not new, no error)
     const skippedCount = results.filter((r) => r.alreadyExists).length;
     // Failed: has an error

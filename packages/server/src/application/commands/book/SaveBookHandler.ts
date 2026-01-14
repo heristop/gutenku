@@ -35,13 +35,21 @@ export class SaveBookHandler implements ICommandHandler<
   async execute(command: SaveBookCommand): Promise<SaveBookResult> {
     const filePath = join(command.dataDirectory, `book_${command.bookId}.txt`);
 
-    // Check if book already exists in DB
-    if (await this.bookRepository.existsByReference(command.bookId)) {
+    // Check if book already exists in DB - fetch info if so
+    const existingBook = await this.bookRepository.findByReference(
+      command.bookId,
+    );
+    if (existingBook) {
+      const chapters = await this.chapterRepository.getChaptersByBookReference(
+        existingBook.reference,
+      );
       return {
         bookId: command.bookId,
         success: true,
         alreadyExists: true,
-        chaptersCount: 0,
+        chaptersCount: chapters.length,
+        title: existingBook.title,
+        source: 'db',
       };
     }
 
@@ -85,6 +93,7 @@ export class SaveBookHandler implements ICommandHandler<
         alreadyExists: false,
         chaptersCount: chapterIds.length,
         title: result.parsedBook.title,
+        source: 'new',
       };
     } catch (error) {
       return {

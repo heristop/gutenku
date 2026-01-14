@@ -9,6 +9,7 @@ export interface ImportBookResult {
   chaptersCount: number;
   title?: string;
   error?: string;
+  source?: 'db' | 'new';
 }
 
 export class ImportBookCommand extends Command<ImportBookResult> {

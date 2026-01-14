@@ -13,6 +13,7 @@ export interface BatchImportResult {
     chaptersCount: number;
     title?: string;
     error?: string;
+    source?: 'db' | 'new';
   }>;
 }
 

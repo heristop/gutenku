@@ -61,6 +61,7 @@ export class ImportBookHandler implements ICommandHandler<
       chaptersCount: saveResult.chaptersCount,
       title: saveResult.title,
       error: saveResult.error,
+      source: saveResult.source,
     };
   }
 }
