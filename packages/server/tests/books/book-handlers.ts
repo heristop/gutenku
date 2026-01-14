@@ -28,6 +28,7 @@ describe('Book Command Handlers', () => {
         getAllBooks: vi.fn(),
         getBookById: vi.fn(),
         selectRandomBook: vi.fn(),
+        selectRandomBooks: vi.fn(),
         existsByReference: vi.fn(),
         findByReference: vi.fn(),
         create: vi.fn(),
@@ -148,6 +149,7 @@ describe('Book Command Handlers', () => {
         getAllBooks: vi.fn(),
         getBookById: vi.fn(),
         selectRandomBook: vi.fn(),
+        selectRandomBooks: vi.fn(),
         existsByReference: vi.fn(),
         findByReference: vi.fn(),
         create: vi.fn(),
@@ -159,6 +161,7 @@ describe('Book Command Handlers', () => {
         getAllChapters: vi.fn(),
         getChapterById: vi.fn(),
         getFilteredChapters: vi.fn(),
+        getChaptersByBookReference: vi.fn(),
         createMany: vi.fn(),
         deleteByBookId: vi.fn(),
       };
@@ -181,19 +184,29 @@ describe('Book Command Handlers', () => {
     });
 
     it('returns alreadyExists if book exists in database', async () => {
-      vi.mocked(mockBookRepo.existsByReference).mockResolvedValue(true);
+      vi.mocked(mockBookRepo.findByReference).mockResolvedValue({
+        reference: '12345',
+        title: 'Existing Book',
+        author: 'Test Author',
+      });
+      vi.mocked(mockChapterRepo.getChaptersByBookReference).mockResolvedValue([
+        { title: 'Chapter 1', content: 'content' },
+        { title: 'Chapter 2', content: 'content' },
+      ]);
 
       const command = new SaveBookCommand(12345, '/data');
       const result = await handler.execute(command);
 
       expect(result.success).toBeTruthy();
       expect(result.alreadyExists).toBeTruthy();
-      expect(result.chaptersCount).toBe(0);
+      expect(result.chaptersCount).toBe(2);
+      expect(result.title).toBe('Existing Book');
+      expect(result.source).toBe('db');
       expect(mockFileSystem.readFile).not.toHaveBeenCalled();
     });
 
     it('parses and saves new book with chapters', async () => {
-      vi.mocked(mockBookRepo.existsByReference).mockResolvedValue(false);
+      vi.mocked(mockBookRepo.findByReference).mockResolvedValue(null);
       vi.mocked(mockFileSystem.readFile).mockResolvedValue('book content');
       vi.mocked(mockBookParser.parseContent).mockReturnValue({
         isValid: true,
@@ -241,7 +254,7 @@ describe('Book Command Handlers', () => {
     });
 
     it('returns failure if file read fails', async () => {
-      vi.mocked(mockBookRepo.existsByReference).mockResolvedValue(false);
+      vi.mocked(mockBookRepo.findByReference).mockResolvedValue(null);
       vi.mocked(mockFileSystem.readFile).mockRejectedValue(
         new Error('File not found'),
       );
@@ -254,7 +267,7 @@ describe('Book Command Handlers', () => {
     });
 
     it('returns failure if book parsing fails', async () => {
-      vi.mocked(mockBookRepo.existsByReference).mockResolvedValue(false);
+      vi.mocked(mockBookRepo.findByReference).mockResolvedValue(null);
       vi.mocked(mockFileSystem.readFile).mockResolvedValue('Invalid content');
       vi.mocked(mockBookParser.parseContent).mockReturnValue({
         isValid: false,
