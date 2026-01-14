@@ -1007,15 +1007,24 @@ useSeoMeta({
 [data-theme='dark'] .blog-article {
   &__header {
     position: relative;
-    padding: 1.5rem 2rem;
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 500px;
+    padding: 1rem 1.25rem;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
     background: oklch(0.12 0.02 60 / 0.5);
     backdrop-filter: blur(12px);
     border-radius: 1rem;
     border: 1px solid var(--gutenku-paper-border);
     box-shadow: var(--gutenku-shadow-glass);
+
+    @media (min-width: 375px) {
+      padding: 1.25rem 1.5rem;
+    }
+
+    @media (min-width: 600px) {
+      margin-left: 0;
+      margin-right: 0;
+      padding: 1.5rem 2rem;
+    }
   }
 
   &__back-to-blog {
