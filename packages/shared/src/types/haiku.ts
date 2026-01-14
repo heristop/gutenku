@@ -43,6 +43,8 @@ export interface HaikuQualityScore {
   natureWords: number;
   repeatedWords: number;
   weakStarts: number;
+  blacklistedVerses: number;
+  properNouns: number;
   sentiment: number;
   grammar: number;
   trigramFlow: number;
@@ -57,7 +59,12 @@ export interface HaikuQualityScore {
   totalScore: number;
 }
 
-export type ExtractionMethod = 'punctuation' | 'tokenizer' | 'clause' | 'chunk';
+export type ExtractionMethod =
+  | 'punctuation'
+  | 'tokenizer'
+  | 'clause'
+  | 'chunk'
+  | 'genetic_algorithm';
 
 export interface HaikuValue {
   book: BookValue;

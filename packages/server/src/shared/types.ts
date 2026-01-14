@@ -9,10 +9,11 @@ export type {
   Translations,
   HaikuResponseData,
   ChapterResponseData,
+  ExtractionMethod,
 } from '@gutenku/shared';
 
-// Server-only types
-export type ExtractionMethod = 'punctuation' | 'chunk';
+// Server extends shared ExtractionMethod with additional types
+// Note: 'genetic_algorithm' is now defined in @gutenku/shared
 
 export interface BookValueWithChapters {
   reference: string;
