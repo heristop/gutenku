@@ -54,7 +54,7 @@ function trainWorker(chapters: string[]): WorkerResult {
         const lowerWord = word.toLowerCase();
 
         if (!FANBOYS_SET.has(lowerWord)) {
-          wordList.push(word);
+          wordList.push(lowerWord);
           vocabulary.add(lowerWord);
         }
       }

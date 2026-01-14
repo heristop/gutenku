@@ -52,7 +52,7 @@ export class MarkovChainService {
         const lowerWord = word.toLowerCase();
 
         if (!FANBOYS_SET.has(lowerWord)) {
-          wordList.push(word);
+          wordList.push(lowerWord);
           this.vocabulary.add(lowerWord);
         }
       }
@@ -119,8 +119,8 @@ export class MarkovChainService {
       return 0;
     }
 
-    const lastWordFrom = fromWords.at(-1);
-    const firstWordTo = toWords[0];
+    const lastWordFrom = fromWords.at(-1).toLowerCase();
+    const firstWordTo = toWords[0].toLowerCase();
     const transitions = this.bigrams.get(lastWordFrom);
     if (transitions) {
       const count = transitions.get(firstWordTo);
@@ -141,8 +141,9 @@ export class MarkovChainService {
       return 0;
     }
 
-    const key = `${fromWords.at(-2)} ${fromWords.at(-1)}`;
-    const firstWordTo = toWords[0];
+    const len = fromWords.length;
+    const key = `${fromWords[len - 2].toLowerCase()} ${fromWords[len - 1].toLowerCase()}`;
+    const firstWordTo = toWords[0].toLowerCase();
     const transitions = this.trigrams.get(key);
     if (transitions) {
       const count = transitions.get(firstWordTo);
@@ -166,7 +167,7 @@ export class MarkovChainService {
       return SMOOTHING_ALPHA / (SMOOTHING_ALPHA * this.vocabulary.size || 1);
     }
 
-    const lastWordFrom = fromWords.at(-1)?.toLowerCase();
+    const lastWordFrom = fromWords.at(-1).toLowerCase();
     const firstWordTo = toWords[0].toLowerCase();
 
     const transitions = this.bigrams.get(lastWordFrom);
@@ -175,7 +176,6 @@ export class MarkovChainService {
 
     const count = transitions?.get(firstWordTo) || 0;
 
-    // Laplace smoothing: (count + alpha) / (total + alpha * vocabSize)
     return (
       (count + SMOOTHING_ALPHA) /
       (totalTransitions + SMOOTHING_ALPHA * vocabSize)
@@ -192,7 +192,8 @@ export class MarkovChainService {
       return SMOOTHING_ALPHA / (SMOOTHING_ALPHA * this.vocabulary.size || 1);
     }
 
-    const key = `${fromWords.at(-2)?.toLowerCase()} ${fromWords.at(-1)?.toLowerCase()}`;
+    const len = fromWords.length;
+    const key = `${fromWords[len - 2].toLowerCase()} ${fromWords[len - 1].toLowerCase()}`;
     const firstWordTo = toWords[0].toLowerCase();
 
     const transitions = this.trigrams.get(key);
@@ -319,24 +320,38 @@ export class MarkovChainService {
     waitForDrain: () => Promise<void>,
     spreadValue: boolean,
   ): Promise<void> {
+    const STRINGIFY_BATCH = 500;
     let first = true;
     let count = 0;
+    let batch: unknown[] = [];
 
     for (const [key, value] of map) {
-      const prefix = first ? '' : ',';
-      first = false;
       const data = spreadValue
         ? [key, [...(value as Map<string, number>)]]
         : [key, value];
-      const ok = stream.write(prefix + JSON.stringify(data));
+      batch.push(data);
 
-      if (!ok) {
-        await waitForDrain();
+      if (batch.length >= STRINGIFY_BATCH) {
+        const prefix = first ? '' : ',';
+        first = false;
+        const ok = stream.write(
+          prefix + batch.map((b) => JSON.stringify(b)).join(','),
+        );
+        batch = [];
+
+        if (!ok) {
+          await waitForDrain();
+        }
       }
 
       if (++count % batchSize === 0) {
         await yieldToGC();
       }
+    }
+
+    if (batch.length > 0) {
+      const prefix = first ? '' : ',';
+      stream.write(prefix + batch.map((b) => JSON.stringify(b)).join(','));
     }
   }
 
@@ -346,18 +361,29 @@ export class MarkovChainService {
     batchSize: number,
     yieldToGC: () => Promise<void>,
   ): Promise<void> {
+    const STRINGIFY_BATCH = 500;
     let first = true;
     let count = 0;
+    let batch: string[] = [];
 
     for (const item of set) {
-      if (!first) {
-        stream.write(',');
+      batch.push(item);
+
+      if (batch.length >= STRINGIFY_BATCH) {
+        const prefix = first ? '' : ',';
+        first = false;
+        stream.write(prefix + batch.map((b) => JSON.stringify(b)).join(','));
+        batch = [];
       }
-      first = false;
-      stream.write(JSON.stringify(item));
+
       if (++count % batchSize === 0) {
         await yieldToGC();
       }
+    }
+
+    if (batch.length > 0) {
+      const prefix = first ? '' : ',';
+      stream.write(prefix + batch.map((b) => JSON.stringify(b)).join(','));
     }
   }
 
