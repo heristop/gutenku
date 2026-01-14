@@ -125,6 +125,9 @@ const { message: craftingMessage } = useLoadingMessages({
 <style lang="scss" scoped>
 .haiku-crafting {
   margin-bottom: 1.5rem;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 
   &:hover :deep(.zen-card__paper) {
     opacity: 0.15;
@@ -383,6 +386,11 @@ const { message: craftingMessage } = useLoadingMessages({
 }
 
 @media (max-width: 768px) {
+  .haiku-crafting {
+    width: 100%;
+    max-width: 100%;
+  }
+
   .haiku-crafting.book-page {
     padding: 2rem 1.5rem 1.5rem 2rem;
     min-height: 25rem;
@@ -401,11 +409,17 @@ const { message: craftingMessage } = useLoadingMessages({
     margin: 0.3rem 0;
     font-size: 0.9rem;
     line-height: 1.6;
+    max-width: 100%;
   }
 
   .message-icon {
     min-width: 1.5rem;
     margin-right: 0.5rem;
+  }
+
+  .message-text,
+  .message-haiku {
+    max-width: calc(100% - 2.5rem);
   }
 
   .progress-container {

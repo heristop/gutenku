@@ -109,6 +109,7 @@ watch(isGenerating, (generating, wasGenerating) => {
   }
 });
 
+// ETA tracking
 const iterationTimes = ref<number[]>([]);
 const lastIterationTime = ref(Date.now());
 
@@ -142,7 +143,7 @@ const estimatedTimeLeft = computed(() => {
   return Math.ceil((avgTime * remaining) / 1000);
 });
 
-// Iteration presets
+// Iteration presets (number of full GA runs)
 const iterationPresets = [1, 5, 10, 25, 50];
 
 const { copy, copied } = useClipboard();
@@ -321,7 +322,9 @@ useKeyboardShortcuts({
           <ZenButton
             :loading="loading && !isGenerating"
             :disabled="loading && !isGenerating"
-            :aria-label="isGenerating ? t('toolbar.stopTooltip') : generateTooltip"
+            :aria-label="
+              isGenerating ? t('toolbar.stopTooltip') : generateTooltip
+            "
             class="toolbar-panel__button toolbar-panel__button--generate"
             :class="{
               'toolbar-panel__button--loading': loading && !isGenerating,
@@ -359,70 +362,94 @@ useKeyboardShortcuts({
       </ZenTooltip>
     </div>
 
-    <!-- Iterations control (shown after first load, hidden during generation) -->
+    <!-- Dev options (shown after first load, hidden during generation) -->
     <ZenExpandTransition>
-      <div v-if="firstLoaded && !isGenerating" class="toolbar-panel__config">
+      <div
+        v-if="isDev && firstLoaded && !isGenerating"
+        class="toolbar-panel__config"
+      >
         <div class="toolbar-panel__ink-separator" aria-hidden="true" />
-        <div class="toolbar-panel__config-row">
-          <Repeat :size="18" class="toolbar-panel__config-icon" aria-hidden="true" />
-          <span class="toolbar-panel__config-label">{{ t('toolbar.iterations') }}</span>
-          <span class="toolbar-panel__config-value">{{ optionIterations }}</span>
-        </div>
-        <ZenSlider
-          v-model="optionIterations"
-          :min="1"
-          :max="50"
-          :step="1"
-          size="sm"
-          :aria-label="t('toolbar.iterations')"
-        />
-        <div class="toolbar-panel__presets">
+        <div class="toolbar-panel__dev-section">
+          <!-- Collapsible Header -->
           <button
-            v-for="preset in iterationPresets"
-            :key="preset"
-            class="toolbar-panel__preset"
-            :class="{ 'toolbar-panel__preset--active': optionIterations === preset }"
-            :aria-pressed="optionIterations === preset"
-            @click="optionIterations = preset"
+            class="toolbar-panel__dev-header"
+            type="button"
+            :aria-expanded="devOptionsExpanded"
+            aria-controls="dev-options-content"
+            @click="devOptionsExpanded = !devOptionsExpanded"
           >
-            {{ preset }}
+            <span class="toolbar-panel__dev-badge">DEV</span>
+            <span class="toolbar-panel__dev-title">Developer Options</span>
+            <ChevronDown
+              :size="16"
+              class="toolbar-panel__dev-chevron"
+              :class="{
+                'toolbar-panel__dev-chevron--open': devOptionsExpanded,
+              }"
+            />
           </button>
-        </div>
-        <template v-if="isDev">
-          <div class="toolbar-panel__ink-separator" aria-hidden="true" />
-          <div class="toolbar-panel__dev-section">
-            <!-- Collapsible Header -->
-            <button
-              class="toolbar-panel__dev-header"
-              type="button"
-              :aria-expanded="devOptionsExpanded"
-              aria-controls="dev-options-content"
-              @click="devOptionsExpanded = !devOptionsExpanded"
-            >
-              <span class="toolbar-panel__dev-badge">DEV</span>
-              <span class="toolbar-panel__dev-title">Developer Options</span>
-              <ChevronDown
-                :size="16"
-                class="toolbar-panel__dev-chevron"
-                :class="{ 'toolbar-panel__dev-chevron--open': devOptionsExpanded }"
-              />
-            </button>
 
-            <!-- Collapsible Content -->
-            <ZenExpandTransition>
-              <div v-if="devOptionsExpanded" id="dev-options-content" class="toolbar-panel__dev-content">
-                <div class="toolbar-panel__dev-option">
-                  <Sparkles :size="14" class="toolbar-panel__dev-icon" />
-                  <ZenSwitch v-model="optionUseAI" label="AI Text" size="sm" />
-                </div>
-                <div class="toolbar-panel__dev-option">
-                  <ImageIcon :size="14" class="toolbar-panel__dev-icon" />
-                  <ZenSwitch v-model="optionImageAI" label="AI Image" size="sm" />
-                </div>
+          <!-- Collapsible Content -->
+          <ZenExpandTransition>
+            <div
+              v-if="devOptionsExpanded"
+              id="dev-options-content"
+              class="toolbar-panel__dev-content"
+            >
+              <!-- Iterations/Raffinement slider -->
+              <div
+                class="toolbar-panel__dev-option toolbar-panel__dev-iterations"
+              >
+                <Repeat
+                  :size="14"
+                  class="toolbar-panel__dev-icon"
+                  aria-hidden="true"
+                />
+                <span class="toolbar-panel__dev-iterations-label">{{
+                  t('toolbar.iterations')
+                }}</span>
+                <span class="toolbar-panel__config-value">{{
+                  optionIterations
+                }}</span>
               </div>
-            </ZenExpandTransition>
-          </div>
-        </template>
+              <ZenSlider
+                v-model="optionIterations"
+                :min="1"
+                :max="50"
+                :step="1"
+                size="sm"
+                :aria-label="t('toolbar.iterations')"
+              />
+              <div class="toolbar-panel__presets">
+                <button
+                  v-for="preset in iterationPresets"
+                  :key="preset"
+                  class="toolbar-panel__preset"
+                  :class="{
+                    'toolbar-panel__preset--active':
+                      optionIterations === preset,
+                  }"
+                  :aria-pressed="optionIterations === preset"
+                  @click="optionIterations = preset"
+                >
+                  {{ preset }}
+                </button>
+              </div>
+
+              <div class="toolbar-panel__dev-separator" />
+
+              <!-- AI toggles -->
+              <div class="toolbar-panel__dev-option">
+                <Sparkles :size="14" class="toolbar-panel__dev-icon" />
+                <ZenSwitch v-model="optionUseAI" label="AI Text" size="sm" />
+              </div>
+              <div class="toolbar-panel__dev-option">
+                <ImageIcon :size="14" class="toolbar-panel__dev-icon" />
+                <ZenSwitch v-model="optionImageAI" label="AI Image" size="sm" />
+              </div>
+            </div>
+          </ZenExpandTransition>
+        </div>
       </div>
     </ZenExpandTransition>
 
@@ -432,12 +459,26 @@ useKeyboardShortcuts({
         <div class="toolbar-panel__ink-separator" aria-hidden="true" />
         <div class="toolbar-panel__progress-header">
           <div class="toolbar-panel__progress-info">
-            <span class="toolbar-panel__progress-label">{{ t('toolbar.generating') }}</span>
-            <span class="toolbar-panel__progress-count">
-              {{ generationProgress.current }} / {{ generationProgress.total }}
+            <span class="toolbar-panel__progress-label">
+              {{
+                generationProgress.stopReason
+                  ? t('toolbar.converged')
+                  : t('toolbar.generating')
+              }}
             </span>
-            <span v-if="estimatedTimeLeft" class="toolbar-panel__progress-eta">
-              • ~{{ estimatedTimeLeft }}s
+            <span
+              v-if="!generationProgress.stopReason"
+              class="toolbar-panel__progress-count"
+            >
+              {{ generationProgress.current }}/{{ generationProgress.total }}
+            </span>
+            <span
+              v-if="
+                estimatedTimeLeft !== null && !generationProgress.stopReason
+              "
+              class="toolbar-panel__progress-eta"
+            >
+              ~{{ estimatedTimeLeft }}s
             </span>
           </div>
           <div
@@ -918,7 +959,7 @@ useKeyboardShortcuts({
     display: flex;
     justify-content: center;
     gap: 0.5rem;
-    margin-top: 0.75rem;
+    margin-top: 0.5rem;
   }
 
   &__ink-separator {
@@ -983,7 +1024,8 @@ useKeyboardShortcuts({
 
   &__dev-section {
     background: color-mix(in oklch, var(--gutenku-zen-primary) 5%, transparent);
-    border: 1px dashed color-mix(in oklch, var(--gutenku-zen-primary) 20%, transparent);
+    border: 1px dashed
+      color-mix(in oklch, var(--gutenku-zen-primary) 20%, transparent);
     border-radius: var(--gutenku-radius-md);
     overflow: hidden;
   }
@@ -1000,7 +1042,11 @@ useKeyboardShortcuts({
     transition: background 0.2s ease;
 
     &:hover {
-      background: color-mix(in oklch, var(--gutenku-zen-primary) 8%, transparent);
+      background: color-mix(
+        in oklch,
+        var(--gutenku-zen-primary) 8%,
+        transparent
+      );
     }
 
     &:focus-visible {
@@ -1016,7 +1062,11 @@ useKeyboardShortcuts({
     text-transform: uppercase;
     letter-spacing: 0.1em;
     padding: 0.15rem 0.4rem;
-    background: color-mix(in oklch, var(--gutenku-zen-primary) 20%, transparent);
+    background: color-mix(
+      in oklch,
+      var(--gutenku-zen-primary) 20%,
+      transparent
+    );
     color: var(--gutenku-zen-primary);
     border-radius: var(--gutenku-radius-sm);
   }
@@ -1042,15 +1092,38 @@ useKeyboardShortcuts({
   &__dev-content {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    padding: 0.75rem;
-    border-top: 1px dashed color-mix(in oklch, var(--gutenku-zen-primary) 15%, transparent);
+    gap: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    border-top: 1px dashed
+      color-mix(in oklch, var(--gutenku-zen-primary) 15%, transparent);
   }
 
   &__dev-option {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+  }
+
+  &__dev-iterations {
+    margin-bottom: 0;
+  }
+
+  &__dev-iterations-label {
+    flex: 1;
+    font-family: 'JMH Typewriter', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--gutenku-text-primary);
+  }
+
+  &__dev-separator {
+    height: 1px;
+    margin: 0.75rem 0;
+    background: color-mix(
+      in oklch,
+      var(--gutenku-zen-primary) 15%,
+      transparent
+    );
   }
 
   &__dev-icon {
@@ -1107,7 +1180,11 @@ useKeyboardShortcuts({
 
   &__dev-section {
     background: color-mix(in oklch, var(--gutenku-zen-accent) 8%, transparent);
-    border-color: color-mix(in oklch, var(--gutenku-zen-accent) 25%, transparent);
+    border-color: color-mix(
+      in oklch,
+      var(--gutenku-zen-accent) 25%,
+      transparent
+    );
   }
 
   &__dev-header:hover {
@@ -1120,11 +1197,19 @@ useKeyboardShortcuts({
   }
 
   &__dev-content {
-    border-top-color: color-mix(in oklch, var(--gutenku-zen-accent) 20%, transparent);
+    border-top-color: color-mix(
+      in oklch,
+      var(--gutenku-zen-accent) 20%,
+      transparent
+    );
   }
 
   &__dev-icon {
     color: var(--gutenku-zen-accent);
+  }
+
+  &__dev-separator {
+    background: color-mix(in oklch, var(--gutenku-zen-accent) 20%, transparent);
   }
 }
 

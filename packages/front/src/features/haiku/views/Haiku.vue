@@ -192,14 +192,14 @@ onUnmounted(closeWSClient);
             class="haiku-section__preview"
           />
 
+          <HaikuCanvas class="haiku-section__canvas" />
+
           <ScoringCard
             v-if="haiku?.quality"
             :quality="haiku.quality"
             :visible="!loading"
             class="haiku-section__scoring"
           />
-
-          <HaikuCanvas class="haiku-section__canvas" />
 
           <StatsPanel class="haiku-section__stats" />
         </aside>
@@ -310,13 +310,16 @@ onUnmounted(closeWSClient);
   margin-bottom: var(--gutenku-space-6);
 }
 
+.haiku-section__canvas {
+  margin-top: var(--gutenku-space-4);
+}
+
 .haiku-section__scoring {
-  margin-top: var(--gutenku-space-2);
-  margin-bottom: var(--gutenku-space-6);
+  margin-top: var(--gutenku-space-4);
 }
 
 .haiku-section__stats {
-  margin-top: var(--gutenku-space-4);
+  margin-top: var(--gutenku-space-6);
 }
 
 .haiku-section__toolbar {

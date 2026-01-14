@@ -16,12 +16,7 @@ export const DAILY_HAIKU_QUERY = gql`
     $date: String
     $theme: String
   ) {
-    haiku(
-      useCache: $useCache
-      useDaily: $useDaily
-      date: $date
-      theme: $theme
-    ) {
+    haiku(useCache: $useCache, useDaily: $useDaily, date: $date, theme: $theme) {
       book {
         reference
         title
@@ -72,15 +67,12 @@ export const ITERATIVE_HAIKU_SUBSCRIPTION = gql`
     $theme: String
     $filter: String
   ) {
-    haikuGeneration(
-      iterations: $iterations
-      theme: $theme
-      filter: $filter
-    ) {
+    haikuGeneration(iterations: $iterations, theme: $theme, filter: $filter) {
       currentIteration
       totalIterations
       bestScore
       isComplete
+      stopReason
       bestHaiku {
         book {
           reference

@@ -43,8 +43,22 @@ const { isSwiping, isTouchDevice } = useTouchGestures(swipeRef, {
   vibrate: true,
   vibrationPattern: [20],
 });
-const { haiku, loading, optionTheme, themeOptions, imageAIThemes } =
-  storeToRefs(useHaikuStore());
+const {
+  haiku,
+  loading,
+  optionTheme,
+  themeOptions,
+  imageAIThemes,
+  generationProgress,
+} = storeToRefs(useHaikuStore());
+
+// Dynamic loading label: "Drawing" when GA finished (stopReason set), otherwise "Crafting"
+const loadingLabel = computed(() => {
+  if (generationProgress.value.stopReason) {
+    return t('haikuCanvas.drawing');
+  }
+  return t('haikuCanvas.loading');
+});
 
 watch(optionTheme, (newTheme) => {
   if (newTheme) {
@@ -163,7 +177,7 @@ const onImageLoad = () => {
         >
           <InkDropLoader :size="100" />
           <div class="loading-text">
-            {{ t('haikuCanvas.loading') }}
+            {{ loadingLabel }}
           </div>
         </div>
 

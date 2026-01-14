@@ -126,7 +126,12 @@ const categories = computed(() => [
   {
     key: 'penalties',
     icon: AlertTriangle,
-    metrics: ['repeatedWords', 'weakStarts'] as const,
+    metrics: [
+      'repeatedWords',
+      'weakStarts',
+      'blacklistedVerses',
+      'properNouns',
+    ] as const,
     isPenalty: true,
   },
 ]);
@@ -156,9 +161,11 @@ function normalizeMetric(key: keyof HaikuQualityScore, value: number): number {
     // Penalties (invert for display - 0 is best)
     repeatedWords: (v) => Math.max(0, 1 - v / 3),
     weakStarts: (v) => Math.max(0, 1 - v / 2),
+    blacklistedVerses: (v) => Math.max(0, 1 - v / 3),
+    properNouns: (v) => Math.max(0, 1 - v / 3),
   };
 
-  return normalizers[key]?.(value) ?? value;
+  return normalizers[key]?.(value ?? 0) ?? value ?? 0;
 }
 
 // Get raw value for display tooltip
@@ -167,8 +174,16 @@ function getDisplayValue(key: keyof HaikuQualityScore, value: number): string {
     return value.toFixed(1);
   }
 
-  if (['natureWords', 'repeatedWords', 'weakStarts'].includes(key as string)) {
-    return value.toString();
+  if (
+    [
+      'natureWords',
+      'repeatedWords',
+      'weakStarts',
+      'blacklistedVerses',
+      'properNouns',
+    ].includes(key as string)
+  ) {
+    return (value ?? 0).toString();
   }
   return `${Math.round(value * 100)}%`;
 }

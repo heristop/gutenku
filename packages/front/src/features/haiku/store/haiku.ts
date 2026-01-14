@@ -24,6 +24,7 @@ export interface GenerationProgress {
   current: number;
   total: number;
   bestScore: number;
+  stopReason?: string;
 }
 
 const getPersistConfig = (): PersistenceOptions | false => {
@@ -43,11 +44,10 @@ const getPersistConfig = (): PersistenceOptions | false => {
     afterHydrate: (ctx) => {
       const store = ctx.store;
 
-      // Validate cached data on hydration
+      // Check if cached daily haiku is from today, clear if stale
       if (store.cachedDailyHaiku && store.cachedVersion) {
         const today = getTodayUTC();
         if (store.cachedDailyHaiku.date !== today) {
-          // Clear stale cache from previous day
           store.cachedDailyHaiku = null;
           store.cachedVersion = null;
         }
@@ -220,11 +220,7 @@ export const useHaikuStore = defineStore(
     }
 
     function tryUseCachedDailyHaiku(today: string): boolean {
-      if (
-        cachedDailyHaiku.value &&
-        cachedDailyHaiku.value.date === today &&
-        cachedVersion.value
-      ) {
+      if (cachedDailyHaiku.value?.date === today && cachedVersion.value) {
         haiku.value = cachedDailyHaiku.value.haiku;
         isDailyHaiku.value = true;
         addToHistory(cachedDailyHaiku.value.haiku);
@@ -277,7 +273,7 @@ export const useHaikuStore = defineStore(
       fetchingDaily: boolean,
       today: string,
     ): void {
-      haiku.value = (newHaiku ?? (null as unknown as HaikuValue)) as HaikuValue;
+      haiku.value = newHaiku ?? (null as unknown as HaikuValue);
 
       if (newHaiku) {
         isDailyHaiku.value = fetchingDaily;
@@ -361,6 +357,7 @@ export const useHaikuStore = defineStore(
 
         await new Promise<void>((resolve, reject) => {
           let lastDisplayedScore = -Infinity;
+          let lastDisplayedVerses = '';
 
           interface HaikuGenerationResult {
             data?: {
@@ -369,6 +366,7 @@ export const useHaikuStore = defineStore(
                 totalIterations: number;
                 bestScore: number;
                 isComplete: boolean;
+                stopReason?: string;
                 bestHaiku?: HaikuValue;
               };
             };
@@ -390,28 +388,36 @@ export const useHaikuStore = defineStore(
                   current: progress.currentIteration,
                   total: progress.totalIterations,
                   bestScore: progress.bestScore,
+                  stopReason: progress.stopReason,
                 };
 
-                if (
-                  progress.bestHaiku?.verses &&
-                  progress.bestScore > lastDisplayedScore
-                ) {
-                  lastDisplayedScore = progress.bestScore;
-                  craftingMessages.value = [
-                    {
-                      id: crypto.randomUUID(),
-                      text: progress.bestHaiku.verses.join(' / '),
-                      verses: progress.bestHaiku.verses,
-                      score: progress.bestScore,
-                      timestamp: Date.now(),
-                      icon: markRaw(Leaf),
-                    },
-                    ...craftingMessages.value,
-                  ];
+                if (progress.bestHaiku?.verses) {
+                  const versesText = progress.bestHaiku.verses.join(' / ');
+
+                  if (
+                    progress.bestScore > lastDisplayedScore &&
+                    versesText !== lastDisplayedVerses
+                  ) {
+                    lastDisplayedScore = progress.bestScore;
+                    lastDisplayedVerses = versesText;
+                    craftingMessages.value = [
+                      {
+                        id: crypto.randomUUID(),
+                        text: versesText,
+                        verses: progress.bestHaiku.verses,
+                        score: progress.bestScore,
+                        timestamp: Date.now(),
+                        icon: markRaw(Leaf),
+                      },
+                      ...craftingMessages.value,
+                    ];
+                  }
                 }
 
-                if (progress.isComplete && progress.bestHaiku) {
-                  processNewHaiku(progress.bestHaiku, false, today);
+                if (progress.isComplete) {
+                  if (progress.bestHaiku) {
+                    processNewHaiku(progress.bestHaiku, false, today);
+                  }
                   resolve();
                 }
               }
