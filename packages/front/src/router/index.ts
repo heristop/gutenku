@@ -52,12 +52,24 @@ export const routes: RouteRecordRaw[] = [
         name: 'Blog',
         component: () =>
           import(
-            /* webpackChunkName: "blog" */ '@/features/blog/views/Blog.vue'
+            /* webpackChunkName: "blog" */ '@/features/blog/views/BlogIndex.vue'
           ),
         meta: {
           title: 'Blog - GutenKu',
           description:
-            'Learn about GutenKu, an AI haiku generator inspired by Haiku Marinière that creates poetry from classic literature.',
+            'Articles about GutenKu, AI haiku generation, genetic algorithms, and classic literature.',
+        },
+      },
+      {
+        path: 'blog/:slug',
+        name: 'BlogArticle',
+        component: () =>
+          import(
+            /* webpackChunkName: "blog-article" */ '@/features/blog/views/BlogArticle.vue'
+          ),
+        meta: {
+          title: 'Article - GutenKu',
+          description: 'Read articles about AI poetry and haiku generation.',
         },
       },
       {

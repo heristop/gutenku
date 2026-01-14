@@ -1,80 +1,160 @@
 <script lang="ts" setup>
-import { Loader2, ArrowUp } from 'lucide-vue-next';
+import { computed } from 'vue';
+import { useRoute, RouterLink } from 'vue-router';
+import {
+  Loader2,
+  ArrowUp,
+  ChevronLeft,
+  ChevronRight,
+  ArrowLeft,
+} from 'lucide-vue-next';
 import { useSeoMeta } from '@unhead/vue';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
 import BlogShareButtons from '../components/BlogShareButtons.vue';
 import { useArticle, useReadingProgress } from '../composables';
 
-const { article, content, loading, showContent, readingTime, formattedDate } =
-  useArticle();
+const route = useRoute();
+const slug = computed(() => route.params.slug as string);
+
+const {
+  article,
+  content,
+  loading,
+  showContent,
+  notFound,
+  readingTime,
+  formattedDate,
+  nextArticle,
+  prevArticle,
+} = useArticle(slug);
+
 const { readingProgress, showBackToTop, scrollToTop } = useReadingProgress();
 
-// Dynamic meta tags based on latest article
+// Dynamic meta tags based on current article
 const baseUrl = 'https://gutenku.xyz';
-const ogImage = article.image.startsWith('/')
-  ? `${baseUrl}${article.image}`
-  : article.image;
+const ogImage = computed(() => {
+  if (!article.value) {
+    return `${baseUrl}/og-image.png`;
+  }
+  return article.value.image.startsWith('/')
+    ? `${baseUrl}${article.value.image}`
+    : article.value.image;
+});
 
 useSeoMeta({
-  title: `${article.title} | GutenKu Blog`,
-  description: article.description,
-  ogTitle: article.title,
-  ogDescription: article.description,
+  title: () =>
+    article.value
+      ? `${article.value.title} | GutenKu Blog`
+      : 'Article Not Found | GutenKu Blog',
+  description: () => article.value?.description || 'Article not found',
+  ogTitle: () => article.value?.title || 'Article Not Found',
+  ogDescription: () => article.value?.description || 'Article not found',
   ogImage,
   ogType: 'article',
   twitterCard: 'summary_large_image',
-  twitterTitle: article.title,
-  twitterDescription: article.description,
+  twitterTitle: () => article.value?.title || 'Article Not Found',
+  twitterDescription: () => article.value?.description || 'Article not found',
   twitterImage: ogImage,
 });
 </script>
 
 <template>
-  <div class="blog-page">
+  <div class="blog-article">
     <!-- Reading progress bar -->
     <div
-      class="blog-page__progress"
+      class="blog-article__progress"
       :style="{ width: `${readingProgress}%` }"
     />
 
-    <header class="blog-page__header">
-      <p class="blog-page__date">{{ formattedDate }}</p>
-      <h1 class="blog-page__title">From the Journal</h1>
-      <p class="blog-page__author">Alexandre Mederic Mogère</p>
-      <p class="blog-page__reading-time">{{ readingTime }} min read</p>
-    </header>
-
-    <!-- Ink brush divider -->
-    <div class="blog-page__divider" aria-hidden="true" />
-
-    <div v-if="loading" class="blog-page__loading">
-      <Loader2 :size="32" class="blog-page__spinner" />
+    <!-- Not Found State -->
+    <div v-if="notFound && !loading" class="blog-article__not-found">
+      <ZenCard class="blog-article__not-found-card">
+        <h1>Article Not Found</h1>
+        <p>The article you're looking for doesn't exist.</p>
+        <RouterLink :to="{ name: 'Blog' }" class="blog-article__back-link">
+          <ArrowLeft :size="18" />
+          <span>Back to Blog</span>
+        </RouterLink>
+      </ZenCard>
     </div>
 
-    <Transition name="fade-up">
-      <ZenCard v-if="!loading && showContent" class="blog-page__content">
-        <article class="blog-page__article prose" v-html="content" />
-        <BlogShareButtons />
-      </ZenCard>
-    </Transition>
+    <template v-else>
+      <header class="blog-article__header">
+        <RouterLink :to="{ name: 'Blog' }" class="blog-article__back-to-blog">
+          <ArrowLeft :size="16" />
+          <span>All articles</span>
+        </RouterLink>
+        <p class="blog-article__date">{{ formattedDate }}</p>
+        <h1 class="blog-article__title">{{ article?.title }}</h1>
+        <p class="blog-article__author">Alexandre Mederic Mogère</p>
+        <p class="blog-article__reading-time">{{ readingTime }} min read</p>
+      </header>
 
-    <!-- Back to top button -->
-    <Transition name="fade-scale">
-      <button
-        v-if="showBackToTop"
-        type="button"
-        class="blog-page__back-to-top"
-        aria-label="Back to top"
-        @click="scrollToTop"
-      >
-        <ArrowUp :size="20" />
-      </button>
-    </Transition>
+      <!-- Ink brush divider -->
+      <div class="blog-article__divider" aria-hidden="true" />
+
+      <div v-if="loading" class="blog-article__loading">
+        <Loader2 :size="32" class="blog-article__spinner" />
+      </div>
+
+      <Transition name="fade-up">
+        <ZenCard v-if="!loading && showContent" class="blog-article__content">
+          <article class="blog-article__body prose" v-html="content" />
+          <BlogShareButtons />
+
+          <!-- Article navigation -->
+          <nav class="blog-article__nav" aria-label="Article navigation">
+            <RouterLink
+              v-if="prevArticle"
+              :to="{ name: 'BlogArticle', params: { slug: prevArticle.slug } }"
+              class="blog-article__nav-link blog-article__nav-link--prev"
+            >
+              <ChevronLeft :size="20" />
+              <div class="blog-article__nav-content">
+                <span class="blog-article__nav-label">Newer</span>
+                <span class="blog-article__nav-title">{{
+                  prevArticle.title
+                }}</span>
+              </div>
+            </RouterLink>
+            <div v-else class="blog-article__nav-spacer" />
+
+            <RouterLink
+              v-if="nextArticle"
+              :to="{ name: 'BlogArticle', params: { slug: nextArticle.slug } }"
+              class="blog-article__nav-link blog-article__nav-link--next"
+            >
+              <div class="blog-article__nav-content">
+                <span class="blog-article__nav-label">Older</span>
+                <span class="blog-article__nav-title">{{
+                  nextArticle.title
+                }}</span>
+              </div>
+              <ChevronRight :size="20" />
+            </RouterLink>
+            <div v-else class="blog-article__nav-spacer" />
+          </nav>
+        </ZenCard>
+      </Transition>
+
+      <!-- Back to top button -->
+      <Transition name="fade-scale">
+        <button
+          v-if="showBackToTop"
+          type="button"
+          class="blog-article__back-to-top"
+          aria-label="Back to top"
+          @click="scrollToTop"
+        >
+          <ArrowUp :size="20" />
+        </button>
+      </Transition>
+    </template>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.blog-page {
+.blog-article {
   max-width: 800px;
   margin: 0 auto;
   padding: 0.5rem;
@@ -102,6 +182,42 @@ useSeoMeta({
     transition: width 0.1s ease-out;
   }
 
+  &__not-found {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 50vh;
+  }
+
+  &__not-found-card {
+    text-align: center;
+    padding: 2rem;
+
+    h1 {
+      font-size: 1.5rem;
+      color: var(--gutenku-text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      color: var(--gutenku-text-muted);
+      margin-bottom: 1.5rem;
+    }
+  }
+
+  &__back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gutenku-zen-primary);
+    text-decoration: none;
+    font-weight: 600;
+
+    &:hover {
+      color: var(--gutenku-zen-accent);
+    }
+  }
+
   &__header {
     text-align: center;
     margin-bottom: 1rem;
@@ -115,6 +231,25 @@ useSeoMeta({
     @media (min-width: 600px) {
       margin-bottom: 1.5rem;
       padding: 0;
+    }
+  }
+
+  &__back-to-blog {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--gutenku-text-muted);
+    text-decoration: none;
+    margin-bottom: 1rem;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: var(--gutenku-zen-primary);
+    }
+
+    @media (min-width: 600px) {
+      font-size: 0.875rem;
     }
   }
 
@@ -235,7 +370,74 @@ useSeoMeta({
     }
   }
 
-  &__article {
+  &__nav {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--gutenku-paper-border);
+  }
+
+  &__nav-spacer {
+    flex: 1;
+  }
+
+  &__nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border-radius: var(--gutenku-radius-md);
+    text-decoration: none;
+    color: var(--gutenku-text-primary);
+    transition: all 0.2s ease;
+    flex: 1;
+    max-width: 45%;
+
+    &:hover {
+      background: var(--gutenku-paper-bg-aged);
+    }
+
+    &--prev {
+      justify-content: flex-start;
+    }
+
+    &--next {
+      justify-content: flex-end;
+      text-align: right;
+    }
+  }
+
+  &__nav-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    overflow: hidden;
+  }
+
+  &__nav-label {
+    font-size: 0.75rem;
+    color: var(--gutenku-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__nav-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--gutenku-zen-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    @media (min-width: 600px) {
+      font-size: 1rem;
+    }
+  }
+
+  &__body {
     line-height: 1.7;
     color: var(--gutenku-text-primary);
     font-size: 0.9rem;
@@ -348,10 +550,21 @@ useSeoMeta({
 
     :deep(a) {
       color: var(--gutenku-zen-primary);
+      font-weight: 700;
       text-decoration: none;
+      background: linear-gradient(
+        to bottom,
+        transparent 60%,
+        oklch(70% 0.1 170 / 0.3) 60%
+      );
+      transition: background 0.2s ease;
 
       &:hover {
-        text-decoration: underline;
+        background: linear-gradient(
+          to bottom,
+          transparent 40%,
+          oklch(70% 0.1 170 / 0.5) 40%
+        );
       }
     }
 
@@ -492,6 +705,11 @@ useSeoMeta({
       text-align: center;
       overflow-x: auto;
       contain: layout style;
+      max-width: 320px;
+
+      @media (min-width: 600px) {
+        max-width: 400px;
+      }
 
       svg {
         max-width: 100%;
@@ -500,7 +718,6 @@ useSeoMeta({
         margin: 0 auto;
       }
 
-      // Prevent drop cap from affecting mermaid labels
       foreignObject {
         div,
         span,
@@ -511,7 +728,6 @@ useSeoMeta({
           line-height: 1.4 !important;
         }
 
-        // Prevent first-letter pseudo-element from applying
         p::first-letter,
         div::first-letter,
         span::first-letter {
@@ -573,26 +789,6 @@ useSeoMeta({
         margin-right: auto;
       }
 
-      a {
-        color: var(--gutenku-zen-primary);
-        font-weight: 700;
-        text-decoration: none;
-        background: linear-gradient(
-          to bottom,
-          transparent 60%,
-          oklch(0.7 0.1 170 / 0.3) 60%
-        );
-        transition: background 0.2s ease;
-
-        &:hover {
-          background: linear-gradient(
-            to bottom,
-            transparent 40%,
-            oklch(0.7 0.1 170 / 0.5) 40%
-          );
-        }
-      }
-
       img {
         max-width: 100% !important;
         max-height: none !important;
@@ -636,14 +832,12 @@ useSeoMeta({
           padding: 1rem 1.5rem;
         }
 
-        // First column - labels
         &:first-child {
           font-weight: 500;
           color: var(--gutenku-zen-primary);
           white-space: nowrap;
         }
 
-        // Second column - values
         &:last-child {
           font-style: italic;
         }
@@ -653,12 +847,10 @@ useSeoMeta({
         border-bottom: none;
       }
 
-      // Hide header row
       thead {
         display: none;
       }
 
-      // Style code elements as formula pills
       code {
         background: var(--gutenku-zen-primary);
         color: white;
@@ -761,19 +953,55 @@ useSeoMeta({
 }
 
 // Dark theme
-[data-theme='dark'] .blog-page {
+[data-theme='dark'] .blog-article {
+  &__header {
+    position: relative;
+    padding: 1.5rem 2rem;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 500px;
+    background: oklch(0.12 0.02 60 / 0.5);
+    backdrop-filter: blur(12px);
+    border-radius: 1rem;
+    border: 1px solid var(--gutenku-paper-border);
+    box-shadow: var(--gutenku-shadow-glass);
+  }
+
+  &__back-to-blog {
+    color: var(--gutenku-text-accent);
+  }
+
+  &__date {
+    color: var(--gutenku-text-muted);
+  }
+
+  &__title {
+    color: var(--gutenku-text-primary);
+    text-shadow: 0 2px 8px oklch(0 0 0 / 0.3);
+  }
+
+  &__author {
+    color: var(--gutenku-text-accent);
+  }
+
+  &__reading-time {
+    color: var(--gutenku-text-secondary);
+    opacity: 1;
+  }
+
   &__divider {
     background: linear-gradient(
       90deg,
       transparent 0%,
-      oklch(0.6 0.03 195 / 0.25) 20%,
-      oklch(0.6 0.03 195 / 0.4) 50%,
-      oklch(0.6 0.03 195 / 0.25) 80%,
+      var(--gutenku-zen-secondary) 20%,
+      var(--gutenku-zen-accent) 50%,
+      var(--gutenku-zen-secondary) 80%,
       transparent 100%
     );
+    opacity: 0.6;
   }
 
-  &__article :deep(hr) {
+  &__body :deep(hr) {
     background: linear-gradient(
       90deg,
       transparent 0%,
@@ -788,11 +1016,60 @@ useSeoMeta({
     background: var(--gutenku-zen-accent);
     color: oklch(0.12 0.02 195);
   }
+
+  &__body :deep(img) {
+    filter: brightness(0.85);
+  }
+
+  &__body :deep(a) {
+    color: var(--gutenku-zen-accent);
+    background: linear-gradient(
+      to bottom,
+      transparent 60%,
+      oklch(0.7 0.12 195 / 0.35) 60%
+    );
+
+    &:hover {
+      background: linear-gradient(
+        to bottom,
+        transparent 40%,
+        oklch(0.7 0.12 195 / 0.5) 40%
+      );
+    }
+  }
+
+  &__body :deep(.promo-band) {
+    background: linear-gradient(
+      145deg,
+      oklch(0.25 0.02 195 / 0.8) 0%,
+      oklch(0.22 0.025 200 / 0.7) 50%,
+      oklch(0.25 0.02 195 / 0.8) 100%
+    );
+    border: 1px solid oklch(0.5 0.08 195 / 0.3);
+
+    p:first-child {
+      color: var(--gutenku-zen-accent);
+    }
+
+    p:not(:first-child) {
+      color: oklch(0.8 0.02 195);
+    }
+
+    img {
+      box-shadow:
+        0 4px 6px oklch(0 0 0 / 0.2),
+        0 10px 30px oklch(0 0 0 / 0.3);
+    }
+  }
+
+  &__nav-title {
+    color: var(--gutenku-zen-accent);
+  }
 }
 
 // Reduced motion
 @media (prefers-reduced-motion: reduce) {
-  .blog-page {
+  .blog-article {
     &__progress {
       transition: none;
     }
