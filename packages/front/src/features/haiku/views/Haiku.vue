@@ -155,25 +155,33 @@ onUnmounted(closeWSClient);
 
           <HaikuChapter v-if="haiku" class="haiku-section__chapter" />
 
-          <div
-            v-if="!haiku"
-            class="haiku-section__chapter haiku-section__placeholder"
-          >
-            <div class="placeholder-header">
-              <span class="placeholder-header__icon" aria-hidden="true">
-                <Feather :size="24" />
+          <div v-if="!haiku" class="haiku-section__chapter book-skeleton">
+            <div class="book-skeleton__spine" aria-hidden="true" />
+            <div class="book-skeleton__texture" aria-hidden="true" />
+
+            <header class="book-skeleton__header">
+              <span class="book-skeleton__icon" aria-hidden="true">
+                <Feather :size="20" />
               </span>
-              <span class="placeholder-header__content">
-                <span class="placeholder-header__title">{{
-                  t('toolbar.title')
-                }}</span>
-                <span class="placeholder-header__subtitle">{{
-                  t('toolbar.subtitle')
-                }}</span>
-              </span>
+              <h2 class="book-skeleton__title">{{ t('skeleton.title') }}</h2>
+              <p class="book-skeleton__subtitle">
+                {{ t('skeleton.subtitle') }}
+              </p>
+            </header>
+
+            <div
+              class="book-skeleton__haiku"
+              aria-busy="true"
+              :aria-label="loadingLabel"
+            >
+              <span class="book-skeleton__line book-skeleton__line--short" />
+              <span class="book-skeleton__line book-skeleton__line--long" />
+              <span class="book-skeleton__line book-skeleton__line--short" />
             </div>
-            <ZenSkeleton variant="title" :lines="1" />
-            <ZenSkeleton variant="text" :lines="5" />
+
+            <div class="book-skeleton__prose">
+              <ZenSkeleton variant="text" :lines="4" />
+            </div>
           </div>
         </article>
 
@@ -332,56 +340,267 @@ onUnmounted(closeWSClient);
   margin-top: var(--gutenku-space-4);
 }
 
-.haiku-section__placeholder {
-  background: var(--gutenku-zen-paper);
-  border-radius: var(--gutenku-radius-lg);
-  padding: 2rem;
-  min-height: 300px;
+// Book skeleton - mimics HaikuChapter book page style
+.book-skeleton {
+  position: relative;
+  background: var(--gutenku-paper-bg);
+  border-radius: var(--gutenku-radius-sm);
+  padding: 2rem 1.5rem 2rem 2rem;
+  min-height: 400px;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  box-shadow: var(--gutenku-shadow-sm);
-}
+  overflow: hidden;
+  box-shadow:
+    0 2px 4px -1px oklch(0 0 0 / 0.15),
+    0 4px 5px 0 oklch(0 0 0 / 0.1),
+    0 1px 10px 0 oklch(0 0 0 / 0.08);
 
-.placeholder-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  margin-bottom: 0.5rem;
+  // Entrance animation
+  animation: skeleton-emerge 0.6s ease-out;
+
+  // Book spine effect
+  &__spine {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(
+      to bottom,
+      oklch(0 0 0 / 0.12) 0%,
+      oklch(0 0 0 / 0.06) 50%,
+      oklch(0 0 0 / 0.12) 100%
+    );
+    z-index: 1;
+  }
+
+  // Paper texture overlay
+  &__texture {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(
+        circle at 20% 50%,
+        oklch(0.5 0.02 60 / 0.03) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 20%,
+        oklch(0.6 0.02 45 / 0.02) 0%,
+        transparent 40%
+      );
+    z-index: 0;
+  }
+
+  &__header {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid oklch(0 0 0 / 0.08);
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 20%;
+      right: 20%;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--gutenku-zen-accent) 50%,
+        transparent 100%
+      );
+      opacity: 0.4;
+    }
+  }
 
   &__icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
     color: var(--gutenku-zen-primary);
-  }
-
-  &__content {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    min-width: 0;
+    opacity: 0.7;
+    animation: icon-float 3s ease-in-out infinite;
   }
 
   &__title {
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 500;
     color: var(--gutenku-text-primary);
-    letter-spacing: 0.025em;
+    letter-spacing: 0.05em;
+    margin: 0;
   }
 
   &__subtitle {
-    font-size: 0.875rem;
+    font-size: 0.85rem;
     color: var(--gutenku-text-muted);
-    margin-top: 0.125rem;
+    font-style: italic;
+    margin: 0;
+  }
+
+  // Haiku skeleton lines (5-7-5 structure)
+  &__haiku {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin: 2rem 0;
+    padding: 1.5rem 0;
+  }
+
+  &__line {
+    height: 1.25rem;
+    border-radius: var(--gutenku-radius-xs);
+    background: linear-gradient(
+      90deg,
+      var(--gutenku-zen-mist) 0%,
+      var(--gutenku-zen-water) 50%,
+      var(--gutenku-zen-mist) 100%
+    );
+    background-size: 200% 100%;
+    transform-origin: center;
+
+    // Wow: Ink bloom + float + shimmer
+    animation:
+      ink-bloom 0.8s ease-out forwards,
+      haiku-float 3s ease-in-out infinite 0.8s,
+      zen-shimmer 2s ease-in-out infinite 0.8s;
+
+    &--short {
+      width: 35%;
+    }
+
+    &--long {
+      width: 50%;
+    }
+
+    // Staggered delays for each line
+    &:nth-child(1) {
+      animation-delay: 0.1s, 0.9s, 0.9s;
+    }
+
+    &:nth-child(2) {
+      animation-delay: 0.25s, 1.05s, 1.05s;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 0.4s, 1.2s, 1.2s;
+    }
+  }
+
+  &__prose {
+    position: relative;
+    z-index: 1;
+    margin-top: auto;
+    padding-top: 1rem;
+    opacity: 0.6;
   }
 }
 
-[data-theme='dark'] .placeholder-header {
+// Dark mode adjustments
+[data-theme='dark'] .book-skeleton {
+  box-shadow:
+    0 4px 12px oklch(0 0 0 / 0.4),
+    0 2px 4px oklch(0 0 0 / 0.3);
+
+  &__spine {
+    background: linear-gradient(
+      to bottom,
+      oklch(1 0 0 / 0.08) 0%,
+      oklch(1 0 0 / 0.03) 50%,
+      oklch(1 0 0 / 0.08) 100%
+    );
+  }
+
   &__icon {
     color: var(--gutenku-zen-accent);
+  }
+
+  &__header {
+    border-bottom-color: oklch(1 0 0 / 0.1);
+  }
+}
+
+// Keyframe animations
+@keyframes skeleton-emerge {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ink-bloom {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@keyframes haiku-float {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+@keyframes zen-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes icon-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-2px) rotate(3deg);
+    opacity: 1;
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .book-skeleton {
+    animation: none;
+
+    &__line {
+      animation: none;
+      opacity: 0.7;
+      transform: scaleX(1);
+    }
+
+    &__icon {
+      animation: none;
+    }
   }
 }
 

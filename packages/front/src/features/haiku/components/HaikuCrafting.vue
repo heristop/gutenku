@@ -34,7 +34,7 @@ const { message: craftingMessage } = useLoadingMessages({
     :aria-label="t('haikuCrafting.title')"
     :loading="true"
   >
-    <!-- Book Header Style for Crafting -->
+    <!-- Book Header Style for Crafting y -->
     <div class="book-header">
       <div v-if="craftingMessage" class="crafting-text">
         <component

@@ -405,5 +405,9 @@
   },
   "locale": {
     "switch": "Language"
+  },
+  "skeleton": {
+    "title": "A moment of stillness...",
+    "subtitle": "Words are gathering like dewdrops"
   }
 }

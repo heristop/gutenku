@@ -405,5 +405,9 @@
   },
   "locale": {
     "switch": "言語"
+  },
+  "skeleton": {
+    "title": "静寂のひととき...",
+    "subtitle": "言葉が露のように集まる"
   }
 }

@@ -405,5 +405,9 @@
   },
   "locale": {
     "switch": "Langue"
+  },
+  "skeleton": {
+    "title": "Un instant de calme...",
+    "subtitle": "Les mots se rassemblent comme des gouttes de rosée"
   }
 }
