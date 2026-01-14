@@ -17,7 +17,7 @@
     "extract": "tsx scripts/extract-haiku.ts",
     "ga:evolve": "tsx scripts/ga-evolution.ts",
     "ga:benchmark": "tsx scripts/ga-benchmark.ts",
-    "train": "tsx scripts/markov-train.ts",
+    "train": "NODE_OPTIONS='--expose-gc' tsx scripts/markov-train.ts",
     "fetch:classics": "tsx scripts/fetch-gutenberg-classics.ts",
     "post": "tsx scripts/post-haiku.ts",
     "test": "vitest run",

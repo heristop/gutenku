@@ -122,18 +122,22 @@ try {
 
     progressBar.start(chapters.length, 0);
 
-    // Yield to event loop periodically to allow GC
     const yieldToGC = (): Promise<void> =>
       new Promise((resolve) => {
         setImmediate(resolve);
       });
-    const GC_INTERVAL = 100;
+    const forceGC =
+      typeof globalThis.gc === 'function'
+        ? (globalThis.gc as () => void)
+        : null;
+    const GC_INTERVAL = 50;
 
     for (let i = 0; i < chapters.length; i++) {
       markovEvaluator.trainMarkovChain(chapters[i].content);
       progressBar.increment();
 
       if ((i + 1) % GC_INTERVAL === 0) {
+        forceGC?.();
         await yieldToGC();
       }
     }
