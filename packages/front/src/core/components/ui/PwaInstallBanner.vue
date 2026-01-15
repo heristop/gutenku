@@ -32,8 +32,12 @@ watch(shouldShowBanner, (show) => {
 async function handleInstallClick() {
   if (isIos.value) {
     showIosModal.value = true;
-  } else if (hasNativePrompt.value) {
+    return;
+  }
+
+  if (hasNativePrompt.value) {
     const accepted = await showPrompt();
+
     if (accepted) {
       handleClose();
     }

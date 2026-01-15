@@ -85,7 +85,6 @@ function openSocialLink(url: string) {
           class="footer-nav__link link-highlight"
         >
           <span class="footer-nav__text">{{ t(link.label) }}</span>
-          <span class="footer-nav__underline" aria-hidden="true" />
         </RouterLink>
       </nav>
 
@@ -363,41 +362,25 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   gap: 0.5rem;
 
   &__link {
-    position: relative;
     font-size: 0.9rem;
-    color: var(--gutenku-text-secondary);
-    text-decoration: none;
     padding: 0.375rem 0.625rem;
-    border-radius: var(--gutenku-radius-sm);
-    transition: all 0.2s ease;
-
-    &:hover {
-      color: var(--gutenku-zen-primary);
-      background: color-mix(
-        in oklch,
-        var(--gutenku-zen-primary) 8%,
-        transparent
-      );
-      transform: translateY(-2px);
-    }
 
     &.router-link-exact-active {
-      color: var(--gutenku-zen-primary);
-      font-weight: 500;
+      color: var(--gutenku-text-primary);
+      font-weight: 700;
+      text-shadow: 0 1px 2px oklch(1 0 0 / 0.5);
 
-      .footer-nav__underline {
-        transform: scaleX(1);
-        opacity: 1;
-      }
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--gutenku-zen-primary);
-      outline-offset: 2px;
-
-      .footer-nav__underline {
-        transform: scaleX(1);
-        opacity: 1;
+      &::after {
+        height: 45%;
+        top: 38%;
+        background: linear-gradient(
+          172deg,
+          color-mix(in oklch, var(--gutenku-zen-secondary) 35%, transparent) 0%,
+          color-mix(in oklch, var(--gutenku-zen-secondary) 60%, transparent) 45%,
+          color-mix(in oklch, var(--gutenku-zen-secondary) 50%, transparent)
+            100%
+        );
+        transform: skewX(-2deg) rotate(-0.5deg) scaleX(1.05);
       }
     }
   }
@@ -405,28 +388,6 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   &__text {
     position: relative;
     z-index: 1;
-  }
-
-  &__underline {
-    position: absolute;
-    bottom: 4px;
-    left: 0.625rem;
-    right: 0.625rem;
-    height: 2px;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      var(--gutenku-zen-primary) 15%,
-      var(--gutenku-zen-primary) 85%,
-      transparent 100%
-    );
-    border-radius: 1px;
-    transform: scaleX(0);
-    transform-origin: left;
-    opacity: 0;
-    transition:
-      transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-      opacity 0.3s ease;
   }
 }
 
@@ -472,7 +433,7 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
       color: var(--gutenku-zen-primary);
 
       svg {
-        transform: translateY(-2px) scale(1.05);
+        transform: scale(1.1);
       }
 
       .ink-circle {
@@ -685,30 +646,20 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
       inset 0 1px 0 oklch(1 0 0 / 0.05);
   }
 
-  .footer-nav__link {
+  .footer-nav__link.router-link-exact-active {
     color: var(--gutenku-text-primary);
+    text-shadow: 0 1px 3px oklch(0 0 0 / 0.6);
 
-    &:hover {
-      color: var(--gutenku-zen-accent);
-      background: color-mix(
-        in oklch,
-        var(--gutenku-zen-accent) 15%,
-        transparent
+    &::after {
+      height: 45%;
+      top: 38%;
+      background: linear-gradient(
+        172deg,
+        color-mix(in oklch, var(--gutenku-zen-secondary) 40%, transparent) 0%,
+        color-mix(in oklch, var(--gutenku-zen-secondary) 65%, transparent) 45%,
+        color-mix(in oklch, var(--gutenku-zen-secondary) 55%, transparent) 100%
       );
-    }
-
-    &.router-link-exact-active {
-      color: var(--gutenku-zen-accent);
-
-      .footer-nav__underline {
-        background: linear-gradient(
-          90deg,
-          transparent 0%,
-          var(--gutenku-zen-accent) 15%,
-          var(--gutenku-zen-accent) 85%,
-          transparent 100%
-        );
-      }
+      transform: skewX(-2deg) rotate(-0.5deg) scaleX(1.05);
     }
   }
 
@@ -850,7 +801,6 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
 
   .ink-circle,
   .ink-ripple,
-  .footer-nav__underline,
   .footer-locale {
     transition: none;
   }

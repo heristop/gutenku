@@ -42,29 +42,6 @@ const haikuLines = [
         {{ t('footer.credits.craftedBy') }} <strong>heristop</strong>
       </p>
 
-      <!-- Hanko stamp -->
-      <div class="zen-credits-modal__hanko" aria-hidden="true">
-        <svg viewBox="0 0 40 40">
-          <circle
-            cx="20"
-            cy="20"
-            r="18"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          />
-          <text
-            x="20"
-            y="24"
-            text-anchor="middle"
-            font-size="12"
-            fill="currentColor"
-          >
-            俳
-          </text>
-        </svg>
-      </div>
-
       <!-- Year -->
       <p class="zen-credits-modal__year">
         ～ {{ t('footer.credits.years', { year: currentYear }) }} ～
@@ -244,24 +221,6 @@ const haikuLines = [
     }
   }
 
-  &__hanko {
-    position: relative;
-    width: 40px;
-    height: 40px;
-    margin: 0.5rem auto 0;
-    color: oklch(0.55 0.2 25);
-    opacity: 0;
-    transform: scale(0) rotate(-15deg);
-    animation: hanko-stamp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    animation-delay: 1.6s;
-    z-index: 1;
-
-    svg {
-      width: 100%;
-      height: 100%;
-    }
-  }
-
   &__links {
     position: relative;
     display: flex;
@@ -339,24 +298,6 @@ const haikuLines = [
   }
 }
 
-@keyframes hanko-stamp {
-  0% {
-    opacity: 0;
-    transform: scale(0) rotate(-15deg);
-  }
-  60% {
-    opacity: 1;
-    transform: scale(1.2) rotate(5deg);
-  }
-  80% {
-    transform: scale(0.95) rotate(-2deg);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) rotate(0deg);
-  }
-}
-
 // Dark theme
 [data-theme='dark'] .zen-credits-modal {
   &__info {
@@ -393,7 +334,6 @@ const haikuLines = [
     &__author,
     &__inspiration,
     &__year,
-    &__hanko,
     &__links,
     &__social,
     &__feedback {
@@ -414,11 +354,6 @@ const haikuLines = [
   .zen-credits-modal {
     &__author {
       font-size: 0.875rem;
-    }
-
-    &__hanko {
-      width: 32px;
-      height: 32px;
     }
   }
 }

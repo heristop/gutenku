@@ -57,10 +57,13 @@ const imageClasses = computed(() => [
 const containerStyle = computed(() => {
   const style: Record<string, string> = {};
 
-  // Use explicit aspectRatio if provided, otherwise calculate from width/height
+  // Use explicit aspectRatio if provided
   if (props.aspectRatio) {
     style.aspectRatio = props.aspectRatio;
-  } else if (props.width && props.height) {
+  }
+
+  // Otherwise calculate from width/height if both are provided
+  if (!props.aspectRatio && props.width && props.height) {
     const w =
       typeof props.width === 'number'
         ? props.width
@@ -69,6 +72,7 @@ const containerStyle = computed(() => {
       typeof props.height === 'number'
         ? props.height
         : Number.parseInt(props.height, 10);
+
     if (w && h) {
       style.aspectRatio = `${w} / ${h}`;
     }
@@ -127,9 +131,11 @@ function onError(event: Event) {
   if (props.fallback && currentSrc.value !== props.fallback) {
     // Try fallback image
     hasError.value = false;
-  } else {
-    hasError.value = true;
+    emit('error', event);
+    return;
   }
+
+  hasError.value = true;
   emit('error', event);
 }
 

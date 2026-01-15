@@ -1,5 +1,13 @@
 <script lang="ts" setup>
-import { ref, computed, watch, onMounted, onUnmounted, useSlots, nextTick } from 'vue';
+import {
+  ref,
+  computed,
+  watch,
+  onMounted,
+  onUnmounted,
+  useSlots,
+  nextTick,
+} from 'vue';
 import { ChevronDown, Check, Sparkles } from 'lucide-vue-next';
 
 interface OptionGroup {
@@ -117,9 +125,10 @@ const handleEnterSpace = (event: KeyboardEvent) => {
 
   if (isOpen.value && highlightedIndex.value >= 0) {
     select(flatOptions.value[highlightedIndex.value]);
-  } else {
-    toggle();
+    return;
   }
+
+  toggle();
 };
 
 const handleArrowDown = (event: KeyboardEvent) => {
@@ -127,12 +136,13 @@ const handleArrowDown = (event: KeyboardEvent) => {
 
   if (!isOpen.value) {
     openDropdown();
-  } else {
-    highlightedIndex.value = Math.min(
-      highlightedIndex.value + 1,
-      flatOptions.value.length - 1,
-    );
+    return;
   }
+
+  highlightedIndex.value = Math.min(
+    highlightedIndex.value + 1,
+    flatOptions.value.length - 1,
+  );
 };
 
 const handleArrowUp = (event: KeyboardEvent) => {
@@ -312,16 +322,25 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
               v-for="(option, optionIndex) in group.options"
               :id="`${dropdownId}-option-${getFlatIndex(groupIndex, optionIndex)}`"
               :key="option"
-              :ref="(el) => setOptionRef(el as HTMLLIElement, getFlatIndex(groupIndex, optionIndex))"
+              :ref="
+                (el) =>
+                  setOptionRef(
+                    el as HTMLLIElement,
+                    getFlatIndex(groupIndex, optionIndex),
+                  )
+              "
               role="option"
               class="zen-select__option"
               :class="{
                 'zen-select__option--selected': option === modelValue,
-                'zen-select__option--highlighted': getFlatIndex(groupIndex, optionIndex) === highlightedIndex,
+                'zen-select__option--highlighted':
+                  getFlatIndex(groupIndex, optionIndex) === highlightedIndex,
               }"
               :aria-selected="option === modelValue"
               @click="select(option)"
-              @mouseenter="highlightedIndex = getFlatIndex(groupIndex, optionIndex)"
+              @mouseenter="
+                highlightedIndex = getFlatIndex(groupIndex, optionIndex)
+              "
             >
               <Check
                 v-if="option === modelValue"
@@ -353,7 +372,8 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
   --zen-select-border: var(--gutenku-zen-primary, oklch(0.42 0.06 192));
   --zen-select-bg: var(--gutenku-paper-bg, oklch(0.97 0.01 85));
   --zen-select-hover: oklch(0.42 0.06 192 / 0.08);
-  --zen-select-shadow: 0 4px 12px oklch(0 0 0 / 0.1), 0 2px 4px oklch(0 0 0 / 0.05);
+  --zen-select-shadow:
+    0 4px 12px oklch(0 0 0 / 0.1), 0 2px 4px oklch(0 0 0 / 0.05);
 
   position: relative;
   display: inline-flex;
@@ -464,7 +484,8 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
 }
 
 @keyframes sparkle-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.7;
     transform: scale(1);
   }
@@ -484,7 +505,6 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
   }
 }
 
-
 // Loading state
 .zen-select--loading {
   .zen-select__trigger {
@@ -497,7 +517,8 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
 }
 
 @keyframes zen-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -541,7 +562,8 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
   --zen-select-border: var(--gutenku-zen-primary, oklch(0.42 0.06 192));
   --zen-select-bg: var(--gutenku-paper-bg, oklch(0.97 0.01 85));
   --zen-select-hover: oklch(0.42 0.06 192 / 0.08);
-  --zen-select-shadow: 0 4px 12px oklch(0 0 0 / 0.1), 0 2px 4px oklch(0 0 0 / 0.05);
+  --zen-select-shadow:
+    0 4px 12px oklch(0 0 0 / 0.1), 0 2px 4px oklch(0 0 0 / 0.05);
 
   margin: 0;
   padding: 0.25rem;
@@ -662,7 +684,8 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
 }
 
 @keyframes sparkle-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.7;
     transform: scale(1);
   }
@@ -718,11 +741,15 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
 
 // Dropdown transitions (global)
 .zen-dropdown-enter-active {
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
 }
 
 .zen-dropdown-leave-active {
-  transition: opacity 0.1s ease, transform 0.1s ease;
+  transition:
+    opacity 0.1s ease,
+    transform 0.1s ease;
 }
 
 .zen-dropdown-enter-from,

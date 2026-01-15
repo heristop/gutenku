@@ -3,23 +3,26 @@ import { ref, computed, onUnmounted } from 'vue';
 
 export type ZenSliderSize = 'sm' | 'md';
 
-const props = withDefaults(defineProps<{
-  modelValue: number;
-  min?: number;
-  max?: number;
-  step?: number;
-  size?: ZenSliderSize;
-  disabled?: boolean;
-  ariaLabel?: string;
-  ariaValuetext?: string;
-  id?: string;
-}>(), {
-  min: 0,
-  max: 100,
-  step: 1,
-  size: 'md',
-  disabled: false,
-});
+const props = withDefaults(
+  defineProps<{
+    modelValue: number;
+    min?: number;
+    max?: number;
+    step?: number;
+    size?: ZenSliderSize;
+    disabled?: boolean;
+    ariaLabel?: string;
+    ariaValuetext?: string;
+    id?: string;
+  }>(),
+  {
+    min: 0,
+    max: 100,
+    step: 1,
+    size: 'md',
+    disabled: false,
+  },
+);
 
 const emit = defineEmits<{
   'update:modelValue': [value: number];
@@ -27,16 +30,20 @@ const emit = defineEmits<{
 
 const trackRef = ref<HTMLElement | null>(null);
 const isDragging = ref(false);
-const sliderId = computed(() => props.id || `zen-slider-${Math.random().toString(36).slice(2, 9)}`);
+const sliderId = computed(
+  () => props.id || `zen-slider-${Math.random().toString(36).slice(2, 9)}`,
+);
 
 const percentage = computed(() => {
   return ((props.modelValue - props.min) / (props.max - props.min)) * 100;
 });
 
-const clamp = (value: number) => Math.min(props.max, Math.max(props.min, value));
+const clamp = (value: number) =>
+  Math.min(props.max, Math.max(props.min, value));
 
 const roundToStep = (value: number) => {
   const steps = Math.round((value - props.min) / props.step);
+
   return clamp(props.min + steps * props.step);
 };
 
@@ -63,7 +70,9 @@ const handleMouseDown = (e: MouseEvent) => {
 };
 
 const handleMouseMove = (e: MouseEvent) => {
-  if (isDragging.value) {updateFromPosition(e.clientX);}
+  if (isDragging.value) {
+    updateFromPosition(e.clientX);
+  }
 };
 
 const handleMouseUp = () => {
@@ -112,11 +121,17 @@ const handleKeydown = (e: KeyboardEvent) => {
       break;
     case 'PageUp':
       e.preventDefault();
-      emit('update:modelValue', roundToStep(clamp(props.modelValue + largeStep)));
+      emit(
+        'update:modelValue',
+        roundToStep(clamp(props.modelValue + largeStep)),
+      );
       break;
     case 'PageDown':
       e.preventDefault();
-      emit('update:modelValue', roundToStep(clamp(props.modelValue - largeStep)));
+      emit(
+        'update:modelValue',
+        roundToStep(clamp(props.modelValue - largeStep)),
+      );
       break;
     case 'Home':
       e.preventDefault();
@@ -138,7 +153,10 @@ onUnmounted(() => {
 <template>
   <div
     class="zen-slider"
-    :class="[`zen-slider--${size}`, { 'zen-slider--disabled': disabled, 'zen-slider--dragging': isDragging }]"
+    :class="[
+      `zen-slider--${size}`,
+      { 'zen-slider--disabled': disabled, 'zen-slider--dragging': isDragging },
+    ]"
   >
     <div
       ref="trackRef"
@@ -177,9 +195,21 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 $spring-easing: linear(
-  0, 0.006, 0.025 2.8%, 0.101 6.1%, 0.539 18.9%, 0.721 25.3%, 0.849 31.5%,
-  0.937 38.1%, 0.968 41.8%, 0.991 45.7%, 1.006 50.1%, 1.015 55%, 1.017 63.9%,
-  1.001 83%, 1
+  0,
+  0.006,
+  0.025 2.8%,
+  0.101 6.1%,
+  0.539 18.9%,
+  0.721 25.3%,
+  0.849 31.5%,
+  0.937 38.1%,
+  0.968 41.8%,
+  0.991 45.7%,
+  1.006 50.1%,
+  1.015 55%,
+  1.017 63.9%,
+  1.001 83%,
+  1
 );
 
 .zen-slider {
@@ -269,7 +299,8 @@ $spring-easing: linear(
     var(--zen-slider-fill) 0%,
     var(--zen-slider-ink-active) 100%
   );
-  border-radius: calc(var(--zen-slider-stroke-height) / 2) 0 0 calc(var(--zen-slider-stroke-height) / 2);
+  border-radius: calc(var(--zen-slider-stroke-height) / 2) 0 0
+    calc(var(--zen-slider-stroke-height) / 2);
   transition: width 0.05s linear;
 
   &::after {

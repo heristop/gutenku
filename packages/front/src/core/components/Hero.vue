@@ -48,7 +48,10 @@ function stopQuoteRotation() {
 function handleVisibilityChange() {
   if (document.hidden) {
     stopQuoteRotation();
-  } else if (isVisible.value) {
+    return;
+  }
+
+  if (isVisible.value) {
     startQuoteRotation();
   }
 }
@@ -68,11 +71,13 @@ onMounted(() => {
     intersectionObserver = new IntersectionObserver(
       (entries) => {
         isVisible.value = entries[0].isIntersecting;
+
         if (isVisible.value) {
           startQuoteRotation();
-        } else {
-          stopQuoteRotation();
+          return;
         }
+
+        stopQuoteRotation();
       },
       { threshold: 0.1 },
     );

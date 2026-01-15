@@ -29,6 +29,7 @@ function skipToMain(): void {
     'game-hints',
     'main-content',
   ];
+
   for (const id of targets) {
     const el = document.getElementById(id);
     if (el) {

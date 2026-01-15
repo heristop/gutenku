@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ChevronRight } from 'lucide-vue-next';
+import { ArrowRight } from 'lucide-vue-next';
 import { useMouseParallax } from '@/core/composables/parallax';
 
 defineProps<{
@@ -61,8 +61,8 @@ const { translateX, translateY, handleMouseMove, handleMouseLeave } =
     <div class="preview-card__body">
       <p class="preview-card__description">{{ description }}</p>
       <span class="preview-card__cta">
-        {{ ctaText }}
-        <ChevronRight :size="16" />
+        <span class="link-highlight">{{ ctaText }}</span>
+        <ArrowRight :size="14" />
       </span>
     </div>
   </RouterLink>
@@ -83,12 +83,8 @@ const { translateX, translateY, handleMouseMove, handleMouseLeave } =
     transform: translateY(-4px);
     box-shadow: var(--gutenku-shadow-elevated);
 
-    .preview-card__cta {
-      color: var(--gutenku-zen-primary);
-
-      svg {
-        transform: translateX(4px);
-      }
+    .preview-card__cta svg {
+      transform: translateX(4px) translateY(-2px);
     }
   }
 
@@ -203,12 +199,12 @@ const { translateX, translateY, handleMouseMove, handleMouseLeave } =
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
+  width: fit-content;
   font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--gutenku-text-primary);
   transition: var(--gutenku-transition-fast);
 
   svg {
+    color: var(--gutenku-zen-secondary);
     transition: transform 0.2s ease;
   }
 }

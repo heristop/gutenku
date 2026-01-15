@@ -735,47 +735,21 @@ function handleClick(event: MouseEvent, to: string) {
   }
 
   &__icon-wrapper {
-    background:
-      radial-gradient(
-        circle at 30% 30%,
-        oklch(1 0 0 / 0.08) 0%,
-        transparent 50%
-      ),
-      oklch(0.25 0.04 195 / 0.7);
-    border-color: oklch(0.5 0.08 195 / 0.3);
-    box-shadow:
-      0 2px 8px oklch(0 0 0 / 0.3),
-      inset 0 1px 0 oklch(1 0 0 / 0.08);
+    background: transparent;
+    border-color: oklch(0.5 0.08 195 / 0.5);
+    box-shadow: none;
   }
 
   &__item:hover &__icon-wrapper {
-    background:
-      radial-gradient(
-        circle at 30% 30%,
-        oklch(1 0 0 / 0.12) 0%,
-        transparent 50%
-      ),
-      var(--gutenku-zen-accent);
+    background: oklch(0.3 0.04 195 / 0.4);
     border-color: var(--gutenku-zen-accent);
-    box-shadow:
-      0 6px 20px oklch(0.6 0.1 195 / 0.4),
-      0 0 0 3px oklch(0.6 0.1 195 / 0.2),
-      inset 0 1px 0 oklch(1 0 0 / 0.1);
+    box-shadow: none;
   }
 
   &__item--active &__icon-wrapper {
-    background:
-      radial-gradient(
-        circle at 30% 30%,
-        oklch(1 0 0 / 0.1) 0%,
-        transparent 50%
-      ),
-      var(--gutenku-zen-accent);
-    border-color: oklch(0.6 0.1 195);
-    box-shadow:
-      0 4px 16px oklch(0.6 0.1 195 / 0.45),
-      0 0 0 4px oklch(0.6 0.1 195 / 0.2),
-      inset 0 1px 0 oklch(1 0 0 / 0.1);
+    background: transparent;
+    border-color: var(--gutenku-zen-accent);
+    box-shadow: none;
   }
 
   &__enso {

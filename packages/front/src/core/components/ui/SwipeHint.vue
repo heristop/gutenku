@@ -27,7 +27,10 @@ useSwipe(containerRef, {
   onSwipeEnd: (_e, direction) => {
     if (direction === 'left') {
       emit('next');
-    } else if (direction === 'right') {
+      return;
+    }
+
+    if (direction === 'right') {
       emit('prev');
     }
   },
@@ -130,7 +133,9 @@ useSwipe(containerRef, {
     border: none;
     border-radius: 50%;
     cursor: pointer;
-    transition: transform 0.15s ease, background 0.15s ease;
+    transition:
+      transform 0.15s ease,
+      background 0.15s ease;
     -webkit-tap-highlight-color: transparent;
 
     &:active {
@@ -184,13 +189,15 @@ useSwipe(containerRef, {
   0% {
     transform: translateX(-100%);
   }
-  60%, 100% {
+  60%,
+  100% {
     transform: translateX(100%);
   }
 }
 
 @keyframes swipe-left {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateX(0);
   }
   50% {
@@ -199,7 +206,8 @@ useSwipe(containerRef, {
 }
 
 @keyframes swipe-right {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateX(0);
   }
   50% {

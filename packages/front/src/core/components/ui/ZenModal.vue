@@ -111,8 +111,11 @@ function handleKeydown(e: KeyboardEvent) {
         e.preventDefault();
         lastElement?.focus();
       }
-    } else if (document.activeElement === lastElement) {
-      // Tab: Move forwards
+      return;
+    }
+
+    // Tab: Move forwards
+    if (document.activeElement === lastElement) {
       e.preventDefault();
       firstElement?.focus();
     }
@@ -144,31 +147,40 @@ watch(modelValue, async (isOpen) => {
   if (isOpen) {
     // Store the element that triggered the modal
     previousActiveElement.value = document.activeElement as HTMLElement;
+
     if (props.lockBodyScroll) {
       lockScroll();
     }
+
     document.addEventListener('keydown', handleKeydown);
 
     // WCAG 2.2: Move focus to first focusable element in modal
     await nextTick();
     const focusableElements = getFocusableElements();
+
     if (focusableElements.length > 0) {
       focusableElements[0].focus();
-    } else {
-      // If no focusable elements, focus the modal itself
-      modalRef.value?.focus();
-    }
-  } else {
-    document.removeEventListener('keydown', handleKeydown);
-    if (props.lockBodyScroll) {
-      unlockScroll();
     }
 
-    // WCAG 2.2: Return focus to triggering element
-    await nextTick();
-    previousActiveElement.value?.focus();
-    previousActiveElement.value = null;
+    // If no focusable elements, focus the modal itself
+    if (focusableElements.length === 0) {
+      modalRef.value?.focus();
+    }
+
+    return;
   }
+
+  // Modal closing
+  document.removeEventListener('keydown', handleKeydown);
+
+  if (props.lockBodyScroll) {
+    unlockScroll();
+  }
+
+  // WCAG 2.2: Return focus to triggering element
+  await nextTick();
+  previousActiveElement.value?.focus();
+  previousActiveElement.value = null;
 });
 
 onBeforeUnmount(() => {
@@ -626,7 +638,8 @@ onBeforeUnmount(() => {
     width: 100%;
     max-height: 100vh;
     max-height: 100dvh;
-    border-radius: var(--gutenku-radius-xl, 16px) var(--gutenku-radius-xl, 16px) 0 0;
+    border-radius: var(--gutenku-radius-xl, 16px) var(--gutenku-radius-xl, 16px)
+      0 0;
     padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0));
   }
 }

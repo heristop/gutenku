@@ -106,10 +106,11 @@ function toggleSystemPreference() {
   if (systemPreferenceEnabled.value) {
     saveSystemPreferenceEnabled(false);
     setTheme(isDarkMode.value ? 'dark' : 'light');
-  } else {
-    saveSystemPreferenceEnabled(true);
-    setTheme('auto');
+    return;
   }
+
+  saveSystemPreferenceEnabled(true);
+  setTheme('auto');
 }
 
 // Desktop tooltips
