@@ -18,9 +18,10 @@ const TOKEN_EXPIRY_HOURS = 24;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 @injectable()
-export class SubscribeEmailHandler
-  implements ICommandHandler<SubscribeEmailCommand, SubscribeEmailResult>
-{
+export class SubscribeEmailHandler implements ICommandHandler<
+  SubscribeEmailCommand,
+  SubscribeEmailResult
+> {
   constructor(
     @inject(IEmailSubscriptionRepositoryToken)
     private readonly emailRepository: IEmailSubscriptionRepository,
@@ -47,7 +48,10 @@ export class SubscribeEmailHandler
         );
 
         if (!emailSent) {
-          return { success: false, message: 'Failed to send verification email' };
+          return {
+            success: false,
+            message: 'Failed to send verification email',
+          };
         }
         return { success: true, message: 'Verification email resent' };
       }
@@ -69,13 +73,16 @@ export class SubscribeEmailHandler
 
       if (!emailSent) {
         log.warn({ email }, 'Subscription created but email failed to send');
+
         return { success: false, message: 'Failed to send verification email' };
       }
 
       log.info({ email }, 'Subscription initiated, verification email sent');
+
       return { success: true, message: 'Verification email sent' };
     } catch (error) {
       log.error({ err: error, email }, 'Failed to process subscription');
+
       return { success: false, message: 'Subscription failed' };
     }
   }

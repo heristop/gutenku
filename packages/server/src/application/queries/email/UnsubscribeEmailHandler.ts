@@ -13,9 +13,10 @@ import { createLogger } from '~/infrastructure/services/Logger';
 const log = createLogger('unsubscribe-email-handler');
 
 @injectable()
-export class UnsubscribeEmailHandler
-  implements IQueryHandler<UnsubscribeEmailQuery, UnsubscribeEmailResult>
-{
+export class UnsubscribeEmailHandler implements IQueryHandler<
+  UnsubscribeEmailQuery,
+  UnsubscribeEmailResult
+> {
   constructor(
     @inject(IEmailSubscriptionRepositoryToken)
     private readonly emailRepository: IEmailSubscriptionRepository,
@@ -46,12 +47,14 @@ export class UnsubscribeEmailHandler
 
       if (unsubscribed) {
         log.info({ email: subscription.email }, 'Email unsubscribed');
+
         return { success: true, message: 'Successfully unsubscribed' };
       }
 
       return { success: false, message: 'Unsubscribe failed' };
     } catch (error) {
       log.error({ err: error, token }, 'Unsubscribe error');
+
       return { success: false, message: 'Unsubscribe failed' };
     }
   }

@@ -58,6 +58,7 @@ export class GenerateHaikuIterativeHandler {
     const seedHaiku = await this.getSeedHaiku();
     if (!seedHaiku?.chapter) {
       yield this.createEmptyProgress(iterations);
+
       return;
     }
 
@@ -149,11 +150,14 @@ export class GenerateHaikuIterativeHandler {
       const seedHaiku = await this.haikuGenerator.buildFromDb();
       if (!seedHaiku?.chapter) {
         log.warn('No seed haiku available, cannot run GA evolution');
+
         return null;
       }
+
       return seedHaiku;
     } catch (error) {
       log.error({ error }, 'Failed to get seed haiku for GA');
+
       return null;
     }
   }
@@ -223,6 +227,7 @@ export class GenerateHaikuIterativeHandler {
       return withImage;
     } catch (error) {
       log.error({ error }, 'Failed to generate image or enrich metadata');
+
       return haiku;
     }
   }

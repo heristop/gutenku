@@ -10,9 +10,10 @@ import { createLogger } from '~/infrastructure/services/Logger';
 const log = createLogger('verify-email-handler');
 
 @injectable()
-export class VerifyEmailHandler
-  implements IQueryHandler<VerifyEmailQuery, VerifyEmailResult>
-{
+export class VerifyEmailHandler implements IQueryHandler<
+  VerifyEmailQuery,
+  VerifyEmailResult
+> {
   constructor(
     @inject(IEmailSubscriptionRepositoryToken)
     private readonly emailRepository: IEmailSubscriptionRepository,
@@ -48,12 +49,14 @@ export class VerifyEmailHandler
 
       if (verified) {
         log.info({ email: subscription.email }, 'Email verified successfully');
+
         return { success: true, message: 'Email verified successfully' };
       }
 
       return { success: false, message: 'Verification failed' };
     } catch (error) {
       log.error({ err: error, token }, 'Verification error');
+
       return { success: false, message: 'Verification failed' };
     }
   }

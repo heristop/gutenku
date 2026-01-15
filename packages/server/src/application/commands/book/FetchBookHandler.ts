@@ -51,6 +51,7 @@ export class FetchBookHandler implements ICommandHandler<
       };
     } catch (error) {
       console.error(`Failed to fetch book ${command.bookId}:`, error);
+
       return {
         bookId: command.bookId,
         filePath,

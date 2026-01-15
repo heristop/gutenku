@@ -45,6 +45,7 @@ export class GenerateHaikuHandler implements IQueryHandler<
     }
 
     this.recordStats(haiku);
+
     return haiku;
   }
 
@@ -96,7 +97,9 @@ export class GenerateHaikuHandler implements IQueryHandler<
 
     if (haiku) {
       log.info({ seed, cacheUsed: true }, 'Daily haiku extracted from cache');
-    } else {
+    }
+
+    if (!haiku) {
       log.info({ seed }, 'Daily haiku cache miss, falling back to generation');
     }
 
