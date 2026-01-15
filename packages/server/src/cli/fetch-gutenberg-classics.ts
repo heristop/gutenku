@@ -14,9 +14,9 @@ import { Command } from 'commander';
 import pc from 'picocolors';
 import cliProgress from 'cli-progress';
 import ora from 'ora';
-import { BOOK_IDS } from '../src/shared/constants/book-ids';
-import { ChapterSplitterService } from '../src/domain/services/ChapterSplitterService';
-import { ChapterValidatorService } from '../src/domain/services/ChapterValidatorService';
+import { BOOK_IDS } from '~/shared/constants/book-ids';
+import { ChapterSplitterService } from '~/domain/services/ChapterSplitterService';
+import { ChapterValidatorService } from '~/domain/services/ChapterValidatorService';
 
 // CLI options
 const program = new Command();

@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 /**
  * Filter Analytics Script
- * Analyzes different filter threshold configurations to find optimal balance
- * between haiku quality and generation success rate.
+ * Tests various filter threshold configurations against haiku quality and success rate.
  */
-// Load environment FIRST before any other imports
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -12,160 +10,11 @@ import 'reflect-metadata';
 import pc from 'picocolors';
 import { container } from 'tsyringe';
 import mongoose from 'mongoose';
-import HaikuGeneratorService from '../src/domain/services/HaikuGeneratorService';
-import type {
-  RejectionStats,
-  ScoreConfig,
-} from '../src/domain/services/HaikuGeneratorTypes';
+import HaikuGeneratorService from '~/domain/services/HaikuGeneratorService';
+import type { RejectionStats } from '~/domain/services/HaikuGeneratorTypes';
 import type { HaikuQualityScore } from '@gutenku/shared';
-
-// Import container registrations (after dotenv)
-import '../src/infrastructure/di/container';
-
-// Test configurations to analyze
-interface FilterConfig {
-  name: string;
-  score: ScoreConfig;
-}
-
-const FILTER_CONFIGS: FilterConfig[] = [
-  {
-    name: 'No Filters (Baseline)',
-    score: {
-      sentiment: 0,
-      markovChain: 0,
-      pos: 0,
-      trigram: 0,
-      tfidf: 0,
-      phonetics: 0,
-      uniqueness: 0,
-      verseDistance: 0,
-      lineLengthBalance: 0,
-      imageryDensity: 0,
-      semanticCoherence: 0,
-      verbPresence: 0,
-    },
-  },
-  {
-    name: 'Current Defaults',
-    score: {
-      sentiment: 0.5,
-      markovChain: 0.1,
-      pos: 0.3,
-      trigram: 0.5,
-      tfidf: 0,
-      phonetics: 0.2,
-      uniqueness: 0.6,
-      verseDistance: 0.3,
-      lineLengthBalance: 0.5,
-      imageryDensity: 0.1,
-      semanticCoherence: 0,
-      verbPresence: 0.2,
-    },
-  },
-  {
-    name: 'Loose Filters',
-    score: {
-      sentiment: 0.3,
-      markovChain: 0.05,
-      pos: 0.2,
-      trigram: 0.3,
-      tfidf: 0,
-      phonetics: 0.1,
-      uniqueness: 0.5,
-      verseDistance: 0.2,
-      lineLengthBalance: 0.3,
-      imageryDensity: 0,
-      semanticCoherence: 0,
-      verbPresence: 0.1,
-    },
-  },
-  {
-    name: 'Strict Filters',
-    score: {
-      sentiment: 0.6,
-      markovChain: 0.2,
-      pos: 0.5,
-      trigram: 1,
-      tfidf: 0,
-      phonetics: 0.3,
-      uniqueness: 0.7,
-      verseDistance: 0.5,
-      lineLengthBalance: 0.6,
-      imageryDensity: 0.2,
-      semanticCoherence: 0.1,
-      verbPresence: 0.3,
-    },
-  },
-  {
-    name: 'Quality Focus (High Grammar/Uniqueness)',
-    score: {
-      sentiment: 0.4,
-      markovChain: 0.1,
-      pos: 0.6,
-      trigram: 0.5,
-      tfidf: 0,
-      phonetics: 0.2,
-      uniqueness: 0.8,
-      verseDistance: 0.3,
-      lineLengthBalance: 0.5,
-      imageryDensity: 0.15,
-      semanticCoherence: 0.05,
-      verbPresence: 0.25,
-    },
-  },
-  {
-    name: 'Flow Focus (High Markov/Trigram)',
-    score: {
-      sentiment: 0.4,
-      markovChain: 0.3,
-      pos: 0.2,
-      trigram: 1.5,
-      tfidf: 0,
-      phonetics: 0.3,
-      uniqueness: 0.5,
-      verseDistance: 0.4,
-      lineLengthBalance: 0.4,
-      imageryDensity: 0.1,
-      semanticCoherence: 0,
-      verbPresence: 0.2,
-    },
-  },
-  {
-    name: 'Balanced Medium',
-    score: {
-      sentiment: 0.45,
-      markovChain: 0.15,
-      pos: 0.35,
-      trigram: 0.7,
-      tfidf: 0,
-      phonetics: 0.25,
-      uniqueness: 0.65,
-      verseDistance: 0.35,
-      lineLengthBalance: 0.55,
-      imageryDensity: 0.12,
-      semanticCoherence: 0.05,
-      verbPresence: 0.22,
-    },
-  },
-  {
-    name: 'Minimal Quality Gate',
-    score: {
-      sentiment: 0.4,
-      markovChain: 0.05,
-      pos: 0.25,
-      trigram: 0.4,
-      tfidf: 0,
-      phonetics: 0.15,
-      uniqueness: 0.55,
-      verseDistance: 0.25,
-      lineLengthBalance: 0.4,
-      imageryDensity: 0.05,
-      semanticCoherence: 0,
-      verbPresence: 0.15,
-    },
-  },
-];
+import '~/infrastructure/di/container';
+import { FILTER_CONFIGS, type FilterConfig } from './filter-analytics-configs';
 
 interface AnalyticsResult {
   config: FilterConfig;
@@ -196,7 +45,6 @@ async function runAnalytics(iterations: number = 50): Promise<void> {
   await mongoose.connect(mongoUri);
   console.log(pc.green('Connected to MongoDB\n'));
 
-  // Resolve generator from container (singleton with all dependencies)
   const generator = container.resolve(HaikuGeneratorService);
   await generator.prepare();
   console.log(pc.green('Generator prepared\n'));
@@ -276,7 +124,6 @@ async function runAnalytics(iterations: number = 50): Promise<void> {
       } catch (error) {
         failures++;
         if (i === 0) {
-          // Log first error to understand what's failing
           console.log(`\n  First error: ${(error as Error).message}`);
         }
       }
@@ -471,7 +318,6 @@ function findOptimalConfig(results: AnalyticsResult[]): void {
   console.log(pc.bold('='.repeat(70)));
 
   // Calculate composite scores for each config
-  // Balance between success rate and quality
   interface ScoredResult {
     result: AnalyticsResult;
     compositeScore: number;
