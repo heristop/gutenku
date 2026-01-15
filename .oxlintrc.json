@@ -172,7 +172,7 @@
     "max-params": "off",
     "max-lines": [
       "error",
-      { "max": 550, "skipBlankLines": true, "skipComments": true }
+      { "max": 500, "skipBlankLines": true, "skipComments": true }
     ],
     "complexity": ["error", { "max": 15 }],
     "no-nested-ternary": "error",
