@@ -225,9 +225,10 @@ async function copyHaiku(): Promise<void> {
 
   if (copySuccess) {
     success(t('toolbar.copySuccess'));
-  } else {
-    error(t('toolbar.copyError'));
+    return;
   }
+
+  error(t('toolbar.copyError'));
 }
 
 async function shareHaiku(): Promise<void> {

@@ -179,7 +179,9 @@ export const useHaikuStore = defineStore(
 
       if (isDaily) {
         stats.value.dailyHaikuViews += 1;
-      } else if (newHaiku.cacheUsed !== true) {
+      }
+
+      if (!isDaily && newHaiku.cacheUsed !== true) {
         stats.value.haikusGenerated += 1;
 
         if (typeof newHaiku.executionTime === 'number') {
@@ -225,8 +227,10 @@ export const useHaikuStore = defineStore(
         isDailyHaiku.value = true;
         addToHistory(cachedDailyHaiku.value.haiku);
         updateStats(cachedDailyHaiku.value.haiku);
+
         return true;
       }
+
       return false;
     }
 

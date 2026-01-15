@@ -93,6 +93,7 @@ watch(error, (newError) => {
 
 const literaryLoadingMessages = computed(() => {
   const messages = tm('home.loadingMessages');
+
   return Object.keys(messages)
     .filter((key) => !Number.isNaN(Number(key)))
     .map((key) => t(`home.loadingMessages.${key}`));

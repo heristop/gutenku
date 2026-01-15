@@ -104,16 +104,14 @@ const createRipple = (event?: MouseEvent | KeyboardEvent) => {
   }
 
   const rect = canvasRef.value.getBoundingClientRect();
-  let x: number;
-  let y: number;
+
+  // Default: center ripple for keyboard activation
+  let x = rect.width / 2;
+  let y = rect.height / 2;
 
   if (event && 'clientX' in event) {
     x = event.clientX - rect.left;
     y = event.clientY - rect.top;
-  } else {
-    // Center ripple for keyboard activation
-    x = rect.width / 2;
-    y = rect.height / 2;
   }
 
   const id = ++rippleId;

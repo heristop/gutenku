@@ -25,6 +25,7 @@ const topBooks = computed(() => {
     number,
   ][];
   entries.sort((a, b) => b[1] - a[1]);
+
   return entries.slice(0, 3);
 });
 

@@ -37,9 +37,10 @@ export function useQuoteRotation(
 
     if (startDelay > 0) {
       setTimeout(() => beginRotation(showQuote, resume), startDelay);
-    } else {
-      beginRotation(showQuote, resume);
+      return;
     }
+
+    beginRotation(showQuote, resume);
   };
 
   return {

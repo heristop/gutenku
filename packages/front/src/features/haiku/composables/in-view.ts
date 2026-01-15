@@ -26,9 +26,10 @@ export function useInView(
             isInView.value = true;
             stop();
           }, delay);
-        } else {
-          pendingIntersection = true;
+          return;
         }
+
+        pendingIntersection = true;
       }
     },
     { threshold, rootMargin },

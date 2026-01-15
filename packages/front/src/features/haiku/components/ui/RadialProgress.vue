@@ -47,6 +47,7 @@ const hasAnimated = ref(false);
 // Calculate stroke offset for SVG
 const strokeOffset = computed(() => {
   const targetOffset = circumference.value * (1 - displayedValue.value);
+
   return targetOffset;
 });
 
@@ -71,9 +72,10 @@ function animateValue() {
 
     if (progress < 1) {
       requestAnimationFrame(update);
-    } else {
-      hasAnimated.value = true;
+      return;
     }
+
+    hasAnimated.value = true;
   }
 
   setTimeout(() => {

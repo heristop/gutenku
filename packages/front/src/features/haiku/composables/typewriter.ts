@@ -21,11 +21,12 @@ export function useTypewriter(text: string, options: TypewriterOptions = {}) {
       displayText.value += text.charAt(charIndex);
       charIndex++;
       timeout = setTimeout(typeNextChar, speed);
-    } else {
-      isTyping.value = false;
-      showCursor.value = false;
-      onComplete?.();
+      return;
     }
+
+    isTyping.value = false;
+    showCursor.value = false;
+    onComplete?.();
   };
 
   const start = () => {
@@ -37,9 +38,10 @@ export function useTypewriter(text: string, options: TypewriterOptions = {}) {
 
     if (startDelay > 0) {
       timeout = setTimeout(typeNextChar, startDelay);
-    } else {
-      typeNextChar();
+      return;
     }
+
+    typeNextChar();
   };
 
   const stop = () => {
