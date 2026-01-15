@@ -53,13 +53,14 @@ function getColorMode() {
               startViewTransition: (callback: () => void) => void;
             }
           ).startViewTransition(() => defaultHandler(mode));
-        } else {
-          defaultHandler(mode);
-          document.documentElement.style.setProperty(
-            '--theme-transition',
-            'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
-          );
+          return;
         }
+
+        defaultHandler(mode);
+        document.documentElement.style.setProperty(
+          '--theme-transition',
+          'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+        );
       },
     });
   }

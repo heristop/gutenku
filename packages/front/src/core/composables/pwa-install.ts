@@ -114,6 +114,7 @@ export function usePwaInstall() {
       await deferredPrompt.value.prompt();
       const { outcome } = await deferredPrompt.value.userChoice;
       deferredPrompt.value = null;
+
       return outcome === 'accepted';
     } catch {
       return false;

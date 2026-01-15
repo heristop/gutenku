@@ -51,10 +51,11 @@ export function useAnimatedCounter(
 
       if (progress < 1) {
         animationFrame = requestAnimationFrame(update);
-      } else {
-        isAnimating.value = false;
-        animationFrame = null;
+        return;
       }
+
+      isAnimating.value = false;
+      animationFrame = null;
     }
 
     animationFrame = requestAnimationFrame(update);
@@ -79,9 +80,10 @@ export function useAnimatedCounter(
       if (isFirstAnimation && initialDelay > 0) {
         isFirstAnimation = false;
         delayTimeout = setTimeout(animate, initialDelay);
-      } else {
-        animate();
+        return;
       }
+
+      animate();
     }
   });
 

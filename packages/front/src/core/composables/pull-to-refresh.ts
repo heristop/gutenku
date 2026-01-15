@@ -100,7 +100,9 @@ export function usePullToRefresh(
       if (pullDistance.value >= threshold && !hasVibratedAtThreshold) {
         triggerVibration();
         hasVibratedAtThreshold = true;
-      } else if (pullDistance.value < threshold) {
+      }
+
+      if (pullDistance.value < threshold) {
         hasVibratedAtThreshold = false;
       }
 

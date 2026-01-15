@@ -34,6 +34,7 @@ function base64ToFile(base64: string, filename: string): File {
   }
 
   const blob = new Blob([arrayBuffer], { type: 'image/png' });
+
   return new File([blob], filename, { type: 'image/png' });
 }
 
@@ -42,6 +43,7 @@ function canShareFiles(): boolean {
     return false;
   }
   const testFile = new File(['test'], 'test.png', { type: 'image/png' });
+
   return navigator.canShare({ files: [testFile] });
 }
 
@@ -77,8 +79,10 @@ export function useShare() {
             title,
             text,
           });
-        } else {
-          // Fall back to text-only share
+        }
+
+        // Fall back to text-only share
+        if (!haiku.image || !canShareFiles()) {
           await navigator.share({ text, title });
         }
 
@@ -92,12 +96,14 @@ export function useShare() {
           return false;
         }
         await copy(text);
+
         return true;
       }
     }
 
     await copy(text);
     shared.value = copied.value;
+
     return true;
   }
 

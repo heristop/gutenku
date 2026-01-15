@@ -8,6 +8,7 @@ export function useClipboard(resetDelayMs = 2000) {
   const copy = async (text: string): Promise<boolean> => {
     try {
       await vueUseCopy(text);
+
       return true;
     } catch {
       return false;

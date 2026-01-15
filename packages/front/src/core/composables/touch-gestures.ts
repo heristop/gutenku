@@ -80,13 +80,22 @@ export function useTouchGestures(
       if (dir === 'left' && onSwipeLeft) {
         triggerVibration();
         onSwipeLeft();
-      } else if (dir === 'right' && onSwipeRight) {
+        return;
+      }
+
+      if (dir === 'right' && onSwipeRight) {
         triggerVibration();
         onSwipeRight();
-      } else if (dir === 'up' && onSwipeUp) {
+        return;
+      }
+
+      if (dir === 'up' && onSwipeUp) {
         triggerVibration();
         onSwipeUp();
-      } else if (dir === 'down' && onSwipeDown) {
+        return;
+      }
+
+      if (dir === 'down' && onSwipeDown) {
         triggerVibration();
         onSwipeDown();
       }
@@ -289,15 +298,15 @@ export function useLongPress(
   }
 
   function handleTouchEnd() {
-    if (gesturePhase === 'observing' && onShortPress) {
-      onShortPress();
-    } else if (
-      gesturePhase === 'committed' &&
-      !longPressTriggered &&
-      onShortPress
-    ) {
+    const shouldTriggerShortPress =
+      (gesturePhase === 'observing' ||
+        (gesturePhase === 'committed' && !longPressTriggered)) &&
+      onShortPress;
+
+    if (shouldTriggerShortPress) {
       onShortPress();
     }
+
     cancelGesture();
   }
 

@@ -13,7 +13,8 @@ export const withViewTransition = (callback: () => void): void => {
     (
       document as Document & { startViewTransition: (cb: () => void) => void }
     ).startViewTransition(callback);
-  } else {
-    callback();
+    return;
   }
+
+  callback();
 };
