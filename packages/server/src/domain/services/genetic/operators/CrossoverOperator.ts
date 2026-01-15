@@ -59,10 +59,14 @@ export class CrossoverOperator {
     const child2Genes: [number, number, number] = [0, 0, 0];
 
     for (let i = 0; i < 3; i++) {
-      if (this.rng.next() < 0.5) {
+      const useParent1 = this.rng.next() < 0.5;
+
+      if (useParent1) {
         child1Genes[i] = parent1.genes[i];
         child2Genes[i] = parent2.genes[i];
-      } else {
+      }
+
+      if (!useParent1) {
         child1Genes[i] = parent2.genes[i];
         child2Genes[i] = parent1.genes[i];
       }

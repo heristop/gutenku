@@ -56,6 +56,7 @@ export class ChapterValidatorService {
     for (let i = 0; i < rawChapters.length; i++) {
       const chapter = rawChapters[i];
       const validation = this.validateChapter(chapter, mergedConfig);
+
       if (validation.isValid) {
         try {
           const chapterContent = ChapterContent.create({
@@ -71,7 +72,9 @@ export class ChapterValidatorService {
             reasons: ['Failed to create ChapterContent (too short)'],
           });
         }
-      } else {
+      }
+
+      if (!validation.isValid) {
         rejectedChapters.push({
           content: chapter,
           index: i,

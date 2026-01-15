@@ -85,7 +85,9 @@ export default class NaturalLanguageService {
     if (!words || words.length < 2) {
       return [];
     }
+
     const chunks: string[] = [];
+
     for (let size = 2; size <= 4; size++) {
       for (let i = 0; i <= words.length - size; i += size) {
         chunks.push(words.slice(i, i + size).join(' '));
@@ -119,6 +121,7 @@ export default class NaturalLanguageService {
 
   countSyllables(quote: string): number {
     const words = this.extractWords(quote);
+
     if (!words) {
       return 0;
     }
@@ -133,11 +136,13 @@ export default class NaturalLanguageService {
       return [];
     }
     const tagged = this.posTagger.tag(words);
+
     return tagged.taggedWords.map((tw) => ({ word: tw.token, tag: tw.tag }));
   }
 
   analyzeGrammar(quote: string): GrammarAnalysis {
     const words = this.extractWords(quote);
+
     if (!words || words.length === 0) {
       return { hasNoun: false, hasVerb: false, hasAdjective: false, score: 0 };
     }
@@ -159,22 +164,30 @@ export default class NaturalLanguageService {
       }
     }
 
-    let score = 0;
+    const result = { hasNoun, hasVerb, hasAdjective };
+
     if (hasNoun && hasVerb) {
-      score = 1;
-    } else if (hasNoun && hasAdjective) {
-      score = 0.8;
-    } else if (hasNoun) {
-      score = 0.5;
-    } else if (hasVerb) {
-      score = 0.3;
+      return { ...result, score: 1 };
     }
 
-    return { hasNoun, hasVerb, hasAdjective, score };
+    if (hasNoun && hasAdjective) {
+      return { ...result, score: 0.8 };
+    }
+
+    if (hasNoun) {
+      return { ...result, score: 0.5 };
+    }
+
+    if (hasVerb) {
+      return { ...result, score: 0.3 };
+    }
+
+    return { ...result, score: 0 };
   }
 
   initTfIdf(corpus: string[]): void {
     this.tfidf = new natural.TfIdf() as TfIdf;
+
     for (const doc of corpus) {
       this.tfidf.addDocument(doc);
     }
@@ -186,11 +199,13 @@ export default class NaturalLanguageService {
     }
 
     const words = this.extractWords(quote);
+
     if (!words || words.length === 0) {
       return 0;
     }
 
     let totalScore = 0;
+
     for (const word of words) {
       totalScore += this.tfidf.tfidf(word.toLowerCase(), documentIndex);
     }
@@ -208,11 +223,13 @@ export default class NaturalLanguageService {
         allWords.push(...words);
       }
     }
+
     if (allWords.length < 2) {
       return { alliterationScore: 0, uniqueSounds: 0, totalWords: 0 };
     }
 
     const phoneCodes: string[] = [];
+
     for (const word of allWords) {
       if (word.length > 0) {
         const code = this.metaphone.process(word);
@@ -223,11 +240,13 @@ export default class NaturalLanguageService {
     }
 
     const soundCounts = new Map<string, number>();
+
     for (const code of phoneCodes) {
       soundCounts.set(code, (soundCounts.get(code) || 0) + 1);
     }
 
     let repeatedCount = 0;
+
     for (const count of soundCounts.values()) {
       if (count > 1) {
         repeatedCount += count;

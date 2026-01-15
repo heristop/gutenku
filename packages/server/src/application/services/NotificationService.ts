@@ -22,6 +22,7 @@ export async function sendDailyNotifications(
 
   if (totalSubscribers === 0) {
     log.info('No verified subscribers, skipping daily notifications');
+
     return;
   }
 
@@ -51,7 +52,9 @@ export async function sendDailyNotifications(
         if (sent) {
           await emailRepository.updateLastNotificationSent(subscriber.email);
           sentCount++;
-        } else {
+        }
+
+        if (!sent) {
           failedCount++;
         }
 

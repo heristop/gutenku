@@ -19,6 +19,7 @@ export async function publishToDiscord(
 
   if (!process.env.DISCORD_WEBHOOK_URL) {
     log.warn('Discord webhook URL not configured, skipping publish');
+
     return;
   }
 

@@ -23,6 +23,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     log.warn('Resend API key not configured, skipping email');
+
     return false;
   }
 
@@ -45,14 +46,20 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
     const data = (await response.json()) as { id?: string };
 
     if (!response.ok) {
-      log.error({ error: data, to: options.to }, 'Failed to send email via Resend');
+      log.error(
+        { error: data, to: options.to },
+        'Failed to send email via Resend',
+      );
+
       return false;
     }
 
     log.info({ to: options.to, id: data.id }, 'Email sent successfully');
+
     return true;
   } catch (error) {
     log.error({ err: error, to: options.to }, 'Resend API error');
+
     return false;
   }
 }

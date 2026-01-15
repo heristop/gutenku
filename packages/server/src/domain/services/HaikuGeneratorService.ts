@@ -204,14 +204,16 @@ export default class HaikuGeneratorService implements IGenerator {
 
     this.filterWordsKey = newKey;
     this.filterWords = filterWords;
-    if (filterWords.length > 0) {
-      const escapedWords = filterWords.map((word) =>
-        word.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&'),
-      );
-      this.filterWordsRegex = new RegExp(escapedWords.join('|'), 'i');
-    } else {
+
+    if (filterWords.length === 0) {
       this.filterWordsRegex = null;
+      return this;
     }
+
+    const escapedWords = filterWords.map((word) =>
+      word.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+    );
+    this.filterWordsRegex = new RegExp(escapedWords.join('|'), 'i');
 
     return this;
   }
@@ -238,6 +240,7 @@ export default class HaikuGeneratorService implements IGenerator {
 
   async generate(): Promise<HaikuValue | null> {
     this.executionTime = Date.now();
+
     if (this.useCache === true) {
       const haiku = await this.haikuRepository.extractOneFromCache(
         this.minCachedDocs,
@@ -332,6 +335,7 @@ export default class HaikuGeneratorService implements IGenerator {
       chapter = chunkResult.chapter;
       book = chunkResult.book;
       i = chunkResult.nextIteration;
+
       if (verses.length >= 3) {
         break;
       }
@@ -340,6 +344,7 @@ export default class HaikuGeneratorService implements IGenerator {
         setImmediate(resolve);
       });
     }
+
     if (verses.length < 3) {
       throw new MaxAttemptsException({
         maxAttempts: this.maxAttempts,
@@ -377,7 +382,9 @@ export default class HaikuGeneratorService implements IGenerator {
         const randomIndex = Math.floor(Math.random() * chapters.length);
         chapter = chapters[randomIndex];
         book = chapter.book;
-      } else {
+      }
+
+      if (chapters.length === 0) {
         if (!book) {
           book = await this.getBookFromPool();
         }
@@ -388,6 +395,7 @@ export default class HaikuGeneratorService implements IGenerator {
       verses = result.verses;
       indices = result.indices;
       totalQuotes = result.totalQuotes;
+
       if (
         this.filterWords.length > 0 &&
         !this.verseContainsFilterWord(verses)
@@ -395,6 +403,7 @@ export default class HaikuGeneratorService implements IGenerator {
         verses = [];
         indices = [];
       }
+
       if (verses.length >= 3) {
         return {
           book,
@@ -405,6 +414,7 @@ export default class HaikuGeneratorService implements IGenerator {
           totalQuotes,
         };
       }
+
       if (currentIteration % this.maxAttemptsInBook === 0) {
         book = await this.getBookFromPool();
       }
@@ -426,6 +436,7 @@ export default class HaikuGeneratorService implements IGenerator {
     totalQuotes: number;
   } {
     const quotes = this.extractQuotes(chapter.content);
+
     if (quotes.length === 0) {
       return { verses: [], indices: [], totalQuotes: 0 };
     }
@@ -592,8 +603,10 @@ export default class HaikuGeneratorService implements IGenerator {
     quotes: { quote: string; index: number }[],
   ): QuoteCandidate[] {
     const filtered: QuoteCandidate[] = [];
+
     for (const { quote, index } of quotes) {
       const words = this.naturalLanguage.extractWords(quote);
+
       if (!words) {
         continue;
       }
@@ -630,6 +643,7 @@ export default class HaikuGeneratorService implements IGenerator {
           thresholds,
         ),
       );
+
       if (matchingQuotes.length === 0) {
         return null;
       }
@@ -644,6 +658,7 @@ export default class HaikuGeneratorService implements IGenerator {
     const verses = selectedVerses.map(({ quote }) => quote);
     const indices = selectedVerses.map(({ index }) => index);
     const total = totalQuotes ?? quotes.length;
+
     if (
       !this.validator.passesFullHaikuFilters(verses, indices, total, thresholds)
     ) {
@@ -686,7 +701,10 @@ export default class HaikuGeneratorService implements IGenerator {
 
       if (candidate.syllableCount === 5) {
         fiveSyllable.push(verseCandidate);
-      } else if (candidate.syllableCount === 7) {
+        continue;
+      }
+
+      if (candidate.syllableCount === 7) {
         sevenSyllable.push(verseCandidate);
       }
     }

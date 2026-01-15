@@ -115,6 +115,7 @@ export class MarkovChainService {
   public evaluateTransition(from: string, to: string): number {
     const fromWords = this.naturalLanguage.extractWords(from);
     const toWords = this.naturalLanguage.extractWords(to);
+
     if (fromWords.length === 0 || toWords.length === 0) {
       return 0;
     }
@@ -122,6 +123,7 @@ export class MarkovChainService {
     const lastWordFrom = fromWords.at(-1).toLowerCase();
     const firstWordTo = toWords[0].toLowerCase();
     const transitions = this.bigrams.get(lastWordFrom);
+
     if (transitions) {
       const count = transitions.get(firstWordTo);
 
@@ -137,6 +139,7 @@ export class MarkovChainService {
   public evaluateTrigramTransition(from: string, to: string): number {
     const fromWords = this.naturalLanguage.extractWords(from);
     const toWords = this.naturalLanguage.extractWords(to);
+
     if (fromWords.length < 2 || toWords.length === 0) {
       return 0;
     }
@@ -145,6 +148,7 @@ export class MarkovChainService {
     const key = `${fromWords[len - 2].toLowerCase()} ${fromWords[len - 1].toLowerCase()}`;
     const firstWordTo = toWords[0].toLowerCase();
     const transitions = this.trigrams.get(key);
+
     if (transitions) {
       const count = transitions.get(firstWordTo);
 
@@ -163,6 +167,7 @@ export class MarkovChainService {
   public evaluateTransitionSmoothed(from: string, to: string): number {
     const fromWords = this.naturalLanguage.extractWords(from);
     const toWords = this.naturalLanguage.extractWords(to);
+
     if (fromWords.length === 0 || toWords.length === 0) {
       return SMOOTHING_ALPHA / (SMOOTHING_ALPHA * this.vocabulary.size || 1);
     }
@@ -188,6 +193,7 @@ export class MarkovChainService {
   public evaluateTrigramTransitionSmoothed(from: string, to: string): number {
     const fromWords = this.naturalLanguage.extractWords(from);
     const toWords = this.naturalLanguage.extractWords(to);
+
     if (fromWords.length < 2 || toWords.length === 0) {
       return SMOOTHING_ALPHA / (SMOOTHING_ALPHA * this.vocabulary.size || 1);
     }
@@ -437,9 +443,12 @@ export class MarkovChainService {
       // Load or compute bigram totals (backward compatible)
       if (jsonData.bigramTotals) {
         this.bigramTotals = new Map(jsonData.bigramTotals);
-      } else {
+      }
+
+      if (!jsonData.bigramTotals) {
         this.computeBigramTotals();
       }
+
       if (jsonData.trigrams) {
         this.trigrams = new Map(
           jsonData.trigrams.map(
@@ -454,7 +463,9 @@ export class MarkovChainService {
         // Load or compute trigram totals (backward compatible)
         if (jsonData.trigramTotals) {
           this.trigramTotals = new Map(jsonData.trigramTotals);
-        } else {
+        }
+
+        if (!jsonData.trigramTotals) {
           this.computeTrigramTotals();
         }
       }
@@ -462,7 +473,9 @@ export class MarkovChainService {
       // Load or compute vocabulary (backward compatible)
       if (jsonData.vocabulary) {
         this.vocabulary = new Set(jsonData.vocabulary);
-      } else {
+      }
+
+      if (!jsonData.vocabulary) {
         this.computeVocabulary();
       }
 
