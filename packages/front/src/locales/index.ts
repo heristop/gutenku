@@ -12,7 +12,7 @@ const STORAGE_KEY = 'gutenku-locale';
 // Dynamic imports - auto-discovers all JSON locale files
 const localeModules = import.meta.glob<{ default: Record<string, unknown> }>(
   './*.json',
-  { eager: true }
+  { eager: true },
 );
 
 // Build messages object dynamically
@@ -23,7 +23,7 @@ const messages = SUPPORTED_LOCALES.reduce(
     acc[locale] = { ...mainMessages, ...gameMessages };
     return acc;
   },
-  {} as Record<SupportedLocale, Record<string, unknown>>
+  {} as Record<SupportedLocale, Record<string, unknown>>,
 );
 
 function getInitialLocale(): SupportedLocale {
@@ -34,12 +34,14 @@ function getInitialLocale(): SupportedLocale {
 
   // Check localStorage first
   const saved = localStorage.getItem(STORAGE_KEY);
+
   if (saved && SUPPORTED_LOCALES.includes(saved as SupportedLocale)) {
     return saved as SupportedLocale;
   }
 
   // Auto-detect from browser language
   const browserLang = navigator.language;
+
   for (const locale of SUPPORTED_LOCALES) {
     const config = LOCALE_CONFIG[locale];
     if (config.browserCodes.some((code) => browserLang.startsWith(code))) {
@@ -62,5 +64,10 @@ export const i18n = createI18n<[MessageSchema], SupportedLocale>({
   fallbackWarn: false,
 });
 
-export { type SupportedLocale, SUPPORTED_LOCALES, LOCALE_CONFIG, DEFAULT_LOCALE };
+export {
+  type SupportedLocale,
+  SUPPORTED_LOCALES,
+  LOCALE_CONFIG,
+  DEFAULT_LOCALE,
+};
 export default i18n;

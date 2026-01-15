@@ -34,7 +34,9 @@ export const createApp = ViteSSG(
     // Serialize/restore Pinia state for SSG
     if (import.meta.env.SSR) {
       initialState.pinia = pinia.state.value;
-    } else if (initialState.pinia) {
+    }
+
+    if (!import.meta.env.SSR && initialState.pinia) {
       pinia.state.value = initialState.pinia;
     }
 
@@ -72,8 +74,10 @@ export const createApp = ViteSSG(
 
       // Load fonts on client
       loadFonts();
-    } else {
-      // SSR: register no-op directive to prevent errors
+    }
+
+    // SSR: register no-op directive to prevent errors
+    if (!isClient) {
       app.directive('motion', {
         getSSRProps() {
           return {};

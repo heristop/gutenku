@@ -6,9 +6,10 @@ onMounted(() => {
   // Defer analytics to idle callback (client-side only)
   if ('requestIdleCallback' in globalThis) {
     requestIdleCallback(() => import('./analytics-setup'));
-  } else {
-    setTimeout(() => import('./analytics-setup'), 2000);
+    return;
   }
+
+  setTimeout(() => import('./analytics-setup'), 2000);
 });
 </script>
 

@@ -47,11 +47,13 @@ onMounted(async () => {
       if (typeof localStorage !== 'undefined') {
         localStorage.removeItem(STORAGE_KEY);
       }
-    } else {
-      status.value = 'error';
-      message.value =
-        result.data?.unsubscribeEmail.message || t('unsubscribe.failed');
+
+      return;
     }
+
+    status.value = 'error';
+    message.value =
+      result.data?.unsubscribeEmail.message || t('unsubscribe.failed');
   } catch {
     status.value = 'error';
     message.value = t('unsubscribe.failed');

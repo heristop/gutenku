@@ -47,11 +47,12 @@ onMounted(async () => {
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem(STORAGE_KEY, 'true');
       }
-    } else {
-      status.value = 'error';
-      message.value =
-        result.data?.verifyEmail.message || t('verifyEmail.failed');
+
+      return;
     }
+
+    status.value = 'error';
+    message.value = result.data?.verifyEmail.message || t('verifyEmail.failed');
   } catch {
     status.value = 'error';
     message.value = t('verifyEmail.failed');
