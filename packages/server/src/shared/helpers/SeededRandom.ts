@@ -25,6 +25,7 @@ export function dateToSeed(dateStr: string): number {
     return 0;
   }
   const [year, month, day] = dateStr.split('-').map(Number);
+
   return year * 10000 + month * 100 + day;
 }
 

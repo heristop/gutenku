@@ -25,6 +25,7 @@ export function calculateStdDev(values: number[]): number {
   }
   const mean = values.reduce((a, b) => a + b, 0) / values.length;
   const squaredDiffs = values.map((v) => Math.pow(v - mean, 2));
+
   return Math.sqrt(squaredDiffs.reduce((a, b) => a + b, 0) / values.length);
 }
 
@@ -41,6 +42,7 @@ export function calculateMedian(values: number[]): number {
   }
   const sorted = [...values].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
+
   return sorted.length % 2 !== 0
     ? sorted[mid]
     : (sorted[mid - 1] + sorted[mid]) / 2;
@@ -52,6 +54,7 @@ export function getPercentile(values: number[], percentile: number): number {
   }
   const sorted = [...values].sort((a, b) => a - b);
   const index = Math.ceil((percentile / 100) * sorted.length) - 1;
+
   return sorted[Math.max(0, index)];
 }
 
@@ -95,5 +98,6 @@ export function calculateCompositeScore(
 ): number {
   const successNorm = successRate / 100;
   const qualityNorm = Math.max(0, Math.min(1, qualityScore / maxQuality));
+
   return successNorm * successWeight + qualityNorm * qualityWeight;
 }

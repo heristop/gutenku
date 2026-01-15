@@ -111,7 +111,9 @@ export function extractTopBooksFromHtml(html: string): GutenbergBook[] {
     if (byMatch) {
       title = byMatch[1].trim();
       author = byMatch[2].trim();
-    } else {
+    }
+
+    if (!byMatch) {
       title = textWithoutDownloads;
       author = 'Unknown';
     }
@@ -168,6 +170,7 @@ export function getNextPageUrl(html: string): string | null {
   );
   if (nextMatch) {
     const path = nextMatch[1];
+
     return path.startsWith('http') ? path : `https://www.gutenberg.org${path}`;
   }
   return null;

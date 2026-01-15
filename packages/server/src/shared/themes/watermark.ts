@@ -82,7 +82,9 @@ export default {
           (ctx.measureText(sentenceBefore).width / 4) * -1,
           baseY - lineHeight,
         );
-      } else if (i === 2 && sentenceAfter) {
+      }
+
+      if (i === 2 && sentenceAfter) {
         ctx.fillText(
           sentenceAfter,
           (ctx.measureText(sentenceAfter).width / 4) * -1,

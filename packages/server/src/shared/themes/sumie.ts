@@ -107,12 +107,14 @@ CRITICAL: Absolutely NO text, letters, characters, kanji, hiragana, katakana, or
 
     if (!imageBase64) {
       console.error('No image data returned from OpenAI GPT-Image API');
+
       return null;
     }
 
     return Buffer.from(imageBase64, 'base64');
   } catch (error) {
     console.error('OpenAI image generation failed for sumie theme:', error);
+
     return null;
   }
 }

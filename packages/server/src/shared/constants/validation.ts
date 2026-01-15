@@ -68,6 +68,7 @@ const WORD_SPLIT_REGEX = /\s+/;
 /** Check if text contains a common first name - O(n) where n = word count */
 export function containsCommonName(text: string): boolean {
   const words = text.toLowerCase().split(WORD_SPLIT_REGEX);
+
   return words.some((word) => COMMON_NAMES.has(word));
 }
 
@@ -1182,6 +1183,7 @@ export function calculateVerseDistance(
     return 1;
   }
   const span = Math.max(...indices) - Math.min(...indices);
+
   return Math.max(0, 1 - span / totalQuotes);
 }
 
@@ -1207,6 +1209,7 @@ export function calculateLineLengthBalance(verses: string[]): number {
 export function calculateImageryDensity(verses: string[]): number {
   const words = verses.flatMap((v) => v.toLowerCase().split(WORD_SPLIT_REGEX));
   const sensoryCount = words.filter((w) => SENSORY_WORDS.has(w)).length;
+
   return Math.min(1, sensoryCount / 6);
 }
 
@@ -1231,6 +1234,7 @@ export function calculateSemanticCoherence(verses: string[]): number {
   const jaccard = (a: Set<string>, b: Set<string>): number => {
     const intersection = [...a].filter((x) => b.has(x)).length;
     const union = new Set([...a, ...b]).size;
+
     return union > 0 ? intersection / union : 0;
   };
 
@@ -1251,6 +1255,7 @@ export function calculateVerbPresence(
   posResults: Array<{ tag: string }>,
 ): number {
   const verbCount = posResults.filter((t) => VERB_TAGS.has(t.tag)).length;
+
   return Math.min(1, verbCount / 3);
 }
 
@@ -1299,6 +1304,7 @@ export function calculateWordUniqueness(verses: string[]): number {
     return 0;
   }
   const unique = new Set(filtered);
+
   return unique.size / filtered.length;
 }
 

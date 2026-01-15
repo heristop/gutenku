@@ -107,7 +107,9 @@ async function listen(port: number) {
     db.once('open', () => {
       log.info('Connected to MongoDB');
     });
-  } else {
+  }
+
+  if (!db) {
     log.warn('MongoDB not available, continuing without DB connection');
   }
 
