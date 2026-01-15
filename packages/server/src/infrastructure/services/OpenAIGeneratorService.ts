@@ -45,7 +45,9 @@ export default class OpenAIGeneratorService implements IGenerator {
 
     if (selectionCount !== null && selectionCount > 0) {
       this.selectionCount = Math.min(selectionCount, this.MAX_SELECTION_COUNT);
-    } else {
+    }
+
+    if (selectionCount === null || selectionCount <= 0) {
       this.selectionCount = Number.parseInt(
         process.env.OPENAI_SELECTION_COUNT || '1',
         10,
@@ -130,7 +132,6 @@ export default class OpenAIGeneratorService implements IGenerator {
       }
 
       // Validate index is within bounds
-
       if (index < 0 || index >= this.haikuSelection.length) {
         log.warn(
           { index, haikuCount: this.haikuSelection.length },
@@ -184,7 +185,9 @@ export default class OpenAIGeneratorService implements IGenerator {
       haiku.title = descResult.value.title;
       haiku.description = descResult.value.description;
       haiku.hashtags = descResult.value.hashtags;
-    } else {
+    }
+
+    if (descResult.status !== 'fulfilled') {
       haiku.title = 'Untitled Haiku';
       haiku.description = 'A beautiful haiku';
       haiku.hashtags = '#haiku #poetry #nature #zen #peaceful #gutenku';
@@ -192,7 +195,9 @@ export default class OpenAIGeneratorService implements IGenerator {
 
     if (transResult.status === 'fulfilled') {
       haiku.translations = transResult.value;
-    } else {
+    }
+
+    if (transResult.status !== 'fulfilled') {
       haiku.translations = {
         de: haiku.verses.join(' / '),
         es: haiku.verses.join(' / '),
@@ -217,7 +222,9 @@ export default class OpenAIGeneratorService implements IGenerator {
 
     if (emojisResult.status === 'fulfilled' && emojisResult.value) {
       haiku.book.emoticons = emojisResult.value;
-    } else {
+    }
+
+    if (emojisResult.status !== 'fulfilled' || !emojisResult.value) {
       haiku.book.emoticons = '';
     }
   }
@@ -368,7 +375,9 @@ export default class OpenAIGeneratorService implements IGenerator {
             { iteration: i + 1, verses: haiku.verses },
             'Haiku generated',
           );
-        } else {
+        }
+
+        if (!haiku) {
           log.warn({ iteration: i + 1 }, 'Haiku generation returned null');
         }
       } catch (err) {

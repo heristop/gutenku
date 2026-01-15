@@ -80,6 +80,7 @@ export default class BookRepository implements IBookRepository {
     const count = await BookModel.countDocuments({
       reference: String(reference),
     }).exec();
+
     return count > 0;
   }
 
@@ -99,6 +100,7 @@ export default class BookRepository implements IBookRepository {
     });
 
     const saved = await book.save();
+
     return saved._id.toString();
   }
 

@@ -61,6 +61,7 @@ export default class HaikuRepository implements IHaikuRepository {
 
       if (count < minCachedDocs) {
         log.info({ count, minCachedDocs }, 'Not enough cached documents');
+
         return [];
       }
 

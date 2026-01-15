@@ -117,7 +117,9 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
           ...this.buildDailyReset(today),
           todayHaikusGenerated: 1,
         };
-      } else {
+      }
+
+      if (!isNewDay) {
         inc.todayHaikusGenerated = 1;
       }
 
@@ -138,7 +140,10 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
     isNewDay: boolean,
   ): Record<string, number> {
     const inc: Record<string, number> = { totalGamesPlayed: 1 };
-    if (won) {inc.totalGamesWon = 1;}
+
+    if (won) {
+      inc.totalGamesWon = 1;
+    }
     if (hints) {
       inc.totalEmoticonScratches = hints.emoticonScratches;
       inc.totalHaikuReveals = hints.haikuReveals;
@@ -146,7 +151,9 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
     }
     if (!isNewDay) {
       inc.todayGamesPlayed = 1;
-      if (won) {inc.todayGamesWon = 1;}
+      if (won) {
+        inc.todayGamesWon = 1;
+      }
       if (hints) {
         inc.todayEmoticonScratches = hints.emoticonScratches;
         inc.todayHaikuReveals = hints.haikuReveals;
@@ -163,6 +170,7 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
     today: string,
   ): Record<string, unknown> {
     const set: Record<string, unknown> = { lastUpdated: new Date() };
+
     if (isNewDay) {
       Object.assign(set, this.buildDailyReset(today), {
         todayGamesPlayed: 1,

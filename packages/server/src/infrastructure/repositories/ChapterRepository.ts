@@ -58,6 +58,7 @@ export default class ChapterRepository implements IChapterRepository {
     }
     // Skip populate since we already have the book - attach it manually
     const chapters = await ChapterModel.find({ book: book._id }).lean().exec();
+
     return chapters.map((chapter) => ({ ...chapter, book })) as ChapterValue[];
   }
 
@@ -75,6 +76,7 @@ export default class ChapterRepository implements IChapterRepository {
 
   async deleteByBookId(bookId: string): Promise<number> {
     const result = await ChapterModel.deleteMany({ book: bookId }).exec();
+
     return result.deletedCount ?? 0;
   }
 }
