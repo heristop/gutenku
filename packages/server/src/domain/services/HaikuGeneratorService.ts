@@ -279,7 +279,7 @@ export default class HaikuGeneratorService implements IGenerator {
     }
   }
 
-  private disableMarkovValidation(): void {
+  public disableMarkovValidation(): void {
     if (this.cachedThresholds) {
       this.cachedThresholds.markov = 0;
       this.cachedThresholds.trigram = 0;

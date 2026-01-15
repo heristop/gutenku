@@ -14,6 +14,10 @@ const SMOOTHING_ALPHA = 0.01;
 // Maximum model file size to attempt loading (500MB)
 const MAX_MODEL_SIZE_BYTES = 500 * 1024 * 1024;
 
+// Pruning thresholds to reduce model size (entries below these counts are removed)
+const MIN_BIGRAM_COUNT = 3;
+const MIN_TRIGRAM_COUNT = 5;
+
 @singleton()
 export class MarkovChainService {
   private bigrams: Map<string, Map<string, number>>;
@@ -232,7 +236,39 @@ export class MarkovChainService {
     });
 
     try {
-      await this.writeModelToStream(stream);
+      const { pruned: prunedBigrams, totals: bigramTotals } =
+        this.pruneNgramMap(this.bigrams, MIN_BIGRAM_COUNT);
+      const { pruned: prunedTrigrams, totals: trigramTotals } =
+        this.pruneNgramMap(this.trigrams, MIN_TRIGRAM_COUNT);
+
+      const vocabulary = new Set<string>();
+      for (const key of prunedBigrams.keys()) {
+        vocabulary.add(key);
+      }
+      for (const t of prunedBigrams.values()) {
+        for (const w of t.keys()) {
+          vocabulary.add(w);
+        }
+      }
+
+      log.info(
+        {
+          originalBigrams: this.bigrams.size,
+          prunedBigrams: prunedBigrams.size,
+          originalTrigrams: this.trigrams.size,
+          prunedTrigrams: prunedTrigrams.size,
+        },
+        'Pruned low-frequency entries',
+      );
+
+      await this.writeModelToStream(
+        stream,
+        prunedBigrams,
+        prunedTrigrams,
+        bigramTotals,
+        trigramTotals,
+        vocabulary,
+      );
       return true;
     } catch (error) {
       log.error({ err: error }, 'Error saving model');
@@ -241,8 +277,40 @@ export class MarkovChainService {
     }
   }
 
+  private pruneNgramMap(
+    source: Map<string, Map<string, number>>,
+    minCount: number,
+  ): { pruned: Map<string, Map<string, number>>; totals: Map<string, number> } {
+    const pruned = new Map<string, Map<string, number>>();
+    const totals = new Map<string, number>();
+
+    for (const [key, transitions] of source) {
+      const prunedTransitions = new Map<string, number>();
+      let total = 0;
+
+      for (const [word, count] of transitions) {
+        if (count >= minCount) {
+          prunedTransitions.set(word, count);
+          total += count;
+        }
+      }
+
+      if (prunedTransitions.size > 0) {
+        pruned.set(key, prunedTransitions);
+        totals.set(key, total);
+      }
+    }
+
+    return { pruned, totals };
+  }
+
   private async writeModelToStream(
     stream: ReturnType<typeof createWriteStream>,
+    bigrams: Map<string, Map<string, number>>,
+    trigrams: Map<string, Map<string, number>>,
+    bigramTotals: Map<string, number>,
+    trigramTotals: Map<string, number>,
+    vocabulary: Set<string>,
   ): Promise<void> {
     const BATCH_SIZE = 10000;
 
@@ -256,33 +324,30 @@ export class MarkovChainService {
         stream.once('drain', resolve);
       });
 
-    // Write bigrams
     stream.write('{"bigrams":[');
     await this.writeMapEntries(
       stream,
-      this.bigrams,
+      bigrams,
       BATCH_SIZE,
       yieldToGC,
       waitForDrain,
       true,
     );
 
-    // Write trigrams
     stream.write('],"trigrams":[');
     await this.writeMapEntries(
       stream,
-      this.trigrams,
+      trigrams,
       BATCH_SIZE,
       yieldToGC,
       waitForDrain,
       true,
     );
 
-    // Write totals
     stream.write('],"bigramTotals":[');
     await this.writeMapEntries(
       stream,
-      this.bigramTotals,
+      bigramTotals,
       BATCH_SIZE,
       yieldToGC,
       waitForDrain,
@@ -292,7 +357,7 @@ export class MarkovChainService {
     stream.write('],"trigramTotals":[');
     await this.writeMapEntries(
       stream,
-      this.trigramTotals,
+      trigramTotals,
       BATCH_SIZE,
       yieldToGC,
       waitForDrain,
@@ -304,12 +369,10 @@ export class MarkovChainService {
     stream.write(',"totalTrigrams":');
     stream.write(String(this.totalTrigrams));
 
-    // Write vocabulary
     stream.write(',"vocabulary":[');
-    await this.writeSetEntries(stream, this.vocabulary, BATCH_SIZE, yieldToGC);
+    await this.writeSetEntries(stream, vocabulary, BATCH_SIZE, yieldToGC);
     stream.write(']}');
 
-    // Wait for stream to finish
     await new Promise<void>((resolve, reject) => {
       stream.on('error', reject);
       stream.on('finish', resolve);
