@@ -85,6 +85,7 @@ export interface GlobalStats {
   todayGamesPlayed: number;
   todayGamesWon: number;
   todayTotalHints: number;
+  weekHaikusGenerated: number;
 }
 
 export interface PuzzleVersion {

@@ -95,6 +95,7 @@ const typeDefs = `#graphql
         todayGamesPlayed: Int!
         todayGamesWon: Int!
         todayTotalHints: Int!
+        weekHaikusGenerated: Int!
     }
 
     input HintUsageInput {

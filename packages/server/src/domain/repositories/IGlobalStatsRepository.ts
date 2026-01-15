@@ -14,6 +14,9 @@ export interface GlobalStatsValue {
   todayGamesPlayed: number;
   todayGamesWon: number;
   currentDay: string;
+  // Weekly tracking
+  weekHaikusGenerated: number;
+  currentWeek: string;
 }
 
 export interface HintStats {

@@ -18,7 +18,6 @@ const MAX_MODEL_SIZE_BYTES = 500 * 1024 * 1024;
 export class MarkovChainService {
   private bigrams: Map<string, Map<string, number>>;
   private trigrams: Map<string, Map<string, number>>;
-  // Cached transition totals for performance
   private bigramTotals: Map<string, number>;
   private trigramTotals: Map<string, number>;
   private totalBigrams: number;
@@ -432,52 +431,9 @@ export class MarkovChainService {
       const data = await fs.readFile('./data/markov_model.json', 'utf8');
       const jsonData = JSON.parse(data);
 
-      this.bigrams = new Map(
-        jsonData.bigrams.map(([key, value]: [string, [string, number][]]) => [
-          key,
-          new Map(value),
-        ]),
-      );
-      this.totalBigrams = jsonData.totalBigrams;
-
-      // Load or compute bigram totals (backward compatible)
-      if (jsonData.bigramTotals) {
-        this.bigramTotals = new Map(jsonData.bigramTotals);
-      }
-
-      if (!jsonData.bigramTotals) {
-        this.computeBigramTotals();
-      }
-
-      if (jsonData.trigrams) {
-        this.trigrams = new Map(
-          jsonData.trigrams.map(
-            ([key, value]: [string, [string, number][]]) => [
-              key,
-              new Map(value),
-            ],
-          ),
-        );
-        this.totalTrigrams = jsonData.totalTrigrams || 0;
-
-        // Load or compute trigram totals (backward compatible)
-        if (jsonData.trigramTotals) {
-          this.trigramTotals = new Map(jsonData.trigramTotals);
-        }
-
-        if (!jsonData.trigramTotals) {
-          this.computeTrigramTotals();
-        }
-      }
-
-      // Load or compute vocabulary (backward compatible)
-      if (jsonData.vocabulary) {
-        this.vocabulary = new Set(jsonData.vocabulary);
-      }
-
-      if (!jsonData.vocabulary) {
-        this.computeVocabulary();
-      }
+      this.loadBigramsFromJson(jsonData);
+      this.loadTrigramsFromJson(jsonData);
+      this.loadVocabularyFromJson(jsonData);
 
       this.loaded = true;
       log.info(
@@ -486,11 +442,67 @@ export class MarkovChainService {
       );
       return true;
     } catch (error) {
-      log.warn(
-        { err: error },
-        'Markov model not loaded - markov validation will be disabled',
-      );
+      this.handleLoadError(error);
       return false;
+    }
+  }
+
+  private loadBigramsFromJson(jsonData: {
+    bigrams: [string, [string, number][]][];
+    totalBigrams: number;
+    bigramTotals?: [string, number][];
+  }): void {
+    this.bigrams = new Map(
+      jsonData.bigrams.map(([key, value]) => [key, new Map(value)]),
+    );
+    this.totalBigrams = jsonData.totalBigrams;
+
+    if (jsonData.bigramTotals) {
+      this.bigramTotals = new Map(jsonData.bigramTotals);
+    } else {
+      this.computeBigramTotals();
+    }
+  }
+
+  private loadTrigramsFromJson(jsonData: {
+    trigrams?: [string, [string, number][]][];
+    totalTrigrams?: number;
+    trigramTotals?: [string, number][];
+  }): void {
+    if (!jsonData.trigrams) {
+      return;
+    }
+
+    this.trigrams = new Map(
+      jsonData.trigrams.map(([key, value]) => [key, new Map(value)]),
+    );
+    this.totalTrigrams = jsonData.totalTrigrams || 0;
+
+    if (jsonData.trigramTotals) {
+      this.trigramTotals = new Map(jsonData.trigramTotals);
+    } else {
+      this.computeTrigramTotals();
+    }
+  }
+
+  private loadVocabularyFromJson(jsonData: { vocabulary?: string[] }): void {
+    if (jsonData.vocabulary) {
+      this.vocabulary = new Set(jsonData.vocabulary);
+    } else {
+      this.computeVocabulary();
+    }
+  }
+
+  private handleLoadError(error: unknown): void {
+    const isFileNotFound =
+      error instanceof Error && 'code' in error && error.code === 'ENOENT';
+
+    if (isFileNotFound) {
+      log.info(
+        'Markov model not found at ./data/markov_model.json - run "pnpm train" to generate it',
+      );
+    } else {
+      log.error({ err: error }, 'Failed to load Markov model');
     }
   }
 

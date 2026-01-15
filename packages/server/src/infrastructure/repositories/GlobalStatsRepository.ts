@@ -34,6 +34,16 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
     return new Date().toISOString().split('T')[0];
   }
 
+  private getWeekString(): string {
+    const now = new Date();
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    const days = Math.floor(
+      (now.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000),
+    );
+    const weekNumber = Math.ceil((days + startOfYear.getDay() + 1) / 7);
+    return `${now.getFullYear()}-W${weekNumber.toString().padStart(2, '0')}`;
+  }
+
   private num(doc: StatsDocument | null, key: string): number {
     return (doc?.[key] as number) ?? 0;
   }
@@ -58,12 +68,22 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
     };
   }
 
+  private buildWeeklyReset(week: string): Record<string, unknown> {
+    return {
+      currentWeek: week,
+      weekHaikusGenerated: 0,
+    };
+  }
+
   private parseDocument(
     doc: StatsDocument | null,
     today: string,
+    week: string,
   ): GlobalStatsValue {
     const docDay = (doc?.currentDay as string) ?? '';
     const isDayStale = docDay !== today;
+    const docWeek = (doc?.currentWeek as string) ?? '';
+    const isWeekStale = docWeek !== week;
 
     return {
       totalHaikusGenerated: this.num(doc, 'totalHaikusGenerated'),
@@ -87,11 +107,19 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
       todayGamesPlayed: this.dailyNum(doc, 'todayGamesPlayed', isDayStale),
       todayGamesWon: this.dailyNum(doc, 'todayGamesWon', isDayStale),
       currentDay: today,
+      weekHaikusGenerated: isWeekStale
+        ? 0
+        : this.num(doc, 'weekHaikusGenerated'),
+      currentWeek: week,
     };
   }
 
   private getDefaultStats(): GlobalStatsValue {
-    return this.parseDocument(null, this.getTodayString());
+    return this.parseDocument(
+      null,
+      this.getTodayString(),
+      this.getWeekString(),
+    );
   }
 
   async incrementHaikuCount(): Promise<void> {
@@ -102,11 +130,14 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
     try {
       const collection = this.db.collection('globalstats');
       const today = this.getTodayString();
+      const week = this.getWeekString();
       const currentDoc = await collection.findOne({
         _id: STATS_DOC_ID,
       } as object);
       const currentDay = (currentDoc?.currentDay as string) ?? '';
+      const currentWeek = (currentDoc?.currentWeek as string) ?? '';
       const isNewDay = currentDay !== today;
+      const isNewWeek = currentWeek !== week;
 
       const inc: Record<string, number> = { totalHaikusGenerated: 1 };
       let set: Record<string, unknown> = { lastUpdated: new Date() };
@@ -119,8 +150,20 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
         };
       }
 
+      if (isNewWeek) {
+        set = {
+          ...set,
+          ...this.buildWeeklyReset(week),
+          weekHaikusGenerated: 1,
+        };
+      }
+
       if (!isNewDay) {
         inc.todayHaikusGenerated = 1;
+      }
+
+      if (!isNewWeek) {
+        inc.weekHaikusGenerated = 1;
       }
 
       await collection.findOneAndUpdate(
@@ -218,9 +261,13 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
 
     const now = Date.now();
     const today = this.getTodayString();
+    const week = this.getWeekString();
 
     if (this.statsCache && now < this.statsCacheExpiry) {
-      if (this.statsCache.currentDay === today) {
+      if (
+        this.statsCache.currentDay === today &&
+        this.statsCache.currentWeek === week
+      ) {
         return this.statsCache;
       }
       this.invalidateCache();
@@ -229,7 +276,7 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
     try {
       const collection = this.db.collection('globalstats');
       const doc = await collection.findOne({ _id: STATS_DOC_ID } as object);
-      const stats = this.parseDocument(doc as StatsDocument, today);
+      const stats = this.parseDocument(doc as StatsDocument, today, week);
 
       this.statsCache = stats;
       this.statsCacheExpiry = now + GlobalStatsRepository.CACHE_TTL_MS;

@@ -275,7 +275,6 @@ export default class HaikuGeneratorService implements IGenerator {
     await this.markovEvaluator.load();
 
     if (!this.markovEvaluator.isReady()) {
-      log.warn('Markov model not available - disabling markov validation');
       this.disableMarkovValidation();
     }
   }
