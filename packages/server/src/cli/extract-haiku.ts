@@ -23,6 +23,7 @@ program
     'auto',
   )
   .option('-p, --parallel <number>', 'parallel workers (default: 3)', '3')
+  .option('--skip-markov', 'skip loading Markov model (saves memory)')
   .parse();
 
 const options = program.opts();
@@ -140,23 +141,25 @@ try {
 
   dbSpinner.succeed(pc.green('Connected to MongoDB'));
 
-  // Get generator service and prepare once (loads Markov model if available)
   const generator = container.resolve(HaikuGeneratorService);
   const markovEvaluator = container.resolve(MarkovEvaluatorService);
   const prepSpinner = ora('Preparing generator...').start();
 
-  await generator.prepare();
+  if (options.skipMarkov) {
+    generator.disableMarkovValidation();
+    prepSpinner.succeed(pc.green('Generator ready (Markov validation skipped)'));
+  } else {
+    await generator.prepare();
 
-  if (markovEvaluator.isReady()) {
-    prepSpinner.succeed(pc.green('Generator ready (Markov model loaded)'));
-  }
-
-  if (!markovEvaluator.isReady()) {
-    prepSpinner.warn(
-      pc.yellow('Markov model not found - run ') +
-        pc.cyan('pnpm train') +
-        pc.yellow(' to generate it (validation disabled)'),
-    );
+    if (markovEvaluator.isReady()) {
+      prepSpinner.succeed(pc.green('Generator ready (Markov model loaded)'));
+    } else {
+      prepSpinner.warn(
+        pc.yellow('Markov model not found - run ') +
+          pc.cyan('pnpm train') +
+          pc.yellow(' to generate it (validation disabled)'),
+      );
+    }
   }
 
   const candidates: HaikuValue[] = [];
