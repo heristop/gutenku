@@ -33,9 +33,21 @@ useSeoMeta({
 
     <div class="blog-index__list">
       <ZenCard
-        v-for="article in articles"
+        v-for="(article, index) in articles"
         :key="article.slug"
+        v-motion
         class="blog-index__card"
+        :initial="{ opacity: 0, y: 30, scale: 0.95 }"
+        :visible-once="{
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          transition: {
+            delay: index * 100,
+            duration: 500,
+            ease: [0.25, 0.8, 0.25, 1],
+          },
+        }"
       >
         <article class="blog-index__article">
           <div class="blog-index__meta">
@@ -45,7 +57,12 @@ useSeoMeta({
             </span>
           </div>
 
-          <h2 class="blog-index__article-title">{{ article.title }}</h2>
+          <h2
+            class="blog-index__article-title"
+            :style="{ viewTransitionName: `blog-title-${article.slug}` }"
+          >
+            {{ article.title }}
+          </h2>
 
           <p class="blog-index__description">{{ article.description }}</p>
 
@@ -53,8 +70,8 @@ useSeoMeta({
             :to="{ name: 'BlogArticle', params: { slug: article.slug } }"
             class="blog-index__read-more"
           >
-            <span>Read article</span>
-            <ArrowRight :size="18" />
+            <span class="link-highlight">Read article</span>
+            <ArrowRight :size="14" />
           </RouterLink>
         </article>
       </ZenCard>
@@ -237,22 +254,29 @@ useSeoMeta({
   &__read-more {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--gutenku-zen-primary);
-    text-decoration: none;
-    transition: all 0.2s ease;
+    gap: 0.35rem;
+    font-size: 0.875rem;
     align-self: flex-start;
-    padding: 0.5rem 0;
+    text-decoration: none;
 
-    &:hover {
-      gap: 0.75rem;
-      color: var(--gutenku-zen-accent);
+    .link-highlight::after {
+      height: 38%;
+      top: 42%;
+      background: linear-gradient(
+        172deg,
+        color-mix(in oklch, var(--gutenku-zen-secondary) 15%, transparent) 0%,
+        color-mix(in oklch, var(--gutenku-zen-secondary) 35%, transparent) 45%,
+        color-mix(in oklch, var(--gutenku-zen-secondary) 25%, transparent) 100%
+      );
     }
 
-    @media (min-width: 600px) {
-      font-size: 1rem;
+    svg {
+      color: var(--gutenku-zen-secondary);
+      transition: transform 0.2s ease;
+    }
+
+    &:hover svg {
+      transform: translateX(4px) translateY(-2px);
     }
   }
 }
@@ -311,10 +335,6 @@ useSeoMeta({
       transparent 100%
     );
     opacity: 0.6;
-  }
-
-  &__read-more:hover {
-    color: var(--gutenku-zen-accent);
   }
 }
 </style>

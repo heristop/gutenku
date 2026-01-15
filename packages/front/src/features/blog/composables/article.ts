@@ -102,6 +102,9 @@ function extractMetadata(content: string): {
   const titleMatch = body.match(/^#\s+(.+)$/m);
   const title = titleMatch ? titleMatch[1].trim() : 'GutenKu Blog';
 
+  // Remove the first H1 from body (it's displayed in header)
+  const bodyWithoutTitle = titleMatch ? body.replace(/^#\s+.+\n*/, '') : body;
+
   // Use frontmatter image or extract first image from content
   let image = frontmatter.image;
   if (!image) {
@@ -149,7 +152,7 @@ function extractMetadata(content: string): {
       description ||
       'Articles about GutenKu, AI haiku generation, and classic literature.',
     image,
-    body,
+    body: bodyWithoutTitle,
   };
 }
 

@@ -1,13 +1,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { useRoute, RouterLink } from 'vue-router';
-import {
-  Loader2,
-  ArrowUp,
-  ChevronLeft,
-  ChevronRight,
-  ArrowLeft,
-} from 'lucide-vue-next';
+import { Loader2, ArrowUp, ArrowLeft, ArrowRight } from 'lucide-vue-next';
 import { useSeoMeta } from '@unhead/vue';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
 import BlogShareButtons from '../components/BlogShareButtons.vue';
@@ -81,11 +75,16 @@ useSeoMeta({
     <template v-else>
       <header class="blog-article__header">
         <RouterLink :to="{ name: 'Blog' }" class="blog-article__back-to-blog">
-          <ArrowLeft :size="16" />
-          <span>All articles</span>
+          <ArrowLeft :size="14" />
+          <span class="link-highlight">All articles</span>
         </RouterLink>
         <p class="blog-article__date">{{ formattedDate }}</p>
-        <h1 class="blog-article__title">{{ article?.title }}</h1>
+        <h1
+          class="blog-article__title"
+          :style="{ viewTransitionName: `blog-title-${slug}` }"
+        >
+          {{ article?.title }}
+        </h1>
         <p class="blog-article__author">Alexandre Mederic Mogère</p>
         <p class="blog-article__reading-time">{{ readingTime }} min read</p>
       </header>
@@ -109,10 +108,10 @@ useSeoMeta({
               :to="{ name: 'BlogArticle', params: { slug: prevArticle.slug } }"
               class="blog-article__nav-link blog-article__nav-link--prev"
             >
-              <ChevronLeft :size="20" />
+              <ArrowLeft :size="14" />
               <div class="blog-article__nav-content">
                 <span class="blog-article__nav-label">Newer</span>
-                <span class="blog-article__nav-title">{{
+                <span class="blog-article__nav-title link-highlight">{{
                   prevArticle.title
                 }}</span>
               </div>
@@ -126,11 +125,11 @@ useSeoMeta({
             >
               <div class="blog-article__nav-content">
                 <span class="blog-article__nav-label">Older</span>
-                <span class="blog-article__nav-title">{{
+                <span class="blog-article__nav-title link-highlight">{{
                   nextArticle.title
                 }}</span>
               </div>
-              <ChevronRight :size="20" />
+              <ArrowRight :size="14" />
             </RouterLink>
             <div v-else class="blog-article__nav-spacer" />
           </nav>
@@ -239,19 +238,18 @@ useSeoMeta({
   &__back-to-blog {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
-    font-size: 0.8rem;
-    color: var(--gutenku-text-muted);
+    gap: 0.35rem;
+    font-size: 0.875rem;
     text-decoration: none;
     margin-bottom: 1rem;
-    transition: color 0.2s ease;
 
-    &:hover {
-      color: var(--gutenku-zen-primary);
+    svg {
+      color: var(--gutenku-zen-secondary);
+      transition: transform 0.2s ease;
     }
 
-    @media (min-width: 600px) {
-      font-size: 0.875rem;
+    &:hover svg {
+      transform: translateX(-4px) translateY(-2px);
     }
   }
 
@@ -273,21 +271,21 @@ useSeoMeta({
   }
 
   &__title {
-    font-size: 1.25rem;
-    font-weight: 600;
+    font-size: 1.35rem;
+    font-weight: 700;
     color: var(--gutenku-zen-primary);
-    margin: 0 0 0.375rem;
+    margin: 0 0 0.5rem;
     overflow-wrap: break-word;
     word-break: break-word;
     max-width: 100%;
 
     @media (min-width: 375px) {
-      font-size: 1.375rem;
-      margin: 0 0 0.5rem;
+      font-size: 1.5rem;
+      margin: 0 0 0.625rem;
     }
 
     @media (min-width: 600px) {
-      font-size: 1.5rem;
+      font-size: 1.75rem;
     }
   }
 
@@ -401,17 +399,30 @@ useSeoMeta({
     flex: 1;
     max-width: 45%;
 
+    svg {
+      color: var(--gutenku-zen-secondary);
+      transition: transform 0.2s ease;
+    }
+
     &:hover {
       background: var(--gutenku-paper-bg-aged);
     }
 
     &--prev {
       justify-content: flex-start;
+
+      &:hover svg {
+        transform: translateX(-4px) translateY(-2px);
+      }
     }
 
     &--next {
       justify-content: flex-end;
       text-align: right;
+
+      &:hover svg {
+        transform: translateX(4px) translateY(-2px);
+      }
     }
   }
 
@@ -496,40 +507,40 @@ useSeoMeta({
     }
 
     :deep(h2) {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       font-weight: 600;
       margin-top: 1.5rem;
       margin-bottom: 0.5rem;
       color: var(--gutenku-text-primary);
 
       @media (min-width: 375px) {
-        font-size: 1.3rem;
+        font-size: 1.15rem;
         margin-top: 1.75rem;
         margin-bottom: 0.625rem;
       }
 
       @media (min-width: 600px) {
-        font-size: 1.4rem;
+        font-size: 1.25rem;
         margin-top: 2rem;
         margin-bottom: 0.75rem;
       }
     }
 
     :deep(h3) {
-      font-size: 1.05rem;
+      font-size: 1rem;
       font-weight: 600;
       margin-top: 1.25rem;
       margin-bottom: 0.375rem;
       color: var(--gutenku-text-primary);
 
       @media (min-width: 375px) {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
         margin-top: 1.375rem;
         margin-bottom: 0.4rem;
       }
 
       @media (min-width: 600px) {
-        font-size: 1.15rem;
+        font-size: 1.1rem;
         margin-top: 1.5rem;
         margin-bottom: 0.5rem;
       }
@@ -551,26 +562,6 @@ useSeoMeta({
     :deep(strong) {
       font-weight: 600;
       color: var(--gutenku-zen-primary);
-    }
-
-    :deep(a) {
-      color: var(--gutenku-zen-primary);
-      font-weight: 700;
-      text-decoration: none;
-      background: linear-gradient(
-        to bottom,
-        transparent 60%,
-        oklch(70% 0.1 170 / 0.3) 60%
-      );
-      transition: background 0.2s ease;
-
-      &:hover {
-        background: linear-gradient(
-          to bottom,
-          transparent 40%,
-          oklch(70% 0.1 170 / 0.5) 40%
-        );
-      }
     }
 
     :deep(blockquote) {
@@ -1079,23 +1070,6 @@ useSeoMeta({
 
   &__body :deep(img) {
     filter: brightness(0.85);
-  }
-
-  &__body :deep(a) {
-    color: var(--gutenku-zen-accent);
-    background: linear-gradient(
-      to bottom,
-      transparent 60%,
-      oklch(0.7 0.12 195 / 0.35) 60%
-    );
-
-    &:hover {
-      background: linear-gradient(
-        to bottom,
-        transparent 40%,
-        oklch(0.7 0.12 195 / 0.5) 40%
-      );
-    }
   }
 
   &__body :deep(.promo-band) {
