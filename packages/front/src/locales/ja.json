@@ -290,6 +290,7 @@
     "gamesPlayed": "{count}ゲーム",
     "winRate": "{rate}%勝率",
     "todayHaikusCrafted": "今日{count}句の俳句を作成",
+    "weekHaikusCrafted": "今週{count}句の俳句を作成",
     "todayWinRate": "今日{rate}%勝利",
     "todayAvgHints": "平均{avg}ヒント",
     "networkError": "サーバーに接続できません :(",

@@ -31,13 +31,21 @@ onMounted(() => {
   >
     <template #subtitle>
       <ZenChip
-        v-if="globalStats.todayHaikusGenerated > 0"
+        v-if="globalStats.weekHaikusGenerated > 0"
         class="preview-card__subtitle"
         variant="muted"
         size="sm"
-        :ariaLabel="t('home.todayHaikusCrafted', { count: formatNumber(globalStats.todayHaikusGenerated) })"
+        :ariaLabel="
+          t('home.weekHaikusCrafted', {
+            count: formatNumber(globalStats.weekHaikusGenerated),
+          })
+        "
       >
-        {{ t('home.todayHaikusCrafted', { count: formatNumber(globalStats.todayHaikusGenerated) }) }}
+        {{
+          t('home.weekHaikusCrafted', {
+            count: formatNumber(globalStats.weekHaikusGenerated),
+          })
+        }}
       </ZenChip>
     </template>
   </PreviewCard>

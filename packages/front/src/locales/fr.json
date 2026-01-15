@@ -290,6 +290,7 @@
     "gamesPlayed": "{count} parties",
     "winRate": "{rate}% gagnées",
     "todayHaikusCrafted": "{count} haïkus créés aujourd'hui",
+    "weekHaikusCrafted": "{count} haïkus créés cette semaine",
     "todayWinRate": "{rate}% gagnés aujourd'hui",
     "todayAvgHints": "moy {avg} indices",
     "networkError": "Impossible de se connecter au serveur :(",

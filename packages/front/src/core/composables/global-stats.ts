@@ -16,6 +16,7 @@ const globalStats = ref<GlobalStats>({
   todayGamesPlayed: 0,
   todayGamesWon: 0,
   todayTotalHints: 0,
+  weekHaikusGenerated: 0,
 });
 
 const loading = ref(false);
@@ -42,6 +43,7 @@ export function useGlobalStats() {
             todayGamesPlayed
             todayGamesWon
             todayTotalHints
+            weekHaikusGenerated
           }
         }
       `;
