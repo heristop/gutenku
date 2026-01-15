@@ -34,6 +34,7 @@ function dateToSeed(dateStr: string): number {
     return 0;
   }
   const [year, month, day] = dateStr.split('-').map(Number);
+
   return year * 10000 + month * 100 + day;
 }
 
@@ -80,6 +81,7 @@ const HINT_POOL: HintDefinition[] = [
     difficulty: 2,
     generator: (book, _random, locale) => {
       const title = book.title?.[locale] || book.title?.en || '';
+
       if (!title) {
         return '0';
       }
@@ -87,9 +89,11 @@ const HINT_POOL: HintDefinition[] = [
       if (locale === 'ja') {
         const segmenter = new Intl.Segmenter('ja', { granularity: 'grapheme' });
         const ideogramCount = [...segmenter.segment(title)].length;
+
         return `${ideogramCount}`;
       }
       const count = title.split(/\s+/).length;
+
       return `${count}`;
     },
   },
@@ -98,6 +102,7 @@ const HINT_POOL: HintDefinition[] = [
     difficulty: 2,
     generator: (book) => {
       const wc = book.wordCount;
+
       if (wc < 40000) {
         return 'short';
       }
@@ -136,6 +141,7 @@ const HINT_POOL: HintDefinition[] = [
       const century = Math.floor(book.publicationYear / 100) + 1;
       const suffixes: Record<number, string> = { 21: 'st', 22: 'nd', 23: 'rd' };
       const suffix = suffixes[century] || 'th';
+
       return `Published in the ${century}${suffix} century`;
     },
   },
@@ -184,6 +190,7 @@ const HINT_POOL: HintDefinition[] = [
  */
 function shuffleWithSeed<T>(array: T[], random: () => number): T[] {
   const result = [...array];
+
   for (let i = result.length - 1; i > 0; i--) {
     const j = Math.floor(random() * (i + 1));
     [result[i], result[j]] = [result[j], result[i]];

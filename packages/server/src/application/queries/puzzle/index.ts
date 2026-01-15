@@ -6,3 +6,7 @@ export * from './ReduceBooksQuery';
 export * from './ReduceBooksHandler';
 export * from './GetPuzzleVersionQuery';
 export * from './GetPuzzleVersionHandler';
+export * from './RevealEmoticonQuery';
+export * from './RevealEmoticonHandler';
+export * from './RevealHaikuQuery';
+export * from './RevealHaikuHandler';

@@ -18,6 +18,8 @@ import { GetDailyPuzzleHandler } from '~/application/queries/puzzle/GetDailyPuzz
 import { SubmitGuessHandler } from '~/application/queries/puzzle/SubmitGuessHandler';
 import { ReduceBooksHandler } from '~/application/queries/puzzle/ReduceBooksHandler';
 import { GetPuzzleVersionHandler } from '~/application/queries/puzzle/GetPuzzleVersionHandler';
+import { RevealEmoticonHandler } from '~/application/queries/puzzle/RevealEmoticonHandler';
+import { RevealHaikuHandler } from '~/application/queries/puzzle/RevealHaikuHandler';
 import { GetGlobalStatsHandler } from '~/application/queries/stats/GetGlobalStatsHandler';
 import { VerifyEmailHandler } from '~/application/queries/email/VerifyEmailHandler';
 import { UnsubscribeEmailHandler } from '~/application/queries/email/UnsubscribeEmailHandler';
@@ -64,6 +66,12 @@ container.register(createQueryHandlerToken('ReduceBooksQuery'), {
 });
 container.register(createQueryHandlerToken('GetPuzzleVersionQuery'), {
   useClass: GetPuzzleVersionHandler,
+});
+container.register(createQueryHandlerToken('RevealEmoticonQuery'), {
+  useClass: RevealEmoticonHandler,
+});
+container.register(createQueryHandlerToken('RevealHaikuQuery'), {
+  useClass: RevealHaikuHandler,
 });
 container.register(createQueryHandlerToken('GetGlobalStatsQuery'), {
   useClass: GetGlobalStatsHandler,

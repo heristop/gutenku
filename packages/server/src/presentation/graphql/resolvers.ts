@@ -28,6 +28,8 @@ import {
   SubmitGuessQuery,
   ReduceBooksQuery,
   GetPuzzleVersionQuery,
+  RevealEmoticonQuery,
+  RevealHaikuQuery,
 } from '~/application/queries/puzzle';
 import { VerifyEmailQuery } from '~/application/queries/email/VerifyEmailQuery';
 import { UnsubscribeEmailQuery } from '~/application/queries/email/UnsubscribeEmailQuery';
@@ -174,6 +176,20 @@ const resolvers = {
     subscribeEmail: async (_, { email }: { email: string }) => {
       const commandBus = container.resolve<ICommandBus>(ICommandBusToken);
       return commandBus.execute(new SubscribeEmailCommand(email));
+    },
+    revealEmoticon: async (
+      _,
+      { date, count }: { date: string; count: number },
+    ) => {
+      const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
+      return queryBus.execute(new RevealEmoticonQuery(date, count));
+    },
+    revealHaiku: async (
+      _,
+      { date, index }: { date: string; index: number },
+    ) => {
+      const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
+      return queryBus.execute(new RevealHaikuQuery(date, index));
     },
   },
   Subscription: {

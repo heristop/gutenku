@@ -197,8 +197,15 @@ const typeDefs = `#graphql
         message: String!
     }
 
+    type EmoticonRevealResult {
+        emoticons: String!
+        emoticonCount: Int!
+    }
+
     type Mutation {
         subscribeEmail(email: String!): SubscriptionResult!
+        revealEmoticon(date: String!, count: Int!): EmoticonRevealResult!
+        revealHaiku(date: String!, index: Int!): String
     }
 `;
 

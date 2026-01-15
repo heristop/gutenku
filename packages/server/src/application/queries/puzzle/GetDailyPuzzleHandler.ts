@@ -40,6 +40,7 @@ function dateToSeed(dateStr: string): number {
     return 0;
   }
   const [year, month, day] = dateStr.split('-').map(Number);
+
   return year * 10000 + month * 100 + day;
 }
 
@@ -94,9 +95,11 @@ const HINT_POOL: HintDefinition[] = [
       if (locale === 'ja') {
         const segmenter = new Intl.Segmenter('ja', { granularity: 'grapheme' });
         const ideogramCount = [...segmenter.segment(title)].length;
+
         return `${ideogramCount}`;
       }
       const count = title.split(/\s+/).length;
+
       return `${count}`;
     },
   },
@@ -123,6 +126,7 @@ const HINT_POOL: HintDefinition[] = [
       const century = Math.floor(book.publicationYear / 100) + 1;
       const suffixes: Record<number, string> = { 21: 'st', 22: 'nd', 23: 'rd' };
       const suffix = suffixes[century] || 'th';
+
       return `Published in the ${century}${suffix} century`;
     },
   },
@@ -242,6 +246,7 @@ function shuffleEmoticons(emoticons: string, random: () => number): string {
   const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
   const emojis = [...segmenter.segment(emoticons)].map((s) => s.segment);
   const shuffled = shuffleWithSeed(emojis, random);
+
   return shuffled.join('');
 }
 
@@ -380,17 +385,25 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
   }
 
   /**
-   * Check if a sentence is valid for haiku use.
+   * Check if a sentence is valid for puzzle haiku hints.
+   * Uses relaxed rules compared to main haiku generation since
+   * GutenGuess just needs "good enough" hints from classic literature.
    */
   private isValidSentence(sentence: string): boolean {
-    if (this.naturalLanguage.hasUpperCaseWords(sentence)) {
+    // Skip sentences with major formatting issues (brackets, quotes)
+    if (/[@#[\]{}()"|"]/.test(sentence)) {
       return false;
     }
-
-    if (this.naturalLanguage.hasBlacklistedCharsInQuote(sentence)) {
+    // Skip sentences with numbers or special chars
+    if (/[0-9*$%_~&]/.test(sentence)) {
       return false;
     }
-    return sentence.length < 30;
+    // Skip all-uppercase (chapter headers)
+    if (/^[A-Z\s!:.?]+$/.test(sentence)) {
+      return false;
+    }
+    // Allow longer sentences for puzzle hints (up to 50 chars)
+    return sentence.length < 50;
   }
 
   /**
@@ -417,7 +430,9 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
 
         if (syllableCount === 5) {
           fiveSyllable.push(sentence);
-        } else if (syllableCount === 7) {
+        }
+
+        if (syllableCount === 7) {
           sevenSyllable.push(sentence);
         }
       }
