@@ -136,7 +136,12 @@ const navItems = computed(() => [
   },
 ]);
 
-const isActive = (path: string) => route.path === path;
+const isActive = (path: string) => {
+  if (path === '/') {
+    return route.path === '/';
+  }
+  return route.path === path || route.path.startsWith(path + '/');
+};
 
 // Track hover state
 const hoveredItem = ref<string | null>(null);
