@@ -41,7 +41,7 @@ export default defineConfig(({ isSsrBuild }) => ({
     {
       name: 'html-url-transform',
       transformIndexHtml(html) {
-        return html.replace(/https:\/\/gutenku\.xyz/g, siteUrl);
+        return html.replaceAll(/https:\/\/gutenku\.xyz/g, siteUrl);
       },
     },
     vue(),
