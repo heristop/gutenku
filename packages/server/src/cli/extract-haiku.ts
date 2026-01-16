@@ -11,6 +11,7 @@ import '~/infrastructure/di/container';
 import MongoConnection from '~/infrastructure/services/MongoConnection';
 import HaikuGeneratorService from '~/domain/services/HaikuGeneratorService';
 import { MarkovEvaluatorService } from '~/domain/services/MarkovEvaluatorService';
+import HaikuRepository from '~/infrastructure/repositories/HaikuRepository';
 import type { HaikuValue } from '~/shared/types';
 
 program
@@ -24,6 +25,8 @@ program
   )
   .option('-p, --parallel <number>', 'parallel workers (default: 3)', '3')
   .option('--skip-markov', 'skip loading Markov model (saves memory)')
+  .option('-r, --record', 'save best haiku to database for haiku of the day')
+  .option('--ttl <hours>', 'TTL in hours for recorded haiku (default: 48 = 2 days)', '48')
   .parse();
 
 const options = program.opts();
@@ -262,6 +265,16 @@ try {
 
   // Quality scores for best haiku
   displayQualityScores(bestHaiku!);
+
+  // Save to database if --record flag is set
+  if (options.record) {
+    const saveSpinner = ora('Saving haiku to database...').start();
+    const repository = container.resolve(HaikuRepository);
+    const ttlHours = Math.max(1, Number.parseInt(options.ttl, 10) || 48);
+    const ttlMs = ttlHours * 60 * 60 * 1000;
+    await repository.createCacheWithTTL(bestHaiku!, ttlMs);
+    saveSpinner.succeed(pc.green(`Haiku saved to database (TTL: ${ttlHours}h)`));
+  }
 
   console.log(pc.bold(pc.green('\n✨ Done!\n')));
   process.exit(0);
