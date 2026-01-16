@@ -14,7 +14,8 @@ export default class MongoConnection {
     const database = process.env.MONGODB_DB || 'admin';
 
     try {
-      await mongoose.connect(`${uri}/${database}`, {
+      await mongoose.connect(uri, {
+        dbName: database,
         connectTimeoutMS: 10000,
         maxPoolSize: 20,
         serverSelectionTimeoutMS: 5000,

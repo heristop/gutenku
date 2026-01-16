@@ -56,7 +56,7 @@ export class GenerateHaikuHandler implements IQueryHandler<
       cache: {
         minCachedDocs,
         ttl: 48 * 60 * 60 * 1000,
-        enabled: query.useCache && !query.useDaily,
+        enabled: query.useCache,
       },
       score: {
         markovChain: query.markovMinScore,
