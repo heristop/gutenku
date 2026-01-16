@@ -3,8 +3,8 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://gutenku.xyz/</loc>
-    <lastmod>2026-01-13</lastmod>
-    <changefreq>weekly</changefreq>
+    <lastmod>2026-01-16</lastmod>
+    <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
       <image:loc>https://gutenku.xyz/og-image.png</image:loc>
@@ -12,8 +12,8 @@
   </url>
   <url>
     <loc>https://gutenku.xyz/game</loc>
-    <lastmod>2026-01-12</lastmod>
-    <changefreq>weekly</changefreq>
+    <lastmod>2026-01-16</lastmod>
+    <changefreq>daily</changefreq>
     <priority>0.9</priority>
     <image:image>
       <image:loc>https://gutenku.xyz/og-image.png</image:loc>
@@ -21,7 +21,7 @@
   </url>
   <url>
     <loc>https://gutenku.xyz/haiku</loc>
-    <lastmod>2026-01-12</lastmod>
+    <lastmod>2026-01-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -30,20 +30,11 @@
   </url>
   <url>
     <loc>https://gutenku.xyz/blog</loc>
-    <lastmod>2026-01-13</lastmod>
+    <lastmod>2026-01-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://gutenku.xyz/og-image.png</image:loc>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://gutenku.xyz/blog/gutenku-when-two-frauds-make-a-truth</loc>
-    <lastmod>2026-01-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <image:image>
-      <image:loc>https://gutenku.xyz/article/article-header.webp</image:loc>
     </image:image>
   </url>
   <url>
@@ -53,6 +44,15 @@
     <priority>0.7</priority>
     <image:image>
       <image:loc>https://gutenku.xyz/article/gutenguess-capture.webp</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://gutenku.xyz/blog/gutenku-when-two-frauds-make-a-truth</loc>
+    <lastmod>2026-01-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://gutenku.xyz/article/article-header.webp</image:loc>
     </image:image>
   </url>
 </urlset>

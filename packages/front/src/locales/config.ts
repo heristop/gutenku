@@ -1,4 +1,4 @@
-export const SITE_URL = 'https://gutenku.xyz';
+export const SITE_URL = import.meta.env.VITE_APP_URL || 'https://gutenku.xyz';
 
 export const LOCALE_CONFIG = {
   en: {
@@ -22,5 +22,7 @@ export const LOCALE_CONFIG = {
 } as const;
 
 export type SupportedLocale = keyof typeof LOCALE_CONFIG;
-export const SUPPORTED_LOCALES = Object.keys(LOCALE_CONFIG) as SupportedLocale[];
+export const SUPPORTED_LOCALES = Object.keys(
+  LOCALE_CONFIG,
+) as SupportedLocale[];
 export const DEFAULT_LOCALE: SupportedLocale = 'en';

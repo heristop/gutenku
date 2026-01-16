@@ -8,18 +8,14 @@ import {
   type SupportedLocale,
 } from '@/locales/config';
 
-/**
- * Composable for i18n SEO: hreflang links and og:locale meta
- */
 export function useLocaleSeo() {
   const route = useRoute();
   const { locale } = useI18n();
 
   const currentLocale = computed(() => locale.value as SupportedLocale);
 
-  // Generate hreflang alternate links for all supported locales
   const hreflangLinks = computed(() => {
-    const path = route.path === '/' ? '' : route.path;
+    const path = route.path;
 
     const links: Array<{ rel: string; hreflang: string; href: string }> =
       SUPPORTED_LOCALES.map((loc) => ({
@@ -28,7 +24,6 @@ export function useLocaleSeo() {
         href: `${SITE_URL}${path}`,
       }));
 
-    // Add x-default pointing to the default locale
     links.push({
       rel: 'alternate',
       hreflang: 'x-default',
@@ -38,17 +33,14 @@ export function useLocaleSeo() {
     return links;
   });
 
-  // Get og:locale for current locale
   const ogLocale = computed(() => LOCALE_CONFIG[currentLocale.value].ogLocale);
 
-  // Get og:locale:alternate for other locales
   const ogLocaleAlternates = computed(() =>
     SUPPORTED_LOCALES.filter((loc) => loc !== currentLocale.value).map(
       (loc) => LOCALE_CONFIG[loc].ogLocale,
     ),
   );
 
-  // HTML lang attribute value
   const htmlLang = computed(() => LOCALE_CONFIG[currentLocale.value].htmlLang);
 
   return {
