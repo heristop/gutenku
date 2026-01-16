@@ -101,6 +101,11 @@ const displayPercent = computed(() => Math.round(displayedValue.value * 100));
 
 // Color class
 const colorClass = computed(() => `radial-progress--${props.color}`);
+
+// Accessible label - fallback to progress percentage if no label provided
+const accessibleLabel = computed(
+  () => props.label || `${Math.round(normalizedValue.value * 100)}% progress`,
+);
 </script>
 
 <template>
@@ -111,7 +116,7 @@ const colorClass = computed(() => `radial-progress--${props.color}`);
     :aria-valuenow="Math.round(normalizedValue * 100)"
     :aria-valuemin="0"
     :aria-valuemax="100"
-    :aria-label="label"
+    :aria-label="accessibleLabel"
   >
     <svg
       class="radial-progress__svg"

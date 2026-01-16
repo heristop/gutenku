@@ -4,10 +4,8 @@ import { useI18n } from 'vue-i18n';
 import { useSeoMeta } from '@unhead/vue';
 import { ChevronDown } from 'lucide-vue-next';
 import { withViewTransition } from '@/core/composables/view-transition';
-import { usePullToRefresh } from '@/core/composables/pull-to-refresh';
 import { useGlobalStats } from '@/core/composables/global-stats';
 import ZenSkeleton from '@/core/components/ZenSkeleton.vue';
-import PullToRefresh from '@/core/components/PullToRefresh.vue';
 import Hero from '@/core/components/Hero.vue';
 import { GAME_ENABLED, GamePreview } from '@/features/game';
 import { SITE_URL } from '@/locales/config';
@@ -28,10 +26,6 @@ useSeoMeta({
 });
 
 const showContent = ref(false);
-const containerRef = ref<HTMLElement | null>(null);
-
-const { pullDistance, isRefreshing, shouldRelease, progress } =
-  usePullToRefresh(containerRef, { onRefresh: fetchGlobalStats });
 
 onMounted(() => {
   requestAnimationFrame(() => {
@@ -43,14 +37,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div ref="containerRef" class="home-container">
-    <PullToRefresh
-      :pull-distance="pullDistance"
-      :is-refreshing="isRefreshing"
-      :should-release="shouldRelease"
-      :progress="progress"
-    />
-
+  <div class="home-container">
     <main
       class="home-content"
       :class="{ 'home-content--visible': showContent }"
