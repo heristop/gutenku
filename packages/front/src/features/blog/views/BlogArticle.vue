@@ -47,7 +47,7 @@ useSeoMeta({
   ogImage,
   ogType: 'article',
   articlePublishedTime: isoDate,
-  articleAuthor: 'Alexandre Mederic Mogère',
+  articleAuthor: ['Alexandre Mederic Mogère'],
   twitterCard: 'summary_large_image',
   twitterTitle: () => article.value?.title || 'Article Not Found',
   twitterDescription: () => article.value?.description || 'Article not found',
