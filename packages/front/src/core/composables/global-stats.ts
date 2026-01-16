@@ -10,13 +10,19 @@ const globalStats = ref<GlobalStats>({
   totalEmoticonScratches: 0,
   totalHaikuReveals: 0,
   todayHaikusGenerated: 0,
+  todayGamesPlayed: 0,
+  todayGamesWon: 0,
   todayAverageEmoticonScratches: 0,
   todayAverageHaikuReveals: 0,
   todayAverageHints: 0,
-  todayGamesPlayed: 0,
-  todayGamesWon: 0,
   todayTotalHints: 0,
   weekHaikusGenerated: 0,
+  weekGamesPlayed: 0,
+  weekGamesWon: 0,
+  weekAverageEmoticonScratches: 0,
+  weekAverageHaikuReveals: 0,
+  weekAverageHints: 0,
+  weekTotalHints: 0,
 });
 
 const loading = ref(false);
@@ -37,13 +43,19 @@ export function useGlobalStats() {
             totalEmoticonScratches
             totalHaikuReveals
             todayHaikusGenerated
+            todayGamesPlayed
+            todayGamesWon
             todayAverageEmoticonScratches
             todayAverageHaikuReveals
             todayAverageHints
-            todayGamesPlayed
-            todayGamesWon
             todayTotalHints
             weekHaikusGenerated
+            weekGamesPlayed
+            weekGamesWon
+            weekAverageEmoticonScratches
+            weekAverageHaikuReveals
+            weekAverageHints
+            weekTotalHints
           }
         }
       `;

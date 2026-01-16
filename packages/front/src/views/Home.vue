@@ -10,6 +10,7 @@ import ZenSkeleton from '@/core/components/ZenSkeleton.vue';
 import PullToRefresh from '@/core/components/PullToRefresh.vue';
 import Hero from '@/core/components/Hero.vue';
 import { GAME_ENABLED, GamePreview } from '@/features/game';
+import { SITE_URL } from '@/locales/config';
 
 const HaikuPreview = defineAsyncComponent(
   () => import('@/features/haiku/components/HaikuPreview.vue'),
@@ -22,8 +23,8 @@ useSeoMeta({
   ogTitle: 'GutenKu - AI Haiku Generator & Literary Guessing Game',
   ogDescription:
     'Generate beautiful haikus from classic literature. Play GutenGuess - guess the book from emoji hints.',
-  ogImage: 'https://gutenku.xyz/og-image.png',
-  twitterImage: 'https://gutenku.xyz/og-image.png',
+  ogImage: `${SITE_URL}/og-image.png`,
+  twitterImage: `${SITE_URL}/og-image.png`,
 });
 
 const showContent = ref(false);
@@ -33,7 +34,6 @@ const { pullDistance, isRefreshing, shouldRelease, progress } =
   usePullToRefresh(containerRef, { onRefresh: fetchGlobalStats });
 
 onMounted(() => {
-  // Wait for next frame before triggering entrance
   requestAnimationFrame(() => {
     withViewTransition(() => {
       showContent.value = true;
@@ -56,20 +56,16 @@ onMounted(() => {
       :class="{ 'home-content--visible': showContent }"
       :aria-label="t('home.haikuContentLabel')"
     >
-      <!-- SEO: H1 in sync content for crawlers -->
       <h1 class="sr-only">GutenKu - Haiku Generator from Classic Literature</h1>
 
-      <!-- Introduction Section -->
       <div class="hero-wrapper">
         <Hero />
       </div>
 
-      <!-- Mobile scroll indicator -->
       <div class="scroll-indicator" aria-hidden="true">
         <ChevronDown :size="24" />
       </div>
 
-      <!-- Preview Cards Grid -->
       <div
         id="preview-grid"
         tabindex="-1"
@@ -122,12 +118,10 @@ onMounted(() => {
   }
 }
 
-// Home content - hero visible immediately for LCP, only grid animates
 .home-content {
   opacity: 1;
 }
 
-// Preview grid fades in after hero - content-visibility for below-fold optimization
 .preview-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -170,7 +164,6 @@ onMounted(() => {
   }
 }
 
-// Mobile scroll indicator
 .scroll-indicator {
   display: none;
 

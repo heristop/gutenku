@@ -81,7 +81,8 @@ export const routes: RouteRecordRaw[] = [
           ),
         meta: {
           title: 'Verify Email - GutenKu',
-          description: 'Verify your email subscription.',
+          description:
+            'Confirm your email subscription to receive GutenKu newsletters and updates.',
           robots: 'noindex, nofollow',
         },
       },
@@ -94,7 +95,8 @@ export const routes: RouteRecordRaw[] = [
           ),
         meta: {
           title: 'Unsubscribe - GutenKu',
-          description: 'Unsubscribe from email notifications.',
+          description:
+            'Manage your GutenKu email subscription preferences or unsubscribe from notifications.',
           robots: 'noindex, nofollow',
         },
       },

@@ -9,12 +9,12 @@ import ThemeToggle from '@/core/components/ThemeToggle.vue';
 import AppFooter from '@/core/components/AppFooter.vue';
 import InkBrushNav from '@/core/components/ui/InkBrushNav.vue';
 import { useLocaleSeo } from '@/core/composables/locale-seo';
+import { SITE_URL } from '@/locales/config';
 
 const route = useRoute();
 const { hreflangLinks, ogLocale, ogLocaleAlternates, htmlLang } =
   useLocaleSeo();
 
-// Disable floating particles for reduced motion or mobile
 const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
 const isMobile = useMediaQuery('(max-width: 767px)');
 const showParticles = computed(
@@ -39,11 +39,8 @@ function skipToMain(): void {
   }
 }
 
-const canonicalUrl = computed(
-  () => `https://gutenku.xyz${route.path === '/' ? '' : route.path}`,
-);
+const canonicalUrl = computed(() => `${SITE_URL}${route.path}`);
 
-// Preload LCP hero image on home page only
 const shouldPreloadHeroImage = computed(() => route.path === '/');
 
 useHead({
@@ -54,7 +51,6 @@ useHead({
   link: computed(() => {
     const links: Array<Record<string, string>> = [
       { rel: 'canonical', href: canonicalUrl.value },
-      // hreflang alternate links for i18n SEO
       ...hreflangLinks.value,
     ];
 
@@ -92,7 +88,6 @@ useHead({
         property: 'og:url',
         content: canonicalUrl.value,
       },
-      // og:locale for current language
       {
         property: 'og:locale',
         content: ogLocale.value,
@@ -109,7 +104,6 @@ useHead({
       },
     ];
 
-    // og:locale:alternate for other languages
     for (const altLocale of ogLocaleAlternates.value) {
       baseMeta.push({
         property: 'og:locale:alternate',
@@ -163,7 +157,6 @@ useHead({
 </template>
 
 <style lang="scss" scoped>
-// CSS containment for decorative elements
 .floating-particles {
   contain: strict;
   content-visibility: auto;
@@ -191,7 +184,6 @@ useHead({
   top: 0;
   right: 0;
   z-index: 1000;
-  // Let ThemeToggle handle its own positioning
   display: contents;
 }
 
