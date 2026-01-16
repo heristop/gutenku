@@ -79,13 +79,19 @@ export interface GlobalStats {
   totalEmoticonScratches: number;
   totalHaikuReveals: number;
   todayHaikusGenerated: number;
+  todayGamesPlayed: number;
+  todayGamesWon: number;
   todayAverageEmoticonScratches: number;
   todayAverageHaikuReveals: number;
   todayAverageHints: number;
-  todayGamesPlayed: number;
-  todayGamesWon: number;
   todayTotalHints: number;
   weekHaikusGenerated: number;
+  weekGamesPlayed: number;
+  weekGamesWon: number;
+  weekAverageEmoticonScratches: number;
+  weekAverageHaikuReveals: number;
+  weekAverageHints: number;
+  weekTotalHints: number;
 }
 
 export interface PuzzleVersion {

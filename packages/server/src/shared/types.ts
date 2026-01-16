@@ -54,6 +54,8 @@ export interface HaikuVariables {
   appendImg: boolean;
   useImageAI: boolean;
   selectionCount: number;
+  fromDb?: number;
+  liveCount?: number;
   theme: string;
   filter: string;
   extractionMethod?: 'punctuation' | 'chunk' | 'ga';
@@ -75,6 +77,8 @@ export interface HaikuVariables {
 export interface OpenAIOptions {
   apiKey: string;
   selectionCount?: number;
+  fromDb?: number;
+  liveCount?: number;
   temperature: {
     description?: number;
   };

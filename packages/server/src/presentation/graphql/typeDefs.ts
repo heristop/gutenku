@@ -89,13 +89,19 @@ const typeDefs = `#graphql
         totalEmoticonScratches: Int!
         totalHaikuReveals: Int!
         todayHaikusGenerated: Int!
+        todayGamesPlayed: Int!
+        todayGamesWon: Int!
         todayAverageEmoticonScratches: Float!
         todayAverageHaikuReveals: Float!
         todayAverageHints: Float!
-        todayGamesPlayed: Int!
-        todayGamesWon: Int!
         todayTotalHints: Int!
         weekHaikusGenerated: Int!
+        weekGamesPlayed: Int!
+        weekGamesWon: Int!
+        weekAverageEmoticonScratches: Float!
+        weekAverageHaikuReveals: Float!
+        weekAverageHints: Float!
+        weekTotalHints: Int!
     }
 
     input HintUsageInput {
@@ -153,6 +159,8 @@ const typeDefs = `#graphql
             appendImg: Boolean,
             useImageAI: Boolean,
             selectionCount: Int,
+            fromDb: Int,
+            liveCount: Int,
             theme: String,
             filter: String,
             extractionMethod: String,

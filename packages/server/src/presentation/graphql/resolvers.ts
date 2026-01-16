@@ -63,22 +63,29 @@ const resolvers = {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
       const stats = await queryBus.execute(new GetGlobalStatsQuery());
 
-      // Compute averages for today
       const todayGames = stats.todayGamesPlayed || 0;
       const todayAverageEmoticonScratches =
         todayGames > 0 ? stats.todayEmoticonScratches / todayGames : 0;
       const todayAverageHaikuReveals =
         todayGames > 0 ? stats.todayHaikuReveals / todayGames : 0;
-
-      // Compute total hints used today (all types combined)
       const todayTotalHints =
         stats.todayEmoticonScratches +
         stats.todayHaikuReveals +
         stats.todayRoundHints;
-
-      // Compute combined average hints (round hints + lifeline hints)
       const todayAverageHints =
         todayGames > 0 ? todayTotalHints / todayGames : 0;
+
+      const weekGames = stats.weekGamesPlayed || 0;
+      const weekAverageEmoticonScratches =
+        weekGames > 0 ? stats.weekEmoticonScratches / weekGames : 0;
+      const weekAverageHaikuReveals =
+        weekGames > 0 ? stats.weekHaikuReveals / weekGames : 0;
+      const weekTotalHints =
+        stats.weekEmoticonScratches +
+        stats.weekHaikuReveals +
+        stats.weekRoundHints;
+      const weekAverageHints =
+        weekGames > 0 ? weekTotalHints / weekGames : 0;
 
       return {
         ...stats,
@@ -86,6 +93,10 @@ const resolvers = {
         todayAverageHaikuReveals,
         todayAverageHints,
         todayTotalHints,
+        weekAverageEmoticonScratches,
+        weekAverageHaikuReveals,
+        weekAverageHints,
+        weekTotalHints,
       };
     },
     dailyPuzzle: async (

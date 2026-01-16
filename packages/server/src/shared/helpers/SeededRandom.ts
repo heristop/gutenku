@@ -1,6 +1,5 @@
 /**
- * Seeded random utilities for deterministic selection.
- * Used to ensure the same haiku is served to all users on a given day.
+ * Seeded random utilities for deterministic selection based on date seed.
  */
 
 /**
