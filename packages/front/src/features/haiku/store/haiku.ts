@@ -107,7 +107,7 @@ export const useHaikuStore = defineStore(
     const optionUseAI = ref(false);
     const optionImageAI = ref(false);
     const optionTheme = ref('random');
-    const optionIterations = ref(1);
+    const optionIterations = ref(10);
 
     const isGenerating = ref(false);
     const generationProgress = ref<GenerationProgress>({
@@ -461,7 +461,7 @@ export const useHaikuStore = defineStore(
     }
 
     function resetConfigToDefaults(): void {
-      optionIterations.value = 1;
+      optionIterations.value = 10;
     }
 
     function stopGeneration(): void {

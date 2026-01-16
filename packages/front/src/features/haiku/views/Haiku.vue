@@ -20,6 +20,7 @@ import { closeWSClient } from '@/client';
 import HaikuTitle from '@/features/haiku/components/HaikuTitle.vue';
 import AppLoading from '@/core/components/AppLoading.vue';
 import SumieCat from '@/core/components/decorative/SumieCat.vue';
+import { SITE_URL } from '@/locales/config';
 
 const HaikuCanvas = defineAsyncComponent({
   loader: () => import('@/features/haiku/components/HaikuCanvas.vue'),
@@ -64,8 +65,8 @@ useSeoMeta({
   ogTitle: 'Haiku Generator - GutenKu',
   ogDescription:
     'Haiku Generator powered by AI. Create beautiful zen poetry from classic literature. No signup required.',
-  ogImage: 'https://gutenku.xyz/og-image.png',
-  twitterImage: 'https://gutenku.xyz/og-image.png',
+  ogImage: `${SITE_URL}/og-image.png`,
+  twitterImage: `${SITE_URL}/og-image.png`,
 });
 
 const haikuStore = useHaikuStore();

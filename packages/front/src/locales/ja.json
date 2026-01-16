@@ -293,6 +293,8 @@
     "weekHaikusCrafted": "今週{count}句の俳句を作成",
     "todayWinRate": "今日{rate}%勝利",
     "todayAvgHints": "平均{avg}ヒント",
+    "weekWinRate": "{rate}%勝利",
+    "weekAvgHints": "平均{avg}ヒント",
     "networkError": "サーバーに接続できません :(",
     "haikuReady": "俳句の準備完了",
     "readyMessage": "詩を作成する準備ができました",

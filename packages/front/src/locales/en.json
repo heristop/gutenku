@@ -293,6 +293,8 @@
     "weekHaikusCrafted": "{count} haikus crafted this week",
     "todayWinRate": "{rate}% won today",
     "todayAvgHints": "avg {avg} hints",
+    "weekWinRate": "{rate}% won",
+    "weekAvgHints": "avg {avg} hints",
     "networkError": "Cannot connect to the server :(",
     "haikuReady": "Haiku ready",
     "readyMessage": "Ready to create poetry",

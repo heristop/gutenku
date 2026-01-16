@@ -2,10 +2,11 @@
 import { computed } from 'vue';
 import { useRoute, RouterLink } from 'vue-router';
 import { Loader2, ArrowUp, ArrowLeft, ArrowRight } from 'lucide-vue-next';
-import { useSeoMeta } from '@unhead/vue';
+import { useSeoMeta, useHead } from '@unhead/vue';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
 import BlogShareButtons from '../components/BlogShareButtons.vue';
 import { useArticle, useReadingProgress } from '../composables';
+import { SITE_URL } from '@/locales/config';
 
 const route = useRoute();
 const slug = computed(() => route.params.slug as string);
@@ -24,16 +25,16 @@ const {
 
 const { readingProgress, showBackToTop, scrollToTop } = useReadingProgress();
 
-// Dynamic meta tags based on current article
-const baseUrl = 'https://gutenku.xyz';
 const ogImage = computed(() => {
   if (!article.value) {
-    return `${baseUrl}/og-image.png`;
+    return `${SITE_URL}/og-image.png`;
   }
   return article.value.image.startsWith('/')
-    ? `${baseUrl}${article.value.image}`
+    ? `${SITE_URL}${article.value.image}`
     : article.value.image;
 });
+
+const isoDate = computed(() => article.value?.date.toISOString() || '');
 
 useSeoMeta({
   title: () =>
@@ -45,10 +46,48 @@ useSeoMeta({
   ogDescription: () => article.value?.description || 'Article not found',
   ogImage,
   ogType: 'article',
+  articlePublishedTime: isoDate,
+  articleAuthor: 'Alexandre Mederic Mogère',
   twitterCard: 'summary_large_image',
   twitterTitle: () => article.value?.title || 'Article Not Found',
   twitterDescription: () => article.value?.description || 'Article not found',
   twitterImage: ogImage,
+});
+
+useHead({
+  script: computed(() =>
+    article.value
+      ? [
+          {
+            type: 'application/ld+json',
+            innerHTML: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Article',
+              headline: article.value.title,
+              description: article.value.description,
+              image: ogImage.value,
+              datePublished: isoDate.value,
+              author: {
+                '@type': 'Person',
+                name: 'Alexandre Mederic Mogère',
+              },
+              publisher: {
+                '@type': 'Organization',
+                name: 'GutenKu',
+                logo: {
+                  '@type': 'ImageObject',
+                  url: `${SITE_URL}/android-chrome-512x512.png`,
+                },
+              },
+              mainEntityOfPage: {
+                '@type': 'WebPage',
+                '@id': `${SITE_URL}/blog/${article.value.slug}`,
+              },
+            }),
+          },
+        ]
+      : [],
+  ),
 });
 </script>
 
