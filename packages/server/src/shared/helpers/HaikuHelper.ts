@@ -64,13 +64,7 @@ export function extractContextVerses(
   const sentences = cleanedChapter.split(SENTENCE_SPLIT_REGEX);
 
   return verses.map((verse) =>
-    findContext(
-      cleanedChapter,
-      verse.replaceAll('\n', ' '),
-      5,
-      2,
-      sentences,
-    ),
+    findContext(cleanedChapter, verse.replaceAll('\n', ' '), 5, 2, sentences),
   );
 }
 
@@ -83,8 +77,13 @@ export function cleanVerses(verses: string[]): string[] {
       .trim()
       .replaceAll(newLineRegex, ' ')
       .replaceAll(whitespaceRegex, ' ')
-      .replaceAll(/^['"“”]|['"“”]$|\.\.\.$|\.$\.$|\.$|,$|!$|;$|\?$/g, '');
+      .replaceAll(/^['"""]|['"""]$|\.\.\.$|\.$\.$|\.$|,$|!$|;$|\?$/g, '');
 
     return verse.charAt(0).toUpperCase() + verse.slice(1);
   });
+}
+
+export function capitalizeVerse(verse: string): string {
+  const trimmed = verse.trim();
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
 }

@@ -48,6 +48,7 @@ const typeDefs = `#graphql
         weakStarts: Int!
         blacklistedVerses: Int!
         properNouns: Int!
+        verseLengthPenalty: Int!
         sentiment: Float!
         grammar: Float!
         trigramFlow: Float!
@@ -121,6 +122,7 @@ const typeDefs = `#graphql
         hints: [PuzzleHint!]!
         haikus: [String!]!
         emoticonCount: Int!
+        visibleIndices: [Int!]!
         nextPuzzleAvailableAt: String!
     }
 
@@ -209,11 +211,12 @@ const typeDefs = `#graphql
     type EmoticonRevealResult {
         emoticons: String!
         emoticonCount: Int!
+        visibleIndices: [Int!]!
     }
 
     type Mutation {
         subscribeEmail(email: String!): SubscriptionResult!
-        revealEmoticon(date: String!, count: Int!): EmoticonRevealResult!
+        revealEmoticon(date: String!, scratchedPositions: [Int!]!): EmoticonRevealResult!
         revealHaiku(date: String!, index: Int!): String
     }
 `;

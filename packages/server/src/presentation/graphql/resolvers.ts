@@ -84,8 +84,7 @@ const resolvers = {
         stats.weekEmoticonScratches +
         stats.weekHaikuReveals +
         stats.weekRoundHints;
-      const weekAverageHints =
-        weekGames > 0 ? weekTotalHints / weekGames : 0;
+      const weekAverageHints = weekGames > 0 ? weekTotalHints / weekGames : 0;
 
       return {
         ...stats,
@@ -190,10 +189,15 @@ const resolvers = {
     },
     revealEmoticon: async (
       _,
-      { date, count }: { date: string; count: number },
+      {
+        date,
+        scratchedPositions,
+      }: { date: string; scratchedPositions: number[] },
     ) => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
-      return queryBus.execute(new RevealEmoticonQuery(date, count));
+      return queryBus.execute(
+        new RevealEmoticonQuery(date, scratchedPositions),
+      );
     },
     revealHaiku: async (
       _,

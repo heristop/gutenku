@@ -19,7 +19,7 @@ export const MIN_QUOTES_THRESHOLD: Record<ExtractionMethod, number> = {
   genetic_algorithm: 0, // GA handles its own thresholds
 };
 
-// Haiku generation rules (moved from .env)
+// Haiku generation rules
 export const VERSE_MAX_LENGTH = 30;
 
 // Filter thresholds (for rejection during generation)
@@ -149,6 +149,46 @@ export function countNatureWords(verses: string[]): number {
  */
 export function hasBlacklistedChars(verse: string): boolean {
   return BLACKLISTED_CHARS_PATTERN.test(verse);
+}
+
+/**
+ * Check if text contains a proper noun (capitalized word not at start of sentence).
+ * Used to filter out sentences with character names.
+ */
+export function hasProperNoun(text: string): boolean {
+  const words = text.split(/\s+/);
+  for (let i = 1; i < words.length; i++) {
+    const word = words[i];
+    // Check if word starts with uppercase (and has lowercase after, to avoid acronyms)
+    if (word && /^[A-Z][a-z]/.test(word)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Check if a sentence is valid for puzzle haiku hints.
+ * Filters out sentences with blacklisted chars, uppercase text, proper nouns, or excessive length.
+ */
+export function isValidPuzzleSentence(
+  sentence: string,
+  maxLength: number = 50,
+): boolean {
+  // Use shared blacklist validation (quotes, brackets, numbers, titles, etc.)
+  if (hasBlacklistedChars(sentence)) {
+    return false;
+  }
+  // Skip all-uppercase (chapter headers)
+  if (UPPERCASE_TEXT_PATTERN.test(sentence)) {
+    return false;
+  }
+  // Skip sentences with proper nouns (character names)
+  if (hasProperNoun(sentence)) {
+    return false;
+  }
+  // Check length
+  return sentence.length < maxLength;
 }
 
 /**
@@ -1269,6 +1309,7 @@ export interface HaikuQualityScore {
   weakStarts: number; // Count of verses with weak starts (penalty)
   blacklistedVerses: number; // Count of verses with blacklisted chars (penalty)
   properNouns: number; // Count of proper nouns (penalty)
+  verseLengthPenalty: number; // Count of verses exceeding max length (penalty)
   sentiment: number; // Average sentiment [0, 1]
   grammar: number; // POS score [0, 1]
   trigramFlow: number; // Trigram flow score [0, 10]
@@ -1292,6 +1333,13 @@ export interface QualityMetrics {
   verseIndices?: number[];
   totalQuotes?: number;
   posResults?: Array<{ tag: string }>;
+}
+
+/**
+ * Count verses that exceed the max length threshold.
+ */
+export function countLongVerses(verses: string[]): number {
+  return verses.filter((v) => v.length >= VERSE_MAX_LENGTH).length;
 }
 
 /**
@@ -1326,6 +1374,7 @@ export function calculateHaikuQuality(
   const weakStarts = verses.filter((v) => hasWeakStart(v)).length;
   const blacklistedVerses = countBlacklistedVerses(verses);
   const properNouns = countProperNouns(verses);
+  const verseLengthPenalty = countLongVerses(verses);
   const uniqueness = calculateWordUniqueness(verses);
 
   // Calculate new KPIs
@@ -1342,10 +1391,11 @@ export function calculateHaikuQuality(
 
   // Score components:
   // Penalties:
-  // - Repeated words: -3 per word
+  // - Repeated words: -2 per word
   // - Weak starts: -2 per verse
-  // - Blacklisted chars: -10 per verse (heavy penalty for brackets, commas, etc.)
-  // - Proper nouns: -5 per noun (character names don't work in haiku)
+  // - Blacklisted chars: -3 per verse
+  // - Proper nouns: -2 per noun
+  // - Verse length: -3 per verse exceeding max length
   // Bonuses:
   // - Nature words: +2 per word
   // - Sentiment bonus: [0,1] → [-2, +2]
@@ -1376,7 +1426,8 @@ export function calculateHaikuQuality(
     repeatedWords * 2 -
     weakStarts * 2 -
     blacklistedVerses * 3 -
-    properNouns * 2 +
+    properNouns * 2 -
+    verseLengthPenalty * 3 +
     sentimentBonus +
     grammarBonus +
     trigramBonus +
@@ -1395,6 +1446,7 @@ export function calculateHaikuQuality(
     weakStarts,
     blacklistedVerses,
     properNouns,
+    verseLengthPenalty,
     sentiment: metrics.sentiment,
     grammar: metrics.grammar,
     trigramFlow: metrics.trigramFlow,

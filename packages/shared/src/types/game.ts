@@ -26,6 +26,7 @@ export interface DailyPuzzle {
   hints: PuzzleHint[];
   haikus: string[];
   emoticonCount: number;
+  visibleIndices: number[];
   nextPuzzleAvailableAt: string;
 }
 

@@ -45,6 +45,7 @@ export interface HaikuQualityScore {
   weakStarts: number;
   blacklistedVerses: number;
   properNouns: number;
+  verseLengthPenalty: number;
   sentiment: number;
   grammar: number;
   trigramFlow: number;
