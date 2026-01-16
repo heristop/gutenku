@@ -50,13 +50,14 @@ export class GenerateHaikuHandler implements IQueryHandler<
   }
 
   private configureGenerator(query: GenerateHaikuQuery): void {
-    const minCachedDocs = Number.parseInt(process.env.MIN_CACHED_DOCS, 10);
+    // Disable regular cache when using daily mode to ensure deterministic behavior
+    const cacheEnabled = query.useCache && !query.useDaily;
 
     this.haikuGenerator.configure({
       cache: {
-        minCachedDocs,
+        minCachedDocs: 0,
         ttl: 48 * 60 * 60 * 1000,
-        enabled: query.useCache,
+        enabled: cacheEnabled,
       },
       score: {
         markovChain: query.markovMinScore,
@@ -85,13 +86,12 @@ export class GenerateHaikuHandler implements IQueryHandler<
 
     const date = query.date || getTodayUTC();
     const seed = dateToSeed(date);
-    const minCachedDocs = Number.parseInt(process.env.MIN_CACHED_DOCS, 10);
 
     log.info({ date, seed, useDaily: true }, 'Daily haiku mode');
 
     const haiku = await this.haikuRepository.extractDeterministicFromCache(
       seed,
-      minCachedDocs,
+      0,
       date,
     );
 

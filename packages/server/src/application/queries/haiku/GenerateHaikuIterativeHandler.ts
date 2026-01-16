@@ -6,6 +6,10 @@ import {
   type IGlobalStatsRepository,
   IGlobalStatsRepositoryToken,
 } from '~/domain/repositories/IGlobalStatsRepository';
+import {
+  type IHaikuRepository,
+  IHaikuRepositoryToken,
+} from '~/domain/repositories/IHaikuRepository';
 import { GeneticAlgorithmService } from '~/domain/services/genetic/GeneticAlgorithmService';
 import type { DecodedHaiku } from '~/domain/services/genetic/types';
 import {
@@ -34,6 +38,9 @@ export interface IterativeHaikuArgs {
   filter?: string;
 }
 
+/** Default TTL for crafted haikus: 48 hours */
+const DEFAULT_CACHE_TTL_MS = 48 * 60 * 60 * 1000;
+
 @injectable()
 export class GenerateHaikuIterativeHandler {
   constructor(
@@ -43,6 +50,8 @@ export class GenerateHaikuIterativeHandler {
     private readonly globalStatsRepository: IGlobalStatsRepository,
     @inject(OpenAIGeneratorService)
     private readonly openAIGenerator: OpenAIGeneratorService,
+    @inject(IHaikuRepositoryToken)
+    private readonly haikuRepository: IHaikuRepository,
   ) {}
 
   async *generate(args: IterativeHaikuArgs): AsyncGenerator<HaikuProgress> {
@@ -117,6 +126,15 @@ export class GenerateHaikuIterativeHandler {
     const bestHaiku = await this.finalizeHaiku(bestOverallHaiku);
 
     this.globalStatsRepository.incrementHaikuCount().catch(() => {});
+
+    // Save crafted haiku to database for haiku of the day
+    if (bestHaiku) {
+      this.haikuRepository
+        .createCacheWithTTL(bestHaiku, DEFAULT_CACHE_TTL_MS)
+        .catch((error) => {
+          log.warn({ error }, 'Failed to cache crafted haiku');
+        });
+    }
 
     yield {
       currentIteration: iterations,
