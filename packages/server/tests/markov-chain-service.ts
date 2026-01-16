@@ -306,13 +306,15 @@ describe('MarkovChainService', () => {
     it('serializes vocabulary', async () => {
       const { mockStream, chunks } = createMockStream();
       vi.mocked(createWriteStream).mockReturnValue(mockStream as never);
-      service.train('cat dog bird');
+      // Train with repeated text so bigrams have count >= MIN_BIGRAM_COUNT (3)
+      service.train('cat dog. cat dog. cat dog. dog bird. dog bird. dog bird.');
 
       await service.saveModel();
 
       const savedData = chunks.join('');
       const parsed = JSON.parse(savedData);
 
+      // Vocabulary is built from pruned bigrams (count >= 3)
       expect(parsed.vocabulary).toContain('cat');
       expect(parsed.vocabulary).toContain('dog');
       expect(parsed.vocabulary).toContain('bird');

@@ -51,8 +51,9 @@ describe('MongoConnection', () => {
     await mongoConnection.connect();
 
     expect(mongoose.connect).toHaveBeenCalledWith(
-      'mongodb://root:root@localhost:27017/admin',
+      'mongodb://root:root@localhost:27017',
       expect.objectContaining({
+        dbName: 'admin',
         connectTimeoutMS: 10000,
         maxPoolSize: 20,
         serverSelectionTimeoutMS: 5000,
@@ -72,8 +73,10 @@ describe('MongoConnection', () => {
     await mongoConnection.connect();
 
     expect(mongoose.connect).toHaveBeenCalledWith(
-      'mongodb://custom:27017/testdb',
-      expect.any(Object),
+      'mongodb://custom:27017',
+      expect.objectContaining({
+        dbName: 'testdb',
+      }),
     );
   });
 

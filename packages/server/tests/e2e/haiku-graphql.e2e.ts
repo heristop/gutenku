@@ -48,7 +48,10 @@ async function stopTestServer() {
   httpServer?.close();
 }
 
-async function graphqlQuery<T>(query: string, variables?: Record<string, unknown>): Promise<T> {
+async function graphqlQuery<T>(
+  query: string,
+  variables?: Record<string, unknown>,
+): Promise<T> {
   const response = await fetch(GRAPHQL_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -56,7 +59,9 @@ async function graphqlQuery<T>(query: string, variables?: Record<string, unknown
   });
   const json = await response.json();
   if (json.errors) {
-    throw new Error(json.errors.map((e: { message: string }) => e.message).join(', '));
+    throw new Error(
+      json.errors.map((e: { message: string }) => e.message).join(', '),
+    );
   }
   return json.data;
 }
@@ -96,15 +101,22 @@ describe('Haiku GraphQL E2E Tests', () => {
       `;
 
       try {
-        const data = await graphqlQuery<{ haiku: {
-          verses: string[];
-          rawVerses: string[];
-          extractionMethod: string;
-          cacheUsed: boolean;
-          executionTime: number;
-          book: { title: string; author: string; reference: string };
-          quality: { natureWords: number; repeatedWords: number; weakStarts: number; totalScore: number };
-        } }>(query);
+        const data = await graphqlQuery<{
+          haiku: {
+            verses: string[];
+            rawVerses: string[];
+            extractionMethod: string;
+            cacheUsed: boolean;
+            executionTime: number;
+            book: { title: string; author: string; reference: string };
+            quality: {
+              natureWords: number;
+              repeatedWords: number;
+              weakStarts: number;
+              totalScore: number;
+            };
+          };
+        }>(query);
 
         // Verify structure
         expect(data.haiku).toBeDefined();
@@ -113,7 +125,9 @@ describe('Haiku GraphQL E2E Tests', () => {
 
         // Verify extractionMethod is present and valid
         expect(data.haiku.extractionMethod).toBeDefined();
-        expect(['punctuation', 'tokenizer', 'clause', 'chunk']).toContain(data.haiku.extractionMethod);
+        expect(['punctuation', 'tokenizer', 'clause', 'chunk']).toContain(
+          data.haiku.extractionMethod,
+        );
 
         // Verify quality scores
         expect(data.haiku.quality).toBeDefined();
@@ -135,7 +149,10 @@ describe('Haiku GraphQL E2E Tests', () => {
         });
       } catch (error) {
         // If no books in DB, the query will fail - this is expected in test environment
-        console.log('Haiku generation skipped (no books in DB):', (error as Error).message);
+        console.log(
+          'Haiku generation skipped (no books in DB):',
+          (error as Error).message,
+        );
         expect(true).toBeTruthy(); // Pass test if no DB
       }
     }, 60000);
@@ -156,10 +173,12 @@ describe('Haiku GraphQL E2E Tests', () => {
         }
       `;
 
-      const data = await graphqlQuery<{ __type: {
-        name: string;
-        fields: Array<{ name: string; type: { name: string; kind: string } }>;
-      } }>(query);
+      const data = await graphqlQuery<{
+        __type: {
+          name: string;
+          fields: Array<{ name: string; type: { name: string; kind: string } }>;
+        };
+      }>(query);
 
       expect(data.__type).toBeDefined();
       expect(data.__type.name).toBe('Haiku');
@@ -179,7 +198,9 @@ describe('Haiku GraphQL E2E Tests', () => {
       expect(fieldNames).toContain('cacheUsed');
       expect(fieldNames).toContain('executionTime');
 
-      const extractionMethodField = fields.find((f) => f.name === 'extractionMethod');
+      const extractionMethodField = fields.find(
+        (f) => f.name === 'extractionMethod',
+      );
       expect(extractionMethodField?.type.name).toBe('String');
     });
 
@@ -202,10 +223,15 @@ describe('Haiku GraphQL E2E Tests', () => {
         }
       `;
 
-      const data = await graphqlQuery<{ __type: {
-        name: string;
-        fields: Array<{ name: string; type: { name: string; kind: string; ofType?: { name: string } } }>;
-      } }>(query);
+      const data = await graphqlQuery<{
+        __type: {
+          name: string;
+          fields: Array<{
+            name: string;
+            type: { name: string; kind: string; ofType?: { name: string } };
+          }>;
+        };
+      }>(query);
 
       expect(data.__type).toBeDefined();
       expect(data.__type.name).toBe('HaikuQuality');
@@ -238,9 +264,14 @@ describe('Haiku GraphQL E2E Tests', () => {
         }
       `;
 
-      const data = await graphqlQuery<{ __type: {
-        fields: Array<{ name: string; args: Array<{ name: string; type: { name: string; kind: string } }> }>;
-      } }>(query);
+      const data = await graphqlQuery<{
+        __type: {
+          fields: Array<{
+            name: string;
+            args: Array<{ name: string; type: { name: string; kind: string } }>;
+          }>;
+        };
+      }>(query);
 
       const haikuField = data.__type.fields.find((f) => f.name === 'haiku');
       expect(haikuField).toBeDefined();
@@ -277,15 +308,30 @@ describe('Haiku GraphQL E2E Tests', () => {
         }
       `;
 
-      const data = await graphqlQuery<{ __type: {
-        fields: Array<{ name: string; type: { kind: string; name: string | null; ofType?: { kind: string; name: string } } }>;
-      } }>(query);
+      const data = await graphqlQuery<{
+        __type: {
+          fields: Array<{
+            name: string;
+            type: {
+              kind: string;
+              name: string | null;
+              ofType?: { kind: string; name: string };
+            };
+          }>;
+        };
+      }>(query);
 
       const fields = data.__type.fields;
 
-      // Fields that should be Int
-      const intFields = ['natureWords', 'repeatedWords', 'weakStarts'];
-      // All other fields should be Float
+      // Fields that should be Int (count-based metrics)
+      const intFields = [
+        'natureWords',
+        'repeatedWords',
+        'weakStarts',
+        'blacklistedVerses',
+        'properNouns',
+      ];
+      // All other fields should be Float (score-based metrics)
 
       for (const field of fields) {
         // All quality fields should be NON_NULL scalars
@@ -313,10 +359,17 @@ describe('Haiku GraphQL E2E Tests', () => {
       `;
 
       try {
-        const data = await graphqlQuery<{ haiku: {
-          verses: string[];
-          quality: { natureWords: number; repeatedWords: number; weakStarts: number; totalScore: number };
-        } }>(query);
+        const data = await graphqlQuery<{
+          haiku: {
+            verses: string[];
+            quality: {
+              natureWords: number;
+              repeatedWords: number;
+              weakStarts: number;
+              totalScore: number;
+            };
+          };
+        }>(query);
 
         expect(data.haiku.quality).toBeDefined();
 
@@ -339,7 +392,10 @@ describe('Haiku GraphQL E2E Tests', () => {
         console.log('Quality scores:', data.haiku.quality);
         console.log('Verses:', data.haiku.verses);
       } catch (error) {
-        console.log('Scoring test skipped (no books in DB):', (error as Error).message);
+        console.log(
+          'Scoring test skipped (no books in DB):',
+          (error as Error).message,
+        );
         expect(true).toBeTruthy();
       }
     }, 60000);
@@ -360,12 +416,20 @@ describe('Haiku GraphQL E2E Tests', () => {
       `;
 
       try {
-        const data = await graphqlQuery<{ haiku: {
-          verses: string[];
-          quality: { natureWords: number; repeatedWords: number; weakStarts: number; totalScore: number };
-        } }>(query);
+        const data = await graphqlQuery<{
+          haiku: {
+            verses: string[];
+            quality: {
+              natureWords: number;
+              repeatedWords: number;
+              weakStarts: number;
+              totalScore: number;
+            };
+          };
+        }>(query);
 
-        const { natureWords, repeatedWords, weakStarts, totalScore } = data.haiku.quality;
+        const { natureWords, repeatedWords, weakStarts, totalScore } =
+          data.haiku.quality;
 
         // totalScore should increase with more nature words (positive contribution)
         // totalScore should decrease with more repeated words (negative contribution)
@@ -389,7 +453,10 @@ describe('Haiku GraphQL E2E Tests', () => {
           verses: data.haiku.verses,
         });
       } catch (error) {
-        console.log('Score analysis skipped (no books in DB):', (error as Error).message);
+        console.log(
+          'Score analysis skipped (no books in DB):',
+          (error as Error).message,
+        );
         expect(true).toBeTruthy();
       }
     }, 60000);
@@ -412,9 +479,14 @@ describe('Haiku GraphQL E2E Tests', () => {
         }
       `;
 
-      const data = await graphqlQuery<{ __type: {
-        fields: Array<{ name: string; args: Array<{ name: string; type: { name: string; kind: string } }> }>;
-      } }>(query);
+      const data = await graphqlQuery<{
+        __type: {
+          fields: Array<{
+            name: string;
+            args: Array<{ name: string; type: { name: string; kind: string } }>;
+          }>;
+        };
+      }>(query);
 
       const haikuField = data.__type.fields.find((f) => f.name === 'haiku');
       expect(haikuField).toBeDefined();
@@ -430,7 +502,14 @@ describe('Haiku GraphQL E2E Tests', () => {
       expect(argNames).toContain('phoneticsMinScore');
 
       // Verify they are Float types
-      const floatParams = ['sentimentMinScore', 'markovMinScore', 'posMinScore', 'trigramMinScore', 'tfidfMinScore', 'phoneticsMinScore'];
+      const floatParams = [
+        'sentimentMinScore',
+        'markovMinScore',
+        'posMinScore',
+        'trigramMinScore',
+        'tfidfMinScore',
+        'phoneticsMinScore',
+      ];
       for (const paramName of floatParams) {
         const param = haikuField!.args.find((a) => a.name === paramName);
         expect(param?.type.name).toBe('Float');
@@ -451,11 +530,13 @@ describe('Haiku GraphQL E2E Tests', () => {
       `;
 
       try {
-        const data = await graphqlQuery<{ haiku: {
-          verses: string[];
-          quality: { totalScore: number };
-          extractionMethod: string;
-        } }>(query);
+        const data = await graphqlQuery<{
+          haiku: {
+            verses: string[];
+            quality: { totalScore: number };
+            extractionMethod: string;
+          };
+        }>(query);
 
         // If we got a result with high markov threshold, it should be decent quality
         expect(data.haiku.verses).toBeDefined();
@@ -487,7 +568,9 @@ describe('Haiku GraphQL E2E Tests', () => {
       `;
 
       try {
-        const data = await graphqlQuery<{ books: Array<{ title: string; author: string; reference: string }> }>(query);
+        const data = await graphqlQuery<{
+          books: Array<{ title: string; author: string; reference: string }>;
+        }>(query);
         expect(Array.isArray(data.books)).toBeTruthy();
 
         if (data.books.length > 0) {
@@ -498,7 +581,10 @@ describe('Haiku GraphQL E2E Tests', () => {
         }
       } catch (error) {
         // Expected when no MongoDB connection
-        console.log('Books query failed (expected if no DB):', (error as Error).message);
+        console.log(
+          'Books query failed (expected if no DB):',
+          (error as Error).message,
+        );
         expect(true).toBeTruthy();
       }
     }, 15000);

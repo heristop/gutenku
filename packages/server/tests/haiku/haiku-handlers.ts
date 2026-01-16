@@ -58,7 +58,6 @@ describe('Haiku Handlers', () => {
 
     beforeEach(() => {
       originalEnv = { ...process.env };
-      process.env.MIN_CACHED_DOCS = '10';
 
       mockHaikuGenerator = {
         configure: vi.fn(),
@@ -175,7 +174,7 @@ describe('Haiku Handlers', () => {
 
       expect(mockHaikuRepo.extractDeterministicFromCache).toHaveBeenCalledWith(
         expect.any(Number),
-        10,
+        0,
         '2026-01-15',
       );
       expect(result).toBe(mockHaiku);
@@ -389,7 +388,7 @@ describe('Haiku Handlers', () => {
 
       expect(mockHaikuRepo.extractDeterministicFromCache).toHaveBeenCalledWith(
         expect.any(Number),
-        10,
+        0,
         expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
       );
     });

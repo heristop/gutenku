@@ -6,6 +6,7 @@ import {
 } from '../src/application/queries/haiku/GenerateHaikuIterativeHandler';
 import type HaikuGeneratorService from '../src/domain/services/HaikuGeneratorService';
 import type { IGlobalStatsRepository } from '../src/domain/repositories/IGlobalStatsRepository';
+import type { IHaikuRepository } from '../src/domain/repositories/IHaikuRepository';
 import type OpenAIGeneratorService from '../src/infrastructure/services/OpenAIGeneratorService';
 import type { HaikuValue } from '../src/shared/types';
 import type { VersePools } from '../src/domain/services/genetic/types';
@@ -44,6 +45,9 @@ describe('GenerateHaikuIterativeHandler', () => {
   let mockOpenAIGenerator: {
     configure: ReturnType<typeof vi.fn>;
     enrichHaikuWithMetadata: ReturnType<typeof vi.fn>;
+  };
+  let mockHaikuRepository: {
+    createCacheWithTTL: ReturnType<typeof vi.fn>;
   };
 
   const createMockHaiku = (score: number): HaikuValue =>
@@ -148,10 +152,15 @@ describe('GenerateHaikuIterativeHandler', () => {
       enrichHaikuWithMetadata: vi.fn().mockResolvedValue(),
     };
 
+    mockHaikuRepository = {
+      createCacheWithTTL: vi.fn().mockResolvedValue(),
+    };
+
     handler = new GenerateHaikuIterativeHandler(
       mockHaikuGenerator as unknown as HaikuGeneratorService,
       mockGlobalStatsRepository as IGlobalStatsRepository,
       mockOpenAIGenerator as unknown as OpenAIGeneratorService,
+      mockHaikuRepository as unknown as IHaikuRepository,
     );
   });
 
