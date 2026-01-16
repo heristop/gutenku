@@ -49,6 +49,7 @@ export interface QualityMetrics {
   weakStarts: number;
   blacklistedVerses: number;
   properNouns: number;
+  verseLengthPenalty: number;
   sentiment: number;
   grammar: number;
   markovFlow: number;

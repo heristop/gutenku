@@ -140,6 +140,7 @@ async function runAnalytics(iterations: number = 50): Promise<void> {
             blacklistedVerses:
               (qualityAggregates.blacklistedVerses ?? 0) / successes,
             properNouns: (qualityAggregates.properNouns ?? 0) / successes,
+            verseLengthPenalty: 0,
             sentiment: qualityAggregates.sentiment / successes,
             grammar: qualityAggregates.grammar / successes,
             trigramFlow: qualityAggregates.trigramFlow / successes,
@@ -159,6 +160,7 @@ async function runAnalytics(iterations: number = 50): Promise<void> {
             weakStarts: 0,
             blacklistedVerses: 0,
             properNouns: 0,
+            verseLengthPenalty: 0,
             sentiment: 0,
             grammar: 0,
             trigramFlow: 0,

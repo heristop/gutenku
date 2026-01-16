@@ -14,7 +14,11 @@ import { MarkovEvaluatorService } from '~/domain/services/MarkovEvaluatorService
 import HaikuRepository from '~/infrastructure/repositories/HaikuRepository';
 import { GeneticAlgorithmService } from '~/domain/services/genetic/GeneticAlgorithmService';
 import type { DecodedHaiku } from '~/domain/services/genetic/types';
-import { cleanVerses, extractContextVerses, capitalizeVerse } from '~/shared/helpers/HaikuHelper';
+import {
+  cleanVerses,
+  extractContextVerses,
+  capitalizeVerse,
+} from '~/shared/helpers/HaikuHelper';
 import type { HaikuValue } from '~/shared/types';
 
 // Filter out standalone '--' from argv (pnpm passes it through)
@@ -34,12 +38,19 @@ program
   .option('--population <number>', 'GA population size (default: 100)', '100')
   .option('--skip-markov', 'skip loading Markov model (saves memory)')
   .option('-r, --record', 'save best haiku to database for haiku of the day')
-  .option('--ttl <hours>', 'TTL in hours for recorded haiku (default: 48 = 2 days)', '48')
+  .option(
+    '--ttl <hours>',
+    'TTL in hours for recorded haiku (default: 48 = 2 days)',
+    '48',
+  )
   .parse(argv);
 
 const options = program.opts();
 const iterations = Math.max(1, Number.parseInt(options.iterations, 10) || 1);
-const parallelWorkers = Math.max(1, Math.min(10, Number.parseInt(options.parallel, 10) || 3));
+const parallelWorkers = Math.max(
+  1,
+  Math.min(10, Number.parseInt(options.parallel, 10) || 3),
+);
 const isGAMethod = ['ga', 'genetic_algorithm'].includes(options.method);
 const extractionMethod = ['punctuation', 'chunk'].includes(options.method)
   ? (options.method as 'punctuation' | 'chunk')
@@ -81,19 +92,49 @@ const scoreDisplays: ScoreDisplay[] = [
   { label: 'Nature words:', getValue: (q) => pc.green(String(q.natureWords)) },
   { label: 'Repeated words:', getValue: (q) => colorByZero(q.repeatedWords) },
   { label: 'Weak starts:', getValue: (q) => colorByZero(q.weakStarts) },
-  { label: 'Blacklisted:', getValue: (q) => colorByZero(q.blacklistedVerses ?? 0) },
+  {
+    label: 'Blacklisted:',
+    getValue: (q) => colorByZero(q.blacklistedVerses ?? 0),
+  },
   { label: 'Proper nouns:', getValue: (q) => colorByZero(q.properNouns ?? 0) },
   { label: 'Sentiment:', getValue: (q) => colorSentiment(q.sentiment ?? 0.5) },
   { label: 'Grammar:', getValue: (q) => colorByThreshold(q.grammar ?? 0, 0.5) },
-  { label: 'Trigram flow:', getValue: (q) => colorByThreshold(q.trigramFlow ?? 0, 2) },
-  { label: 'Markov flow:', getValue: (q) => colorByThreshold(q.markovFlow ?? 0, 2) },
-  { label: 'Uniqueness:', getValue: (q) => colorByThreshold(q.uniqueness ?? 0, 0.7) },
-  { label: 'Alliteration:', getValue: (q) => colorByThreshold(q.alliteration ?? 0, 0.3) },
-  { label: 'Verse Distance:', getValue: (q) => pc.magenta((q.verseDistance ?? 0).toFixed(3)) },
-  { label: 'Line Balance:', getValue: (q) => colorByThreshold(q.lineLengthBalance ?? 0, 0.5) },
-  { label: 'Imagery:', getValue: (q) => colorByThreshold(q.imageryDensity ?? 0, 0.15) },
-  { label: 'Coherence:', getValue: (q) => colorByThreshold(q.semanticCoherence ?? 0, 0.1) },
-  { label: 'Verb Presence:', getValue: (q) => colorByThreshold(q.verbPresence ?? 0, 0.3) },
+  {
+    label: 'Trigram flow:',
+    getValue: (q) => colorByThreshold(q.trigramFlow ?? 0, 2),
+  },
+  {
+    label: 'Markov flow:',
+    getValue: (q) => colorByThreshold(q.markovFlow ?? 0, 2),
+  },
+  {
+    label: 'Uniqueness:',
+    getValue: (q) => colorByThreshold(q.uniqueness ?? 0, 0.7),
+  },
+  {
+    label: 'Alliteration:',
+    getValue: (q) => colorByThreshold(q.alliteration ?? 0, 0.3),
+  },
+  {
+    label: 'Verse Distance:',
+    getValue: (q) => pc.magenta((q.verseDistance ?? 0).toFixed(3)),
+  },
+  {
+    label: 'Line Balance:',
+    getValue: (q) => colorByThreshold(q.lineLengthBalance ?? 0, 0.5),
+  },
+  {
+    label: 'Imagery:',
+    getValue: (q) => colorByThreshold(q.imageryDensity ?? 0, 0.15),
+  },
+  {
+    label: 'Coherence:',
+    getValue: (q) => colorByThreshold(q.semanticCoherence ?? 0, 0.1),
+  },
+  {
+    label: 'Verb Presence:',
+    getValue: (q) => colorByThreshold(q.verbPresence ?? 0, 0.3),
+  },
 ];
 
 function displayQualityScores(haiku: HaikuValue): void {
@@ -158,6 +199,7 @@ function convertGAResultToHaikuValue(
       weakStarts: decoded.metrics.weakStarts,
       blacklistedVerses: decoded.metrics.blacklistedVerses ?? 0,
       properNouns: decoded.metrics.properNouns ?? 0,
+      verseLengthPenalty: decoded.metrics.verseLengthPenalty ?? 0,
       sentiment: decoded.metrics.sentiment,
       grammar: decoded.metrics.grammar,
       markovFlow: decoded.metrics.markovFlow,
@@ -216,7 +258,10 @@ async function generateHaikuWithGA(
 
     const poolInfo = `[5s: ${versePools.fiveSyllable.length}, 7s: ${versePools.sevenSyllable.length}]`;
 
-    if (versePools.fiveSyllable.length < 10 || versePools.sevenSyllable.length < 8) {
+    if (
+      versePools.fiveSyllable.length < 10 ||
+      versePools.sevenSyllable.length < 8
+    ) {
       spinner.text = `Iteration ${iterationIndex + 1}: Pool too small ${poolInfo}, using fallback`;
     }
 
@@ -242,7 +287,11 @@ async function generateHaikuWithGA(
       if (progress.bestFitness > bestFitness) {
         bestFitness = progress.bestFitness;
         const elapsed = (Date.now() - startTime) / 1000;
-        bestHaiku = convertGAResultToHaikuValue(progress.bestHaiku, seedHaiku, elapsed);
+        bestHaiku = convertGAResultToHaikuValue(
+          progress.bestHaiku,
+          seedHaiku,
+          elapsed,
+        );
       }
 
       if (progress.stopReason) {
@@ -262,7 +311,11 @@ async function generateHaikuWithGA(
 try {
   console.log(pc.bold('\n🎋 Haiku Extraction\n'));
   console.log(pc.dim(`Iterations: ${iterations}`));
-  console.log(pc.dim(`Method: ${isGAMethod ? 'genetic_algorithm' : extractionMethod ?? 'auto'}`));
+  console.log(
+    pc.dim(
+      `Method: ${isGAMethod ? 'genetic_algorithm' : (extractionMethod ?? 'auto')}`,
+    ),
+  );
 
   if (isGAMethod) {
     console.log(pc.dim(`GA Generations: ${gaConfig.maxGenerations}`));
@@ -291,7 +344,9 @@ try {
 
   if (options.skipMarkov) {
     generator.disableMarkovValidation();
-    prepSpinner.succeed(pc.green('Generator ready (Markov validation skipped)'));
+    prepSpinner.succeed(
+      pc.green('Generator ready (Markov validation skipped)'),
+    );
   } else {
     await generator.prepare();
 
@@ -320,7 +375,9 @@ try {
       }
     }
 
-    spinner.succeed(pc.green(`Generated ${candidates.length}/${iterations} haikus via GA`));
+    spinner.succeed(
+      pc.green(`Generated ${candidates.length}/${iterations} haikus via GA`),
+    );
   }
 
   // Standard mode: Parallel batches with random sampling
@@ -359,7 +416,9 @@ try {
       await generateBatch(batch);
     }
 
-    spinner.succeed(pc.green(`Generated ${candidates.length}/${iterations} haikus`));
+    spinner.succeed(
+      pc.green(`Generated ${candidates.length}/${iterations} haikus`),
+    );
   }
 
   if (candidates.length === 0) {
@@ -399,7 +458,9 @@ try {
       console.log(`${indexStr} ${marker} ${bookInfo} ${scoreStr}`);
       haiku.verses.forEach((verse) => {
         const displayVerse = capitalizeVerse(verse);
-        const verseText = isBest ? pc.cyan(`  ${displayVerse}`) : pc.dim(`  ${displayVerse}`);
+        const verseText = isBest
+          ? pc.cyan(`  ${displayVerse}`)
+          : pc.dim(`  ${displayVerse}`);
         console.log(verseText);
       });
       console.log();
@@ -408,7 +469,9 @@ try {
 
   // Display best haiku
   console.log(pc.bold('═══ Best Haiku ═══\n'));
-  console.log(pc.cyan('  ' + bestHaiku!.verses.map(capitalizeVerse).join('\n  ')));
+  console.log(
+    pc.cyan('  ' + bestHaiku!.verses.map(capitalizeVerse).join('\n  ')),
+  );
   console.log(pc.dim(`\n  — ${bestHaiku!.book.title}`));
   console.log(pc.dim(`    by ${bestHaiku!.book.author}`));
 
@@ -431,7 +494,9 @@ try {
     const ttlHours = Math.max(1, Number.parseInt(options.ttl, 10) || 48);
     const ttlMs = ttlHours * 60 * 60 * 1000;
     await repository.createCacheWithTTL(bestHaiku!, ttlMs);
-    saveSpinner.succeed(pc.green(`Haiku saved to database (TTL: ${ttlHours}h)`));
+    saveSpinner.succeed(
+      pc.green(`Haiku saved to database (TTL: ${ttlHours}h)`),
+    );
   }
 
   console.log(pc.bold(pc.green('\n✨ Done!\n')));

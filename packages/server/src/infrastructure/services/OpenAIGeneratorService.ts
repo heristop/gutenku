@@ -197,20 +197,40 @@ export default class OpenAIGeneratorService implements IGenerator {
 
     const verseFallback = haiku.verses.join(' / ');
 
-    haiku.title = descResult.status === 'fulfilled' ? descResult.value.title : 'Untitled Haiku';
-    haiku.description = descResult.status === 'fulfilled' ? descResult.value.description : 'A beautiful haiku';
-    haiku.hashtags = descResult.status === 'fulfilled' ? descResult.value.hashtags : '#haiku #poetry #nature #zen #peaceful #gutenku';
+    haiku.title =
+      descResult.status === 'fulfilled'
+        ? descResult.value.title
+        : 'Untitled Haiku';
+    haiku.description =
+      descResult.status === 'fulfilled'
+        ? descResult.value.description
+        : 'A beautiful haiku';
+    haiku.hashtags =
+      descResult.status === 'fulfilled'
+        ? descResult.value.hashtags
+        : '#haiku #poetry #nature #zen #peaceful #gutenku';
 
-    haiku.translations = transResult.status === 'fulfilled'
-      ? transResult.value
-      : { de: verseFallback, es: verseFallback, fr: verseFallback, it: verseFallback, jp: verseFallback };
+    haiku.translations =
+      transResult.status === 'fulfilled'
+        ? transResult.value
+        : {
+            de: verseFallback,
+            es: verseFallback,
+            fr: verseFallback,
+            it: verseFallback,
+            jp: verseFallback,
+          };
 
-    haiku.book.emoticons = (emojisResult.status === 'fulfilled' && emojisResult.value) ? emojisResult.value : '';
+    haiku.book.emoticons =
+      emojisResult.status === 'fulfilled' && emojisResult.value
+        ? emojisResult.value
+        : '';
   }
 
   private async generateSelectionPrompt(): Promise<string> {
     const haikus = await this.fetchHaikus();
-    const criteria = 'Nature imagery, word variety, opening strength, sentiment, grammar, flow (markov/trigram), sound patterns (alliteration), narrative coherence (verse distance), imagery density, line balance, verb usage, and overall tranquility/insight.';
+    const criteria =
+      'Nature imagery, word variety, opening strength, sentiment, grammar, flow (markov/trigram), sound patterns (alliteration), narrative coherence (verse distance), imagery density, line balance, verb usage, and overall tranquility/insight.';
     const prompt = `Select the best haiku from ${this.haikuSelection.length} candidates. Criteria: ${criteria}`;
     return `${prompt}\n(Format: {"id": <index_number>, "reason": "<why this haiku>"})\n${haikus.join('\n')}\nSTOP\n`;
   }
@@ -238,8 +258,11 @@ export default class OpenAIGeneratorService implements IGenerator {
     return JSON.parse(answer);
   }
 
-  private async generateTranslations(verses: string[]): Promise<{ fr: string; jp: string; es: string; it: string; de: string }> {
-    const outputFormat = '{"fr":"<french>","jp":"<rōmaji>","es":"<spanish>","it":"<italian>","de":"<german>"}';
+  private async generateTranslations(
+    verses: string[],
+  ): Promise<{ fr: string; jp: string; es: string; it: string; de: string }> {
+    const outputFormat =
+      '{"fr":"<french>","jp":"<rōmaji>","es":"<spanish>","it":"<italian>","de":"<german>"}';
     const prompt = `Translate this haiku (\\n separator): "${verses.join('\\n')}" (Format: ${outputFormat})`;
     const completion = await this.openai.chatCompletionsCreate({
       max_completion_tokens: 1000,
@@ -298,7 +321,10 @@ export default class OpenAIGeneratorService implements IGenerator {
 
     // Fetch from DB if requested
     if (this.fromDb > 0) {
-      log.info({ fromDb: this.fromDb }, 'Fetching haikus from database (top 10%)');
+      log.info(
+        { fromDb: this.fromDb },
+        'Fetching haikus from database (top 10%)',
+      );
       const dbHaikus = await this.haikuRepository.extractTopScored(this.fromDb);
       dbCandidates.push(...dbHaikus);
       log.info({ count: dbCandidates.length }, 'Fetched haikus from database');
@@ -422,6 +448,7 @@ export default class OpenAIGeneratorService implements IGenerator {
         weakStarts: gaResult.metrics.weakStarts,
         blacklistedVerses: gaResult.metrics.blacklistedVerses ?? 0,
         properNouns: gaResult.metrics.properNouns ?? 0,
+        verseLengthPenalty: gaResult.metrics.verseLengthPenalty ?? 0,
         sentiment: gaResult.metrics.sentiment,
         grammar: gaResult.metrics.grammar,
         markovFlow: gaResult.metrics.markovFlow,

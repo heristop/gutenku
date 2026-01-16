@@ -175,6 +175,7 @@ export class FitnessEvaluator {
       weakStarts: score.weakStarts,
       blacklistedVerses: score.blacklistedVerses,
       properNouns: score.properNouns,
+      verseLengthPenalty: score.verseLengthPenalty,
       sentiment: score.sentiment,
       grammar: score.grammar,
       markovFlow: score.markovFlow,

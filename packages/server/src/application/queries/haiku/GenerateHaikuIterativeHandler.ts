@@ -272,6 +272,7 @@ export class GenerateHaikuIterativeHandler {
         weakStarts: decoded.metrics.weakStarts,
         blacklistedVerses: decoded.metrics.blacklistedVerses ?? 0,
         properNouns: decoded.metrics.properNouns ?? 0,
+        verseLengthPenalty: decoded.metrics.verseLengthPenalty ?? 0,
         sentiment: decoded.metrics.sentiment,
         grammar: decoded.metrics.grammar,
         markovFlow: decoded.metrics.markovFlow,
