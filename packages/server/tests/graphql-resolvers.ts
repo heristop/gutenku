@@ -107,6 +107,13 @@ describe('GraphQL Resolvers', () => {
         todayGamesPlayed: 10,
         todayGamesWon: 8,
         currentDay: '2026-01-12',
+        weekHaikusGenerated: 25,
+        weekGamesPlayed: 20,
+        weekGamesWon: 15,
+        weekEmoticonScratches: 6,
+        weekHaikuReveals: 4,
+        weekRoundHints: 30,
+        currentWeek: '2026-W02',
       };
       mockQueryBus.execute.mockResolvedValue(stats);
 
@@ -115,10 +122,14 @@ describe('GraphQL Resolvers', () => {
       expect(mockQueryBus.execute).toHaveBeenCalled();
       expect(result).toEqual({
         ...stats,
-        todayAverageEmoticonScratches: 0.3, // 3/10
-        todayAverageHaikuReveals: 0.2, // 2/10
-        todayAverageHints: 2, // (3+2+15)/10 = 20/10
-        todayTotalHints: 20, // 3+2+15
+        todayAverageEmoticonScratches: 0.3,
+        todayAverageHaikuReveals: 0.2,
+        todayAverageHints: 2,
+        todayTotalHints: 20,
+        weekAverageEmoticonScratches: 0.3,
+        weekAverageHaikuReveals: 0.2,
+        weekAverageHints: 2,
+        weekTotalHints: 40,
       });
     });
   });

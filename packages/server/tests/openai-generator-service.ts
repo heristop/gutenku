@@ -3,12 +3,14 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import OpenAIGeneratorService from '../src/infrastructure/services/OpenAIGeneratorService';
 import type HaikuGeneratorService from '../src/domain/services/HaikuGeneratorService';
 import type { IOpenAIClient } from '../src/domain/gateways/IOpenAIClient';
+import type { IHaikuRepository } from '../src/domain/repositories/IHaikuRepository';
 import type { HaikuValue } from '../src/shared/types';
 
 describe('OpenAIGeneratorService', () => {
   let service: OpenAIGeneratorService;
   let mockHaikuGenerator: HaikuGeneratorService;
   let mockOpenAIClient: IOpenAIClient;
+  let mockHaikuRepository: IHaikuRepository;
   const originalEnv = process.env;
 
   const createMockHaiku = (index: number): HaikuValue => ({
@@ -48,7 +50,22 @@ describe('OpenAIGeneratorService', () => {
       chatCompletionsCreate: vi.fn(),
     };
 
-    service = new OpenAIGeneratorService(mockHaikuGenerator, mockOpenAIClient);
+    mockHaikuRepository = {
+      extractTopScored: vi
+        .fn()
+        .mockResolvedValue([createMockHaiku(1), createMockHaiku(2)]),
+      createCacheWithTTL: vi.fn(),
+      extractFromCache: vi.fn(),
+      extractOneFromCache: vi.fn(),
+      extractDeterministicFromCache: vi.fn(),
+      getCacheCount: vi.fn(),
+    };
+
+    service = new OpenAIGeneratorService(
+      mockHaikuGenerator,
+      mockOpenAIClient,
+      mockHaikuRepository,
+    );
   });
 
   afterEach(() => {
@@ -110,6 +127,7 @@ describe('OpenAIGeneratorService - generate', () => {
   let service: OpenAIGeneratorService;
   let mockHaikuGenerator: HaikuGeneratorService;
   let mockOpenAIClient: IOpenAIClient;
+  let mockHaikuRepository: IHaikuRepository;
 
   const createMockHaiku = (index: number): HaikuValue => ({
     book: {
@@ -146,10 +164,26 @@ describe('OpenAIGeneratorService - generate', () => {
       chatCompletionsCreate: vi.fn(),
     };
 
-    service = new OpenAIGeneratorService(mockHaikuGenerator, mockOpenAIClient);
+    mockHaikuRepository = {
+      extractTopScored: vi
+        .fn()
+        .mockResolvedValue([createMockHaiku(1), createMockHaiku(2)]),
+      createCacheWithTTL: vi.fn(),
+      extractFromCache: vi.fn(),
+      extractOneFromCache: vi.fn(),
+      extractDeterministicFromCache: vi.fn(),
+      getCacheCount: vi.fn(),
+    };
+
+    service = new OpenAIGeneratorService(
+      mockHaikuGenerator,
+      mockOpenAIClient,
+      mockHaikuRepository,
+    );
     service.configure({
       apiKey: 'test-key',
       selectionCount: 3,
+      fromDb: 2,
       temperature: { description: 0.3 },
     });
   });
@@ -159,12 +193,10 @@ describe('OpenAIGeneratorService - generate', () => {
   });
 
   it('generate returns haiku with metadata on success', async () => {
-    // Mock selection response
     vi.mocked(mockOpenAIClient.chatCompletionsCreate)
       .mockResolvedValueOnce({
         choices: [{ message: { content: '{"id": 0}' } }],
       })
-      // Description response
       .mockResolvedValueOnce({
         choices: [
           {
@@ -175,7 +207,6 @@ describe('OpenAIGeneratorService - generate', () => {
           },
         ],
       })
-      // Translations response
       .mockResolvedValueOnce({
         choices: [
           {
@@ -186,7 +217,6 @@ describe('OpenAIGeneratorService - generate', () => {
           },
         ],
       })
-      // Bookmojis response
       .mockResolvedValueOnce({
         choices: [{ message: { content: '📚✨🌸' } }],
       });
@@ -297,7 +327,7 @@ describe('OpenAIGeneratorService - generate', () => {
     await expect(service.generate()).rejects.toThrow('OpenAI API error');
   });
 
-  it('generate builds haikus from DB', async () => {
+  it('generate fetches haikus from repository when fromDb is configured', async () => {
     vi.mocked(mockOpenAIClient.chatCompletionsCreate)
       .mockResolvedValueOnce({
         choices: [{ message: { content: '{"id": 0}' } }],
@@ -327,7 +357,7 @@ describe('OpenAIGeneratorService - generate', () => {
     const result = await service.generate();
 
     expect(result).toBeDefined();
-    expect(mockHaikuGenerator.buildFromDb).toHaveBeenCalled();
+    expect(mockHaikuRepository.extractTopScored).toHaveBeenCalledWith(2);
   });
 });
 
@@ -335,21 +365,24 @@ describe('OpenAIGeneratorService - private methods', () => {
   let service: OpenAIGeneratorService;
   let mockHaikuGenerator: HaikuGeneratorService;
   let mockOpenAIClient: IOpenAIClient;
+  let mockHaikuRepository: IHaikuRepository;
+
+  const createMockHaiku = (): HaikuValue => ({
+    book: { title: 'Test', author: 'A', reference: 'r' },
+    chapter: { content: 'c' },
+    verses: ['a', 'b', 'c'],
+    rawVerses: ['a', 'b', 'c'],
+    cacheUsed: false,
+    executionTime: 0,
+    context: [],
+  });
 
   beforeEach(() => {
     process.env.OPENAI_SELECTION_COUNT = '2';
 
     mockHaikuGenerator = {
       extractFromCache: vi.fn().mockResolvedValue([]),
-      buildFromDb: vi.fn().mockResolvedValue({
-        book: { title: 'Test', author: 'A', reference: 'r' },
-        chapter: { content: 'c' },
-        verses: ['a', 'b', 'c'],
-        rawVerses: ['a', 'b', 'c'],
-        cacheUsed: false,
-        executionTime: 0,
-        context: [],
-      }),
+      buildFromDb: vi.fn().mockResolvedValue(createMockHaiku()),
       generate: vi.fn(),
     } as unknown as HaikuGeneratorService;
 
@@ -358,10 +391,26 @@ describe('OpenAIGeneratorService - private methods', () => {
       chatCompletionsCreate: vi.fn(),
     };
 
-    service = new OpenAIGeneratorService(mockHaikuGenerator, mockOpenAIClient);
+    mockHaikuRepository = {
+      extractTopScored: vi
+        .fn()
+        .mockResolvedValue([createMockHaiku(), createMockHaiku()]),
+      createCacheWithTTL: vi.fn(),
+      extractFromCache: vi.fn(),
+      extractOneFromCache: vi.fn(),
+      extractDeterministicFromCache: vi.fn(),
+      getCacheCount: vi.fn(),
+    };
+
+    service = new OpenAIGeneratorService(
+      mockHaikuGenerator,
+      mockOpenAIClient,
+      mockHaikuRepository,
+    );
     service.configure({
       apiKey: 'test-key',
       selectionCount: 2,
+      fromDb: 2,
       temperature: { description: 0.3 },
     });
   });
@@ -416,7 +465,7 @@ describe('OpenAIGeneratorService - private methods', () => {
       expect.objectContaining({
         messages: expect.arrayContaining([
           expect.objectContaining({
-            content: expect.stringContaining('Act as a Poem Translator'),
+            content: expect.stringContaining('Translate this haiku'),
           }),
         ]),
       }),
@@ -448,86 +497,12 @@ describe('OpenAIGeneratorService - private methods', () => {
     expect(result).toBe('📚✨🌸');
   });
 
-  it('fetchHaikusTraditional formats haikus for selection', async () => {
-    // @ts-expect-error - accessing private method
-    const result = await service.fetchHaikusTraditional();
-
-    expect(Array.isArray(result)).toBeTruthy();
-    expect(result.length).toBe(2);
-    expect(result[0]).toContain('[Id]: 0');
-    expect(result[0]).toContain('[Verses]:');
-  });
-
-  it('fetchHaikusTraditional sorts by totalScore and keeps top 5', async () => {
-    // Create haikus with different scores
-    const createScoredHaiku = (index: number, score: number): HaikuValue => ({
-      book: {
-        title: `Book ${index}`,
-        author: `Author ${index}`,
-        reference: `ref-${index}`,
-      },
-      chapter: { content: `Chapter ${index}` },
-      verses: [`verse-${index}-1`, `verse-${index}-2`, `verse-${index}-3`],
-      rawVerses: [`verse-${index}-1`, `verse-${index}-2`, `verse-${index}-3`],
-      cacheUsed: false,
-      executionTime: 100,
-      context: [],
-      quality: {
-        natureWords: 1,
-        repeatedWords: 0,
-        weakStarts: 0,
-        sentiment: 0.5,
-        grammar: 0.5,
-        trigramFlow: 5,
-        markovFlow: 5,
-        uniqueness: 0.8,
-        alliteration: 0.2,
-        verseDistance: 0.5,
-        lineLengthBalance: 0.7,
-        imageryDensity: 0.3,
-        semanticCoherence: 0.6,
-        verbPresence: 0.5,
-        totalScore: score,
-      },
-    });
-
-    // Generate 10 haikus with scores 1-10
-    let callCount = 0;
-    vi.mocked(mockHaikuGenerator.buildFromDb).mockImplementation(async () => {
-      callCount++;
-      return createScoredHaiku(callCount, callCount); // Score equals index
-    });
-
-    // Configure with selectionCount = 10
-    service.configure({
-      apiKey: 'test-key',
-      selectionCount: 10,
-      temperature: { description: 0.5 },
-    });
-
-    // @ts-expect-error - accessing private method
-    const result = await service.fetchHaikusTraditional();
-
-    // Should only have 5 haikus (GPT_SELECTION_POOL_SIZE = 5)
-    expect(result.length).toBe(5);
-
-    // First haiku should have highest score (10)
-    expect(result[0]).toContain('verse-10');
-    expect(result[0]).toContain('total_score=10.00');
-
-    // Last haiku should have score 6 (top 5 are: 10, 9, 8, 7, 6)
-    expect(result[4]).toContain('verse-6');
-    expect(result[4]).toContain('total_score=6.00');
-  });
-
   it('generateSelectionPrompt creates correct prompt format', async () => {
     // @ts-expect-error - accessing private method
     const result = await service.generateSelectionPrompt();
 
     expect(result).toContain('Select the best haiku');
-    expect(result).toContain('Use the following format: {"id":[Id],"reason":');
-    expect(result).toContain('[Quality]:');
-    expect(result).toContain('nature_words=');
+    expect(result).toContain('Format: {"id": <index_number>, "reason":');
     expect(result).toContain('STOP');
   });
 });
