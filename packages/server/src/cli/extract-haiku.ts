@@ -12,7 +12,13 @@ import MongoConnection from '~/infrastructure/services/MongoConnection';
 import HaikuGeneratorService from '~/domain/services/HaikuGeneratorService';
 import { MarkovEvaluatorService } from '~/domain/services/MarkovEvaluatorService';
 import HaikuRepository from '~/infrastructure/repositories/HaikuRepository';
+import { GeneticAlgorithmService } from '~/domain/services/genetic/GeneticAlgorithmService';
+import type { DecodedHaiku } from '~/domain/services/genetic/types';
+import { cleanVerses, extractContextVerses } from '~/shared/helpers/HaikuHelper';
 import type { HaikuValue } from '~/shared/types';
+
+// Filter out standalone '--' from argv (pnpm passes it through)
+const argv = process.argv.filter((arg) => arg !== '--');
 
 program
   .name('extract-haiku')
@@ -20,21 +26,28 @@ program
   .option('-n, --iterations <number>', 'number of haikus to generate', '1')
   .option(
     '-m, --method <method>',
-    'extraction method: punctuation, chunk, or auto (default)',
+    'extraction method: punctuation, chunk, ga (genetic algorithm), or auto (default)',
     'auto',
   )
   .option('-p, --parallel <number>', 'parallel workers (default: 3)', '3')
+  .option('--generations <number>', 'GA max generations (default: 50)', '50')
+  .option('--population <number>', 'GA population size (default: 100)', '100')
   .option('--skip-markov', 'skip loading Markov model (saves memory)')
   .option('-r, --record', 'save best haiku to database for haiku of the day')
   .option('--ttl <hours>', 'TTL in hours for recorded haiku (default: 48 = 2 days)', '48')
-  .parse();
+  .parse(argv);
 
 const options = program.opts();
 const iterations = Math.max(1, Number.parseInt(options.iterations, 10) || 1);
 const parallelWorkers = Math.max(1, Math.min(10, Number.parseInt(options.parallel, 10) || 3));
+const isGAMethod = ['ga', 'genetic_algorithm'].includes(options.method);
 const extractionMethod = ['punctuation', 'chunk'].includes(options.method)
   ? (options.method as 'punctuation' | 'chunk')
   : null;
+const gaConfig = {
+  maxGenerations: Math.max(1, Number.parseInt(options.generations, 10) || 50),
+  populationSize: Math.max(10, Number.parseInt(options.population, 10) || 100),
+};
 
 // Quality score display functions
 function colorByThreshold(value: number, threshold: number): string {
@@ -126,11 +139,139 @@ async function generateSingleHaiku(
   }
 }
 
+function convertGAResultToHaikuValue(
+  decoded: DecodedHaiku,
+  seedHaiku: HaikuValue,
+  executionTime: number,
+): HaikuValue {
+  const cleaned = cleanVerses([...decoded.verses]) as [string, string, string];
+
+  return {
+    book: seedHaiku.book,
+    chapter: seedHaiku.chapter,
+    verses: cleaned,
+    rawVerses: decoded.verses,
+    quality: {
+      totalScore: decoded.metrics.totalScore,
+      natureWords: decoded.metrics.natureWords,
+      repeatedWords: decoded.metrics.repeatedWords,
+      weakStarts: decoded.metrics.weakStarts,
+      blacklistedVerses: decoded.metrics.blacklistedVerses ?? 0,
+      properNouns: decoded.metrics.properNouns ?? 0,
+      sentiment: decoded.metrics.sentiment,
+      grammar: decoded.metrics.grammar,
+      markovFlow: decoded.metrics.markovFlow,
+      trigramFlow: decoded.metrics.trigramFlow,
+      uniqueness: decoded.metrics.uniqueness,
+      alliteration: decoded.metrics.alliteration,
+      verseDistance: decoded.metrics.verseDistance,
+      lineLengthBalance: decoded.metrics.lineLengthBalance,
+      imageryDensity: decoded.metrics.imageryDensity,
+      semanticCoherence: decoded.metrics.semanticCoherence,
+      verbPresence: decoded.metrics.verbPresence,
+    },
+    cacheUsed: false,
+    extractionMethod: 'genetic_algorithm',
+    executionTime,
+    context: extractContextVerses(
+      [...decoded.verses],
+      seedHaiku.chapter?.content ?? '',
+    ),
+  };
+}
+
+async function generateHaikuWithGA(
+  generator: HaikuGeneratorService,
+  config: { maxGenerations: number; populationSize: number },
+  iterationIndex: number,
+  spinner: ReturnType<typeof ora>,
+): Promise<{ haiku: HaikuValue | null; error?: string }> {
+  const startTime = Date.now();
+
+  try {
+    generator.configure({
+      cache: { enabled: false, minCachedDocs: 0, ttl: 0 },
+      theme: 'random',
+    });
+
+    const seedHaiku = await generator.buildFromDb();
+
+    if (!seedHaiku) {
+      spinner.text = `Iteration ${iterationIndex + 1}: No seed haiku available`;
+
+      return { haiku: null, error: 'No seed haiku available' };
+    }
+
+    if (!seedHaiku.chapter?.content) {
+      spinner.text = `Iteration ${iterationIndex + 1}: No chapter content in seed`;
+
+      return { haiku: null, error: 'No chapter content available' };
+    }
+
+    const versePools = generator.extractVersePoolsFromContent(
+      seedHaiku.chapter.content,
+      seedHaiku.book.reference,
+      seedHaiku.chapter.title || 'unknown',
+    );
+
+    const poolInfo = `[5s: ${versePools.fiveSyllable.length}, 7s: ${versePools.sevenSyllable.length}]`;
+
+    if (versePools.fiveSyllable.length < 10 || versePools.sevenSyllable.length < 8) {
+      spinner.text = `Iteration ${iterationIndex + 1}: Pool too small ${poolInfo}, using fallback`;
+    }
+
+    const gaService = new GeneticAlgorithmService(
+      generator.getNaturalLanguageService(),
+      generator.getMarkovEvaluator(),
+      {
+        ...config,
+        seed: `extract-${iterationIndex}-${Date.now()}`,
+      },
+    );
+
+    let bestHaiku: HaikuValue | null = null;
+    let bestFitness = -Infinity;
+
+    for (const progress of gaService.evolveWithProgress(versePools)) {
+      const genInfo = `Gen ${progress.generation}/${progress.maxGenerations}`;
+      const fitnessInfo = `Best: ${progress.bestFitness.toFixed(2)}`;
+      const avgInfo = `Avg: ${progress.averageFitness.toFixed(2)}`;
+
+      spinner.text = `Iteration ${iterationIndex + 1}: ${genInfo} | ${fitnessInfo} | ${avgInfo}`;
+
+      if (progress.bestFitness > bestFitness) {
+        bestFitness = progress.bestFitness;
+        const elapsed = (Date.now() - startTime) / 1000;
+        bestHaiku = convertGAResultToHaikuValue(progress.bestHaiku, seedHaiku, elapsed);
+      }
+
+      if (progress.stopReason) {
+        spinner.text = `Iteration ${iterationIndex + 1}: ${progress.stopReason} at gen ${progress.generation}`;
+      }
+    }
+
+    return { haiku: bestHaiku };
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+    spinner.text = `Iteration ${iterationIndex + 1}: Error - ${errorMsg}`;
+
+    return { haiku: null, error: errorMsg };
+  }
+}
+
 try {
   console.log(pc.bold('\n🎋 Haiku Extraction\n'));
   console.log(pc.dim(`Iterations: ${iterations}`));
-  console.log(pc.dim(`Method: ${extractionMethod ?? 'auto'}`));
-  console.log(pc.dim(`Parallel workers: ${parallelWorkers}`));
+  console.log(pc.dim(`Method: ${isGAMethod ? 'genetic_algorithm' : extractionMethod ?? 'auto'}`));
+
+  if (isGAMethod) {
+    console.log(pc.dim(`GA Generations: ${gaConfig.maxGenerations}`));
+    console.log(pc.dim(`GA Population: ${gaConfig.populationSize}`));
+  }
+
+  if (!isGAMethod) {
+    console.log(pc.dim(`Parallel workers: ${parallelWorkers}`));
+  }
 
   // Connect to MongoDB
   const dbSpinner = ora('Connecting to MongoDB...').start();
@@ -166,44 +307,60 @@ try {
   }
 
   const candidates: HaikuValue[] = [];
-  let completed = 0;
 
-  // Generate haikus in parallel batches
-  const spinner = ora(`Generating haikus (0/${iterations})...`).start();
+  // GA mode: Sequential iterations, each on different chapter
+  if (isGAMethod) {
+    const spinner = ora('Starting GA evolution...').start();
 
-  const generateBatch = async (batchIndices: number[]): Promise<void> => {
-    const promises = batchIndices.map(() =>
-      generateSingleHaiku(generator, extractionMethod),
-    );
-    const results = await Promise.all(promises);
-
-    for (const result of results) {
-      completed++;
-      spinner.text = `Generating haikus (${completed}/${iterations})...`;
+    for (let i = 0; i < iterations; i++) {
+      const result = await generateHaikuWithGA(generator, gaConfig, i, spinner);
 
       if (result.haiku) {
         candidates.push(result.haiku);
       }
     }
-  };
 
-  // Process in parallel batches
-  const batches: number[][] = [];
+    spinner.succeed(pc.green(`Generated ${candidates.length}/${iterations} haikus via GA`));
+  }
 
-  for (let i = 0; i < iterations; i += parallelWorkers) {
-    const batch = [];
+  // Standard mode: Parallel batches with random sampling
+  if (!isGAMethod) {
+    let completed = 0;
+    const spinner = ora(`Generating haikus (0/${iterations})...`).start();
 
-    for (let j = 0; j < parallelWorkers && i + j < iterations; j++) {
-      batch.push(i + j);
+    const generateBatch = async (batchIndices: number[]): Promise<void> => {
+      const promises = batchIndices.map(() =>
+        generateSingleHaiku(generator, extractionMethod),
+      );
+      const results = await Promise.all(promises);
+
+      for (const result of results) {
+        completed++;
+        spinner.text = `Generating haikus (${completed}/${iterations})...`;
+
+        if (result.haiku) {
+          candidates.push(result.haiku);
+        }
+      }
+    };
+
+    const batches: number[][] = [];
+
+    for (let i = 0; i < iterations; i += parallelWorkers) {
+      const batch = [];
+
+      for (let j = 0; j < parallelWorkers && i + j < iterations; j++) {
+        batch.push(i + j);
+      }
+      batches.push(batch);
     }
-    batches.push(batch);
-  }
 
-  for (const batch of batches) {
-    await generateBatch(batch);
-  }
+    for (const batch of batches) {
+      await generateBatch(batch);
+    }
 
-  spinner.succeed(pc.green(`Generated ${candidates.length}/${iterations} haikus`));
+    spinner.succeed(pc.green(`Generated ${candidates.length}/${iterations} haikus`));
+  }
 
   if (candidates.length === 0) {
     console.error(pc.red('\nNo haikus generated'));

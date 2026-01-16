@@ -29,15 +29,19 @@ program
     'number of haiku selection',
     process.env.OPENAI_SELECTION_COUNT,
   )
+  .option('--from-db <number>', 'fetch N top haikus from database cache (top 10%)', '0')
+  .option('--live <number>', 'generate N additional live haikus with GA')
   .option('-t, --theme <type>', 'theme', 'random')
   .option('-p, --platform <type>', 'platform (discord or social)', 'discord')
-  .option('--with-image-ai', 'use AI-generated themes for random', false)
+  .option('--with-image-ai', 'use generated themes for random', false)
   .option('--no-interaction')
   .option('--no-ai-description')
   .option('-C, --no-cache', 'skip MongoDB cache, generate fresh')
   .option('--no-post');
 
-program.parse();
+// Filter out standalone '--' from argv (pnpm passes it through)
+const argv = process.argv.filter((arg) => arg !== '--');
+program.parse(argv);
 
 const options = program.opts();
 
@@ -48,6 +52,8 @@ const query = `
         $appendImg: Boolean,
         $useImageAI: Boolean,
         $selectionCount: Int,
+        $fromDb: Int,
+        $liveCount: Int,
         $theme: String
     ) {
         haiku(
@@ -56,6 +62,8 @@ const query = `
             appendImg: $appendImg,
             useImageAI: $useImageAI,
             selectionCount: $selectionCount,
+            fromDb: $fromDb,
+            liveCount: $liveCount,
             theme: $theme
         ) {
             book {
@@ -74,6 +82,25 @@ const query = `
                 es
                 it
                 de
+            }
+            quality {
+                natureWords
+                repeatedWords
+                weakStarts
+                blacklistedVerses
+                properNouns
+                sentiment
+                grammar
+                trigramFlow
+                markovFlow
+                uniqueness
+                alliteration
+                verseDistance
+                lineLengthBalance
+                imageryDensity
+                semanticCoherence
+                verbPresence
+                totalScore
             }
             selectionInfo {
                 requestedCount
@@ -105,6 +132,12 @@ const variables = {
   selectionCount: options.selectionCount
     ? Number.parseInt(options.selectionCount, 10)
     : undefined,
+  fromDb: options.fromDb
+    ? Number.parseInt(options.fromDb, 10)
+    : undefined,
+  liveCount: options.live
+    ? Number.parseInt(options.live, 10)
+    : undefined,
   theme: options.theme,
   useAi: options.aiDescription,
   useImageAI: options.withImageAi,
@@ -130,6 +163,8 @@ try {
   console.log(
     pc.dim(`Selection Count: ${variables.selectionCount ?? 'default'}`),
   );
+  console.log(pc.dim(`From DB (top 10%): ${variables.fromDb ?? 0}`));
+  console.log(pc.dim(`Live (GA): ${variables.liveCount ?? 'default'}`));
 
   const generateSpinner = ora('Generating haiku with image...').start();
 
@@ -264,6 +299,38 @@ try {
   console.log(pc.cyan('  ' + haiku.verses.join('\n  ')));
   console.log(pc.dim(`\n  — ${haiku.book.title}`));
   console.log(pc.dim(`    by ${haiku.book.author}`));
+  if (haiku.book.emoticons) {
+    console.log(`    ${haiku.book.emoticons}`);
+  }
+
+  if (haiku.quality) {
+    const q = haiku.quality;
+    console.log(pc.bold('\n═══ Quality Score ═══\n'));
+    console.log(pc.green(`  Total Score: ${q.totalScore?.toFixed(2)}`));
+    console.log(pc.dim('  ─────────────────────────────────'));
+    console.log(`  ${pc.dim('Nature Words:')}     ${q.natureWords}`);
+    console.log(`  ${pc.dim('Repeated Words:')}   ${q.repeatedWords}`);
+    console.log(`  ${pc.dim('Weak Starts:')}      ${q.weakStarts}`);
+    console.log(`  ${pc.dim('Blacklisted:')}      ${q.blacklistedVerses ?? 0}`);
+    console.log(`  ${pc.dim('Proper Nouns:')}     ${q.properNouns ?? 0}`);
+    console.log(pc.dim('  ─────────────────────────────────'));
+    console.log(`  ${pc.dim('Sentiment:')}        ${q.sentiment?.toFixed(3)}`);
+    console.log(`  ${pc.dim('Grammar:')}          ${q.grammar?.toFixed(3)}`);
+    console.log(`  ${pc.dim('Markov Flow:')}      ${q.markovFlow?.toFixed(3)}`);
+    console.log(`  ${pc.dim('Trigram Flow:')}     ${q.trigramFlow?.toFixed(3)}`);
+    console.log(`  ${pc.dim('Uniqueness:')}       ${q.uniqueness?.toFixed(3)}`);
+    console.log(`  ${pc.dim('Alliteration:')}     ${q.alliteration?.toFixed(3)}`);
+    console.log(`  ${pc.dim('Verse Distance:')}   ${q.verseDistance?.toFixed(3)}`);
+    console.log(`  ${pc.dim('Line Balance:')}     ${q.lineLengthBalance?.toFixed(3)}`);
+    console.log(`  ${pc.dim('Imagery Density:')}  ${q.imageryDensity?.toFixed(3)}`);
+    console.log(`  ${pc.dim('Sem. Coherence:')}   ${q.semanticCoherence?.toFixed(3)}`);
+    console.log(`  ${pc.dim('Verb Presence:')}    ${q.verbPresence?.toFixed(3)}`);
+  }
+
+  if (haiku.selectionInfo?.reason) {
+    console.log(pc.bold('\n═══ Selection ═══\n'));
+    console.log(pc.yellow(`  💡 ${haiku.selectionInfo.reason}`));
+  }
 
   if (haiku.title) {
     console.log(`\n${pc.dim('Title:')} ${haiku.title}`);
@@ -316,6 +383,11 @@ try {
     process.exit(0);
   }
 
+  if (options.post === false) {
+    console.log(pc.bold(pc.green('\n✨ Done!\n')));
+    process.exit(0);
+  }
+
   if (options.interaction === false) {
     const postSpinner = ora('Posting to Discord...').start();
     await socialPost(haiku);
@@ -354,9 +426,6 @@ try {
         process.exit(0);
       },
     );
-  } else {
-    console.log(pc.bold(pc.green('\n✨ Done!\n')));
-    process.exit(0);
   }
 } catch (error) {
   console.error(pc.red('\n✗ Fatal error:'), error);

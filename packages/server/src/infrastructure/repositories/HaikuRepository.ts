@@ -1,6 +1,5 @@
 import { inject, injectable } from 'tsyringe';
 import { createLogger } from '~/infrastructure/services/Logger';
-import { seededRandom } from '~/shared/helpers/SeededRandom';
 
 const log = createLogger('haiku-repo');
 import type { HaikuDocument, HaikuValue } from '~/shared/types';
@@ -105,12 +104,8 @@ export default class HaikuRepository implements IHaikuRepository {
     return haikuValues;
   }
 
-  /**
-   * Get haiku from cache by seed (date-based).
-   * Excludes haikus created on or after excludeDate.
-   */
   async extractDeterministicFromCache(
-    seed: number,
+    _seed: number,
     minCachedDocs: number,
     excludeDate: string,
   ): Promise<HaikuValue | null> {
@@ -121,13 +116,19 @@ export default class HaikuRepository implements IHaikuRepository {
     try {
       const haikusCollection = this.db.collection('haikus');
 
-      // Convert excludeDate (YYYY-MM-DD) to ISO timestamp at midnight
-      const excludeTimestamp = `${excludeDate}T00:00:00.000Z`;
-      const matchFilter = { createdAt: { $lt: excludeTimestamp } };
+      const todayMidnight = new Date(`${excludeDate}T00:00:00.000Z`);
+      const yesterdayMidnight = new Date(todayMidnight);
+      yesterdayMidnight.setDate(yesterdayMidnight.getDate() - 1);
 
-      // Get count of eligible documents
+      const dateFilter = {
+        createdAt: {
+          $gte: yesterdayMidnight,
+          $lt: todayMidnight,
+        },
+      };
+
       const countResult = await haikusCollection
-        .aggregate([{ $match: matchFilter }, { $count: 'total' }], {
+        .aggregate([{ $match: dateFilter }, { $count: 'total' }], {
           maxTimeMS: 5000,
         })
         .toArray();
@@ -136,23 +137,17 @@ export default class HaikuRepository implements IHaikuRepository {
 
       if (count < minCachedDocs) {
         log.info(
-          { count, minCachedDocs, excludeDate, excludeTimestamp },
-          'Not enough cached documents for deterministic extraction',
+          { count, minCachedDocs, excludeDate, yesterdayMidnight, todayMidnight },
+          'Not enough cached documents from yesterday',
         );
         return null;
       }
 
-      // Use seeded random to select index
-      const random = seededRandom(seed);
-      const index = Math.floor(random() * count);
-
-      // Fetch selected document
       const result = await haikusCollection
         .aggregate(
           [
-            { $match: matchFilter },
-            { $sort: { _id: 1 } },
-            { $skip: index },
+            { $match: dateFilter },
+            { $sort: { 'quality.totalScore': -1 } },
             { $limit: 1 },
           ],
           { maxTimeMS: 5000 },
@@ -164,8 +159,8 @@ export default class HaikuRepository implements IHaikuRepository {
       }
 
       log.info(
-        { seed, index, count, excludeDate, excludeTimestamp },
-        'Deterministic cache extraction',
+        { count, excludeDate, score: result[0].quality?.totalScore },
+        'Daily haiku: highest scored from yesterday',
       );
 
       const selected = result[0] as unknown as HaikuDocument;
@@ -184,6 +179,45 @@ export default class HaikuRepository implements IHaikuRepository {
         'Deterministic cache extraction failed, falling back to generation',
       );
       return null;
+    }
+  }
+
+  async extractTopScored(limit: number, percentile = 0.1): Promise<HaikuValue[]> {
+    if (!this.db) {
+      return [];
+    }
+
+    try {
+      const haikusCollection = this.db.collection('haikus');
+
+      const totalCount = await haikusCollection.estimatedDocumentCount();
+
+      if (totalCount === 0) {
+        return [];
+      }
+
+      const topTierCount = Math.max(1, Math.ceil(totalCount * percentile));
+
+      const result = await haikusCollection
+        .aggregate(
+          [
+            { $sort: { 'quality.totalScore': -1 } },
+            { $limit: topTierCount },
+            { $sample: { size: limit } },
+          ],
+          { maxTimeMS: 5000 },
+        )
+        .toArray();
+
+      log.info(
+        { count: result.length, limit, totalCount, topTierCount, percentile },
+        'Fetched top-percentile haikus from cache',
+      );
+
+      return this.mapCachedHaikuValue(result as HaikuDocument[]);
+    } catch (error) {
+      log.warn({ err: error }, 'Top-scored extraction failed');
+      return [];
     }
   }
 

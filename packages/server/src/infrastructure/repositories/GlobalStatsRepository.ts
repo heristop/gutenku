@@ -56,6 +56,14 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
     return isDayStale ? 0 : this.num(doc, key);
   }
 
+  private weeklyNum(
+    doc: StatsDocument | null,
+    key: string,
+    isWeekStale: boolean,
+  ): number {
+    return isWeekStale ? 0 : this.num(doc, key);
+  }
+
   private buildDailyReset(today: string): Record<string, unknown> {
     return {
       currentDay: today,
@@ -72,6 +80,11 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
     return {
       currentWeek: week,
       weekHaikusGenerated: 0,
+      weekGamesPlayed: 0,
+      weekGamesWon: 0,
+      weekEmoticonScratches: 0,
+      weekHaikuReveals: 0,
+      weekRoundHints: 0,
     };
   }
 
@@ -107,9 +120,12 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
       todayGamesPlayed: this.dailyNum(doc, 'todayGamesPlayed', isDayStale),
       todayGamesWon: this.dailyNum(doc, 'todayGamesWon', isDayStale),
       currentDay: today,
-      weekHaikusGenerated: isWeekStale
-        ? 0
-        : this.num(doc, 'weekHaikusGenerated'),
+      weekHaikusGenerated: this.weeklyNum(doc, 'weekHaikusGenerated', isWeekStale),
+      weekGamesPlayed: this.weeklyNum(doc, 'weekGamesPlayed', isWeekStale),
+      weekGamesWon: this.weeklyNum(doc, 'weekGamesWon', isWeekStale),
+      weekEmoticonScratches: this.weeklyNum(doc, 'weekEmoticonScratches', isWeekStale),
+      weekHaikuReveals: this.weeklyNum(doc, 'weekHaikuReveals', isWeekStale),
+      weekRoundHints: this.weeklyNum(doc, 'weekRoundHints', isWeekStale),
       currentWeek: week,
     };
   }
@@ -181,6 +197,7 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
     won: boolean,
     hints: HintStats | undefined,
     isNewDay: boolean,
+    isNewWeek: boolean,
   ): Record<string, number> {
     const inc: Record<string, number> = { totalGamesPlayed: 1 };
 
@@ -203,25 +220,57 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
         inc.todayRoundHints = hints.roundHints;
       }
     }
+    if (!isNewWeek) {
+      inc.weekGamesPlayed = 1;
+      if (won) {
+        inc.weekGamesWon = 1;
+      }
+      if (hints) {
+        inc.weekEmoticonScratches = hints.emoticonScratches;
+        inc.weekHaikuReveals = hints.haikuReveals;
+        inc.weekRoundHints = hints.roundHints;
+      }
+    }
     return inc;
+  }
+
+  private buildGameStats(
+    won: boolean,
+    hints: HintStats | undefined,
+    prefix: 'today' | 'week',
+  ): Record<string, number> {
+    return {
+      [`${prefix}GamesPlayed`]: 1,
+      [`${prefix}GamesWon`]: won ? 1 : 0,
+      [`${prefix}EmoticonScratches`]: hints?.emoticonScratches ?? 0,
+      [`${prefix}HaikuReveals`]: hints?.haikuReveals ?? 0,
+      [`${prefix}RoundHints`]: hints?.roundHints ?? 0,
+    };
   }
 
   private buildGameSetFields(
     won: boolean,
     hints: HintStats | undefined,
     isNewDay: boolean,
+    isNewWeek: boolean,
     today: string,
+    week: string,
   ): Record<string, unknown> {
     const set: Record<string, unknown> = { lastUpdated: new Date() };
 
     if (isNewDay) {
-      Object.assign(set, this.buildDailyReset(today), {
-        todayGamesPlayed: 1,
-        todayGamesWon: won ? 1 : 0,
-        todayEmoticonScratches: hints?.emoticonScratches ?? 0,
-        todayHaikuReveals: hints?.haikuReveals ?? 0,
-        todayRoundHints: hints?.roundHints ?? 0,
-      });
+      Object.assign(
+        set,
+        this.buildDailyReset(today),
+        this.buildGameStats(won, hints, 'today'),
+      );
+    }
+    if (isNewWeek) {
+      Object.assign(
+        set,
+        this.buildWeeklyReset(week),
+        this.buildGameStats(won, hints, 'week'),
+      );
     }
     return set;
   }
@@ -234,14 +283,17 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
     try {
       const collection = this.db.collection('globalstats');
       const today = this.getTodayString();
+      const week = this.getWeekString();
       const currentDoc = await collection.findOne({
         _id: STATS_DOC_ID,
       } as object);
       const currentDay = (currentDoc?.currentDay as string) ?? '';
+      const currentWeek = (currentDoc?.currentWeek as string) ?? '';
       const isNewDay = currentDay !== today;
+      const isNewWeek = currentWeek !== week;
 
-      const inc = this.buildGameIncrements(won, hints, isNewDay);
-      const set = this.buildGameSetFields(won, hints, isNewDay, today);
+      const inc = this.buildGameIncrements(won, hints, isNewDay, isNewWeek);
+      const set = this.buildGameSetFields(won, hints, isNewDay, isNewWeek, today, week);
 
       await collection.findOneAndUpdate(
         { _id: STATS_DOC_ID } as object,

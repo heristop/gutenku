@@ -10,6 +10,10 @@ import {
   IOpenAIClientToken,
 } from '~/domain/gateways/IOpenAIClient';
 import {
+  type IHaikuRepository,
+  IHaikuRepositoryToken,
+} from '~/domain/repositories/IHaikuRepository';
+import {
   GeneticAlgorithmService,
   type GAConfig,
   type DecodedHaiku,
@@ -27,21 +31,23 @@ export default class OpenAIGeneratorService implements IGenerator {
   private haikuSelection: HaikuValue[] = [];
   private openai: IOpenAIClient;
   private selectionCount: number;
+  private fromDb: number = 0;
+  private liveCount: number = 0;
   private temperature: number = this.DEFAULT_TEMPERATURE;
-
-  // GA configuration (always enabled)
   private gaConfig: Partial<GAConfig> = {};
 
   constructor(
     @inject(HaikuGeneratorService)
     private readonly haikuGeneratorService: HaikuGeneratorService,
     @inject(IOpenAIClientToken) openaiClient: IOpenAIClient,
+    @inject(IHaikuRepositoryToken)
+    private readonly haikuRepository: IHaikuRepository,
   ) {
     this.openai = openaiClient;
   }
 
   configure(options: OpenAIOptions): OpenAIGeneratorService {
-    const { apiKey, selectionCount, temperature } = options;
+    const { apiKey, selectionCount, fromDb, liveCount, temperature } = options;
 
     if (selectionCount !== null && selectionCount > 0) {
       this.selectionCount = Math.min(selectionCount, this.MAX_SELECTION_COUNT);
@@ -54,9 +60,18 @@ export default class OpenAIGeneratorService implements IGenerator {
       );
     }
 
+    this.fromDb = fromDb ?? 0;
+    this.liveCount = liveCount ?? 0;
+
+    if (this.fromDb === 0 && this.liveCount === 0) {
+      this.liveCount = this.selectionCount;
+    }
+
     log.info(
       {
         selectionCount: this.selectionCount,
+        fromDb: this.fromDb,
+        liveCount: this.liveCount,
         inputSelectionCount: selectionCount,
       },
       'OpenAI selection configured',
@@ -67,7 +82,6 @@ export default class OpenAIGeneratorService implements IGenerator {
 
     this.openai.configure(apiKey);
 
-    // Configure GA using constants (always enabled)
     this.gaConfig = {
       ...DEFAULT_GA_CONFIG,
       returnCount: this.GPT_SELECTION_POOL_SIZE,
@@ -181,72 +195,24 @@ export default class OpenAIGeneratorService implements IGenerator {
       this.generateBookmojis(haiku.book),
     ]);
 
-    if (descResult.status === 'fulfilled') {
-      haiku.title = descResult.value.title;
-      haiku.description = descResult.value.description;
-      haiku.hashtags = descResult.value.hashtags;
-    }
+    const verseFallback = haiku.verses.join(' / ');
 
-    if (descResult.status !== 'fulfilled') {
-      haiku.title = 'Untitled Haiku';
-      haiku.description = 'A beautiful haiku';
-      haiku.hashtags = '#haiku #poetry #nature #zen #peaceful #gutenku';
-    }
+    haiku.title = descResult.status === 'fulfilled' ? descResult.value.title : 'Untitled Haiku';
+    haiku.description = descResult.status === 'fulfilled' ? descResult.value.description : 'A beautiful haiku';
+    haiku.hashtags = descResult.status === 'fulfilled' ? descResult.value.hashtags : '#haiku #poetry #nature #zen #peaceful #gutenku';
 
-    if (transResult.status === 'fulfilled') {
-      haiku.translations = transResult.value;
-    }
+    haiku.translations = transResult.status === 'fulfilled'
+      ? transResult.value
+      : { de: verseFallback, es: verseFallback, fr: verseFallback, it: verseFallback, jp: verseFallback };
 
-    if (transResult.status !== 'fulfilled') {
-      haiku.translations = {
-        de: haiku.verses.join(' / '),
-        es: haiku.verses.join(' / '),
-        fr: haiku.verses.join(' / '),
-        it: haiku.verses.join(' / '),
-        jp: haiku.verses.join(' / '),
-      };
-    }
-
-    log.info(
-      {
-        emojisStatus: emojisResult.status,
-        emojisValue:
-          emojisResult.status === 'fulfilled' ? emojisResult.value : null,
-        emojisReason:
-          emojisResult.status === 'rejected'
-            ? (emojisResult.reason as Error)?.message
-            : null,
-      },
-      'Emoticons result from Promise.allSettled',
-    );
-
-    if (emojisResult.status === 'fulfilled' && emojisResult.value) {
-      haiku.book.emoticons = emojisResult.value;
-    }
-
-    if (emojisResult.status !== 'fulfilled' || !emojisResult.value) {
-      haiku.book.emoticons = '';
-    }
+    haiku.book.emoticons = (emojisResult.status === 'fulfilled' && emojisResult.value) ? emojisResult.value : '';
   }
 
   private async generateSelectionPrompt(): Promise<string> {
     const haikus = await this.fetchHaikus();
-
-    const prompt = `Select the best haiku from these ${this.haikuSelection.length} top-scored candidates (pre-filtered from ${this.selectionCount}). Evaluation criteria:
-- Nature imagery (nature_words: count of seasonal/natural terms)
-- Word variety (repeated_words: repetition count, uniqueness: ratio of unique words)
-- Opening strength (weak_starts: count of weak opening words)
-- Sentiment (sentiment: 0-1 scale)
-- Grammar (grammar: noun+verb presence)
-- Flow (markov_flow, trigram_flow: transition probability scores)
-- Sound patterns (alliteration: phonetic repetition score)
-- Narrative coherence (verse_distance: quote proximity, coherence: word overlap)
-- Imagery (imagery: sensory word density)
-- Line balance (line_balance: character length consistency)
-- Verb usage (verb_presence: active verb count)
-- Overall: tranquility and moment of insight`;
-
-    return `${prompt}\n(Use the following format: {"id":[Id],"reason":"<brief explanation of why this haiku instead of others>"})\n${haikus.join('\n')}\nSTOP\n`;
+    const criteria = 'Nature imagery, word variety, opening strength, sentiment, grammar, flow (markov/trigram), sound patterns (alliteration), narrative coherence (verse distance), imagery density, line balance, verb usage, and overall tranquility/insight.';
+    const prompt = `Select the best haiku from ${this.haikuSelection.length} candidates. Criteria: ${criteria}`;
+    return `${prompt}\n(Format: {"id": <index_number>, "reason": "<why this haiku>"})\n${haikus.join('\n')}\nSTOP\n`;
   }
 
   private async generateDescription(
@@ -272,36 +238,16 @@ export default class OpenAIGeneratorService implements IGenerator {
     return JSON.parse(answer);
   }
 
-  private async generateTranslations(verses: string[]): Promise<{
-    fr: string;
-    jp: string;
-    es: string;
-    it: string;
-    de: string;
-  }> {
-    let prompt = `Act as a Poem Translator and translate this haiku using \\n separator: "${verses.join('\\n')}"`;
-    let outputFormat = '';
-    outputFormat += '"fr":"<Translate the Haiku in french>",';
-    outputFormat += '"jp":"<Translate the Haiku in rōmaji>",';
-    outputFormat += '"es":"<Translate the Haiku in spanish>",';
-    outputFormat += '"it":"<Translate the Haiku in italian>",';
-    outputFormat += '"de":"<Translate the Haiku in german>"';
-    prompt = `${prompt} (Use the following format: {${outputFormat}})`;
-
+  private async generateTranslations(verses: string[]): Promise<{ fr: string; jp: string; es: string; it: string; de: string }> {
+    const outputFormat = '{"fr":"<french>","jp":"<rōmaji>","es":"<spanish>","it":"<italian>","de":"<german>"}';
+    const prompt = `Translate this haiku (\\n separator): "${verses.join('\\n')}" (Format: ${outputFormat})`;
     const completion = await this.openai.chatCompletionsCreate({
       max_completion_tokens: 1000,
-      messages: [
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
+      messages: [{ role: 'user', content: prompt }],
       model: this.MODEL,
       temperature: this.temperature,
     });
-
-    const answer = completion.choices[0].message.content;
-    return JSON.parse(answer);
+    return JSON.parse(completion.choices[0].message.content);
   }
 
   private async generateBookmojis(book: {
@@ -346,72 +292,49 @@ export default class OpenAIGeneratorService implements IGenerator {
   }
 
   private async fetchHaikus(): Promise<string[]> {
-    // Always use GA for haiku selection (faster + better quality)
-    return this.fetchHaikusWithGA();
-  }
-
-  /**
-   * Traditional haiku fetching - random sampling from multiple generations
-   */
-  private async fetchHaikusTraditional(): Promise<string[]> {
     const haikus: string[] = [];
+    const dbCandidates: HaikuValue[] = [];
+    const liveCandidates: HaikuValue[] = [];
 
-    log.info(
-      { selectionCount: this.selectionCount },
-      'Generating haikus for AI selection (traditional)',
-    );
-
-    for (let i = 0; i < this.selectionCount; i++) {
-      try {
-        log.info(
-          { iteration: i + 1, total: this.selectionCount },
-          'Generating haiku',
-        );
-        const haiku = await this.haikuGeneratorService.buildFromDb();
-
-        if (haiku) {
-          this.haikuSelection.push(haiku);
-          log.info(
-            { iteration: i + 1, verses: haiku.verses },
-            'Haiku generated',
-          );
-        }
-
-        if (!haiku) {
-          log.warn({ iteration: i + 1 }, 'Haiku generation returned null');
-        }
-      } catch (err) {
-        log.error({ err, iteration: i + 1 }, 'Failed to generate haiku');
-      }
+    // Fetch from DB if requested
+    if (this.fromDb > 0) {
+      log.info({ fromDb: this.fromDb }, 'Fetching haikus from database (top 10%)');
+      const dbHaikus = await this.haikuRepository.extractTopScored(this.fromDb);
+      dbCandidates.push(...dbHaikus);
+      log.info({ count: dbCandidates.length }, 'Fetched haikus from database');
     }
 
-    log.info(
-      { totalGenerated: this.haikuSelection.length },
-      'Haiku generation complete',
-    );
+    // Generate live haikus with GA if requested
+    if (this.liveCount > 0) {
+      log.info({ liveCount: this.liveCount }, 'Generating live haikus with GA');
+      const liveHaikus = await this.fetchHaikusWithGAInternal();
+      liveCandidates.push(...liveHaikus);
+      log.info({ count: liveCandidates.length }, 'Generated live haikus');
+    }
+
+    // Combine candidates
+    const allCandidates = [...dbCandidates, ...liveCandidates];
 
     // Sort by totalScore descending
-    this.haikuSelection.sort((a, b) => {
+    allCandidates.sort((a, b) => {
       const scoreA = a.quality?.totalScore ?? 0;
       const scoreB = b.quality?.totalScore ?? 0;
       return scoreB - scoreA;
     });
 
-    const topCandidates = this.haikuSelection.slice(
-      0,
-      this.GPT_SELECTION_POOL_SIZE,
-    );
+    // Take top N for GPT selection
+    this.haikuSelection = allCandidates.slice(0, this.GPT_SELECTION_POOL_SIZE);
 
     log.info(
       {
-        totalGenerated: this.haikuSelection.length,
-        topCandidatesCount: topCandidates.length,
-        topScores: topCandidates.map((h) => h.quality?.totalScore ?? 0),
+        dbCount: dbCandidates.length,
+        liveCount: liveCandidates.length,
+        totalCandidates: allCandidates.length,
+        selectedForGPT: this.haikuSelection.length,
+        topScores: this.haikuSelection.map((h) => h.quality?.totalScore ?? 0),
       },
-      'Selected top candidates for GPT',
+      'Combined candidates for GPT selection',
     );
-
-    this.haikuSelection = topCandidates;
 
     // Format candidates with quality metrics
     for (const [i, haiku] of this.haikuSelection.entries()) {
@@ -422,29 +345,15 @@ export default class OpenAIGeneratorService implements IGenerator {
     return haikus;
   }
 
-  /**
-   * Fetch haikus using Genetic Algorithm for optimized selection
-   */
-  private async fetchHaikusWithGA(): Promise<string[]> {
-    const haikus: string[] = [];
-
-    log.info(
-      { gaConfig: this.gaConfig },
-      'Generating haikus using Genetic Algorithm',
-    );
-
+  private async fetchHaikusWithGAInternal(): Promise<HaikuValue[]> {
     try {
-      // First, generate one haiku traditionally to get a book/chapter context
       const seedHaiku = await this.haikuGeneratorService.buildFromDb();
 
       if (!seedHaiku || !seedHaiku.chapter) {
-        log.warn(
-          'Failed to get seed haiku for GA, falling back to traditional',
-        );
-        return this.fetchHaikusTraditional();
+        log.warn('Failed to get seed haiku for GA');
+        return [];
       }
 
-      // Extract verse pools from the same chapter
       const versePools =
         this.haikuGeneratorService.extractVersePoolsFromContent(
           seedHaiku.chapter.content,
@@ -461,7 +370,6 @@ export default class OpenAIGeneratorService implements IGenerator {
         'Verse pools extracted for GA',
       );
 
-      // Create and run the GA
       const gaService = new GeneticAlgorithmService(
         this.haikuGeneratorService.getNaturalLanguageService(),
         this.haikuGeneratorService.getMarkovEvaluator(),
@@ -481,27 +389,15 @@ export default class OpenAIGeneratorService implements IGenerator {
         'GA evolution complete',
       );
 
-      // Convert GA results to HaikuValue format
-      this.haikuSelection = evolutionResult.topCandidates.map((candidate) =>
+      return evolutionResult.topCandidates.map((candidate) =>
         this.convertGAResultToHaikuValue(candidate, seedHaiku),
       );
-
-      // Format candidates with quality metrics
-      for (const [i, haiku] of this.haikuSelection.entries()) {
-        const entry = this.formatHaikuCandidate(haiku, i);
-        haikus.push(entry);
-      }
-
-      return haikus;
     } catch (err) {
-      log.error({ err }, 'GA evolution failed, falling back to traditional');
-      return this.fetchHaikusTraditional();
+      log.error({ err }, 'GA evolution failed');
+      return [];
     }
   }
 
-  /**
-   * Convert GA DecodedHaiku to HaikuValue format
-   */
   private convertGAResultToHaikuValue(
     gaResult: DecodedHaiku,
     seedHaiku: HaikuValue,
