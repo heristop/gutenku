@@ -8,6 +8,7 @@ import {
 } from '~/domain/repositories/IChapterRepository';
 import NaturalLanguageService from '~/domain/services/NaturalLanguageService';
 import { cleanVerses } from '~/shared/helpers/HaikuHelper';
+import { isValidPuzzleSentence } from '~/shared/constants/validation';
 
 /**
  * Mulberry32 seeded PRNG for deterministic random selection
@@ -82,6 +83,70 @@ function countSyllables(sentence: string): number {
   return words.reduce((sum, word) => sum + syllable(word), 0);
 }
 
+/**
+ * Create a shuffled array of indices 0 to total-1
+ */
+function shuffleIndices(random: () => number, total: number): number[] {
+  const indices = Array.from({ length: total }, (_, i) => i);
+  return shuffleWithSeed(indices, random);
+}
+
+/**
+ * Get emoticons for a date with specific visible count and optional scratched positions.
+ * This is a standalone function to ensure consistent shuffling
+ * between initial puzzle load and emoticon reveal mutations.
+ * Returns random visible indices for initial display (prevents cheating).
+ *
+ * @param date - The puzzle date
+ * @param baseCount - Number of base visible emojis (picked randomly)
+ * @param scratchedPositions - Additional positions to reveal (user-chosen)
+ */
+export function getEmoticonsByDate(
+  date: string,
+  baseCount: number,
+  scratchedPositions: number[] = [],
+): { emoticons: string; emoticonCount: number; visibleIndices: number[] } {
+  const book = selectDailyBook(date);
+  const seed = dateToSeed(date);
+  // Use separate seed for emoticons to ensure consistent shuffling
+  // regardless of how many random values were consumed elsewhere
+  const emoticonRandom = seededRandom(seed + 1000);
+
+  const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
+  const shuffled = shuffleEmoticons(book.emoticons, emoticonRandom);
+  const allEmojis = [...segmenter.segment(shuffled)]
+    .map((s) => s.segment)
+    .filter((char) => char.trim());
+
+  // Create a deterministic shuffled order of all indices (use seed + 2000)
+  const indexRandom = seededRandom(seed + 2000);
+  const shuffledIndices = shuffleIndices(indexRandom, allEmojis.length);
+
+  // Take first baseCount indices in their shuffled order (ensures consistency when baseCount grows)
+  const baseIndices = shuffledIndices.slice(0, baseCount);
+
+  // Sort for visibleIndices return value (display purposes)
+  const sortedBaseIndices = [...baseIndices].sort((a, b) => a - b);
+
+  // Sort scratched positions and filter out any that are already in base
+  const validScratched = scratchedPositions
+    .filter(
+      (pos) =>
+        !sortedBaseIndices.includes(pos) && pos >= 0 && pos < allEmojis.length,
+    )
+    .sort((a, b) => a - b);
+
+  // Build emoticons string: base emojis in shuffled order, then scratched emojis (sorted)
+  const baseEmojis = baseIndices.map((i) => allEmojis[i]).join('');
+  const scratchedEmojis = validScratched.map((i) => allEmojis[i]).join('');
+
+  return {
+    emoticons: baseEmojis + scratchedEmojis,
+    emoticonCount: allEmojis.length,
+    visibleIndices: sortedBaseIndices, // Only base indices, not scratched
+  };
+}
+
 @injectable()
 export class PuzzleService {
   constructor(
@@ -92,26 +157,14 @@ export class PuzzleService {
   ) {}
 
   /**
-   * Get emoticons for a date with specific visible count
+   * Get emoticons for a date with specific visible count and scratched positions
    */
   getEmoticons(
     date: string,
-    visibleCount: number,
-  ): { emoticons: string; emoticonCount: number } {
-    const book = selectDailyBook(date);
-    const seed = dateToSeed(date);
-    const random = seededRandom(seed);
-
-    const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
-    const shuffled = shuffleEmoticons(book.emoticons, random);
-    const allEmojis = [...segmenter.segment(shuffled)]
-      .map((s) => s.segment)
-      .filter((char) => char.trim());
-
-    return {
-      emoticons: allEmojis.slice(0, visibleCount).join(''),
-      emoticonCount: allEmojis.length,
-    };
+    baseCount: number,
+    scratchedPositions: number[] = [],
+  ): { emoticons: string; emoticonCount: number; visibleIndices: number[] } {
+    return getEmoticonsByDate(date, baseCount, scratchedPositions);
   }
 
   /**
@@ -128,23 +181,9 @@ export class PuzzleService {
 
   /**
    * Check if a sentence is valid for puzzle haiku hints.
-   * Uses relaxed rules to allow more sentences from classic literature.
    */
   private isValidSentence(sentence: string): boolean {
-    // Skip sentences with major formatting issues (brackets, quotes)
-    if (/[@#[\]{}()"|"]/.test(sentence)) {
-      return false;
-    }
-    // Skip sentences with numbers or special chars
-    if (/[0-9*$%_~&]/.test(sentence)) {
-      return false;
-    }
-    // Skip all-uppercase (chapter headers)
-    if (/^[A-Z\s!:.?]+$/.test(sentence)) {
-      return false;
-    }
-    // Allow longer sentences for puzzle hints (up to 50 chars)
-    return sentence.length < 50;
+    return isValidPuzzleSentence(sentence, 50);
   }
 
   private categorizeSentences(chapters: { content: string }[]): {

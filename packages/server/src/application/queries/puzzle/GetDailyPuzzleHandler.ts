@@ -14,8 +14,13 @@ import {
   IChapterRepositoryToken,
 } from '~/domain/repositories/IChapterRepository';
 import NaturalLanguageService from '~/domain/services/NaturalLanguageService';
+import { MarkovEvaluatorService } from '~/domain/services/MarkovEvaluatorService';
+import type { VerseCandidate } from '~/domain/services/genetic/types';
+import { getEmoticonsByDate } from '~/domain/services/PuzzleService';
 import { cleanVerses } from '~/shared/helpers/HaikuHelper';
 import { dailyPuzzleSchema } from '~/infrastructure/validation/schemas';
+import { HINT_POOL, type HintLocale } from './hint-pool';
+import { isValidPuzzleSentence } from '~/shared/constants/validation';
 
 // Limit the number of books shown in the selection dropdown
 const SELECTABLE_BOOKS_LIMIT = 50;
@@ -63,112 +68,6 @@ function selectDailyBook(dateStr: string): GutenGuessBook {
 
   return shuffledBooks[positionInCycle];
 }
-
-/**
- * Supported locales for hint translations.
- */
-type HintLocale = 'en' | 'fr' | 'ja';
-
-/**
- * Hint pool with difficulty ratings (lower = revealed earlier, higher = more revealing).
- */
-interface HintDefinition {
-  type: PuzzleHint['type'];
-  difficulty: number;
-  generator: (
-    book: GutenGuessBook,
-    random: () => number,
-    locale: HintLocale,
-  ) => string;
-}
-
-const HINT_POOL: HintDefinition[] = [
-  {
-    type: 'title_word_count',
-    difficulty: 2,
-    generator: (book, _random, locale) => {
-      const title = book.title?.[locale] || book.title?.en || '';
-      if (!title) {
-        return '0';
-      }
-      // For Japanese, count ideograms (graphemes) since there are no space-separated words
-      if (locale === 'ja') {
-        const segmenter = new Intl.Segmenter('ja', { granularity: 'grapheme' });
-        const ideogramCount = [...segmenter.segment(title)].length;
-
-        return `${ideogramCount}`;
-      }
-      const count = title.split(/\s+/).length;
-
-      return `${count}`;
-    },
-  },
-  {
-    type: 'genre',
-    difficulty: 3,
-    generator: (book) => book.genre,
-  },
-  {
-    type: 'era',
-    difficulty: 3,
-    generator: (book) => book.era,
-  },
-  {
-    type: 'protagonist',
-    difficulty: 4,
-    generator: (book, _random, locale) =>
-      book.protagonist[locale] || book.protagonist.en,
-  },
-  {
-    type: 'publication_century',
-    difficulty: 4,
-    generator: (book) => {
-      const century = Math.floor(book.publicationYear / 100) + 1;
-      const suffixes: Record<number, string> = { 21: 'st', 22: 'nd', 23: 'rd' };
-      const suffix = suffixes[century] || 'th';
-
-      return `Published in the ${century}${suffix} century`;
-    },
-  },
-  {
-    type: 'setting',
-    difficulty: 5,
-    generator: (book) => book.setting,
-  },
-  {
-    type: 'quote',
-    difficulty: 6,
-    generator: (book, random, locale) => {
-      const quoteIndex = Math.floor(random() * book.notableQuotes.length);
-      const quote = book.notableQuotes[quoteIndex];
-
-      if (!quote) {
-        return 'A famous quote from this book...';
-      }
-
-      return quote[locale] || quote.en;
-    },
-  },
-  {
-    type: 'first_letter',
-    difficulty: 7,
-    generator: (book, _random, locale) => {
-      const title = book.title[locale] || book.title.en;
-      const firstChar = [...title][0]; // Multi-byte character support
-      return `${firstChar.toUpperCase()}...`;
-    },
-  },
-  {
-    type: 'author_nationality',
-    difficulty: 8,
-    generator: (book) => book.authorNationality,
-  },
-  {
-    type: 'author_name',
-    difficulty: 10,
-    generator: (book) => book.author?.split(' ')[0] || 'Unknown',
-  },
-];
 
 /**
  * Generate 6 hints for the book: emoticons (round 1) + 5 randomly selected hints from pool.
@@ -240,17 +139,6 @@ function shuffleWithSeed<T>(array: T[], random: () => number): T[] {
 }
 
 /**
- * Shuffle emoticons string deterministically using grapheme segmentation
- */
-function shuffleEmoticons(emoticons: string, random: () => number): string {
-  const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
-  const emojis = [...segmenter.segment(emoticons)].map((s) => s.segment);
-  const shuffled = shuffleWithSeed(emojis, random);
-
-  return shuffled.join('');
-}
-
-/**
  * Return up to SELECTABLE_BOOKS_LIMIT books for autocomplete, ensuring correct book is included.
  * Shuffled deterministically by date. Returns localized titles.
  */
@@ -305,6 +193,8 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
     private readonly chapterRepository: IChapterRepository,
     @inject(NaturalLanguageService)
     private readonly naturalLanguage: NaturalLanguageService,
+    @inject(MarkovEvaluatorService)
+    private readonly markovEvaluator: MarkovEvaluatorService,
   ) {}
 
   async execute(query: GetDailyPuzzleQuery): Promise<DailyPuzzleResponse> {
@@ -343,28 +233,24 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
       (hint) => revealedRounds.includes(hint.round) || hint.round === 1,
     );
 
-    // Shuffle emoticons deterministically and limit to visibleEmoticonCount
-    const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
+    // Get emoticons using single source of truth (getEmoticonsByDate)
+    // This ensures consistency between initial load and reveal mutations
+    const { emoticons, emoticonCount, visibleIndices } = getEmoticonsByDate(
+      date,
+      visibleEmoticonCount,
+    );
+
+    // Update emoticon hint content with shuffled and sliced emoticons
     for (const hint of hints) {
       if (hint.type === 'emoticons') {
-        const shuffled = shuffleEmoticons(hint.content, random);
-        // Slice to only show visibleEmoticonCount emoticons
-        const allEmojis = [...segmenter.segment(shuffled)]
-          .map((s) => s.segment)
-          .filter((char) => char.trim());
-        hint.content = allEmojis.slice(0, visibleEmoticonCount).join('');
+        hint.content = emoticons;
       }
     }
 
-    // Generate multiple haikus for lifeline system (max 3) - deterministic
-    const allHaikus = await this.generateHaikus(book, 3, random);
+    // Generate multiple haikus using GA for lifeline system (max 3) - deterministic
+    const allHaikus = await this.generateHaikus(book, date);
     // Only return revealed haikus (client reveals them progressively)
     const haikus = allHaikus.slice(0, revealedHaikuCount);
-
-    // Count emoticons using grapheme segmentation (reuse segmenter from above)
-    const emoticonCount = [...segmenter.segment(book.emoticons)]
-      .map((s) => s.segment)
-      .filter((char) => char.trim()).length;
 
     // Calculate next puzzle availability (next midnight UTC)
     const tomorrow = new Date();
@@ -378,6 +264,7 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
         hints,
         haikus,
         emoticonCount,
+        visibleIndices,
         nextPuzzleAvailableAt: tomorrow.toISOString(),
       },
       availableBooks: getAvailableBooks(book, date, locale),
@@ -386,35 +273,21 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
 
   /**
    * Check if a sentence is valid for puzzle haiku hints.
-   * Uses relaxed rules compared to main haiku generation since
-   * GutenGuess just needs "good enough" hints from classic literature.
    */
   private isValidSentence(sentence: string): boolean {
-    // Skip sentences with major formatting issues (brackets, quotes)
-    if (/[@#[\]{}()"|"]/.test(sentence)) {
-      return false;
-    }
-    // Skip sentences with numbers or special chars
-    if (/[0-9*$%_~&]/.test(sentence)) {
-      return false;
-    }
-    // Skip all-uppercase (chapter headers)
-    if (/^[A-Z\s!:.?]+$/.test(sentence)) {
-      return false;
-    }
-    // Allow longer sentences for puzzle hints (up to 50 chars)
-    return sentence.length < 50;
+    return isValidPuzzleSentence(sentence, 50);
   }
 
   /**
-   * Categorize sentences by syllable count (5 or 7).
+   * Categorize sentences by syllable count (5 or 7) into VerseCandidate format.
    */
   private categorizeSentences(chapters: { content: string }[]): {
-    fiveSyllable: string[];
-    sevenSyllable: string[];
+    fiveSyllable: VerseCandidate[];
+    sevenSyllable: VerseCandidate[];
   } {
-    const fiveSyllable: string[] = [];
-    const sevenSyllable: string[] = [];
+    const fiveSyllable: VerseCandidate[] = [];
+    const sevenSyllable: VerseCandidate[] = [];
+    let sourceIndex = 0;
 
     for (const chapter of chapters) {
       const sentences = this.naturalLanguage.extractSentencesByPunctuation(
@@ -423,18 +296,29 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
 
       for (const sentence of sentences) {
         if (!this.isValidSentence(sentence)) {
+          sourceIndex++;
           continue;
         }
 
         const syllableCount = countSyllables(sentence);
 
         if (syllableCount === 5) {
-          fiveSyllable.push(sentence);
+          fiveSyllable.push({
+            text: sentence,
+            syllableCount: 5,
+            sourceIndex,
+          });
         }
 
         if (syllableCount === 7) {
-          sevenSyllable.push(sentence);
+          sevenSyllable.push({
+            text: sentence,
+            syllableCount: 7,
+            sourceIndex,
+          });
         }
+
+        sourceIndex++;
       }
     }
 
@@ -442,13 +326,26 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
   }
 
   /**
-   * Generate haikus from chapter sentences matching 5-7-5 syllable pattern.
-   * Validates sentences using NaturalLanguageService rules. Uses seeded PRNG.
+   * Score a verse using Markov chain fluency evaluation.
+   */
+  private scoreVerse(verse: VerseCandidate): number {
+    // Use the Markov evaluator to score fluency based on word transitions
+    const words = verse.text.toLowerCase().split(/\s+/);
+    if (words.length < 2) {
+      return 0;
+    }
+    // Evaluate as a single-verse "haiku" to get transition score
+    return this.markovEvaluator.evaluateHaiku(words);
+  }
+
+  /**
+   * Generate haikus using quality-scored random selection from verse pools.
+   * Uses date-based seed for deterministic results (same haikus for everyone on same day).
+   * Verses are scored by Markov fluency and top candidates are selected with seeded randomization.
    */
   private async generateHaikus(
     book: GutenGuessBook,
-    count: number,
-    random: () => number,
+    date: string,
   ): Promise<string[]> {
     try {
       const chapters = await this.chapterRepository.getChaptersByBookReference(
@@ -462,35 +359,47 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
       const { fiveSyllable, sevenSyllable } =
         this.categorizeSentences(chapters);
 
-      if (fiveSyllable.length < 2 || sevenSyllable.length < 1) {
+      // Check minimum pool sizes (need at least 6 five-syllable verses for 3 haikus)
+      if (fiveSyllable.length < 6 || sevenSyllable.length < 3) {
         return [];
       }
 
+      // Score all verses for quality
+      const scoredFive = fiveSyllable.map((v) => ({
+        ...v,
+        score: this.scoreVerse(v),
+      }));
+      const scoredSeven = sevenSyllable.map((v) => ({
+        ...v,
+        score: this.scoreVerse(v),
+      }));
+
+      // Sort by score descending (higher = better quality)
+      scoredFive.sort((a, b) => b.score - a.score);
+      scoredSeven.sort((a, b) => b.score - a.score);
+
+      // Take top tier candidates (top 30% or minimum 10)
+      const topFiveCount = Math.max(10, Math.floor(scoredFive.length * 0.3));
+      const topSevenCount = Math.max(5, Math.floor(scoredSeven.length * 0.3));
+      const topFive = scoredFive.slice(0, topFiveCount);
+      const topSeven = scoredSeven.slice(0, topSevenCount);
+
+      // Create seeded PRNG for deterministic random selection from top tier
+      const seed = dateToSeed(date);
+      const randomFn = seededRandom(seed);
+
+      // Shuffle top candidates for variety while maintaining quality
+      const shuffledFive = shuffleWithSeed([...topFive], randomFn);
+      const shuffledSeven = shuffleWithSeed([...topSeven], randomFn);
+
+      // Generate 3 haikus (5-7-5 structure)
       const haikus: string[] = [];
-      const usedFive = new Set<string>();
-      const usedSeven = new Set<string>();
-      const pick = (arr: string[]) => arr[Math.floor(random() * arr.length)];
+      for (let i = 0; i < 3; i++) {
+        const line1 = shuffledFive[i * 2].text; // 5 syllables
+        const line2 = shuffledSeven[i].text; // 7 syllables
+        const line3 = shuffledFive[i * 2 + 1].text; // 5 syllables
 
-      for (let i = 0; i < count; i++) {
-        const availableFive = fiveSyllable.filter((s) => !usedFive.has(s));
-        const availableSeven = sevenSyllable.filter((s) => !usedSeven.has(s));
-
-        if (availableFive.length < 2 || availableSeven.length < 1) {
-          break;
-        }
-
-        const v1 = pick(availableFive);
-        usedFive.add(v1);
-
-        const v2 = pick(availableSeven);
-        usedSeven.add(v2);
-
-        const remainingFive = availableFive.filter((s) => s !== v1);
-        const v3 =
-          remainingFive.length > 0 ? pick(remainingFive) : pick(availableFive);
-        usedFive.add(v3);
-
-        const cleaned = cleanVerses([v1, v2, v3]);
+        const cleaned = cleanVerses([line1, line2, line3]);
         haikus.push(cleaned.join('\n'));
       }
 
