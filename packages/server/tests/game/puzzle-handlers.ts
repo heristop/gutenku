@@ -215,6 +215,7 @@ describe('Puzzle Handlers', () => {
       const validTypes = [
         'emoticons',
         'title_word_count',
+        'book_length',
         'genre',
         'era',
         'protagonist',
@@ -228,6 +229,42 @@ describe('Puzzle Handlers', () => {
       for (const type of hintTypes) {
         expect(validTypes).toContain(type);
       }
+    });
+
+    it('emoticons are consistent when revealing more', async () => {
+      // This test ensures that emoticons don't change when revealing additional ones
+      // (regression test for the bug where initial emoticons changed after scratch)
+      const date = '2026-01-15';
+
+      // Get initial puzzle with 2 emoticons visible
+      const query2 = new GetDailyPuzzleQuery(date, [], 2);
+      const result2 = await handler.execute(query2);
+      const emoticons2 = result2.puzzle.hints.find(
+        (h) => h.type === 'emoticons',
+      )?.content;
+
+      // Get puzzle with 3 emoticons visible (simulating reveal)
+      const query3 = new GetDailyPuzzleQuery(date, [], 3);
+      const result3 = await handler.execute(query3);
+      const emoticons3 = result3.puzzle.hints.find(
+        (h) => h.type === 'emoticons',
+      )?.content;
+
+      // Get puzzle with 4 emoticons visible
+      const query4 = new GetDailyPuzzleQuery(date, [], 4);
+      const result4 = await handler.execute(query4);
+      const emoticons4 = result4.puzzle.hints.find(
+        (h) => h.type === 'emoticons',
+      )?.content;
+
+      expect(emoticons2).toBeDefined();
+      expect(emoticons3).toBeDefined();
+      expect(emoticons4).toBeDefined();
+
+      // The first 2 emoticons should be the same in all cases
+      expect(emoticons3!.startsWith(emoticons2!)).toBeTruthy();
+      // The first 3 emoticons should be the same when showing 4
+      expect(emoticons4!.startsWith(emoticons3!)).toBeTruthy();
     });
   });
 
@@ -719,9 +756,7 @@ describe('SubmitGuessHandler Hint Coverage', () => {
         (h) => h.type === 'publication_century',
       );
       if (centuryHint) {
-        expect(centuryHint.content).toMatch(
-          /^Published in the \d+(st|nd|rd|th) century$/,
-        );
+        expect(centuryHint.content).toMatch(/^\d+(st|nd|rd|th) century$/);
         foundCentury = true;
         break;
       }
@@ -820,10 +855,8 @@ describe('Hint Type Coverage', () => {
         (h) => h.type === 'publication_century',
       );
       if (centuryHint) {
-        // Should match pattern like "Published in the 19th century"
-        expect(centuryHint.content).toMatch(
-          /^Published in the \d+(st|nd|rd|th) century$/,
-        );
+        // Should match pattern like "19th century"
+        expect(centuryHint.content).toMatch(/^\d+(st|nd|rd|th) century$/);
         foundCentury = true;
         break;
       }
