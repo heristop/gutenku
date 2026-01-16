@@ -1057,10 +1057,6 @@ useHead({
     }
   }
 
-  &__back-to-blog {
-    color: var(--gutenku-text-accent);
-  }
-
   &__date {
     color: var(--gutenku-text-muted);
   }
@@ -1109,6 +1105,43 @@ useHead({
 
   &__body :deep(img) {
     filter: brightness(0.85);
+    box-shadow: 0 4px 20px oklch(0 0 0 / 0.3);
+  }
+
+  &__body :deep(code) {
+    background: oklch(0.25 0.02 50 / 0.6);
+    color: oklch(0.9 0.03 70);
+  }
+
+  &__body :deep(pre) {
+    background: oklch(0.18 0.02 50 / 0.7);
+    border: 1px solid oklch(0.3 0.03 50 / 0.4);
+
+    code {
+      color: oklch(0.88 0.02 70);
+    }
+  }
+
+  &__body :deep(blockquote) {
+    border-left-color: oklch(0.6 0.08 50);
+    background: oklch(0.18 0.02 50 / 0.3);
+    padding: 0.75rem 1rem;
+    border-radius: 0 var(--gutenku-radius-sm) var(--gutenku-radius-sm) 0;
+    color: oklch(0.8 0.02 60);
+  }
+
+  &__body :deep(a) {
+    color: oklch(0.75 0.12 195);
+
+    &:hover {
+      color: oklch(0.82 0.14 195);
+    }
+  }
+
+  &__body :deep(.mermaid-diagram) {
+    background: oklch(0.2 0.015 50 / 0.5);
+    padding: 1rem;
+    border-radius: var(--gutenku-radius-md);
   }
 
   &__body :deep(.promo-band) {
@@ -1137,6 +1170,66 @@ useHead({
 
   &__nav-title {
     color: var(--gutenku-zen-accent);
+  }
+
+  &__body :deep(table) {
+    background: linear-gradient(
+      135deg,
+      oklch(0.22 0.025 55 / 0.8) 0%,
+      oklch(0.18 0.03 45 / 0.7) 100%
+    );
+    border: 1px solid oklch(0.35 0.04 50 / 0.4);
+    box-shadow: 0 2px 12px oklch(0 0 0 / 0.25);
+
+    @media (max-width: 599px) {
+      background: none;
+      border: none;
+      box-shadow: none;
+
+      tr {
+        background: linear-gradient(
+          135deg,
+          oklch(0.22 0.025 55 / 0.8) 0%,
+          oklch(0.18 0.03 45 / 0.7) 100%
+        );
+        border: 1px solid oklch(0.35 0.04 50 / 0.4);
+        box-shadow: 0 2px 12px oklch(0 0 0 / 0.25);
+      }
+
+      td {
+        color: oklch(0.88 0.02 70);
+
+        &:first-child {
+          color: oklch(0.75 0.12 195);
+          border-bottom-color: oklch(0.4 0.04 50 / 0.5);
+        }
+
+        &:last-child {
+          color: oklch(0.78 0.02 60);
+        }
+      }
+    }
+
+    @media (min-width: 600px) {
+      th,
+      td {
+        border-bottom-color: oklch(0.4 0.04 50 / 0.5);
+        color: oklch(0.88 0.02 70);
+
+        &:first-child {
+          color: oklch(0.75 0.12 195);
+        }
+
+        &:last-child {
+          color: oklch(0.78 0.02 60);
+        }
+      }
+    }
+
+    code {
+      background: var(--gutenku-zen-accent);
+      color: oklch(0.12 0.02 195);
+    }
   }
 }
 
