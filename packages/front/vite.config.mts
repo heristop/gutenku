@@ -41,7 +41,7 @@ export default defineConfig(({ isSsrBuild }) => ({
     {
       name: 'html-url-transform',
       transformIndexHtml(html) {
-        return html.replaceAll(/https:\/\/gutenku\.xyz/g, siteUrl);
+        return html.replaceAll('https://gutenku.xyz', siteUrl);
       },
     },
     vue(),
@@ -63,6 +63,8 @@ export default defineConfig(({ isSsrBuild }) => ({
     VitePWA({
       registerType: 'autoUpdate',
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
         globPatterns: ['**/*.{js,css,html,ico,png,webp,woff2}'],
         globIgnores: ['**/bundle-stats.html'],
         // Exclude SEO/static files from navigation fallback
