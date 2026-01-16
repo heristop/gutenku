@@ -6,3 +6,7 @@ coverage/
 tsconfig.tsbuildinfo
 .lighthouseci/
 .vite-ssg-temp
+
+# Apache config files (contain server-specific paths)
+gutenku-http.conf
+gutenku-ssl.conf

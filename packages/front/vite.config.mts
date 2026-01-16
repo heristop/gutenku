@@ -13,10 +13,9 @@ import { fileURLToPath, URL } from 'node:url';
 import { resolve, dirname } from 'node:path';
 import { existsSync } from 'node:fs';
 
-// Load env for gutenguess path override
-const env = loadEnv('', process.cwd(), 'GUTENGUESS_');
+const env = loadEnv('', process.cwd(), ['GUTENGUESS_', 'VITE_']);
+const siteUrl = env.VITE_APP_URL || 'https://gutenku.xyz';
 
-// Allow override via env for local development
 const gutenguessBasePath =
   env.GUTENGUESS_PATH ||
   resolve(dirname(fileURLToPath(import.meta.url)), '../../private/gutenguess');
@@ -29,7 +28,6 @@ const gameModulePath = isGameEnabled
       './src/features/game-stub',
     );
 
-// Vendor chunk configuration for client build
 const vendorChunks: Record<string, string[]> = {
   'vue-core': ['vue', 'vue-router', 'pinia'],
   graphql: ['@urql/vue', 'graphql', 'graphql-ws'],
@@ -38,9 +36,14 @@ const vendorChunks: Record<string, string[]> = {
   icons: ['lucide-vue-next'],
 };
 
-// https://vitejs.dev/config/
 export default defineConfig(({ isSsrBuild }) => ({
   plugins: [
+    {
+      name: 'html-url-transform',
+      transformIndexHtml(html) {
+        return html.replace(/https:\/\/gutenku\.xyz/g, siteUrl);
+      },
+    },
     vue(),
     VueI18nPlugin({
       include: resolve(
@@ -79,7 +82,7 @@ export default defineConfig(({ isSsrBuild }) => ({
               cacheName: 'cover-images',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                maxAgeSeconds: 60 * 60 * 24 * 30,
               },
             },
           },
@@ -89,13 +92,12 @@ export default defineConfig(({ isSsrBuild }) => ({
           },
         ],
       },
-      manifest: false, // Use existing manifest.json
+      manifest: false,
     }),
   ],
   build: {
     rollupOptions: {
       output: {
-        // Only apply manualChunks for client build, not SSR
         manualChunks: isSsrBuild
           ? undefined
           : (id) => {
@@ -118,7 +120,6 @@ export default defineConfig(({ isSsrBuild }) => ({
       '@content': fileURLToPath(new URL('./content', import.meta.url)),
     },
     extensions: ['.js', '.json', '.jsx', '.mjs', '.ts', '.tsx', '.vue'],
-    // Private game module uses main project's dependencies
     dedupe: [
       'vue',
       'pinia',
@@ -152,7 +153,6 @@ export default defineConfig(({ isSsrBuild }) => ({
       preload: 'media',
     },
     includedRoutes(paths) {
-      // Pre-render main routes for SEO (async components use ssr: false)
       const ssgRoutes = ['/', '/haiku'];
       return [...new Set([...paths, ...ssgRoutes])];
     },
