@@ -11,6 +11,7 @@ import { program } from 'commander';
 import { createInterface } from 'node:readline';
 import terminalImage from 'terminal-image';
 import type { HaikuResponseData } from '~/shared/types';
+import { capitalizeVerse } from '~/shared/helpers/HaikuHelper';
 import {
   post as socialPost,
   generateSocialCaption,
@@ -272,9 +273,10 @@ try {
 
       console.log(`${indexStr} ${marker} ${bookInfo}${scoreInfo}`);
       candidate.verses.forEach((verse) => {
+        const displayVerse = capitalizeVerse(verse);
         const verseText = isSelected
-          ? pc.cyan(`  ${verse}`)
-          : pc.dim(`  ${verse}`);
+          ? pc.cyan(`  ${displayVerse}`)
+          : pc.dim(`  ${displayVerse}`);
         console.log(verseText);
       });
       console.log();
@@ -296,7 +298,7 @@ try {
     console.log(pc.dim(`  📷 Image saved: ${haiku.imagePath}`));
   }
 
-  console.log(pc.cyan('  ' + haiku.verses.join('\n  ')));
+  console.log(pc.cyan('  ' + haiku.verses.map(capitalizeVerse).join('\n  ')));
   console.log(pc.dim(`\n  — ${haiku.book.title}`));
   console.log(pc.dim(`    by ${haiku.book.author}`));
   if (haiku.book.emoticons) {

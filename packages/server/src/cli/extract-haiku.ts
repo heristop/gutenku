@@ -14,7 +14,7 @@ import { MarkovEvaluatorService } from '~/domain/services/MarkovEvaluatorService
 import HaikuRepository from '~/infrastructure/repositories/HaikuRepository';
 import { GeneticAlgorithmService } from '~/domain/services/genetic/GeneticAlgorithmService';
 import type { DecodedHaiku } from '~/domain/services/genetic/types';
-import { cleanVerses, extractContextVerses } from '~/shared/helpers/HaikuHelper';
+import { cleanVerses, extractContextVerses, capitalizeVerse } from '~/shared/helpers/HaikuHelper';
 import type { HaikuValue } from '~/shared/types';
 
 // Filter out standalone '--' from argv (pnpm passes it through)
@@ -398,7 +398,8 @@ try {
 
       console.log(`${indexStr} ${marker} ${bookInfo} ${scoreStr}`);
       haiku.verses.forEach((verse) => {
-        const verseText = isBest ? pc.cyan(`  ${verse}`) : pc.dim(`  ${verse}`);
+        const displayVerse = capitalizeVerse(verse);
+        const verseText = isBest ? pc.cyan(`  ${displayVerse}`) : pc.dim(`  ${displayVerse}`);
         console.log(verseText);
       });
       console.log();
@@ -407,7 +408,7 @@ try {
 
   // Display best haiku
   console.log(pc.bold('═══ Best Haiku ═══\n'));
-  console.log(pc.cyan('  ' + bestHaiku!.verses.join('\n  ')));
+  console.log(pc.cyan('  ' + bestHaiku!.verses.map(capitalizeVerse).join('\n  ')));
   console.log(pc.dim(`\n  — ${bestHaiku!.book.title}`));
   console.log(pc.dim(`    by ${bestHaiku!.book.author}`));
 

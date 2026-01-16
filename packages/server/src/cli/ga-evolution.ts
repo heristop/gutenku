@@ -192,12 +192,13 @@ function diversityBar(diversity: number, width: number): string {
   return color('●'.repeat(filled)) + pc.dim('○'.repeat(empty));
 }
 
-/** Clean verse text */
+/** Clean verse text and capitalize first letter */
 function cleanVerse(verse: string): string {
-  return verse
+  const cleaned = verse
     .replaceAll(/[\r\n]+/g, ' ')
     .replaceAll(/\s+/g, ' ')
     .trim();
+  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
 }
 
 // ============================================================================
