@@ -12,7 +12,7 @@ import type { CrossoverOperator } from './operators/CrossoverOperator';
 import type { MutationOperator } from './operators/MutationOperator';
 
 /**
- * Manages population lifecycle and evolution
+ * Population lifecycle and evolution manager
  */
 export class PopulationManager {
   constructor(

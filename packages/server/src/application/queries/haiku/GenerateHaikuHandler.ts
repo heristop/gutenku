@@ -50,7 +50,6 @@ export class GenerateHaikuHandler implements IQueryHandler<
   }
 
   private configureGenerator(query: GenerateHaikuQuery): void {
-    // Disable regular cache when using daily mode to ensure deterministic behavior
     const cacheEnabled = query.useCache && !query.useDaily;
 
     this.haikuGenerator.configure({
@@ -128,6 +127,8 @@ export class GenerateHaikuHandler implements IQueryHandler<
     this.openAIGenerator.configure({
       apiKey: process.env.OPENAI_API_KEY,
       selectionCount: query.selectionCount,
+      fromDb: query.fromDb,
+      liveCount: query.liveCount,
       temperature: { description: query.descriptionTemperature },
     });
 

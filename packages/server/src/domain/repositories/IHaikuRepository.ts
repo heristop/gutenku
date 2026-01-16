@@ -9,6 +9,7 @@ export interface IHaikuRepository {
     minCachedDocs: number,
     excludeDate: string,
   ): Promise<HaikuValue | null>;
+  extractTopScored(limit: number, percentile?: number): Promise<HaikuValue[]>;
   getCacheCount(): Promise<number>;
 }
 

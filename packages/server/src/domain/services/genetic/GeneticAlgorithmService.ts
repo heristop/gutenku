@@ -28,7 +28,7 @@ import { createLogger } from '~/infrastructure/services/Logger';
 const log = createLogger('GeneticAlgorithmService');
 
 /**
- * Main genetic algorithm service for haiku selection
+ * Genetic algorithm service for haiku verse selection
  */
 export class GeneticAlgorithmService {
   private readonly config: GAConfig;
@@ -42,7 +42,7 @@ export class GeneticAlgorithmService {
   }
 
   /**
-   * Main evolution entry point
+   * Run genetic algorithm evolution on verse pools
    */
   async evolve(versePools: VersePools): Promise<EvolutionResult> {
     const startTime = Date.now();
@@ -181,7 +181,7 @@ export class GeneticAlgorithmService {
 
   /**
    * Evolution with progress generator - yields after each generation
-   * Use this for real-time progress updates in the iterative handler
+   * Provides real-time progress updates during evolution
    */
   *evolveWithProgress(
     versePools: VersePools,

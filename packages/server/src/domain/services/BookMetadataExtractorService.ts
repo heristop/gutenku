@@ -10,7 +10,7 @@ export interface MetadataExtractionResult {
 
 @singleton()
 export class BookMetadataExtractorService {
-  // Maximum header size to search for metadata (performance optimization)
+  // Maximum header size to search for metadata
   private readonly maxHeaderSize = 3000;
 
   // Pattern to find the end of Gutenberg header
@@ -30,8 +30,7 @@ export class BookMetadataExtractorService {
   private readonly retoldByPattern = /Retold\s+by\s*:\s*(.+?)(?:\r?\n|$)/i;
 
   /**
-   * Extract only the Gutenberg header portion for metadata search.
-   * This is faster and more accurate than searching the entire book.
+   * Extract the Gutenberg header portion for metadata search.
    */
   private extractHeader(content: string): string {
     const headerEnd = content.search(this.headerEndPattern);
@@ -125,8 +124,7 @@ export class BookMetadataExtractorService {
   }
 
   /**
-   * Clean a multi-line metadata value by collapsing whitespace
-   * and removing continuation indentation.
+   * Clean multi-line metadata value by collapsing whitespace.
    */
   private cleanMultilineValue(value: string): string {
     return value

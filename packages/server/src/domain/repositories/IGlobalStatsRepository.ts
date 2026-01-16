@@ -16,6 +16,11 @@ export interface GlobalStatsValue {
   currentDay: string;
   // Weekly tracking
   weekHaikusGenerated: number;
+  weekGamesPlayed: number;
+  weekGamesWon: number;
+  weekEmoticonScratches: number;
+  weekHaikuReveals: number;
+  weekRoundHints: number;
   currentWeek: string;
 }
 

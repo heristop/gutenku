@@ -9,6 +9,8 @@ export class GenerateHaikuQuery extends Query<HaikuValue> {
   public readonly appendImg: boolean;
   public readonly useImageAI: boolean;
   public readonly selectionCount: number;
+  public readonly fromDb?: number;
+  public readonly liveCount?: number;
   public readonly theme: string;
   public readonly filter: string;
   public readonly extractionMethod?: 'punctuation' | 'chunk' | 'ga';
@@ -35,6 +37,8 @@ export class GenerateHaikuQuery extends Query<HaikuValue> {
     this.appendImg = variables.appendImg;
     this.useImageAI = variables.useImageAI;
     this.selectionCount = variables.selectionCount;
+    this.fromDb = variables.fromDb;
+    this.liveCount = variables.liveCount;
     this.theme = variables.theme;
     this.filter = variables.filter;
     this.extractionMethod = variables.extractionMethod;
@@ -62,6 +66,8 @@ export class GenerateHaikuQuery extends Query<HaikuValue> {
       appendImg: this.appendImg,
       useImageAI: this.useImageAI,
       selectionCount: this.selectionCount,
+      fromDb: this.fromDb,
+      liveCount: this.liveCount,
       theme: this.theme,
       filter: this.filter,
       extractionMethod: this.extractionMethod,
