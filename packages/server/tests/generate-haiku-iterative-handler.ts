@@ -202,7 +202,7 @@ describe('GenerateHaikuIterativeHandler', () => {
     expect(results[1].bestHaiku).not.toBeNull(); // New best found
     expect(results[2].currentIteration).toBe(3);
     expect(results[2].bestScore).toBe(0.5); // Still 0.5 (best so far)
-    expect(results[2].bestHaiku).toBeNull(); // No better haiku found
+    expect(results[2].bestHaiku).toBeNull(); // No improvement in this iteration
     expect(results[3].isComplete).toBeTruthy();
   });
 
@@ -446,7 +446,35 @@ describe('GenerateHaikuIterativeHandler', () => {
     expect(mockEvolveWithProgress).toHaveBeenCalledTimes(3);
   });
 
-  it('enriches final haiku with OpenAI metadata', async () => {
+  it('enriches final haiku with OpenAI metadata when useAI is true', async () => {
+    const seedHaiku = createMockHaiku(0.5);
+    mockHaikuGenerator.buildFromDb.mockResolvedValue(seedHaiku);
+
+    mockEvolveWithProgress.mockImplementation(function* () {
+      yield createGAProgress(GA_GENS, GA_GENS, 0.5, true);
+    });
+
+    await collectAllProgress(handler.generate({ iterations: 1, useAI: true }));
+
+    expect(mockOpenAIGenerator.configure).toHaveBeenCalled();
+    expect(mockOpenAIGenerator.enrichHaikuWithMetadata).toHaveBeenCalled();
+  });
+
+  it('does not call OpenAI when useAI is false', async () => {
+    const seedHaiku = createMockHaiku(0.5);
+    mockHaikuGenerator.buildFromDb.mockResolvedValue(seedHaiku);
+
+    mockEvolveWithProgress.mockImplementation(function* () {
+      yield createGAProgress(GA_GENS, GA_GENS, 0.5, true);
+    });
+
+    await collectAllProgress(handler.generate({ iterations: 1, useAI: false }));
+
+    expect(mockOpenAIGenerator.configure).not.toHaveBeenCalled();
+    expect(mockOpenAIGenerator.enrichHaikuWithMetadata).not.toHaveBeenCalled();
+  });
+
+  it('does not call OpenAI when useAI is not provided (defaults to false)', async () => {
     const seedHaiku = createMockHaiku(0.5);
     mockHaikuGenerator.buildFromDb.mockResolvedValue(seedHaiku);
 
@@ -456,7 +484,7 @@ describe('GenerateHaikuIterativeHandler', () => {
 
     await collectAllProgress(handler.generate({ iterations: 1 }));
 
-    expect(mockOpenAIGenerator.configure).toHaveBeenCalled();
-    expect(mockOpenAIGenerator.enrichHaikuWithMetadata).toHaveBeenCalled();
+    expect(mockOpenAIGenerator.configure).not.toHaveBeenCalled();
+    expect(mockOpenAIGenerator.enrichHaikuWithMetadata).not.toHaveBeenCalled();
   });
 });

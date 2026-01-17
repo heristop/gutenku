@@ -1,4 +1,3 @@
-import { createLogger } from '~/infrastructure/services/Logger';
 import type NaturalLanguageService from '~/domain/services/NaturalLanguageService';
 import type { MarkovEvaluatorService } from '~/domain/services/MarkovEvaluatorService';
 import {
@@ -12,9 +11,11 @@ import {
   calculateVerbPresence,
   VERSE_MAX_LENGTH,
 } from '~/shared/constants/validation';
-import type { ScoreThresholds, QuoteCandidate, RejectionStats } from './HaikuGeneratorTypes';
-
-const log = createLogger('haiku-validator');
+import type {
+  ScoreThresholds,
+  QuoteCandidate,
+  RejectionStats,
+} from './HaikuGeneratorTypes';
 
 export class HaikuValidatorService {
   private sentimentCache = new Map<string, number>();
@@ -73,12 +74,21 @@ export class HaikuValidatorService {
     }
 
     if (selectedVerses.length > 0) {
-      return this.passesSequenceValidation(quote, candidate.index, selectedVerses, thresholds);
+      return this.passesSequenceValidation(
+        quote,
+        candidate.index,
+        selectedVerses,
+        thresholds,
+      );
     }
     return true;
   }
 
-  passesBasicValidation(quote: string, isFirstVerse: boolean, thresholds: ScoreThresholds): boolean {
+  passesBasicValidation(
+    quote: string,
+    isFirstVerse: boolean,
+    thresholds: ScoreThresholds,
+  ): boolean {
     if (isFirstVerse && this.naturalLanguage.startWithConjunction(quote)) {
       this.rejectionStats.basic++;
       this.rejectionStats.total++;
@@ -110,8 +120,6 @@ export class HaikuValidatorService {
   }
 
   passesScoreValidation(quote: string, thresholds: ScoreThresholds): boolean {
-    log.debug({ quote: quote.split(' ') }, 'Evaluating quote');
-
     const sentimentScore = this.getCachedSentiment(quote);
 
     if (sentimentScore < thresholds.sentiment) {
@@ -119,7 +127,6 @@ export class HaikuValidatorService {
       this.rejectionStats.total++;
       return false;
     }
-    log.debug({ sentimentScore, min: thresholds.sentiment }, 'Sentiment score');
 
     if (thresholds.pos > 0) {
       const grammarAnalysis = this.naturalLanguage.analyzeGrammar(quote);
@@ -128,7 +135,6 @@ export class HaikuValidatorService {
         this.rejectionStats.total++;
         return false;
       }
-      log.debug({ posScore: grammarAnalysis.score, min: thresholds.pos }, 'POS score');
     }
 
     if (thresholds.tfidf > 0) {
@@ -138,7 +144,6 @@ export class HaikuValidatorService {
         this.rejectionStats.total++;
         return false;
       }
-      log.debug({ tfidfScore, min: thresholds.tfidf }, 'TF-IDF score');
     }
 
     return true;
@@ -163,7 +168,6 @@ export class HaikuValidatorService {
       if (repeatedCount > thresholds.maxRepeatedWords) {
         return false;
       }
-      log.debug({ repeatedCount, max: thresholds.maxRepeatedWords }, 'Repeated words');
     }
 
     const markovScore = this.markovEvaluator.evaluateHaiku(quotesToEvaluate);
@@ -173,29 +177,25 @@ export class HaikuValidatorService {
       this.rejectionStats.total++;
       return false;
     }
-    log.debug({ markovScore, min: thresholds.markov }, 'Markov score');
 
     if (thresholds.trigram > 0) {
-      const trigramScore = this.markovEvaluator.evaluateHaikuTrigrams(quotesToEvaluate);
+      const trigramScore =
+        this.markovEvaluator.evaluateHaikuTrigrams(quotesToEvaluate);
       if (trigramScore < thresholds.trigram) {
         this.rejectionStats.trigram++;
         this.rejectionStats.total++;
         return false;
       }
-      log.debug({ trigramScore, min: thresholds.trigram }, 'Trigram score');
     }
 
     if (thresholds.phonetics > 0) {
-      const phoneticsAnalysis = this.naturalLanguage.analyzePhonetics(quotesToEvaluate);
+      const phoneticsAnalysis =
+        this.naturalLanguage.analyzePhonetics(quotesToEvaluate);
       if (phoneticsAnalysis.alliterationScore < thresholds.phonetics) {
         this.rejectionStats.phonetics++;
         this.rejectionStats.total++;
         return false;
       }
-      log.debug(
-        { phoneticsScore: phoneticsAnalysis.alliterationScore, min: thresholds.phonetics },
-        'Phonetics score',
-      );
     }
 
     if (quotesToEvaluate.length === 3 && thresholds.uniqueness > 0) {
@@ -203,10 +203,8 @@ export class HaikuValidatorService {
       if (uniqueness < thresholds.uniqueness) {
         this.rejectionStats.uniqueness++;
         this.rejectionStats.total++;
-        log.debug({ uniqueness, min: thresholds.uniqueness }, 'Haiku rejected: low word uniqueness');
         return false;
       }
-      log.debug({ uniqueness, min: thresholds.uniqueness }, 'Uniqueness score');
     }
 
     return true;
@@ -221,7 +219,6 @@ export class HaikuValidatorService {
     if (thresholds.verseDistance > 0) {
       const distance = calculateVerseDistance(indices, totalQuotes);
       if (distance < thresholds.verseDistance) {
-        log.debug({ distance, threshold: thresholds.verseDistance }, 'Haiku rejected: low verse distance');
         this.rejectionStats.verseDistance++;
         this.rejectionStats.total++;
         return false;
@@ -231,7 +228,6 @@ export class HaikuValidatorService {
     if (thresholds.lineLengthBalance > 0) {
       const balance = calculateLineLengthBalance(verses);
       if (balance < thresholds.lineLengthBalance) {
-        log.debug({ balance, threshold: thresholds.lineLengthBalance }, 'Haiku rejected: unbalanced line lengths');
         this.rejectionStats.lineLengthBalance++;
         this.rejectionStats.total++;
         return false;
@@ -241,7 +237,6 @@ export class HaikuValidatorService {
     if (thresholds.imageryDensity > 0) {
       const density = calculateImageryDensity(verses);
       if (density < thresholds.imageryDensity) {
-        log.debug({ density, threshold: thresholds.imageryDensity }, 'Haiku rejected: low imagery density');
         this.rejectionStats.imageryDensity++;
         this.rejectionStats.total++;
         return false;
@@ -251,7 +246,6 @@ export class HaikuValidatorService {
     if (thresholds.semanticCoherence > 0) {
       const coherence = calculateSemanticCoherence(verses);
       if (coherence < thresholds.semanticCoherence) {
-        log.debug({ coherence, threshold: thresholds.semanticCoherence }, 'Haiku rejected: low semantic coherence');
         this.rejectionStats.semanticCoherence++;
         this.rejectionStats.total++;
         return false;
@@ -259,10 +253,11 @@ export class HaikuValidatorService {
     }
 
     if (thresholds.verbPresence > 0) {
-      const posResults = verses.flatMap((v) => this.naturalLanguage.getPOSTags(v));
+      const posResults = verses.flatMap((v) =>
+        this.naturalLanguage.getPOSTags(v),
+      );
       const presence = calculateVerbPresence(posResults);
       if (presence < thresholds.verbPresence) {
-        log.debug({ presence, threshold: thresholds.verbPresence }, 'Haiku rejected: low verb presence');
         this.rejectionStats.verbPresence++;
         this.rejectionStats.total++;
         return false;

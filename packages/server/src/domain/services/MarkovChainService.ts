@@ -562,7 +562,7 @@ export class MarkovChainService {
 
     if (isFileNotFound) {
       log.info(
-        'Markov model not found at ./data/markov_model.json - run "pnpm train" to generate it',
+        'Markov model not found at ./data/markov_model.json - run "pnpm mc:train" to generate it',
       );
     } else {
       log.error({ err: error }, 'Failed to load Markov model');

@@ -36,6 +36,7 @@ export interface IterativeHaikuArgs {
   iterations: number;
   theme?: string;
   filter?: string;
+  useAI?: boolean;
 }
 
 /** Default TTL for crafted haikus: 48 hours */
@@ -55,10 +56,10 @@ export class GenerateHaikuIterativeHandler {
   ) {}
 
   async *generate(args: IterativeHaikuArgs): AsyncGenerator<HaikuProgress> {
-    const { iterations, theme, filter } = args;
+    const { iterations, theme, filter, useAI = false } = args;
 
     log.info(
-      { iterations, theme, filter },
+      { iterations, theme, filter, useAI },
       'Starting GA-based iterative haiku generation',
     );
 
@@ -123,20 +124,35 @@ export class GenerateHaikuIterativeHandler {
       });
     }
 
-    const bestHaiku = await this.finalizeHaiku(bestOverallHaiku);
+    const bestHaiku = await this.finalizeHaiku(bestOverallHaiku, useAI);
 
+    this.trackAndCacheHaiku(bestHaiku);
+
+    yield this.createFinalProgress(iterations, bestHaiku);
+
+    log.info(
+      { bestScore: bestHaiku?.quality?.totalScore, iterations },
+      'GA-based iterative generation complete',
+    );
+  }
+
+  private trackAndCacheHaiku(haiku: HaikuValue | null): void {
     this.globalStatsRepository.incrementHaikuCount().catch(() => {});
 
-    // Save crafted haiku to database for haiku of the day
-    if (bestHaiku) {
+    if (haiku) {
       this.haikuRepository
-        .createCacheWithTTL(bestHaiku, DEFAULT_CACHE_TTL_MS)
+        .createCacheWithTTL(haiku, DEFAULT_CACHE_TTL_MS)
         .catch((error) => {
           log.warn({ error }, 'Failed to cache crafted haiku');
         });
     }
+  }
 
-    yield {
+  private createFinalProgress(
+    iterations: number,
+    bestHaiku: HaikuValue | null,
+  ): HaikuProgress {
+    return {
       currentIteration: iterations,
       totalIterations: iterations,
       bestScore: bestHaiku?.quality?.totalScore ?? 0,
@@ -144,11 +160,6 @@ export class GenerateHaikuIterativeHandler {
       isComplete: true,
       stopReason: 'completed',
     };
-
-    log.info(
-      { bestScore: bestHaiku?.quality?.totalScore, iterations },
-      'GA-based iterative generation complete',
-    );
   }
 
   private configureGenerator(theme?: string, filter?: string): void {
@@ -227,6 +238,7 @@ export class GenerateHaikuIterativeHandler {
 
   private async finalizeHaiku(
     haiku: HaikuValue | null,
+    useAI: boolean = false,
   ): Promise<HaikuValue | null> {
     if (!haiku) {
       return null;
@@ -235,12 +247,14 @@ export class GenerateHaikuIterativeHandler {
     try {
       const withImage = await this.haikuGenerator.appendImg(haiku, false);
 
-      this.openAIGenerator.configure({
-        apiKey: process.env.OPENAI_API_KEY,
-        selectionCount: 1,
-        temperature: { description: 0.7 },
-      });
-      await this.openAIGenerator.enrichHaikuWithMetadata(withImage);
+      if (useAI && process.env.OPENAI_API_KEY) {
+        this.openAIGenerator.configure({
+          apiKey: process.env.OPENAI_API_KEY,
+          selectionCount: 1,
+          temperature: { description: 0.7 },
+        });
+        await this.openAIGenerator.enrichHaikuWithMetadata(withImage);
+      }
 
       return withImage;
     } catch (error) {

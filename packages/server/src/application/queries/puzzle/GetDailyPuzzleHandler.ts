@@ -234,7 +234,7 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
     );
 
     // Get emoticons using single source of truth (getEmoticonsByDate)
-    // This ensures consistency between initial load and reveal mutations
+    // Keeps initial load and reveal mutations in sync
     const { emoticons, emoticonCount, visibleIndices } = getEmoticonsByDate(
       date,
       visibleEmoticonCount,
@@ -374,7 +374,7 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
         score: this.scoreVerse(v),
       }));
 
-      // Sort by score descending (higher = better quality)
+      // Sort by score descending
       scoredFive.sort((a, b) => b.score - a.score);
       scoredSeven.sort((a, b) => b.score - a.score);
 

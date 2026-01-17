@@ -53,6 +53,10 @@ import type {
   RejectionStats,
 } from './HaikuGeneratorTypes';
 import type { VersePools, VerseCandidate } from './genetic/types';
+import type {
+  VerseEmbeddingService,
+  EnhancedVersePools,
+} from '../ml/VerseEmbeddingService';
 
 const log = createLogger('haiku');
 
@@ -103,6 +107,7 @@ export default class HaikuGeneratorService implements IGenerator {
   private lastExtractionMethod: ExtractionMethod = 'punctuation';
   private forcedExtractionMethod: 'punctuation' | 'chunk' | null = null;
   private validator: HaikuValidatorService;
+  private verseEmbeddingService: VerseEmbeddingService | null = null;
 
   constructor(
     @inject('IHaikuRepository')
@@ -728,5 +733,62 @@ export default class HaikuGeneratorService implements IGenerator {
    */
   getMarkovEvaluator(): MarkovEvaluatorService {
     return this.markovEvaluator;
+  }
+
+  /**
+   * Set the verse embedding service for extraction with ML embeddings
+   */
+  setVerseEmbeddingService(service: VerseEmbeddingService): void {
+    this.verseEmbeddingService = service;
+  }
+
+  /**
+   * Get the verse embedding service
+   */
+  getVerseEmbeddingService(): VerseEmbeddingService | null {
+    return this.verseEmbeddingService;
+  }
+
+  /**
+   * Extract verse pools with computed embeddings from chapter content
+   * Returns verse pools with 64-dimensional embedding vectors for each verse
+   */
+  async extractEnhancedVersePoolsFromContent(
+    content: string,
+    bookId: string,
+    chapterId: string,
+  ): Promise<EnhancedVersePools> {
+    // First extract basic verse pools
+    const versePools = this.extractVersePoolsFromContent(
+      content,
+      bookId,
+      chapterId,
+    );
+
+    // If no embedding service, throw error
+    if (!this.verseEmbeddingService) {
+      throw new Error(
+        'VerseEmbeddingService not set. Call setVerseEmbeddingService first.',
+      );
+    }
+
+    // Enhance with embeddings
+    return this.verseEmbeddingService.embedVersePools(versePools);
+  }
+
+  /**
+   * Compute embedding-based semantic coherence for three verses
+   * Returns a score in [0, 1] based on average pairwise embedding similarity
+   */
+  async computeEmbeddingCoherence(
+    verses: [string, string, string],
+  ): Promise<number> {
+    if (!this.verseEmbeddingService) {
+      throw new Error(
+        'VerseEmbeddingService not set. Call setVerseEmbeddingService first.',
+      );
+    }
+
+    return this.verseEmbeddingService.computeSemanticCoherenceFromText(verses);
   }
 }

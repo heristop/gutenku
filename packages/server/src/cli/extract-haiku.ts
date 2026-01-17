@@ -14,12 +14,14 @@ import { MarkovEvaluatorService } from '~/domain/services/MarkovEvaluatorService
 import HaikuRepository from '~/infrastructure/repositories/HaikuRepository';
 import { GeneticAlgorithmService } from '~/domain/services/genetic/GeneticAlgorithmService';
 import type { DecodedHaiku } from '~/domain/services/genetic/types';
+import { EvolutionDataCollector } from '~/infrastructure/ml/EvolutionDataCollector';
 import {
   cleanVerses,
   extractContextVerses,
   capitalizeVerse,
 } from '~/shared/helpers/HaikuHelper';
 import type { HaikuValue } from '~/shared/types';
+import { getMLConfig } from '~/config/ml';
 
 // Filter out standalone '--' from argv (pnpm passes it through)
 const argv = process.argv.filter((arg) => arg !== '--');
@@ -43,6 +45,15 @@ program
     'TTL in hours for recorded haiku (default: 48 = 2 days)',
     '48',
   )
+  .option(
+    '--collect-training-data',
+    'collect evolution data for ML training (GA mode only)',
+  )
+  .option(
+    '--data-output <path>',
+    'output path for training data',
+    'data/evolution-samples.json',
+  )
   .parse(argv);
 
 const options = program.opts();
@@ -59,6 +70,8 @@ const gaConfig = {
   maxGenerations: Math.max(1, Number.parseInt(options.generations, 10) || 50),
   populationSize: Math.max(10, Number.parseInt(options.population, 10) || 100),
 };
+const collectTrainingData = options.collectTrainingData === true;
+const dataOutputPath = options.dataOutput || 'data/evolution-samples.json';
 
 // Quality score display functions
 function colorByThreshold(value: number, threshold: number): string {
@@ -227,6 +240,7 @@ async function generateHaikuWithGA(
   config: { maxGenerations: number; populationSize: number },
   iterationIndex: number,
   spinner: ReturnType<typeof ora>,
+  dataCollector?: EvolutionDataCollector,
 ): Promise<{ haiku: HaikuValue | null; error?: string }> {
   const startTime = Date.now();
 
@@ -274,6 +288,11 @@ async function generateHaikuWithGA(
       },
     );
 
+    // Set up data collector if enabled (startRun is called automatically by GA service)
+    if (dataCollector) {
+      gaService.setDataCollector(dataCollector);
+    }
+
     let bestHaiku: HaikuValue | null = null;
     let bestFitness = -Infinity;
 
@@ -299,6 +318,8 @@ async function generateHaikuWithGA(
       }
     }
 
+    // Note: finalizeRun is called automatically by GeneticAlgorithmService
+
     return { haiku: bestHaiku };
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Unknown error';
@@ -320,6 +341,14 @@ try {
   if (isGAMethod) {
     console.log(pc.dim(`GA Generations: ${gaConfig.maxGenerations}`));
     console.log(pc.dim(`GA Population: ${gaConfig.populationSize}`));
+
+    // Display ML settings
+    const mlConfig = getMLConfig();
+    console.log(pc.dim(`\nML Settings:`));
+    console.log(pc.dim(`  Scoring mode:  ${pc.cyan(mlConfig.scoring.mode)}`));
+    console.log(pc.dim(`  Rule weight:   ${mlConfig.scoring.ruleWeight}`));
+    console.log(pc.dim(`  Neural weight: ${mlConfig.scoring.neuralWeight}`));
+    console.log(pc.dim(`  GPU enabled:   ${mlConfig.tensorflow.useGPU}`));
   }
 
   if (!isGAMethod) {
@@ -355,7 +384,7 @@ try {
     } else {
       prepSpinner.warn(
         pc.yellow('Markov model not found - run ') +
-          pc.cyan('pnpm train') +
+          pc.cyan('pnpm mc:train') +
           pc.yellow(' to generate it (validation disabled)'),
       );
     }
@@ -363,12 +392,28 @@ try {
 
   const candidates: HaikuValue[] = [];
 
+  // Create data collector if enabled
+  const dataCollector = collectTrainingData
+    ? new EvolutionDataCollector()
+    : undefined;
+
+  if (collectTrainingData) {
+    console.log(pc.dim(`Training data collection: ${pc.cyan('enabled')}`));
+    console.log(pc.dim(`Data output: ${pc.cyan(dataOutputPath)}`));
+  }
+
   // GA mode: Sequential iterations, each on different chapter
   if (isGAMethod) {
     const spinner = ora('Starting GA evolution...').start();
 
     for (let i = 0; i < iterations; i++) {
-      const result = await generateHaikuWithGA(generator, gaConfig, i, spinner);
+      const result = await generateHaikuWithGA(
+        generator,
+        gaConfig,
+        i,
+        spinner,
+        dataCollector,
+      );
 
       if (result.haiku) {
         candidates.push(result.haiku);
@@ -378,6 +423,20 @@ try {
     spinner.succeed(
       pc.green(`Generated ${candidates.length}/${iterations} haikus via GA`),
     );
+
+    // Save training data if collection was enabled
+    if (dataCollector && collectTrainingData) {
+      const saveDataSpinner = ora('Saving training data...').start();
+      await dataCollector.exportDataset(dataOutputPath);
+      const stats = dataCollector.getStatistics();
+      saveDataSpinner.succeed(
+        pc.green(
+          `Training data saved: ${pc.cyan(String(stats.total))} samples ` +
+            `(${pc.green(String(stats.positives))} positive, ` +
+            `${pc.red(String(stats.negatives))} negative)`,
+        ),
+      );
+    }
   }
 
   // Standard mode: Parallel batches with random sampling
