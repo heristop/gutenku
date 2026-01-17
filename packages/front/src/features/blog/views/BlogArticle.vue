@@ -113,9 +113,12 @@ useHead({
 
     <template v-else>
       <header class="blog-article__header">
-        <RouterLink :to="{ name: 'Blog' }" class="blog-article__back-to-blog">
+        <RouterLink
+          :to="{ name: 'Blog' }"
+          class="blog-article__back-to-blog link-highlight"
+        >
           <ArrowLeft :size="14" />
-          <span class="link-highlight">All articles</span>
+          <span>All articles</span>
         </RouterLink>
         <p class="blog-article__date">{{ formattedDate }}</p>
         <h1
