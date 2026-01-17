@@ -53,7 +53,7 @@ Let me be precise: **GutenKu dot not use an LLM**. It doesn't "write" anything -
 - **Phrase hunting**: Scan sentences, keep only chunks with exactly 5 or 7 syllables
 - **The haiku rule**: Strict 5-7-5 structure, no exceptions
 - **Evolution**: 150 haiku candidates compete and evolve over generations
-- **Scoring**: 16 metrics judge how "good" each haiku sounds
+- **Scoring**: 18 quality metrics + a neural network that learns what "good" means by watching evolution
 - **Final polish**: GPT adds a title and translations for the winner
 
 **The key insight: GutenKu doesn't promise meaning - only resonance.**
@@ -104,8 +104,39 @@ flowchart TD
 | Imagery      | Sensory words you can see, hear, feel?                      |
 | Coherence    | Do the three lines relate to each other?                    |
 | Nature Words | Seasonal vocabulary (spring, moon, cherry...)?              |
+| Neural Score | Does this haiku "feel" like survivors from past evolutions? |
 
 **When does it stop?** When scores stop improving for 30 generations, or after 500 generations max, or 30 seconds - whichever comes first.
+
+### 🧬 The Plot Twist: The Algorithm Learns From Itself
+
+Here's where it gets weird: **GutenKu now learns from its own mistakes.**
+
+Remember those 150 haiku competing in each generation? Some survive, most die. That's not just selection - it's **free training data**. The survivors get labeled "good," the early deaths labeled "weak."
+
+A neural network watches this evolutionary carnage and asks: _"What do survivors have in common that the dead ones lack?"_
+
+```
+Generation 1:  150 haiku born
+Generation 10: 100 remain (50 eliminated → labeled "weak")
+Generation 30: Elite 5% survive (labeled "elite")
+
+Neural network: "Aha! Elite haiku share these patterns..."
+```
+
+**What the neural network discovers:**
+
+| What rules measure | What the network finds    |
+| :----------------- | :------------------------ |
+| Word overlap       | True semantic connections |
+| Syllable count     | Rhythmic texture          |
+| Individual metrics | How metrics interact      |
+
+The network finds patterns too subtle for hand-coded rules. It's like the difference between knowing music theory and having an ear for what sounds good.
+
+**The philosophical twist:** The algorithm is now learning what "good" means by watching its own evolution. It's not conscious, but it's definitely not just counting syllables anymore.
+
+Is this still optimization theater? Absolutely. But it's optimization theater that writes its own reviews.
 
 ### Why It Works (and Doesn't)
 
