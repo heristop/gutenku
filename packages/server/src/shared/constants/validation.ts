@@ -1333,6 +1333,12 @@ export interface QualityMetrics {
   verseIndices?: number[];
   totalQuotes?: number;
   posResults?: Array<{ tag: string }>;
+  /**
+   * Pre-computed embedding-based semantic coherence [0, 1]
+   * If provided, this will be used instead of Jaccard-based coherence
+   * Computed by VerseEmbeddingService.computeSemanticCoherence()
+   */
+  embeddingCoherence?: number;
 }
 
 /**
@@ -1384,7 +1390,11 @@ export function calculateHaikuQuality(
       : 0.5;
   const lineLengthBalance = calculateLineLengthBalance(verses);
   const imageryDensity = calculateImageryDensity(verses);
-  const semanticCoherence = calculateSemanticCoherence(verses);
+  // Use embedding-based coherence if provided, otherwise fall back to Jaccard
+  const semanticCoherence =
+    metrics.embeddingCoherence !== undefined
+      ? metrics.embeddingCoherence
+      : calculateSemanticCoherence(verses);
   const verbPresence = metrics.posResults
     ? calculateVerbPresence(metrics.posResults)
     : 0.5;

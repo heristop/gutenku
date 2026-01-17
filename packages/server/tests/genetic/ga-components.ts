@@ -422,7 +422,7 @@ describe('Genetic Algorithm Components', () => {
 
   describe('GeneticAlgorithmService', () => {
     it('should fall back to random sampling when pools are too small', async () => {
-      const smallPools = createTestVersePools(5, 5); // Below minimum threshold
+      const smallPools = createTestVersePools(3, 3); // Below minimum threshold (5 five-syllable, 4 seven-syllable)
 
       const service = new GeneticAlgorithmService(
         mockNaturalLanguage as unknown as NaturalLanguageService,

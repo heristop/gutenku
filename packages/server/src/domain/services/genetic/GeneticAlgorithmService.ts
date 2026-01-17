@@ -4,6 +4,7 @@ import type {
   EvolutionResult,
   EvolutionProgress,
   DecodedHaiku,
+  HaikuChromosome,
 } from './types';
 import {
   DEFAULT_GA_CONFIG,
@@ -23,6 +24,7 @@ import {
 } from './operators';
 import type NaturalLanguageService from '../NaturalLanguageService';
 import type { MarkovEvaluatorService } from '../MarkovEvaluatorService';
+import type { EvolutionDataCollector } from '~/infrastructure/ml/EvolutionDataCollector';
 import { createLogger } from '~/infrastructure/services/Logger';
 
 const log = createLogger('GeneticAlgorithmService');
@@ -32,6 +34,7 @@ const log = createLogger('GeneticAlgorithmService');
  */
 export class GeneticAlgorithmService {
   private readonly config: GAConfig;
+  private dataCollector: EvolutionDataCollector | null = null;
 
   constructor(
     private readonly naturalLanguage: NaturalLanguageService,
@@ -39,6 +42,20 @@ export class GeneticAlgorithmService {
     config: Partial<GAConfig> = {},
   ) {
     this.config = { ...DEFAULT_GA_CONFIG, ...config };
+  }
+
+  /**
+   * Set the evolution data collector for ML training
+   */
+  setDataCollector(collector: EvolutionDataCollector): void {
+    this.dataCollector = collector;
+  }
+
+  /**
+   * Get the current data collector
+   */
+  getDataCollector(): EvolutionDataCollector | null {
+    return this.dataCollector;
   }
 
   /**
@@ -99,6 +116,16 @@ export class GeneticAlgorithmService {
     let population = populationManager.initialize();
     let convergenceGeneration = this.config.maxGenerations;
 
+    // Data collection: create decoder function for the collector
+    const decodeChromosome = (c: HaikuChromosome): [string, string, string] =>
+      chromosomeFactory.decode(c);
+
+    // Start data collection run if collector is set
+    if (this.dataCollector) {
+      this.dataCollector.startRun();
+      this.dataCollector.trackGeneration(population, decodeChromosome);
+    }
+
     // Evolution loop
     for (let gen = 0; gen < this.config.maxGenerations; gen++) {
       // Check termination conditions
@@ -128,6 +155,11 @@ export class GeneticAlgorithmService {
       // Evolve to next generation
       population = populationManager.evolve(population);
 
+      // Track evolution data if collector is set
+      if (this.dataCollector) {
+        this.dataCollector.trackGeneration(population, decodeChromosome);
+      }
+
       // Log progress
       if (gen % 5 === 0 || gen === this.config.maxGenerations - 1) {
         log.debug(
@@ -140,6 +172,15 @@ export class GeneticAlgorithmService {
           'Generation complete',
         );
       }
+    }
+
+    // Finalize data collection if collector is set
+    if (this.dataCollector) {
+      this.dataCollector.finalizeRun(population, decodeChromosome);
+      log.debug(
+        { stats: this.dataCollector.getStatistics() },
+        'Evolution data collected',
+      );
     }
 
     // Extract top candidates
@@ -250,6 +291,16 @@ export class GeneticAlgorithmService {
     let population = populationManager.initialize();
     let convergenceGeneration = this.config.maxGenerations;
 
+    // Data collection: create decoder function for the collector
+    const decodeChromosome = (c: HaikuChromosome): [string, string, string] =>
+      chromosomeFactory.decode(c);
+
+    // Start data collection run if collector is set
+    if (this.dataCollector) {
+      this.dataCollector.startRun();
+      this.dataCollector.trackGeneration(population, decodeChromosome);
+    }
+
     // Evolution loop with progress yields
     for (let gen = 0; gen < this.config.maxGenerations; gen++) {
       // Check termination conditions
@@ -314,6 +365,20 @@ export class GeneticAlgorithmService {
 
       // Evolve to next generation
       population = populationManager.evolve(population);
+
+      // Track evolution data if collector is set
+      if (this.dataCollector) {
+        this.dataCollector.trackGeneration(population, decodeChromosome);
+      }
+    }
+
+    // Finalize data collection if collector is set
+    if (this.dataCollector) {
+      this.dataCollector.finalizeRun(population, decodeChromosome);
+      log.debug(
+        { stats: this.dataCollector.getStatistics() },
+        'Evolution data collected (progressive)',
+      );
     }
 
     // Extract top candidates for final result

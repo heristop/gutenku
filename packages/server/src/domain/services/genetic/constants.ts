@@ -8,7 +8,7 @@ export const DEFAULT_GA_CONFIG: GAConfig = {
   populationSize: 150,
   elitismCount: 6,
 
-  // Evolution - train with many generations for thorough optimization
+  // Evolution - 500 generations for training runs
   maxGenerations: 500,
   convergenceThreshold: 0.005, // 0.5% improvement threshold (very strict)
   convergenceWindow: 30, // Check convergence over 30 generations
@@ -30,8 +30,8 @@ export const DEFAULT_GA_CONFIG: GAConfig = {
 };
 
 // Minimum viable pool sizes for GA to be effective
-export const MIN_FIVE_SYLLABLE_POOL = 10;
-export const MIN_SEVEN_SYLLABLE_POOL = 8;
+export const MIN_FIVE_SYLLABLE_POOL = 5;
+export const MIN_SEVEN_SYLLABLE_POOL = 4;
 
 // Fallback to random sampling if pools are too small
 export const GA_POOL_THRESHOLD = 10;
