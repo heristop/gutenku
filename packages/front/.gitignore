@@ -10,6 +10,7 @@ tsconfig.tsbuildinfo
 # Capacitor native projects
 /ios/
 /android/
+/resources/
 
 # Apache config files (contain server-specific paths)
 gutenku-http.conf
