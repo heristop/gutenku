@@ -7,6 +7,10 @@ tsconfig.tsbuildinfo
 .lighthouseci/
 .vite-ssg-temp
 
+# Capacitor native projects
+/ios/
+/android/
+
 # Apache config files (contain server-specific paths)
 gutenku-http.conf
 gutenku-ssl.conf

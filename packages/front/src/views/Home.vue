@@ -59,9 +59,9 @@ onMounted(() => {
         class="preview-grid"
         :class="{ 'preview-grid--single': !GAME_ENABLED }"
       >
-        <HaikuPreview />
-
         <component :is="GamePreview" v-if="GAME_ENABLED" />
+
+        <HaikuPreview />
       </div>
     </main>
   </div>

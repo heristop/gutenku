@@ -759,6 +759,12 @@
 
 // CSS Variables for Design System
 :root {
+  // Safe area insets for native apps (iOS notch, Android cutouts)
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --safe-area-inset-right: env(safe-area-inset-right, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-inset-left: env(safe-area-inset-left, 0px);
+
   --gutenku-paper-bg: #f8f6f0;
   --gutenku-paper-border: oklch(0.42 0.09 55 / 0.2);
   --gutenku-paper-border-hover: oklch(0.42 0.09 55 / 0.6);

@@ -177,6 +177,10 @@ useHead({
   background-position: center;
   background-attachment: fixed;
   background-repeat: no-repeat;
+  // Safe area padding for landscape orientation (notch sides)
+  // Top safe area is handled directly by InkBrushNav component
+  padding-left: var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
+  padding-right: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
 }
 
 .site-header {

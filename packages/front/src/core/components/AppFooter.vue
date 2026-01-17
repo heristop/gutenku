@@ -43,8 +43,8 @@ const GUTENBERG_URL = 'https://gutenberg.org';
 
 const navLinks = [
   { to: '/', label: 'footer.nav.home' },
-  { to: '/haiku', label: 'footer.nav.gutenku' },
   { to: '/game', label: 'footer.nav.gutenguess' },
+  { to: '/haiku', label: 'footer.nav.gutenku' },
 ];
 
 const socialLinks = [
@@ -299,6 +299,9 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
 .app-footer {
   position: relative;
   padding: 1.5rem 1rem 1.75rem;
+  padding-bottom: calc(
+    var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 1.75rem
+  );
   background: oklch(0.88 0.02 55 / 0.4);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -754,6 +757,9 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
 @media (max-width: 600px) {
   .app-footer {
     padding: 1.25rem 0.75rem 1.75rem;
+    padding-bottom: calc(
+      var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 1.75rem
+    );
   }
 
   .footer-content {

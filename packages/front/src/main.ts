@@ -9,6 +9,7 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 import i18n from '@/locales';
 import { routes } from '@/router';
 import { loadFonts } from '@/core/plugins/webfontloader';
+import { isNative } from '@/utils/capacitor';
 
 export const createApp = ViteSSG(
   App,
@@ -78,7 +79,8 @@ export const createApp = ViteSSG(
       // Register service worker with auto-reload on update
       // SSR guard ensures Rollup completely tree-shakes this during SSR builds
       // (isClient alone isn't enough - Rollup still bundles the dynamic import)
-      if (!import.meta.env.SSR) {
+      // Skip PWA registration in native Capacitor apps (they use native app stores)
+      if (!import.meta.env.SSR && !isNative) {
         import('virtual:pwa-register').then(({ registerSW }) => {
           registerSW({
             immediate: true,
@@ -87,6 +89,40 @@ export const createApp = ViteSSG(
             },
             onOfflineReady() {
               console.log('App ready to work offline');
+            },
+            onRegisteredSW(swUrl, registration) {
+              if (!registration) {
+                return;
+              }
+
+              // Check for updates every 60 seconds (for iOS/Safari)
+              // Safari doesn't aggressively check for SW updates in the background
+              setInterval(async () => {
+                // Skip if SW is currently installing
+                if (registration.installing) {
+                  return;
+                }
+
+                // Skip if offline
+                if (!navigator.onLine) {
+                  return;
+                }
+
+                // Skip if tab is not visible (background tab)
+                if (document.visibilityState !== 'visible') {
+                  return;
+                }
+
+                // Fetch SW to check availability before updating
+                const resp = await fetch(swUrl, {
+                  cache: 'no-store',
+                  headers: { 'cache-control': 'no-cache' },
+                });
+
+                if (resp.status === 200) {
+                  await registration.update();
+                }
+              }, 60 * 1000);
             },
           });
         });
