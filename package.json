@@ -14,15 +14,18 @@
     "setup": "pnpm --filter @gutenku/server run setup:books",
     "setup:reset": "pnpm --filter @gutenku/server run setup:books:reset",
     "extract": "pnpm --filter @gutenku/server extract",
-    "train": "pnpm --filter @gutenku/server train",
+    "mc:train": "pnpm --filter @gutenku/server mc:train",
+    "ml:train": "pnpm --filter @gutenku/server ml:train",
     "post": "pnpm --filter @gutenku/server post",
     "build": "pnpm --filter @gutenguess/shared build && pnpm -r --if-present --filter '!./private/**' run build",
     "prepare": "husky",
     "submodule:update": "./scripts/update-submodule.sh",
-    "setup:covers": "./scripts/setup-covers.sh"
+    "setup:covers": "./scripts/setup-covers.sh",
+    "depcruise": "depcruise packages --config"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^20.3.1",
+    "dependency-cruiser": "^17.3.6",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "oxfmt": "^0.24.0",

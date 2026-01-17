@@ -85,8 +85,8 @@ setup-reset:
 extract:
 	pnpm run extract
 
-train:
-	pnpm run train
+mc-train:
+	pnpm run mc:train
 
 # Clean up
 clean: docker-down
