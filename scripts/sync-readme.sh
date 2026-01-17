@@ -11,7 +11,7 @@ if git status | grep -qF daily_haiku_card.jpg; then
 
     description=$(cat assets/description.txt)
     escaped_desc=$(printf '%s\n' "$description" | sed 's/[&/\]/\\&/g')
-    sed -i "s/> \*\"[^\"]*\"\*/> *\"$escaped_desc\"*/" README.md
+    sed -i "s/> _\"[^\"]*\"_/> _\"$escaped_desc\"_/" README.md
 
     current_date=$(date +'%b %d, %Y')
     sed -i "s/📅 _[^_]*_/📅 _${current_date}_/" README.md
