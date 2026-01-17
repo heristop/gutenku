@@ -109,13 +109,6 @@ const navItems = computed(() => [
     transitionName: 'nav-icon-home',
     ariaLabel: 'nav.home',
   },
-  {
-    labelKey: 'nav.haikuLabel',
-    to: '/haiku',
-    icon: Leaf,
-    transitionName: 'nav-icon-haiku',
-    ariaLabel: 'nav.haiku',
-  },
   ...(GAME_ENABLED
     ? [
         {
@@ -127,6 +120,13 @@ const navItems = computed(() => [
         },
       ]
     : []),
+  {
+    labelKey: 'nav.haikuLabel',
+    to: '/haiku',
+    icon: Leaf,
+    transitionName: 'nav-icon-haiku',
+    ariaLabel: 'nav.haiku',
+  },
   {
     labelKey: 'nav.blogLabel',
     to: '/blog',
@@ -302,6 +302,7 @@ function handleClick(event: MouseEvent, to: string) {
 </template>
 
 <style lang="scss" scoped>
+/* stylelint-disable scss/operator-no-newline-after */
 .ink-nav {
   position: relative;
   display: flex;
@@ -309,6 +310,14 @@ function handleClick(event: MouseEvent, to: string) {
   align-items: center;
   gap: 1.25rem;
   padding: 1rem 0.5rem 1.25rem;
+  // Use native safe area when available (iOS Capacitor), fallback to env(), then 0
+  padding-top: calc(
+    var(
+        --native-safe-area-top,
+        var(--safe-area-inset-top, env(safe-area-inset-top, 0px))
+      ) +
+      1rem
+  );
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
 
@@ -316,6 +325,13 @@ function handleClick(event: MouseEvent, to: string) {
   @media (min-width: 375px) {
     gap: 1.5rem;
     padding: 1.25rem 1rem 1.5rem;
+    padding-top: calc(
+      var(
+          --native-safe-area-top,
+          var(--safe-area-inset-top, env(safe-area-inset-top, 0px))
+        ) +
+        1.25rem
+    );
     margin-bottom: 0.75rem;
   }
 
@@ -323,6 +339,13 @@ function handleClick(event: MouseEvent, to: string) {
   @media (min-width: 600px) {
     display: block;
     padding: 1.5rem 1rem 1.75rem;
+    padding-top: calc(
+      var(
+          --native-safe-area-top,
+          var(--safe-area-inset-top, env(safe-area-inset-top, 0px))
+        ) +
+        1.5rem
+    );
     margin-top: 1rem;
     margin-bottom: 1rem;
   }
