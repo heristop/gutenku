@@ -76,17 +76,21 @@ export const createApp = ViteSSG(
       loadFonts();
 
       // Register service worker with auto-reload on update
-      import('virtual:pwa-register').then(({ registerSW }) => {
-        registerSW({
-          immediate: true,
-          onNeedRefresh() {
-            globalThis.location.reload();
-          },
-          onOfflineReady() {
-            console.log('App ready to work offline');
-          },
+      // SSR guard ensures Rollup completely tree-shakes this during SSR builds
+      // (isClient alone isn't enough - Rollup still bundles the dynamic import)
+      if (!import.meta.env.SSR) {
+        import('virtual:pwa-register').then(({ registerSW }) => {
+          registerSW({
+            immediate: true,
+            onNeedRefresh() {
+              globalThis.location.reload();
+            },
+            onOfflineReady() {
+              console.log('App ready to work offline');
+            },
+          });
         });
-      });
+      }
     }
 
     // SSR: register no-op directive to prevent errors
