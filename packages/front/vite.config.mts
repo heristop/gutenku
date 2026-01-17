@@ -65,9 +65,9 @@ export default defineConfig(({ isSsrBuild }) => ({
       workbox: {
         skipWaiting: true,
         clientsClaim: true,
-        globPatterns: ['**/*.{js,css,html,ico,png,webp,woff2}'],
+        globPatterns: ['**/*.{js,css,ico,png,webp,woff2}'],
         globIgnores: ['**/bundle-stats.html'],
-        // Exclude SEO/static files from navigation fallback
+        navigateFallback: '/index.html',
         navigateFallbackDenylist: [
           /^\/sitemap\.xml$/,
           /^\/robots\.txt$/,
