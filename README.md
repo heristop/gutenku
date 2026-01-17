@@ -25,7 +25,7 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1768642580" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1768645133" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
