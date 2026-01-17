@@ -66,8 +66,14 @@ export const ITERATIVE_HAIKU_SUBSCRIPTION = gql`
     $iterations: Int!
     $theme: String
     $filter: String
+    $useAI: Boolean
   ) {
-    haikuGeneration(iterations: $iterations, theme: $theme, filter: $filter) {
+    haikuGeneration(
+      iterations: $iterations
+      theme: $theme
+      filter: $filter
+      useAI: $useAI
+    ) {
       currentIteration
       totalIterations
       bestScore

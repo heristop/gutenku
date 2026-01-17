@@ -36,7 +36,6 @@ const getPersistConfig = (): PersistenceOptions | false => {
     pick: [
       'optionDrawerOpened',
       'optionTheme',
-      'optionIterations',
       'stats',
       'cachedVersion',
       'cachedDailyHaiku',
@@ -357,6 +356,7 @@ export const useHaikuStore = defineStore(
         const variables = {
           iterations: optionIterations.value,
           theme: optionTheme.value,
+          useAI: optionUseAI.value,
         };
 
         await new Promise<void>((resolve, reject) => {
