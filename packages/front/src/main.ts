@@ -74,6 +74,19 @@ export const createApp = ViteSSG(
 
       // Load fonts on client
       loadFonts();
+
+      // Register service worker with auto-reload on update
+      import('virtual:pwa-register').then(({ registerSW }) => {
+        registerSW({
+          immediate: true,
+          onNeedRefresh() {
+            globalThis.location.reload();
+          },
+          onOfflineReady() {
+            console.log('App ready to work offline');
+          },
+        });
+      });
     }
 
     // SSR: register no-op directive to prevent errors
