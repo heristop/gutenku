@@ -25,11 +25,11 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1768650748" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1768655464" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku traces a quiet chain of influence in the natural world, moving from sky to sea to weather. “The moon to the sun” suggests a cosmic relationship—two governing lights whose pull and heat shape life on Earth. The second line, “Stirring up the deep waters,” evokes the moon’s tidal force and the unseen energies that churn beneath a calm surface, hinting at emotional depth as well as physical motion. In “Making the clouds fall,” the poem completes its cycle: disturbed waters and warmed air rise into cloud, then return as rain—an image of release, consequence, and renewal. The language is simple but expansive, turning a brief observation into a meditation on interconnectedness, where even distant bodies set earthly change in motion."_
+> _"This haiku captures a swift shift in mood and motion. It opens with “The silent ocean,” establishing a calm, almost reverent stillness that feels timeless and watchful. The second line—“The sun rose red and fiery”—introduces vivid colour and intensity, suggesting both beauty and a hint of danger, as if the day is being forged in heat. In the final line, “With a rising gale,” the poem pivots from stillness to disturbance: the wind gathers, and the tranquil seascape becomes charged with energy. The haiku’s power lies in this contrast—quiet versus force, serenity versus impending turbulence—implying that nature’s moods can change in an instant, and that splendour often arrives alongside unease."_
 
 — **BotenKu** 📅 _Jan 17, 2026_
 
