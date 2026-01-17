@@ -175,12 +175,20 @@ function handleIosModalClose() {
   }
 }
 
-:global([data-theme='dark']) .pwa-install-banner {
+[data-theme='dark'] .pwa-install-banner {
   background: oklch(0.18 0.015 70 / 0.92);
   border-top-color: oklch(0.35 0.02 75 / 0.4);
   box-shadow:
     0 -4px 16px oklch(0 0 0 / 0.3),
     0 -1px 4px oklch(0 0 0 / 0.2);
+
+  .pwa-install-banner__title {
+    color: oklch(0.92 0.02 70);
+  }
+
+  .pwa-install-banner__subtitle {
+    color: oklch(0.7 0.02 70);
+  }
 }
 
 .pwa-install-banner__content {
@@ -274,7 +282,7 @@ function handleIosModalClose() {
   }
 }
 
-:global([data-theme='dark']) .pwa-install-banner__close:hover {
+[data-theme='dark'] .pwa-install-banner__close:hover {
   background: oklch(1 0 0 / 0.1);
 }
 
