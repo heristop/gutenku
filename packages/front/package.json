@@ -14,9 +14,24 @@
     "lint": "oxlint --fix",
     "lint:css": "stylelint 'src/**/*.{vue,scss,css}'",
     "typecheck": "vue-tsc --noEmit",
-    "lighthouse": "vite build && lhci autorun"
+    "lighthouse": "vite build && lhci autorun",
+    "cap:build": "pnpm build && npx cap sync",
+    "cap:ios": "npx cap open ios",
+    "cap:android": "npx cap open android",
+    "cap:sync": "npx cap sync",
+    "generate:assets": "npx tsx scripts/generate-capacitor-assets.ts",
+    "cap:assets": "pnpm generate:assets && npx capacitor-assets generate"
   },
   "dependencies": {
+    "@capacitor-community/safe-area": "^8.0.1",
+    "@capacitor/android": "^8.0.1",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/cli": "^8.0.1",
+    "@capacitor/core": "^8.0.1",
+    "@capacitor/ios": "^8.0.1",
+    "@capacitor/share": "^8.0.0",
+    "@capacitor/splash-screen": "^8.0.0",
+    "@capacitor/status-bar": "^8.0.0",
     "@fingerprintjs/botd": "^2.0.0",
     "@gutenku/shared": "workspace:*",
     "@unhead/vue": "^2.1.2",
@@ -37,6 +52,7 @@
   },
   "devDependencies": {
     "@babel/types": "^7.28.6",
+    "@capacitor/assets": "^3.0.5",
     "@intlify/unplugin-vue-i18n": "^11.0.3",
     "@lhci/cli": "^0.15.1",
     "@types/node": "^25.0.9",

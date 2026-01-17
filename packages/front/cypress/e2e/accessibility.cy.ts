@@ -32,7 +32,9 @@ describe('WCAG 2.2 Accessibility Tests', () => {
 
     it('has no accessibility violations after content loads', () => {
       // Wait for page content to stabilize (WebSocket-based data)
-      cy.wait(1500);
+      cy.get('[data-cy=fetch-btn]', { timeout: 30000 })
+        .should('exist')
+        .and('not.be.disabled');
       cy.checkA11y(null, a11yOptions);
     });
   });
