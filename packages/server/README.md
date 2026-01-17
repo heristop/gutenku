@@ -38,7 +38,7 @@ cp .env.example .env
 | `make server`      | Start only API server            |
 | `make setup`       | Import books                     |
 | `make setup-reset` | Reset and reimport all books     |
-| `make train`       | Train Markov chain model         |
+| `make mc-train`    | Train Markov chain model         |
 | `make test`        | Run all tests                    |
 | `make lint`        | Run linters                      |
 
@@ -49,6 +49,7 @@ cp .env.example .env
 - MongoDB
 - Tsyringe (DI)
 - Natural Language Processing (NLP)
+- TensorFlow.js (Neural embeddings)
 - OpenAI
 
 ## Architecture (DDD)
@@ -120,3 +121,27 @@ class BookService {
 │  Mongo repositories, CanvasService, OpenAIClient            │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+### Neural Quality Learning
+
+GutenKu includes a self-supervised neural network that learns haiku quality from evolutionary outcomes:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  GA Evolution produces training data automatically:         │
+│                                                             │
+│  Generation 1 → 150 candidates                              │
+│       ↓ Selection pressure                                  │
+│  Generation 30 → Elite survivors (labeled "good")           │
+│       ↓                                                     │
+│  Early deaths → Labeled "weak"                              │
+│                                                             │
+│  Neural network learns: "What patterns do survivors share?" │
+└─────────────────────────────────────────────────────────────┘
+```
+
+The network discovers patterns that rule-based metrics miss:
+
+- Character-level rhythms and textures
+- Non-linear interactions between metrics
+- Subtle qualities that make haiku "feel right"

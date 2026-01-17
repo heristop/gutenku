@@ -200,7 +200,7 @@ const typeDefs = `#graphql
     }
 
     type Subscription {
-        haikuGeneration(iterations: Int!, theme: String, filter: String): HaikuProgress!
+        haikuGeneration(iterations: Int!, theme: String, filter: String, useAI: Boolean): HaikuProgress!
     }
 
     type SubscriptionResult {
