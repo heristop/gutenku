@@ -14,7 +14,7 @@ if git status | grep -qF daily_haiku_card.jpg; then
     sed -i "s/> \*\"[^\"]*\"\*/> *\"$escaped_desc\"*/" README.md
 
     current_date=$(date +'%b %d, %Y')
-    sed -i "s/📅 \*[^*]*\*/📅 *${current_date}*/" README.md
+    sed -i "s/📅 _[^_]*_/📅 _${current_date}_/" README.md
 
     git add assets README.md
     git commit -m "docs(readme): updated daily haiku card"
