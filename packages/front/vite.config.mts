@@ -67,15 +67,7 @@ export default defineConfig(({ isSsrBuild }) => ({
         clientsClaim: true,
         globPatterns: ['**/*.{js,css,ico,png,webp,woff2}'],
         globIgnores: ['**/bundle-stats.html'],
-        navigateFallback: '/index.html',
-        navigateFallbackDenylist: [
-          /^\/sitemap\.xml$/,
-          /^\/robots\.txt$/,
-          /^\/llms\.txt$/,
-          /^\/BingSiteAuth\.xml$/,
-          /^\/browserconfig\.xml$/,
-          /^\/manifest\.json$/,
-        ],
+        navigateFallback: undefined,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.webp$/,
