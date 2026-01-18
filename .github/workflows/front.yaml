@@ -44,6 +44,9 @@ jobs:
       - name: Build
         run: pnpm --filter @gutenku/front build
 
+      - name: Unit tests
+        run: pnpm --filter @gutenku/front test:unit
+
       - name: Typecheck
         run: pnpm --filter @gutenku/front typecheck
 
