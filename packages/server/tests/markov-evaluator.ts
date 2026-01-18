@@ -9,7 +9,16 @@ vi.mock('node:fs/promises', () => {
   });
   const readFile = vi.fn(
     async (_path: string) =>
-      data ?? JSON.stringify({ bigrams: {}, trigrams: {}, vocabulary: [] }),
+      data ??
+      JSON.stringify({
+        bigrams: [],
+        trigrams: [],
+        bigramTotals: [],
+        trigramTotals: [],
+        totalBigrams: 0,
+        totalTrigrams: 0,
+        vocabulary: [],
+      }),
   );
   return {
     default: { stat, writeFile, readFile },

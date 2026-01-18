@@ -23,8 +23,12 @@ vi.mock('node:fs/promises', () => ({
     stat: vi.fn().mockResolvedValue({ size: 1000 }),
     readFile: vi.fn().mockResolvedValue(
       JSON.stringify({
-        bigrams: {},
-        trigrams: {},
+        bigrams: [],
+        trigrams: [],
+        bigramTotals: [],
+        trigramTotals: [],
+        totalBigrams: 0,
+        totalTrigrams: 0,
         vocabulary: [],
       }),
     ),
@@ -462,6 +466,9 @@ describe('GenerateHaikuIterativeHandler', () => {
   });
 
   it('enriches final haiku with OpenAI metadata when useAI is true', async () => {
+    const originalKey = process.env.OPENAI_API_KEY;
+    process.env.OPENAI_API_KEY = 'test-key';
+
     const seedHaiku = createMockHaiku(0.5);
     mockHaikuGenerator.buildFromDb.mockResolvedValue(seedHaiku);
 
@@ -473,6 +480,8 @@ describe('GenerateHaikuIterativeHandler', () => {
 
     expect(mockOpenAIGenerator.configure).toHaveBeenCalled();
     expect(mockOpenAIGenerator.enrichHaikuWithMetadata).toHaveBeenCalled();
+
+    process.env.OPENAI_API_KEY = originalKey;
   });
 
   it('does not call OpenAI when useAI is false', async () => {
