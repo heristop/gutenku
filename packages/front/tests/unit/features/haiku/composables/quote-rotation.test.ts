@@ -10,16 +10,13 @@ describe('useQuoteRotation', () => {
   });
 
   it('should be importable', async () => {
-    const module = await import(
-      '@/features/haiku/composables/quote-rotation'
-    );
+    const module = await import('@/features/haiku/composables/quote-rotation');
     expect(module.useQuoteRotation).toBeDefined();
   });
 
   it('should expose currentIndex, showQuote and start', async () => {
-    const { useQuoteRotation } = await import(
-      '@/features/haiku/composables/quote-rotation'
-    );
+    const { useQuoteRotation } =
+      await import('@/features/haiku/composables/quote-rotation');
 
     const quotes = ['Quote 1', 'Quote 2', 'Quote 3'];
     const result = useQuoteRotation(quotes);
@@ -30,9 +27,8 @@ describe('useQuoteRotation', () => {
   });
 
   it('should start with currentIndex at 0', async () => {
-    const { useQuoteRotation } = await import(
-      '@/features/haiku/composables/quote-rotation'
-    );
+    const { useQuoteRotation } =
+      await import('@/features/haiku/composables/quote-rotation');
 
     const quotes = ['Quote 1', 'Quote 2'];
     const { currentIndex } = useQuoteRotation(quotes);
@@ -41,20 +37,18 @@ describe('useQuoteRotation', () => {
   });
 
   it('should start with showQuote as false', async () => {
-    const { useQuoteRotation } = await import(
-      '@/features/haiku/composables/quote-rotation'
-    );
+    const { useQuoteRotation } =
+      await import('@/features/haiku/composables/quote-rotation');
 
     const quotes = ['Quote 1', 'Quote 2'];
     const { showQuote } = useQuoteRotation(quotes);
 
-    expect(showQuote.value).toBe(false);
+    expect(showQuote.value).toBeFalsy();
   });
 
   it('should accept options', async () => {
-    const { useQuoteRotation } = await import(
-      '@/features/haiku/composables/quote-rotation'
-    );
+    const { useQuoteRotation } =
+      await import('@/features/haiku/composables/quote-rotation');
 
     const quotes = ['Quote 1', 'Quote 2'];
     const onRotate = vi.fn();

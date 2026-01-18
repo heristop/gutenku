@@ -31,7 +31,7 @@ describe('useToast', () => {
     expect(toasts.value).toHaveLength(1);
     expect(toasts.value[0].message).toBe('Error message');
     expect(toasts.value[0].type).toBe('error');
-    expect(toasts.value[0].closable).toBe(true);
+    expect(toasts.value[0].closable).toBeTruthy();
   });
 
   it('should add an info toast', async () => {
@@ -146,7 +146,7 @@ describe('useToast', () => {
 
     success('Closable', { closable: true });
 
-    expect(toasts.value[0].closable).toBe(true);
+    expect(toasts.value[0].closable).toBeTruthy();
   });
 
   it('should handle removing non-existent toast gracefully', async () => {

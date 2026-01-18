@@ -25,7 +25,7 @@ describe('useArticles', () => {
     const { articles } = useArticles();
 
     expect(articles).toBeDefined();
-    expect(Array.isArray(articles.value)).toBe(true);
+    expect(Array.isArray(articles.value)).toBeTruthy();
   });
 
   it('should expose formatDate function', async () => {
@@ -105,7 +105,7 @@ describe('useArticle', () => {
     const { loading } = useArticle('test-slug');
 
     expect(loading).toBeDefined();
-    expect(loading.value).toBe(true); // Starts loading
+    expect(loading.value).toBeTruthy(); // Starts loading
   });
 
   it('should expose notFound computed', async () => {
@@ -143,6 +143,6 @@ describe('useArticle', () => {
     const { showContent } = useArticle('test-slug');
 
     expect(showContent).toBeDefined();
-    expect(showContent.value).toBe(false); // Starts hidden
+    expect(showContent.value).toBeFalsy(); // Starts hidden
   });
 });

@@ -83,10 +83,10 @@ vi.stubGlobal(
 // Mock navigator.clipboard
 vi.stubGlobal('navigator', {
   clipboard: {
-    writeText: vi.fn().mockResolvedValue(undefined),
+    writeText: vi.fn().mockResolvedValue(),
     readText: vi.fn().mockResolvedValue(''),
   },
-  share: vi.fn().mockResolvedValue(undefined),
+  share: vi.fn().mockResolvedValue(),
   canShare: vi.fn().mockReturnValue(true),
   vibrate: vi.fn().mockReturnValue(true),
   userAgent: 'vitest',
@@ -96,7 +96,7 @@ vi.stubGlobal('navigator', {
 vi.stubGlobal(
   'Audio',
   vi.fn().mockImplementation(() => ({
-    play: vi.fn().mockResolvedValue(undefined),
+    play: vi.fn().mockResolvedValue(),
     pause: vi.fn(),
     load: vi.fn(),
     currentTime: 0,

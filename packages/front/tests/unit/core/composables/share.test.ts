@@ -35,7 +35,7 @@ describe('useShare', () => {
 
   it('should expose shared ref', () => {
     const { shared } = useShare();
-    expect(shared.value).toBe(false);
+    expect(shared.value).toBeFalsy();
   });
 
   it('should expose copied ref', () => {
@@ -92,7 +92,7 @@ describe('useShare', () => {
     const { share } = useShare();
     const result = await share(mockHaiku);
 
-    expect(result).toBe(true);
+    expect(result).toBeTruthy();
 
     Object.defineProperty(navigator, 'share', {
       value: originalShare,
@@ -104,7 +104,7 @@ describe('useShare', () => {
     const { share } = useShare();
     const result = await share(mockHaiku);
 
-    expect(result).toBe(true);
+    expect(result).toBeTruthy();
   });
 
   it('should handle empty verses', () => {

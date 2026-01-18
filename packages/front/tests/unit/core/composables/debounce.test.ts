@@ -53,13 +53,13 @@ describe('useDebouncedCallback', () => {
     const callback = vi.fn();
     const { debouncedFn, isPending } = useDebouncedCallback(callback, 100);
 
-    expect(isPending.value).toBe(false);
+    expect(isPending.value).toBeFalsy();
 
     debouncedFn();
-    expect(isPending.value).toBe(true);
+    expect(isPending.value).toBeTruthy();
 
     vi.advanceTimersByTime(100);
-    expect(isPending.value).toBe(false);
+    expect(isPending.value).toBeFalsy();
   });
 
   it('should reset timer on subsequent calls', () => {

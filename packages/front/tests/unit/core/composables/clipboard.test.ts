@@ -15,7 +15,7 @@ describe('useClipboard', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockCopy.mockReset();
-    mockCopy.mockResolvedValue(undefined);
+    mockCopy.mockResolvedValue();
     mockCopied.value = false;
   });
 
@@ -28,13 +28,13 @@ describe('useClipboard', () => {
   });
 
   it('should return true on successful copy', async () => {
-    mockCopy.mockResolvedValue(undefined);
+    mockCopy.mockResolvedValue();
 
     const { useClipboard } = await import('@/core/composables/clipboard');
     const { copy } = useClipboard();
     const result = await copy('test text');
 
-    expect(result).toBe(true);
+    expect(result).toBeTruthy();
     expect(mockCopy).toHaveBeenCalledWith('test text');
   });
 
@@ -45,7 +45,7 @@ describe('useClipboard', () => {
     const { copy } = useClipboard();
     const result = await copy('test text');
 
-    expect(result).toBe(false);
+    expect(result).toBeFalsy();
   });
 
   it('should use custom reset delay', async () => {

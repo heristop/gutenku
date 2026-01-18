@@ -15,12 +15,12 @@ describe('useBotDetection', () => {
 
   it('should start with isBot as false', () => {
     const { isBot } = useBotDetection();
-    expect(isBot.value).toBe(false);
+    expect(isBot.value).toBeFalsy();
   });
 
   it('should start with isLoading as false', () => {
     const { isLoading } = useBotDetection();
-    expect(isLoading.value).toBe(false);
+    expect(isLoading.value).toBeFalsy();
   });
 
   it('should expose detectBot function', () => {
@@ -31,14 +31,14 @@ describe('useBotDetection', () => {
   it('should set isLoading during detection', async () => {
     const { isLoading, detectBot } = useBotDetection();
 
-    expect(isLoading.value).toBe(false);
+    expect(isLoading.value).toBeFalsy();
 
     const detectPromise = detectBot();
 
     // Note: Due to async nature, isLoading may already be true
     await detectPromise;
 
-    expect(isLoading.value).toBe(false);
+    expect(isLoading.value).toBeFalsy();
   });
 
   it('should detect non-bot correctly', async () => {
@@ -46,7 +46,7 @@ describe('useBotDetection', () => {
 
     await detectBot();
 
-    expect(isBot.value).toBe(false);
+    expect(isBot.value).toBeFalsy();
   });
 
   it('should detect bot correctly', async () => {
@@ -59,7 +59,7 @@ describe('useBotDetection', () => {
 
     await detectBot();
 
-    expect(isBot.value).toBe(true);
+    expect(isBot.value).toBeTruthy();
   });
 
   it('should handle detection errors gracefully', async () => {
@@ -72,7 +72,7 @@ describe('useBotDetection', () => {
 
     await detectBot();
 
-    expect(isBot.value).toBe(false);
+    expect(isBot.value).toBeFalsy();
   });
 
   it('should not run detection twice simultaneously', async () => {

@@ -41,21 +41,21 @@ describe('useHaikuStore', () => {
     const { useHaikuStore } = await import('@/features/haiku/store/haiku');
     const store = useHaikuStore();
 
-    expect(store.loading).toBe(false);
-    expect(store.firstLoaded).toBe(false);
-    expect(store.isDailyHaiku).toBe(false);
+    expect(store.loading).toBeFalsy();
+    expect(store.firstLoaded).toBeFalsy();
+    expect(store.isDailyHaiku).toBeFalsy();
     expect(store.error).toBe('');
-    expect(store.isGenerating).toBe(false);
+    expect(store.isGenerating).toBeFalsy();
   });
 
   it('should have default option values', async () => {
     const { useHaikuStore } = await import('@/features/haiku/store/haiku');
     const store = useHaikuStore();
 
-    expect(store.optionDrawerOpened).toBe(false);
-    expect(store.optionUseCache).toBe(true);
-    expect(store.optionUseAI).toBe(false);
-    expect(store.optionImageAI).toBe(false);
+    expect(store.optionDrawerOpened).toBeFalsy();
+    expect(store.optionUseCache).toBeTruthy();
+    expect(store.optionUseAI).toBeFalsy();
+    expect(store.optionImageAI).toBeFalsy();
     expect(store.optionTheme).toBe('random');
     expect(store.optionIterations).toBe(10);
   });
@@ -76,10 +76,10 @@ describe('useHaikuStore', () => {
     const { useHaikuStore } = await import('@/features/haiku/store/haiku');
     const store = useHaikuStore();
 
-    expect(store.networkError).toBe(false);
-    expect(store.notificationError).toBe(false);
-    expect(store.shouldUseCache).toBe(true);
-    expect(store.shouldUseDaily).toBe(true);
+    expect(store.networkError).toBeFalsy();
+    expect(store.notificationError).toBeFalsy();
+    expect(store.shouldUseCache).toBeTruthy();
+    expect(store.shouldUseDaily).toBeTruthy();
     expect(store.avgExecutionTime).toBe(0);
   });
 
@@ -87,8 +87,8 @@ describe('useHaikuStore', () => {
     const { useHaikuStore } = await import('@/features/haiku/store/haiku');
     const store = useHaikuStore();
 
-    expect(store.canGoBack).toBe(false);
-    expect(store.canGoForward).toBe(false);
+    expect(store.canGoBack).toBeFalsy();
+    expect(store.canGoForward).toBeFalsy();
     expect(store.historyLength).toBe(0);
     expect(store.historyPosition).toBe(0);
   });
@@ -98,7 +98,7 @@ describe('useHaikuStore', () => {
     const store = useHaikuStore();
 
     expect(store.themeOptions).toBeDefined();
-    expect(Array.isArray(store.themeOptions)).toBe(true);
+    expect(Array.isArray(store.themeOptions)).toBeTruthy();
     expect(store.themeOptions.length).toBeGreaterThan(0);
   });
 
@@ -107,7 +107,7 @@ describe('useHaikuStore', () => {
     const store = useHaikuStore();
 
     expect(typeof store.goBack).toBe('function');
-    expect(store.goBack()).toBe(false); // No history
+    expect(store.goBack()).toBeFalsy(); // No history
   });
 
   it('should have goForward function', async () => {
@@ -115,7 +115,7 @@ describe('useHaikuStore', () => {
     const store = useHaikuStore();
 
     expect(typeof store.goForward).toBe('function');
-    expect(store.goForward()).toBe(false); // No history
+    expect(store.goForward()).toBeFalsy(); // No history
   });
 
   it('should have fetchNewHaiku function', async () => {
@@ -149,7 +149,7 @@ describe('useHaikuStore', () => {
     const store = useHaikuStore();
 
     expect(store.imageAIThemes).toBeDefined();
-    expect(Array.isArray(store.imageAIThemes)).toBe(true);
+    expect(Array.isArray(store.imageAIThemes)).toBeTruthy();
     expect(store.imageAIThemes).toContain('nihonga');
     expect(store.imageAIThemes).toContain('sumie');
   });

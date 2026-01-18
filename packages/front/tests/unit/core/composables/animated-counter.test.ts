@@ -32,7 +32,7 @@ describe('useAnimatedCounter', () => {
     // Simulate animation frame
     vi.advanceTimersByTime(16);
 
-    expect(isAnimating.value).toBe(true);
+    expect(isAnimating.value).toBeTruthy();
     expect(count.value).toBeGreaterThanOrEqual(0);
 
     // Complete animation
@@ -99,20 +99,19 @@ describe('useAnimatedCounter', () => {
       initialDelay: 0,
     });
 
-    expect(isAnimating.value).toBe(false);
+    expect(isAnimating.value).toBeFalsy();
 
     target.value = 100;
     await nextTick();
     vi.advanceTimersByTime(16);
 
-    expect(isAnimating.value).toBe(true);
+    expect(isAnimating.value).toBeTruthy();
 
     vi.advanceTimersByTime(100);
   });
 
   it('should handle initial delay', async () => {
     const target = ref(0);
-    const callback = vi.fn();
     const { count } = useAnimatedCounter(target, {
       startValue: 0,
       duration: 100,
@@ -135,7 +134,7 @@ describe('useAnimatedCounter', () => {
     const { count, isAnimating, animate, stop } = useAnimatedCounter(target);
 
     expect(count.value).toBe(0);
-    expect(isAnimating.value).toBe(false);
+    expect(isAnimating.value).toBeFalsy();
     expect(typeof animate).toBe('function');
     expect(typeof stop).toBe('function');
   });

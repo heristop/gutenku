@@ -27,7 +27,7 @@ describe('useInView', () => {
     const targetRef = ref(null);
     const { isInView } = useInView(targetRef);
 
-    expect(isInView.value).toBe(false);
+    expect(isInView.value).toBeFalsy();
   });
 
   it('should accept options', async () => {

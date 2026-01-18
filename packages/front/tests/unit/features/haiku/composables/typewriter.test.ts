@@ -15,9 +15,8 @@ describe('useTypewriter', () => {
   });
 
   it('should expose displayText, showCursor and start', async () => {
-    const { useTypewriter } = await import(
-      '@/features/haiku/composables/typewriter'
-    );
+    const { useTypewriter } =
+      await import('@/features/haiku/composables/typewriter');
 
     const result = useTypewriter('Hello');
 
@@ -27,9 +26,8 @@ describe('useTypewriter', () => {
   });
 
   it('should start with empty displayText', async () => {
-    const { useTypewriter } = await import(
-      '@/features/haiku/composables/typewriter'
-    );
+    const { useTypewriter } =
+      await import('@/features/haiku/composables/typewriter');
 
     const { displayText } = useTypewriter('Hello');
 
@@ -37,19 +35,17 @@ describe('useTypewriter', () => {
   });
 
   it('should start with cursor showing', async () => {
-    const { useTypewriter } = await import(
-      '@/features/haiku/composables/typewriter'
-    );
+    const { useTypewriter } =
+      await import('@/features/haiku/composables/typewriter');
 
     const { showCursor } = useTypewriter('Hello');
 
-    expect(showCursor.value).toBe(true);
+    expect(showCursor.value).toBeTruthy();
   });
 
   it('should accept options', async () => {
-    const { useTypewriter } = await import(
-      '@/features/haiku/composables/typewriter'
-    );
+    const { useTypewriter } =
+      await import('@/features/haiku/composables/typewriter');
 
     const onComplete = vi.fn();
 

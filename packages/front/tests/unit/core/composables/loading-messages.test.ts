@@ -1,7 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// Note: useLoadingMessages uses onMounted/onUnmounted which require component context
-// We test the core logic by calling the function directly and checking initial state
+// Mock Vue lifecycle hooks at top level
+vi.mock('vue', async () => {
+  const actual = await vi.importActual('vue');
+  return {
+    ...actual,
+    onMounted: vi.fn((cb) => cb()),
+    onUnmounted: vi.fn(),
+  };
+});
 
 describe('useLoadingMessages', () => {
   beforeEach(() => {
@@ -13,19 +20,8 @@ describe('useLoadingMessages', () => {
   });
 
   it('should return a message ref', async () => {
-    // Mock Vue lifecycle hooks
-    vi.mock('vue', async () => {
-      const actual = await vi.importActual('vue');
-      return {
-        ...actual,
-        onMounted: vi.fn((cb) => cb()),
-        onUnmounted: vi.fn(),
-      };
-    });
-
-    const { useLoadingMessages } = await import(
-      '@/core/composables/loading-messages'
-    );
+    const { useLoadingMessages } =
+      await import('@/core/composables/loading-messages');
     const { message } = useLoadingMessages();
 
     expect(message).toBeDefined();
@@ -34,19 +30,9 @@ describe('useLoadingMessages', () => {
   });
 
   it('should accept custom messages', async () => {
-    vi.mock('vue', async () => {
-      const actual = await vi.importActual('vue');
-      return {
-        ...actual,
-        onMounted: vi.fn((cb) => cb()),
-        onUnmounted: vi.fn(),
-      };
-    });
-
     const { Sparkles } = await import('lucide-vue-next');
-    const { useLoadingMessages } = await import(
-      '@/core/composables/loading-messages'
-    );
+    const { useLoadingMessages } =
+      await import('@/core/composables/loading-messages');
 
     const customMessages = [
       { icon: Sparkles, text: 'Custom message 1' },
@@ -59,38 +45,16 @@ describe('useLoadingMessages', () => {
   });
 
   it('should accept custom interval', async () => {
-    vi.mock('vue', async () => {
-      const actual = await vi.importActual('vue');
-      return {
-        ...actual,
-        onMounted: vi.fn((cb) => cb()),
-        onUnmounted: vi.fn(),
-      };
-    });
-
-    const { useLoadingMessages } = await import(
-      '@/core/composables/loading-messages'
-    );
+    const { useLoadingMessages } =
+      await import('@/core/composables/loading-messages');
 
     // Should not throw with custom interval
-    expect(() =>
-      useLoadingMessages({ intervalMs: 1000 }),
-    ).not.toThrow();
+    expect(() => useLoadingMessages({ intervalMs: 1000 })).not.toThrow();
   });
 
   it('should accept context option', async () => {
-    vi.mock('vue', async () => {
-      const actual = await vi.importActual('vue');
-      return {
-        ...actual,
-        onMounted: vi.fn((cb) => cb()),
-        onUnmounted: vi.fn(),
-      };
-    });
-
-    const { useLoadingMessages } = await import(
-      '@/core/composables/loading-messages'
-    );
+    const { useLoadingMessages } =
+      await import('@/core/composables/loading-messages');
 
     const { message } = useLoadingMessages({ context: 'craft' });
 
@@ -98,18 +62,8 @@ describe('useLoadingMessages', () => {
   });
 
   it('should use default context when not specified', async () => {
-    vi.mock('vue', async () => {
-      const actual = await vi.importActual('vue');
-      return {
-        ...actual,
-        onMounted: vi.fn((cb) => cb()),
-        onUnmounted: vi.fn(),
-      };
-    });
-
-    const { useLoadingMessages } = await import(
-      '@/core/composables/loading-messages'
-    );
+    const { useLoadingMessages } =
+      await import('@/core/composables/loading-messages');
 
     const { message } = useLoadingMessages();
 

@@ -3,11 +3,9 @@ import { useScrollLock } from '@/core/composables/scroll-lock';
 
 describe('useScrollLock', () => {
   let originalScrollY: number;
-  let originalBodyStyle: CSSStyleDeclaration;
 
   beforeEach(() => {
     originalScrollY = globalThis.scrollY;
-    originalBodyStyle = document.body.style;
 
     // Mock scrollY
     Object.defineProperty(globalThis, 'scrollY', {
@@ -31,7 +29,7 @@ describe('useScrollLock', () => {
 
   it('should start unlocked', () => {
     const { isLocked } = useScrollLock();
-    expect(isLocked.value).toBe(false);
+    expect(isLocked.value).toBeFalsy();
   });
 
   it('should lock scroll', () => {
@@ -39,7 +37,7 @@ describe('useScrollLock', () => {
 
     lock();
 
-    expect(isLocked.value).toBe(true);
+    expect(isLocked.value).toBeTruthy();
     expect(document.body.style.position).toBe('fixed');
     expect(document.body.style.top).toBe('-100px');
     expect(document.body.style.overflow).toBe('hidden');
@@ -49,11 +47,11 @@ describe('useScrollLock', () => {
     const { isLocked, lock, unlock } = useScrollLock();
 
     lock();
-    expect(isLocked.value).toBe(true);
+    expect(isLocked.value).toBeTruthy();
 
     unlock();
 
-    expect(isLocked.value).toBe(false);
+    expect(isLocked.value).toBeFalsy();
     expect(document.body.style.position).toBe('');
     expect(document.body.style.top).toBe('');
     expect(document.body.style.overflow).toBe('');
@@ -66,7 +64,7 @@ describe('useScrollLock', () => {
     lock();
     lock();
 
-    expect(isLocked.value).toBe(true);
+    expect(isLocked.value).toBeTruthy();
   });
 
   it('should not double-unlock', () => {
@@ -76,7 +74,7 @@ describe('useScrollLock', () => {
     unlock();
     unlock();
 
-    expect(isLocked.value).toBe(false);
+    expect(isLocked.value).toBeFalsy();
     expect(globalThis.scrollTo).toHaveBeenCalledTimes(1);
   });
 
@@ -85,7 +83,7 @@ describe('useScrollLock', () => {
 
     unlock();
 
-    expect(isLocked.value).toBe(false);
+    expect(isLocked.value).toBeFalsy();
     expect(globalThis.scrollTo).not.toHaveBeenCalled();
   });
 

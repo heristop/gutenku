@@ -13,61 +13,55 @@ describe('useAccessibility', () => {
   });
 
   it('should start with dyslexia disabled by default', async () => {
-    const { useAccessibility } = await import(
-      '@/core/composables/accessibility'
-    );
+    const { useAccessibility } =
+      await import('@/core/composables/accessibility');
     const { dyslexiaEnabled } = useAccessibility();
-    expect(dyslexiaEnabled.value).toBe(false);
+    expect(dyslexiaEnabled.value).toBeFalsy();
   });
 
   it('should expose toggle function', async () => {
-    const { useAccessibility } = await import(
-      '@/core/composables/accessibility'
-    );
+    const { useAccessibility } =
+      await import('@/core/composables/accessibility');
     const { toggleDyslexia } = useAccessibility();
     expect(typeof toggleDyslexia).toBe('function');
   });
 
   it('should expose setDyslexia function', async () => {
-    const { useAccessibility } = await import(
-      '@/core/composables/accessibility'
-    );
+    const { useAccessibility } =
+      await import('@/core/composables/accessibility');
     const { setDyslexia } = useAccessibility();
     expect(typeof setDyslexia).toBe('function');
   });
 
   it('should toggle dyslexia mode', async () => {
-    const { useAccessibility } = await import(
-      '@/core/composables/accessibility'
-    );
+    const { useAccessibility } =
+      await import('@/core/composables/accessibility');
     const { dyslexiaEnabled, toggleDyslexia } = useAccessibility();
 
-    expect(dyslexiaEnabled.value).toBe(false);
+    expect(dyslexiaEnabled.value).toBeFalsy();
 
     toggleDyslexia();
-    expect(dyslexiaEnabled.value).toBe(true);
+    expect(dyslexiaEnabled.value).toBeTruthy();
 
     toggleDyslexia();
-    expect(dyslexiaEnabled.value).toBe(false);
+    expect(dyslexiaEnabled.value).toBeFalsy();
   });
 
   it('should set dyslexia mode directly', async () => {
-    const { useAccessibility } = await import(
-      '@/core/composables/accessibility'
-    );
+    const { useAccessibility } =
+      await import('@/core/composables/accessibility');
     const { dyslexiaEnabled, setDyslexia } = useAccessibility();
 
     setDyslexia(true);
-    expect(dyslexiaEnabled.value).toBe(true);
+    expect(dyslexiaEnabled.value).toBeTruthy();
 
     setDyslexia(false);
-    expect(dyslexiaEnabled.value).toBe(false);
+    expect(dyslexiaEnabled.value).toBeFalsy();
   });
 
   it('should persist preference to localStorage', async () => {
-    const { useAccessibility } = await import(
-      '@/core/composables/accessibility'
-    );
+    const { useAccessibility } =
+      await import('@/core/composables/accessibility');
     const { setDyslexia } = useAccessibility();
 
     setDyslexia(true);
@@ -80,9 +74,8 @@ describe('useAccessibility', () => {
     localStorage.setItem('gutenku-dyslexia-enabled', 'true');
 
     vi.resetModules();
-    const { useAccessibility } = await import(
-      '@/core/composables/accessibility'
-    );
+    const { useAccessibility } =
+      await import('@/core/composables/accessibility');
     const { dyslexiaEnabled } = useAccessibility();
 
     // Should read from localStorage on init
@@ -90,9 +83,8 @@ describe('useAccessibility', () => {
   });
 
   it('should set data-dyslexia attribute on document', async () => {
-    const { useAccessibility } = await import(
-      '@/core/composables/accessibility'
-    );
+    const { useAccessibility } =
+      await import('@/core/composables/accessibility');
     const { setDyslexia } = useAccessibility();
 
     setDyslexia(true);
