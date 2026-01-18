@@ -18,7 +18,7 @@
     "ga:benchmark": "tsx src/cli/ga-benchmark.ts",
     "ml:train": "tsx src/cli/ml-train.ts",
     "ml:collect": "bash scripts/collect-training-data.sh",
-    "mc:train": "NODE_OPTIONS='--expose-gc' tsx src/cli/markov-train.ts",
+    "mc:train": "tsx src/cli/markov-train.ts",
     "fetch:classics": "tsx src/cli/fetch-gutenberg-classics.ts",
     "post": "tsx src/cli/post-haiku.ts",
     "test": "vitest run",
