@@ -55,4 +55,13 @@
       <image:loc>https://gutenku.xyz/article/article-header.webp</image:loc>
     </image:image>
   </url>
+  <url>
+    <loc>https://gutenku.xyz/blog/gutenku-technical-deep-dive</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://gutenku.xyz/article/article-algorithmic.webp</image:loc>
+    </image:image>
+  </url>
 </urlset>

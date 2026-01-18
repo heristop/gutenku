@@ -1,10 +1,10 @@
 ---
-description: A Wordle-inspired literary game where you guess which classic book inspired today's AI-generated haiku. One guess per day, same challenge for everyone.
+description: A Wordle-inspired literary game where you guess which classic book inspired today's haiku. One guess per day, same challenge for everyone.
 ---
 
-# GutenGuess: A Daily Literary Puzzle
+# GutenGuess: The Daily Literary Puzzle
 
-_Can you outsmart the algorithm?_
+_Can you recognize the book?_
 
 ![GutenGuess - The daily literary puzzle game](/article/gutenguess-capture.webp)
 
@@ -14,7 +14,7 @@ _Can you outsmart the algorithm?_
 
 Your mission: **identify which classic book inspired today's haiku.**
 
-It's the ultimate test - can you recognize literature from algorithmic fragments?
+It's the ultimate test — can you recognize literature from poetic fragments?
 
 ## 🎯 How to Play
 
@@ -25,7 +25,7 @@ It's the ultimate test - can you recognize literature from algorithmic fragments
 
 ## 🏆 The Challenge
 
-Each haiku is built from phrases extracted from a single classic book. The words are real, pulled directly from Shakespeare, Austen, Dickens, and other public domain works.
+Each haiku is built from phrases extracted from a single classic book. The words are authentic, pulled directly from Shakespeare, Austen, Dickens, and other public domain works.
 
 Can you recognize the source from just 17 syllables?
 

@@ -385,5 +385,17 @@
   "skeleton": {
     "title": "静寂のひととき...",
     "subtitle": "言葉が露のように集まる"
+  },
+  "blog": {
+    "title": "日記から",
+    "subtitle": "AI詩、アルゴリズム、そして見つけた言葉の美しさについての考察",
+    "backToBlog": "ブログに戻る",
+    "allArticles": "すべての記事",
+    "minRead": "{min}分で読める",
+    "newerArticle": "新しい記事",
+    "olderArticle": "古い記事",
+    "readArticle": "記事を読む",
+    "notFound": "記事が見つかりません",
+    "notFoundDescription": "お探しの記事は存在しません。"
   }
 }

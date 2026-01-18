@@ -2,9 +2,11 @@
 import { useSeoMeta } from '@unhead/vue';
 import { ArrowRight } from 'lucide-vue-next';
 import { RouterLink } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
 import { useArticles } from '../composables';
 
+const { t } = useI18n();
 const { articles, formatDate, getReadingTime } = useArticles();
 
 useSeoMeta({
@@ -22,9 +24,9 @@ useSeoMeta({
 <template>
   <div class="blog-index">
     <header class="blog-index__header">
-      <h1 class="blog-index__title">From the Journal</h1>
+      <h1 class="blog-index__title">{{ t('blog.title') }}</h1>
       <p class="blog-index__subtitle">
-        Thoughts on AI poetry, algorithms, and the beauty of found words
+        {{ t('blog.subtitle') }}
       </p>
     </header>
 
@@ -53,7 +55,7 @@ useSeoMeta({
           <div class="blog-index__meta">
             <time class="blog-index__date">{{ formatDate(article.date) }}</time>
             <span class="blog-index__reading-time">
-              {{ getReadingTime(article.content) }} min read
+              {{ t('blog.minRead', { min: getReadingTime(article.content) }) }}
             </span>
           </div>
 
@@ -70,7 +72,7 @@ useSeoMeta({
             :to="{ name: 'BlogArticle', params: { slug: article.slug } }"
             class="blog-index__read-more"
           >
-            <span class="link-highlight">Read article</span>
+            <span class="link-highlight">{{ t('blog.readArticle') }}</span>
             <ArrowRight :size="14" />
           </RouterLink>
         </article>

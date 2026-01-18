@@ -385,5 +385,17 @@
   "skeleton": {
     "title": "Un instant de calme...",
     "subtitle": "Les mots se rassemblent comme des gouttes de rosée"
+  },
+  "blog": {
+    "title": "Du Journal",
+    "subtitle": "Réflexions sur la poésie IA, les algorithmes et la beauté des mots trouvés",
+    "backToBlog": "Retour au blog",
+    "allArticles": "Tous les articles",
+    "minRead": "{min} min de lecture",
+    "newerArticle": "Plus récent",
+    "olderArticle": "Plus ancien",
+    "readArticle": "Lire l'article",
+    "notFound": "Article introuvable",
+    "notFoundDescription": "L'article que vous recherchez n'existe pas."
   }
 }

@@ -8,8 +8,28 @@ import {
   watch,
   toValue,
 } from 'vue';
-import { marked } from 'marked';
+import { marked, type Renderer } from 'marked';
 import { useI18n } from 'vue-i18n';
+import {
+  type SupportedLocale,
+  DEFAULT_LOCALE,
+  SITE_URL,
+} from '@/locales/config';
+
+// Configure marked to add target="_blank" for external links
+const renderer: Partial<Renderer> = {
+  link({ href, title, text }) {
+    const isExternal =
+      href && !href.startsWith('/') && !href.startsWith(SITE_URL);
+    const titleAttr = title ? ` title="${title}"` : '';
+    const externalAttrs = isExternal
+      ? ' target="_blank" rel="noopener noreferrer"'
+      : '';
+    return `<a href="${href}"${titleAttr}${externalAttrs}>${text}</a>`;
+  },
+};
+
+marked.use({ renderer });
 
 export interface Article {
   content: string;
@@ -19,6 +39,7 @@ export interface Article {
   title: string;
   description: string;
   image: string;
+  locale: SupportedLocale;
 }
 
 // Import all markdown files from content directory
@@ -29,13 +50,23 @@ const articlesRaw = import.meta.glob('@content/*.md', {
 }) as Record<string, string>;
 
 /**
+ * Extract locale from filename
+ * Example: "2026-01-18-gutenku-technical-deep-dive.fr.md" → "fr"
+ * Example: "2026-01-18-gutenku-technical-deep-dive.en.md" → "en"
+ */
+function getLocaleFromPath(filename: string): SupportedLocale {
+  const match = filename.match(/\.(en|fr|ja)\.md$/);
+  return (match?.[1] as SupportedLocale) || DEFAULT_LOCALE;
+}
+
+/**
  * Extract slug from filename
- * Example: "2026-01-13-gutenku-when-two-frauds-make-a-truth.md" → "gutenku-when-two-frauds-make-a-truth"
+ * Example: "2026-01-13-gutenku-when-two-frauds-make-a-truth.en.md" → "gutenku-when-two-frauds-make-a-truth"
  */
 function getSlugFromFilename(filename: string): string {
   return filename
     .replace(/^\d{4}-\d{2}-\d{2}-/, '') // Remove date prefix
-    .replace(/\.md$/, ''); // Remove .md extension
+    .replace(/\.(en|fr|ja)?\.md$/, ''); // Remove locale and .md extension
 }
 
 interface Frontmatter {
@@ -161,16 +192,18 @@ function parseArticle(path: string, rawContent: string): Article {
   const dateMatch = filename.match(/^(\d{4}-\d{2}-\d{2})/);
   const date = dateMatch ? new Date(dateMatch[1]) : new Date();
   const slug = getSlugFromFilename(filename);
+  const locale = getLocaleFromPath(filename);
   const { title, description, image, body } = extractMetadata(rawContent);
 
   return {
-    content: body, // Use body without frontmatter
+    content: body,
     date,
     filename,
     slug,
     title,
     description,
     image,
+    locale,
   };
 }
 
@@ -179,16 +212,72 @@ function getAllArticles(): Article[] {
   return sortedPaths.map((path) => parseArticle(path, articlesRaw[path]));
 }
 
-// Cached articles list
+// Cached articles list (all locales)
 const cachedArticles = getAllArticles();
+
+// Build articles indexed by slug+locale for quick lookup
+const articlesBySlugAndLocale = new Map<string, Article>();
+for (const article of cachedArticles) {
+  const key = `${article.slug}:${article.locale}`;
+  articlesBySlugAndLocale.set(key, article);
+}
+
+// Get unique slugs (for listing purposes)
+const uniqueSlugs = [...new Set(cachedArticles.map((a) => a.slug))];
+
+/**
+ * Get all available locales for a given slug
+ */
+export function getAvailableLocalesForSlug(slug: string): SupportedLocale[] {
+  const locales: SupportedLocale[] = [];
+  for (const article of cachedArticles) {
+    if (article.slug === slug) {
+      locales.push(article.locale);
+    }
+  }
+  return locales;
+}
+
+/**
+ * Get article by slug and locale, with fallback to English
+ */
+function getArticleBySlugAndLocale(
+  slug: string,
+  locale: SupportedLocale,
+): Article | null {
+  // Try requested locale first
+  const key = `${slug}:${locale}`;
+  const article = articlesBySlugAndLocale.get(key);
+  if (article) {
+    return article;
+  }
+
+  // Fallback to English
+  const fallbackKey = `${slug}:${DEFAULT_LOCALE}`;
+  return articlesBySlugAndLocale.get(fallbackKey) || null;
+}
 
 /**
  * Composable for listing all articles (for blog index page)
+ * Returns articles for the current locale with English fallback
  */
 export function useArticles() {
   const { locale } = useI18n();
 
-  const articles = computed(() => cachedArticles);
+  const articles = computed(() => {
+    const currentLocale = locale.value as SupportedLocale;
+    const result: Article[] = [];
+
+    for (const slug of uniqueSlugs) {
+      const article = getArticleBySlugAndLocale(slug, currentLocale);
+      if (article) {
+        result.push(article);
+      }
+    }
+
+    // Sort by date descending
+    return result.sort((a, b) => b.date.getTime() - a.date.getTime());
+  });
 
   function formatDate(date: Date): string {
     return date.toLocaleDateString(locale.value, {
@@ -216,13 +305,15 @@ type MaybeRef<T> = T | Ref<T> | ComputedRef<T>;
 /**
  * Composable for viewing a single article by slug
  * Accepts a static string, Ref, or ComputedRef for reactive slug changes
+ * Returns article for current locale with English fallback
  */
 export function useArticle(slugRef: MaybeRef<string>) {
   const { locale } = useI18n();
 
   const article = computed(() => {
     const currentSlug = toValue(slugRef);
-    return cachedArticles.find((a) => a.slug === currentSlug) || null;
+    const currentLocale = locale.value as SupportedLocale;
+    return getArticleBySlugAndLocale(currentSlug, currentLocale);
   });
 
   const content = ref('');
@@ -230,21 +321,36 @@ export function useArticle(slugRef: MaybeRef<string>) {
   const showContent = ref(false);
   const notFound = computed(() => article.value === null);
 
-  // Find adjacent articles for navigation
+  // Get sorted articles for current locale
+  const sortedLocaleArticles = computed(() => {
+    const currentLocale = locale.value as SupportedLocale;
+    const localeArticles: Article[] = [];
+    for (const slug of uniqueSlugs) {
+      const art = getArticleBySlugAndLocale(slug, currentLocale);
+      if (art) {
+        localeArticles.push(art);
+      }
+    }
+    return localeArticles.sort((a, b) => b.date.getTime() - a.date.getTime());
+  });
+
+  // Find adjacent articles for navigation (in current locale)
   const currentIndex = computed(() => {
     if (!article.value) {
       return -1;
     }
-    const currentSlug = toValue(slugRef);
-    return cachedArticles.findIndex((a) => a.slug === currentSlug);
+    return sortedLocaleArticles.value.findIndex(
+      (a) => a.slug === article.value?.slug,
+    );
   });
 
   const nextArticle = computed(() => {
     const idx = currentIndex.value;
-    if (idx === -1 || idx >= cachedArticles.length - 1) {
+    const articles = sortedLocaleArticles.value;
+    if (idx === -1 || idx >= articles.length - 1) {
       return null;
     }
-    return cachedArticles[idx + 1];
+    return articles[idx + 1];
   });
 
   const prevArticle = computed(() => {
@@ -252,7 +358,7 @@ export function useArticle(slugRef: MaybeRef<string>) {
     if (idx <= 0) {
       return null;
     }
-    return cachedArticles[idx - 1];
+    return sortedLocaleArticles.value[idx - 1];
   });
 
   const readingTime = computed(() => {
@@ -276,30 +382,85 @@ export function useArticle(slugRef: MaybeRef<string>) {
     });
   });
 
+  async function renderMathFormulas() {
+    const katex = await import('katex');
+    await import('katex/dist/katex.min.css');
+
+    const contentEl = document.querySelector('.blog-article__body');
+    if (!contentEl) {return;}
+
+    // Match $$ ... $$ (display math) - marked may wrap in <p> tags
+    const mathRegex = /\$\$([\s\S]*?)\$\$/g;
+
+    // Process all elements that might contain math
+    const elements = contentEl.querySelectorAll('p, li, td');
+    for (const el of elements) {
+      if (el.innerHTML.includes('$$')) {
+        el.innerHTML = el.innerHTML.replace(mathRegex, (_, tex) => {
+          try {
+            return `<span class="katex-display">${katex.default.renderToString(
+              tex.trim(),
+              {
+                displayMode: true,
+                throwOnError: false,
+              },
+            )}</span>`;
+          } catch {
+            return `<code class="katex-error">${tex}</code>`;
+          }
+        });
+      }
+    }
+  }
+
   async function renderMermaidDiagrams() {
     const mermaid = await import('mermaid');
+    const isDark =
+      document.documentElement.getAttribute('data-theme') === 'dark';
+
+    const lightTheme = {
+      background: 'transparent',
+      primaryColor: '#e8e2d9',
+      secondaryColor: '#f5f0e8',
+      tertiaryColor: '#dcd5c9',
+      primaryBorderColor: '#5a7a6b',
+      secondaryBorderColor: '#7a9a8b',
+      lineColor: '#5a7a6b',
+      textColor: '#2d3b35',
+      primaryTextColor: '#2d3b35',
+      secondaryTextColor: '#2d3b35',
+      tertiaryTextColor: '#2d3b35',
+      nodeTextColor: '#2d3b35',
+      nodeBorder: '#5a7a6b',
+      clusterBkg: '#f5f0e8',
+      edgeLabelBackground: '#f5f0e8',
+      fontFamily: '"JMH Typewriter", monospace',
+    };
+
+    const darkTheme = {
+      background: 'transparent',
+      primaryColor: '#2a3a35',
+      secondaryColor: '#1e2d28',
+      tertiaryColor: '#243530',
+      primaryBorderColor: '#6b9a8b',
+      secondaryBorderColor: '#5a8a7b',
+      lineColor: '#6b9a8b',
+      textColor: '#c8d5d0',
+      primaryTextColor: '#c8d5d0',
+      secondaryTextColor: '#b8c5c0',
+      tertiaryTextColor: '#a8b5b0',
+      nodeTextColor: '#c8d5d0',
+      nodeBorder: '#6b9a8b',
+      clusterBkg: '#1e2d28',
+      edgeLabelBackground: '#2a3a35',
+      fontFamily: '"JMH Typewriter", monospace',
+    };
+
     mermaid.default.initialize({
       startOnLoad: false,
       theme: 'base',
       fontFamily: '"JMH Typewriter", monospace',
-      themeVariables: {
-        background: 'transparent',
-        primaryColor: '#e8e2d9',
-        secondaryColor: '#f5f0e8',
-        tertiaryColor: '#dcd5c9',
-        primaryBorderColor: '#5a7a6b',
-        secondaryBorderColor: '#7a9a8b',
-        lineColor: '#5a7a6b',
-        textColor: '#2d3b35',
-        primaryTextColor: '#2d3b35',
-        secondaryTextColor: '#2d3b35',
-        tertiaryTextColor: '#2d3b35',
-        nodeTextColor: '#2d3b35',
-        nodeBorder: '#5a7a6b',
-        clusterBkg: '#f5f0e8',
-        edgeLabelBackground: '#f5f0e8',
-        fontFamily: '"JMH Typewriter", monospace',
-      },
+      themeVariables: isDark ? darkTheme : lightTheme,
     });
 
     const mermaidBlocks = document.querySelectorAll(
@@ -332,11 +493,16 @@ export function useArticle(slugRef: MaybeRef<string>) {
 
     setTimeout(async () => {
       showContent.value = true;
+      await nextTick();
 
       const hasMermaid = article.value?.content.includes('```mermaid');
       if (hasMermaid) {
-        await nextTick();
         await renderMermaidDiagrams();
+      }
+
+      const hasMath = article.value?.content.includes('$$');
+      if (hasMath) {
+        await renderMathFormulas();
       }
     }, 50);
   }
@@ -345,13 +511,10 @@ export function useArticle(slugRef: MaybeRef<string>) {
     loadArticle();
   });
 
-  // Watch for slug changes (reacts to route param changes)
-  watch(
-    () => toValue(slugRef),
-    () => {
-      loadArticle();
-    },
-  );
+  // Watch for slug or locale changes
+  watch([() => toValue(slugRef), () => locale.value], () => {
+    loadArticle();
+  });
 
   return {
     article,

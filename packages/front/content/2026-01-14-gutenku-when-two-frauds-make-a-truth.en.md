@@ -1,0 +1,141 @@
+# GutenKu: When Two Frauds Make a Truth
+
+_Anatomy of a Poetic Fraud_
+
+![Theater mask merging with circuit patterns - the duality of analog and digital fraud](/article/article-header.webp)
+
+## The Skeptical Discovery
+
+I discovered **Dimitri Rataud's "Haiku Marinière"** on Instagram and immediately thought: _"This is brilliant... and possibly complete bullshit."_
+
+The concept is undeniably original — taking novels, blacking out most text with markers to "reveal" hidden haiku. The aesthetic is gorgeous, the Instagram following impressive, the art sales thriving. But watching people marvel at this "discovered poetry," I couldn't shake one question:
+
+**Isn't this just selective editing with extra steps?**
+
+<img src="/article/haiku-mariniere-preview.webp" alt="Haiku Marinière - Dimitri Rataud's found poetry" style="width: 100%; max-width: 450px; display: block; margin: 1rem auto;" />
+
+Think about it. Any text contains infinite possible word combinations. Cross out everything except "every day," "thousands of," and "times" from any novel, and you've "found" a haiku. The artistic fraud isn't in the execution — it's in calling random selection "discovery."
+
+But here's what fascinates me: the audience completely buys it. Followers perceive genuine emotion in these "hidden poems." The concept works not because it reveals anything profound about literature, but because we humans are meaning-making machines. Show us nicely arranged words, and we'll find poetry — even in randomness.
+
+So I thought: _"If I'm going to call out this beautiful fraud wrapped in art, I might as well build a digital version that exposes both deceptions at once."_
+
+That's how [GutenKu](https://gutenku.xyz/haiku) was born.
+
+## Two Frauds, Same Result (Almost)
+
+### The Analog Fraud (Dimitri's Version)
+
+- **The Claim:** "I reveal poetry hidden in ordinary pages"
+- **The Reality:** It isolates words selectively, presented as literary discovery
+- **The Catch:** It doesn't even follow the 5-7-5 syllable rule — so not technically haiku
+- **The Success:** People project meaning onto curated randomness
+- **The Genius:** It understands that presentation creates perception of profundity
+
+### The Digital Fraud (My Version)
+
+<img src="/article/gutenku-preview.webp" alt="GutenKu - Daily algorithmic haiku generator" style="width: 100%; max-width: 450px; display: block; margin: 1rem auto;" />
+
+- **The Claim:** "I evolve daily haiku from classic literature"
+- **The Reality:** It optimizes verse combinations using genetic algorithms and NLP scoring
+- **The Success:** Same projection of meaning onto algorithmic output
+- **The Mirror:** It exposes how easily we mistake optimization for creativity
+
+Both are essentially curation masquerading as creation. One uses black markers, the other uses machine learning. Same trick, different tools.
+
+## What GutenKu Actually Does
+
+Let me be clear: **GutenKu does not use an LLM**. It doesn't "write" anything — it's a word-shuffling machine that recombines existing phrases through trial and error.
+
+Here's the short version:
+
+- It pulls text from classic books on Project Gutenberg (Shakespeare, Austen, Dickens...)
+- It scans sentences and keeps only chunks with exactly 5 or 7 syllables
+- 150 haiku candidates compete and evolve over generations, following strict 5-7-5 structure
+- 18 quality metrics plus a neural network score each candidate
+- GPT adds a title and translations for the winner
+
+The key point: GutenKu doesn't promise meaning — only resonance.
+
+> Want the full technical breakdown? Read the [Technical Deep-Dive](/blog/gutenku-technical-deep-dive) for genetic algorithms, NLP scoring, and neural network details.
+
+## What This Obsession Taught Me
+
+This fascination isn't new for me. Two decades ago, I was already generating haiku with [Prolog](https://en.wikipedia.org/wiki/Prolog) — an old French logic programming language — this inspired by [Raymond Queneau](https://en.wikipedia.org/wiki/Raymond_Queneau)'s combinatorial poetry experiments. The technology changed; the fascination didn't.
+
+_Where does meaning actually live?_
+
+I used to think poetry was in the text — that certain arrangements of words contained inherent beauty. Now I believe something different. Poetry is born the moment a human mind encounters arranged words and decides to feel something.
+
+The haiku isn't on the page. It's in the space between the page and your consciousness. Dimitri's black markers don't reveal hidden poems. GutenKu's algorithm doesn't create art. We — the readers — do the creating.
+
+## The Philosophical Fraud We're All Complicit In
+
+![Contemplative eye reflecting haiku text - poetry in the observer](/article/article-beautiful-truth.webp)
+
+Notice how we talk about it:
+
+| What we say             | What's actually happening                        |
+| :---------------------- | :----------------------------------------------- |
+| It "evolves" haiku      | It recombines verses until scores stop improving |
+| It "understands" poetry | It counts patterns in text                       |
+| It "creates art"        | It shuffles words until scores are high          |
+
+When you read a GutenKu haiku and feel something, that emotion comes from you — your memories, your culture, your sense of beauty. The algorithm feels nothing. We're not experiencing AI creativity. We're experiencing our own humanity reflected back at us.
+
+So what's the difference between Dimitri and GutenKu?
+
+- **Dimitri:** Life experience → Gut feeling → Hand-picked words → Human meaning
+- **GutenKu:** Word pools → Math → High scores → Output
+
+One is creation through consciousness. The other is optimization through metrics.
+
+## An Honest Fraud
+
+Here's the irony: I built GutenKu to expose the fraud in "found poetry" — and ended up creating something oddly more honest.
+
+At least GutenKu doesn't pretend to be conscious. It's openly algorithmic. In a weird way, that's more transparent than claiming to "discover" hidden poems while cherry-picking words.
+
+What I actually learned: poetry isn't hiding in books, waiting to be found. It's born the moment a human mind encounters arranged words and decides to feel something.
+
+## Try Both Approaches
+
+![Split composition: hand with brush on left, algorithmic patterns on right](/article/article-two-frauds.webp)
+
+**The human way:**
+
+- Follow [@haiku_mariniere](https://www.instagram.com/haiku_mariniere/?hl=fr) for Dimitri's hand-picked poetry
+
+**The algorithmic way:**
+
+- Visit [gutenku.xyz](https://gutenku.xyz) for daily computer-generated haiku
+- Follow [@gutenku.poem](https://instagram.com/gutenku.poem) on Instagram
+- Peek at the [source code](https://github.com/heristop/gutenku) to see how the sausage is made
+- Read the [Technical Deep-Dive](/blog/gutenku-technical-deep-dive) to understand the algorithm
+
+**Questions to sit with:**
+
+- Does it matter _how_ poetry is made if it moves you?
+- When we say AI "writes," are we kidding ourselves?
+- Is hand-picking words really that different from algorithmic selection?
+- Are you reading poetry, or creating it by reading?
+
+## The Final Fraud: This Article
+
+Here's the ultimate irony: I just spent all these words calling both approaches fraudulent — and you probably found insights, meaning, maybe even a little beauty in the criticism.
+
+The fraud isn't in the algorithms or the black markers. It's in calling any curation "discovery."
+
+But maybe that's fine. Maybe the point was never "authentic discovery" but creating excuses for humans to make meaning. Maybe I didn't build a poet, and Dimitri didn't find hidden poems — we both just built mirrors.
+
+Today's algorithm produced this:
+
+![Today's haiku canvas sample](/article/haiku-canvas-sample.webp)
+
+> _"As the song ended / With dark and sable garments / Crowned his raven locks"_
+
+---
+
+_Now you know the trick. Does it still work?_
+
+_If you felt something reading this — that was you, not me._

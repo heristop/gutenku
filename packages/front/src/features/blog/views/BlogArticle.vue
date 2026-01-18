@@ -3,11 +3,21 @@ import { computed } from 'vue';
 import { useRoute, RouterLink } from 'vue-router';
 import { Loader2, ArrowUp, ArrowLeft, ArrowRight } from 'lucide-vue-next';
 import { useSeoMeta, useHead } from '@unhead/vue';
+import { useI18n } from 'vue-i18n';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
 import BlogShareButtons from '../components/BlogShareButtons.vue';
-import { useArticle, useReadingProgress } from '../composables';
-import { SITE_URL } from '@/locales/config';
+import {
+  useArticle,
+  useReadingProgress,
+  getAvailableLocalesForSlug,
+} from '../composables';
+import {
+  SITE_URL,
+  LOCALE_CONFIG,
+  type SupportedLocale,
+} from '@/locales/config';
 
+const { t } = useI18n();
 const route = useRoute();
 const slug = computed(() => route.params.slug as string);
 
@@ -36,6 +46,15 @@ const ogImage = computed(() => {
 
 const isoDate = computed(() => article.value?.date.toISOString() || '');
 
+// Article stores its actual locale (may differ from UI locale if fallback)
+const articleLocale = computed(() => article.value?.locale || 'en');
+
+// Get OG locale from config
+const ogLocale = computed(
+  () =>
+    LOCALE_CONFIG[articleLocale.value as SupportedLocale]?.ogLocale || 'en_US',
+);
+
 useSeoMeta({
   title: () =>
     article.value
@@ -46,6 +65,7 @@ useSeoMeta({
   ogDescription: () => article.value?.description || 'Article not found',
   ogImage,
   ogType: 'article',
+  ogLocale,
   articlePublishedTime: isoDate,
   articleAuthor: ['Alexandre Mederic Mogère'],
   twitterCard: 'summary_large_image',
@@ -55,6 +75,35 @@ useSeoMeta({
 });
 
 useHead({
+  htmlAttrs: {
+    lang: computed(
+      () =>
+        LOCALE_CONFIG[articleLocale.value as SupportedLocale]?.htmlLang || 'en',
+    ),
+  },
+  link: computed(() => {
+    if (!article.value) {
+      return [];
+    }
+    // Add hreflang for available translations
+    const links: { rel: string; hreflang: string; href: string }[] = [];
+    const availableLocales = getAvailableLocalesForSlug(slug.value);
+    for (const loc of availableLocales) {
+      const localeConfig = LOCALE_CONFIG[loc];
+      links.push({
+        rel: 'alternate',
+        hreflang: localeConfig.htmlLang,
+        href: `${SITE_URL}/blog/${slug.value}`,
+      });
+    }
+    // x-default points to English version
+    links.push({
+      rel: 'alternate',
+      hreflang: 'x-default',
+      href: `${SITE_URL}/blog/${slug.value}`,
+    });
+    return links;
+  }),
   script: computed(() =>
     article.value
       ? [
@@ -67,6 +116,9 @@ useHead({
               description: article.value.description,
               image: ogImage.value,
               datePublished: isoDate.value,
+              inLanguage:
+                LOCALE_CONFIG[articleLocale.value as SupportedLocale]
+                  ?.htmlLang || 'en',
               author: {
                 '@type': 'Person',
                 name: 'Alexandre Mederic Mogère',
@@ -102,11 +154,11 @@ useHead({
     <!-- Not Found State -->
     <div v-if="notFound && !loading" class="blog-article__not-found">
       <ZenCard class="blog-article__not-found-card">
-        <h1>Article Not Found</h1>
-        <p>The article you're looking for doesn't exist.</p>
+        <h1>{{ t('blog.notFound') }}</h1>
+        <p>{{ t('blog.notFoundDescription') }}</p>
         <RouterLink :to="{ name: 'Blog' }" class="blog-article__back-link">
           <ArrowLeft :size="18" />
-          <span>Back to Blog</span>
+          <span>{{ t('blog.backToBlog') }}</span>
         </RouterLink>
       </ZenCard>
     </div>
@@ -118,7 +170,7 @@ useHead({
           class="blog-article__back-to-blog link-highlight"
         >
           <ArrowLeft :size="14" />
-          <span>All articles</span>
+          <span>{{ t('blog.allArticles') }}</span>
         </RouterLink>
         <p class="blog-article__date">{{ formattedDate }}</p>
         <h1
@@ -128,7 +180,9 @@ useHead({
           {{ article?.title }}
         </h1>
         <p class="blog-article__author">Alexandre Mederic Mogère</p>
-        <p class="blog-article__reading-time">{{ readingTime }} min read</p>
+        <p class="blog-article__reading-time">
+          {{ t('blog.minRead', { min: readingTime }) }}
+        </p>
       </header>
 
       <!-- Ink brush divider -->
@@ -152,7 +206,9 @@ useHead({
             >
               <ArrowLeft :size="14" />
               <div class="blog-article__nav-content">
-                <span class="blog-article__nav-label">Newer</span>
+                <span class="blog-article__nav-label">{{
+                  t('blog.newerArticle')
+                }}</span>
                 <span class="blog-article__nav-title link-highlight">{{
                   prevArticle.title
                 }}</span>
@@ -166,7 +222,9 @@ useHead({
               class="blog-article__nav-link blog-article__nav-link--next"
             >
               <div class="blog-article__nav-content">
-                <span class="blog-article__nav-label">Older</span>
+                <span class="blog-article__nav-label">{{
+                  t('blog.olderArticle')
+                }}</span>
                 <span class="blog-article__nav-title link-highlight">{{
                   nextArticle.title
                 }}</span>
@@ -752,16 +810,38 @@ useHead({
       }
     }
 
+    :deep(.katex-display) {
+      display: block;
+      text-align: center;
+      margin: 1rem 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+
+      .katex {
+        font-size: 1.1em;
+      }
+    }
+
     :deep(.mermaid-diagram) {
       display: block;
       margin: 1.5rem auto;
       text-align: center;
       overflow-x: auto;
       contain: layout style;
-      max-width: 320px;
+      max-width: 380px;
+      padding: 1.5rem 1rem;
+      background: linear-gradient(
+        135deg,
+        oklch(0.97 0.01 90 / 0.8) 0%,
+        oklch(0.95 0.015 80 / 0.6) 100%
+      );
+      border-radius: var(--gutenku-radius-lg);
+      box-shadow: 0 2px 12px oklch(0 0 0 / 0.06);
+      border: 1px solid oklch(0.85 0.02 90 / 0.5);
 
       @media (min-width: 600px) {
-        max-width: 400px;
+        max-width: 450px;
+        padding: 2rem 1.5rem;
       }
 
       svg {
@@ -776,7 +856,7 @@ useHead({
         span,
         p {
           float: none !important;
-          font-size: 14px !important;
+          font-size: 13px !important;
           font-family: 'JMH Typewriter', monospace !important;
           line-height: 1.4 !important;
         }
@@ -1157,9 +1237,17 @@ useHead({
   }
 
   &__body :deep(.mermaid-diagram) {
-    background: oklch(0.2 0.015 50 / 0.5);
-    padding: 1rem;
-    border-radius: var(--gutenku-radius-md);
+    background: linear-gradient(
+      135deg,
+      oklch(0.18 0.02 195 / 0.7) 0%,
+      oklch(0.15 0.025 200 / 0.6) 100%
+    );
+    border: 1px solid oklch(0.4 0.05 195 / 0.4);
+    box-shadow: 0 4px 16px oklch(0 0 0 / 0.25);
+
+    svg {
+      filter: brightness(1.05);
+    }
   }
 
   &__body :deep(.promo-band) {

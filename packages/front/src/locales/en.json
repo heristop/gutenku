@@ -385,5 +385,17 @@
   "skeleton": {
     "title": "A moment of stillness...",
     "subtitle": "Words are gathering like dewdrops"
+  },
+  "blog": {
+    "title": "From the Journal",
+    "subtitle": "Thoughts on AI poetry, algorithms, and the beauty of found words",
+    "backToBlog": "Back to blog",
+    "allArticles": "All articles",
+    "minRead": "{min} min read",
+    "newerArticle": "Newer",
+    "olderArticle": "Older",
+    "readArticle": "Read article",
+    "notFound": "Article Not Found",
+    "notFoundDescription": "The article you're looking for doesn't exist."
   }
 }
