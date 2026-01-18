@@ -17,6 +17,21 @@ const { mockEvolveWithProgress } = vi.hoisted(() => {
   return { mockEvolveWithProgress };
 });
 
+// Mock fs to prevent actual file system access in MarkovChainService
+vi.mock('node:fs/promises', () => ({
+  default: {
+    stat: vi.fn().mockResolvedValue({ size: 1000 }),
+    readFile: vi.fn().mockResolvedValue(
+      JSON.stringify({
+        bigrams: {},
+        trigrams: {},
+        vocabulary: [],
+      }),
+    ),
+    writeFile: vi.fn().mockResolvedValue(undefined),
+  },
+}));
+
 // Mock GeneticAlgorithmService as a class using a real class
 vi.mock('../src/domain/services/genetic/GeneticAlgorithmService', () => {
   return {
