@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1768655464" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1768694402" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a swift shift in mood and motion. It opens with “The silent ocean,” establishing a calm, almost reverent stillness that feels timeless and watchful. The second line—“The sun rose red and fiery”—introduces vivid colour and intensity, suggesting both beauty and a hint of danger, as if the day is being forged in heat. In the final line, “With a rising gale,” the poem pivots from stillness to disturbance: the wind gathers, and the tranquil seascape becomes charged with energy. The haiku’s power lies in this contrast—quiet versus force, serenity versus impending turbulence—implying that nature’s moods can change in an instant, and that splendour often arrives alongside unease."_
+> _"This haiku captures a moment of dramatic transition in nature. It opens with “The silent ocean,” establishing a calm, almost reverent stillness, as if the sea is holding its breath. The second line—“The sun rose red and fiery”—introduces vivid imagery and a shift in mood: the colour red suggests both beauty and warning, while “fiery” gives the sunrise an intense, energetic force. In the final line, “With a rising gale,” the poem turns from quiet to movement, hinting that the calm is temporary and that change—perhaps a storm—is gathering. Overall, the haiku contrasts serenity with impending turbulence, using concise sensory details to show how quickly the natural world can transform."_
 
-— **BotenKu** 📅 _Jan 17, 2026_
+— **BotenKu** 📅 _Jan 18, 2026_
 
 </td>
 </tr>
