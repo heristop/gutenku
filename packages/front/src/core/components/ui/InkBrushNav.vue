@@ -335,8 +335,8 @@ function handleClick(event: MouseEvent, to: string) {
     margin-bottom: 0.75rem;
   }
 
-  // Tablet and up - back to single row
-  @media (min-width: 600px) {
+  // Desktop - back to single row (960px+)
+  @media (min-width: 960px) {
     display: block;
     padding: 1.5rem 1rem 1.75rem;
     padding-top: calc(
@@ -348,6 +348,25 @@ function handleClick(event: MouseEvent, to: string) {
     );
     margin-top: 1rem;
     margin-bottom: 1rem;
+  }
+
+  // Capacitor native apps - no margin top needed
+  [data-platform='ios'] &,
+  [data-platform='android'] & {
+    margin-top: 0;
+  }
+
+  // Landscape orientation - no safe area padding
+  @media (orientation: landscape) {
+    padding-top: 1rem;
+
+    @media (min-width: 375px) {
+      padding-top: 1.25rem;
+    }
+
+    @media (min-width: 960px) {
+      padding-top: 1.5rem;
+    }
   }
 
   &__container {
@@ -375,8 +394,8 @@ function handleClick(event: MouseEvent, to: string) {
       gap: 2rem;
     }
 
-    // Tablet and up
-    @media (min-width: 600px) {
+    // Desktop and up
+    @media (min-width: 960px) {
       gap: 4rem;
     }
   }
@@ -476,8 +495,8 @@ function handleClick(event: MouseEvent, to: string) {
       height: 2.75rem;
     }
 
-    // Tablet and up
-    @media (min-width: 600px) {
+    // Desktop and up
+    @media (min-width: 960px) {
       width: 3rem;
       height: 3rem;
     }
@@ -569,8 +588,8 @@ function handleClick(event: MouseEvent, to: string) {
       font-size: 0.7rem;
     }
 
-    // Tablet and up
-    @media (min-width: 600px) {
+    // Desktop and up
+    @media (min-width: 960px) {
       font-size: 0.75rem;
     }
   }
@@ -593,7 +612,7 @@ function handleClick(event: MouseEvent, to: string) {
     gap: 1rem;
 
     // Hide on desktop (toggles are in ThemeToggle component)
-    @media (min-width: 600px) {
+    @media (min-width: 960px) {
       display: none;
     }
   }

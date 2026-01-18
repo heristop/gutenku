@@ -344,7 +344,7 @@ onMounted(() => {
     box-shadow: 0 0 8px 1px oklch(0.5 0.15 195 / 0.3);
   }
 
-  @media (max-width: 600px) {
+  @media (max-width: 959px) {
     display: none;
   }
 }

@@ -316,7 +316,8 @@ onUnmounted(() => {
         }"
         class="book-author"
       >
-        <span class="by-prefix">{{ $t('common.by') }}</span> {{ haiku.book.author }}
+        <span class="by-prefix">{{ $t('common.by') }}</span>
+        {{ haiku.book.author }}
       </div>
 
       <div class="chapter-content" :class="{ expandable: !isCompacted }">
@@ -928,13 +929,16 @@ onUnmounted(() => {
           background-size: 100% 100% !important;
           background-repeat: no-repeat !important;
           background-position: center !important;
-          color: #2c2c2c !important;
+          color: var(--gutenku-highlighter-text, #2c2c2c) !important;
           padding: 2px 8px;
           border-radius: 0;
           font-weight: bold;
           position: relative;
           z-index: 20;
-          text-shadow: 0 1px 2px oklch(0 0 0 / 0.1) !important;
+          text-shadow: var(
+            --gutenku-highlighter-shadow,
+            0 1px 2px oklch(0 0 0 / 0.1)
+          ) !important;
           box-shadow: none;
           isolation: isolate;
           display: inline-block;
@@ -947,13 +951,16 @@ onUnmounted(() => {
           background-size: 100% 100% !important;
           background-repeat: no-repeat !important;
           background-position: center !important;
-          color: #2c2c2c !important;
+          color: var(--gutenku-highlighter-text, #2c2c2c) !important;
           padding: 2px 8px;
           border-radius: 0;
           font-weight: bold;
           position: relative;
           z-index: 20;
-          text-shadow: 0 1px 2px oklch(0 0 0 / 0.1) !important;
+          text-shadow: var(
+            --gutenku-highlighter-shadow,
+            0 1px 2px oklch(0 0 0 / 0.1)
+          ) !important;
           box-shadow: none;
           isolation: isolate;
           display: inline-block;

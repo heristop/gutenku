@@ -649,8 +649,18 @@ useHead({
       padding: 0.75rem;
       border-radius: var(--gutenku-radius-sm);
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
       margin: 0.875rem 0;
       font-size: 0.8rem;
+      max-width: 100%;
+      box-sizing: border-box;
+
+      // Mobile: wrap text instead of scrolling
+      @media (max-width: 599px) {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
 
       @media (min-width: 375px) {
         padding: 0.875rem;
@@ -661,12 +671,17 @@ useHead({
       @media (min-width: 600px) {
         padding: 1rem;
         font-size: 0.9rem;
+        white-space: pre;
       }
 
       code {
         background: none;
         padding: 0;
         word-break: normal;
+
+        @media (max-width: 599px) {
+          word-break: break-word;
+        }
       }
     }
 
@@ -874,9 +889,9 @@ useHead({
 
         tr {
           display: block;
-          margin-bottom: 0.75rem;
-          padding: 0.75rem;
-          border-radius: var(--gutenku-radius-md);
+          margin-bottom: 0.375rem;
+          padding: 0.5rem 0.625rem;
+          border-radius: var(--gutenku-radius-sm);
           background: linear-gradient(
             135deg,
             oklch(0.97 0.01 90 / 0.6) 0%,
@@ -887,15 +902,15 @@ useHead({
 
         td {
           display: block;
-          padding: 0.25rem 0;
+          padding: 0.125rem 0;
           border: none !important;
 
           &:first-child {
             font-weight: 600;
             color: var(--gutenku-zen-primary);
             border-bottom: 1px solid oklch(0.7 0.02 90 / 0.3);
-            padding-bottom: 0.5rem;
-            margin-bottom: 0.5rem;
+            padding-bottom: 0.25rem;
+            margin-bottom: 0.25rem;
             white-space: normal;
           }
 

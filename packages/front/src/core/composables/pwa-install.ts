@@ -1,5 +1,6 @@
 import { ref, computed, readonly, onMounted, onUnmounted } from 'vue';
 import { useLocalStorage } from '@vueuse/core';
+import { isNative } from '@/utils/capacitor';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -63,9 +64,15 @@ export function usePwaInstall() {
   const hasNativePrompt = computed(() => deferredPrompt.value !== null);
 
   const canInstall = computed(() => {
+    // Never show install banner in native Capacitor apps
+    if (isNative) {
+      return false;
+    }
+
     if (isInstalled.value) {
       return false;
     }
+
     return hasNativePrompt.value || isIos.value;
   });
 
