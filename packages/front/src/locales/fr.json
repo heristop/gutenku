@@ -366,33 +366,6 @@
       "15": "Finalisation de la structure..."
     }
   },
-  "subscription": {
-    "cta": "Reçois des rappels quotidiens",
-    "placeholder": "ton{'@'}email.com",
-    "subscribe": "S'abonner",
-    "checkEmail": "Vérifie ta boîte de réception pour confirmer !",
-    "alreadySubscribed": "Tu es déjà abonné !",
-    "error": "Échec de l'abonnement. Réessayer."
-  },
-  "verifyEmail": {
-    "verifying": "Vérification de ton email...",
-    "confirmed": "C'est fait !",
-    "success": "Ton email a été vérifié. Tu recevras les notifications quotidiennes.",
-    "failed": "Échec de la vérification. Le lien a peut-être expiré.",
-    "invalidLink": "Lien de vérification invalide.",
-    "oops": "Oups !",
-    "playNow": "Jouer à GutenGuess",
-    "backToGame": "Retour au jeu"
-  },
-  "unsubscribe": {
-    "processing": "Traitement...",
-    "done": "Désabonné",
-    "success": "Tu as été désabonné des notifications quotidiennes.",
-    "failed": "Échec du désabonnement. Réessayer.",
-    "invalidLink": "Lien de désabonnement invalide.",
-    "oops": "Oups !",
-    "backHome": "Retour à l'accueil"
-  },
   "pwa": {
     "bannerLabel": "Invitation à installer l'application",
     "addToHomeScreen": "Ajouter GutenKu à l'écran d'accueil",

@@ -73,34 +73,6 @@ export const routes: RouteRecordRaw[] = [
         },
       },
       {
-        path: 'verify-email',
-        name: 'VerifyEmail',
-        component: () =>
-          import(
-            /* webpackChunkName: "verify-email" */ '@/views/VerifyEmail.vue'
-          ),
-        meta: {
-          title: 'Verify Email - GutenKu',
-          description:
-            'Confirm your email subscription to receive GutenKu newsletters and updates.',
-          robots: 'noindex, nofollow',
-        },
-      },
-      {
-        path: 'unsubscribe',
-        name: 'Unsubscribe',
-        component: () =>
-          import(
-            /* webpackChunkName: "unsubscribe" */ '@/views/Unsubscribe.vue'
-          ),
-        meta: {
-          title: 'Unsubscribe - GutenKu',
-          description:
-            'Manage your GutenKu email subscription preferences or unsubscribe from notifications.',
-          robots: 'noindex, nofollow',
-        },
-      },
-      {
         path: ':pathMatch(.*)*',
         name: 'NotFound',
         component: () =>

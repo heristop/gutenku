@@ -186,8 +186,6 @@ const typeDefs = `#graphql
         reduceBooks(date: String!, locale: String): [Book!]!
         puzzleVersion(date: String!): PuzzleVersion!
         haikuVersion(date: String!): HaikuVersion!
-        verifyEmail(token: String!): SubscriptionResult!
-        unsubscribeEmail(token: String!): SubscriptionResult!
     }
 
     type HaikuProgress {
@@ -203,11 +201,6 @@ const typeDefs = `#graphql
         haikuGeneration(iterations: Int!, theme: String, filter: String, useAI: Boolean): HaikuProgress!
     }
 
-    type SubscriptionResult {
-        success: Boolean!
-        message: String!
-    }
-
     type EmoticonRevealResult {
         emoticons: String!
         emoticonCount: Int!
@@ -215,7 +208,6 @@ const typeDefs = `#graphql
     }
 
     type Mutation {
-        subscribeEmail(email: String!): SubscriptionResult!
         revealEmoticon(date: String!, scratchedPositions: [Int!]!): EmoticonRevealResult!
         revealHaiku(date: String!, index: Int!): String
     }

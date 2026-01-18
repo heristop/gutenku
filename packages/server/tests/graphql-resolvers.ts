@@ -2,19 +2,16 @@ import 'reflect-metadata';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { container } from 'tsyringe';
 import resolvers from '../src/presentation/graphql/resolvers';
-import { IQueryBusToken, ICommandBusToken } from '../src/application/cqrs';
+import { IQueryBusToken } from '../src/application/cqrs';
 import { GenerateHaikuIterativeHandler } from '../src/application/queries/haiku/GenerateHaikuIterativeHandler';
 
 describe('GraphQL Resolvers', () => {
   let mockQueryBus: { execute: ReturnType<typeof vi.fn> };
-  let mockCommandBus: { execute: ReturnType<typeof vi.fn> };
 
   beforeAll(() => {
     mockQueryBus = { execute: vi.fn() };
-    mockCommandBus = { execute: vi.fn() };
 
     container.register(IQueryBusToken, { useValue: mockQueryBus });
-    container.register(ICommandBusToken, { useValue: mockCommandBus });
   });
 
   beforeEach(() => {
@@ -217,48 +214,6 @@ describe('GraphQL Resolvers', () => {
 
       expect(mockQueryBus.execute).toHaveBeenCalled();
       expect(result).toEqual(version);
-    });
-  });
-
-  describe('Query.verifyEmail', () => {
-    it('calls query bus with VerifyEmailQuery', async () => {
-      const verification = { success: true, message: 'Email verified' };
-      mockQueryBus.execute.mockResolvedValue(verification);
-
-      const result = await resolvers.Query.verifyEmail(null, {
-        token: 'abc123',
-      });
-
-      expect(mockQueryBus.execute).toHaveBeenCalled();
-      expect(result).toEqual(verification);
-    });
-  });
-
-  describe('Query.unsubscribeEmail', () => {
-    it('calls query bus with UnsubscribeEmailQuery', async () => {
-      const unsubscribe = { success: true, message: 'Unsubscribed' };
-      mockQueryBus.execute.mockResolvedValue(unsubscribe);
-
-      const result = await resolvers.Query.unsubscribeEmail(null, {
-        token: 'xyz789',
-      });
-
-      expect(mockQueryBus.execute).toHaveBeenCalled();
-      expect(result).toEqual(unsubscribe);
-    });
-  });
-
-  describe('Mutation.subscribeEmail', () => {
-    it('calls command bus with SubscribeEmailCommand', async () => {
-      const subscription = { success: true, message: 'Subscribed' };
-      mockCommandBus.execute.mockResolvedValue(subscription);
-
-      const result = await resolvers.Mutation.subscribeEmail(null, {
-        email: 'test@example.com',
-      });
-
-      expect(mockCommandBus.execute).toHaveBeenCalled();
-      expect(result).toEqual(subscription);
     });
   });
 

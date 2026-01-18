@@ -366,33 +366,6 @@
       "15": "構造を仕上げ中..."
     }
   },
-  "subscription": {
-    "cta": "毎日のパズルリマインダーを受け取る",
-    "placeholder": "your{'@'}email.com",
-    "subscribe": "登録",
-    "checkEmail": "受信トレイを確認してください！",
-    "alreadySubscribed": "登録済みです！",
-    "error": "登録に失敗しました。もう一度お試しください。"
-  },
-  "verifyEmail": {
-    "verifying": "メールを確認中...",
-    "confirmed": "準備完了！",
-    "success": "メールが確認されました。毎日のパズル通知を受け取ります。",
-    "failed": "確認に失敗しました。リンクの有効期限が切れている可能性があります。",
-    "invalidLink": "無効な確認リンクです。",
-    "oops": "おっと！",
-    "playNow": "GutenGuessをプレイ",
-    "backToGame": "ゲームに戻る"
-  },
-  "unsubscribe": {
-    "processing": "処理中...",
-    "done": "登録解除完了",
-    "success": "毎日のパズル通知の登録を解除しました。",
-    "failed": "登録解除に失敗しました。もう一度お試しください。",
-    "invalidLink": "無効な登録解除リンクです。",
-    "oops": "おっと！",
-    "backHome": "ホームに戻る"
-  },
   "pwa": {
     "bannerLabel": "アプリインストールのお知らせ",
     "addToHomeScreen": "GutenKuをホーム画面に追加",

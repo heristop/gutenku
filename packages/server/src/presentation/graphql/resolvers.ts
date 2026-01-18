@@ -1,11 +1,6 @@
 import { container } from 'tsyringe';
 import type { HaikuValue, HaikuVariables } from '~/shared/types';
-import {
-  type IQueryBus,
-  IQueryBusToken,
-  type ICommandBus,
-  ICommandBusToken,
-} from '~/application/cqrs';
+import { type IQueryBus, IQueryBusToken } from '~/application/cqrs';
 import {
   GetBookByIdQuery,
   GetAllBooksQuery,
@@ -31,9 +26,6 @@ import {
   RevealEmoticonQuery,
   RevealHaikuQuery,
 } from '~/application/queries/puzzle';
-import { VerifyEmailQuery } from '~/application/queries/email/VerifyEmailQuery';
-import { UnsubscribeEmailQuery } from '~/application/queries/email/UnsubscribeEmailQuery';
-import { SubscribeEmailCommand } from '~/application/commands/email/SubscribeEmailCommand';
 import type { PuzzleVersion, HaikuVersion } from '@gutenku/shared';
 import { GetGlobalStatsQuery } from '~/application/queries/stats';
 
@@ -173,20 +165,8 @@ const resolvers = {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
       return queryBus.execute(new GetHaikuVersionQuery(date));
     },
-    verifyEmail: async (_, { token }: { token: string }) => {
-      const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
-      return queryBus.execute(new VerifyEmailQuery(token));
-    },
-    unsubscribeEmail: async (_, { token }: { token: string }) => {
-      const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
-      return queryBus.execute(new UnsubscribeEmailQuery(token));
-    },
   },
   Mutation: {
-    subscribeEmail: async (_, { email }: { email: string }) => {
-      const commandBus = container.resolve<ICommandBus>(ICommandBusToken);
-      return commandBus.execute(new SubscribeEmailCommand(email));
-    },
     revealEmoticon: async (
       _,
       {

@@ -366,33 +366,6 @@
       "15": "Finalizing structure..."
     }
   },
-  "subscription": {
-    "cta": "Get daily puzzle reminders",
-    "placeholder": "your{'@'}email.com",
-    "subscribe": "Subscribe",
-    "checkEmail": "Check your inbox to confirm!",
-    "alreadySubscribed": "You're subscribed!",
-    "error": "Subscription failed. Please try again."
-  },
-  "verifyEmail": {
-    "verifying": "Verifying your email...",
-    "confirmed": "You're all set!",
-    "success": "Your email has been verified. You'll receive daily puzzle notifications.",
-    "failed": "Verification failed. The link may have expired.",
-    "invalidLink": "Invalid verification link.",
-    "oops": "Oops!",
-    "playNow": "Play GutenGuess",
-    "backToGame": "Back to Game"
-  },
-  "unsubscribe": {
-    "processing": "Processing...",
-    "done": "Unsubscribed",
-    "success": "You've been unsubscribed from daily puzzle notifications.",
-    "failed": "Unsubscribe failed. Please try again.",
-    "invalidLink": "Invalid unsubscribe link.",
-    "oops": "Oops!",
-    "backHome": "Back to Home"
-  },
   "pwa": {
     "bannerLabel": "App installation prompt",
     "addToHomeScreen": "Add GutenKu to Home Screen",

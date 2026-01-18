@@ -15,15 +15,10 @@ import {
   type IGlobalStatsRepository,
   IGlobalStatsRepositoryToken,
 } from '~/domain/repositories/IGlobalStatsRepository';
-import {
-  type IEmailSubscriptionRepository,
-  IEmailSubscriptionRepositoryToken,
-} from '~/domain/repositories/IEmailSubscriptionRepository';
 import BookRepository from '~/infrastructure/repositories/BookRepository';
 import ChapterRepository from '~/infrastructure/repositories/ChapterRepository';
 import HaikuRepository from '~/infrastructure/repositories/HaikuRepository';
 import GlobalStatsRepository from '~/infrastructure/repositories/GlobalStatsRepository';
-import EmailSubscriptionRepository from '~/infrastructure/repositories/EmailSubscriptionRepository';
 import CanvasService from '~/infrastructure/services/CanvasService';
 import { ICanvasServiceToken } from '~/domain/services/ICanvasService';
 import { IEventBusToken } from '~/domain/events/IEventBus';
@@ -52,13 +47,6 @@ container.register<IHaikuRepository>(IHaikuRepositoryToken, {
 container.register<IGlobalStatsRepository>(IGlobalStatsRepositoryToken, {
   useClass: GlobalStatsRepository,
 });
-
-container.register<IEmailSubscriptionRepository>(
-  IEmailSubscriptionRepositoryToken,
-  {
-    useClass: EmailSubscriptionRepository,
-  },
-);
 
 container.register(ICanvasServiceToken, {
   useClass: CanvasService,
