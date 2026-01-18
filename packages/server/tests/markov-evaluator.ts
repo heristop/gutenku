@@ -1,16 +1,19 @@
 import 'reflect-metadata';
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('fs/promises', () => {
+vi.mock('node:fs/promises', () => {
   let data: string | undefined;
+  const stat = vi.fn(async () => ({ size: 1000 }));
   const writeFile = vi.fn(async (_path: string, content: string) => {
     data = content;
   });
   const readFile = vi.fn(
-    async (_path: string) => data ?? '{"bigrams": [], "totalBigrams": 0}',
+    async (_path: string) =>
+      data ?? JSON.stringify({ bigrams: {}, trigrams: {}, vocabulary: [] }),
   );
   return {
-    default: { writeFile, readFile },
+    default: { stat, writeFile, readFile },
+    stat,
     readFile,
     writeFile,
   };
