@@ -467,9 +467,16 @@ onUnmounted(() => {
     align-items: center;
     cursor: default;
     margin-top: 2rem;
+    // Reserve space to prevent CLS
+    min-height: 160px;
 
     @media (min-width: 600px) {
       margin-top: 0;
+      min-height: 187px;
+    }
+
+    @media (min-width: 768px) {
+      min-height: 214px;
     }
 
     &:hover .hero__illustration {
@@ -523,6 +530,7 @@ onUnmounted(() => {
     position: relative;
     width: 240px;
     height: auto;
+    aspect-ratio: 640 / 427;
     z-index: 1;
     animation:
       lcp-enhance 0.01s ease-out 0.1s forwards,
