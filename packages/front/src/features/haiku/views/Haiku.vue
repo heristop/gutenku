@@ -147,11 +147,6 @@ onUnmounted(closeWSClient);
       :aria-label="t('home.haikuContentLabel')"
     >
       <div class="haiku-grid">
-        <!-- Cat wrapper for mobile - shows above main content -->
-        <div class="haiku-cat-wrapper haiku-cat-wrapper--mobile">
-          <SumieCat v-if="loading || !haiku" />
-        </div>
-
         <article class="haiku-grid__main" :aria-label="t('haiku.articleLabel')">
           <HaikuTitle class="haiku-section__title" />
 
@@ -359,6 +354,10 @@ onUnmounted(closeWSClient);
 
   // Entrance animation
   animation: skeleton-emerge 0.6s ease-out;
+
+  @media (max-width: 960px) {
+    margin-bottom: var(--gutenku-space-6);
+  }
 
   // Book spine effect
   &__spine {
@@ -618,19 +617,24 @@ onUnmounted(closeWSClient);
   height: 48px;
   overflow: visible;
 
-  @media (max-width: 767px) {
-    height: 40px;
+  @media (max-width: 768px) {
+    height: 32px;
   }
 }
 
 .haiku-cat-wrapper--mobile {
   display: block;
   order: -1; // Show at top on mobile
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 
-  @media (max-width: 767px) {
+  &.haiku-cat-wrapper--collapsed {
+    height: 0;
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 768px) {
     :deep(.sumi-cat-container) {
-      top: 16px;
+      top: 8px;
     }
   }
 
@@ -640,11 +644,9 @@ onUnmounted(closeWSClient);
 }
 
 .haiku-cat-wrapper--desktop {
-  :deep(.sumi-cat-container) {
-    display: none;
-
-    @media (min-width: 961px) {
-      display: block;
+  @media (max-width: 960px) {
+    :deep(.sumi-cat-container) {
+      display: none;
     }
   }
 }

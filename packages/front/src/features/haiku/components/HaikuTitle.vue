@@ -59,7 +59,7 @@ onMounted(startTypewriter);
   position: relative;
   overflow: visible;
   text-align: center;
-  margin-bottom: var(--gutenku-space-6);
+  // margin-bottom handled by parent .haiku-section__title in Haiku.vue
   transform: translateZ(0); // GPU layer stability
   backface-visibility: hidden; // Prevents flicker
   background: linear-gradient(
@@ -162,7 +162,7 @@ onMounted(startTypewriter);
 
 @media (max-width: 768px) {
   .title-container {
-    padding: 1.5rem 1rem;
+    padding: 1rem 1rem;
   }
 }
 </style>
