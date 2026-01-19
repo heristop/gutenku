@@ -123,6 +123,7 @@ useHead({
               author: {
                 '@type': 'Person',
                 name: 'Alexandre Mederic Mogère (@heristop)',
+                url: 'https://www.instagram.com/heristop/',
               },
               publisher: {
                 '@type': 'Organization',
@@ -208,7 +209,7 @@ useHead({
       <Transition name="fade-up">
         <ZenCard v-if="!loading && showContent" class="blog-article__content">
           <article class="blog-article__body prose" v-html="content" />
-          <BlogShareButtons />
+          <BlogShareButtons :title="article?.title ?? ''" />
 
           <!-- Article navigation -->
           <nav class="blog-article__nav" aria-label="Article navigation">
