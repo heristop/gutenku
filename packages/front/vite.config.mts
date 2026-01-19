@@ -11,10 +11,31 @@ import { VitePWA } from 'vite-plugin-pwa';
 import { defineConfig, loadEnv } from 'vite';
 import { fileURLToPath, URL } from 'node:url';
 import { resolve, dirname } from 'node:path';
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 
 const env = loadEnv('', process.cwd(), ['GUTENGUESS_', 'VITE_']);
 const siteUrl = env.VITE_APP_URL || 'https://gutenku.xyz';
+
+// Get blog article slugs for SSG pre-rendering
+function getBlogSlugs(): string[] {
+  const contentDir = resolve(
+    dirname(fileURLToPath(import.meta.url)),
+    './content',
+  );
+  if (!existsSync(contentDir)) {
+    return [];
+  }
+  const files = readdirSync(contentDir).filter((f) => f.endsWith('.md'));
+  const slugs = new Set<string>();
+  for (const file of files) {
+    // Extract slug: "2026-01-13-gutenku-when-two-frauds.en.md" → "gutenku-when-two-frauds"
+    const slug = file
+      .replace(/^\d{4}-\d{2}-\d{2}-/, '')
+      .replace(/\.(en|fr|ja)?\.md$/, '');
+    slugs.add(slug);
+  }
+  return [...slugs];
+}
 
 const gutenguessBasePath =
   env.GUTENGUESS_PATH ||
@@ -147,7 +168,9 @@ export default defineConfig(({ isSsrBuild }) => ({
       preload: 'media',
     },
     includedRoutes(paths) {
-      const ssgRoutes = ['/', '/haiku'];
+      const blogSlugs = getBlogSlugs();
+      const blogRoutes = blogSlugs.map((slug) => `/blog/${slug}`);
+      const ssgRoutes = ['/', '/haiku', '/blog', '/game', ...blogRoutes];
       return [...new Set([...paths, ...ssgRoutes])];
     },
   },
