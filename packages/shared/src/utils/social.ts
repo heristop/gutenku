@@ -7,6 +7,7 @@ export function maskBookTitle(title: string): string {
   for (const char of title) {
     if (vowels.includes(char)) {
       nonMaskedVowel = char;
+
       break;
     }
   }
@@ -56,7 +57,7 @@ export function generateSocialCaption(
   );
   hints.push(`💡 Hint ${hintNumber++} (Author):\n${authorFirstName}...`);
 
-  return `🌸 "${haiku.title}" 🗻
+  return `🌸  “${haiku.title}” 🗻
 
 📚 Guess the book! 👇
 

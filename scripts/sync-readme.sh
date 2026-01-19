@@ -4,6 +4,7 @@ set -e
 
 cp packages/server/data/daily_haiku_card.jpg ./assets/img/daily_haiku_card.jpg
 cp packages/server/data/description.txt ./assets/description.txt
+cp packages/server/data/social-preview-description.txt ./assets/social-preview-description.txt
 
 # Update image cache buster
 sed -i "s/t=[0-9]\+/t=$(date +%s)/" README.md

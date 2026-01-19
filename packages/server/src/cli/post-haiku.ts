@@ -30,7 +30,11 @@ program
     'number of haiku selection',
     process.env.OPENAI_SELECTION_COUNT,
   )
-  .option('--from-db <number>', 'fetch N top haikus from database cache (top 10%)', '0')
+  .option(
+    '--from-db <number>',
+    'fetch N top haikus from database cache (top 10%)',
+    '0',
+  )
   .option('--live <number>', 'generate N additional live haikus with GA')
   .option('-t, --theme <type>', 'theme', 'random')
   .option('-p, --platform <type>', 'platform (discord or social)', 'discord')
@@ -133,12 +137,8 @@ const variables = {
   selectionCount: options.selectionCount
     ? Number.parseInt(options.selectionCount, 10)
     : undefined,
-  fromDb: options.fromDb
-    ? Number.parseInt(options.fromDb, 10)
-    : undefined,
-  liveCount: options.live
-    ? Number.parseInt(options.live, 10)
-    : undefined,
+  fromDb: options.fromDb ? Number.parseInt(options.fromDb, 10) : undefined,
+  liveCount: options.live ? Number.parseInt(options.live, 10) : undefined,
   theme: options.theme,
   useAi: options.aiDescription,
   useImageAI: options.withImageAi,
@@ -204,7 +204,8 @@ try {
   }
 
   if (haiku.selectionInfo) {
-    const { requestedCount, generatedCount, selectedIndex } = haiku.selectionInfo;
+    const { requestedCount, generatedCount, selectedIndex } =
+      haiku.selectionInfo;
     const cacheStatus = options.cache ? '' : pc.yellow(' [fresh]');
     generateSpinner.succeed(
       pc.green(`Haiku generated`) +
@@ -214,7 +215,9 @@ try {
         cacheStatus,
     );
   } else {
-    const cacheStatus = options.cache ? pc.dim(' (from cache)') : pc.yellow(' [fresh]');
+    const cacheStatus = options.cache
+      ? pc.dim(' (from cache)')
+      : pc.yellow(' [fresh]');
     generateSpinner.succeed(pc.green('Haiku generated') + cacheStatus);
   }
 
@@ -241,10 +244,19 @@ try {
     );
   }
 
+  // Generate social preview description (Instagram/Discord format)
+  const socialPreviewCaption = generateSocialCaption(haiku);
+  await fs.writeFile(
+    path.join(DATA_DIRECTORY, 'social-preview-description.txt'),
+    socialPreviewCaption,
+  );
+
   imageSpinner.succeed(pc.green('Image processed'));
 
   // Show candidates for fresh generations or when selection occurred
-  const showCandidates = haiku.candidates && haiku.candidates.length > 0 &&
+  const showCandidates =
+    haiku.candidates &&
+    haiku.candidates.length > 0 &&
     (!options.cache || haiku.selectionInfo);
 
   if (showCandidates && haiku.candidates) {
@@ -319,14 +331,28 @@ try {
     console.log(`  ${pc.dim('Sentiment:')}        ${q.sentiment?.toFixed(3)}`);
     console.log(`  ${pc.dim('Grammar:')}          ${q.grammar?.toFixed(3)}`);
     console.log(`  ${pc.dim('Markov Flow:')}      ${q.markovFlow?.toFixed(3)}`);
-    console.log(`  ${pc.dim('Trigram Flow:')}     ${q.trigramFlow?.toFixed(3)}`);
+    console.log(
+      `  ${pc.dim('Trigram Flow:')}     ${q.trigramFlow?.toFixed(3)}`,
+    );
     console.log(`  ${pc.dim('Uniqueness:')}       ${q.uniqueness?.toFixed(3)}`);
-    console.log(`  ${pc.dim('Alliteration:')}     ${q.alliteration?.toFixed(3)}`);
-    console.log(`  ${pc.dim('Verse Distance:')}   ${q.verseDistance?.toFixed(3)}`);
-    console.log(`  ${pc.dim('Line Balance:')}     ${q.lineLengthBalance?.toFixed(3)}`);
-    console.log(`  ${pc.dim('Imagery Density:')}  ${q.imageryDensity?.toFixed(3)}`);
-    console.log(`  ${pc.dim('Sem. Coherence:')}   ${q.semanticCoherence?.toFixed(3)}`);
-    console.log(`  ${pc.dim('Verb Presence:')}    ${q.verbPresence?.toFixed(3)}`);
+    console.log(
+      `  ${pc.dim('Alliteration:')}     ${q.alliteration?.toFixed(3)}`,
+    );
+    console.log(
+      `  ${pc.dim('Verse Distance:')}   ${q.verseDistance?.toFixed(3)}`,
+    );
+    console.log(
+      `  ${pc.dim('Line Balance:')}     ${q.lineLengthBalance?.toFixed(3)}`,
+    );
+    console.log(
+      `  ${pc.dim('Imagery Density:')}  ${q.imageryDensity?.toFixed(3)}`,
+    );
+    console.log(
+      `  ${pc.dim('Sem. Coherence:')}   ${q.semanticCoherence?.toFixed(3)}`,
+    );
+    console.log(
+      `  ${pc.dim('Verb Presence:')}    ${q.verbPresence?.toFixed(3)}`,
+    );
   }
 
   if (haiku.selectionInfo?.reason) {
