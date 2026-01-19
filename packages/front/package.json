@@ -23,7 +23,8 @@
     "cap:android": "npx cap open android",
     "cap:sync": "npx cap sync",
     "generate:assets": "npx tsx scripts/generate-capacitor-assets.ts",
-    "cap:assets": "pnpm generate:assets && npx capacitor-assets generate"
+    "cap:assets": "pnpm generate:assets && npx capacitor-assets generate",
+    "generate:rss": "tsx scripts/generate-rss.ts"
   },
   "dependencies": {
     "@capacitor-community/safe-area": "^8.0.1",

@@ -396,6 +396,7 @@
     "olderArticle": "Older",
     "readArticle": "Read article",
     "notFound": "Article Not Found",
-    "notFoundDescription": "The article you're looking for doesn't exist."
+    "notFoundDescription": "The article you're looking for doesn't exist.",
+    "rss": "Subscribe"
   }
 }

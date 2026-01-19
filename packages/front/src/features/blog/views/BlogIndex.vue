@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useSeoMeta } from '@unhead/vue';
-import { ArrowRight } from 'lucide-vue-next';
+import { ArrowRight, Rss } from 'lucide-vue-next';
 import { RouterLink } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
@@ -28,6 +28,18 @@ useSeoMeta({
       <p class="blog-index__subtitle">
         {{ t('blog.subtitle') }}
       </p>
+      <a
+        href="/feed.xml"
+        class="blog-index__rss"
+        target="_blank"
+        rel="noopener"
+        :title="t('blog.rss')"
+      >
+        <span class="blog-index__rss-icon">
+          <Rss :size="14" />
+        </span>
+        <span class="blog-index__rss-label">{{ t('blog.rss') }}</span>
+      </a>
     </header>
 
     <!-- Ink brush divider -->
@@ -95,7 +107,7 @@ useSeoMeta({
 
   @media (min-width: 600px) {
     padding: 1.5rem;
-    padding-bottom: 1.5rem;
+    padding-bottom: 4rem;
   }
 
   &__header {
@@ -137,6 +149,86 @@ useSeoMeta({
     @media (min-width: 600px) {
       font-size: 1rem;
     }
+  }
+
+  &__rss {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.75rem;
+    color: var(--gutenku-text-muted);
+    text-decoration: none;
+    border: 1px solid var(--gutenku-zen-ink, oklch(0.35 0.02 260 / 0.15));
+    border-radius: 2rem;
+    background: var(--gutenku-zen-ink, oklch(0.35 0.02 260 / 0.03));
+    transition: all 0.3s ease;
+    letter-spacing: 0.02em;
+
+    @media (min-width: 600px) {
+      margin-top: 1rem;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.8rem;
+    }
+
+    &:hover {
+      color: var(--gutenku-zen-secondary);
+      border-color: var(--gutenku-zen-secondary);
+      background: color-mix(
+        in oklch,
+        var(--gutenku-zen-secondary) 8%,
+        transparent
+      );
+      transform: translateY(-1px);
+
+      .blog-index__rss-icon {
+        animation: rss-pulse 1.5s ease-in-out infinite;
+        box-shadow: 0 0 0 0
+          color-mix(in oklch, var(--gutenku-zen-secondary) 40%, transparent);
+      }
+    }
+  }
+
+  &__rss-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    background: linear-gradient(
+      135deg,
+      var(--gutenku-zen-secondary) 0%,
+      color-mix(
+          in oklch,
+          var(--gutenku-zen-secondary) 70%,
+          var(--gutenku-zen-accent)
+        )
+        100%
+    );
+    color: var(--gutenku-paper-light, #fff);
+    box-shadow: 0 1px 3px oklch(0 0 0 / 0.1);
+    transition: box-shadow 0.3s ease;
+
+    svg {
+      width: 10px;
+      height: 10px;
+    }
+
+    @media (min-width: 600px) {
+      width: 1.35rem;
+      height: 1.35rem;
+
+      svg {
+        width: 11px;
+        height: 11px;
+      }
+    }
+  }
+
+  &__rss-label {
+    font-weight: 500;
   }
 
   &__divider {
@@ -291,6 +383,18 @@ useSeoMeta({
   100% {
     transform: scaleX(1);
     opacity: 1;
+  }
+}
+
+@keyframes rss-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0
+      color-mix(in oklch, var(--gutenku-zen-secondary) 40%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 6px
+      color-mix(in oklch, var(--gutenku-zen-secondary) 0%, transparent);
   }
 }
 

@@ -39,8 +39,8 @@ export interface IterativeHaikuArgs {
   useAI?: boolean;
 }
 
-/** Default TTL for crafted haikus: 48 hours */
-const DEFAULT_CACHE_TTL_MS = 48 * 60 * 60 * 1000;
+/** Default TTL for crafted haikus: 72 hours */
+const DEFAULT_CACHE_TTL_MS = 72 * 60 * 60 * 1000;
 
 @injectable()
 export class GenerateHaikuIterativeHandler {

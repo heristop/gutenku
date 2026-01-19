@@ -396,6 +396,7 @@
     "olderArticle": "古い記事",
     "readArticle": "記事を読む",
     "notFound": "記事が見つかりません",
-    "notFoundDescription": "お探しの記事は存在しません。"
+    "notFoundDescription": "お探しの記事は存在しません。",
+    "rss": "購読"
   }
 }

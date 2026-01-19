@@ -252,8 +252,10 @@ describe('Daily Haiku', () => {
     });
   });
 
-  describe('48-hour TTL strategy', () => {
-    const TTL_48_HOURS = 48 * 60 * 60 * 1000;
+  describe('24-48h selection window', () => {
+    const TTL_72_HOURS = 72 * 60 * 60 * 1000;
+    const SELECTION_MIN_AGE = 24 * 60 * 60 * 1000; // 24h - exclude newer
+    const SELECTION_MAX_AGE = 48 * 60 * 60 * 1000; // 48h - exclude older
 
     interface MockHaikuWithExpiry {
       id: string;
@@ -288,129 +290,197 @@ describe('Daily Haiku', () => {
 
     function getEligibleForDaily(
       haikus: MockHaikuWithExpiry[],
-      excludeDate: string,
       now: Date,
     ): MockHaikuWithExpiry[] {
-      const excludeTimestamp = `${excludeDate}T00:00:00.000Z`;
-      return getAvailableHaikus(haikus, now).filter(
-        (h) => h.createdAt < excludeTimestamp,
-      );
+      const minCreatedAt = new Date(now.getTime() - SELECTION_MAX_AGE); // 48h ago
+      const maxCreatedAt = new Date(now.getTime() - SELECTION_MIN_AGE); // 24h ago
+
+      return getAvailableHaikus(haikus, now).filter((h) => {
+        const createdAt = new Date(h.createdAt);
+        return createdAt >= minCreatedAt && createdAt < maxCreatedAt;
+      });
     }
 
-    it('should have yesterday haikus available with 48h TTL', () => {
-      // Day 1: Create haikus
-      const day1 = '2026-01-05T12:00:00.000Z';
+    it('should exclude haikus created less than 24h ago (too new)', () => {
+      const now = new Date('2026-01-06T12:00:00.000Z');
       const haikus = [
-        createHaikuWithTTL('h1', day1, TTL_48_HOURS),
-        createHaikuWithTTL('h2', '2026-01-05T14:00:00.000Z', TTL_48_HOURS),
+        // Created 12h ago - too new
+        createHaikuWithTTL('h-12h', '2026-01-06T00:00:00.000Z', TTL_72_HOURS),
+        // Created 23h ago - too new
+        createHaikuWithTTL('h-23h', '2026-01-05T13:00:00.000Z', TTL_72_HOURS),
+        // Created 25h ago - eligible
+        createHaikuWithTTL('h-25h', '2026-01-05T11:00:00.000Z', TTL_72_HOURS),
       ];
 
-      // Day 2: Check availability
-      const day2 = new Date('2026-01-06T12:00:00.000Z');
-      const available = getAvailableHaikus(haikus, day2);
+      const eligible = getEligibleForDaily(haikus, now);
 
-      // Yesterday's haikus should still be available (< 48h)
-      expect(available).toHaveLength(2);
+      expect(eligible).toHaveLength(1);
+      expect(eligible[0].id).toBe('h-25h');
     });
 
-    it('should expire haikus after 48 hours', () => {
-      const createdAt = '2026-01-05T12:00:00.000Z';
-      const haiku = createHaikuWithTTL('h1', createdAt, TTL_48_HOURS);
-
-      // At 47 hours - should NOT be expired
-      const at47h = new Date('2026-01-07T11:00:00.000Z');
-      expect(isExpired(haiku, at47h)).toBeFalsy();
-
-      // At 49 hours - should be expired
-      const at49h = new Date('2026-01-07T13:00:00.000Z');
-      expect(isExpired(haiku, at49h)).toBeTruthy();
-    });
-
-    it('should have eligible haikus for daily selection on Day 2', () => {
-      // Day 1: Create haikus
+    it('should exclude haikus created more than 48h ago (too old)', () => {
+      const now = new Date('2026-01-06T12:00:00.000Z');
       const haikus = [
-        createHaikuWithTTL('h1', '2026-01-05T10:00:00.000Z', TTL_48_HOURS),
-        createHaikuWithTTL('h2', '2026-01-05T15:00:00.000Z', TTL_48_HOURS),
+        // Created 49h ago - too old
+        createHaikuWithTTL('h-49h', '2026-01-04T11:00:00.000Z', TTL_72_HOURS),
+        // Created 60h ago - too old
+        createHaikuWithTTL('h-60h', '2026-01-03T00:00:00.000Z', TTL_72_HOURS),
+        // Created 36h ago - eligible
+        createHaikuWithTTL('h-36h', '2026-01-05T00:00:00.000Z', TTL_72_HOURS),
       ];
 
-      // Day 2: Check eligibility for daily haiku
-      const day2Now = new Date('2026-01-06T12:00:00.000Z');
-      const eligible = getEligibleForDaily(haikus, '2026-01-06', day2Now);
+      const eligible = getEligibleForDaily(haikus, now);
 
-      // Day 1 haikus are eligible (created before Day 2, not expired)
+      expect(eligible).toHaveLength(1);
+      expect(eligible[0].id).toBe('h-36h');
+    });
+
+    it('should include haikus in 24-48h window', () => {
+      const now = new Date('2026-01-06T12:00:00.000Z');
+      const haikus = [
+        // Created 25h ago - eligible
+        createHaikuWithTTL('h-25h', '2026-01-05T11:00:00.000Z', TTL_72_HOURS),
+        // Created 36h ago - eligible
+        createHaikuWithTTL('h-36h', '2026-01-05T00:00:00.000Z', TTL_72_HOURS),
+        // Created 47h ago - eligible
+        createHaikuWithTTL('h-47h', '2026-01-04T13:00:00.000Z', TTL_72_HOURS),
+      ];
+
+      const eligible = getEligibleForDaily(haikus, now);
+
+      expect(eligible).toHaveLength(3);
+      expect(eligible.map((h) => h.id).sort()).toEqual([
+        'h-25h',
+        'h-36h',
+        'h-47h',
+      ]);
+    });
+
+    it('should handle boundary at exactly 24h', () => {
+      const now = new Date('2026-01-06T12:00:00.000Z');
+      const haikus = [
+        // Exactly 24h ago - should be EXCLUDED (not < maxCreatedAt)
+        createHaikuWithTTL(
+          'h-exact-24h',
+          '2026-01-05T12:00:00.000Z',
+          TTL_72_HOURS,
+        ),
+        // 1 second after 24h ago - should be EXCLUDED (too new)
+        createHaikuWithTTL(
+          'h-just-under-24h',
+          '2026-01-05T12:00:01.000Z',
+          TTL_72_HOURS,
+        ),
+        // 1 second before 24h ago - should be ELIGIBLE
+        createHaikuWithTTL(
+          'h-just-over-24h',
+          '2026-01-05T11:59:59.000Z',
+          TTL_72_HOURS,
+        ),
+      ];
+
+      const eligible = getEligibleForDaily(haikus, now);
+
+      expect(eligible).toHaveLength(1);
+      expect(eligible[0].id).toBe('h-just-over-24h');
+    });
+
+    it('should handle boundary at exactly 48h', () => {
+      const now = new Date('2026-01-06T12:00:00.000Z');
+      const haikus = [
+        // Exactly 48h ago - should be ELIGIBLE (>= minCreatedAt)
+        createHaikuWithTTL(
+          'h-exact-48h',
+          '2026-01-04T12:00:00.000Z',
+          TTL_72_HOURS,
+        ),
+        // 1 second before 48h ago - should be EXCLUDED (too old)
+        createHaikuWithTTL(
+          'h-just-over-48h',
+          '2026-01-04T11:59:59.000Z',
+          TTL_72_HOURS,
+        ),
+        // 1 second after 48h ago - should be ELIGIBLE
+        createHaikuWithTTL(
+          'h-just-under-48h',
+          '2026-01-04T12:00:01.000Z',
+          TTL_72_HOURS,
+        ),
+      ];
+
+      const eligible = getEligibleForDaily(haikus, now);
+
       expect(eligible).toHaveLength(2);
+      expect(eligible.map((h) => h.id).sort()).toEqual([
+        'h-exact-48h',
+        'h-just-under-48h',
+      ]);
     });
 
-    it('should NOT have eligible haikus on Day 1 (only today haikus exist)', () => {
-      // Day 1: Create haikus
+    it('should still respect cache TTL (72h) alongside selection window', () => {
+      const now = new Date('2026-01-08T12:00:00.000Z');
       const haikus = [
-        createHaikuWithTTL('h1', '2026-01-05T10:00:00.000Z', TTL_48_HOURS),
-        createHaikuWithTTL('h2', '2026-01-05T15:00:00.000Z', TTL_48_HOURS),
+        // Created 36h ago - in selection window, not expired
+        createHaikuWithTTL('h-36h', '2026-01-07T00:00:00.000Z', TTL_72_HOURS),
+        // Created 30h ago but with short TTL that expired
+        createHaikuWithTTL(
+          'h-30h-expired',
+          '2026-01-07T06:00:00.000Z',
+          24 * 60 * 60 * 1000,
+        ),
       ];
 
-      // Day 1: Check eligibility (exclude today = Day 1)
-      const day1Now = new Date('2026-01-05T18:00:00.000Z');
-      const eligible = getEligibleForDaily(haikus, '2026-01-05', day1Now);
+      const eligible = getEligibleForDaily(haikus, now);
 
-      // No haikus eligible (all from today)
+      expect(eligible).toHaveLength(1);
+      expect(eligible[0].id).toBe('h-36h');
+    });
+
+    it('should have no eligible haikus when all are outside the window', () => {
+      const now = new Date('2026-01-06T12:00:00.000Z');
+      const haikus = [
+        // All too new (created today)
+        createHaikuWithTTL('h-new-1', '2026-01-06T08:00:00.000Z', TTL_72_HOURS),
+        createHaikuWithTTL('h-new-2', '2026-01-06T10:00:00.000Z', TTL_72_HOURS),
+      ];
+
+      const eligible = getEligibleForDaily(haikus, now);
+
       expect(eligible).toHaveLength(0);
     });
 
-    it('should handle Day 3 correctly (Day 1 expired, Day 2 available)', () => {
+    it('should show selection window behavior over multiple days', () => {
+      // Create haikus over 5 days at the same time (noon) for predictable boundaries
       const haikus = [
-        // Day 1 haikus - will expire on Day 3
-        createHaikuWithTTL('h1-day1', '2026-01-05T10:00:00.000Z', TTL_48_HOURS),
-        // Day 2 haikus - still available on Day 3
-        createHaikuWithTTL('h2-day2', '2026-01-06T10:00:00.000Z', TTL_48_HOURS),
-        // Day 3 haikus - excluded from daily
-        createHaikuWithTTL('h3-day3', '2026-01-07T10:00:00.000Z', TTL_48_HOURS),
+        createHaikuWithTTL('h-day1', '2026-01-01T12:00:00.000Z', TTL_72_HOURS),
+        createHaikuWithTTL('h-day2', '2026-01-02T12:00:00.000Z', TTL_72_HOURS),
+        createHaikuWithTTL('h-day3', '2026-01-03T12:00:00.000Z', TTL_72_HOURS),
+        createHaikuWithTTL('h-day4', '2026-01-04T12:00:00.000Z', TTL_72_HOURS),
+        createHaikuWithTTL('h-day5', '2026-01-05T12:00:00.000Z', TTL_72_HOURS),
       ];
 
-      // Day 3 afternoon
-      const day3Now = new Date('2026-01-07T14:00:00.000Z');
-      const eligible = getEligibleForDaily(haikus, '2026-01-07', day3Now);
+      // On Day 5 at 14:00 (2h after noon):
+      // minCreatedAt = 48h ago = Day 3 at 14:00
+      // maxCreatedAt = 24h ago = Day 4 at 14:00
+      // - Day 3 at noon is before minCreatedAt (14:00 > 12:00) - too old
+      // - Day 4 at noon is before maxCreatedAt (12:00 < 14:00) and after minCreatedAt - eligible
+      // - Day 5 is too new
+      const day5Afternoon = new Date('2026-01-05T14:00:00.000Z');
+      const eligibleDay5 = getEligibleForDaily(haikus, day5Afternoon);
 
-      // Only Day 2 haiku is eligible:
-      // - Day 1 expired (created 2026-01-05T10:00, expires 2026-01-07T10:00)
-      // - Day 3 excluded (created today)
-      expect(eligible).toHaveLength(1);
-      expect(eligible[0].id).toBe('h2-day2');
-    });
+      // Only Day 4 falls in the 24-48h window (26h old)
+      // Day 3 is 50h old which is > 48h
+      expect(eligibleDay5.map((h) => h.id).sort()).toEqual(['h-day4']);
 
-    it('should maintain daily pool across rolling 48h window', () => {
-      // Simulate 5 days of haiku generation
-      const haikus: MockHaikuWithExpiry[] = [];
+      // On Day 6 at 14:00:
+      // minCreatedAt = 48h ago = Day 4 at 14:00
+      // maxCreatedAt = 24h ago = Day 5 at 14:00
+      // - Day 4 at noon is before minCreatedAt - too old
+      // - Day 5 at noon is before maxCreatedAt and after minCreatedAt - eligible
+      const day6Afternoon = new Date('2026-01-06T14:00:00.000Z');
+      const eligibleDay6 = getEligibleForDaily(haikus, day6Afternoon);
 
-      for (let day = 1; day <= 5; day++) {
-        const dateStr = `2026-01-0${day}T12:00:00.000Z`;
-        haikus.push(createHaikuWithTTL(`h-day${day}`, dateStr, TTL_48_HOURS));
-      }
-
-      // On Day 5 at 10:00 (before Day 3 expires at 12:00)
-      const day5Morning = new Date('2026-01-05T10:00:00.000Z');
-      const eligible = getEligibleForDaily(haikus, '2026-01-05', day5Morning);
-
-      // Day 1, 2 expired; Day 3, 4 eligible; Day 5 excluded
-      // Day 3 created Jan 3 at 12:00 → expires Jan 5 at 12:00 → still valid at 10:00
-      expect(eligible).toHaveLength(2);
-      expect(eligible.map((h) => h.id).sort()).toEqual(['h-day3', 'h-day4']);
-    });
-
-    it('should show only Day 4 eligible when Day 3 expires', () => {
-      const haikus: MockHaikuWithExpiry[] = [];
-
-      for (let day = 1; day <= 5; day++) {
-        const dateStr = `2026-01-0${day}T12:00:00.000Z`;
-        haikus.push(createHaikuWithTTL(`h-day${day}`, dateStr, TTL_48_HOURS));
-      }
-
-      // On Day 5 at 18:00 (after Day 3 expires at 12:00)
-      const day5Afternoon = new Date('2026-01-05T18:00:00.000Z');
-      const eligible = getEligibleForDaily(haikus, '2026-01-05', day5Afternoon);
-
-      // Day 1, 2, 3 expired; Day 4 eligible; Day 5 excluded
-      expect(eligible).toHaveLength(1);
-      expect(eligible[0].id).toBe('h-day4');
+      expect(eligibleDay6.map((h) => h.id).sort()).toEqual(['h-day5']);
     });
   });
 

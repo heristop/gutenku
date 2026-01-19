@@ -396,6 +396,7 @@
     "olderArticle": "Plus ancien",
     "readArticle": "Lire l'article",
     "notFound": "Article introuvable",
-    "notFoundDescription": "L'article que vous recherchez n'existe pas."
+    "notFoundDescription": "L'article que vous recherchez n'existe pas.",
+    "rss": "S'abonner"
   }
 }

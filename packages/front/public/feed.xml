@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>GutenKu Blog</title>
+  <subtitle>Articles about AI haiku generation and classic literature</subtitle>
+  <link href="https://gutenku.xyz/blog"/>
+  <link href="https://gutenku.xyz/feed.xml" rel="self"/>
+  <id>https://gutenku.xyz/blog</id>
+  <updated>2026-01-18T00:00:00Z</updated>
+  <author>
+    <name>Alexandre Mederic Mogère</name>
+    <uri>https://www.instagram.com/heristop/</uri>
+  </author>
+
+  <entry>
+    <title>GutenKu Technical Deep-Dive</title>
+    <link href="https://gutenku.xyz/blog/gutenku-technical-deep-dive"/>
+    <id>https://gutenku.xyz/blog/gutenku-technical-deep-dive</id>
+    <updated>2026-01-18T00:00:00Z</updated>
+    <published>2026-01-18T00:00:00Z</published>
+    <summary>A deep technical exploration of GutenKu&apos;s genetic algorithm, NLP scoring system, and self-learning neural network. How evolutionary computation creates haiku from classic literature.</summary>
+  </entry>
+  <entry>
+    <title>GutenKu: When Two Frauds Make a Truth</title>
+    <link href="https://gutenku.xyz/blog/gutenku-when-two-frauds-make-a-truth"/>
+    <id>https://gutenku.xyz/blog/gutenku-when-two-frauds-make-a-truth</id>
+    <updated>2026-01-17T00:00:00Z</updated>
+    <published>2026-01-17T00:00:00Z</published>
+    <summary>I discovered Dimitri Rataud&apos;s &quot;Haiku Marinière&quot; on Instagram and immediately thought: &quot;This is brilliant... and possibly a bit of bullshit.&quot;</summary>
+  </entry>
+  <entry>
+    <title>GutenGuess: The Daily Literary Puzzle</title>
+    <link href="https://gutenku.xyz/blog/gutenguess-daily-literary-puzzle"/>
+    <id>https://gutenku.xyz/blog/gutenguess-daily-literary-puzzle</id>
+    <updated>2026-01-13T00:00:00Z</updated>
+    <published>2026-01-13T00:00:00Z</published>
+    <summary>A Wordle-inspired literary game where you guess which classic book hides behind today&apos;s verses. One guess per day, same challenge for everyone.</summary>
+  </entry>
+</feed>
