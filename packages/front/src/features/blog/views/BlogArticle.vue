@@ -67,7 +67,7 @@ useSeoMeta({
   ogType: 'article',
   ogLocale,
   articlePublishedTime: isoDate,
-  articleAuthor: ['Alexandre Mederic Mogère'],
+  articleAuthor: ['Alexandre Mederic Mogère (@heristop)'],
   twitterCard: 'summary_large_image',
   twitterTitle: () => article.value?.title || 'Article Not Found',
   twitterDescription: () => article.value?.description || 'Article not found',
@@ -121,7 +121,7 @@ useHead({
                   ?.htmlLang || 'en',
               author: {
                 '@type': 'Person',
-                name: 'Alexandre Mederic Mogère',
+                name: 'Alexandre Mederic Mogère (@heristop)',
               },
               publisher: {
                 '@type': 'Organization',
@@ -179,7 +179,14 @@ useHead({
         >
           {{ article?.title }}
         </h1>
-        <p class="blog-article__author">Alexandre Mederic Mogère</p>
+        <p class="blog-article__author">
+          Alexandre Mederic Mogère (<a
+            href="https://www.instagram.com/heristop/"
+            class="link-highlight"
+            target="_blank"
+            >@heristop</a
+          >)
+        </p>
         <p class="blog-article__reading-time">
           {{ t('blog.minRead', { min: readingTime }) }}
         </p>
@@ -807,6 +814,27 @@ useHead({
         max-height: 280px;
         margin: 1.5rem auto;
         border-radius: var(--gutenku-radius-lg);
+      }
+    }
+
+    // Technical article images - full width, responsive
+    :deep(img.article-img) {
+      max-width: 100%;
+      max-height: none;
+      min-height: 400px;
+      object-fit: contain;
+      border-radius: var(--gutenku-radius-lg);
+
+      @media (max-width: 768px) {
+        min-height: auto;
+      }
+    }
+
+    :deep(img.article-img--tall) {
+      min-height: 500px;
+
+      @media (max-width: 768px) {
+        min-height: auto;
       }
     }
 

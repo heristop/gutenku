@@ -1,5 +1,5 @@
 ---
-description: Un jeu littéraire inspiré de Wordle où vous devinez quel livre classique a inspiré le haiku du jour. Un essai par jour, même défi pour tous.
+description: Un jeu littéraire inspiré de Wordle où vous devinez quel livre classique se cache derrière les vers du jour. Un essai par jour, même défi pour tous.
 ---
 
 # GutenGuess : Le Puzzle Littéraire Quotidien
@@ -12,22 +12,24 @@ _Saurez-vous reconnaître le livre ?_
 
 **GutenGuess** est un puzzle littéraire quotidien inspiré de Wordle. Un essai par jour, même défi pour tous.
 
-Votre mission : **identifier quel livre classique a inspiré le haiku du jour.**
+Votre mission : **identifier quel livre classique se cache derrière les vers du jour.**
 
 C'est le test ultime — pouvez-vous reconnaître la littérature à partir de fragments poétiques ?
 
 ## 🎯 Comment Jouer
 
-1. Lisez le haiku quotidien généré par [GutenKu](https://gutenku.xyz/haiku)
-2. Devinez quel livre classique du Projet Gutenberg l'a inspiré
-3. Utilisez les indices si vous êtes bloqué
-4. Partagez votre score avec vos amis
+1. **Commencez avec des indices** : 2 emoticons et 1 haiku du livre mystère
+2. **Faites votre choix** : Cherchez parmi 600+ livres classiques
+3. **Mauvaise réponse ?** Un nouvel indice se débloque (genre, époque, auteur, citation...)
+4. **6 tentatives** pour identifier le livre — saurez-vous le trouver du premier coup ?
+
+Moins vous utilisez d'indices, plus votre score est élevé !
 
 ## 🏆 Le Défi
 
-Chaque haiku est construit à partir de phrases extraites d'un seul livre classique. Les mots sont authentiques, tirés directement de Hugo, Balzac et d'autres œuvres du domaine public.
+Chaque jour, des vers sont extraits d'un seul livre classique. Les mots sont authentiques, tirés directement de Hugo, Balzac et d'autres œuvres du domaine public. Combinés aux emoticons qui capturent l'essence du livre, vous avez tous les indices qu'il vous faut.
 
-Pouvez-vous reconnaître la source à partir de seulement 17 syllabes ?
+Saurez-vous reconnaître la source ?
 
 ---
 

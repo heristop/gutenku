@@ -42,9 +42,9 @@ flowchart TD
 
 ## L'Algorithme Génétique
 
-<img src="/article/ga-evolution-1.png" alt="Processus d'évolution de l'algorithme génétique - Partie 1" style="width: 100%; min-height: 390px; object-fit: cover; object-position: top; display: block; margin: 1rem auto;" />
+<img src="/article/ga-evolution-1.png" alt="Processus d'évolution de l'algorithme génétique - Partie 1" class="article-img" />
 
-<img src="/article/ga-evolution-2.png" alt="Processus d'évolution de l'algorithme génétique - Partie 2" style="width: 100%; min-height: 400px; object-fit: cover; object-position: top; display: block; margin: 1rem auto;" />
+<img src="/article/ga-evolution-2.png" alt="Processus d'évolution de l'algorithme génétique - Partie 2" class="article-img" />
 
 Darwin aurait approuvé. La même technique d'optimisation qui conçoit les ailes d'avion et optimise les itinéraires de livraison peut aussi faire évoluer la poésie.
 
@@ -71,7 +71,7 @@ L'algorithme s'arrête quand l'amélioration stagne (moins de 0,5% de gain sur 3
 
 ## Le Système de Notation
 
-<img src="/article/quality-score.png" alt="Panneau de score de qualité - 18 métriques réparties en Langage, Flux, Structure, Imagerie et Pénalités" style="width: 100%; min-height: 400px; object-fit: cover; object-position: top; display: block; margin: 1rem auto;" />
+<img src="/article/quality-score.png" alt="Panneau de score de qualité - 18 métriques réparties en Langage, Flux, Structure, Imagerie et Pénalités" class="article-img" />
 
 Comment enseigner à un algorithme ce qui fait un « bon » haïku ? Vous décomposez l'ineffable en 18 signaux mesurables.
 
@@ -102,7 +102,7 @@ Le score final se situe généralement entre -5 et +15, bien que la plupart des 
 
 ## La Couche de Réseau de Neurones
 
-<img src="/article/ml-training.png" alt="Processus d'entraînement du réseau de neurones" style="width: 100%; min-height: 500px; object-fit: cover; object-position: top; display: block; margin: 1rem auto;" />
+<img src="/article/ml-training.png" alt="Processus d'entraînement du réseau de neurones" class="article-img article-img--tall" />
 
 C'est là que ça devient intéressant : **GutenKu apprend de son propre processus évolutif**.
 
@@ -112,7 +112,7 @@ Chaque exécution évolutive génère des données d'entraînement gratuites. Le
 
 ### Lire Caractère par Caractère
 
-Contrairement à la plupart des systèmes NLP qui travaillent avec des mots, le réseau de neurones de GutenKu lit les haïkus caractère par caractère. Pourquoi ? Le rythme, l'espacement, les motifs de lettres - la musique subtile du langage vit en dessous du niveau des mots.
+Contrairement à la plupart des systèmes NLP (Natural Language Processing) qui travaillent avec des mots, le réseau de neurones de GutenKu lit les haïkus caractère par caractère. Pourquoi ? Le rythme, l'espacement, les motifs de lettres - la musique subtile du langage vit en dessous du niveau des mots.
 
 ```mermaid
 flowchart TD
@@ -145,19 +145,19 @@ Après l'entraînement, le réseau construit un « centroïde d'élite » - la m
 
 Le fitness final mélange les deux approches :
 
-$$F_{total} = 0.6 \times S_{règles} + 0.4 \times S_{réseau}$$
+$$F_{total} = 0.6 \times S_{\text{règles}} + 0.4 \times S_{\text{réseau}}$$
 
-Les règles détectent les problèmes évidents ; le réseau perçoit les subtilités.
+Les règles détectent les problèmes évidents ; le réseau perçoit les subtilités cachées derrière les mots.
 
 ---
 
 ## Sous le Capot
 
-Le backend tourne sur Node.js avec une API GraphQL. La magie NLP vient de la bibliothèque [natural](https://naturalnode.github.io/natural/) - analyse de sentiment, étiquetage POS, et phonétique Metaphone pour la détection d'allitération. TensorFlow.js alimente le réseau de neurones. MongoDB stocke les livres, chapitres et l'historique des haïkus.
+Le backend tourne sur Node.js avec une API GraphQL. La magie NLP vient de la bibliothèque [natural](https://naturalnode.github.io/natural/) - analyse de sentiment, étiquetage POS, et phonétique Metaphone pour la détection d'allitération. L'algo génétique et la chaîne de Markov à travers les vers sont full custom. TensorFlow.js alimente le réseau de neurones. MongoDB stocke les livres, chapitres et l'historique des haïkus.
 
 Pour le « haïku du jour », une graine partagée garantit que tout le monde voit le même poème chaque jour — l'évolution reste déterministe.
 
-GPT gère les touches finales avec lesquelles les algorithmes ont du mal : choisir le meilleur haïku parmi les 5 meilleurs candidats, écrire des titres créatifs, générer des traductions en cinq langues, et créer des fonds artistiques dans les styles japonais traditionnels (nihonga, sumi-e, ukiyo-e).
+GPT gère les touches finales avec lesquelles les algorithmes ont du mal : choisir le meilleur haïku parmi les 5 meilleurs candidats, écrire des titres créatifs, générer des traductions en cinq langues, et créer des fonds artistiques via gpt-image dans les styles japonais traditionnels (nihonga, sumi-e, ukiyo-e).
 
 Le [code est open source](https://github.com/heristop/gutenku) pour les curieux.
 

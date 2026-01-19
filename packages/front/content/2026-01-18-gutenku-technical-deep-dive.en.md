@@ -42,9 +42,9 @@ flowchart TD
 
 ## The Genetic Algorithm
 
-<img src="/article/ga-evolution-1.png" alt="Genetic Algorithm Evolution Process - Part 1" style="width: 100%; min-height: 390px; object-fit: cover; object-position: top; display: block; margin: 1rem auto;" />
+<img src="/article/ga-evolution-1.png" alt="Genetic Algorithm Evolution Process - Part 1" class="article-img" />
 
-<img src="/article/ga-evolution-2.png" alt="Genetic Algorithm Evolution Process - Part 2" style="width: 100%; min-height: 400px; object-fit: cover; object-position: top; display: block; margin: 1rem auto;" />
+<img src="/article/ga-evolution-2.png" alt="Genetic Algorithm Evolution Process - Part 2" class="article-img" />
 
 Evolution isn't just for finches. The same optimization technique that designs aircraft wings and optimizes delivery routes can also breed poetry.
 
@@ -71,7 +71,7 @@ The algorithm stops when improvement stagnates (less than 0.5% gain over 30 gene
 
 ## The Scoring System
 
-<img src="/article/quality-score.png" alt="Quality Score Panel - 18 metrics across Language, Flow, Structure, Imagery and Penalties" style="width: 100%; min-height: 400px; object-fit: cover; object-position: top; display: block; margin: 1rem auto;" />
+<img src="/article/quality-score.png" alt="Quality Score Panel - 18 metrics across Language, Flow, Structure, Imagery and Penalties" class="article-img" />
 
 How do you teach an algorithm what makes a haiku "good"? You break down the ineffable into 18 measurable signals.
 
@@ -102,7 +102,7 @@ The final score typically lands somewhere between -5 and +15, though most decent
 
 ## The Neural Network Layer
 
-<img src="/article/ml-training.png" alt="Neural Network Training Process" style="width: 100%; min-height: 500px; object-fit: cover; object-position: top; display: block; margin: 1rem auto;" />
+<img src="/article/ml-training.png" alt="Neural Network Training Process" class="article-img article-img--tall" />
 
 Here's where it gets interesting: **GutenKu learns from its own evolutionary process**.
 
@@ -112,7 +112,7 @@ Every evolutionary run generates free training data. Haiku that survive to the f
 
 ### Reading Character by Character
 
-Unlike most NLP systems that work with words, GutenKu's neural network reads haiku character by character. Why? Rhythm, spacing, letter patterns - the subtle music of language lives below the word level.
+Unlike most NLP (Natural Language Processing) systems that work with words, GutenKu's neural network reads haiku character by character. Why? Rhythm, spacing, letter patterns - the subtle music of language lives below the word level.
 
 ```mermaid
 flowchart TD
@@ -147,17 +147,17 @@ The final fitness blends both approaches:
 
 $$F_{total} = 0.6 \times S_{rules} + 0.4 \times S_{network}$$
 
-The rules catch obvious problems; the network catches the subtle ones.
+The rules catch obvious problems; the network perceives the subtleties hidden behind the words.
 
 ---
 
 ## Under the Hood
 
-The backend runs on Node.js with a GraphQL API. The NLP magic comes from the [natural](https://naturalnode.github.io/natural/) library - sentiment analysis, POS tagging, and Metaphone phonetics for alliteration detection. TensorFlow.js powers the neural network. MongoDB stores books, chapters, and haiku history.
+The backend runs on Node.js with a GraphQL API. The NLP magic comes from the [natural](https://naturalnode.github.io/natural/) library - sentiment analysis, POS tagging, and Metaphone phonetics for alliteration detection. The genetic algorithm and Markov chain across verses are fully custom. TensorFlow.js powers the neural network. MongoDB stores books, chapters, and haiku history.
 
 For the "haiku of the day" feature, a seeded random number generator ensures everyone sees the same poem each day - deterministic evolution from a shared seed.
 
-GPT handles the finishing touches that algorithms struggle with: picking the best haiku from the top 5 candidates, writing creative titles, generating translations in five languages, and creating artistic backgrounds in traditional Japanese styles (nihonga, sumi-e, ukiyo-e).
+GPT handles the finishing touches that algorithms struggle with: picking the best haiku from the top 5 candidates, writing creative titles, generating translations in five languages, and creating artistic backgrounds via gpt-image in traditional Japanese styles (nihonga, sumi-e, ukiyo-e).
 
 The [source code is open](https://github.com/heristop/gutenku) if you want to dig deeper.
 
