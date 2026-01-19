@@ -96,7 +96,7 @@ describe('Puzzle Handlers', () => {
       expect(result.puzzle.puzzleNumber).toBe(1);
     });
 
-    it('ensures era and publication_century do not both appear', async () => {
+    it('verifies era and publication_century do not both appear', async () => {
       // Test multiple dates to verify the exclusion rule
       const dates = [
         '2026-01-15',
@@ -232,7 +232,7 @@ describe('Puzzle Handlers', () => {
     });
 
     it('emoticons are consistent when revealing more', async () => {
-      // This test ensures that emoticons don't change when revealing additional ones
+      // Verify that emoticons don't change when revealing additional ones
       // (regression test for the bug where initial emoticons changed after scratch)
       const date = '2026-01-15';
 
