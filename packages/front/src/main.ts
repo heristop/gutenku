@@ -77,7 +77,7 @@ export const createApp = ViteSSG(
       loadFonts();
 
       // Register service worker with auto-reload on update
-      // SSR guard ensures Rollup completely tree-shakes this during SSR builds
+      // SSR guard required for Rollup tree-shaking during SSR builds
       // (isClient alone isn't enough - Rollup still bundles the dynamic import)
       // Skip PWA registration in native Capacitor apps (they use native app stores)
       if (!import.meta.env.SSR && !isNative) {

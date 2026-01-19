@@ -1,8 +1,8 @@
 /**
  * Verse Embedding Service
  *
- * Provides embedding computation for verse candidates during extraction,
- * enabling semantic similarity-based coherence scoring.
+ * Computes embeddings for verse candidates during extraction.
+ * Used for semantic similarity-based coherence scoring.
  */
 
 import { injectable, singleton } from 'tsyringe';
@@ -85,7 +85,7 @@ export class VerseEmbeddingService {
   }
 
   /**
-   * Batch embed multiple verses (efficient)
+   * Batch embed multiple verses
    */
   async embedMany(texts: string[]): Promise<number[][]> {
     if (!this.isInitialized) {

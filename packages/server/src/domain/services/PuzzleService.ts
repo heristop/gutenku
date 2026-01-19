@@ -122,7 +122,7 @@ export function getEmoticonsByDate(
   const indexRandom = seededRandom(seed + 2000);
   const shuffledIndices = shuffleIndices(indexRandom, allEmojis.length);
 
-  // Take first baseCount indices in their shuffled order (ensures consistency when baseCount grows)
+  // Take first baseCount indices in their shuffled order (maintains consistency when baseCount grows)
   const baseIndices = shuffledIndices.slice(0, baseCount);
 
   // Sort for visibleIndices return value (display purposes)
