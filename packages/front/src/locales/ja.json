@@ -2,7 +2,7 @@
   "common": {
     "back": "戻る",
     "backToHome": "ホームに戻る",
-    "by": "作",
+    "by": "著",
     "close": "閉じる",
     "cancel": "キャンセル",
     "clear": "クリア",
@@ -26,7 +26,7 @@
     "pageNavigation": "ページナビゲーション",
     "home": "ホームへ",
     "haiku": "GutenKu俳句生成へ",
-    "game": "GutenGuessゲームへ",
+    "game": "GutenGuessで遊ぶ",
     "homeLabel": "ホーム",
     "haikuLabel": "GutenKu",
     "gameLabel": "GutenGuess",
@@ -103,7 +103,7 @@
     "ariaLabel": "GutenKuについて",
     "description": "<strong>GutenKu</strong>はProject Gutenbergの無料電子書籍ライブラリを使用して、古典文学から俳句を作成します。",
     "stats": {
-      "haikusCrafted": "俳句を作成"
+      "haikusCrafted": "作成俳句数"
     }
   },
   "haikuTitle": {
@@ -229,7 +229,7 @@
     "title": "あなたの統計",
     "subtitle": "生成履歴",
     "ariaLabel": "統計、クリックで展開",
-    "haikusGenerated": "{count}句の俳句を作成",
+    "haikusGenerated": "{count}句作成",
     "you": "あなた",
     "global": "全体",
     "metrics": {
@@ -387,7 +387,7 @@
     "subtitle": "言葉が露のように集まる"
   },
   "blog": {
-    "title": "日記から",
+    "title": "日誌",
     "subtitle": "AI詩、アルゴリズム、そして見つけた言葉の美しさについての考察",
     "backToBlog": "ブログに戻る",
     "allArticles": "すべての記事",

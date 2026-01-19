@@ -628,6 +628,12 @@ onUnmounted(closeWSClient);
   order: -1; // Show at top on mobile
   margin-bottom: 0.5rem;
 
+  @media (max-width: 767px) {
+    :deep(.sumi-cat-container) {
+      top: 16px;
+    }
+  }
+
   @media (min-width: 961px) {
     display: none;
   }

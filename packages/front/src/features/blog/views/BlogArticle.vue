@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { useRoute, RouterLink } from 'vue-router';
 import { Loader2, ArrowUp, ArrowLeft, ArrowRight } from 'lucide-vue-next';
+import SumieCat from '@/core/components/decorative/SumieCat.vue';
 import { useSeoMeta, useHead } from '@unhead/vue';
 import { useI18n } from 'vue-i18n';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
@@ -197,6 +198,11 @@ useHead({
 
       <div v-if="loading" class="blog-article__loading">
         <Loader2 :size="32" class="blog-article__spinner" />
+      </div>
+
+      <!-- Walking cat above article card -->
+      <div class="blog-article__cat-wrapper">
+        <SumieCat />
       </div>
 
       <Transition name="fade-up">
@@ -1067,6 +1073,28 @@ useHead({
         font-family: inherit;
         font-weight: 500;
         white-space: nowrap;
+      }
+    }
+  }
+
+  &__cat-wrapper {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    margin-bottom: -25px;
+    z-index: 10;
+    overflow: visible;
+
+    :deep(.sumi-cat-container) {
+      top: -14px;
+    }
+
+    @media (max-width: 767px) {
+      height: 40px;
+      margin-bottom: -20px;
+
+      :deep(.sumi-cat-container) {
+        top: -14px;
       }
     }
   }
