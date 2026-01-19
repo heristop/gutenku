@@ -32,7 +32,7 @@ flowchart TD
     G -->|Oui| I["Gagnant !"]
 ```
 
-**Premièrement**, nous découpons un livre de Project Gutenberg en phrases individuelles et ne gardons que celles ayant exactement 5 ou 7 syllabes. Cela nous donne deux « réservoirs » de matière première - un pour les vers courts, un pour les longs.
+**Premièrement**, nous découpons un livre de [Project Gutenberg](https://www.gutenberg.org/) en phrases individuelles et ne gardons que celles ayant exactement 5 ou 7 syllabes. Cela nous donne deux « réservoirs » de matière première - un pour les vers courts, un pour les longs.
 
 **Ensuite**, 150 haïkus aléatoires sont assemblés à partir de ces réservoirs et lancés dans une arène évolutive. Ils s'affrontent, se reproduisent, mutent. Les survivants transmettent leurs « gènes » (quels vers ils utilisent) à la génération suivante.
 

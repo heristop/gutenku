@@ -50,7 +50,7 @@ Let me be clear: **GutenKu does not use an LLM**. It doesn't "write" anything �
 
 Here's the short version:
 
-- It pulls text from classic books on Project Gutenberg (Shakespeare, Austen, Dickens...)
+- It pulls text from classic books on [Project Gutenberg](https://www.gutenberg.org/) — a digital library of public domain books — (Shakespeare, Austen, Dickens...)
 - It scans sentences and keeps only chunks with exactly 5 or 7 syllables
 - 150 haiku candidates compete and evolve over generations, following strict 5-7-5 structure
 - 18 quality metrics plus a neural network score each candidate
@@ -69,6 +69,10 @@ _Where does meaning actually live?_
 I used to think poetry was in the text — that certain arrangements of words contained inherent beauty. Now I believe something different. Poetry is born the moment a human mind encounters arranged words and decides to feel something.
 
 The haiku isn't on the page. It's in the space between the page and your consciousness. Dimitri's black markers don't reveal hidden poems. GutenKu's algorithm doesn't create art. We — the readers — do the creating.
+
+Roland Barthes called this "[The Death of the Author](https://en.wikipedia.org/wiki/The_Death_of_the_Author)" — the radical idea that once a text leaves its creator, meaning belongs entirely to the reader. Umberto Eco went further with "[The Open Work](https://en.wikipedia.org/wiki/Umberto_Eco#Literary_criticism_and_semiotics)": every text is incomplete until someone interprets it.
+
+GutenKu takes this to its logical extreme. There is no author. Just an algorithm shuffling words, and humans projecting meaning onto the result.
 
 ## The Philosophical Fraud We're All Complicit In
 

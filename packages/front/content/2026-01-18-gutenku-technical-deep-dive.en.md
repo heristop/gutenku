@@ -32,7 +32,7 @@ flowchart TD
     G -->|Yes| I["Winner!"]
 ```
 
-**First**, we chop up a book from Project Gutenberg into individual phrases and keep only those with exactly 5 or 7 syllables. This gives us two "pools" of raw material - one for short lines, one for long.
+**First**, we chop up a book from [Project Gutenberg](https://www.gutenberg.org/) into individual phrases and keep only those with exactly 5 or 7 syllables. This gives us two "pools" of raw material - one for short lines, one for long.
 
 **Then**, 150 random haiku are assembled from these pools and thrown into an evolutionary arena. They compete, breed, mutate. The survivors pass their "genes" (which verses they use) to the next generation.
 

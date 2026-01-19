@@ -39,7 +39,7 @@ C'est ainsi qu'est né [GutenKu](https://gutenku.xyz/haiku).
 - **L'Affirmation :** GutenKu fait évoluer des haïkus tirés de la littérature classique
 - **La Réalité :** L'algorithme optimise les combinaisons de vers grâce aux algorithmes génétiques et au scoring NLP (Natural Language Processing)
 - **Le Hic :** Les règles sont trop strictes pour trouver des correspondances à l'échelle d'une page — il faut découper en chapitres pour trouver des motifs qui respectent toutes ces contraintes
-- **Le Succès :** Même projection de sens sur le résultat algorithmique
+- **Le Succès :** On retrouve la même projection de sens sur le résultat algorithmique
 - **Le Miroir :** On confond l'optimisation avec la créativité
 
 Les deux ne sont que de la sélection déguisée en création. L'une utilise des marqueurs noirs, l'autre l'apprentissage automatique. C'est le même tour de passe-passe, seuls les outils changent.
@@ -50,7 +50,7 @@ Soyons clairs : **GutenKu n'utilise pas de LLM**. Il n'« écrit » rien — c'e
 
 La version courte :
 
-- Il récupère du texte de livres classiques sur le Projet Gutenberg (Hugo, Balzac, Shakespeare...)
+- Il récupère du texte de livres classiques sur [Project Gutenberg](https://www.gutenberg.org/) — une bibliothèque numérique de livres du domaine public — (Hugo, Balzac, Shakespeare...)
 - Il analyse les phrases et ne garde que les morceaux avec exactement 5 ou 7 syllabes
 - 150 candidats haïku s'affrontent et évoluent sur plusieurs générations, suivant une structure stricte 5-7-5
 - 18 métriques de qualité plus un réseau de neurones notent chaque candidat
@@ -69,6 +69,10 @@ _Où réside vraiment le sens ?_
 Je pensais autrefois que la poésie était dans le texte — que certains arrangements de mots contenaient une beauté inhérente. Aujourd'hui, je pense différemment. La poésie naît au moment où un esprit humain rencontre des mots arrangés et décide de ressentir quelque chose.
 
 Le haïku n'est pas sur la page. Il est dans l'espace entre la page et votre conscience. Les marqueurs noirs de Dimitri ne révèlent pas de poèmes cachés. L'algorithme de GutenKu ne crée pas d'art. C'est nous — les lecteurs — qui créons.
+
+Roland Barthes appelait cela « [La Mort de l'Auteur](https://fr.wikipedia.org/wiki/La_Mort_de_l%27auteur) » — l'idée radicale que dès qu'un texte quitte son créateur, le sens appartient entièrement au lecteur. Umberto Eco est allé plus loin avec « [L'Œuvre ouverte](https://fr.wikipedia.org/wiki/%C5%92uvre_ouverte) » : tout texte est incomplet tant que quelqu'un ne l'interprète pas.
+
+GutenKu pousse cette logique à l'extrême. Il n'y a pas d'auteur. Juste un algorithme qui mélange des mots, et des humains qui projettent du sens sur le résultat.
 
 ## Notre Complicité Philosophique
 
@@ -95,9 +99,9 @@ L'un trace des lignes noires au stabilo, l'autre construit un algorithme. Deux f
 
 ## Une Imposture Honnête
 
-Voici l'ironie : j'ai construit GutenKu pour exposer l'imposture dans la « poésie trouvée » — et j'ai fini par créer quelque chose d'étrangement plus honnête.
+Voici l'ironie : j'ai construit GutenKu pour exposer l'imposture dans la « poésie trouvée » — et j'ai fini par créer quelque chose d'étrangement honnête.
 
-Au moins GutenKu ne prétend pas être conscient. Il est ouvertement algorithmique. D'une certaine façon, c'est plus transparent que de prétendre « découvrir » des poèmes cachés tout en piochant des mots.
+GutenKu ne prétend pas être conscient. Il est ouvertement algorithmique. D'une certaine façon, c'est plus transparent que de prétendre « découvrir » des poèmes cachés tout en piochant des mots.
 
 Ce que j'ai vraiment appris : la poésie n'est pas cachée dans les livres, attendant d'être trouvée. Elle naît au moment où un esprit humain rencontre des mots arrangés et décide de ressentir quelque chose.
 
