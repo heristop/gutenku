@@ -43,7 +43,10 @@ onMounted(() => {
       :class="{ 'home-content--visible': showContent }"
       :aria-label="t('home.haikuContentLabel')"
     >
-      <h1 class="sr-only">GutenKu - Haiku Generator from Classic Literature</h1>
+      <h1 class="home-title">
+        GutenKu <span class="home-title__separator">—</span> Haiku Generator
+        from Classic Literature
+      </h1>
 
       <div class="hero-wrapper">
         <Hero />
@@ -117,6 +120,7 @@ onMounted(() => {
   margin: 0.25rem auto 1.5rem;
   padding: 0 1rem;
   opacity: 0;
+  border-radius: var(--gutenku-radius-lg);
   transform: translateY(12px);
   transition:
     opacity 0.4s ease-out,
@@ -184,5 +188,18 @@ onMounted(() => {
   .scroll-indicator {
     animation: none;
   }
+}
+
+// Screen reader only
+.home-title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 </style>

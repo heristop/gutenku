@@ -205,7 +205,7 @@ onUnmounted(() => {
   }
 }
 
-// LCP entrance animation
+// LCP initial animation
 @keyframes hero-entrance-lcp {
   from {
     opacity: 1;
@@ -282,15 +282,15 @@ onUnmounted(() => {
   }
 }
 
-// LCP post-paint enhancement
-@keyframes lcp-enhance {
+// LCP post-paint styling
+@keyframes lcp-style {
   to {
     opacity: 0.95;
     filter: grayscale(15%);
   }
 }
 
-@keyframes lcp-enhance-dark {
+@keyframes lcp-style-dark {
   to {
     opacity: 0.95;
     filter: brightness(0.85) grayscale(20%);
@@ -319,15 +319,15 @@ onUnmounted(() => {
   }
 }
 
-// Staggered entrance animations
-// stagger-1 contains LCP image
+// Staggered animation timing
+// LCP image
 .stagger-1 {
   opacity: 1;
   animation: hero-entrance-lcp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0s
     forwards;
 }
 
-// Non-LCP elements
+// Secondary elements
 .stagger-2 {
   opacity: 1;
   animation: hero-entrance 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s
@@ -354,19 +354,21 @@ onUnmounted(() => {
 
 .bookmark-ribbon {
   animation: bookmark-entrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
-  top: -12px;
+  top: -20px;
 }
 
 .hero {
   position: relative;
   overflow: visible;
   text-align: center;
-  padding: var(--gutenku-space-2) var(--gutenku-space-6) var(--gutenku-space-8);
+  padding: 0.75rem 1.25rem 1.5rem;
   margin-bottom: var(--gutenku-space-2);
 
+  @media (min-width: 600px) {
+    padding: 1rem 1.5rem 2rem;
+  }
+
   @media (max-width: 600px) {
-    padding: var(--gutenku-space-1) var(--gutenku-space-3)
-      var(--gutenku-space-6);
     margin-bottom: 1rem !important;
   }
 
@@ -453,7 +455,7 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0;
+    gap: 0.75rem;
     z-index: 1;
     text-align: center;
   }
@@ -466,12 +468,12 @@ onUnmounted(() => {
     justify-content: center;
     align-items: center;
     cursor: default;
-    margin-top: 2rem;
+    margin-top: 1.5rem;
     // Reserve space to prevent CLS
     min-height: 160px;
 
     @media (min-width: 600px) {
-      margin-top: 0;
+      margin-top: 0.5rem;
       min-height: 187px;
     }
 
@@ -533,7 +535,7 @@ onUnmounted(() => {
     aspect-ratio: 640 / 427;
     z-index: 1;
     animation:
-      lcp-enhance 0.01s ease-out 0.1s forwards,
+      lcp-style 0.01s ease-out 0.1s forwards,
       illustration-breathe 5s ease-in-out 0.5s infinite;
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 
@@ -547,7 +549,7 @@ onUnmounted(() => {
 
     [data-theme='dark'] & {
       animation:
-        lcp-enhance-dark 0.01s ease-out 0.1s forwards,
+        lcp-style-dark 0.01s ease-out 0.1s forwards,
         illustration-breathe 5s ease-in-out 0.5s infinite;
     }
   }
@@ -559,12 +561,10 @@ onUnmounted(() => {
     align-items: center;
     text-align: center;
     max-width: 600px;
-    gap: 0.25rem;
-    margin-top: -0.75rem;
+    gap: 0.5rem;
 
     @media (max-width: 600px) {
-      gap: 0.4rem;
-      margin-top: -0.25rem;
+      gap: 0.5rem;
     }
   }
 
@@ -576,12 +576,12 @@ onUnmounted(() => {
     align-items: center;
     justify-content: center;
     margin: 0;
-    padding: 0.5rem 1.5rem;
+    padding: 0.25rem 1rem;
     z-index: 1;
 
     @media (max-width: 600px) {
       min-height: 2rem;
-      padding: 0.25rem 1rem;
+      padding: 0.25rem 0.75rem;
     }
   }
 
@@ -606,8 +606,8 @@ onUnmounted(() => {
   // Stats badge
   &__stats-badge {
     position: absolute;
-    top: 0.5rem;
-    left: 0.5rem;
+    top: 0.75rem;
+    left: 0.75rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;

@@ -18,7 +18,6 @@ withDefaults(defineProps<Props>(), {
 .zen-quote {
   display: inline-flex;
   align-items: baseline;
-  font-family: 'JMH Typewriter', monospace;
   font-style: italic;
   color: var(--gutenku-text-primary);
   opacity: 0.75;
