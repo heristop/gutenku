@@ -24,9 +24,9 @@ C'est ainsi qu'est né [GutenKu](https://gutenku.xyz/haiku).
 
 ## Deux Impostures, Même Résultat (Presque)
 
-### L'Imposture Analogique (Version de Dimitri)
+### L'Imposture Analogique (Version de Dimitri Rataud)
 
-- **L'Affirmation :** Dimitri révèle la poésie cachée dans les pages ordinaires
+- **L'Affirmation :** Dimitri Rataud révèle la poésie cachée dans les pages ordinaires
 - **La Réalité :** Il isole des mots de manière sélective, présenté comme découverte littéraire
 - **Le Hic :** Il ne suit pas réellement la règle des 5-7-5 syllabes — donc techniquement, ce sont pas haïkus "manqués"
 - **Le Succès :** Les gens projettent du sens sur du hasard organisé
@@ -68,7 +68,7 @@ _Où réside vraiment le sens ?_
 
 Je pensais autrefois que la poésie était dans le texte — que certains arrangements de mots contenaient une beauté inhérente. Aujourd'hui, je pense différemment. La poésie naît au moment où un esprit humain rencontre des mots arrangés et décide de ressentir quelque chose.
 
-Le haïku n'est pas sur la page. Il est dans l'espace entre la page et votre conscience. Les marqueurs noirs de Dimitri ne révèlent pas de poèmes cachés. L'algorithme de GutenKu ne crée pas d'art. C'est nous — les lecteurs — qui créons.
+Le haïku n'est pas sur la page. Il est dans l'espace entre la page et votre conscience. Les marqueurs noirs de Dimitri Rataud ne révèlent pas de poèmes cachés. L'algorithme de GutenKu ne crée pas d'art. C'est nous — les lecteurs — qui créons.
 
 Roland Barthes appelait cela « [La Mort de l'Auteur](https://fr.wikipedia.org/wiki/La_Mort_de_l%27auteur) » — l'idée radicale que dès qu'un texte quitte son créateur, le sens appartient entièrement au lecteur. Umberto Eco est allé plus loin avec « [L'Œuvre ouverte](https://fr.wikipedia.org/wiki/%C5%92uvre_ouverte) » : tout texte est incomplet tant que quelqu'un ne l'interprète pas.
 
@@ -88,10 +88,11 @@ Voyez comment un lecteur non avisé serait en capacité d'anthropomorphiser Gute
 
 Quand ce lecteur lit un haïku GutenKu et ressent quelque chose, cette émotion vient de lui — ses souvenirs, sa culture, son sens de la beauté. L'algorithme ne ressent rien. Ce n'est pas la créativité de l'IA qu'il perçoit. C'est sa propre humanité qui lui est renvoyée.
 
-Alors quelle est la différence entre Dimitri et GutenKu ?
+Alors quelle est la différence entre Dimitri Rataud et GutenKu ?
 
-- **Dimitri :** Expérience de vie → Instinct → Mots choisis à la main → Sens humain
-- **GutenKu :** Réservoirs de mots → Maths → Scores élevés → Résultat
+**Dimitri Rataud** puise dans son expérience de vie, suit son instinct, choisit ses mots à la main, et produit du sens humain.
+
+**GutenKu** puise dans des réservoirs de mots, applique des maths, optimise des scores, et produit un résultat.
 
 L'un est création par la conscience. L'autre est optimisation par métriques.
 
@@ -111,7 +112,7 @@ Ce que j'ai vraiment appris : la poésie n'est pas cachée dans les livres, atte
 
 **La voie humaine :**
 
-- Suivez [@haiku_mariniere](https://www.instagram.com/haiku_mariniere/?hl=fr) pour la poésie choisie à la main par Dimitri
+- Suivez [@haiku_mariniere](https://www.instagram.com/haiku_mariniere/?hl=fr) pour la poésie choisie à la main par Dimitri Rataud
 
 **La voie algorithmique :**
 
@@ -133,7 +134,7 @@ Voici l'ironie ultime : je viens de passer tous ces mots à dire que les deux ap
 
 L'imposture n'est pas dans les algorithmes ou les marqueurs noirs. Elle est dans le fait d'appeler n'importe quelle curation « découverte ».
 
-Mais peut-être que c'est bien. Peut-être que le but n'a jamais été la « découverte authentique » mais de donner aux humains un prétexte pour créer du sens. Peut-être que je n'ai pas construit un poète, et Dimitri n'a pas trouvé de poèmes cachés — nous avons tous les deux juste construit des miroirs.
+Mais peut-être que c'est bien. Peut-être que le but n'a jamais été la « découverte authentique » mais de donner aux humains un prétexte pour créer du sens. Peut-être que je n'ai pas construit un poète, et Dimitri Rataud n'a pas trouvé de poèmes cachés — nous avons tous les deux juste construit des miroirs.
 
 Les vers de ce jour de rédaction de l'article proviennent de _Notre-Dame de Paris_ de Victor Hugo :
 
@@ -148,3 +149,5 @@ Les vers de ce jour de rédaction de l'article proviennent de _Notre-Dame de Par
 _Maintenant que vous avez découvert le pot aux roses. Est-ce que ça marche encore ?_
 
 _Si vous avez ressenti quelque chose en lisant ceci — ce n'est pas de mon fait._
+
+<small>Crédits photos : [@heristop](https://instagram.com/heristop)</small>

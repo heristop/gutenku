@@ -174,3 +174,5 @@ We're not experiencing AI creativity. We're experiencing our own humanity reflec
 ---
 
 _For the philosophical context behind this technical machinery, read [GutenKu: When Two Frauds Make a Truth](/blog/gutenku-when-two-frauds-make-a-truth)._
+
+<small>Illustration credits: [@heristop](https://instagram.com/heristop)</small>

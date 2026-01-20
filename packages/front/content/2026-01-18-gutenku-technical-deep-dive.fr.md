@@ -174,3 +174,5 @@ Ce n'est pas la créativité de l'IA que nous percevons. C'est notre propre huma
 ---
 
 _Pour le contexte philosophique derrière cette machinerie technique, lisez [GutenKu : Quand Deux Impostures Font une Vérité](/blog/gutenku-when-two-frauds-make-a-truth)._
+
+<small>Crédits illustration : [@heristop](https://instagram.com/heristop)</small>

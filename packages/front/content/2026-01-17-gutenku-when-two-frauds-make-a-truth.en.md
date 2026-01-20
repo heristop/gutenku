@@ -24,9 +24,9 @@ That's how [GutenKu](https://gutenku.xyz/haiku) was born.
 
 ## Two Frauds, Same Result (Almost)
 
-### The Analog Fraud (Dimitri's Version)
+### The Analog Fraud (Dimitri Rataud's Version)
 
-- **The Claim:** Dimitri reveals poetry hidden in ordinary pages
+- **The Claim:** Dimitri Rataud reveals poetry hidden in ordinary pages
 - **The Reality:** It isolates words selectively, presented as literary discovery
 - **The Catch:** It doesn't really follow the 5-7-5 syllable rule — so not technically haiku
 - **The Success:** People project meaning onto curated randomness
@@ -68,7 +68,7 @@ _Where does meaning actually live?_
 
 I used to think poetry was in the text — that certain arrangements of words contained inherent beauty. Now I believe something different. Poetry is born the moment a human mind encounters arranged words and decides to feel something.
 
-The haiku isn't on the page. It's in the space between the page and your consciousness. Dimitri's black markers don't reveal hidden poems. GutenKu's algorithm doesn't create art. We — the readers — do the creating.
+The haiku isn't on the page. It's in the space between the page and your consciousness. Dimitri Rataud's black markers don't reveal hidden poems. GutenKu's algorithm doesn't create art. We — the readers — do the creating.
 
 Roland Barthes called this "[The Death of the Author](https://en.wikipedia.org/wiki/The_Death_of_the_Author)" — the radical idea that once a text leaves its creator, meaning belongs entirely to the reader. Umberto Eco went further with "[The Open Work](https://en.wikipedia.org/wiki/Umberto_Eco#Literary_criticism_and_semiotics)": every text is incomplete until someone interprets it.
 
@@ -88,10 +88,11 @@ See how an uninformed reader might anthropomorphize GutenKu:
 
 When that reader reads a GutenKu haiku and feels something, that emotion comes from them — their memories, their culture, their sense of beauty. The algorithm feels nothing. It's not AI creativity they're perceiving. It's their own humanity reflected back at them.
 
-So what's the difference between Dimitri and GutenKu?
+So what's the difference between Dimitri Rataud and GutenKu?
 
-- **Dimitri:** Life experience → Gut feeling → Hand-picked words → Human meaning
-- **GutenKu:** Word pools → Math → High scores → Output
+**Dimitri Rataud** draws from life experience, follows gut feeling, hand-picks words, and produces human meaning.
+
+**GutenKu** draws from word pools, applies math, optimizes scores, and produces output.
 
 One is creation through consciousness. The other is optimization through metrics.
 
@@ -111,7 +112,7 @@ What I actually learned: poetry isn't hiding in books, waiting to be found. It's
 
 **The human way:**
 
-- Follow [@haiku_mariniere](https://www.instagram.com/haiku_mariniere/?hl=fr) for Dimitri's hand-picked poetry
+- Follow [@haiku_mariniere](https://www.instagram.com/haiku_mariniere/?hl=fr) for Dimitri Rataud's hand-picked poetry
 
 **The algorithmic way:**
 
@@ -133,7 +134,7 @@ Here's the ultimate irony: I just spent all these words calling both approaches 
 
 The fraud isn't in the algorithms or the black markers. It's in calling any curation "discovery."
 
-But maybe that's fine. Maybe the point was never "authentic discovery" but creating excuses for humans to make meaning. Maybe I didn't build a poet, and Dimitri didn't find hidden poems — we both just built mirrors.
+But maybe that's fine. Maybe the point was never "authentic discovery" but creating excuses for humans to make meaning. Maybe I didn't build a poet, and Dimitri Rataud didn't find hidden poems — we both just built mirrors.
 
 The verses from the day this article was written come from _Notre-Dame de Paris_ by Victor Hugo:
 
@@ -146,3 +147,5 @@ The verses from the day this article was written come from _Notre-Dame de Paris_
 _Now you know the trick. Does it still work?_
 
 _If you felt something reading this — that's not my doing._
+
+<small>Photo credits: [@heristop](https://instagram.com/heristop)</small>
