@@ -235,6 +235,9 @@ function handleClick(event: MouseEvent, to: string) {
 
       <!-- Locale toggle -->
       <div class="ink-nav__locale-wrapper">
+        <span class="ink-nav__locale-code" aria-hidden="true">
+          {{ currentLocale.toUpperCase() }}
+        </span>
         <select
           :value="currentLocale"
           class="ink-nav__locale-select"
@@ -770,15 +773,36 @@ function handleClick(event: MouseEvent, to: string) {
 
   &__locale-wrapper {
     position: relative;
+    width: 2.25rem;
+    height: 2.25rem;
+
+    &:hover .ink-nav__locale-code,
+    &:focus-within .ink-nav__locale-code {
+      color: white;
+    }
+  }
+
+  &__locale-code {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--gutenku-zen-primary);
+    z-index: 1;
+    transition: color 0.2s ease;
   }
 
   &__locale-select {
     appearance: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     padding: 0;
     border: 1.5px solid oklch(0.45 0.1 195 / 0.2);
     border-radius: var(--gutenku-radius-full);
@@ -789,18 +813,12 @@ function handleClick(event: MouseEvent, to: string) {
         transparent 50%
       ),
       var(--gutenku-zen-water);
-    color: var(--gutenku-zen-primary);
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    text-align: center;
-    text-align-last: center;
+    color: transparent;
     cursor: pointer;
     transition:
       background-color 0.2s ease,
       border-color 0.2s ease,
-      transform 0.2s ease,
-      color 0.2s ease;
+      transform 0.2s ease;
 
     &:hover {
       background:
@@ -812,7 +830,6 @@ function handleClick(event: MouseEvent, to: string) {
         var(--gutenku-zen-primary);
       border-color: var(--gutenku-zen-primary);
       transform: scale(1.05);
-      color: white;
     }
 
     &:focus-visible {
@@ -964,6 +981,17 @@ function handleClick(event: MouseEvent, to: string) {
     }
   }
 
+  &__locale-wrapper {
+    &:hover .ink-nav__locale-code,
+    &:focus-within .ink-nav__locale-code {
+      color: oklch(0.12 0.02 195);
+    }
+  }
+
+  &__locale-code {
+    color: var(--gutenku-zen-accent);
+  }
+
   &__locale-select {
     background:
       radial-gradient(
@@ -973,7 +1001,7 @@ function handleClick(event: MouseEvent, to: string) {
       ),
       oklch(0.25 0.04 195 / 0.6);
     border: 2px solid oklch(0.85 0.1 195 / 0.8);
-    color: var(--gutenku-zen-accent);
+    color: transparent;
 
     &:hover {
       background:
@@ -984,7 +1012,6 @@ function handleClick(event: MouseEvent, to: string) {
         ),
         var(--gutenku-zen-accent);
       border-color: var(--gutenku-zen-accent);
-      color: oklch(0.12 0.02 195);
     }
 
     &:focus-visible {
@@ -1079,6 +1106,10 @@ function handleClick(event: MouseEvent, to: string) {
       &:active {
         transform: none;
       }
+    }
+
+    &__locale-code {
+      transition: none;
     }
 
     &__locale-select {
@@ -1195,9 +1226,13 @@ function handleClick(event: MouseEvent, to: string) {
       forced-color-adjust: none;
     }
 
+    &__locale-code {
+      color: CanvasText;
+    }
+
     &__locale-select {
       border: 2px solid CanvasText;
-      color: CanvasText;
+      color: transparent;
       forced-color-adjust: none;
     }
   }

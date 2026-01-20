@@ -1,5 +1,3 @@
-import { nextTick } from 'vue';
-
 export interface HighlighterConfig {
   width?: number;
   height?: number;
@@ -75,15 +73,44 @@ export function useHaikuHighlighter(config: HighlighterConfig = {}) {
     );
   };
 
+  const processHighlightsInBatches = (
+    highlights: NodeListOf<Element>,
+    batchSize = 5,
+  ): void => {
+    let index = 0;
+
+    const processBatch = () => {
+      const end = Math.min(index + batchSize, highlights.length);
+      for (let i = index; i < end; i++) {
+        applyHighlight(highlights[i] as HTMLElement);
+      }
+      index = end;
+
+      if (index < highlights.length) {
+        requestAnimationFrame(processBatch);
+      }
+    };
+
+    processBatch();
+  };
+
   const applyToAllHighlights = (
     selector = '.chapter-text mark, .chapter-text .highlight',
   ): void => {
-    nextTick(() => {
+    const runHighlighting = () => {
       const highlights = document.querySelectorAll(selector);
-      highlights.forEach((element: Element) => {
-        applyHighlight(element as HTMLElement);
-      });
-    });
+      if (highlights.length === 0) {
+        return;
+      }
+
+      processHighlightsInBatches(highlights);
+    };
+
+    if ('requestIdleCallback' in globalThis) {
+      requestIdleCallback(() => runHighlighting(), { timeout: 2000 });
+    } else {
+      setTimeout(runHighlighting, 100);
+    }
   };
 
   return {

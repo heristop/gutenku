@@ -1630,13 +1630,6 @@ body {
     font-size: inherit !important;
   }
 
-  // Exception: Keep dev mode section in typewriter font
-  .config-panel__dev-section,
-  .config-panel__dev-section .zen-switch,
-  .config-panel__dev-section .zen-switch__label {
-    font-family: 'JMH Typewriter', monospace !important;
-  }
-
   // Exception: Keep toolbar header badge in typewriter font
   .toolbar-panel__header-badge {
     font-family: 'JMH Typewriter', monospace !important;
@@ -1727,18 +1720,6 @@ body {
   }
 }
 
-.theme-selector-menu {
-  background: oklch(1 0 0 / 0.92) !important;
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--gutenku-paper-border);
-  box-shadow: var(--gutenku-shadow-zen);
-}
-
-[data-theme='dark'] .theme-selector-menu {
-  background: oklch(0.15 0.02 60 / 0.92) !important;
-  border: 1px solid var(--gutenku-border-visible);
-}
-
 .sr-only {
   position: absolute;
   width: 1px;
@@ -1761,14 +1742,6 @@ body {
       overflow: visible;
       clip: auto;
       white-space: normal;
-    }
-  }
-}
-
-.stagger-container > .animate-in {
-  @for $i from 1 through 6 {
-    &:nth-child(#{$i}) {
-      transition-delay: #{($i - 1) * 0.08}s;
     }
   }
 }
@@ -1901,7 +1874,6 @@ body {
   }
 
   .animate-in,
-  .stagger-container > .animate-in,
   .text-reveal > span {
     opacity: 1;
     transform: none;
@@ -2031,7 +2003,6 @@ body {
   .theme-selector,
   .canvas-focus-overlay,
   .hanko-stamp,
-  .enso-loader,
   .water-ripple,
   button {
     display: none !important;
