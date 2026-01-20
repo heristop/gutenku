@@ -814,6 +814,7 @@ function handleClick(event: MouseEvent, to: string) {
       ),
       var(--gutenku-zen-water);
     color: transparent;
+    font-size: 0;
     cursor: pointer;
     transition:
       background-color 0.2s ease,
@@ -1002,6 +1003,7 @@ function handleClick(event: MouseEvent, to: string) {
       oklch(0.25 0.04 195 / 0.6);
     border: 2px solid oklch(0.85 0.1 195 / 0.8);
     color: transparent;
+    font-size: 0;
 
     &:hover {
       background:
@@ -1233,6 +1235,7 @@ function handleClick(event: MouseEvent, to: string) {
     &__locale-select {
       border: 2px solid CanvasText;
       color: transparent;
+      font-size: 0;
       forced-color-adjust: none;
     }
   }
