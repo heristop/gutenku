@@ -36,7 +36,6 @@ const emit = defineEmits<{
   error: [event: Event];
 }>();
 
-const imgRef = ref<HTMLImageElement | null>(null);
 const isLoaded = ref(false);
 const hasError = ref(false);
 
@@ -53,41 +52,59 @@ const imageClasses = computed(() => [
   },
 ]);
 
+// Helper to convert dimension to number
+function parseDimension(value: string | number | undefined): number {
+  if (typeof value === 'number') {
+    return value;
+  }
+  if (typeof value === 'string') {
+    return Number.parseInt(value, 10);
+  }
+  return 0;
+}
+
+// Helper to format dimension as CSS value
+function formatDimension(value: string | number): string {
+  return typeof value === 'number' ? `${value}px` : value;
+}
+
+// Helper to compute aspect ratio from dimensions
+function computeAspectRatio(
+  explicitRatio: string | undefined,
+  width: string | number | undefined,
+  height: string | number | undefined,
+): string | undefined {
+  if (explicitRatio) {
+    return explicitRatio;
+  }
+  if (!width || !height) {
+    return undefined;
+  }
+
+  const w = parseDimension(width);
+  const h = parseDimension(height);
+  return w && h ? `${w} / ${h}` : undefined;
+}
+
 // Container styles with fallback aspect-ratio
 const containerStyle = computed(() => {
   const style: Record<string, string> = {};
 
-  // Use explicit aspectRatio if provided
-  if (props.aspectRatio) {
-    style.aspectRatio = props.aspectRatio;
-  }
-
-  // Otherwise calculate from width/height if both are provided
-  if (!props.aspectRatio && props.width && props.height) {
-    const w =
-      typeof props.width === 'number'
-        ? props.width
-        : Number.parseInt(props.width, 10);
-    const h =
-      typeof props.height === 'number'
-        ? props.height
-        : Number.parseInt(props.height, 10);
-
-    if (w && h) {
-      style.aspectRatio = `${w} / ${h}`;
-    }
+  const aspectRatio = computeAspectRatio(
+    props.aspectRatio,
+    props.width,
+    props.height,
+  );
+  if (aspectRatio) {
+    style.aspectRatio = aspectRatio;
   }
 
   if (props.width) {
-    style.width =
-      typeof props.width === 'number' ? `${props.width}px` : props.width;
+    style.width = formatDimension(props.width);
   }
-
   if (props.height) {
-    style.height =
-      typeof props.height === 'number' ? `${props.height}px` : props.height;
+    style.height = formatDimension(props.height);
   }
-
   if (props.viewTransitionName) {
     style.viewTransitionName = props.viewTransitionName;
   }
@@ -173,7 +190,6 @@ watch(
     <!-- Actual image -->
     <img
       v-show="isLoaded || hasError"
-      ref="imgRef"
       :src="currentSrc"
       :alt="alt"
       :loading="loadingAttr"
@@ -187,27 +203,15 @@ watch(
     />
 
     <!-- Error state (only if no fallback or fallback also failed) -->
-    <div
-      v-if="hasError && !fallback"
-      class="zen-image__error"
-      role="img"
-      :aria-label="alt"
-    >
-      <svg
+    <figure v-if="hasError && !fallback" class="zen-image__error">
+      <img
         class="zen-image__error-icon"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.5"
+        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5'%3E%3Cpath d='M4 20c2-2 4-6 8-6s6 4 8 6' stroke-linecap='round'/%3E%3Ccircle cx='8' cy='8' r='2'/%3E%3Crect x='2' y='2' width='20' height='20' rx='2'/%3E%3C/svg%3E"
+        alt=""
         aria-hidden="true"
-      >
-        <!-- Ink brush stroke icon -->
-        <path d="M4 20c2-2 4-6 8-6s6 4 8 6" stroke-linecap="round" />
-        <circle cx="8" cy="8" r="2" />
-        <rect x="2" y="2" width="20" height="20" rx="2" />
-      </svg>
-      <span class="zen-image__error-text">{{ alt }}</span>
-    </div>
+      />
+      <figcaption class="zen-image__error-text">{{ alt }}</figcaption>
+    </figure>
   </div>
 </template>
 

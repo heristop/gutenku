@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
 import { CheckCircle, AlertCircle, Info, X } from 'lucide-vue-next';
 import { useToast } from '@/core/composables/toast';
 
@@ -16,12 +15,6 @@ const iconLabels = {
   error: 'Error',
   info: 'Information',
 };
-
-function handleKeydown(event: KeyboardEvent, toastId: number) {
-  if (event.key === 'Escape') {
-    remove(toastId);
-  }
-}
 </script>
 
 <template>
@@ -33,7 +26,7 @@ function handleKeydown(event: KeyboardEvent, toastId: number) {
       </span>
     </div>
 
-    <div class="zen-toast-container" role="region" aria-label="Notifications">
+    <section class="zen-toast-container" aria-label="Notifications">
       <TransitionGroup name="zen-toast">
         <output
           v-for="toast in toasts"
@@ -66,7 +59,7 @@ function handleKeydown(event: KeyboardEvent, toastId: number) {
           </button>
         </output>
       </TransitionGroup>
-    </div>
+    </section>
   </Teleport>
 </template>
 

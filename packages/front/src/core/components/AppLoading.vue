@@ -55,7 +55,6 @@ const displayMessage = computed<LoadingMessage>(() => {
 
 const { isDarkMode } = useTheme();
 
-// Track message changes for transitions
 const currentMessage = ref<LoadingMessage>(displayMessage.value);
 const messageKey = ref(0);
 
@@ -116,72 +115,74 @@ const currentIcon = computed<Component>(() => currentMessage.value.icon);
       <div v-if="displayMessage.text" class="loading-splash-wrapper">
         <SumieCat v-if="!error" :duration="20" />
         <div class="loading-splash">
-        <div class="loading-particles" aria-hidden="true">
-          <div v-for="i in 6" :key="i" :class="`particle particle-${i}`" />
-        </div>
+          <div class="loading-particles" aria-hidden="true">
+            <div v-for="i in 6" :key="i" :class="`particle particle-${i}`" />
+          </div>
 
-        <!-- Logo -->
-        <div class="logo-container" aria-hidden="true">
-          <img
-            :src="logoUrl"
-            alt=""
-            class="loading-logo"
-            :style="{ viewTransitionName: 'gutenku-logo' }"
+          <!-- Logo -->
+          <div class="logo-container" aria-hidden="true">
+            <img
+              :src="logoUrl"
+              alt=""
+              class="loading-logo"
+              width="156"
+              height="52"
+              :style="{ viewTransitionName: 'gutenku-logo' }"
+            />
+          </div>
+
+          <!-- Loader -->
+          <div class="loading-loader" aria-hidden="true">
+            <InkDropLoader v-if="!error" :size="70" />
+            <CloudOff v-else :size="52" class="loading-icon--error" />
+          </div>
+
+          <!-- Progress bar -->
+          <div
+            v-if="!error"
+            class="loading-progress"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-label="Loading progress"
           />
-        </div>
 
-        <!-- Loader -->
-        <div class="loading-loader" aria-hidden="true">
-          <InkDropLoader v-if="!error" :size="70" />
-          <CloudOff v-else :size="52" class="loading-icon--error" />
-        </div>
+          <!-- Message -->
+          <div class="loading-message-container">
+            <Transition name="message-fade" mode="out-in">
+              <p
+                :key="messageKey"
+                class="loading-message"
+                :class="{ 'loading-message--error': error }"
+              >
+                <component
+                  v-if="!error"
+                  :is="currentIcon"
+                  :size="16"
+                  class="loading-message-icon"
+                  aria-hidden="true"
+                />
+                <output id="loading-text" aria-live="polite">
+                  {{ currentMessage.text }}
+                </output>
+              </p>
+            </Transition>
+          </div>
 
-        <!-- Progress bar -->
-        <div
-          v-if="!error"
-          class="loading-progress"
-          role="progressbar"
-          aria-valuemin="0"
-          aria-valuemax="100"
-          aria-label="Loading progress"
-        />
+          <!-- Brush stroke divider -->
+          <div v-if="!error" class="loading-divider" aria-hidden="true" />
 
-        <!-- Message -->
-        <div class="loading-message-container">
-          <Transition name="message-fade" mode="out-in">
-            <p
-              :key="messageKey"
-              class="loading-message"
-              :class="{ 'loading-message--error': error }"
-            >
-              <component
-                v-if="!error"
-                :is="currentIcon"
-                :size="16"
-                class="loading-message-icon"
-                aria-hidden="true"
-              />
-              <output id="loading-text" aria-live="polite">
-                {{ currentMessage.text }}
-              </output>
-            </p>
-          </Transition>
-        </div>
-
-        <!-- Brush stroke divider -->
-        <div v-if="!error" class="loading-divider" aria-hidden="true" />
-
-        <!-- Retry button for errors -->
-        <ZenButton
-          v-if="error && onRetry"
-          class="loading-retry"
-          @click="onRetry"
-        >
-          <template #icon-left>
-            <RefreshCw :size="18" />
-          </template>
-          {{ retryLabel || t('common.retry') }}
-        </ZenButton>
+          <!-- Retry button for errors -->
+          <ZenButton
+            v-if="error && onRetry"
+            class="loading-retry"
+            @click="onRetry"
+          >
+            <template #icon-left>
+              <RefreshCw :size="18" />
+            </template>
+            {{ retryLabel || t('common.retry') }}
+          </ZenButton>
         </div>
       </div>
     </div>

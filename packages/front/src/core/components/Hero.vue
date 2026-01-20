@@ -122,10 +122,9 @@ onUnmounted(() => {
     <div class="bookmark-ribbon" aria-hidden="true" />
 
     <!-- Social Proof Badge -->
-    <div
+    <output
       v-if="targetCount > 0"
       class="hero__stats-badge stagger-4"
-      role="status"
       :aria-label="`${animatedCount.toLocaleString()} ${t('hero.stats.haikusCrafted')}`"
     >
       <Sparkles class="hero__stats-icon" :size="14" aria-hidden="true" />
@@ -138,7 +137,7 @@ onUnmounted(() => {
       <span class="hero__label" aria-hidden="true">{{
         t('hero.stats.haikusCrafted')
       }}</span>
-    </div>
+    </output>
 
     <!-- Hero layout -->
     <div class="hero__layout">
@@ -181,12 +180,12 @@ onUnmounted(() => {
         </p>
 
         <!-- Description -->
-        <div class="hero__description stagger-3" role="article">
+        <article class="hero__description stagger-3">
           <!-- eslint-disable-next-line vue/no-v-html -->
           <p v-html="t('hero.description')" />
           <!-- eslint-disable-next-line vue/no-v-html -->
           <p v-html="t('hero.welcome')" />
-        </div>
+        </article>
       </div>
     </div>
   </ZenCard>

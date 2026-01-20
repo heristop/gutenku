@@ -187,76 +187,8 @@
   }
 }
 
-@layer utilities {
-  @supports (animation-timeline: scroll()) {
-    .scroll-progress-container {
-      scroll-timeline: --scroll-progress block;
-    }
-
-    .scroll-progress-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 3px;
-      background: linear-gradient(
-        90deg,
-        var(--gutenku-zen-primary) 0%,
-        var(--gutenku-zen-accent) 100%
-      );
-      transform-origin: left;
-      animation: scroll-progress linear;
-      animation-timeline: scroll();
-      z-index: 1000;
-    }
-
-    @keyframes scroll-progress {
-      from {
-        transform: scaleX(0);
-      }
-      to {
-        transform: scaleX(1);
-      }
-    }
-
-    .scroll-fade-in {
-      opacity: 0;
-      transform: translateY(20px);
-      animation: scroll-reveal cubic-bezier(0.4, 0, 0.2, 1) forwards;
-      animation-timeline: view();
-      animation-range: entry 0% entry 100%;
-    }
-
-    @keyframes scroll-reveal {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .scroll-parallax {
-      animation: parallax-shift linear;
-      animation-timeline: scroll();
-    }
-
-    @keyframes parallax-shift {
-      from {
-        transform: translateY(0);
-      }
-      to {
-        transform: translateY(-20%);
-      }
-    }
-  }
-}
-
 @layer components {
   @supports selector(:has(*)) {
-    .form-group:has(input:focus) {
-      background: var(--gutenku-zen-water);
-      border-radius: var(--gutenku-radius-md);
-      transition: background var(--gutenku-duration-swift);
-    }
-
     .toolbar-panel:has(.gutenku-btn:active, .gutenku-btn:focus) {
       box-shadow: var(--gutenku-shadow-ink);
     }
@@ -270,10 +202,6 @@
       box-shadow: var(--gutenku-shadow-zen);
     }
 
-    .btn-group:has(input:checked) {
-      border-color: var(--gutenku-zen-accent);
-    }
-
     .stats-panel:has(.empty-state) {
       min-height: 200px;
       display: flex;
@@ -284,79 +212,9 @@
 }
 
 @layer components {
-  .config-panel-container {
-    container-type: inline-size;
-    container-name: config-panel;
-  }
-
-  @container config-panel (max-width: 300px) {
-    .config-panel__controls {
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .config-panel__label {
-      font-size: 0.875rem;
-    }
-  }
-
-  @container config-panel (min-width: 400px) {
-    .config-panel__controls {
-      flex-direction: row;
-      align-items: center;
-    }
-  }
-
-  .stats-panel-container {
-    container-type: inline-size;
-    container-name: stats-panel;
-  }
-
-  @container stats-panel (max-width: 250px) {
-    .stats-panel__book-item {
-      font-size: 0.875rem;
-      padding: 0.5rem;
-    }
-
-    .stats-panel__title {
-      font-size: 1rem;
-    }
-  }
-
-  @container stats-panel (min-width: 350px) {
-    .stats-panel__book-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.75rem;
-    }
-  }
-
   .haiku-canvas-wrapper {
     container-type: inline-size;
     container-name: haiku-canvas;
-  }
-
-  @container haiku-canvas (max-width: 350px) {
-    .haiku-action-buttons {
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-  }
-
-  .toolbar-container {
-    container-type: inline-size;
-    container-name: toolbar;
-  }
-
-  @container toolbar (max-width: 280px) {
-    .toolbar__btn-text {
-      display: none;
-    }
-
-    .toolbar__btn {
-      min-width: auto;
-      padding: 0.5rem;
-    }
   }
 }
 
@@ -961,6 +819,67 @@
   --gutenku-btn-generate-text: var(--gutenku-zen-accent);
   --gutenku-btn-copy-text: var(--gutenku-zen-secondary);
   --gutenku-btn-success-text: var(--gutenku-zen-accent);
+
+  // Dark mode typography overrides
+  .text-h1,
+  .text-h2,
+  .text-h3,
+  .text-h4,
+  .text-h5,
+  .text-h6 {
+    color: var(--gutenku-text-primary) !important;
+  }
+
+  .text-subtitle-1,
+  .text-subtitle-2 {
+    color: var(--gutenku-text-primary) !important;
+  }
+
+  .text-body-1,
+  .text-body-2 {
+    color: var(--gutenku-text-secondary) !important;
+  }
+
+  .text-caption,
+  .text-overline {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  .text-button {
+    color: var(--gutenku-text-primary) !important;
+  }
+
+  .text-medium-emphasis {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  .text-high-emphasis {
+    color: var(--gutenku-text-primary) !important;
+  }
+
+  .text-disabled {
+    color: color-mix(
+      in oklch,
+      var(--gutenku-text-muted) 60%,
+      transparent
+    ) !important;
+  }
+
+  .text-body-2.text-medium-emphasis {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  .text-caption.text-medium-emphasis {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  .text-subtitle-1.text-medium-emphasis {
+    color: var(--gutenku-text-muted) !important;
+  }
+
+  .text-subtitle-2.text-medium-emphasis {
+    color: var(--gutenku-text-muted) !important;
+  }
 }
 
 ::selection {
@@ -1030,9 +949,6 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     line-height: 1.6;
-  }
-
-  .text-h5 {
   }
 }
 
@@ -1203,9 +1119,6 @@ body {
 .text-overline,
 .text-button {
   font-family: 'JMH Typewriter', monospace !important;
-}
-
-.gutenku-font-typewriter {
 }
 
 .gutenku-text-primary {
@@ -1697,68 +1610,6 @@ body {
     .gutenku-btn:hover {
       transform: none;
     }
-  }
-}
-
-[data-theme='dark'] {
-  .text-h1,
-  .text-h2,
-  .text-h3,
-  .text-h4,
-  .text-h5,
-  .text-h6 {
-    color: var(--gutenku-text-primary) !important;
-  }
-
-  .text-subtitle-1,
-  .text-subtitle-2 {
-    color: var(--gutenku-text-primary) !important;
-  }
-
-  .text-body-1,
-  .text-body-2 {
-    color: var(--gutenku-text-secondary) !important;
-  }
-
-  .text-caption,
-  .text-overline {
-    color: var(--gutenku-text-muted) !important;
-  }
-
-  .text-button {
-    color: var(--gutenku-text-primary) !important;
-  }
-
-  .text-medium-emphasis {
-    color: var(--gutenku-text-muted) !important;
-  }
-
-  .text-high-emphasis {
-    color: var(--gutenku-text-primary) !important;
-  }
-
-  .text-disabled {
-    color: color-mix(
-      in oklch,
-      var(--gutenku-text-muted) 60%,
-      transparent
-    ) !important;
-  }
-
-  .text-body-2.text-medium-emphasis {
-    color: var(--gutenku-text-muted) !important;
-  }
-
-  .text-caption.text-medium-emphasis {
-    color: var(--gutenku-text-muted) !important;
-  }
-
-  .text-subtitle-1.text-medium-emphasis {
-    color: var(--gutenku-text-muted) !important;
-  }
-
-  .text-subtitle-2.text-medium-emphasis {
-    color: var(--gutenku-text-muted) !important;
   }
 }
 

@@ -112,17 +112,24 @@ const accessibleLabel = computed(
   <div
     class="radial-progress"
     :class="[`radial-progress--${size}`, colorClass]"
-    role="progressbar"
-    :aria-valuenow="Math.round(normalizedValue * 100)"
-    :aria-valuemin="0"
-    :aria-valuemax="100"
-    :aria-label="accessibleLabel"
   >
+    <!-- Native progress element for accessibility -->
+    <progress
+      class="radial-progress__native"
+      :value="Math.round(normalizedValue * 100)"
+      max="100"
+      :aria-label="accessibleLabel"
+    >
+      {{ Math.round(normalizedValue * 100) }}%
+    </progress>
+
+    <!-- Custom SVG visualization -->
     <svg
       class="radial-progress__svg"
       :width="sizeConfig.diameter"
       :height="sizeConfig.diameter"
       :viewBox="`0 0 ${sizeConfig.diameter} ${sizeConfig.diameter}`"
+      aria-hidden="true"
     >
       <!-- Background track -->
       <circle
@@ -153,7 +160,7 @@ const accessibleLabel = computed(
     </svg>
 
     <!-- Value display -->
-    <span v-if="showValue" class="radial-progress__value">
+    <span v-if="showValue" class="radial-progress__value" aria-hidden="true">
       {{ displayPercent }}
     </span>
   </div>
@@ -167,6 +174,19 @@ $ink-easing: cubic-bezier(0.22, 1, 0.36, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
+  // Visually hidden but accessible native progress element
+  &__native {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
 
   &__svg {
     transform: rotate(-90deg);

@@ -75,30 +75,9 @@ const dyslexiaTooltip = computed(() =>
     : t('footer.accessibility.dyslexiaOff'),
 );
 
-// Locale dropdown state
-const localeDropdownOpen = ref(false);
-
-function toggleLocaleDropdown() {
-  localeDropdownOpen.value = !localeDropdownOpen.value;
-}
-
-function selectLocale(locale: typeof currentLocale.value) {
-  setLocale(locale);
-  localeDropdownOpen.value = false;
-}
-
-function handleLocaleKeydown(event: KeyboardEvent) {
-  if (event.key === 'Escape') {
-    localeDropdownOpen.value = false;
-  }
-}
-
-// Close dropdown when clicking outside
-function handleClickOutside(event: MouseEvent) {
-  const target = event.target as HTMLElement;
-  if (!target.closest('.ink-nav__locale-wrapper')) {
-    localeDropdownOpen.value = false;
-  }
+function handleLocaleChange(event: Event) {
+  const target = event.target as HTMLSelectElement;
+  setLocale(target.value as typeof currentLocale.value);
 }
 
 const navItems = computed(() => [
@@ -193,7 +172,7 @@ function handleClick(event: MouseEvent, to: string) {
         ><span class="ink-nav__logo-suffix">Ku</span>
       </component>
     </RouterLink>
-    <ul class="ink-nav__container" role="list">
+    <ul class="ink-nav__container">
       <li v-for="item in navItems" :key="item.to" class="ink-nav__list-item">
         <RouterLink
           :to="item.to"
@@ -255,47 +234,21 @@ function handleClick(event: MouseEvent, to: string) {
       </button>
 
       <!-- Locale toggle -->
-      <div class="ink-nav__locale-wrapper" @keydown="handleLocaleKeydown">
-        <button
-          type="button"
-          class="ink-nav__toggle-btn"
+      <div class="ink-nav__locale-wrapper">
+        <select
+          :value="currentLocale"
+          class="ink-nav__locale-select"
           :aria-label="t('locale.switch')"
-          :aria-expanded="localeDropdownOpen"
-          aria-haspopup="listbox"
-          @click="toggleLocaleDropdown"
+          @change="handleLocaleChange"
         >
-          <span class="ink-nav__locale-code">{{
-            currentLocale.toUpperCase()
-          }}</span>
-        </button>
-        <Transition name="locale-dropdown">
-          <ul
-            v-if="localeDropdownOpen"
-            class="ink-nav__locale-dropdown"
-            role="listbox"
-            :aria-label="t('locale.switch')"
-            @click.stop
+          <option
+            v-for="locale in availableLocales"
+            :key="locale"
+            :value="locale"
           >
-            <li
-              v-for="locale in availableLocales"
-              :key="locale"
-              role="option"
-              :aria-selected="locale === currentLocale"
-              class="ink-nav__locale-option"
-              :class="{
-                'ink-nav__locale-option--active': locale === currentLocale,
-              }"
-              @click="selectLocale(locale)"
-            >
-              {{ getLocaleLabel(locale) }}
-            </li>
-          </ul>
-        </Transition>
-        <div
-          v-if="localeDropdownOpen"
-          class="ink-nav__locale-backdrop"
-          @click="localeDropdownOpen = false"
-        />
+            {{ getLocaleLabel(locale) }}
+          </option>
+        </select>
       </div>
 
       <!-- Accessibility toggle -->
@@ -817,94 +770,66 @@ function handleClick(event: MouseEvent, to: string) {
 
   &__locale-wrapper {
     position: relative;
-    z-index: 100;
   }
 
-  &__locale-code {
+  &__locale-select {
+    appearance: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 1.5px solid oklch(0.45 0.1 195 / 0.2);
+    border-radius: var(--gutenku-radius-full);
+    background:
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.1) 0%,
+        transparent 50%
+      ),
+      var(--gutenku-zen-water);
+    color: var(--gutenku-zen-primary);
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.02em;
-    color: var(--gutenku-zen-primary);
-    transition: color 0.2s ease;
-  }
-
-  &__toggle-btn:hover &__locale-code {
-    color: white;
-  }
-
-  &__locale-dropdown {
-    position: absolute;
-    top: calc(100% + 0.5rem);
-    right: 0;
-    min-width: 8rem;
-    padding: 0.5rem;
-    margin: 0;
-    list-style: none;
-    background: oklch(0.98 0.008 85);
-    border: 1.5px solid oklch(0.45 0.1 195 / 0.2);
-    border-radius: var(--gutenku-radius-md);
-    box-shadow:
-      0 4px 12px oklch(0 0 0 / 0.1),
-      0 2px 4px oklch(0 0 0 / 0.05);
-    z-index: 101;
-
-    // Mobile: ensure dropdown doesn't go off-screen
-    @media (max-width: 374px) {
-      right: -0.5rem;
-      min-width: 7rem;
-    }
-  }
-
-  &__locale-option {
-    padding: 0.625rem 0.875rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--gutenku-text-primary);
-    border-radius: var(--gutenku-radius-sm);
+    text-align: center;
+    text-align-last: center;
     cursor: pointer;
     transition:
-      background-color 0.15s ease,
-      color 0.15s ease;
-    // Minimum touch target
-    min-height: 44px;
-    display: flex;
-    align-items: center;
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      transform 0.2s ease,
+      color 0.2s ease;
 
     &:hover {
-      background: oklch(0.45 0.1 195 / 0.1);
-      color: var(--gutenku-zen-primary);
-    }
-
-    &--active {
-      background: var(--gutenku-zen-primary);
+      background:
+        radial-gradient(
+          circle at 30% 30%,
+          oklch(1 0 0 / 0.15) 0%,
+          transparent 50%
+        ),
+        var(--gutenku-zen-primary);
+      border-color: var(--gutenku-zen-primary);
+      transform: scale(1.05);
       color: white;
+    }
 
-      &:hover {
-        background: var(--gutenku-zen-primary);
-        color: white;
-      }
+    &:focus-visible {
+      outline: 3px solid var(--gutenku-zen-accent);
+      outline-offset: 2px;
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    option {
+      background: var(--gutenku-paper-bg);
+      color: var(--gutenku-text-primary);
+      padding: 0.5rem;
     }
   }
-
-  &__locale-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 99;
-  }
-}
-
-// Locale dropdown transition
-.locale-dropdown-enter-active,
-.locale-dropdown-leave-active {
-  transition:
-    opacity 0.15s ease,
-    transform 0.15s ease;
-}
-
-.locale-dropdown-enter-from,
-.locale-dropdown-leave-to {
-  opacity: 0;
-  transform: translateY(-0.5rem);
 }
 
 @keyframes enso-draw {
@@ -1039,38 +964,36 @@ function handleClick(event: MouseEvent, to: string) {
     }
   }
 
-  &__locale-code {
+  &__locale-select {
+    background:
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(1 0 0 / 0.06) 0%,
+        transparent 50%
+      ),
+      oklch(0.25 0.04 195 / 0.6);
+    border: 2px solid oklch(0.85 0.1 195 / 0.8);
     color: var(--gutenku-zen-accent);
-  }
-
-  &__toggle-btn:hover &__locale-code {
-    color: oklch(0.12 0.02 195);
-  }
-
-  &__locale-dropdown {
-    background: oklch(0.2 0.03 195);
-    border-color: oklch(0.5 0.08 195 / 0.3);
-    box-shadow:
-      0 4px 12px oklch(0 0 0 / 0.3),
-      0 2px 4px oklch(0 0 0 / 0.2);
-  }
-
-  &__locale-option {
-    color: var(--gutenku-text-primary);
 
     &:hover {
-      background: oklch(0.6 0.1 195 / 0.2);
-      color: var(--gutenku-zen-accent);
+      background:
+        radial-gradient(
+          circle at 30% 30%,
+          oklch(1 0 0 / 0.1) 0%,
+          transparent 50%
+        ),
+        var(--gutenku-zen-accent);
+      border-color: var(--gutenku-zen-accent);
+      color: oklch(0.12 0.02 195);
     }
 
-    &--active {
-      background: var(--gutenku-zen-accent);
-      color: oklch(0.12 0.02 195);
+    &:focus-visible {
+      outline-color: oklch(0.8 0.12 195);
+    }
 
-      &:hover {
-        background: var(--gutenku-zen-accent);
-        color: oklch(0.12 0.02 195);
-      }
+    option {
+      background: oklch(0.2 0.03 195);
+      color: var(--gutenku-text-primary);
     }
   }
 }
@@ -1158,16 +1081,13 @@ function handleClick(event: MouseEvent, to: string) {
       }
     }
 
-    &__locale-code {
+    &__locale-select {
       transition: none;
-    }
 
-    &__locale-dropdown {
-      animation: none;
-    }
-
-    &__locale-option {
-      transition: none;
+      &:hover,
+      &:active {
+        transform: none;
+      }
     }
 
     &__logo {
@@ -1188,11 +1108,6 @@ function handleClick(event: MouseEvent, to: string) {
     &__logo-suffix {
       transition: none;
     }
-  }
-
-  .locale-dropdown-enter-active,
-  .locale-dropdown-leave-active {
-    transition: none;
   }
 
   .theme-icon-enter-active,
@@ -1280,22 +1195,10 @@ function handleClick(event: MouseEvent, to: string) {
       forced-color-adjust: none;
     }
 
-    &__locale-code {
-      color: CanvasText;
-    }
-
-    &__locale-dropdown {
+    &__locale-select {
       border: 2px solid CanvasText;
-      forced-color-adjust: none;
-    }
-
-    &__locale-option {
       color: CanvasText;
-
-      &--active {
-        background: Highlight;
-        color: HighlightText;
-      }
+      forced-color-adjust: none;
     }
   }
 }

@@ -150,18 +150,19 @@ function handleTouchStart() {
   longPressTimeout = setTimeout(() => show(), LONG_PRESS_DELAY);
 }
 
-function handleTouchEnd() {
+function clearLongPressTimeout() {
   if (longPressTimeout) {
     clearTimeout(longPressTimeout);
     longPressTimeout = null;
   }
 }
 
+function handleTouchEnd() {
+  clearLongPressTimeout();
+}
+
 function handleTouchMove() {
-  if (longPressTimeout) {
-    clearTimeout(longPressTimeout);
-    longPressTimeout = null;
-  }
+  clearLongPressTimeout();
 }
 
 onMounted(() => {
