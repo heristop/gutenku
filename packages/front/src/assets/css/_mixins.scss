@@ -102,3 +102,34 @@ $breakpoints: (
 @mixin zen-blur-lg {
   @include zen-blur(20px);
 }
+
+// ====================================
+// CONTAINER QUERY MIXINS
+// ====================================
+
+// Container query breakpoints (smaller than viewport breakpoints)
+$container-breakpoints: (
+  'xs': 280px,
+  'sm': 400px,
+  'md': 600px,
+  'lg': 800px,
+);
+
+@mixin container($name) {
+  container-type: inline-size;
+  container-name: $name;
+}
+
+@mixin container-query($name, $width, $type: 'max') {
+  /* stylelint-disable container-name-pattern */
+  @if $type == 'max' {
+    @container #{$name} (max-width: #{$width}) {
+      @content;
+    }
+  } @else {
+    @container #{$name} (min-width: #{$width}) {
+      @content;
+    }
+  }
+  /* stylelint-enable container-name-pattern */
+}

@@ -1865,6 +1865,14 @@ body {
   .toolbar-panel__header-badge {
     font-family: 'JMH Typewriter', monospace !important;
   }
+
+  // Exception: Keep copyright symbol in system font for proper rendering
+  .copyright-symbol {
+    font-family:
+      system-ui,
+      -apple-system,
+      sans-serif !important;
+  }
 }
 
 .book {
