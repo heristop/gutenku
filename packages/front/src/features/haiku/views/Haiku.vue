@@ -17,7 +17,6 @@ import { useToast } from '@/core/composables/toast';
 import { usePwaInstall } from '@/core/composables/pwa-install';
 import { usePullToRefresh } from '@/core/composables/pull-to-refresh';
 import { closeWSClient } from '@/client';
-import HaikuTitle from '@/features/haiku/components/HaikuTitle.vue';
 import AppLoading from '@/core/components/AppLoading.vue';
 import SumieCat from '@/core/components/decorative/SumieCat.vue';
 import { SITE_URL } from '@/locales/config';
@@ -147,9 +146,13 @@ onUnmounted(closeWSClient);
       :aria-label="t('home.haikuContentLabel')"
     >
       <div class="haiku-grid">
-        <article class="haiku-grid__main" :aria-label="t('haiku.articleLabel')">
-          <HaikuTitle class="haiku-section__title" />
+        <!-- Mobile-only toolbar placement (before chapter) -->
+        <div class="haiku-grid__toolbar-mobile">
+          <SumieCat v-if="loading || !haiku" />
+          <ToolbarPanel />
+        </div>
 
+        <article class="haiku-grid__main" :aria-label="t('haiku.articleLabel')">
           <HaikuChapter v-if="haiku" class="haiku-section__chapter" />
 
           <div v-if="!haiku" class="haiku-section__chapter book-skeleton">
@@ -271,6 +274,21 @@ onUnmounted(closeWSClient);
   }
 }
 
+.haiku-grid__toolbar-mobile {
+  display: none;
+  flex: 1 1 100%;
+  order: 0;
+  position: relative;
+
+  @media (max-width: 960px) {
+    display: block;
+
+    :deep(.toolbar-panel) {
+      margin-bottom: var(--gutenku-space-6);
+    }
+  }
+}
+
 .haiku-page__sidebar {
   position: sticky;
   top: 1rem;
@@ -309,10 +327,6 @@ onUnmounted(closeWSClient);
   .haiku-page__content {
     animation: none;
   }
-}
-
-.haiku-section__title {
-  margin-bottom: var(--gutenku-space-6);
 }
 
 .haiku-section__canvas {
