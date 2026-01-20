@@ -119,7 +119,6 @@ const lineIndent = (index: number): string => {
 
 // Line styles
 .zen-haiku__line {
-  font-family: 'JMH Typewriter', monospace;
   color: var(--gutenku-text-primary);
   margin: 0;
   letter-spacing: 0.02em;

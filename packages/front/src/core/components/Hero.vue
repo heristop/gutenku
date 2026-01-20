@@ -184,6 +184,8 @@ onUnmounted(() => {
         <div class="hero__description stagger-3" role="article">
           <!-- eslint-disable-next-line vue/no-v-html -->
           <p v-html="t('hero.description')" />
+          <!-- eslint-disable-next-line vue/no-v-html -->
+          <p v-html="t('hero.welcome')" />
         </div>
       </div>
     </div>
@@ -455,7 +457,6 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.75rem;
     z-index: 1;
     text-align: center;
   }
@@ -589,6 +590,9 @@ onUnmounted(() => {
   &__description {
     position: relative;
     z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 
     p {
       margin: 0;

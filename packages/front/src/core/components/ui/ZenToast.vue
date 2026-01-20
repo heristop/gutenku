@@ -108,7 +108,6 @@ function handleKeydown(event: KeyboardEvent, toastId: number) {
   );
   border: none;
   border-radius: var(--gutenku-radius-sm);
-  font-family: 'JMH Typewriter', monospace;
   font-size: 0.9rem;
   color: var(--gutenku-text-primary);
   pointer-events: auto;
@@ -137,12 +136,12 @@ function handleKeydown(event: KeyboardEvent, toastId: number) {
     top: -1px;
     bottom: -1px;
     width: 6px;
-    background:
-      linear-gradient(90deg,
-        oklch(0.35 0.05 45) 0%,
-        oklch(0.45 0.06 45) 40%,
-        oklch(0.35 0.05 45) 100%
-      );
+    background: linear-gradient(
+      90deg,
+      oklch(0.35 0.05 45) 0%,
+      oklch(0.45 0.06 45) 40%,
+      oklch(0.35 0.05 45) 100%
+    );
     border-radius: 3px 0 0 3px;
     box-shadow:
       inset -1px 0 2px oklch(0 0 0 / 0.3),
@@ -155,7 +154,11 @@ function handleKeydown(event: KeyboardEvent, toastId: number) {
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse at 30% 50%, oklch(0.55 0.08 170 / 0.04) 0%, transparent 50%),
+      radial-gradient(
+        ellipse at 30% 50%,
+        oklch(0.55 0.08 170 / 0.04) 0%,
+        transparent 50%
+      ),
       url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     opacity: 0.03;
     pointer-events: none;
@@ -166,7 +169,8 @@ function handleKeydown(event: KeyboardEvent, toastId: number) {
   // Success state
   &--success {
     .zen-toast__spine {
-      background: linear-gradient(90deg,
+      background: linear-gradient(
+        90deg,
         var(--gutenku-zen-primary) 0%,
         oklch(0.45 0.12 170) 40%,
         var(--gutenku-zen-primary) 100%
@@ -181,7 +185,11 @@ function handleKeydown(event: KeyboardEvent, toastId: number) {
 
     .zen-toast__paper {
       background:
-        radial-gradient(ellipse at 20% 50%, oklch(0.55 0.12 170 / 0.1) 0%, transparent 60%),
+        radial-gradient(
+          ellipse at 20% 50%,
+          oklch(0.55 0.12 170 / 0.1) 0%,
+          transparent 60%
+        ),
         url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     }
   }
@@ -189,7 +197,8 @@ function handleKeydown(event: KeyboardEvent, toastId: number) {
   // Error state
   &--error {
     .zen-toast__spine {
-      background: linear-gradient(90deg,
+      background: linear-gradient(
+        90deg,
         oklch(0.5 0.18 25) 0%,
         oklch(0.55 0.2 25) 40%,
         oklch(0.5 0.18 25) 100%
@@ -204,7 +213,11 @@ function handleKeydown(event: KeyboardEvent, toastId: number) {
 
     .zen-toast__paper {
       background:
-        radial-gradient(ellipse at 20% 50%, oklch(0.55 0.18 25 / 0.06) 0%, transparent 60%),
+        radial-gradient(
+          ellipse at 20% 50%,
+          oklch(0.55 0.18 25 / 0.06) 0%,
+          transparent 60%
+        ),
         url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     }
   }
@@ -212,7 +225,8 @@ function handleKeydown(event: KeyboardEvent, toastId: number) {
   // Info state
   &--info {
     .zen-toast__spine {
-      background: linear-gradient(90deg,
+      background: linear-gradient(
+        90deg,
         var(--gutenku-zen-secondary) 0%,
         oklch(0.6 0.08 200) 40%,
         var(--gutenku-zen-secondary) 100%
@@ -273,7 +287,8 @@ function handleKeydown(event: KeyboardEvent, toastId: number) {
 
 // Zen breathing animation for paper texture
 @keyframes zen-breathe {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.02;
     transform: scale(1);
   }

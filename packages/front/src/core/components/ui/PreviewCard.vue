@@ -78,6 +78,8 @@ const { translateX, translateY, handleMouseMove, handleMouseLeave } =
   overflow: hidden;
   transition: var(--gutenku-transition-zen);
   box-shadow: var(--gutenku-shadow-zen);
+  container-type: inline-size;
+  container-name: preview-card;
 
   &:hover {
     transform: translateY(-4px);
@@ -209,7 +211,7 @@ const { translateX, translateY, handleMouseMove, handleMouseLeave } =
   }
 }
 
-@media (max-width: 600px) {
+@container preview-card (max-width: 400px) {
   .preview-card {
     margin: 0 0.4rem;
   }

@@ -143,6 +143,12 @@ const isActive = (path: string) => {
   return route.path === path || route.path.startsWith(path + '/');
 };
 
+// Pages that have their own h1: /blog, /blog/:slug, /game
+// Pages without h1 (logo becomes h1): /, /haiku
+const pageHasOwnH1 = computed(
+  () => route.path.startsWith('/blog') || route.path.startsWith('/game'),
+);
+
 // Track hover state
 const hoveredItem = ref<string | null>(null);
 
@@ -181,6 +187,12 @@ function handleClick(event: MouseEvent, to: string) {
 
 <template>
   <nav class="ink-nav" :aria-label="t('nav.mainNavigation')">
+    <RouterLink to="/" class="ink-nav__logo" aria-label="GutenKu Home">
+      <component :is="pageHasOwnH1 ? 'span' : 'h1'" class="ink-nav__logo-text">
+        <span class="ink-nav__logo-prefix">Guten</span
+        ><span class="ink-nav__logo-suffix">Ku</span>
+      </component>
+    </RouterLink>
     <ul class="ink-nav__container" role="list">
       <li v-for="item in navItems" :key="item.to" class="ink-nav__list-item">
         <RouterLink
@@ -367,6 +379,133 @@ function handleClick(event: MouseEvent, to: string) {
     @media (min-width: 960px) {
       padding-top: 1.5rem;
     }
+  }
+
+  &__logo {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    &:hover {
+      transform: scale(1.05);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--gutenku-zen-accent);
+      outline-offset: 4px;
+      border-radius: var(--gutenku-radius-sm);
+    }
+
+    // Desktop - absolute position to left
+    @media (min-width: 960px) {
+      position: absolute;
+      left: 1.5rem;
+      top: 0.5rem;
+      margin-bottom: 0;
+    }
+  }
+
+  &__logo-text {
+    // Reset h1 defaults
+    margin: 0;
+    padding: 0;
+    font-size: 1.15rem;
+    font-weight: normal;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    position: relative;
+    display: inline-flex;
+    white-space: nowrap;
+
+    // Subtle ink wash underline
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 1.5px;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--gutenku-zen-primary) 15%,
+        var(--gutenku-zen-accent) 85%,
+        transparent 100%
+      );
+      opacity: 0.4;
+      transform: scaleX(0.7);
+      transform-origin: left;
+      transition:
+        transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity 0.3s ease;
+    }
+
+    // Small mobile (320px+)
+    @media (min-width: 320px) {
+      font-size: 1.2rem;
+    }
+
+    // Medium mobile (375px+)
+    @media (min-width: 375px) {
+      font-size: 1.25rem;
+
+      &::after {
+        height: 2px;
+      }
+    }
+
+    // Large mobile (425px+)
+    @media (min-width: 425px) {
+      font-size: 1.3rem;
+    }
+
+    // Desktop (960px+)
+    @media (min-width: 960px) {
+      font-size: 1.35rem;
+    }
+  }
+
+  &__logo-prefix {
+    font-weight: 400;
+    color: var(--gutenku-zen-primary);
+    text-shadow: 0 1px 2px oklch(0 0 0 / 0.1);
+    transition:
+      color 0.3s ease,
+      text-shadow 0.3s ease;
+  }
+
+  &__logo-suffix {
+    font-weight: 300;
+    font-style: italic;
+    color: var(--gutenku-zen-secondary);
+    text-shadow: 0 1px 2px oklch(0 0 0 / 0.08);
+    transition:
+      color 0.3s ease,
+      text-shadow 0.3s ease;
+  }
+
+  &__logo:hover &__logo-text {
+    &::after {
+      transform: scaleX(1);
+      opacity: 0.7;
+    }
+  }
+
+  &__logo:hover &__logo-prefix {
+    text-shadow:
+      0 1px 2px oklch(0 0 0 / 0.1),
+      0 0 10px oklch(0.45 0.1 195 / 0.25);
+  }
+
+  &__logo:hover &__logo-suffix {
+    text-shadow:
+      0 1px 2px oklch(0 0 0 / 0.08),
+      0 0 12px oklch(0.6 0.08 175 / 0.3);
   }
 
   &__container {
@@ -775,6 +914,40 @@ function handleClick(event: MouseEvent, to: string) {
 }
 
 [data-theme='dark'] .ink-nav {
+  &__logo-text {
+    &::after {
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--gutenku-zen-accent) 15%,
+        oklch(0.75 0.1 195) 85%,
+        transparent 100%
+      );
+    }
+  }
+
+  &__logo-prefix {
+    color: var(--gutenku-zen-accent);
+    text-shadow: 0 1px 3px oklch(0 0 0 / 0.3);
+  }
+
+  &__logo-suffix {
+    color: var(--gutenku-zen-secondary);
+    text-shadow: 0 1px 3px oklch(0 0 0 / 0.25);
+  }
+
+  &__logo:hover &__logo-prefix {
+    text-shadow:
+      0 1px 3px oklch(0 0 0 / 0.3),
+      0 0 12px oklch(0.7 0.1 195 / 0.4);
+  }
+
+  &__logo:hover &__logo-suffix {
+    text-shadow:
+      0 1px 3px oklch(0 0 0 / 0.25),
+      0 0 12px oklch(0.65 0.06 180 / 0.4);
+  }
+
   &__item {
     &:focus-visible {
       outline-color: oklch(0.8 0.12 195);
@@ -996,6 +1169,25 @@ function handleClick(event: MouseEvent, to: string) {
     &__locale-option {
       transition: none;
     }
+
+    &__logo {
+      transition: none;
+
+      &:hover {
+        transform: none;
+      }
+    }
+
+    &__logo-text {
+      &::after {
+        transition: none;
+      }
+    }
+
+    &__logo-prefix,
+    &__logo-suffix {
+      transition: none;
+    }
   }
 
   .locale-dropdown-enter-active,
@@ -1022,6 +1214,32 @@ function handleClick(event: MouseEvent, to: string) {
   ::view-transition-new(nav-icon-game),
   ::view-transition-new(nav-icon-blog) {
     animation: none;
+  }
+}
+
+// Dyslexia font adjustments - reduce label size on mobile to prevent overlap
+[data-dyslexia='true'] .ink-nav__label {
+  font-size: 0.4rem;
+  letter-spacing: 0.02em;
+
+  @media (min-width: 320px) {
+    font-size: 0.45rem;
+    letter-spacing: 0.03em;
+  }
+
+  @media (min-width: 375px) {
+    font-size: 0.5rem;
+    letter-spacing: 0.04em;
+  }
+
+  @media (min-width: 425px) {
+    font-size: 0.55rem;
+    letter-spacing: 0.05em;
+  }
+
+  @media (min-width: 960px) {
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
   }
 }
 

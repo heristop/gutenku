@@ -149,7 +149,11 @@ function openSocialLink(url: string) {
             :style="{ left: `${inkRipple.x}px`, top: `${inkRipple.y}px` }"
             aria-hidden="true"
           />
-          {{ t('footer.copyright', { year: currentYear }) }}
+          <span class="copyright-text"
+            >heristop <span class="copyright-symbol">©</span> 2023-{{
+              currentYear
+            }}</span
+          >
         </button>
       </ZenTooltip>
 

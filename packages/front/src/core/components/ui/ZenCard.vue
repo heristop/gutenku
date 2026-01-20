@@ -102,6 +102,8 @@ const cardClasses = computed(() => [
   overflow: hidden;
   transform: translateZ(0);
   backface-visibility: hidden;
+  container-type: inline-size;
+  container-name: zen-card;
 
   background: oklch(0.98 0.01 85 / 0.7);
   backdrop-filter: blur(12px);
@@ -281,8 +283,10 @@ const cardClasses = computed(() => [
       padding: 0.375rem;
     }
   }
+}
 
-  @media (max-width: 600px) {
+@container zen-card (max-width: 500px) {
+  .zen-card {
     margin-inline: 0.5rem;
   }
 }

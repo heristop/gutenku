@@ -43,11 +43,6 @@ onMounted(() => {
       :class="{ 'home-content--visible': showContent }"
       :aria-label="t('home.haikuContentLabel')"
     >
-      <h1 class="home-title">
-        GutenKu <span class="home-title__separator">—</span> Haiku Generator
-        from Classic Literature
-      </h1>
-
       <div class="hero-wrapper">
         <Hero />
       </div>
@@ -188,18 +183,5 @@ onMounted(() => {
   .scroll-indicator {
     animation: none;
   }
-}
-
-// Screen reader only
-.home-title {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
 }
 </style>

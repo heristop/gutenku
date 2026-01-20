@@ -384,7 +384,6 @@ watch(avgTime, (val, oldVal) => {
 
   &__book-title {
     display: block;
-    font-family: 'JMH Typewriter', monospace !important;
     font-size: 0.8rem;
     line-height: 1.2;
     color: var(--gutenku-text-primary);

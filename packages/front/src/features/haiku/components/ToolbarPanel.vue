@@ -815,14 +815,12 @@ useKeyboardShortcuts({
 
   &__config-label {
     flex: 1;
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--gutenku-text-primary);
   }
 
   &__config-value {
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.85rem;
     font-weight: 700;
     padding: 0.25rem 0.5rem;
@@ -862,7 +860,6 @@ useKeyboardShortcuts({
   }
 
   &__progress-label {
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -871,14 +868,12 @@ useKeyboardShortcuts({
   }
 
   &__progress-count {
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.85rem;
     font-weight: 700;
     color: var(--gutenku-text-primary);
   }
 
   &__progress-eta {
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.75rem;
     color: var(--gutenku-text-muted);
     white-space: nowrap;
@@ -888,7 +883,6 @@ useKeyboardShortcuts({
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.9rem;
     font-weight: 700;
     padding: 0.25rem 0.5rem;
@@ -977,7 +971,6 @@ useKeyboardShortcuts({
   }
 
   &__preset {
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.7rem;
     font-weight: 600;
     padding: 0.3rem 0.6rem;
@@ -999,6 +992,7 @@ useKeyboardShortcuts({
       height: 3px;
       background: var(--gutenku-zen-primary);
       border-radius: 50%;
+
       transform: translateX(-50%) scale(0);
       transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
@@ -1057,7 +1051,6 @@ useKeyboardShortcuts({
   }
 
   &__dev-badge {
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.6rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -1074,7 +1067,6 @@ useKeyboardShortcuts({
 
   &__dev-title {
     flex: 1;
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.75rem;
     font-weight: 600;
     color: var(--gutenku-text-muted);
@@ -1111,7 +1103,6 @@ useKeyboardShortcuts({
 
   &__dev-iterations-label {
     flex: 1;
-    font-family: 'JMH Typewriter', monospace;
     font-size: 0.8rem;
     font-weight: 600;
     color: var(--gutenku-text-primary);
@@ -1279,7 +1270,7 @@ useKeyboardShortcuts({
   }
 }
 
-@media (max-width: 768px) {
+@container toolbar (max-width: 600px) {
   .toolbar-panel {
     &__button.zen-btn {
       min-height: 3rem;

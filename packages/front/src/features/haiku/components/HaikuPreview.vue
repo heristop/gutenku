@@ -18,13 +18,13 @@ onMounted(() => {
 <template>
   <PreviewCard
     to="/haiku"
-    title="GutenKu"
+    title="GutenVerse"
     :description="t('home.tagline')"
     :cta-text="t('toolbar.generate')"
     :image-src="haikuImage640"
     :image-srcset="`${haikuImage320} 320w, ${haikuImage640} 640w`"
     image-sizes="(max-width: 768px) 100vw, 420px"
-    image-alt="Hand-drawn illustration of calligraphy and cherry blossoms for GutenKu haiku generator"
+    image-alt="Hand-drawn illustration of calligraphy and cherry blossoms for GutenVerse haiku generator"
     :ariaLabel="t('toolbar.generate')"
     view-transition-name="haiku-card"
     illustration-view-transition-name="haiku-illustration"

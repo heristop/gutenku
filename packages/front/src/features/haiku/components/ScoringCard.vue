@@ -407,7 +407,6 @@ $spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   &__score-value {
-    font-family: 'JMH Typewriter', monospace;
     font-size: 2rem;
     font-weight: 600;
     color: var(--gutenku-zen-primary);
@@ -524,7 +523,6 @@ $spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   &__hero-value {
-    font-family: 'JMH Typewriter', monospace;
     font-size: 1.75rem;
     font-weight: 600;
     color: var(--gutenku-zen-primary);

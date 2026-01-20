@@ -187,7 +187,6 @@ $ink-easing: cubic-bezier(0.22, 1, 0.36, 1);
 
   &__value {
     position: absolute;
-    font-family: 'JMH Typewriter', monospace;
     font-weight: 500;
     color: var(--gutenku-text-primary);
     letter-spacing: -0.02em;

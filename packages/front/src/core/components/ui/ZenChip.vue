@@ -54,6 +54,10 @@ const classes = computed(() => [
   -moz-osx-font-smoothing: grayscale;
   word-spacing: inherit;
   letter-spacing: inherit;
+  white-space: nowrap;
+  box-shadow:
+    0 1px 2px oklch(0 0 0 / 0.05),
+    inset 0 1px 0 oklch(1 0 0 / 0.1);
 }
 
 // Size variants
@@ -87,6 +91,9 @@ const classes = computed(() => [
   );
   border: 1px solid oklch(0.5 0.06 192 / 0.35);
   color: oklch(0.35 0.06 192);
+  box-shadow:
+    0 1px 3px oklch(0.5 0.06 192 / 0.08),
+    inset 0 1px 0 oklch(1 0 0 / 0.15);
 }
 
 // Muted variant
@@ -101,6 +108,9 @@ const classes = computed(() => [
   background: oklch(0.8 0.02 85 / 0.12);
   border-color: oklch(0.8 0.02 85 / 0.2);
   color: oklch(0.92 0.01 85);
+  box-shadow:
+    0 1px 2px oklch(0 0 0 / 0.2),
+    inset 0 1px 0 oklch(1 0 0 / 0.05);
 }
 
 [data-theme='dark'] .zen-chip--accent {
@@ -111,6 +121,9 @@ const classes = computed(() => [
   );
   border-color: oklch(0.55 0.06 192 / 0.4);
   color: oklch(0.85 0.05 192);
+  box-shadow:
+    0 1px 3px oklch(0 0 0 / 0.25),
+    inset 0 1px 0 oklch(1 0 0 / 0.08);
 }
 
 [data-theme='dark'] .zen-chip--muted {
@@ -191,14 +204,6 @@ const classes = computed(() => [
 @media (min-resolution: 1.5dppx) {
   .zen-chip {
     padding-inline: max(0.5rem, 0.5em);
-  }
-}
-
-// Small viewport support
-@media (max-width: 320px) {
-  .zen-chip {
-    white-space: normal;
-    text-align: center;
   }
 }
 </style>

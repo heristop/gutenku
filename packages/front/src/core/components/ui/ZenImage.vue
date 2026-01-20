@@ -306,7 +306,6 @@ watch(
 }
 
 .zen-image__error-text {
-  font-family: 'JMH Typewriter', monospace;
   font-size: 0.75rem;
   text-align: center;
   opacity: 0.7;

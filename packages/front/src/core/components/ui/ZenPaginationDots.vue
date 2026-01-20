@@ -55,8 +55,12 @@ function handleClick(index: number) {
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
+  container-type: inline-size;
+  container-name: pagination-dots;
+}
 
-  @media (min-width: 600px) {
+@container pagination-dots (min-width: 400px) {
+  .zen-pagination-dots {
     gap: 0.5rem;
   }
 }
@@ -70,27 +74,29 @@ function handleClick(index: number) {
   border-radius: 50%;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
 
-  @media (min-width: 600px) {
+@container pagination-dots (min-width: 400px) {
+  .zen-pagination-dots__dot {
     width: 10px;
     height: 10px;
   }
+}
 
-  &:hover:not(.zen-pagination-dots__dot--active) {
-    background: var(--gutenku-zen-secondary);
-    transform: scale(1.2);
-  }
+.zen-pagination-dots__dot:hover:not(.zen-pagination-dots__dot--active) {
+  background: var(--gutenku-zen-secondary);
+  transform: scale(1.2);
+}
 
-  &:focus-visible {
-    outline: 2px solid var(--gutenku-zen-accent);
-    outline-offset: 2px;
-  }
+.zen-pagination-dots__dot:focus-visible {
+  outline: 2px solid var(--gutenku-zen-accent);
+  outline-offset: 2px;
+}
 
-  &--active {
-    background: var(--gutenku-zen-accent);
-    transform: scale(1.3);
-    box-shadow: 0 0 8px var(--gutenku-zen-accent);
-  }
+.zen-pagination-dots__dot--active {
+  background: var(--gutenku-zen-accent);
+  transform: scale(1.3);
+  box-shadow: 0 0 8px var(--gutenku-zen-accent);
 }
 
 .zen-pagination-dots--readonly {
@@ -100,11 +106,6 @@ function handleClick(index: number) {
     width: 6px;
     height: 6px;
     cursor: default;
-
-    @media (min-width: 600px) {
-      width: 6px;
-      height: 6px;
-    }
 
     &:hover:not(.zen-pagination-dots__dot--active) {
       background: var(--gutenku-paper-border);
