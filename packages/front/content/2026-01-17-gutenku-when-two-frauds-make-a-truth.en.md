@@ -70,7 +70,7 @@ I used to think poetry was in the text, that certain arrangements of words conta
 
 The haiku isn't on the page. It's in the space between the page and your consciousness. Dimitri Rataud's black markers don't reveal hidden poems. GutenKu's algorithm doesn't create art. We — the readers — do the creating.
 
-Roland Barthes called this "[The Death of the Author](https://en.wikipedia.org/wiki/The_Death_of_the_Author)" — the radical idea that once a text leaves its creator, meaning belongs entirely to the reader. After him, Umberto Eco developed "[The Open Work](https://en.wikipedia.org/wiki/Umberto_Eco#Literary_criticism_and_semiotics)": a text incomplete until someone interprets it.
+Umberto Eco imagined "[The Open Work](https://en.wikipedia.org/wiki/Umberto_Eco#Literary_criticism_and_semiotics)": a text incomplete until someone interprets it. Roland Barthes extended this idea with "[The Death of the Author](https://en.wikipedia.org/wiki/The_Death_of_the_Author)" — the radical position that once a text leaves its creator, meaning belongs entirely to the reader.
 
 GutenKu takes this to its logical extreme. There is no author. Just an algorithm shuffling words, and humans drawing meaning onto the result.
 

@@ -70,7 +70,7 @@ Je pensais autrefois que la poésie était dans le texte, que certains arrangeme
 
 Le haïku n'est pas sur la page. Il est dans l'espace entre la page et votre conscience. Les marqueurs noirs de Dimitri Rataud ne révèlent pas de poèmes cachés. L'algorithme de GutenKu ne crée pas d'art. C'est nous — les lecteurs — qui créons.
 
-Roland Barthes appelait cela « [La Mort de l'Auteur](https://fr.wikipedia.org/wiki/La_Mort_de_l%27auteur) » — l'idée radicale que dès qu'un texte quitte son créateur, le sens appartient entièrement au lecteur. Après lui, Umberto Eco imagine « [L'Œuvre ouverte](https://fr.wikipedia.org/wiki/%C5%92uvre_ouverte) » : un texte incomplet tant que quelqu'un ne l'interprète pas.
+Umberto Eco imaginait « [L'Œuvre ouverte](https://fr.wikipedia.org/wiki/%C5%92uvre_ouverte) » : un texte incomplet tant que quelqu'un ne l'interprète pas. Roland Barthes prolongera cette idée avec « [La Mort de l'Auteur](https://fr.wikipedia.org/wiki/La_Mort_de_l%27auteur) » — la position radicale que dès qu'un texte quitte son créateur, le sens appartient entièrement au lecteur.
 
 GutenKu pousse cette logique à l'extrême. Il n'y a pas d'auteur. Juste un algorithme qui mélange des mots, et des humains qui dessinent du sens sur le résultat.
 
