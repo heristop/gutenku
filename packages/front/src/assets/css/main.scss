@@ -58,48 +58,6 @@
     }
   }
 
-  .theme-toggle-zen {
-    view-transition-name: theme-toggle;
-  }
-
-  ::view-transition-old(theme-toggle),
-  ::view-transition-new(theme-toggle) {
-    animation-duration: 400ms;
-    animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
-    border-radius: 50%;
-    overflow: hidden;
-  }
-
-  ::view-transition-old(theme-toggle) {
-    animation-name: toggle-morph-out;
-  }
-
-  ::view-transition-new(theme-toggle) {
-    animation-name: toggle-morph-in;
-  }
-
-  @keyframes toggle-morph-out {
-    from {
-      opacity: 1;
-      transform: scale(1) rotate(0deg);
-    }
-    to {
-      opacity: 0;
-      transform: scale(0.8) rotate(-15deg);
-    }
-  }
-
-  @keyframes toggle-morph-in {
-    from {
-      opacity: 0;
-      transform: scale(1.2) rotate(15deg);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) rotate(0deg);
-    }
-  }
-
   .haiku-canvas-container {
     view-transition-name: haiku-canvas;
   }
@@ -1368,15 +1326,6 @@ body {
   padding: 1rem 1.5rem;
   margin: 1rem 0;
   box-shadow: var(--gutenku-shadow-light), var(--gutenku-shadow-inset);
-
-  .action-buttons {
-    display: flex;
-    gap: 0.75rem;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    z-index: 2;
-  }
 }
 
 @keyframes typewriter-cursor {
@@ -1546,33 +1495,9 @@ body {
   margin: var(--gutenku-space-golden-md) 0;
 }
 
-.reading-focus {
-  .gutenku-text-muted,
-  .zen-decorative {
-    opacity: 0.3;
-    transition: var(--gutenku-transition-zen);
-  }
-
-  .gutenku-text-primary {
-    opacity: 1;
-    font-weight: 500;
-  }
-}
-
 @media (max-width: 768px) {
   .gutenku-card {
     padding: var(--gutenku-space-7) var(--gutenku-space-golden-sm);
-
-    .action-buttons {
-      flex-direction: column;
-      gap: var(--gutenku-space-5);
-
-      .gutenku-btn {
-        width: 100%;
-        min-width: unset;
-        min-height: 2.75rem; // 44px - Touch target size
-      }
-    }
   }
 
   .gutenku-book-page {

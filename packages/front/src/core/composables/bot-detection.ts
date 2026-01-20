@@ -25,7 +25,6 @@ export function useBotDetection() {
     isLoading.value = true;
 
     // Defer bot detection to run after page is interactive
-    // This prevents blocking the main thread during initial render
     if ('requestIdleCallback' in globalThis) {
       requestIdleCallback(
         () => {
