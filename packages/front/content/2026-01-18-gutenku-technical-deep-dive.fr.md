@@ -73,7 +73,7 @@ L'algorithme s'arrête quand l'amélioration stagne (moins de 0,5% de gain sur 3
 
 <img src="/article/quality-score.png" alt="Panneau de score de qualité - 18 métriques réparties en Langage, Flux, Structure, Imagerie et Pénalités" class="article-img" />
 
-Comment enseigner à un algorithme ce qui fait un « bon » haïku ? Vous décomposez l'ineffable en 18 signaux mesurables.
+Comment enseigner à un algorithme ce qui fait un bon haïku ? Vous décomposez l'ineffable en 18 signaux mesurables.
 
 ### Ce Que l'Algorithme Recherche
 
@@ -131,7 +131,7 @@ Les deux chemins de convolution parallèles captent des rythmes différents : le
 
 ### Enseigner par Comparaison
 
-L'entraînement fonctionne comme apprendre à un chien la différence entre « bon chien » et « mauvais chien » - non pas par des règles abstraites, mais par des exemples.
+L'entraînement fonctionne comme montrer à un chien des exemples de bon et mauvais comportement - non pas par des règles abstraites, mais par des exemples.
 
 Le réseau voit des triplets : un haïku d'élite (l'ancre), un autre élite (l'exemple positif), et un éliminé précocement (le négatif). Son travail est d'apprendre ce qui rend les deux survivants similaires entre eux, et différents du perdant.
 
@@ -147,7 +147,7 @@ Le fitness final mélange les deux approches :
 
 $$F_{total} = 0.6 \times S_{\text{règles}} + 0.4 \times S_{\text{réseau}}$$
 
-Les règles détectent les problèmes évidents ; le réseau perçoit les subtilités cachées derrière les mots.
+Les règles détectent les problèmes évidents ; le réseau perçoit les subtilités au sein des mots.
 
 ---
 
@@ -165,7 +165,7 @@ Le [code est open source](https://github.com/heristop/gutenku) pour les curieux.
 
 ## Ce Que Cela Révèle
 
-GutenKu ne promet pas d'apporter du sens - seulement de la résonance. L'algorithme optimise pour des motifs qui historiquement « survivent » au processus évolutif, ce qui correspond vaguement avec ce que les humains trouvent esthétiquement plaisant.
+GutenKu ne promet pas d'apporter du sens, seulement de la résonance. L'algorithme optimise pour des motifs qui historiquement « survivent » au processus évolutif, ce qui correspond vaguement à ce que les humains trouvent esthétiquement plaisant.
 
 **La vérité inconfortable** : Quand un haïku vous émeut, cette émotion vient de _vous_ - vos souvenirs, votre contexte culturel, votre sens de la beauté. L'algorithme ne ressent rien.
 
@@ -173,6 +173,6 @@ Ce n'est pas la créativité de l'IA que nous percevons. C'est notre propre huma
 
 ---
 
-_Pour le contexte philosophique derrière cette machinerie technique, lisez [GutenKu : Quand Deux Impostures Font une Vérité](/blog/gutenku-when-two-frauds-make-a-truth)._
+Pour le contexte philosophique derrière cette machinerie technique, lisez [GutenKu : Quand Deux Impostures Font une Vérité](/blog/gutenku-when-two-frauds-make-a-truth).
 
 <small>Crédits illustration : [@heristop](https://instagram.com/heristop)</small>

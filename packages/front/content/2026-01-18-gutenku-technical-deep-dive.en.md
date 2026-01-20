@@ -50,9 +50,9 @@ Evolution isn't just for finches. The same optimization technique that designs a
 
 ### Survival of the Fittest (Haiku)
 
-A population of 150 haiku candidates competes each generation. The top 6 elite survivors pass directly to the next round - unchanged, like royalty. The rest fight for their place through tournament selection: pick 7 random haiku, keep the winner. Repeat until you have enough parents.
+A population of 150 haiku candidates competes each generation. The top 6 elite survivors pass directly to the next round - unchanged, like royalty. The rest fight for their place through tournament selection: seven random haiku are picked, and the winner survives. Repeat until you have enough parents.
 
-Then the fun part: breeding. Two parent haiku swap their verses with a 90% crossover rate - maybe the first line from mom, the rest from dad. And because evolution needs chaos, each verse has a 12% chance of mutating into something completely different from the pool.
+Then the fun part: breeding. Two parent haiku swap their verses with a 90% crossover rate — maybe the first line from mom, the rest from dad. And because evolution needs chaos, each verse has a 12% chance of mutating into something completely different from the pool.
 
 Here's how biology maps to code:
 
@@ -73,7 +73,7 @@ The algorithm stops when improvement stagnates (less than 0.5% gain over 30 gene
 
 <img src="/article/quality-score.png" alt="Quality Score Panel - 18 metrics across Language, Flow, Structure, Imagery and Penalties" class="article-img" />
 
-How do you teach an algorithm what makes a haiku "good"? You break down the ineffable into 18 measurable signals.
+How do you teach an algorithm what makes a haiku good? You break down the ineffable into 18 measurable signals.
 
 ### What the Algorithm Looks For
 
@@ -88,7 +88,7 @@ How do you teach an algorithm what makes a haiku "good"? You break down the inef
 
 **Verse distance** carries the highest weight, and it's the most counterintuitive. Haiku whose lines came from nearby passages in the original book score higher than those assembled from random corners. Why? Proximity in the source text means the author was thinking along a thread - the lines carry echoes of a single train of thought.
 
-**Markov flow** asks a simple question: would these words appear together naturally? The algorithm trains bigram probabilities on the full corpus of fetched Gutenberg books - learning what word sequences each author tends to use. "Cherry blossom" scores high. "Cherry algorithm" does not.
+**Markov flow** asks a simple question: would these words appear together naturally? The algorithm trains bigram probabilities on all fetched Gutenberg books - learning what word sequences each author tends to use. "Cherry blossom" scores high. "Cherry algorithm" does not.
 
 $$P(\text{"blossom"} \mid \text{"cherry"}) = 0.73$$ → Words that belong together
 
@@ -131,7 +131,7 @@ The two parallel convolution paths catch different rhythms: 3-character patterns
 
 ### Teaching by Comparison
 
-Training works like teaching a dog the difference between "good boy" and "bad boy" - not through abstract rules, but through examples.
+Training works like showing a dog examples of good and bad behavior - not through abstract rules, but through examples.
 
 The network sees triplets: one elite haiku (the anchor), another elite (the positive example), and one early elimination (the negative). Its job is to learn what makes the two survivors similar to each other, and different from the loser.
 
@@ -147,7 +147,7 @@ The final fitness blends both approaches:
 
 $$F_{total} = 0.6 \times S_{rules} + 0.4 \times S_{network}$$
 
-The rules catch obvious problems; the network perceives the subtleties hidden behind the words.
+The rules catch obvious problems; the network perceives the subtleties within the words.
 
 ---
 
@@ -173,6 +173,6 @@ We're not experiencing AI creativity. We're experiencing our own humanity reflec
 
 ---
 
-_For the philosophical context behind this technical machinery, read [GutenKu: When Two Frauds Make a Truth](/blog/gutenku-when-two-frauds-make-a-truth)._
+For the philosophical context behind this technical machinery, read [GutenKu: When Two Frauds Make a Truth](/blog/gutenku-when-two-frauds-make-a-truth).
 
 <small>Illustration credits: [@heristop](https://instagram.com/heristop)</small>
