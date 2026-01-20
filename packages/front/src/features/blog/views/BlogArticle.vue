@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
-import { useRoute, RouterLink } from 'vue-router';
+import { computed, onMounted, onUnmounted } from 'vue';
+import { useRoute, useRouter, RouterLink } from 'vue-router';
 import { Loader2, ArrowUp, ArrowLeft, ArrowRight } from 'lucide-vue-next';
 import SumieCat from '@/core/components/decorative/SumieCat.vue';
 import { useSeoMeta, useHead } from '@unhead/vue';
@@ -20,6 +20,7 @@ import {
 
 const { t } = useI18n();
 const route = useRoute();
+const router = useRouter();
 const slug = computed(() => route.params.slug as string);
 
 const {
@@ -36,6 +37,41 @@ const {
 
 const { readingProgress, showBackToTop, scrollToTop } = useReadingProgress();
 
+// Arrow key nav
+function handleKeydown(e: KeyboardEvent) {
+  const target = e.target as HTMLElement;
+  if (
+    target.tagName === 'INPUT' ||
+    target.tagName === 'TEXTAREA' ||
+    target.isContentEditable ||
+    e.ctrlKey ||
+    e.metaKey ||
+    e.altKey
+  ) {
+    return;
+  }
+
+  if (e.key === 'ArrowLeft' && prevArticle.value) {
+    router.push({
+      name: 'BlogArticle',
+      params: { slug: prevArticle.value.slug },
+    });
+  } else if (e.key === 'ArrowRight' && nextArticle.value) {
+    router.push({
+      name: 'BlogArticle',
+      params: { slug: nextArticle.value.slug },
+    });
+  }
+}
+
+onMounted(() => {
+  globalThis.addEventListener('keydown', handleKeydown);
+});
+
+onUnmounted(() => {
+  globalThis.removeEventListener('keydown', handleKeydown);
+});
+
 const ogImage = computed(() => {
   if (!article.value) {
     return `${SITE_URL}/og-image.png`;
@@ -47,10 +83,8 @@ const ogImage = computed(() => {
 
 const isoDate = computed(() => article.value?.date.toISOString() || '');
 
-// Article stores its actual locale (may differ from UI locale if fallback)
 const articleLocale = computed(() => article.value?.locale || 'en');
 
-// Get OG locale from config
 const ogLocale = computed(
   () =>
     LOCALE_CONFIG[articleLocale.value as SupportedLocale]?.ogLocale || 'en_US',
@@ -86,7 +120,6 @@ useHead({
     if (!article.value) {
       return [];
     }
-    // Add hreflang for available translations
     const links: { rel: string; hreflang: string; href: string }[] = [];
     const availableLocales = getAvailableLocalesForSlug(slug.value);
     for (const loc of availableLocales) {
@@ -97,7 +130,6 @@ useHead({
         href: `${SITE_URL}/blog/${slug.value}`,
       });
     }
-    // x-default points to English version
     links.push({
       rel: 'alternate',
       hreflang: 'x-default',
@@ -147,13 +179,11 @@ useHead({
 
 <template>
   <div class="blog-article">
-    <!-- Reading progress bar -->
     <div
       class="blog-article__progress"
       :style="{ width: `${readingProgress}%` }"
     />
 
-    <!-- Not Found State -->
     <div v-if="notFound && !loading" class="blog-article__not-found">
       <ZenCard class="blog-article__not-found-card">
         <h1>{{ t('blog.notFound') }}</h1>
@@ -194,14 +224,12 @@ useHead({
         </p>
       </header>
 
-      <!-- Ink brush divider -->
       <div class="blog-article__divider" aria-hidden="true" />
 
       <div v-if="loading" class="blog-article__loading">
         <Loader2 :size="32" class="blog-article__spinner" />
       </div>
 
-      <!-- Walking cat above article card -->
       <div class="blog-article__cat-wrapper">
         <SumieCat />
       </div>
@@ -211,7 +239,6 @@ useHead({
           <article class="blog-article__body prose" v-html="content" />
           <BlogShareButtons :title="article?.title ?? ''" />
 
-          <!-- Article navigation -->
           <nav class="blog-article__nav" aria-label="Article navigation">
             <RouterLink
               v-if="prevArticle"
@@ -247,10 +274,12 @@ useHead({
             </RouterLink>
             <div v-else class="blog-article__nav-spacer" />
           </nav>
+          <p class="blog-article__keyboard-hint">
+            {{ t('blog.keyboardNavHint') }}
+          </p>
         </ZenCard>
       </Transition>
 
-      <!-- Back to top button -->
       <Transition name="fade-scale">
         <button
           v-if="showBackToTop"
@@ -567,6 +596,20 @@ useHead({
     }
   }
 
+  &__keyboard-hint {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--gutenku-text-muted);
+    margin-top: 1rem;
+    margin-bottom: 0;
+    opacity: 0.6;
+
+    // Only show on devices with hover (desktop)
+    @media (hover: none) {
+      display: none;
+    }
+  }
+
   &__body {
     line-height: 1.7;
     color: var(--gutenku-text-primary);
@@ -582,7 +625,6 @@ useHead({
       line-height: 1.8;
     }
 
-    // Drop cap for first paragraph
     :deep(p:first-of-type::first-letter) {
       float: left;
       font-size: 2.75rem;
@@ -727,7 +769,6 @@ useHead({
       max-width: 100%;
       box-sizing: border-box;
 
-      // Mobile: wrap text instead of scrolling
       @media (max-width: 599px) {
         white-space: pre-wrap;
         word-wrap: break-word;
@@ -824,7 +865,6 @@ useHead({
       }
     }
 
-    // Technical article images - full width, responsive
     :deep(img.article-img) {
       max-width: 100%;
       max-height: none;
@@ -892,7 +932,6 @@ useHead({
         p {
           float: none !important;
           font-size: 13px !important;
-          font-family: 'JMH Typewriter', monospace !important;
           line-height: 1.4 !important;
         }
 
@@ -987,7 +1026,6 @@ useHead({
         font-size: 1rem;
       }
 
-      // Mobile: Stack rows into cards
       @media (max-width: 599px) {
         display: block;
         width: 100%;
@@ -1035,7 +1073,6 @@ useHead({
         }
       }
 
-      // Desktop styles
       @media (min-width: 600px) {
         th,
         td {
@@ -1145,7 +1182,6 @@ useHead({
   }
 }
 
-// Animations
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -1166,7 +1202,6 @@ useHead({
   }
 }
 
-// Fade up transition
 .fade-up-enter-active {
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -1176,7 +1211,6 @@ useHead({
   transform: translateY(20px);
 }
 
-// Fade scale transition for back to top
 .fade-scale-enter-active,
 .fade-scale-leave-active {
   transition: all 0.2s ease;
@@ -1188,7 +1222,6 @@ useHead({
   transform: scale(0.8);
 }
 
-// Dark theme
 [data-theme='dark'] .blog-article {
   &__header {
     position: relative;
@@ -1396,7 +1429,6 @@ useHead({
   }
 }
 
-// Reduced motion
 @media (prefers-reduced-motion: reduce) {
   .blog-article {
     &__progress {
