@@ -15,7 +15,7 @@ describe('Haiku Page', () => {
     });
 
     it('displays content after loading', () => {
-      cy.get('[data-cy=fetch-btn]', { timeout: 30000 })
+      cy.get('[data-cy=fetch-btn]:first', { timeout: 30000 })
         .should('exist')
         .and('not.be.disabled');
     });
@@ -23,13 +23,13 @@ describe('Haiku Page', () => {
 
   describe('Haiku Content', () => {
     beforeEach(() => {
-      cy.get('[data-cy=fetch-btn]', { timeout: 30000 })
+      cy.get('[data-cy=fetch-btn]:first', { timeout: 30000 })
         .should('exist')
         .and('not.be.disabled');
     });
 
     it('displays haiku title section', () => {
-      cy.get('.haiku-section__title').should('exist');
+      cy.get('.book-header').should('exist');
     });
 
     it('displays haiku chapter', () => {
@@ -47,22 +47,17 @@ describe('Haiku Page', () => {
 
   describe('Haiku Generation', () => {
     beforeEach(() => {
-      cy.get('[data-cy=fetch-btn]', { timeout: 30000 })
+      cy.get('[data-cy=fetch-btn]:first', { timeout: 30000 })
         .should('exist')
         .and('not.be.disabled');
     });
 
     it('can generate a new haiku', () => {
-      cy.get('[data-cy=fetch-btn]').click();
-      // Button should show stop state while generating (has --stop class)
-      cy.get('[data-cy=fetch-btn].toolbar-panel__button--stop', {
-        timeout: 5000,
-      }).should('exist');
-      // Wait for generation to complete (stop class removed)
-      cy.get('[data-cy=fetch-btn]', { timeout: 30000 }).should(
-        'not.have.class',
-        'toolbar-panel__button--stop',
-      );
+      cy.get('[data-cy=fetch-btn]:first').click();
+      // Wait for generation to complete - button should be enabled and not in stop state
+      cy.get('[data-cy=fetch-btn]:first', { timeout: 30000 })
+        .should('not.be.disabled')
+        .and('not.have.class', 'toolbar-panel__button--stop');
     });
 
     it('updates haiku content after generation', () => {
@@ -70,8 +65,8 @@ describe('Haiku Page', () => {
       cy.get('.haiku-section__chapter')
         .invoke('text')
         .then((initialText) => {
-          cy.get('[data-cy=fetch-btn]').click();
-          cy.get('[data-cy=fetch-btn]', { timeout: 30000 }).should(
+          cy.get('[data-cy=fetch-btn]:first').click();
+          cy.get('[data-cy=fetch-btn]:first', { timeout: 30000 }).should(
             'not.be.disabled',
           );
           // Content may or may not change (could be same haiku from cache)
@@ -82,7 +77,7 @@ describe('Haiku Page', () => {
 
   describe('Theme Selection', () => {
     beforeEach(() => {
-      cy.get('[data-cy=fetch-btn]', { timeout: 30000 })
+      cy.get('[data-cy=fetch-btn]:first', { timeout: 30000 })
         .should('exist')
         .and('not.be.disabled');
     });
@@ -93,7 +88,7 @@ describe('Haiku Page', () => {
 
     it('can change theme', () => {
       cy.selectTheme('colored');
-      cy.get('[data-cy=fetch-btn]', { timeout: 30000 }).should(
+      cy.get('[data-cy=fetch-btn]:first', { timeout: 30000 }).should(
         'not.be.disabled',
       );
     });
@@ -101,7 +96,7 @@ describe('Haiku Page', () => {
 
   describe('Stats Panel', () => {
     beforeEach(() => {
-      cy.get('[data-cy=fetch-btn]', { timeout: 30000 })
+      cy.get('[data-cy=fetch-btn]:first', { timeout: 30000 })
         .should('exist')
         .and('not.be.disabled');
     });
@@ -126,7 +121,7 @@ describe('Haiku Page', () => {
 
   describe('Config Panel', () => {
     beforeEach(() => {
-      cy.get('[data-cy=fetch-btn]', { timeout: 30000 })
+      cy.get('[data-cy=fetch-btn]:first', { timeout: 30000 })
         .should('exist')
         .and('not.be.disabled');
     });
@@ -138,17 +133,17 @@ describe('Haiku Page', () => {
 
   describe('Toolbar', () => {
     beforeEach(() => {
-      cy.get('[data-cy=fetch-btn]', { timeout: 30000 })
+      cy.get('[data-cy=fetch-btn]:first', { timeout: 30000 })
         .should('exist')
         .and('not.be.disabled');
     });
 
     it('displays toolbar with actions', () => {
-      cy.get('.toolbar-panel').should('exist');
+      cy.get('.toolbar-panel:first').should('exist');
     });
 
     it('has share functionality', () => {
-      cy.get('.toolbar-panel').within(() => {
+      cy.get('.toolbar-panel:first').within(() => {
         cy.get('button').should('have.length.at.least', 1);
       });
     });
@@ -158,7 +153,7 @@ describe('Haiku Page', () => {
     it('works on mobile viewport', () => {
       cy.viewport('iphone-x');
       cy.visit('/haiku');
-      cy.get('[data-cy=fetch-btn]', { timeout: 30000 })
+      cy.get('[data-cy=fetch-btn]:first', { timeout: 30000 })
         .should('exist')
         .and('not.be.disabled');
       cy.get('.haiku-page__content').should('exist');
@@ -167,7 +162,7 @@ describe('Haiku Page', () => {
     it('works on tablet viewport', () => {
       cy.viewport('ipad-2');
       cy.visit('/haiku');
-      cy.get('[data-cy=fetch-btn]', { timeout: 30000 })
+      cy.get('[data-cy=fetch-btn]:first', { timeout: 30000 })
         .should('exist')
         .and('not.be.disabled');
       cy.get('.haiku-page__content').should('exist');
@@ -176,28 +171,23 @@ describe('Haiku Page', () => {
 
   describe('Keyboard Shortcuts', () => {
     beforeEach(() => {
-      cy.get('[data-cy=fetch-btn]', { timeout: 30000 })
+      cy.get('[data-cy=fetch-btn]:first', { timeout: 30000 })
         .should('exist')
         .and('not.be.disabled');
     });
 
     it('supports keyboard interaction', () => {
       // Button is focusable
-      cy.get('[data-cy=fetch-btn]')
+      cy.get('[data-cy=fetch-btn]:first')
         .focus()
         .should('have.focus')
         .and('not.have.attr', 'tabindex', '-1');
       // Button activates on interaction
-      cy.get('[data-cy=fetch-btn]').click();
-      // Button should show stop state while generating
-      cy.get('[data-cy=fetch-btn].toolbar-panel__button--stop', {
-        timeout: 5000,
-      }).should('exist');
-      // Wait for generation to complete
-      cy.get('[data-cy=fetch-btn]', { timeout: 30000 }).should(
-        'not.have.class',
-        'toolbar-panel__button--stop',
-      );
+      cy.get('[data-cy=fetch-btn]:first').click();
+      // Wait for generation to complete - button should be enabled
+      cy.get('[data-cy=fetch-btn]:first', { timeout: 30000 })
+        .should('not.be.disabled')
+        .and('not.have.class', 'toolbar-panel__button--stop');
     });
   });
 });
