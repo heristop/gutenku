@@ -234,7 +234,7 @@ onUnmounted(() => {
 
     <div class="book-header">
       <div
-        v-if="isDailyHaiku && haiku?.cacheUsed"
+        v-if="isDailyHaiku"
         class="daily-header"
         role="status"
         :aria-label="t('haiku.dailyHaiku')"
@@ -353,6 +353,12 @@ onUnmounted(() => {
         <BookOpen :size="16" class="book-footer__icon" />
         <span>{{ t('haikuChapter.readOnGutenberg') }}</span>
       </a>
+    </div>
+
+    <!-- Brand Signature -->
+    <div class="book-signature" aria-hidden="true">
+      <span class="book-signature__mark">✦</span>
+      <span class="book-signature__text">GutenKu</span>
     </div>
   </ZenCard>
 </template>
@@ -816,6 +822,42 @@ onUnmounted(() => {
   .book-footer__link,
   .book-footer__icon {
     transition: none;
+  }
+}
+
+// Brand signature - subtle branding at bottom of card
+.book-signature {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--gutenku-text-muted);
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+
+  &:hover {
+    opacity: 0.7;
+  }
+
+  &__mark {
+    font-size: 0.6rem;
+    color: var(--gutenku-zen-primary);
+    opacity: 0.6;
+  }
+
+  &__text {
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+}
+
+[data-theme='dark'] .book-signature {
+  &__mark {
+    color: var(--gutenku-zen-accent);
   }
 }
 
