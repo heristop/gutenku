@@ -113,15 +113,26 @@ useSeoMeta({
   &__header {
     text-align: center;
     margin-bottom: 1rem;
-    padding: 0 0.5rem;
+    padding: 1rem 1.25rem;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    position: relative;
+    background: oklch(0.97 0.01 60 / 0.6);
+    backdrop-filter: blur(12px);
+    border-radius: 1rem;
+    border: 1px solid var(--gutenku-paper-border);
+    box-shadow: var(--gutenku-shadow-glass);
 
     @media (min-width: 375px) {
       margin-bottom: 1.25rem;
+      padding: 1.25rem 1.5rem;
     }
 
     @media (min-width: 600px) {
       margin-bottom: 1.5rem;
-      padding: 0;
+      margin-left: 0;
+      margin-right: 0;
+      padding: 1.5rem 2rem;
     }
   }
 
@@ -401,25 +412,7 @@ useSeoMeta({
 // Dark theme
 [data-theme='dark'] .blog-index {
   &__header {
-    position: relative;
-    padding: 1rem 1.25rem;
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
     background: oklch(0.12 0.02 60 / 0.5);
-    backdrop-filter: blur(12px);
-    border-radius: 1rem;
-    border: 1px solid var(--gutenku-paper-border);
-    box-shadow: var(--gutenku-shadow-glass);
-
-    @media (min-width: 375px) {
-      padding: 1.25rem 1.5rem;
-    }
-
-    @media (min-width: 600px) {
-      margin-left: 0;
-      margin-right: 0;
-      padding: 1.5rem 2rem;
-    }
   }
 
   &__title {
