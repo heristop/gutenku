@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useBotDetection } from '@/core/composables/bot-detection';
 
 // Mock the botd module
@@ -9,8 +9,21 @@ vi.mock('@fingerprintjs/botd', () => ({
 }));
 
 describe('useBotDetection', () => {
+  let requestIdleCallbackSpy: ReturnType<typeof vi.fn>;
+
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Mock requestIdleCallback to run immediately
+    requestIdleCallbackSpy = vi.fn((cb: IdleRequestCallback) => {
+      cb({ didTimeout: false, timeRemaining: () => 50 } as IdleDeadline);
+      return 1;
+    });
+    vi.stubGlobal('requestIdleCallback', requestIdleCallbackSpy);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('should start with isBot as false', () => {
@@ -33,20 +46,25 @@ describe('useBotDetection', () => {
 
     expect(isLoading.value).toBeFalsy();
 
-    const detectPromise = detectBot();
+    detectBot();
 
-    // Note: Due to async nature, isLoading may already be true
-    await detectPromise;
+    // isLoading is set immediately before deferring
+    expect(isLoading.value).toBeTruthy();
 
-    expect(isLoading.value).toBeFalsy();
+    // Wait for async detection to complete
+    await vi.waitFor(() => {
+      expect(isLoading.value).toBeFalsy();
+    });
   });
 
   it('should detect non-bot correctly', async () => {
     const { isBot, detectBot } = useBotDetection();
 
-    await detectBot();
+    detectBot();
 
-    expect(isBot.value).toBeFalsy();
+    await vi.waitFor(() => {
+      expect(isBot.value).toBeFalsy();
+    });
   });
 
   it('should detect bot correctly', async () => {
@@ -57,9 +75,11 @@ describe('useBotDetection', () => {
 
     const { isBot, detectBot } = useBotDetection();
 
-    await detectBot();
+    detectBot();
 
-    expect(isBot.value).toBeTruthy();
+    await vi.waitFor(() => {
+      expect(isBot.value).toBeTruthy();
+    });
   });
 
   it('should handle detection errors gracefully', async () => {
@@ -68,9 +88,13 @@ describe('useBotDetection', () => {
       new Error('Detection failed'),
     );
 
-    const { isBot, detectBot } = useBotDetection();
+    const { isBot, isLoading, detectBot } = useBotDetection();
 
-    await detectBot();
+    detectBot();
+
+    await vi.waitFor(() => {
+      expect(isLoading.value).toBeFalsy();
+    });
 
     expect(isBot.value).toBeFalsy();
   });
@@ -84,13 +108,12 @@ describe('useBotDetection', () => {
 
     const { detectBot } = useBotDetection();
 
-    // Start two detections
-    const p1 = detectBot();
-    const p2 = detectBot();
+    // Start two detections - second should be ignored due to isLoading guard
+    detectBot();
+    detectBot();
 
-    await Promise.all([p1, p2]);
-
-    // Should only call load once due to isLoading guard
-    expect(load).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() => {
+      expect(load).toHaveBeenCalledTimes(1);
+    });
   });
 });
