@@ -28,7 +28,7 @@
     "haiku": "GutenKu俳句生成へ",
     "game": "GutenGuessで遊ぶ",
     "homeLabel": "ホーム",
-    "haikuLabel": "GutenKu",
+    "haikuLabel": "GutenVerse",
     "gameLabel": "GutenGuess",
     "blogLabel": "ブログ",
     "blog": "ブログへ"
@@ -101,7 +101,8 @@
   },
   "hero": {
     "ariaLabel": "GutenKuについて",
-    "description": "<strong>GutenKu</strong>はProject Gutenbergの無料電子書籍ライブラリを使用して、古典文学から俳句を作成します。",
+    "description": "散文が詩になる。本が謎になる。<strong>GutenVerse</strong>は名作を俳句に凝縮。<strong>GutenGuess</strong>は読書をゲームに変える。",
+    "welcome": "<strong>GutenKu</strong>へようこそ—Project Gutenberg提供。",
     "stats": {
       "haikusCrafted": "作成俳句数"
     }
@@ -288,13 +289,13 @@
     "tagline": "古典文学からの俳句",
     "haikusCrafted": "{count}句の俳句を作成",
     "gamesPlayed": "{count}ゲーム",
-    "winRate": "{rate}%勝率",
+    "winRate": "{rate}%正解",
     "todayHaikusCrafted": "今日{count}句の俳句を作成",
     "weekHaikusCrafted": "今週{count}句の俳句を作成",
-    "todayWinRate": "今日{rate}%勝利",
-    "todayAvgHints": "平均{avg}ヒント",
-    "weekWinRate": "{rate}%勝利",
-    "weekAvgHints": "平均{avg}ヒント",
+    "todayWinRate": "今日{rate}%正解",
+    "todayAvgHints": "ヒント {avg}%",
+    "weekWinRate": "{rate}%正解",
+    "weekAvgHints": "ヒント {avg}%",
     "networkError": "サーバーに接続できません :(",
     "haikuReady": "俳句の準備完了",
     "readyMessage": "詩を作成する準備ができました",
@@ -397,6 +398,7 @@
     "readArticle": "記事を読む",
     "notFound": "記事が見つかりません",
     "notFoundDescription": "お探しの記事は存在しません。",
-    "rss": "購読"
+    "rss": "購読",
+    "keyboardNavHint": "← → で移動"
   }
 }

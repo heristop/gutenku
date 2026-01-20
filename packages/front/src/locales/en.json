@@ -28,7 +28,7 @@
     "haiku": "Go to GutenKu haiku generator",
     "game": "Go to GutenGuess word game",
     "homeLabel": "Home",
-    "haikuLabel": "GutenKu",
+    "haikuLabel": "GutenVerse",
     "gameLabel": "GutenGuess",
     "blogLabel": "Blog",
     "blog": "Go to blog"
@@ -101,7 +101,8 @@
   },
   "hero": {
     "ariaLabel": "About GutenKu",
-    "description": "<strong>GutenKu</strong> creates haikus from classic literature using Project Gutenberg's free eBook library.",
+    "description": "Prose becomes poetry. Books become riddles. <strong>GutenVerse</strong> distills classics into haikus. <strong>GutenGuess</strong> turns your reading into a game.",
+    "welcome": "Welcome to <strong>GutenKu</strong>—powered by Project Gutenberg.",
     "stats": {
       "haikusCrafted": "haikus crafted"
     }
@@ -288,13 +289,13 @@
     "tagline": "Haiku from classic literature",
     "haikusCrafted": "{count} haikus crafted",
     "gamesPlayed": "{count} games",
-    "winRate": "{rate}% won",
+    "winRate": "{rate}% solved",
     "todayHaikusCrafted": "{count} haikus crafted today",
     "weekHaikusCrafted": "{count} haikus crafted this week",
-    "todayWinRate": "{rate}% won today",
-    "todayAvgHints": "avg {avg} hints",
-    "weekWinRate": "{rate}% won",
-    "weekAvgHints": "avg {avg} hints",
+    "todayWinRate": "{rate}% solved today",
+    "todayAvgHints": "hints {avg}%",
+    "weekWinRate": "{rate}% solved",
+    "weekAvgHints": "hints {avg}%",
     "networkError": "Cannot connect to the server :(",
     "haikuReady": "Haiku ready",
     "readyMessage": "Ready to create poetry",
@@ -397,6 +398,7 @@
     "readArticle": "Read article",
     "notFound": "Article Not Found",
     "notFoundDescription": "The article you're looking for doesn't exist.",
-    "rss": "Subscribe"
+    "rss": "Subscribe",
+    "keyboardNavHint": "Use ← → to navigate"
   }
 }
