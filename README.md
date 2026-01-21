@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1768867201" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1768953602" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"The haiku moves in widening circles: from the solid certainty of “Mountains,” to the vast openness of “the sea,” and then to the smallest yet most conscious presence—“Person in the universe.” This progression suggests perspective: nature’s grandeur frames human life, but does not erase it. The final line, “The sun from rising,” introduces a moment of beginning and renewal, as if the speaker is witnessing creation happen in real time. The slightly unusual phrasing makes the sunrise feel less like a simple event and more like a cosmic force emerging, linking the personal and the planetary. Overall, the poem balances humility and belonging: the human figure is tiny against mountains and ocean, yet still placed meaningfully within the universe’s daily rebirth."_
+> _"This haiku moves outward in widening circles: from “Mountains” to “the sea,” then to a single “Person” set against the vastness of “the universe.” The first line contrasts solidity and depth—enduring mountains followed by the open, shifting sea—suggesting the full range of nature’s scale and mood. The second line places a human figure within that immensity, not as a conqueror but as a small, reflective presence, inviting humility and wonder. The final line, “The sun from rising,” introduces a moment of beginning: dawn as renewal, clarity, and perspective. Read together, the poem frames an awakening—standing between land and water, the speaker senses their place in a larger cosmos as the day (and perhaps understanding) starts to unfold."_
 
-— **BotenKu** 📅 _Jan 20, 2026_
+— **BotenKu** 📅 _Jan 21, 2026_
 
 </td>
 </tr>
