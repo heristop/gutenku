@@ -6,17 +6,19 @@ cp packages/server/data/daily_haiku_card.jpg ./assets/img/daily_haiku_card.jpg
 cp packages/server/data/description.txt ./assets/description.txt
 cp packages/server/data/social-preview-description.txt ./assets/social-preview-description.txt
 
-# Update image cache buster
-sed -i "s/t=[0-9]\+/t=$(date +%s)/" README.md
+# Update image cache buster (using extended regex)
+sed -i -E "s/t=[0-9]+/t=$(date +%s)/" README.md
 
-# Update description
+# Update description using awk (handles internal quotes)
 description=$(cat assets/description.txt)
-escaped_desc=$(printf '%s\n' "$description" | sed 's/[&/\]/\\&/g')
-sed -i "s/> _\".*\"_/> _\"$escaped_desc\"_/" README.md
+awk -v desc="$description" '
+  /^> _".*"_$/ { print "> _\"" desc "\"_"; next }
+  { print }
+' README.md > README.md.tmp && mv README.md.tmp README.md
 
-# Update date
+# Update date (using extended regex)
 current_date=$(date +'%b %d, %Y')
-sed -i "s/📅 _[^_]*_/📅 _${current_date}_/" README.md
+sed -i -E "s/📅 _[^_]*_/📅 _${current_date}_/" README.md
 
 # Commit and push if there are changes
 if ! git diff --quiet assets README.md; then
