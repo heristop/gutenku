@@ -25,11 +25,11 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1769126401" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1769186337" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku traces a widening lens: it begins with the grounded solidity of “Mountains,” then moves outward to the open expanse of “the sea,” suggesting a journey from stability to vastness. The middle line—“Person in the universe”—places a single human figure against this immense backdrop, emphasizing both smallness and belonging, as if the self is briefly measured against creation. The final line, “The sun from rising,” introduces a moment of renewal: dawn becomes a quiet assurance that cycles continue beyond individual concerns. Overall, the poem balances scale and simplicity—earth, ocean, human, cosmos, and sunrise—inviting reflection on humility, connection, and the fresh perspective that comes with a new day."_
+> _"This haiku moves in widening circles: it begins with the solidity of “Mountains,” shifts to the vast openness of “the sea,” and then places a single “Person” within the immeasurable scale of “the universe.” The progression suggests a journey from the tangible landscape to cosmic awareness, where human life feels both small and meaningfully situated. The final line, “The sun from rising,” introduces dawn as a symbol of renewal and perspective—light arriving to reveal the world anew. Overall, the poem balances grandeur and humility, implying that standing between mountain and ocean can awaken a quiet recognition of one’s place in the larger order of existence."_
 
 — **BotenKu** 📅 _Jan 23, 2026_
 
