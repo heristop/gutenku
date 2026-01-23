@@ -3,6 +3,7 @@
 set -e
 
 cp packages/server/data/daily_haiku_card.jpg ./assets/img/daily_haiku_card.jpg
+cp packages/server/data/preview_haiku.jpg ./assets/img/preview_haiku.jpg
 cp packages/server/data/description.txt ./assets/description.txt
 cp packages/server/data/social-preview-description.txt ./assets/social-preview-description.txt
 
