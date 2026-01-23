@@ -25,11 +25,11 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1769186581" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1768867201" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a moment of intimate awkwardness and sensory confinement. “In that strange costume” suggests a speaker feeling self-conscious—dressed for a role, an occasion, or a version of the self that doesn’t quite fit. The second line, “opening a feather bed,” shifts into a domestic, tactile scene: the bed becomes both literal and symbolic, inviting softness yet also overwhelming in its abundance. By the final line, “pressed on all sides,” the softness turns claustrophobic; the feathers that should comfort instead crowd in, mirroring the speaker’s sense of being hemmed in by expectations, clothing, or circumstance. The poem’s power lies in its physical imagery—feathers, pressure, enclosure—used to express an emotional state: the uneasy tension between comfort and confinement, between play-acting and vulnerability."_
+> _"This haiku juxtaposes radiance, longing, and abrupt sound to trace a swift emotional turn. “The golden marvel” evokes something luminous and cherished—perhaps autumn light, a beloved presence, or a moment that feels rare and precious. The archaic diction in “longeth thy smiling for tears” personifies that marvel as yearning: it desires the transformation of a smile into tears, suggesting beauty that carries sorrow beneath it, or joy so intense it presses toward weeping. The final line, “the spontaneous bark,” snaps the poem into the immediate world with a sharp, unplanned interruption—likely a dog’s bark, though it can also read as the bark of a tree, roughened and sudden in texture. Either way, it acts as a sonic jolt that breaks reverie, turning private emotion outward. Overall, the poem captures how quickly wonder can tip into melancholy, and how an ordinary, unexpected sound can puncture a delicate, golden moment."_
 
 — **BotenKu** 📅 _Jan 23, 2026_
 
