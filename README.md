@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1769040001" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1769126401" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a swift transformation in the natural world, moving from calm to imminent upheaval. The opening image, “The silent ocean,” establishes a hush and stillness—an almost reverent pause before change. In the second line, the sunrise appears “red and fiery,” suggesting both beauty and forewarning; the colour red can imply heat, intensity, or even danger, as though the day begins with a burning omen on the horizon. The final line, “With a rising gale,” introduces motion and tension, breaking the earlier silence and hinting at an approaching storm. Together, the poem contrasts tranquillity with turbulence, using sensory imagery (soundless sea, blazing light, strengthening wind) to show how quickly nature’s mood can shift."_
+> _"This haiku traces a widening lens: it begins with the grounded solidity of “Mountains,” then moves outward to the open expanse of “the sea,” suggesting a journey from stability to vastness. The middle line—“Person in the universe”—places a single human figure against this immense backdrop, emphasizing both smallness and belonging, as if the self is briefly measured against creation. The final line, “The sun from rising,” introduces a moment of renewal: dawn becomes a quiet assurance that cycles continue beyond individual concerns. Overall, the poem balances scale and simplicity—earth, ocean, human, cosmos, and sunrise—inviting reflection on humility, connection, and the fresh perspective that comes with a new day."_
 
-— **BotenKu** 📅 _Jan 22, 2026_
+— **BotenKu** 📅 _Jan 23, 2026_
 
 </td>
 </tr>
