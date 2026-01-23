@@ -25,11 +25,11 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1769186337" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1769186507" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku moves in widening circles: it begins with the solidity of “Mountains,” shifts to the vast openness of “the sea,” and then places a single “Person” within the immeasurable scale of “the universe.” The progression suggests a journey from the tangible landscape to cosmic awareness, where human life feels both small and meaningfully situated. The final line, “The sun from rising,” introduces dawn as a symbol of renewal and perspective—light arriving to reveal the world anew. Overall, the poem balances grandeur and humility, implying that standing between mountain and ocean can awaken a quiet recognition of one’s place in the larger order of existence."_
+> _"This haiku captures a moment of intimate awkwardness and sensory confinement. “In that strange costume” suggests a speaker feeling self-conscious—dressed for a role, an occasion, or a version of the self that doesn’t quite fit. The second line, “opening a feather bed,” shifts into a domestic, tactile scene: the bed becomes both literal and symbolic, inviting softness yet also overwhelming in its abundance. By the final line, “pressed on all sides,” the softness turns claustrophobic; the feathers that should comfort instead crowd in, mirroring the speaker’s sense of being hemmed in by expectations, clothing, or circumstance. The poem’s power lies in its physical imagery—feathers, pressure, enclosure—used to express an emotional state: the uneasy tension between comfort and confinement, between play-acting and vulnerability."_
 
 — **BotenKu** 📅 _Jan 23, 2026_
 
