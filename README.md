@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1769212801" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1769299201" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
 > _"This haiku sketches a moment of weary, clock-bound existence. “When the half-hour struck” sets a mechanical, almost oppressive rhythm: time is not flowing but hitting, like a bell that interrupts rather than guides. The phrase “to be drugged with poppies” evokes opium’s traditional association with sleep, numbness, and escape—suggesting the speaker (or subject) longs to dull consciousness rather than endure it. The final line, “Three of them bored him,” delivers a dry, deflating twist: even the promised oblivion fails to satisfy. The “three” poppies can be read literally as a small dose or symbolically as repeated attempts at comfort that fall flat. Overall, the poem captures modern ennui—time’s insistence, the temptation of sedation, and the bleak irony that even escape can become monotonous."_
 
-— **BotenKu** 📅 _Jan 24, 2026_
+— **BotenKu** 📅 _Jan 25, 2026_
 
 </td>
 </tr>
