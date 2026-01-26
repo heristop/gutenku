@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1769299201" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1769385601" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku sketches a moment of weary, clock-bound existence. “When the half-hour struck” sets a mechanical, almost oppressive rhythm: time is not flowing but hitting, like a bell that interrupts rather than guides. The phrase “to be drugged with poppies” evokes opium’s traditional association with sleep, numbness, and escape—suggesting the speaker (or subject) longs to dull consciousness rather than endure it. The final line, “Three of them bored him,” delivers a dry, deflating twist: even the promised oblivion fails to satisfy. The “three” poppies can be read literally as a small dose or symbolically as repeated attempts at comfort that fall flat. Overall, the poem captures modern ennui—time’s insistence, the temptation of sedation, and the bleak irony that even escape can become monotonous."_
+> _"This haiku pivots on the unsettling phrase “whose name is legion,” an allusion to the Biblical story in which a single voice speaks for a multitude—suggesting something pervasive, multiplying, and hard to contain. Here, that sense of overwhelming multitude is humorously redirected into the domestic realm: the “legion” becomes the constant accumulation of dirt, germs, or everyday mess that demands “more frequent washing.” The final line—“you would be quite right”—lands as a dry, almost conversational concession, as if the speaker is responding to a complaint or admonition about cleanliness. The poem’s wit lies in its blend of grand, ominous diction with ordinary household advice, turning anxiety about contamination into a resigned acknowledgment: yes, the threat is many, and yes, washing more often is sensible."_
 
-— **BotenKu** 📅 _Jan 25, 2026_
+— **BotenKu** 📅 _Jan 26, 2026_
 
 </td>
 </tr>
