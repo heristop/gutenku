@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1769472002" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1769558401" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku pivots on the unsettling phrase “whose name is legion,” an allusion to the Biblical story in which a single voice speaks for a multitude—suggesting something pervasive, multiplying, and hard to contain. Here, that sense of overwhelming multitude is humorously redirected into the domestic realm: the “legion” becomes the constant accumulation of dirt, germs, or everyday mess that demands “more frequent washing.” The final line—“you would be quite right”—lands as a dry, almost conversational concession, as if the speaker is responding to a complaint or admonition about cleanliness. The poem’s wit lies in its blend of grand, ominous diction with ordinary household advice, turning anxiety about contamination into a resigned acknowledgment: yes, the threat is many, and yes, washing more often is sensible."_
+> _"This haiku sketches a stark moral contrast in three swift strokes. The opening line, “his part was finished,” suggests an ending that is both practical and ominous—someone has completed a task and is ready to step away, implying detachment or finality. The second line, “The workman was horrible,” sharpens the tone into judgement: the “workman” becomes a figure of cruelty or corruption, and the blunt adjective refuses nuance, as if the speaker cannot soften what has been witnessed. The final line, “Cosette was a light,” pivots into tenderness and symbolism. “Light” frames Cosette as innocence, hope, or salvation—something pure that exposes the workman’s ugliness by contrast. Read together, the poem compresses a whole narrative arc: brutal labor or wrongdoing, a cold completion, and then the sudden, humanizing presence of goodness that survives despite it."_
 
-— **BotenKu** 📅 _Jan 27, 2026_
+— **BotenKu** 📅 _Jan 28, 2026_
 
 </td>
 </tr>
