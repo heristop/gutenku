@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1769558401" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1769644801" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku sketches a stark moral contrast in three swift strokes. The opening line, “his part was finished,” suggests an ending that is both practical and ominous—someone has completed a task and is ready to step away, implying detachment or finality. The second line, “The workman was horrible,” sharpens the tone into judgement: the “workman” becomes a figure of cruelty or corruption, and the blunt adjective refuses nuance, as if the speaker cannot soften what has been witnessed. The final line, “Cosette was a light,” pivots into tenderness and symbolism. “Light” frames Cosette as innocence, hope, or salvation—something pure that exposes the workman’s ugliness by contrast. Read together, the poem compresses a whole narrative arc: brutal labor or wrongdoing, a cold completion, and then the sudden, humanizing presence of goodness that survives despite it."_
+> _"This haiku captures a speaker caught between regret and revision. The opening plea, “do go back to him,” reads like an urgent instruction—perhaps to the self, perhaps to someone else—suggesting a desire to undo distance or abandonment. The middle line, “that he had not broken down,” introduces the emotional stakes: the man’s collapse is imagined as a consequence of leaving, and the grammar’s slight awkwardness mirrors the speaker’s unsettled guilt. “In the retrospect” frames the whole moment as hindsight—too late for certainty, but vivid in self-reproach. Overall, the poem becomes a small study of remorse: the mind replaying the past, trying to restore someone’s strength by rewriting the choice that may have hurt him."_
 
-— **BotenKu** 📅 _Jan 28, 2026_
+— **BotenKu** 📅 _Jan 29, 2026_
 
 </td>
 </tr>
