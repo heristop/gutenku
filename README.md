@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1769731201" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1769817601" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
 > _"This haiku turns on a quiet, unsettling question: “could we look at them.” The speaker seems to gesture toward people marked by loss—perhaps the defeated, the overlooked, or even our own private failures—and asks whether we can truly bear to see them without turning away. The second line, “No one thinks of his defeat,” suggests a common human reflex: we avoid naming defeat, especially while we are still inside it. Defeat is not only an outcome but a thought we resist because it threatens pride and identity. The final line, “sitting or standing,” widens the moment into everyday life. Whether at rest or in motion, in vulnerability or composure, the body keeps its ordinary postures while the mind refuses to admit what has happened. The haiku’s power lies in its plain diction and its moral pressure: it asks us to look honestly at defeat—others’ and our own—without the comfort of denial."_
 
-— **BotenKu** 📅 _Jan 30, 2026_
+— **BotenKu** 📅 _Jan 31, 2026_
 
 </td>
 </tr>
