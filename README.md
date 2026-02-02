@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1769904001" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1769990401" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku turns on a quiet, unsettling question: “could we look at them.” The speaker seems to gesture toward people marked by loss—perhaps the defeated, the overlooked, or even our own private failures—and asks whether we can truly bear to see them without turning away. The second line, “No one thinks of his defeat,” suggests a common human reflex: we avoid naming defeat, especially while we are still inside it. Defeat is not only an outcome but a thought we resist because it threatens pride and identity. The final line, “sitting or standing,” widens the moment into everyday life. Whether at rest or in motion, in vulnerability or composure, the body keeps its ordinary postures while the mind refuses to admit what has happened. The haiku’s power lies in its plain diction and its moral pressure: it asks us to look honestly at defeat—others’ and our own—without the comfort of denial."_
+> _"This haiku presents a quiet, unsettling scene shaped by absence and uncertainty. The opening line, “no light had been seen,” establishes both literal darkness and a figurative lack of clarity—something (or someone) has been hidden from view, and the speaker is left without reassurance. The second line, “wrapt only in a green rug,” narrows the focus to a single vivid image: a body-like form bundled in something ordinary and domestic. The choice of “green” can suggest life, nature, or healing, yet here it feels ambiguous—comforting like a blanket, but also concealing like a shroud. The final line, “whether sick or sound,” lands as a hushed question, revealing the speaker’s doubt and concern. The poem’s power lies in what it withholds: we are given no explanation, only the tension between care and fear, rest and danger. In three lines, it captures how darkness breeds anxiety, and how a simple covering can become a symbol of vulnerability and unknown fate."_
 
-— **BotenKu** 📅 _Feb 01, 2026_
+— **BotenKu** 📅 _Feb 02, 2026_
 
 </td>
 </tr>
