@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1769990401" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1770076801" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku presents a quiet, unsettling scene shaped by absence and uncertainty. The opening line, “no light had been seen,” establishes both literal darkness and a figurative lack of clarity—something (or someone) has been hidden from view, and the speaker is left without reassurance. The second line, “wrapt only in a green rug,” narrows the focus to a single vivid image: a body-like form bundled in something ordinary and domestic. The choice of “green” can suggest life, nature, or healing, yet here it feels ambiguous—comforting like a blanket, but also concealing like a shroud. The final line, “whether sick or sound,” lands as a hushed question, revealing the speaker’s doubt and concern. The poem’s power lies in what it withholds: we are given no explanation, only the tension between care and fear, rest and danger. In three lines, it captures how darkness breeds anxiety, and how a simple covering can become a symbol of vulnerability and unknown fate."_
+> _"This haiku turns on a quiet paradox: a voice and a glance—things that are fleeting and intangible—are presented as powerful enough to make someone “fall.” The first line suggests seduction or influence through mere presence, implying that emotional impact can arrive without touch or overt action. The second line, “had she been able to fall,” introduces conditionality and restraint: the speaker imagines vulnerability, collapse, or surrender, yet hints that she cannot—or will not—give in. The final line, “You can bear plenty,” shifts from observation to counsel, sounding like reassurance after temptation or hardship. It implies endurance: even if desire, grief, or pressure threatens to topple you, you are capable of carrying more than you think. Overall, the poem compresses a narrative of attraction, withheld vulnerability, and hard-won resilience into three spare lines."_
 
-— **BotenKu** 📅 _Feb 02, 2026_
+— **BotenKu** 📅 _Feb 03, 2026_
 
 </td>
 </tr>
