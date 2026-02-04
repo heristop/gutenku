@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1770076801" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1770163202" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
 > _"This haiku turns on a quiet paradox: a voice and a glance—things that are fleeting and intangible—are presented as powerful enough to make someone “fall.” The first line suggests seduction or influence through mere presence, implying that emotional impact can arrive without touch or overt action. The second line, “had she been able to fall,” introduces conditionality and restraint: the speaker imagines vulnerability, collapse, or surrender, yet hints that she cannot—or will not—give in. The final line, “You can bear plenty,” shifts from observation to counsel, sounding like reassurance after temptation or hardship. It implies endurance: even if desire, grief, or pressure threatens to topple you, you are capable of carrying more than you think. Overall, the poem compresses a narrative of attraction, withheld vulnerability, and hard-won resilience into three spare lines."_
 
-— **BotenKu** 📅 _Feb 03, 2026_
+— **BotenKu** 📅 _Feb 04, 2026_
 
 </td>
 </tr>
