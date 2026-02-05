@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1770163202" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1770249601" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku turns on a quiet paradox: a voice and a glance—things that are fleeting and intangible—are presented as powerful enough to make someone “fall.” The first line suggests seduction or influence through mere presence, implying that emotional impact can arrive without touch or overt action. The second line, “had she been able to fall,” introduces conditionality and restraint: the speaker imagines vulnerability, collapse, or surrender, yet hints that she cannot—or will not—give in. The final line, “You can bear plenty,” shifts from observation to counsel, sounding like reassurance after temptation or hardship. It implies endurance: even if desire, grief, or pressure threatens to topple you, you are capable of carrying more than you think. Overall, the poem compresses a narrative of attraction, withheld vulnerability, and hard-won resilience into three spare lines."_
+> _"This haiku captures a tender moment poised between distance and intimacy. The first line, “just as the moon rose,” sets a quiet, luminous scene: moonrise often signals transition, calm, and a widening emotional horizon. In the second line—“write you very soon again”—the speaker shifts from landscape to longing, turning the natural image into a cue for communication, as if the moon’s appearance prompts the impulse to reach out. The final line, “coming close to me,” resolves the poem with a gentle movement inward: closeness may be literal (a reunion) or emotional (the nearness created by writing). Overall, the haiku suggests that small changes in the world—like the moon lifting into view—can awaken hope, connection, and the promise of return."_
 
-— **BotenKu** 📅 _Feb 04, 2026_
+— **BotenKu** 📅 _Feb 05, 2026_
 
 </td>
 </tr>
