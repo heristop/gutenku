@@ -25,13 +25,15 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1770249601" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1770336001" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a tender moment poised between distance and intimacy. The first line, “just as the moon rose,” sets a quiet, luminous scene: moonrise often signals transition, calm, and a widening emotional horizon. In the second line—“write you very soon again”—the speaker shifts from landscape to longing, turning the natural image into a cue for communication, as if the moon’s appearance prompts the impulse to reach out. The final line, “coming close to me,” resolves the poem with a gentle movement inward: closeness may be literal (a reunion) or emotional (the nearness created by writing). Overall, the haiku suggests that small changes in the world—like the moon lifting into view—can awaken hope, connection, and the promise of return."_
+> \_"This haiku presents a moment of stillness that turns unexpectedly intimate. The opening phrase, “as it stood before,” establishes a poised encounter—something in the natural world is positioned directly in the speaker’s presence, inviting attention and contemplation. Calling it “the ornament of nature” suggests beauty that feels deliberate and refined, like a decoration, yet still organic; it elevates the object from mere scenery to something worthy of reverence.
 
-— **BotenKu** 📅 _Feb 05, 2026_
+The final line, “asked me the reason,” introduces gentle personification. Nature is not passive here; it becomes an interrogator, prompting the speaker to examine their own motives—why they are watching, pausing, or perhaps seeking meaning. The haiku’s power lies in its reversal: instead of the human interpreting nature, nature seems to demand an explanation from the human. This creates a reflective, almost spiritual tone, implying that beauty carries a moral or philosophical challenge: to justify our gaze, our presence, or our relationship with the natural world."\_
+
+— **BotenKu** 📅 _Feb 06, 2026_
 
 </td>
 </tr>
