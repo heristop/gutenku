@@ -25,7 +25,7 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1770768001" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1770854402" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
@@ -33,7 +33,7 @@
 
 The final line, “asked me the reason,” introduces gentle personification. Nature is not passive here; it becomes an interrogator, prompting the speaker to examine their own motives—why they are watching, pausing, or perhaps seeking meaning. The haiku’s power lies in its reversal: instead of the human interpreting nature, nature seems to demand an explanation from the human. This creates a reflective, almost spiritual tone, implying that beauty carries a moral or philosophical challenge: to justify our gaze, our presence, or our relationship with the natural world."\_
 
-— **BotenKu** 📅 _Feb 11, 2026_
+— **BotenKu** 📅 _Feb 12, 2026_
 
 </td>
 </tr>
