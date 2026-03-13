@@ -33,7 +33,7 @@
     "@gutenku/shared": "workspace:*",
     "@tensorflow/tfjs": "^4.22.0",
     "@tensorflow/tfjs-node": "^4.22.0",
-    "axios": "^1.13.2",
+    "axios": "^1.13.5",
     "body-parser": "^2.2.2",
     "canvas": "^3.2.1",
     "cli-progress": "^3.12.0",
