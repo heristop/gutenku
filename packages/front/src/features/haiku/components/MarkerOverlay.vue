@@ -19,10 +19,13 @@ const props = withDefaults(
     delay?: number;
     /** Whether text is centered (title/author) */
     centered?: boolean;
+    /** Cursor position relative to .book-content for spotlight reveal */
+    spotlight?: { x: number; y: number } | null;
   }>(),
   {
     delay: 0,
     centered: false,
+    spotlight: null,
   },
 );
 
@@ -58,6 +61,26 @@ const noiseSeeds = computed(() => {
 });
 
 const totalLines = computed(() => layout.value.lines.length);
+
+// Spotlight: convert book-content coords to SVG-local coords
+const SPOTLIGHT_RADIUS = 60;
+
+const localSpotlight = computed(() => {
+  if (!props.spotlight || !containerRef.value) {
+    return null;
+  }
+  const myEl = containerRef.value;
+  const parentEl = myEl.closest('.book-content');
+  if (!parentEl) {
+    return null;
+  }
+  const myRect = myEl.getBoundingClientRect();
+  const parentRect = parentEl.getBoundingClientRect();
+  return {
+    x: props.spotlight.x - (myRect.left - parentRect.left),
+    y: props.spotlight.y - (myRect.top - parentRect.top),
+  };
+});
 
 // Hidden toggle → reveal/redraw animations
 watch(
@@ -138,23 +161,55 @@ function getLineStyle(line: MarkerLine, stroke: MarkerStroke, index: number) {
             yChannelSelector="G"
           />
         </filter>
+
+        <radialGradient id="mo-spotlight-grad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="black" />
+          <stop offset="55%" stop-color="black" />
+          <stop offset="100%" stop-color="white" />
+        </radialGradient>
+
+        <mask
+          v-if="localSpotlight"
+          id="mo-spotlight-mask"
+          maskUnits="userSpaceOnUse"
+          x="-50"
+          y="-50"
+          :width="layout.containerWidth + 100"
+          :height="layout.containerHeight + 100"
+        >
+          <rect
+            x="-50"
+            y="-50"
+            :width="layout.containerWidth + 100"
+            :height="layout.containerHeight + 100"
+            fill="white"
+          />
+          <circle
+            :cx="localSpotlight.x"
+            :cy="localSpotlight.y"
+            :r="SPOTLIGHT_RADIUS"
+            fill="url(#mo-spotlight-grad)"
+          />
+        </mask>
       </defs>
 
-      <g
-        v-for="(line, i) in layout.lines"
-        :key="`stroke-${i}`"
-        :style="getLineStyle(line, strokes[i], i)"
-        class="marker-stroke"
-        :class="{
-          drawing: hasDrawn && hidden && !isRevealing,
-          revealing: isRevealing,
-        }"
-      >
-        <path
-          :d="strokes[i].path"
-          :fill="`oklch(0.08 0 0 / ${strokes[i].opacity})`"
-          :filter="`url(#marker-noise-${i % NOISE_FILTER_COUNT})`"
-        />
+      <g :mask="localSpotlight ? 'url(#mo-spotlight-mask)' : undefined">
+        <g
+          v-for="(line, i) in layout.lines"
+          :key="`stroke-${i}`"
+          :style="getLineStyle(line, strokes[i], i)"
+          class="marker-stroke"
+          :class="{
+            drawing: hasDrawn && hidden && !isRevealing,
+            revealing: isRevealing,
+          }"
+        >
+          <path
+            :d="strokes[i].path"
+            :fill="`oklch(0.08 0 0 / ${strokes[i].opacity})`"
+            :filter="`url(#marker-noise-${i % NOISE_FILTER_COUNT})`"
+          />
+        </g>
       </g>
     </svg>
   </span>

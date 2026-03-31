@@ -21,8 +21,10 @@ const props = withDefaults(
     verses: string[];
     hidden: boolean;
     delay?: number;
+    /** Cursor position relative to .book-content for spotlight reveal */
+    spotlight?: { x: number; y: number } | null;
   }>(),
-  { delay: 0 },
+  { delay: 0, spotlight: null },
 );
 
 const { t } = useI18n();
@@ -113,6 +115,27 @@ const highlightCount = computed(
 const ariaDescription = computed(() =>
   t('highlightText.ariaDescription', { count: highlightCount.value }),
 );
+
+// --- Spotlight: convert book-content coords to SVG-local coords ---
+
+const SPOTLIGHT_RADIUS = 60;
+
+const localSpotlight = computed(() => {
+  if (!props.spotlight || !containerRef.value) {
+    return null;
+  }
+  const myEl = containerRef.value;
+  const parentEl = myEl.closest('.book-content');
+  if (!parentEl) {
+    return null;
+  }
+  const myRect = myEl.getBoundingClientRect();
+  const parentRect = parentEl.getBoundingClientRect();
+  return {
+    x: props.spotlight.x - (myRect.left - parentRect.left),
+    y: props.spotlight.y - (myRect.top - parentRect.top),
+  };
+});
 
 // --- Animation state ---
 
@@ -246,23 +269,57 @@ function getSegmentStyle(line: MarkerLine, seg: BarSegment, lineIndex: number) {
               yChannelSelector="G"
             />
           </filter>
+
+          <!-- Spotlight reveal gradient: black=hidden, white=visible -->
+          <radialGradient id="ch-spotlight-grad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="black" />
+            <stop offset="55%" stop-color="black" />
+            <stop offset="100%" stop-color="white" />
+          </radialGradient>
+
+          <!-- Spotlight mask: white rect (markers shown) + gradient circle (markers hidden) -->
+          <mask
+            v-if="localSpotlight"
+            id="ch-spotlight-mask"
+            maskUnits="userSpaceOnUse"
+            x="-50"
+            y="-50"
+            :width="layout.containerWidth + 100"
+            :height="layout.containerHeight + 100"
+          >
+            <rect
+              x="-50"
+              y="-50"
+              :width="layout.containerWidth + 100"
+              :height="layout.containerHeight + 100"
+              fill="white"
+            />
+            <circle
+              :cx="localSpotlight.x"
+              :cy="localSpotlight.y"
+              :r="SPOTLIGHT_RADIUS"
+              fill="url(#ch-spotlight-grad)"
+            />
+          </mask>
         </defs>
 
-        <g
-          v-for="(item, i) in allSegments"
-          :key="`seg-${item.lineIndex}-${item.segIndex}`"
-          :style="getSegmentStyle(item.line, item.seg, item.lineIndex)"
-          class="marker-stroke"
-          :class="{
-            drawing: hasDrawn && hidden && !isRevealing,
-            revealing: isRevealing,
-          }"
-        >
-          <path
-            :d="item.seg.stroke.path"
-            :fill="`oklch(0.08 0 0 / ${item.seg.stroke.opacity})`"
-            :filter="`url(#ch-noise-${i % NOISE_FILTER_COUNT})`"
-          />
+        <g :mask="localSpotlight ? 'url(#ch-spotlight-mask)' : undefined">
+          <g
+            v-for="(item, i) in allSegments"
+            :key="`seg-${item.lineIndex}-${item.segIndex}`"
+            :style="getSegmentStyle(item.line, item.seg, item.lineIndex)"
+            class="marker-stroke"
+            :class="{
+              drawing: hasDrawn && hidden && !isRevealing,
+              revealing: isRevealing,
+            }"
+          >
+            <path
+              :d="item.seg.stroke.path"
+              :fill="`oklch(0.08 0 0 / ${item.seg.stroke.opacity})`"
+              :filter="`url(#ch-noise-${i % NOISE_FILTER_COUNT})`"
+            />
+          </g>
         </g>
       </svg>
     </template>

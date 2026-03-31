@@ -44,6 +44,29 @@ const markerReady = ref(false);
 const chapterRef = ref<{ $el: HTMLElement } | null>(null);
 const bookContentRef = ref<HTMLElement | null>(null);
 
+// Spotlight: cursor position relative to .book-content for hover-to-reveal
+const spotlight = shallowRef<{ x: number; y: number } | null>(null);
+let spotlightRaf = 0;
+
+function onSpotlightMove(e: MouseEvent) {
+  if (!blackMarker.value || !bookContentRef.value) {
+    return;
+  }
+  cancelAnimationFrame(spotlightRaf);
+  spotlightRaf = requestAnimationFrame(() => {
+    const rect = bookContentRef.value!.getBoundingClientRect();
+    spotlight.value = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+  });
+}
+
+function onSpotlightLeave() {
+  cancelAnimationFrame(spotlightRaf);
+  spotlight.value = null;
+}
+
 const cardPosition = shallowRef({ top: 0, left: 0, width: 0 });
 const chapterEl = computed(() => chapterRef.value?.$el as HTMLElement | null);
 
@@ -306,6 +329,8 @@ onUnmounted(() => {
       :aria-label="disclosureTextComputed"
       @click="toggle"
       @contextmenu.prevent
+      @mousemove="onSpotlightMove"
+      @mouseleave="onSpotlightLeave"
     >
       <h2
         :class="{
@@ -321,6 +346,7 @@ onUnmounted(() => {
           :text="haiku.book.title"
           :hidden="blackMarker"
           :delay="0"
+          :spotlight="spotlight"
           centered
         />
       </h2>
@@ -340,6 +366,7 @@ onUnmounted(() => {
           :text="`${$t('common.by')} ${haiku.book.author}`"
           :hidden="blackMarker"
           :delay="200"
+          :spotlight="spotlight"
           centered
         />
       </div>
@@ -359,6 +386,7 @@ onUnmounted(() => {
               :verses="haiku.rawVerses"
               :hidden="blackMarker"
               :delay="400"
+              :spotlight="spotlight"
             />
             <high-light-text
               v-else
