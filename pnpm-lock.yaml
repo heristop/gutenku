@@ -59,6 +59,9 @@ importers:
       '@capacitor/status-bar':
         specifier: ^8.0.0
         version: 8.0.0(@capacitor/core@8.0.1)
+      '@chenglou/pretext':
+        specifier: ^0.0.3
+        version: 0.0.3
       '@fingerprintjs/botd':
         specifier: ^2.0.0
         version: 2.0.0
@@ -1234,6 +1237,9 @@ packages:
     resolution: {integrity: sha512-aIj3bc7z8lfPgOen8HlrBrkfnxpFnh21OCx6jCUx4Mvv+B6eEkUQ49b32DOddgVfr+igRHLX2SYi7duqIsNDXg==}
     peerDependencies:
       '@capacitor/core': '>=8.0.0'
+
+  '@chenglou/pretext@0.0.3':
+    resolution: {integrity: sha512-RQmqMqUAPRCyv4R3LlRi/ao6KbNWYclqLA+V1HS7sWgyUUbjn3JmmlfXZSY/BjM4rbmIaMSyIVisYocYGYftiQ==}
 
   '@chevrotain/cst-dts-gen@11.0.3':
     resolution: {integrity: sha512-BvIKpRLeS/8UbfxXxgC33xOumsacaeCKAjAeLyOn7Pcp95HiRbrpl14S+9vaZLolnbssPIUuiUd8IvgkRyt6NQ==}
@@ -11224,6 +11230,8 @@ snapshots:
   '@capacitor/status-bar@8.0.0(@capacitor/core@8.0.1)':
     dependencies:
       '@capacitor/core': 8.0.1
+
+  '@chenglou/pretext@0.0.3': {}
 
   '@chevrotain/cst-dts-gen@11.0.3':
     dependencies:

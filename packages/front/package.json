@@ -36,6 +36,7 @@
     "@capacitor/share": "^8.0.0",
     "@capacitor/splash-screen": "^8.0.0",
     "@capacitor/status-bar": "^8.0.0",
+    "@chenglou/pretext": "^0.0.3",
     "@fingerprintjs/botd": "^2.0.0",
     "@gutenku/shared": "workspace:*",
     "@unhead/vue": "^2.1.2",
