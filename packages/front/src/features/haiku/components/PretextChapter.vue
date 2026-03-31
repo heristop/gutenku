@@ -1,0 +1,374 @@
+<script lang="ts" setup>
+import { ref, computed, watch, nextTick, toRef } from 'vue';
+import { useI18n } from 'vue-i18n';
+import {
+  useMarkerLayout,
+  type MarkerLine,
+} from '@/features/haiku/composables/marker-layout';
+import {
+  generateAllLineSegments,
+  type BarSegment,
+} from '@/features/haiku/composables/marker-svg';
+
+interface TextSegment {
+  text: string;
+  isVerse: boolean;
+}
+
+const props = withDefaults(
+  defineProps<{
+    text: string;
+    verses: string[];
+    hidden: boolean;
+    delay?: number;
+  }>(),
+  { delay: 0 },
+);
+
+const { t } = useI18n();
+
+const containerRef = ref<HTMLElement | null>(null);
+const textRef = toRef(props, 'text');
+const versesRef = toRef(props, 'verses');
+
+const { layout, ready } = useMarkerLayout(containerRef, textRef, versesRef);
+
+// --- Bar segments (split around verse cutouts) ---
+
+const barSegments = computed<BarSegment[][]>(() => {
+  if (!layout.value.lines.length || !layout.value.containerWidth) {
+    return [];
+  }
+  return generateAllLineSegments(
+    layout.value.lines,
+    layout.value.containerWidth,
+  );
+});
+
+// Flat list of all segments with their line index for animation delay
+const allSegments = computed(() => {
+  const result: Array<{
+    lineIndex: number;
+    segIndex: number;
+    seg: BarSegment;
+    line: MarkerLine;
+  }> = [];
+  layout.value.lines.forEach((line, li) => {
+    const segs = barSegments.value[li] ?? [];
+    segs.forEach((seg, si) => {
+      result.push({ lineIndex: li, segIndex: si, seg, line });
+    });
+  });
+  return result;
+});
+
+// --- Verse segmentation ---
+
+function segmentLine(lineText: string): TextSegment[] {
+  let segments: TextSegment[] = [{ text: lineText, isVerse: false }];
+
+  for (const verse of props.verses) {
+    if (!verse || !verse.trim()) {
+      continue;
+    }
+    const next: TextSegment[] = [];
+
+    for (const seg of segments) {
+      if (seg.isVerse) {
+        next.push(seg);
+        continue;
+      }
+      const idx = seg.text.indexOf(verse);
+      if (idx === -1) {
+        next.push(seg);
+        continue;
+      }
+      if (idx > 0) {
+        next.push({ text: seg.text.slice(0, idx), isVerse: false });
+      }
+      next.push({ text: verse, isVerse: true });
+      const after = seg.text.slice(idx + verse.length);
+      if (after) {
+        next.push({ text: after, isVerse: false });
+      }
+    }
+    segments = next;
+  }
+  return segments;
+}
+
+const verseSegments = computed(() => {
+  return layout.value.lines.map((line) => segmentLine(line.text));
+});
+
+function lineHasVerse(index: number): boolean {
+  return verseSegments.value[index]?.some((s) => s.isVerse) ?? false;
+}
+
+// --- Accessibility ---
+
+const highlightCount = computed(
+  () => props.verses.filter((l) => l && l.trim()).length,
+);
+const ariaDescription = computed(() =>
+  t('highlightText.ariaDescription', { count: highlightCount.value }),
+);
+
+// --- Animation state ---
+
+const hasDrawn = ref(false);
+const isRevealing = ref(false);
+
+const DRAW_STAGGER = 55;
+const DRAW_DURATION = 280;
+const REVEAL_STAGGER = 35;
+const REVEAL_DURATION = 250;
+const NOISE_FILTER_COUNT = 4;
+
+const noiseSeeds = computed(() => {
+  const segs = allSegments.value;
+  if (!segs.length) {
+    return [];
+  }
+  return segs.slice(0, NOISE_FILTER_COUNT).map((s) => s.seg.stroke.noiseSeed);
+});
+
+const totalLines = computed(() => layout.value.lines.length);
+
+watch(
+  () => props.hidden,
+  (newHidden, oldHidden) => {
+    if (oldHidden && !newHidden) {
+      isRevealing.value = true;
+      const totalTime = REVEAL_DURATION + totalLines.value * REVEAL_STAGGER;
+      setTimeout(() => {
+        isRevealing.value = false;
+      }, totalTime + 100);
+    }
+    if (!oldHidden && newHidden) {
+      hasDrawn.value = false;
+      nextTick(() => {
+        hasDrawn.value = true;
+      });
+    }
+  },
+);
+
+watch(ready, (isReady) => {
+  if (isReady && props.hidden) {
+    hasDrawn.value = true;
+  }
+});
+
+function getSegmentStyle(line: MarkerLine, seg: BarSegment, lineIndex: number) {
+  const stroke = seg.stroke;
+  return {
+    '--draw-delay': `${props.delay + lineIndex * DRAW_STAGGER}ms`,
+    '--draw-duration': `${DRAW_DURATION}ms`,
+    '--reveal-delay': `${(totalLines.value - 1 - lineIndex) * REVEAL_STAGGER}ms`,
+    '--reveal-duration': `${REVEAL_DURATION}ms`,
+    transform: `translate(${seg.x + stroke.xOffset}px, ${line.y + stroke.yOffset}px) rotate(${stroke.rotation}deg)`,
+  };
+}
+</script>
+
+<template>
+  <span
+    ref="containerRef"
+    class="pretext-chapter"
+    role="text"
+    :aria-description="ariaDescription"
+    :style="ready ? { height: layout.containerHeight + 'px' } : undefined"
+  >
+    <!-- Fallback while pretext loads -->
+    <span v-if="!ready" v-html="text.replaceAll('\n\n', '<br /><br />')" />
+
+    <!-- Pretext-rendered text lines -->
+    <template v-if="ready">
+      <span
+        v-for="(line, i) in layout.lines"
+        :key="'line-' + i"
+        class="text-line"
+        :class="{ 'last-line': line.isLastLine }"
+        :style="{
+          top: line.y + 'px',
+          width: layout.containerWidth + 'px',
+        }"
+        ><!--
+        --><template v-if="lineHasVerse(i)"
+          ><!--
+          --><template v-for="(seg, si) in verseSegments[i]" :key="si"
+            ><!--
+            --><mark v-if="seg.isVerse" class="highlight">{{ seg.text }}</mark
+            ><!--
+            --><template v-else>{{ seg.text }}</template
+            ><!--
+          --></template
+          ><!--
+        --></template
+        ><!--
+        --><template v-else>{{ line.text }}</template
+        ><!--
+      --></span>
+
+      <!-- Marker bars SVG (split around verse cutouts) -->
+      <svg
+        v-if="allSegments.length && (hidden || isRevealing)"
+        :viewBox="`0 0 ${layout.containerWidth} ${layout.containerHeight}`"
+        :width="layout.containerWidth"
+        :height="layout.containerHeight"
+        class="marker-svg"
+        aria-hidden="true"
+        preserveAspectRatio="none"
+      >
+        <defs>
+          <filter
+            v-for="(seed, fi) in noiseSeeds"
+            :id="`ch-noise-${fi}`"
+            :key="fi"
+            x="-5%"
+            y="-5%"
+            width="110%"
+            height="110%"
+          >
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.04"
+              numOctaves="2"
+              :seed="seed"
+              result="noise"
+            />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="noise"
+              scale="0.8"
+              xChannelSelector="R"
+              yChannelSelector="G"
+            />
+          </filter>
+        </defs>
+
+        <g
+          v-for="(item, i) in allSegments"
+          :key="`seg-${item.lineIndex}-${item.segIndex}`"
+          :style="getSegmentStyle(item.line, item.seg, item.lineIndex)"
+          class="marker-stroke"
+          :class="{
+            drawing: hasDrawn && hidden && !isRevealing,
+            revealing: isRevealing,
+          }"
+        >
+          <path
+            :d="item.seg.stroke.path"
+            :fill="`oklch(0.08 0 0 / ${item.seg.stroke.opacity})`"
+            :filter="`url(#ch-noise-${i % NOISE_FILTER_COUNT})`"
+          />
+        </g>
+      </svg>
+    </template>
+  </span>
+</template>
+
+<style lang="scss" scoped>
+.pretext-chapter {
+  display: block;
+  position: relative;
+  width: 100%;
+}
+
+.text-line {
+  position: absolute;
+  left: 0;
+  display: block;
+  text-align: justify;
+  text-align-last: justify;
+
+  &.last-line {
+    text-align-last: left;
+  }
+}
+
+// Verse highlights: clear windows through redaction
+.highlight {
+  background: transparent !important;
+  background-image: none !important;
+  color: var(--gutenku-text-primary) !important;
+  padding: 0;
+  font-weight: bold;
+  position: relative;
+  z-index: 20;
+  text-shadow: none !important;
+  display: inline;
+  white-space: nowrap;
+}
+
+.marker-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 15;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.marker-stroke {
+  will-change: clip-path, opacity, transform;
+
+  &.drawing {
+    clip-path: inset(0 100% 0 0);
+    animation: draw-marker var(--draw-duration, 280ms)
+      cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation-delay: var(--draw-delay, 0ms);
+  }
+
+  &.revealing {
+    animation: reveal-marker var(--reveal-duration, 250ms)
+      cubic-bezier(0.55, 0.06, 0.68, 0.19) forwards;
+    animation-delay: var(--reveal-delay, 0ms);
+  }
+}
+
+@keyframes draw-marker {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 -5% 0 0);
+  }
+}
+
+@keyframes reveal-marker {
+  0% {
+    opacity: 1;
+    clip-path: inset(0 -5% 0 0);
+  }
+  60% {
+    opacity: 0.6;
+    clip-path: inset(0 -5% 0 0);
+  }
+  100% {
+    opacity: 0;
+    clip-path: inset(0 0 0 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marker-stroke {
+    &.drawing {
+      animation: none;
+      clip-path: inset(0 -5% 0 0);
+    }
+
+    &.revealing {
+      animation: none;
+      opacity: 0;
+    }
+  }
+}
+
+[data-theme='dark'] {
+  .marker-stroke path {
+    fill: oklch(0.92 0 0 / 0.82);
+  }
+}
+</style>

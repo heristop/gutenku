@@ -24,6 +24,8 @@ import { useHaikuHighlighter } from '@/features/haiku/composables/haiku-highligh
 import { useTextCompacting } from '@/features/haiku/composables/text-compacting';
 import { useBotDetection } from '@/core/composables/bot-detection';
 import HighLightText from '@/features/haiku/components/HighLightText.vue';
+import MarkerOverlay from '@/features/haiku/components/MarkerOverlay.vue';
+import PretextChapter from '@/features/haiku/components/PretextChapter.vue';
 import ZenTooltip from '@/core/components/ui/ZenTooltip.vue';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
 import ZenButton from '@/core/components/ui/ZenButton.vue';
@@ -38,6 +40,7 @@ const { haiku, loading, craftingMessages, isDailyHaiku } =
 
 const blackMarker = ref(true);
 const isCompacted = ref(true);
+const markerReady = ref(false);
 const chapterRef = ref<{ $el: HTMLElement } | null>(null);
 const bookContentRef = ref<HTMLElement | null>(null);
 
@@ -139,9 +142,14 @@ watch(isBot, (botDetected) => {
   }
 });
 
-onMounted(() => {
+onMounted(async () => {
   detectBot();
   applyToAllHighlights();
+
+  if (!import.meta.env.SSR) {
+    await document.fonts.ready;
+    markerReady.value = true;
+  }
 
   if (chapterEl.value) {
     resizeObserver = new ResizeObserver(updateCardRect);
@@ -301,35 +309,59 @@ onUnmounted(() => {
     >
       <h2
         :class="{
-          'stabilo-hidden': blackMarker,
+          'marker-text-hidden': blackMarker && markerReady,
+          'stabilo-hidden': blackMarker && !markerReady,
           'stabilo-visible': !blackMarker,
         }"
         class="book-title"
       >
         {{ haiku.book.title }}
+        <MarkerOverlay
+          v-if="markerReady"
+          :text="haiku.book.title"
+          :hidden="blackMarker"
+          :delay="0"
+          centered
+        />
       </h2>
 
       <div
         :class="{
-          'stabilo-hidden': blackMarker,
+          'marker-text-hidden': blackMarker && markerReady,
+          'stabilo-hidden': blackMarker && !markerReady,
           'stabilo-visible': !blackMarker,
         }"
         class="book-author"
       >
         <span class="by-prefix">{{ $t('common.by') }}</span>
         {{ haiku.book.author }}
+        <MarkerOverlay
+          v-if="markerReady"
+          :text="`${$t('common.by')} ${haiku.book.author}`"
+          :hidden="blackMarker"
+          :delay="200"
+          centered
+        />
       </div>
 
       <div class="chapter-content" :class="{ expandable: !isCompacted }">
         <div v-if="haiku.chapter.content" class="chapter-sheet">
           <p
             :class="{
-              'stabilo-hidden': blackMarker,
+              'stabilo-hidden': blackMarker && !markerReady,
               'stabilo-visible': !blackMarker,
             }"
             class="chapter-text"
           >
+            <PretextChapter
+              v-if="markerReady"
+              :text="isCompacted ? getCompactedText() : haiku.chapter.content"
+              :verses="haiku.rawVerses"
+              :hidden="blackMarker"
+              :delay="400"
+            />
             <high-light-text
+              v-else
               :text="isCompacted ? getCompactedText() : haiku.chapter.content"
               :lines="haiku.rawVerses"
             />
@@ -662,7 +694,33 @@ onUnmounted(() => {
   }
 }
 
+// Pretext-powered marker: text stays visible (ghosts through semi-opaque bars)
+// MarkerOverlay SVG renders the bars on top at ~90% opacity
+.marker-text-hidden {
+  text-shadow: none !important;
+  transition: color 0.3s ease;
+
+  // Haiku verse highlights: clear windows through the redaction
+  :deep(mark),
+  :deep(.highlight) {
+    background: var(--gutenku-paper-bg) !important;
+    background-image: none !important;
+    background-clip: border-box !important;
+    color: var(--gutenku-text-primary) !important;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--gutenku-radius-sm);
+    font-weight: bold;
+    position: relative;
+    z-index: 20;
+    text-shadow: none !important;
+    box-shadow: 0 2px 4px oklch(0 0 0 / 0.1);
+    isolation: isolate;
+    display: inline-block;
+  }
+}
+
 .book-title {
+  position: relative;
   font-size: 1.5rem;
   font-weight: bold;
   color: var(--gutenku-text-primary);
@@ -699,6 +757,7 @@ onUnmounted(() => {
 }
 
 .book-author {
+  position: relative;
   font-size: 1.2rem;
   color: var(--gutenku-text-secondary);
   text-align: center;
