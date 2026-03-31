@@ -19,7 +19,9 @@ interface PwaDismissal {
 
 const STORAGE_KEY_ENGAGEMENT = 'gutenku-pwa-engagement';
 const STORAGE_KEY_DISMISSAL = 'gutenku-pwa-dismissal';
+const STORAGE_KEY_FIRST_VISIT = 'gutenku-pwa-first-visit';
 const DISMISSAL_COOLDOWN_DAYS = 14;
+const MIN_DAYS_BEFORE_PROMPT = 1;
 const REQUIRED_HAIKU_VIEWS = 2;
 const REQUIRED_GAME_PLAYS = 1;
 
@@ -37,6 +39,11 @@ export function usePwaInstall() {
     dismissedAt: 0,
     count: 0,
   });
+
+  const firstVisitAt = useLocalStorage<number>(
+    STORAGE_KEY_FIRST_VISIT,
+    Date.now(),
+  );
 
   const isIos = computed(() => {
     if (typeof navigator === 'undefined') {
@@ -91,9 +98,15 @@ export function usePwaInstall() {
     );
   });
 
+  const isReturningVisitor = computed(() => {
+    const minMs = MIN_DAYS_BEFORE_PROMPT * 24 * 60 * 60 * 1000;
+    return Date.now() - firstVisitAt.value >= minMs;
+  });
+
   const shouldShowBanner = computed(() => {
     return (
       canInstall.value &&
+      isReturningVisitor.value &&
       hasEnoughEngagement.value &&
       !isDismissalCooldownActive.value
     );
