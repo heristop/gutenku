@@ -58,7 +58,7 @@ function getElementLineHeight(el: HTMLElement): number {
 /** Gap before verse: small — bar ends close to the verse start */
 const CUTOUT_GAP_LEFT = 2;
 /** Gap after verse: larger — compensates for bold rendering being wider than measured */
-const CUTOUT_GAP_RIGHT = 28;
+const CUTOUT_GAP_RIGHT = 40;
 
 /**
  * Measures the pixel width of a text string using pretext (single-line).
@@ -78,35 +78,59 @@ function measureTextWidth(
 }
 
 /**
- * Find verse cutouts for a given line text.
+ * Compute verse cutouts for all lines at once using joined text.
+ * Handles verses that span across line boundaries.
  */
-function findCutouts(
+function computeAllCutouts(
   pretext: typeof import('@chenglou/pretext'),
-  lineText: string,
+  lines: Array<{ text: string }>,
   verses: string[],
   font: string,
   lineHeight: number,
-): VerseCutout[] {
-  const cutouts: VerseCutout[] = [];
-  for (const verse of verses) {
-    if (!verse || !verse.trim()) {
-      continue;
-    }
-    const idx = lineText.indexOf(verse);
-    if (idx === -1) {
-      continue;
-    }
-
-    const beforeText = lineText.slice(0, idx);
-    const startX = measureTextWidth(pretext, beforeText, font, lineHeight);
-    const verseWidth = measureTextWidth(pretext, verse, font, lineHeight);
-
-    cutouts.push({
-      startX: Math.max(0, startX - CUTOUT_GAP_LEFT),
-      endX: startX + verseWidth + CUTOUT_GAP_RIGHT,
-    });
+): VerseCutout[][] {
+  const lineOffsets: number[] = [];
+  const lineLengths: number[] = [];
+  let joined = '';
+  for (const line of lines) {
+    const trimmed = line.text.trimEnd();
+    lineOffsets.push(joined.length);
+    lineLengths.push(trimmed.length);
+    joined += trimmed + ' ';
   }
-  return cutouts;
+
+  const verseRanges: Array<{ start: number; end: number }> = [];
+  for (const verse of verses) {
+    if (!verse || !verse.trim()) {continue;}
+    const idx = joined.indexOf(verse.trim());
+    if (idx !== -1) {
+      verseRanges.push({ start: idx, end: idx + verse.trim().length });
+    }
+  }
+
+  return lines.map((line, li) => {
+    const lineCharStart = lineOffsets[li];
+    const lineCharEnd = lineCharStart + lineLengths[li];
+    const cutouts: VerseCutout[] = [];
+
+    for (const vr of verseRanges) {
+      if (vr.start >= lineCharEnd || vr.end <= lineCharStart) {continue;}
+
+      const localCharStart = Math.max(0, vr.start - lineCharStart);
+      const localCharEnd = Math.min(line.text.length, vr.end - lineCharStart);
+
+      const beforeText = line.text.slice(0, localCharStart);
+      const verseText = line.text.slice(localCharStart, localCharEnd);
+      const startX = measureTextWidth(pretext, beforeText, font, lineHeight);
+      const verseWidth = measureTextWidth(pretext, verseText, font, lineHeight);
+
+      cutouts.push({
+        startX: Math.max(0, startX - CUTOUT_GAP_LEFT),
+        endX: startX + verseWidth + CUTOUT_GAP_RIGHT,
+      });
+    }
+
+    return cutouts;
+  });
 }
 
 /**
@@ -166,9 +190,6 @@ export function useMarkerLayout(
 
       for (let li = 0; li < result.lines.length; li++) {
         const line = result.lines[li];
-        const cutouts = verses?.value
-          ? findCutouts(pretext, line.text, verses.value, font, lineHeight)
-          : [];
         allLines.push({
           text: line.text,
           x: 0,
@@ -177,9 +198,23 @@ export function useMarkerLayout(
           lineHeight,
           index: globalIndex++,
           isLastLine: li === result.lines.length - 1,
-          cutouts,
+          cutouts: [],
         });
         currentY += lineHeight;
+      }
+    }
+
+    // Compute cutouts across all lines (handles spanning verses)
+    if (verses?.value?.length) {
+      const allCutouts = computeAllCutouts(
+        pretext,
+        allLines,
+        verses.value,
+        font,
+        lineHeight,
+      );
+      for (let i = 0; i < allLines.length; i++) {
+        allLines[i].cutouts = allCutouts[i];
       }
     }
 

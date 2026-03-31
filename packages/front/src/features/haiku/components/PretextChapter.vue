@@ -64,43 +64,70 @@ const allSegments = computed(() => {
   return result;
 });
 
-// --- Verse segmentation ---
-
-function segmentLine(lineText: string): TextSegment[] {
-  let segments: TextSegment[] = [{ text: lineText, isVerse: false }];
-
-  for (const verse of props.verses) {
-    if (!verse || !verse.trim()) {
-      continue;
-    }
-    const next: TextSegment[] = [];
-
-    for (const seg of segments) {
-      if (seg.isVerse) {
-        next.push(seg);
-        continue;
-      }
-      const idx = seg.text.indexOf(verse);
-      if (idx === -1) {
-        next.push(seg);
-        continue;
-      }
-      if (idx > 0) {
-        next.push({ text: seg.text.slice(0, idx), isVerse: false });
-      }
-      next.push({ text: verse, isVerse: true });
-      const after = seg.text.slice(idx + verse.length);
-      if (after) {
-        next.push({ text: after, isVerse: false });
-      }
-    }
-    segments = next;
-  }
-  return segments;
-}
+// --- Verse segmentation (handles verses spanning multiple lines) ---
 
 const verseSegments = computed(() => {
-  return layout.value.lines.map((line) => segmentLine(line.text));
+  const lines = layout.value.lines;
+  if (!lines.length) {return [];}
+
+  // Join all line texts; trimEnd avoids double spaces from pretext trailing whitespace
+  const lineOffsets: number[] = [];
+  const lineLengths: number[] = [];
+  let joined = '';
+  for (const line of lines) {
+    const trimmed = line.text.trimEnd();
+    lineOffsets.push(joined.length);
+    lineLengths.push(trimmed.length);
+    joined += trimmed + ' ';
+  }
+
+  // Find all verse ranges in the joined text
+  const verseRanges: Array<{ start: number; end: number }> = [];
+  for (const verse of props.verses) {
+    if (!verse || !verse.trim()) {continue;}
+    const idx = joined.indexOf(verse.trim());
+    if (idx !== -1) {
+      verseRanges.push({ start: idx, end: idx + verse.trim().length });
+    }
+  }
+
+  // For each line, split text into verse/non-verse segments
+  return lines.map((line, li) => {
+    const lineStart = lineOffsets[li];
+    const lineEnd = lineStart + lineLengths[li];
+
+    const overlaps: Array<{ from: number; to: number }> = [];
+    for (const vr of verseRanges) {
+      if (vr.start < lineEnd && vr.end > lineStart) {
+        overlaps.push({
+          from: Math.max(0, vr.start - lineStart),
+          to: Math.min(line.text.length, vr.end - lineStart),
+        });
+      }
+    }
+
+    if (!overlaps.length) {
+      return [{ text: line.text, isVerse: false } as TextSegment];
+    }
+
+    overlaps.sort((a, b) => a.from - b.from);
+    const segments: TextSegment[] = [];
+    let cursor = 0;
+    for (const ov of overlaps) {
+      if (ov.from > cursor) {
+        segments.push({
+          text: line.text.slice(cursor, ov.from),
+          isVerse: false,
+        });
+      }
+      segments.push({ text: line.text.slice(ov.from, ov.to), isVerse: true });
+      cursor = ov.to;
+    }
+    if (cursor < line.text.length) {
+      segments.push({ text: line.text.slice(cursor), isVerse: false });
+    }
+    return segments;
+  });
 });
 
 function lineHasVerse(index: number): boolean {
