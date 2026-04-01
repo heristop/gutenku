@@ -1,9 +1,7 @@
 <script lang="ts" setup>
-import { ref, computed, watch, nextTick, toRef } from 'vue';
-import {
-  useMarkerLayout,
-  type MarkerLine,
-} from '@/features/haiku/composables/marker-layout';
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
+import { useDebounceFn } from '@vueuse/core';
+import type { MarkerLine } from '@/features/haiku/composables/marker-layout';
 import {
   generateMarkerStrokes,
   type MarkerStroke,
@@ -30,9 +28,77 @@ const props = withDefaults(
 );
 
 const containerRef = ref<HTMLElement | null>(null);
-const textRef = toRef(props, 'text');
 
-const { layout, ready } = useMarkerLayout(containerRef, textRef);
+// DOM-based layout: count lines from parent's actual rendered height.
+// Correctly handles CSS text-transform, letter-spacing, etc.
+interface SimpleLayout {
+  lines: MarkerLine[];
+  containerWidth: number;
+  containerHeight: number;
+}
+
+const layout = ref<SimpleLayout>({
+  lines: [],
+  containerWidth: 0,
+  containerHeight: 0,
+});
+const ready = ref(false);
+let resizeObserver: ResizeObserver | null = null;
+
+function computeLayout() {
+  const el = containerRef.value;
+  if (!el) return;
+  const parent = el.parentElement;
+  if (!parent) return;
+
+  const style = getComputedStyle(parent);
+  const lineHeight =
+    Number.parseFloat(style.lineHeight) ||
+    Number.parseFloat(style.fontSize) * 1.8;
+  const containerWidth = parent.clientWidth;
+  const contentHeight = parent.scrollHeight;
+  const lineCount = Math.max(1, Math.round(contentHeight / lineHeight));
+
+  const lines: MarkerLine[] = [];
+  for (let i = 0; i < lineCount; i++) {
+    lines.push({
+      x: 0,
+      y: i * lineHeight,
+      width: containerWidth,
+      lineHeight,
+      index: i,
+      isLastLine: i === lineCount - 1,
+      text: '',
+      cutouts: [],
+    });
+  }
+
+  layout.value = { lines, containerWidth, containerHeight: contentHeight };
+  ready.value = true;
+}
+
+const debouncedCompute = useDebounceFn(computeLayout, 50);
+
+watch(
+  () => props.text,
+  () => nextTick(debouncedCompute),
+);
+
+onMounted(async () => {
+  if (import.meta.env.SSR) return;
+  await document.fonts.ready;
+  await nextTick();
+  computeLayout();
+
+  if (containerRef.value?.parentElement) {
+    resizeObserver = new ResizeObserver(() => debouncedCompute());
+    resizeObserver.observe(containerRef.value.parentElement);
+  }
+});
+
+onUnmounted(() => {
+  resizeObserver?.disconnect();
+});
 
 const strokes = computed<MarkerStroke[]>(() => {
   if (!layout.value.lines.length || !layout.value.containerWidth) {
