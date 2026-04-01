@@ -55,6 +55,12 @@ const PullToRefresh = defineAsyncComponent(
   () => import('@/core/components/PullToRefresh.vue'),
 );
 
+const HaikuTitle = defineAsyncComponent({
+  loader: () => import('@/features/haiku/components/HaikuTitle.vue'),
+  loadingComponent: ZenSkeleton,
+  delay: 200,
+});
+
 const isDev = import.meta.env.DEV;
 
 const { t, tm } = useI18n();
@@ -145,6 +151,7 @@ onUnmounted(closeWSClient);
       :aria-busy="loading"
       :aria-label="t('home.haikuContentLabel')"
     >
+      <HaikuTitle class="haiku-section__title" />
       <div class="haiku-grid">
         <!-- Mobile-only toolbar placement (before chapter) -->
         <div class="haiku-grid__toolbar-mobile">
@@ -344,6 +351,14 @@ onUnmounted(closeWSClient);
 .haiku-section__toolbar {
   @media (max-width: 960px) {
     display: none;
+  }
+}
+
+.haiku-section__title {
+  margin-bottom: var(--gutenku-space-6);
+
+  @media (max-width: 600px) {
+    margin-bottom: var(--gutenku-space-4);
   }
 }
 
