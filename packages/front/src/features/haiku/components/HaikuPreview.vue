@@ -18,7 +18,7 @@ onMounted(() => {
 <template>
   <PreviewCard
     to="/haiku"
-    title="GutenVerse"
+    title="GutenKu"
     :description="t('home.tagline')"
     :cta-text="t('toolbar.generate')"
     :image-src="haikuImage640"

@@ -169,7 +169,7 @@ function handleClick(event: MouseEvent, to: string) {
     <RouterLink to="/" class="ink-nav__logo" aria-label="GutenKu Home">
       <component :is="pageHasOwnH1 ? 'span' : 'h1'" class="ink-nav__logo-text">
         <span class="ink-nav__logo-prefix">Guten</span
-        ><span class="ink-nav__logo-suffix">Ku</span>
+        ><span class="ink-nav__logo-suffix">Verse</span>
       </component>
     </RouterLink>
     <ul class="ink-nav__container">
