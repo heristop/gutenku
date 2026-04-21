@@ -1,4 +1,4 @@
-.PHONY: help install dev start stop docker-up docker-down server front build test lint clean logs setup setup-reset extract train
+.PHONY: help install dev start stop docker-up docker-down server front build test lint clean logs setup setup-reset extract train post
 
 # Default target
 help:
@@ -28,6 +28,7 @@ help:
 	@echo "  setup-reset   Reset database and reimport all books"
 	@echo "  extract       Extract haiku from books"
 	@echo "  train         Train Markov chain model"
+	@echo "  post          Post a haiku to Discord (random theme)"
 	@echo ""
 	@echo "Utilities:"
 	@echo "  clean         Stop Docker and clean up"
@@ -87,6 +88,10 @@ extract:
 
 mc-train:
 	pnpm run mc:train
+
+# Post a haiku to Discord (random theme)
+post:
+	pnpm run post
 
 # Clean up
 clean: docker-down
