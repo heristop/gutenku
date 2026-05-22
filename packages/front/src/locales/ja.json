@@ -369,6 +369,7 @@
   },
   "pwa": {
     "bannerLabel": "アプリインストールのお知らせ",
+    "installPrompt": "GutenKu をインストール？",
     "addToHomeScreen": "GutenKuをホーム画面に追加",
     "installSubtitle": "俳句とゲームに素早くアクセス",
     "install": "インストール",

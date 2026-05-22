@@ -369,6 +369,7 @@
   },
   "pwa": {
     "bannerLabel": "App installation prompt",
+    "installPrompt": "Install GutenKu?",
     "addToHomeScreen": "Add GutenKu to Home Screen",
     "installSubtitle": "Quick access to haiku & games",
     "install": "Install",

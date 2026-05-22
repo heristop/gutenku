@@ -20,10 +20,10 @@ interface PwaDismissal {
 const STORAGE_KEY_ENGAGEMENT = 'gutenku-pwa-engagement';
 const STORAGE_KEY_DISMISSAL = 'gutenku-pwa-dismissal';
 const STORAGE_KEY_FIRST_VISIT = 'gutenku-pwa-first-visit';
-const DISMISSAL_COOLDOWN_DAYS = 14;
-const MIN_DAYS_BEFORE_PROMPT = 1;
-const REQUIRED_HAIKU_VIEWS = 2;
-const REQUIRED_GAME_PLAYS = 1;
+const DISMISSAL_COOLDOWN_DAYS = 30;
+const MIN_DAYS_BEFORE_PROMPT = 2;
+const REQUIRED_HAIKU_VIEWS = 4;
+const REQUIRED_GAME_PLAYS = 2;
 
 // Shared state across components
 const deferredPrompt = ref<BeforeInstallPromptEvent | null>(null);

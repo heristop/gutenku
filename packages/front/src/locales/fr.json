@@ -369,6 +369,7 @@
   },
   "pwa": {
     "bannerLabel": "Invitation à installer l'application",
+    "installPrompt": "Installer GutenKu ?",
     "addToHomeScreen": "Ajouter GutenKu à l'écran d'accueil",
     "installSubtitle": "Accès rapide aux haïkus et jeux",
     "install": "Installer",
