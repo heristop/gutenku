@@ -86,21 +86,21 @@ export default class HaikuGeneratorService implements IGenerator {
   private readonly chunkSize = 10;
   private readonly bookPoolSize = 10;
 
-  private minCachedDocs: number;
-  private ttl: number;
-  private useCache: boolean;
-  private theme: string;
-  private executionTime: number;
+  private minCachedDocs!: number;
+  private ttl!: number;
+  private useCache!: boolean;
+  private theme!: string;
+  private executionTime!: number;
   private filterWords: string[];
   private filterWordsRegex: RegExp | null = null;
   private filterWordsKey: string | null = null;
-  private sentimentMinScore: number | null;
-  private markovMinScore: number | null;
-  private posMinScore: number | null;
-  private trigramMinScore: number | null;
-  private tfidfMinScore: number | null;
-  private phoneticsMinScore: number | null;
-  private uniquenessMinScore: number | null;
+  private sentimentMinScore!: number | null;
+  private markovMinScore!: number | null;
+  private posMinScore!: number | null;
+  private trigramMinScore!: number | null;
+  private tfidfMinScore!: number | null;
+  private phoneticsMinScore!: number | null;
+  private uniquenessMinScore!: number | null;
 
   private bookPool: BookValueWithChapters[] = [];
   private cachedThresholds: ScoreThresholds | null = null;
@@ -307,9 +307,9 @@ export default class HaikuGeneratorService implements IGenerator {
   }
 
   private async buildFromDbWithYielding(): Promise<HaikuValue | null> {
-    let verses = [];
-    let book = null;
-    let chapter = null;
+    let verses: string[] = [];
+    let book: BookValueWithChapters | null = null;
+    let chapter: ChapterValue | null = null;
     let chapters: ChapterWithBook[] = [];
     let i = 1;
 
@@ -357,7 +357,7 @@ export default class HaikuGeneratorService implements IGenerator {
       });
     }
 
-    return this.buildHaiku(book, chapter, verses, indices, totalQuotes);
+    return this.buildHaiku(book!, chapter!, verses, indices, totalQuotes);
   }
 
   private async processChunk(
@@ -376,16 +376,17 @@ export default class HaikuGeneratorService implements IGenerator {
     let verses: string[] = [];
     let indices: number[] = [];
     let totalQuotes = 0;
-    let book = currentBook;
-    let chapter = null;
+    let book: BookValueWithChapters | null = currentBook;
+    let chapter: ChapterValue | ChapterWithBook | null = null;
 
     for (let i = 0; i < chunkSize; i++) {
       const currentIteration = startIteration + i;
 
       if (chapters.length > 0) {
         const randomIndex = Math.floor(Math.random() * chapters.length);
-        chapter = chapters[randomIndex];
-        book = chapter.book;
+        const selectedChapter = chapters[randomIndex]!;
+        chapter = selectedChapter;
+        book = selectedChapter.book;
       }
 
       if (chapters.length === 0) {
@@ -395,7 +396,7 @@ export default class HaikuGeneratorService implements IGenerator {
         chapter = this.selectRandomChapter(book);
       }
 
-      const result = this.getVerses(chapter);
+      const result = this.getVerses(chapter!);
       verses = result.verses;
       indices = result.indices;
       totalQuotes = result.totalQuotes;
@@ -410,8 +411,8 @@ export default class HaikuGeneratorService implements IGenerator {
 
       if (verses.length >= 3) {
         return {
-          book,
-          chapter,
+          book: book!,
+          chapter: chapter!,
           nextIteration: currentIteration + 1,
           verses,
           indices,
@@ -425,8 +426,8 @@ export default class HaikuGeneratorService implements IGenerator {
     }
 
     return {
-      book,
-      chapter,
+      book: book!,
+      chapter: chapter!,
       nextIteration: startIteration + chunkSize,
       verses,
       indices,
@@ -459,10 +460,11 @@ export default class HaikuGeneratorService implements IGenerator {
   }
 
   verseContainsFilterWord(verses: string[]): boolean {
-    if (!this.filterWordsRegex) {
+    const regex = this.filterWordsRegex;
+    if (!regex) {
       return true;
     }
-    return verses.some((verse) => this.filterWordsRegex.test(verse));
+    return verses.some((verse) => regex.test(verse));
   }
 
   buildHaiku(
@@ -483,9 +485,9 @@ export default class HaikuGeneratorService implements IGenerator {
         emoticons: book.emoticons,
       },
       cacheUsed: false,
-      chapter: chapter,
+      chapter,
       context: extractContextVerses(verses, chapter.content),
-      executionTime: executionTime,
+      executionTime,
       rawVerses: verses,
       verses: cleanedVerses,
       quality: calculateHaikuQuality(
@@ -496,10 +498,9 @@ export default class HaikuGeneratorService implements IGenerator {
     };
   }
 
-  selectRandomChapter(book: BookValueWithChapters): string {
-    return book.chapters[
-      Math.floor(Math.random() * book.chapters.length).toString()
-    ];
+  selectRandomChapter(book: BookValueWithChapters): ChapterValue {
+    const chapters = (book.chapters ?? []) as ChapterValue[];
+    return chapters[Math.floor(Math.random() * chapters.length)]!;
   }
 
   private calculateQualityMetrics(
@@ -565,7 +566,7 @@ export default class HaikuGeneratorService implements IGenerator {
     for (const [name, fn] of extractors) {
       const sentences = fn();
 
-      if (this.cachedThresholds?.tfidf > 0) {
+      if ((this.cachedThresholds?.tfidf ?? 0) > 0) {
         nl.initTfIdf(sentences);
       }
       let quotes = this.filterQuotesCountingSyllables(

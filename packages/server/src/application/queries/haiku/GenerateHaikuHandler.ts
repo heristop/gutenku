@@ -40,6 +40,10 @@ export class GenerateHaikuHandler implements IQueryHandler<
     haiku ??= await this.tryOpenAIGeneration(query);
     haiku ??= await this.tryStandardGeneration(query);
 
+    if (haiku === null) {
+      throw new Error('Failed to generate haiku');
+    }
+
     if (query.appendImg !== false) {
       haiku = await this.haikuGenerator.appendImg(haiku, query.useImageAI);
     }
@@ -125,7 +129,7 @@ export class GenerateHaikuHandler implements IQueryHandler<
     }
 
     this.openAIGenerator.configure({
-      apiKey: process.env.OPENAI_API_KEY,
+      apiKey: process.env.OPENAI_API_KEY!,
       selectionCount: query.selectionCount,
       fromDb: query.fromDb,
       liveCount: query.liveCount,

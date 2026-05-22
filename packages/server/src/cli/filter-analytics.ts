@@ -291,7 +291,7 @@ function printDetailedResults(results: AnalyticsResult[]): void {
     if (result.qualityScores.length > 0) {
       const sorted = [...result.qualityScores].sort((a, b) => a - b);
       const min = sorted[0];
-      const max = sorted.at(-1);
+      const max = sorted.at(-1)!;
       const median = sorted[Math.floor(sorted.length / 2)];
       const stdDev = calculateStdDev(result.qualityScores);
 

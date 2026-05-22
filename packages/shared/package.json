@@ -17,6 +17,6 @@
     "dev": "tsdown src/index.ts --format esm --dts --watch"
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   }
 }

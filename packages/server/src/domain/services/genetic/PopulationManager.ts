@@ -157,7 +157,7 @@ export class PopulationManager {
     const uniqueIds = new Set(chromosomes.map((c) => c.id));
 
     return {
-      bestFitness: sorted.at(-1),
+      bestFitness: sorted.at(-1)!,
       worstFitness: sorted[0],
       averageFitness: avg,
       medianFitness: sorted[Math.floor(sorted.length / 2)],

@@ -1,4 +1,5 @@
 #!/usr/bin/env npx tsx
+/* eslint-disable max-lines */
 /**
  * Crawl Project Gutenberg for classical books and top downloads.
  * Validates chapter extraction by default.
@@ -22,7 +23,9 @@ import { ChapterValidatorService } from '~/domain/services/ChapterValidatorServi
 const program = new Command();
 program
   .name('fetch-gutenberg-classics')
-  .description('Crawl Project Gutenberg for classical books and validate chapter extraction')
+  .description(
+    'Crawl Project Gutenberg for classical books and validate chapter extraction',
+  )
   .option('--skip-validation', 'Skip chapter extraction validation')
   .option('--limit <n>', 'Limit validation to first N books')
   .parse();
@@ -55,7 +58,6 @@ const CLASSICS_BOOKSHELF_URL = 'https://www.gutenberg.org/ebooks/bookshelf/649';
 
 const GUTENBERG_TOP_URL = 'https://www.gutenberg.org/browse/scores/top';
 const GUTENBERG_BOOK_URL = 'https://www.gutenberg.org/cache/epub';
-
 
 // Non-English language indicators in Gutenberg titles
 const NON_ENGLISH_PATTERNS = [
@@ -220,11 +222,15 @@ function extractTopBooksFromHtml(html: string): GutenbergBook[] {
     const id = Number.parseInt(match[1], 10);
     const fullText = match[2].trim();
 
-    if (seen.has(id)) {continue;}
+    if (seen.has(id)) {
+      continue;
+    }
     seen.add(id);
 
     const downloadsMatch = fullText.match(/\((\d+)\)\s*$/);
-    const downloads = downloadsMatch ? Number.parseInt(downloadsMatch[1], 10) : 0;
+    const downloads = downloadsMatch
+      ? Number.parseInt(downloadsMatch[1], 10)
+      : 0;
 
     const textWithoutDownloads = fullText.replace(/\s*\(\d+\)\s*$/, '').trim();
 
@@ -267,11 +273,15 @@ function extractBooksFromBookshelfHtml(html: string): GutenbergBook[] {
 
     // Extract ID from href
     const idMatch = block.match(/href="\/ebooks\/(\d+)"/);
-    if (!idMatch) {continue;}
+    if (!idMatch) {
+      continue;
+    }
 
     const id = Number.parseInt(idMatch[1], 10);
 
-    if (seen.has(id)) {continue;}
+    if (seen.has(id)) {
+      continue;
+    }
     seen.add(id);
 
     // Extract title
@@ -283,8 +293,12 @@ function extractBooksFromBookshelfHtml(html: string): GutenbergBook[] {
     const author = authorMatch ? authorMatch[1].trim() : 'Unknown';
 
     // Extract downloads from extra
-    const downloadsMatch = block.match(/<span class="extra">(\d+)\s*downloads?<\/span>/i);
-    const downloads = downloadsMatch ? Number.parseInt(downloadsMatch[1], 10) : 0;
+    const downloadsMatch = block.match(
+      /<span class="extra">(\d+)\s*downloads?<\/span>/i,
+    );
+    const downloads = downloadsMatch
+      ? Number.parseInt(downloadsMatch[1], 10)
+      : 0;
 
     books.push({ id, title, author, downloads });
   }
@@ -297,7 +311,9 @@ function extractBooksFromBookshelfHtml(html: string): GutenbergBook[] {
  * Returns the next page URL or null.
  */
 function getNextPageUrl(html: string, _baseUrl: string): string | null {
-  const nextMatch = html.match(/href="([^"]*\?start_index=\d+)"[^>]*>Next<\/a>/i);
+  const nextMatch = html.match(
+    /href="([^"]*\?start_index=\d+)"[^>]*>Next<\/a>/i,
+  );
 
   if (nextMatch) {
     const path = nextMatch[1];
@@ -310,7 +326,9 @@ function getNextPageUrl(html: string, _baseUrl: string): string | null {
 /**
  * Fetch all pages of a bookshelf.
  */
-async function fetchAllBookshelfPages(baseUrl: string): Promise<GutenbergBook[]> {
+async function fetchAllBookshelfPages(
+  baseUrl: string,
+): Promise<GutenbergBook[]> {
   const allBooks: GutenbergBook[] = [];
   let currentUrl: string | null = baseUrl;
 
@@ -318,7 +336,9 @@ async function fetchAllBookshelfPages(baseUrl: string): Promise<GutenbergBook[]>
     const html = await fetchPage(currentUrl);
     const books = extractBooksFromBookshelfHtml(html);
 
-    if (books.length === 0) {break;}
+    if (books.length === 0) {
+      break;
+    }
 
     allBooks.push(...books);
 
@@ -327,7 +347,9 @@ async function fetchAllBookshelfPages(baseUrl: string): Promise<GutenbergBook[]>
 
     // Rate limiting between pages
     if (currentUrl) {
-      await new Promise((resolve) => { setTimeout(resolve, 500); });
+      await new Promise((resolve) => {
+        setTimeout(resolve, 500);
+      });
     }
   }
 
@@ -367,7 +389,9 @@ function removeDuplicates(books: GutenbergBook[]): {
 }
 
 // Helper function to fetch and filter top books
-async function fetchTopBooksSection(existingIds: Set<number>): Promise<GutenbergBook[]> {
+async function fetchTopBooksSection(
+  existingIds: Set<number>,
+): Promise<GutenbergBook[]> {
   const topBooks: GutenbergBook[] = [];
   const topSpinner = ora('Fetching top downloads of the week...').start();
 
@@ -382,7 +406,9 @@ async function fetchTopBooksSection(existingIds: Set<number>): Promise<Gutenberg
     }
 
     topSpinner.succeed(
-      pc.green(`Found ${allTopBooks.length} top books, ${topBooks.length} new English`),
+      pc.green(
+        `Found ${allTopBooks.length} top books, ${topBooks.length} new English`,
+      ),
     );
 
     displayTopBooks(topBooks);
@@ -407,8 +433,11 @@ function displayTopBooks(topBooks: GutenbergBook[]): void {
     const rank = pc.dim(`${(i + 1).toString().padStart(2)}.`);
     const idStr = pc.yellow(book.id.toString().padStart(6));
     const downloads = pc.green(`${book.downloads?.toLocaleString() || '?'} dl`);
-    const title = book.title.length > 40 ? book.title.slice(0, 37) + '...' : book.title;
-    console.log(`  ${rank} ${idStr}  ${pc.cyan(title)} ${pc.dim('—')} ${downloads}`);
+    const title =
+      book.title.length > 40 ? book.title.slice(0, 37) + '...' : book.title;
+    console.log(
+      `  ${rank} ${idStr}  ${pc.cyan(title)} ${pc.dim('—')} ${downloads}`,
+    );
   }
 }
 
@@ -420,12 +449,21 @@ interface ClassicsResult {
   duplicateCount: number;
 }
 
-async function fetchClassicsSection(existingIds: Set<number>): Promise<ClassicsResult> {
+async function fetchClassicsSection(
+  existingIds: Set<number>,
+): Promise<ClassicsResult> {
   console.log(pc.bold('\n═══ Classics of Literature Bookshelf ═══\n'));
 
-  const classicsSpinner = ora('Fetching Classics of Literature bookshelf (all pages)...').start();
+  const classicsSpinner = ora(
+    'Fetching Classics of Literature bookshelf (all pages)...',
+  ).start();
 
-  let result: ClassicsResult = { unique: [], totalFound: 0, nonEnglishFiltered: 0, duplicateCount: 0 };
+  const result: ClassicsResult = {
+    unique: [],
+    totalFound: 0,
+    nonEnglishFiltered: 0,
+    duplicateCount: 0,
+  };
 
   try {
     const allClassics = await fetchAllBookshelfPages(CLASSICS_BOOKSHELF_URL);
@@ -433,7 +471,9 @@ async function fetchClassicsSection(existingIds: Set<number>): Promise<ClassicsR
 
     const newClassics: GutenbergBook[] = [];
     for (const book of allClassics) {
-      if (existingIds.has(book.id)) {continue;}
+      if (existingIds.has(book.id)) {
+        continue;
+      }
 
       if (isEnglish(book)) {
         newClassics.push(book);
@@ -447,7 +487,9 @@ async function fetchClassicsSection(existingIds: Set<number>): Promise<ClassicsR
     result.duplicateCount = duplicateCount;
 
     classicsSpinner.succeed(
-      pc.green(`Found ${result.totalFound} classics, ${unique.length} new English`),
+      pc.green(
+        `Found ${result.totalFound} classics, ${unique.length} new English`,
+      ),
     );
   } catch {
     classicsSpinner.fail(pc.red('Failed to fetch classics bookshelf'));
@@ -457,7 +499,9 @@ async function fetchClassicsSection(existingIds: Set<number>): Promise<ClassicsR
 }
 
 // Helper to run validation on books
-async function runValidation(booksToValidate: GutenbergBook[]): Promise<ValidationResult[]> {
+async function runValidation(
+  booksToValidate: GutenbergBook[],
+): Promise<ValidationResult[]> {
   const validationBar = new cliProgress.SingleBar({
     format: `Validating ${pc.cyan('{bar}')} ${pc.yellow('{percentage}%')} | {value}/{total} | ${pc.dim('{title}')}`,
     barCompleteChar: '\u2588',
@@ -471,13 +515,16 @@ async function runValidation(booksToValidate: GutenbergBook[]): Promise<Validati
 
   for (let i = 0; i < booksToValidate.length; i++) {
     const book = booksToValidate[i];
-    const shortTitle = book.title.length > 30 ? book.title.slice(0, 27) + '...' : book.title;
+    const shortTitle =
+      book.title.length > 30 ? book.title.slice(0, 27) + '...' : book.title;
     validationBar.update(i, { title: shortTitle });
 
     const result = await validateBook(book);
     results.push(result);
 
-    await new Promise((resolve) => { setTimeout(resolve, 500); });
+    await new Promise((resolve) => {
+      setTimeout(resolve, 500);
+    });
   }
 
   validationBar.update(booksToValidate.length, { title: pc.green('Complete') });
@@ -497,7 +544,9 @@ function displayValidationResult(r: ValidationResult): void {
 
   if (r.success) {
     console.log(`  ${status} ${idStr}  ${titleStr}`);
-    console.log(`           ${pc.dim(`${r.validChapters} chapters via ${r.patternUsed || 'none'}`)}`);
+    console.log(
+      `           ${pc.dim(`${r.validChapters} chapters via ${r.patternUsed || 'none'}`)}`,
+    );
   } else {
     const reason = r.error || `${r.validChapters}/${r.totalChapters} chapters`;
     console.log(`  ${status} ${idStr}  ${titleStr} ${pc.red(`(${reason})`)}`);
@@ -517,12 +566,17 @@ function displayValidatedBookIds(passed: ValidationResult[]): void {
   const chapCol = 'Ch'.padStart(3);
   const patternCol = 'Pattern';
   console.log(pc.dim(`  ${idCol}  ${titleCol}  ${chapCol}  ${patternCol}`));
-  console.log(pc.dim(`  ${'─'.repeat(6)}  ${'─'.repeat(45)}  ${'─'.repeat(3)}  ${'─'.repeat(20)}`));
+  console.log(
+    pc.dim(
+      `  ${'─'.repeat(6)}  ${'─'.repeat(45)}  ${'─'.repeat(3)}  ${'─'.repeat(20)}`,
+    ),
+  );
 
   const sortedPassed = [...passed].sort((a, b) => a.id - b.id);
   for (const r of sortedPassed) {
     const id = pc.yellow(r.id.toString().padStart(6));
-    const title = r.title.length > 45 ? r.title.slice(0, 42) + '...' : r.title.padEnd(45);
+    const title =
+      r.title.length > 45 ? r.title.slice(0, 42) + '...' : r.title.padEnd(45);
     const chapters = pc.green(r.validChapters.toString().padStart(3));
     const pattern = pc.dim(r.patternUsed || 'none');
     console.log(`  ${id}  ${pc.cyan(title)}  ${chapters}  ${pattern}`);
@@ -543,8 +597,12 @@ async function main() {
   const limit = options.limit ? Number.parseInt(options.limit, 10) : undefined;
   const existingIds = new Set(BOOK_IDS);
 
-  console.log(`${pc.dim('Collection:')}    ${pc.cyan(String(existingIds.size))} books already in your library`);
-  console.log(`${pc.dim('Validation:')}    ${skipValidation ? pc.yellow('skipped') : pc.green('enabled')}`);
+  console.log(
+    `${pc.dim('Collection:')}    ${pc.cyan(String(existingIds.size))} books already in your library`,
+  );
+  console.log(
+    `${pc.dim('Validation:')}    ${skipValidation ? pc.yellow('skipped') : pc.green('enabled')}`,
+  );
 
   if (limit) {
     console.log(`${pc.dim('Limit:')}         ${pc.cyan(String(limit))} books`);
@@ -557,11 +615,21 @@ async function main() {
 
   // Display discovery summary
   console.log(pc.bold('\n═══ Discovery Summary ═══\n'));
-  console.log(`${pc.dim('Classics found:')}   ${pc.cyan(String(classics.totalFound))} books`);
-  console.log(`${pc.dim('Non-English:')}      ${pc.yellow(String(classics.nonEnglishFiltered))} filtered`);
-  console.log(`${pc.dim('Duplicates:')}       ${pc.yellow(String(classics.duplicateCount))} removed`);
-  console.log(`${pc.dim('Top downloads:')}    ${pc.cyan(String(topBooks.length))} new`);
-  console.log(`${pc.dim('Classics unique:')} ${pc.green(String(classics.unique.length))} works`);
+  console.log(
+    `${pc.dim('Classics found:')}   ${pc.cyan(String(classics.totalFound))} books`,
+  );
+  console.log(
+    `${pc.dim('Non-English:')}      ${pc.yellow(String(classics.nonEnglishFiltered))} filtered`,
+  );
+  console.log(
+    `${pc.dim('Duplicates:')}       ${pc.yellow(String(classics.duplicateCount))} removed`,
+  );
+  console.log(
+    `${pc.dim('Top downloads:')}    ${pc.cyan(String(topBooks.length))} new`,
+  );
+  console.log(
+    `${pc.dim('Classics unique:')} ${pc.green(String(classics.unique.length))} works`,
+  );
 
   if (skipValidation) {
     outputBookIds('Top Downloads', topBooks);
@@ -572,7 +640,9 @@ async function main() {
 
   // Prepare books for validation
   const allBooksToValidate = [...topBooks, ...classics.unique];
-  const booksToValidate = limit ? allBooksToValidate.slice(0, limit) : allBooksToValidate;
+  const booksToValidate = limit
+    ? allBooksToValidate.slice(0, limit)
+    : allBooksToValidate;
 
   if (booksToValidate.length === 0) {
     console.log(pc.yellow('\n⚠️  No books to validate'));
@@ -581,8 +651,12 @@ async function main() {
   }
 
   console.log(pc.bold('\n═══ Validating Chapter Extraction ═══\n'));
-  console.log(`${pc.dim('Books to validate:')} ${pc.cyan(String(booksToValidate.length))}`);
-  console.log(`${pc.dim('Min chapters:')}      ${pc.cyan(String(MIN_VALID_CHAPTERS))}\n`);
+  console.log(
+    `${pc.dim('Books to validate:')} ${pc.cyan(String(booksToValidate.length))}`,
+  );
+  console.log(
+    `${pc.dim('Min chapters:')}      ${pc.cyan(String(MIN_VALID_CHAPTERS))}\n`,
+  );
 
   const validationResults = await runValidation(booksToValidate);
 

@@ -43,6 +43,10 @@ export default {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
 
     context.forEach((contextItem, i) => {
+      if (!contextItem) {
+        return;
+      }
+
       const ghostVerse = verses[i];
       const y = baseY + lineHeight * i;
 

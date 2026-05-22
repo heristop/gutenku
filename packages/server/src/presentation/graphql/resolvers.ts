@@ -31,23 +31,23 @@ import { GetGlobalStatsQuery } from '~/application/queries/stats';
 
 const resolvers = {
   Query: {
-    book: async (_, { id }: { id: string }) => {
+    book: async (_: unknown, { id }: { id: string }) => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
       return queryBus.execute(new GetBookByIdQuery(id));
     },
-    books: async (_, { filter }: { filter?: string }) => {
+    books: async (_: unknown, { filter }: { filter?: string }) => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
       return queryBus.execute(new GetAllBooksQuery(filter));
     },
-    chapter: async (_, { id }: { id: string }) => {
+    chapter: async (_: unknown, { id }: { id: string }) => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
       return queryBus.execute(new GetChapterByIdQuery(id));
     },
-    chapters: async (_, { filter }: { filter?: string }) => {
+    chapters: async (_: unknown, { filter }: { filter?: string }) => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
       return queryBus.execute(new GetAllChaptersQuery(filter));
     },
-    haiku: async (_, args: HaikuVariables): Promise<HaikuValue> => {
+    haiku: async (_: unknown, args: HaikuVariables): Promise<HaikuValue> => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
       return queryBus.execute(new GenerateHaikuQuery(args));
     },
@@ -91,7 +91,7 @@ const resolvers = {
       };
     },
     dailyPuzzle: async (
-      _,
+      _: unknown,
       {
         date,
         revealedRounds,
@@ -118,7 +118,7 @@ const resolvers = {
       );
     },
     submitGuess: async (
-      _,
+      _: unknown,
       {
         date,
         guessedBookId,
@@ -145,21 +145,21 @@ const resolvers = {
       );
     },
     reduceBooks: async (
-      _,
+      _: unknown,
       { date, locale }: { date: string; locale?: string },
     ) => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
       return queryBus.execute(new ReduceBooksQuery(date, locale || 'en'));
     },
     puzzleVersion: async (
-      _,
+      _: unknown,
       { date }: { date: string },
     ): Promise<PuzzleVersion> => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
       return queryBus.execute(new GetPuzzleVersionQuery(date));
     },
     haikuVersion: async (
-      _,
+      _: unknown,
       { date }: { date: string },
     ): Promise<HaikuVersion> => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
@@ -168,7 +168,7 @@ const resolvers = {
   },
   Mutation: {
     revealEmoticon: async (
-      _,
+      _: unknown,
       {
         date,
         scratchedPositions,
@@ -180,7 +180,7 @@ const resolvers = {
       );
     },
     revealHaiku: async (
-      _,
+      _: unknown,
       { date, index }: { date: string; index: number },
     ) => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
@@ -189,7 +189,7 @@ const resolvers = {
   },
   Subscription: {
     haikuGeneration: {
-      subscribe: async function* (
+      async *subscribe(
         _: unknown,
         args: IterativeHaikuArgs,
       ): AsyncGenerator<{ haikuGeneration: HaikuProgress }> {

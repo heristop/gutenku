@@ -72,7 +72,7 @@ export interface HaikuValue {
   chapter: ChapterValue;
   verses: string[];
   rawVerses: string[];
-  context?: ContextVerses[];
+  context?: (ContextVerses | null)[];
   image?: string;
   imagePath?: string;
   title?: string;

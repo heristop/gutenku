@@ -146,8 +146,8 @@ const variables = {
 };
 
 const body = {
-  query: query,
-  variables: variables,
+  query,
+  variables,
 };
 
 try {
@@ -222,6 +222,11 @@ try {
   }
 
   const imageSpinner = ora('Processing image...').start();
+
+  if (!haiku.image) {
+    imageSpinner.fail(pc.red('Haiku image data is missing'));
+    process.exit(1);
+  }
 
   const imageData = Buffer.from(haiku.image, 'base64');
   haiku.imagePath = path.join(DATA_DIRECTORY, 'preview_haiku.jpg');

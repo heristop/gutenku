@@ -113,7 +113,7 @@ export class Verse {
   }
 
   private static cleanText(text: string): string {
-    let cleaned = text
+    const cleaned = text
       .trim()
       .replaceAll(/[\n\r]/g, ' ')
       .replaceAll(/\s+/g, ' ')

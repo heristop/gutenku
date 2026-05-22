@@ -123,7 +123,7 @@ export class MarkovChainService {
       return 0;
     }
 
-    const lastWordFrom = fromWords.at(-1).toLowerCase();
+    const lastWordFrom = fromWords.at(-1)!.toLowerCase();
     const firstWordTo = toWords[0].toLowerCase();
     const transitions = this.bigrams.get(lastWordFrom);
 
@@ -175,7 +175,7 @@ export class MarkovChainService {
       return SMOOTHING_ALPHA / (SMOOTHING_ALPHA * this.vocabulary.size || 1);
     }
 
-    const lastWordFrom = fromWords.at(-1).toLowerCase();
+    const lastWordFrom = fromWords.at(-1)!.toLowerCase();
     const firstWordTo = toWords[0].toLowerCase();
 
     const transitions = this.bigrams.get(lastWordFrom);

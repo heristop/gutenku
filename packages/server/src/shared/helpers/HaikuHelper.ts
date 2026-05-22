@@ -30,7 +30,7 @@ export function findContext(
     sentence.includes(wordsBeforeArray[0]),
   );
   const sentenceIndexAfter = sentences.findIndex((sentence) =>
-    sentence.includes(wordsAfterArray.at(-1)),
+    sentence.includes(wordsAfterArray.at(-1) ?? ''),
   );
 
   const sentencesBefore = sentences.slice(
@@ -58,7 +58,7 @@ export function findContext(
 export function extractContextVerses(
   verses: string[],
   chapter: string,
-): ContextVerses[] {
+): (ContextVerses | null)[] {
   // Clean chapter and split sentences once before the loop
   const cleanedChapter = chapter.replaceAll('\n', ' ');
   const sentences = cleanedChapter.split(SENTENCE_SPLIT_REGEX);

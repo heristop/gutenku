@@ -56,7 +56,7 @@ export class SelectionOperator {
       }
     }
 
-    return chromosomes.at(-1);
+    return chromosomes.at(-1)!;
   }
 
   /**

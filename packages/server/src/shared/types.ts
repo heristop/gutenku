@@ -1,5 +1,6 @@
 import type { Types } from 'mongoose';
 import type {
+  ChapterValue as SharedChapterValue,
   HaikuQualityScore as SharedHaikuQualityScore,
   ExtractionMethod as SharedExtractionMethod,
 } from '@gutenku/shared';
@@ -23,7 +24,7 @@ export interface BookValueWithChapters {
   reference: string;
   title: string;
   author: string;
-  chapters?: string[] | Types.ObjectId[];
+  chapters?: string[] | Types.ObjectId[] | SharedChapterValue[];
   emoticons?: string;
 }
 

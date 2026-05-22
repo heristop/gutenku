@@ -111,9 +111,7 @@ export function extractTopBooksFromHtml(html: string): GutenbergBook[] {
     if (byMatch) {
       title = byMatch[1].trim();
       author = byMatch[2].trim();
-    }
-
-    if (!byMatch) {
+    } else {
       title = textWithoutDownloads;
       author = 'Unknown';
     }

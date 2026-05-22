@@ -164,7 +164,7 @@ async function listen(port: number) {
 
 async function main() {
   try {
-    const port = Number.parseInt(process.env.SERVER_PORT, 10) || 4000;
+    const port = Number.parseInt(process.env.SERVER_PORT ?? '', 10) || 4000;
 
     await listen(port);
 

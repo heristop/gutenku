@@ -30,7 +30,7 @@ export default class OpenAIGeneratorService implements IGenerator {
 
   private haikuSelection: HaikuValue[] = [];
   private openai: IOpenAIClient;
-  private selectionCount: number;
+  private selectionCount!: number;
   private fromDb: number = 0;
   private liveCount: number = 0;
   private temperature: number = this.DEFAULT_TEMPERATURE;
@@ -49,16 +49,10 @@ export default class OpenAIGeneratorService implements IGenerator {
   configure(options: OpenAIOptions): OpenAIGeneratorService {
     const { apiKey, selectionCount, fromDb, liveCount, temperature } = options;
 
-    if (selectionCount !== null && selectionCount > 0) {
-      this.selectionCount = Math.min(selectionCount, this.MAX_SELECTION_COUNT);
-    }
-
-    if (selectionCount === null || selectionCount <= 0) {
-      this.selectionCount = Number.parseInt(
-        process.env.OPENAI_SELECTION_COUNT || '1',
-        10,
-      );
-    }
+    this.selectionCount =
+      selectionCount !== undefined && selectionCount > 0
+        ? Math.min(selectionCount, this.MAX_SELECTION_COUNT)
+        : Number.parseInt(process.env.OPENAI_SELECTION_COUNT || '1', 10);
 
     this.fromDb = fromDb ?? 0;
     this.liveCount = liveCount ?? 0;

@@ -21,7 +21,7 @@ const query = `
 `;
 
 const body = {
-  query: query,
+  query,
 };
 
 const formatNumber = (n: number): string => n.toLocaleString('en-US');

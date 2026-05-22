@@ -9,7 +9,7 @@ import type { Connection } from 'mongoose';
 
 @injectable()
 export default class HaikuRepository implements IHaikuRepository {
-  private db: Connection;
+  private db: Connection | null;
 
   constructor(@inject(MongoConnection) mongoConnection: MongoConnection) {
     this.db = mongoConnection.db;
@@ -87,7 +87,7 @@ export default class HaikuRepository implements IHaikuRepository {
   }
 
   private mapCachedHaikuValue(collection: HaikuDocument[]): HaikuValue[] {
-    const haikuValues = [];
+    const haikuValues: HaikuValue[] = [];
 
     collection.forEach((document) => {
       haikuValues.push({
@@ -137,7 +137,13 @@ export default class HaikuRepository implements IHaikuRepository {
 
       if (count < minCachedDocs) {
         log.info(
-          { count, minCachedDocs, excludeDate, yesterdayMidnight, todayMidnight },
+          {
+            count,
+            minCachedDocs,
+            excludeDate,
+            yesterdayMidnight,
+            todayMidnight,
+          },
           'Not enough cached documents from yesterday',
         );
         return null;
@@ -182,7 +188,10 @@ export default class HaikuRepository implements IHaikuRepository {
     }
   }
 
-  async extractTopScored(limit: number, percentile = 0.1): Promise<HaikuValue[]> {
+  async extractTopScored(
+    limit: number,
+    percentile = 0.1,
+  ): Promise<HaikuValue[]> {
     if (!this.db) {
       return [];
     }

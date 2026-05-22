@@ -19,7 +19,7 @@ import bookzen from '~/shared/themes/bookzen';
 @singleton()
 export default class CanvasService {
   private readonly DATA_DIRECTORY = './data';
-  private theme: string;
+  private theme!: string;
 
   useTheme(theme: string): void {
     this.theme = theme;
@@ -120,7 +120,7 @@ export default class CanvasService {
 
     return {
       contentType: 'image/jpeg',
-      data: data,
+      data,
     };
   }
 }

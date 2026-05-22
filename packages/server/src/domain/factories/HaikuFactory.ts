@@ -12,7 +12,7 @@ export interface CreateHaikuInput {
   book: BookValue;
   chapter: ChapterValue;
   rawVerses: string[];
-  context?: ContextVerses[];
+  context?: (ContextVerses | null)[];
   cacheUsed: boolean;
   executionTime?: number;
 }

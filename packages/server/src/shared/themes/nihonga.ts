@@ -94,7 +94,7 @@ CRITICAL: Absolutely NO text, letters, characters, kanji, hiragana, katakana, or
       model: process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1.5',
       n: 1,
       output_format: 'png',
-      prompt: prompt,
+      prompt,
       quality: (process.env.OPENAI_IMAGE_QUALITY || 'high') as
         | 'high'
         | 'low'
@@ -104,7 +104,7 @@ CRITICAL: Absolutely NO text, letters, characters, kanji, hiragana, katakana, or
       user: 'gutenku-nihonga-theme',
     });
 
-    const imageBase64 = response.data[0].b64_json;
+    const imageBase64 = response.data?.[0]?.b64_json;
 
     if (!imageBase64) {
       console.error('No image data returned from OpenAI GPT-Image API');

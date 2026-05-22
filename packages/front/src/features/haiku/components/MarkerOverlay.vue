@@ -47,9 +47,13 @@ let resizeObserver: ResizeObserver | null = null;
 
 function computeLayout() {
   const el = containerRef.value;
-  if (!el) return;
+  if (!el) {
+    return;
+  }
   const parent = el.parentElement;
-  if (!parent) return;
+  if (!parent) {
+    return;
+  }
 
   const style = getComputedStyle(parent);
   const lineHeight =
@@ -85,7 +89,9 @@ watch(
 );
 
 onMounted(async () => {
-  if (import.meta.env.SSR) return;
+  if (import.meta.env.SSR) {
+    return;
+  }
   await document.fonts.ready;
   await nextTick();
   computeLayout();

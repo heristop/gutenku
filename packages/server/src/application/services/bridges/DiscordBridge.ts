@@ -23,10 +23,16 @@ export async function publishToDiscord(
     return;
   }
 
+  if (!haiku.imagePath) {
+    throw new Error('Haiku image path is missing');
+  }
+
   const imageBuffer = await fs.readFile(haiku.imagePath);
   const form = new FormData();
 
-  const formattedTitle = haiku.title.replaceAll(/\s/g, '_').toLowerCase();
+  const formattedTitle = (haiku.title ?? '')
+    .replaceAll(/\s/g, '_')
+    .toLowerCase();
   form.append('file', imageBuffer, {
     contentType: 'image/jpeg',
     filename: `${formattedTitle}.jpg`,

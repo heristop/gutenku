@@ -2,18 +2,20 @@ packages:
   - packages/*
   - private/gutenguess/packages/*
 
-onlyBuiltDependencies:
-  - '@apollo/protobufjs'
-  - canvas
-  - core-js
-  - cwebp-bin
-  - cypress
-  - esbuild
-  - gifsicle
-  - jpegtran-bin
-  - mongodb-memory-server
-  - mozjpeg
-  - optipng-bin
-  - pngquant-bin
-  - sharp
-  - vue-demi
+allowBuilds:
+  '@apollo/protobufjs': true
+  '@parcel/watcher': true
+  '@tensorflow/tfjs-node': false
+  canvas: true
+  core-js: true
+  cwebp-bin: true
+  cypress: true
+  esbuild: true
+  gifsicle: true
+  jpegtran-bin: true
+  mongodb-memory-server: true
+  mozjpeg: true
+  optipng-bin: true
+  pngquant-bin: true
+  sharp: true
+  vue-demi: true

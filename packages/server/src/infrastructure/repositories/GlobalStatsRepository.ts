@@ -16,7 +16,7 @@ type StatsDocument = Record<string, unknown>;
 
 @injectable()
 export default class GlobalStatsRepository implements IGlobalStatsRepository {
-  private db: Connection;
+  private db: Connection | null;
   private statsCache: GlobalStatsValue | null = null;
   private statsCacheExpiry = 0;
   private static readonly CACHE_TTL_MS = 30000; // 30 seconds
@@ -120,10 +120,18 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
       todayGamesPlayed: this.dailyNum(doc, 'todayGamesPlayed', isDayStale),
       todayGamesWon: this.dailyNum(doc, 'todayGamesWon', isDayStale),
       currentDay: today,
-      weekHaikusGenerated: this.weeklyNum(doc, 'weekHaikusGenerated', isWeekStale),
+      weekHaikusGenerated: this.weeklyNum(
+        doc,
+        'weekHaikusGenerated',
+        isWeekStale,
+      ),
       weekGamesPlayed: this.weeklyNum(doc, 'weekGamesPlayed', isWeekStale),
       weekGamesWon: this.weeklyNum(doc, 'weekGamesWon', isWeekStale),
-      weekEmoticonScratches: this.weeklyNum(doc, 'weekEmoticonScratches', isWeekStale),
+      weekEmoticonScratches: this.weeklyNum(
+        doc,
+        'weekEmoticonScratches',
+        isWeekStale,
+      ),
       weekHaikuReveals: this.weeklyNum(doc, 'weekHaikuReveals', isWeekStale),
       weekRoundHints: this.weeklyNum(doc, 'weekRoundHints', isWeekStale),
       currentWeek: week,
@@ -293,7 +301,14 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
       const isNewWeek = currentWeek !== week;
 
       const inc = this.buildGameIncrements(won, hints, isNewDay, isNewWeek);
-      const set = this.buildGameSetFields(won, hints, isNewDay, isNewWeek, today, week);
+      const set = this.buildGameSetFields(
+        won,
+        hints,
+        isNewDay,
+        isNewWeek,
+        today,
+        week,
+      );
 
       await collection.findOneAndUpdate(
         { _id: STATS_DOC_ID } as object,

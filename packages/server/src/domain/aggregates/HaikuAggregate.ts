@@ -9,7 +9,7 @@ export interface HaikuProps {
   readonly chapter: Chapter;
   readonly verses: Verse[];
   readonly rawVerses: string[];
-  readonly context?: ContextVerses[];
+  readonly context?: (ContextVerses | null)[];
   readonly image?: string;
   readonly imagePath?: string;
   readonly title?: string;
@@ -30,7 +30,7 @@ export class HaikuAggregate {
   private readonly _chapter: Chapter;
   private readonly _verses: readonly Verse[];
   private readonly _rawVerses: readonly string[];
-  private readonly _context?: ContextVerses[];
+  private readonly _context?: (ContextVerses | null)[];
   private readonly _image?: string;
   private readonly _imagePath?: string;
   private readonly _title?: string;
@@ -69,7 +69,7 @@ export class HaikuAggregate {
   get rawVerses(): readonly string[] {
     return this._rawVerses;
   }
-  get context(): ContextVerses[] | undefined {
+  get context(): (ContextVerses | null)[] | undefined {
     return this._context;
   }
   get image(): string | undefined {
@@ -113,7 +113,7 @@ export class HaikuAggregate {
     chapter: Chapter,
     rawVerses: string[],
     options: {
-      context?: ContextVerses[];
+      context?: (ContextVerses | null)[];
       cacheUsed: boolean;
       executionTime?: number;
     },

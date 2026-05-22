@@ -8,7 +8,7 @@ const log = createLogger('mongo');
 export default class MongoConnection {
   public db: Connection | null = null;
 
-  public async connect(): Promise<Connection> {
+  public async connect(): Promise<Connection | null> {
     const uri =
       process.env.MONGODB_URI || 'mongodb://root:root@localhost:27017';
     const database = process.env.MONGODB_DB || 'admin';

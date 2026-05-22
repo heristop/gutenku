@@ -24,13 +24,13 @@
     "depcruise": "depcruise packages --config"
   },
   "devDependencies": {
-    "@commitlint/config-conventional": "^20.3.1",
-    "dependency-cruiser": "^17.3.6",
+    "@commitlint/config-conventional": "^21.0.1",
+    "dependency-cruiser": "^17.4.0",
     "husky": "^9.1.7",
-    "lint-staged": "^16.2.7",
-    "oxfmt": "^0.26.0",
-    "oxlint": "^1.41.0",
-    "tsdown": "0.20.0-beta.4"
+    "lint-staged": "^17.0.5",
+    "oxfmt": "^0.51.0",
+    "oxlint": "^1.66.0",
+    "tsdown": "0.22.0"
   },
-  "packageManager": "pnpm@10.28.0"
+  "packageManager": "pnpm@11.2.2"
 }
