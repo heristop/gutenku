@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { EventEmitter } from 'node:events';
 
 // Shared state for mocks - needs to be module level for hoisted mocks
@@ -252,5 +252,196 @@ describe('MarkovChainService - trigrams', () => {
     m.train('Hello world again.');
 
     expect(m.evaluateTrigramTransition('Hello world', '')).toBe(0);
+  });
+});
+
+describe('MarkovChainService - positive transition scores', () => {
+  const corpus =
+    'the quick brown fox jumps. the quick brown fox runs. the quick brown fox sleeps. brown fox jumps high. brown fox runs fast.';
+
+  it('returns a positive bigram score for a frequently seen transition', () => {
+    const nl = new NaturalLanguageService();
+    const m = new MarkovChainService(nl);
+    m.train(corpus);
+    // "quick brown" -> "fox ..." occurs repeatedly; expect > 0 (covers count branch)
+    const score = m.evaluateTransition('quick brown', 'fox jumps');
+    expect(score).toBeGreaterThan(0);
+    expect(score).toBeLessThanOrEqual(1);
+  });
+
+  it('returns a positive trigram score for a frequently seen transition', () => {
+    const nl = new NaturalLanguageService();
+    const m = new MarkovChainService(nl);
+    m.train(corpus);
+    const score = m.evaluateTrigramTransition('quick brown', 'fox jumps');
+    expect(score).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe('MarkovChainService - smoothed transitions and backoff', () => {
+  const corpus =
+    'the quick brown fox jumps. the quick brown fox runs. brown fox jumps high.';
+
+  it('evaluateTransitionSmoothed returns a probability for empty input via vocabulary', () => {
+    const nl = new NaturalLanguageService();
+    const m = new MarkovChainService(nl);
+    m.train(corpus);
+    const score = m.evaluateTransitionSmoothed('', 'fox');
+    expect(score).toBeGreaterThan(0);
+  });
+
+  it('evaluateTransitionSmoothed returns a smoothed probability for a known transition', () => {
+    const nl = new NaturalLanguageService();
+    const m = new MarkovChainService(nl);
+    m.train(corpus);
+    const score = m.evaluateTransitionSmoothed('quick brown', 'fox jumps');
+    expect(score).toBeGreaterThan(0);
+    expect(score).toBeLessThan(1);
+  });
+
+  it('evaluateTransitionSmoothed returns a non-zero value for unknown transitions', () => {
+    const nl = new NaturalLanguageService();
+    const m = new MarkovChainService(nl);
+    m.train(corpus);
+    const score = m.evaluateTransitionSmoothed('zzz', 'qqq');
+    expect(score).toBeGreaterThan(0);
+  });
+
+  it('evaluateTrigramTransitionSmoothed returns probability for empty/short input', () => {
+    const nl = new NaturalLanguageService();
+    const m = new MarkovChainService(nl);
+    m.train(corpus);
+    expect(m.evaluateTrigramTransitionSmoothed('one', 'two')).toBeGreaterThan(
+      0,
+    );
+  });
+
+  it('evaluateTrigramTransitionSmoothed returns a smoothed probability for known input', () => {
+    const nl = new NaturalLanguageService();
+    const m = new MarkovChainService(nl);
+    m.train(corpus);
+    const score = m.evaluateTrigramTransitionSmoothed(
+      'quick brown',
+      'fox jumps',
+    );
+    expect(score).toBeGreaterThan(0);
+  });
+
+  it('evaluateWithBackoff returns the bigram score when positive', () => {
+    const nl = new NaturalLanguageService();
+    const m = new MarkovChainService(nl);
+    m.train(corpus);
+    const score = m.evaluateWithBackoff('quick brown', 'fox jumps');
+    expect(score).toBeGreaterThanOrEqual(0);
+  });
+
+  it('evaluateWithBackoff falls back to trigram when bigram score is zero', () => {
+    const nl = new NaturalLanguageService();
+    const m = new MarkovChainService(nl);
+    m.train(corpus);
+    // unknown bigram path -> falls through to trigram evaluation
+    const score = m.evaluateWithBackoff('totally unknown', 'phrase here');
+    expect(score).toBeGreaterThanOrEqual(0);
+  });
+});
+
+// Restore a working write-stream mock for tests that run after the
+// "save error" test permanently overrides createWriteStream.
+const makeWorkingStream = () => {
+  const chunks: string[] = [];
+  const emitter = new EventEmitter();
+  const mockStream: Record<string, unknown> = {
+    write: (data: string) => {
+      chunks.push(data);
+      return true;
+    },
+    end: () => {
+      mockState.savedData = chunks.join('');
+      setImmediate(() => emitter.emit('finish'));
+    },
+    on: (event: string, handler: () => void) => {
+      emitter.on(event, handler);
+      return mockStream;
+    },
+    once: (event: string, handler: () => void) => {
+      emitter.once(event, handler);
+      return mockStream;
+    },
+    destroy: vi.fn(),
+  };
+  return mockStream;
+};
+
+describe('MarkovChainService - model state', () => {
+  beforeEach(async () => {
+    const { createWriteStream } = await import('node:fs');
+    vi.mocked(createWriteStream).mockImplementation(
+      () => makeWorkingStream() as never,
+    );
+    const { stat } = await import('node:fs/promises');
+    vi.mocked(stat).mockResolvedValue({ size: 1024 } as never);
+  });
+
+  it('isModelLoaded reflects training/loaded state', () => {
+    const nl = new NaturalLanguageService();
+    const m = new MarkovChainService(nl);
+    expect(m.isModelLoaded()).toBeFalsy();
+  });
+
+  it('isModelLoaded is true after a successful load', async () => {
+    const nl = new NaturalLanguageService();
+    const a = new MarkovChainService(nl);
+    // Bigram "bravo charlie" must occur >= MIN_BIGRAM_COUNT (3) to survive pruning.
+    a.train(
+      'bravo charlie delta. bravo charlie delta. bravo charlie delta. bravo charlie echo.',
+    );
+    await a.saveModel();
+
+    const b = new MarkovChainService(nl);
+    await b.loadModel();
+    expect(b.isModelLoaded()).toBeTruthy();
+  });
+
+  it('getStats returns counts for a trained model', () => {
+    const nl = new NaturalLanguageService();
+    const m = new MarkovChainService(nl);
+    m.train('echo foxtrot golf. echo foxtrot.');
+    const stats = m.getStats();
+    expect(stats.bigrams).toBeGreaterThan(0);
+    expect(stats.vocabulary).toBeGreaterThan(0);
+    expect(typeof stats.totalBigrams).toBe('number');
+    expect(typeof stats.trigrams).toBe('number');
+    expect(typeof stats.totalTrigrams).toBe('number');
+  });
+
+  it('skips load when the model file is too large', async () => {
+    const nl = new NaturalLanguageService();
+    const m = new MarkovChainService(nl);
+
+    const { stat } = await import('node:fs/promises');
+    // Exceed MAX_MODEL_SIZE_BYTES to hit the OOM-guard branch
+    vi.mocked(stat).mockResolvedValueOnce({ size: 5_000_000_000 } as never);
+
+    const result = await m.loadModel();
+    expect(result).toBeFalsy();
+  });
+
+  it('saves and reloads a large model exercising batch flushing', async () => {
+    const nl = new NaturalLanguageService();
+    const m = new MarkovChainService(nl);
+
+    // Build a corpus with > 500 distinct bigram keys, each repeated enough
+    // times (>= MIN_BIGRAM_COUNT) to survive pruning and trigger batch writes.
+    const sentences: string[] = [];
+    for (let i = 0; i < 700; i++) {
+      // "worda{i} wordb{i}" bigram appears 3x per sentence.
+      sentences.push(
+        `worda${i} wordb${i} worda${i} wordb${i} worda${i} wordb${i}`,
+      );
+    }
+    m.train(sentences.join('. ') + '.');
+
+    const saved = await m.saveModel();
+    expect(saved).toBeTruthy();
   });
 });

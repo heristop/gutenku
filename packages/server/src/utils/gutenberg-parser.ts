@@ -105,16 +105,8 @@ export function extractTopBooksFromHtml(html: string): GutenbergBook[] {
     const textWithoutDownloads = fullText.replace(/\s*\(\d+\)\s*$/, '').trim();
 
     const byMatch = textWithoutDownloads.match(/^(.+?)\s+by\s+(.+)$/i);
-    let title: string;
-    let author: string;
-
-    if (byMatch) {
-      title = byMatch[1].trim();
-      author = byMatch[2].trim();
-    } else {
-      title = textWithoutDownloads;
-      author = 'Unknown';
-    }
+    const title = byMatch ? byMatch[1].trim() : textWithoutDownloads;
+    const author = byMatch ? byMatch[2].trim() : 'Unknown';
 
     books.push({ id, title, author, downloads });
   }

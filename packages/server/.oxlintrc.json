@@ -8,5 +8,21 @@
     "data",
     "scripts",
     "tests"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "tests/**",
+        "**/*.test.ts",
+        "**/*.spec.ts",
+        "**/vitest.setup.ts"
+      ],
+      "rules": {
+        "max-lines": "off",
+        "vitest/require-mock-type-parameters": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-namespace": "off"
+      }
+    }
   ]
 }

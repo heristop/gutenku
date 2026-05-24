@@ -10,11 +10,20 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
+    // Coverage instrumentation (istanbul) adds significant overhead to some
+    // heavy generator/markov tests; allow extra headroom so they don't flake.
+    testTimeout: 30000,
+    hookTimeout: 30000,
     include: ['tests/**/*.ts'],
     exclude: ['tests/fixtures/**', 'tests/helpers/**', 'tests/e2e/**'],
     globals: false,
     threads: false,
     pool: 'forks',
+    // Cap concurrent worker forks so heavy native deps (canvas, tfjs) don't
+    // exhaust resources and trigger "failed to start forks worker" timeouts.
+    // (Vitest 4 moved the former poolOptions.forks.* to top-level workers.)
+    minWorkers: 1,
+    maxWorkers: 4,
     setupFiles: ['vitest.setup.ts'],
     coverage: {
       provider: 'istanbul',
@@ -26,6 +35,10 @@ export default defineConfig({
         'src/domain/services/MarkovChainService.ts',
         'src/domain/services/MarkovEvaluatorService.ts',
         'src/domain/services/HaikuGeneratorService.ts',
+        'src/domain/services/HaikuExtractionHelpers.ts',
+        'src/domain/services/HaikuGeneratorConfig.ts',
+        'src/domain/services/HaikuValidatorService.ts',
+        'src/domain/services/PuzzleService.ts',
         'src/domain/events/QuoteGeneratedEvent.ts',
         'src/presentation/graphql/resolvers.ts',
         'src/shared/helpers/HaikuHelper.ts',
@@ -48,10 +61,10 @@ export default defineConfig({
       ],
       exclude: ['**/tests/**', '**/dist/**', '**/scripts/**'],
       thresholds: {
-        lines: 80,
-        functions: 80,
-        statements: 80,
-        branches: 70,
+        lines: 90,
+        functions: 90,
+        statements: 90,
+        branches: 90,
       },
     },
   },

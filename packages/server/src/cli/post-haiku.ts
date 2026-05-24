@@ -203,6 +203,13 @@ try {
     process.exit(1);
   }
 
+  if (!haiku.selectionInfo) {
+    const cacheStatus = options.cache
+      ? pc.dim(' (from cache)')
+      : pc.yellow(' [fresh]');
+    generateSpinner.succeed(pc.green('Haiku generated') + cacheStatus);
+  }
+
   if (haiku.selectionInfo) {
     const { requestedCount, generatedCount, selectedIndex } =
       haiku.selectionInfo;
@@ -214,11 +221,6 @@ try {
         ) +
         cacheStatus,
     );
-  } else {
-    const cacheStatus = options.cache
-      ? pc.dim(' (from cache)')
-      : pc.yellow(' [fresh]');
-    generateSpinner.succeed(pc.green('Haiku generated') + cacheStatus);
   }
 
   const imageSpinner = ora('Processing image...').start();
@@ -446,12 +448,16 @@ try {
       async (answer: string) => {
         clearTimeout(timeout);
 
-        if (answer === 'y' || answer === 'yes') {
+        const wantsPost = answer === 'y' || answer === 'yes';
+
+        if (!wantsPost) {
+          console.log(pc.dim('\nSkipped posting.'));
+        }
+
+        if (wantsPost) {
           const postSpinner = ora('Posting to Discord...').start();
           await socialPost(haiku);
           postSpinner.succeed(pc.green('Posted to Discord'));
-        } else {
-          console.log(pc.dim('\nSkipped posting.'));
         }
 
         console.log(pc.bold(pc.green('\n✨ Done!\n')));

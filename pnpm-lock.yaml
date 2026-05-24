@@ -141,6 +141,9 @@ importers:
       '@vitejs/plugin-vue':
         specifier: ^6.0.7
         version: 6.0.7(vite@8.0.14(@types/node@25.9.1)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.99.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3)(yaml@2.9.0))(vue@3.5.34(typescript@6.0.3))
+      '@vitest/coverage-v8':
+        specifier: 4.1.7
+        version: 4.1.7(vitest@4.1.7)
       '@vue/test-utils':
         specifier: ^2.4.10
         version: 2.4.10(@vue/compiler-dom@3.5.34)(@vue/server-renderer@3.5.34(vue@3.5.34(typescript@6.0.3)))(vue@3.5.34(typescript@6.0.3))
@@ -389,9 +392,15 @@ importers:
 
   packages/shared:
     devDependencies:
+      '@vitest/coverage-v8':
+        specifier: 4.1.7
+        version: 4.1.7(vitest@4.1.7)
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
+      vitest:
+        specifier: ^4.1.7
+        version: 4.1.7(@types/node@25.9.1)(@vitest/coverage-istanbul@4.1.7)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1(canvas@3.2.3))(vite@8.0.14(@types/node@25.9.1)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.99.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3)(yaml@2.9.0))
 
   private/gutenguess/packages/front:
     dependencies:
@@ -450,6 +459,9 @@ importers:
       '@vitejs/plugin-vue':
         specifier: ^6.0.7
         version: 6.0.7(vite@8.0.14(@types/node@25.9.1)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.99.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3)(yaml@2.9.0))(vue@3.5.34(typescript@6.0.3))
+      '@vitest/coverage-v8':
+        specifier: 4.1.7
+        version: 4.1.7(vitest@4.1.7)
       '@vue/test-utils':
         specifier: ^2.4.10
         version: 2.4.10(@vue/compiler-dom@3.5.34)(@vue/server-renderer@3.5.34(vue@3.5.34(typescript@6.0.3)))(vue@3.5.34(typescript@6.0.3))
@@ -501,6 +513,9 @@ importers:
       '@types/node':
         specifier: ^25.9.1
         version: 25.9.1
+      '@vitest/coverage-v8':
+        specifier: 4.1.7
+        version: 4.1.7(vitest@4.1.7)
       cli-progress:
         specifier: ^3.12.0
         version: 3.12.0
@@ -528,12 +543,21 @@ importers:
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
+      vitest:
+        specifier: ^4.1.7
+        version: 4.1.7(@types/node@25.9.1)(@vitest/coverage-istanbul@4.1.7)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1(canvas@3.2.3))(vite@8.0.14(@types/node@25.9.1)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.99.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3)(yaml@2.9.0))
 
   private/gutenguess/packages/shared:
     devDependencies:
+      '@vitest/coverage-v8':
+        specifier: 4.1.7
+        version: 4.1.7(vitest@4.1.7)
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
+      vitest:
+        specifier: ^4.1.7
+        version: 4.1.7(@types/node@25.9.1)(@vitest/coverage-istanbul@4.1.7)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1(canvas@3.2.3))(vite@8.0.14(@types/node@25.9.1)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.99.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3)(yaml@2.9.0))
 
 packages:
 
@@ -13453,7 +13477,7 @@ snapshots:
 
   ast-kit@3.0.0-beta.1:
     dependencies:
-      '@babel/parser': 8.0.0-rc.4
+      '@babel/parser': 8.0.0-rc.5
       estree-walker: 3.0.3
       pathe: 2.0.3
 

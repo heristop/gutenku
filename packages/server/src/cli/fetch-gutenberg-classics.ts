@@ -1,5 +1,4 @@
 #!/usr/bin/env npx tsx
-/* eslint-disable max-lines */
 /**
  * Crawl Project Gutenberg for classical books and top downloads.
  * Validates chapter extraction by default.
@@ -18,6 +17,7 @@ import ora from 'ora';
 import { BOOK_IDS } from '~/shared/constants/book-ids';
 import { ChapterSplitterService } from '~/domain/services/ChapterSplitterService';
 import { ChapterValidatorService } from '~/domain/services/ChapterValidatorService';
+import { isEnglish, normalizeTitle } from './gutenberg-classics-filters';
 
 // CLI options
 const program = new Command();
@@ -59,77 +59,12 @@ const CLASSICS_BOOKSHELF_URL = 'https://www.gutenberg.org/ebooks/bookshelf/649';
 const GUTENBERG_TOP_URL = 'https://www.gutenberg.org/browse/scores/top';
 const GUTENBERG_BOOK_URL = 'https://www.gutenberg.org/cache/epub';
 
-// Non-English language indicators in Gutenberg titles
-const NON_ENGLISH_PATTERNS = [
-  /\(spanish\)/i,
-  /\(french\)/i,
-  /\(german\)/i,
-  /\(italian\)/i,
-  /\(dutch\)/i,
-  /\(portuguese\)/i,
-  /\(finnish\)/i,
-  /\(swedish\)/i,
-  /\(danish\)/i,
-  /\(norwegian\)/i,
-  /\(polish\)/i,
-  /\(russian\)/i,
-  /\(greek\)/i,
-  /\(modern greek[^)]*\)/i,
-  /\(ancient greek[^)]*\)/i,
-  /\(latin\)/i,
-  /\(chinese\)/i,
-  /\(japanese\)/i,
-  /\(korean\)/i,
-  /\(arabic\)/i,
-  /\(hebrew\)/i,
-  /\(esperanto\)/i,
-  /\(catalan\)/i,
-  /\(tagalog\)/i,
-  /\(welsh\)/i,
-  /\(hungarian\)/i,
-  /\(czech\)/i,
-  /\(romanian\)/i,
-];
-
 // Minimum valid chapters required for a book to pass validation
 const MIN_VALID_CHAPTERS = 8;
 
 // Services for chapter extraction validation
 const splitter = new ChapterSplitterService();
 const validator = new ChapterValidatorService();
-
-function hasNonAsciiChars(text: string): boolean {
-  // Check for characters outside common Latin ranges (avoiding control characters \u0000-\u001F)
-  return /[^\u0020-\u024F\u1E00-\u1EFF]/.test(text);
-}
-
-function isEnglish(book: GutenbergBook): boolean {
-  const title = book.title;
-
-  for (const pattern of NON_ENGLISH_PATTERNS) {
-    if (pattern.test(title)) {
-      return false;
-    }
-  }
-
-  if (hasNonAsciiChars(title)) {
-    return false;
-  }
-
-  return true;
-}
-
-function normalizeTitle(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[:;].*$/, '')
-    .replaceAll(/\([^)]*\)/g, '')
-    .replace(/\btranslated?\b.*$/i, '')
-    .replace(/^(the|a|an)\s+/i, '')
-    .replaceAll(/[''""".,!?]/g, '')
-    .replaceAll(/\s+/g, ' ')
-    .trim();
-}
 
 async function fetchPage(url: string): Promise<string> {
   const response = await fetch(url, {
@@ -235,16 +170,8 @@ function extractTopBooksFromHtml(html: string): GutenbergBook[] {
     const textWithoutDownloads = fullText.replace(/\s*\(\d+\)\s*$/, '').trim();
 
     const byMatch = textWithoutDownloads.match(/^(.+?)\s+by\s+(.+)$/i);
-    let title: string;
-    let author: string;
-
-    if (byMatch) {
-      title = byMatch[1].trim();
-      author = byMatch[2].trim();
-    } else {
-      title = textWithoutDownloads;
-      author = 'Unknown';
-    }
+    const title = byMatch ? byMatch[1].trim() : textWithoutDownloads;
+    const author = byMatch ? byMatch[2].trim() : 'Unknown';
 
     books.push({ id, title, author, downloads });
   }
@@ -400,7 +327,7 @@ async function fetchTopBooksSection(
     const allTopBooks = extractTopBooksFromHtml(topHtml);
 
     for (const book of allTopBooks) {
-      if (!existingIds.has(book.id) && isEnglish(book)) {
+      if (!existingIds.has(book.id) && isEnglish(book.title)) {
         topBooks.push(book);
       }
     }
@@ -475,11 +402,12 @@ async function fetchClassicsSection(
         continue;
       }
 
-      if (isEnglish(book)) {
-        newClassics.push(book);
-      } else {
+      if (!isEnglish(book.title)) {
         result.nonEnglishFiltered++;
+        continue;
       }
+
+      newClassics.push(book);
     }
 
     const { unique, duplicateCount } = removeDuplicates(newClassics);
@@ -542,15 +470,16 @@ function displayValidationResult(r: ValidationResult): void {
   const title = r.title.length > 45 ? r.title.slice(0, 42) + '...' : r.title;
   const titleStr = r.success ? pc.cyan(title) : pc.dim(title);
 
-  if (r.success) {
-    console.log(`  ${status} ${idStr}  ${titleStr}`);
-    console.log(
-      `           ${pc.dim(`${r.validChapters} chapters via ${r.patternUsed || 'none'}`)}`,
-    );
-  } else {
+  if (!r.success) {
     const reason = r.error || `${r.validChapters}/${r.totalChapters} chapters`;
     console.log(`  ${status} ${idStr}  ${titleStr} ${pc.red(`(${reason})`)}`);
+    return;
   }
+
+  console.log(`  ${status} ${idStr}  ${titleStr}`);
+  console.log(
+    `           ${pc.dim(`${r.validChapters} chapters via ${r.patternUsed || 'none'}`)}`,
+  );
 }
 
 // Helper to display validated book IDs table

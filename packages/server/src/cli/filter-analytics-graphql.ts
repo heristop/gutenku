@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-/* eslint-disable max-lines */
 /**
  * Filter Analytics Script (GraphQL-based)
  * Analyzes different filter threshold configurations via the GraphQL API
@@ -10,25 +9,11 @@ dotenv.config();
 
 import pc from 'picocolors';
 import fetch from 'node-fetch';
-
-interface ScoreConfig {
-  sentiment: number;
-  markovChain: number;
-  pos: number;
-  trigram: number;
-  phonetics: number;
-  uniqueness: number;
-  verseDistance: number;
-  lineLengthBalance: number;
-  imageryDensity: number;
-  semanticCoherence: number;
-  verbPresence: number;
-}
-
-interface FilterConfig {
-  name: string;
-  score: ScoreConfig;
-}
+import {
+  FILTER_CONFIGS,
+  type FilterConfig,
+  type ScoreConfig,
+} from './filter-analytics-graphql-configs';
 
 interface HaikuQuality {
   natureWords: number;
@@ -68,130 +53,6 @@ interface AnalyticsResult {
   avgQuality: HaikuQuality;
   qualityScores: number[];
 }
-
-// Test configurations based on baseline averages:
-// Verse Distance avg: 0.145, Line Balance avg: 0.849, Imagery avg: 0.017, Coherence avg: 0.023, Verb avg: 0.711
-const FILTER_CONFIGS: FilterConfig[] = [
-  // No filters - baseline
-  {
-    name: 'No Filters',
-    score: {
-      sentiment: 0,
-      markovChain: 0,
-      pos: 0,
-      trigram: 0,
-      phonetics: 0,
-      uniqueness: 0,
-      verseDistance: 0,
-      lineLengthBalance: 0,
-      imageryDensity: 0,
-      semanticCoherence: 0,
-      verbPresence: 0,
-    },
-  },
-  // Original defaults only (no new KPIs)
-  {
-    name: 'Original Defaults Only',
-    score: {
-      sentiment: 0.5,
-      markovChain: 0.1,
-      pos: 0.3,
-      trigram: 0.5,
-      phonetics: 0.2,
-      uniqueness: 0.6,
-      verseDistance: 0,
-      lineLengthBalance: 0,
-      imageryDensity: 0,
-      semanticCoherence: 0,
-      verbPresence: 0,
-    },
-  },
-  // Minimal new KPIs (very lenient)
-  {
-    name: 'Minimal New KPIs',
-    score: {
-      sentiment: 0.5,
-      markovChain: 0.1,
-      pos: 0.3,
-      trigram: 0.5,
-      phonetics: 0.2,
-      uniqueness: 0.6,
-      verseDistance: 0.05,
-      lineLengthBalance: 0.5,
-      imageryDensity: 0,
-      semanticCoherence: 0,
-      verbPresence: 0.3,
-    },
-  },
-  // Light new KPIs
-  {
-    name: 'Light New KPIs',
-    score: {
-      sentiment: 0.5,
-      markovChain: 0.1,
-      pos: 0.3,
-      trigram: 0.5,
-      phonetics: 0.2,
-      uniqueness: 0.6,
-      verseDistance: 0.1,
-      lineLengthBalance: 0.6,
-      imageryDensity: 0,
-      semanticCoherence: 0,
-      verbPresence: 0.4,
-    },
-  },
-  // Moderate new KPIs
-  {
-    name: 'Moderate New KPIs',
-    score: {
-      sentiment: 0.5,
-      markovChain: 0.1,
-      pos: 0.3,
-      trigram: 0.5,
-      phonetics: 0.2,
-      uniqueness: 0.6,
-      verseDistance: 0.15,
-      lineLengthBalance: 0.7,
-      imageryDensity: 0,
-      semanticCoherence: 0,
-      verbPresence: 0.5,
-    },
-  },
-  // Balance + Line focus
-  {
-    name: 'Line Balance Focus',
-    score: {
-      sentiment: 0.5,
-      markovChain: 0.1,
-      pos: 0.3,
-      trigram: 0.5,
-      phonetics: 0.2,
-      uniqueness: 0.6,
-      verseDistance: 0,
-      lineLengthBalance: 0.75,
-      imageryDensity: 0,
-      semanticCoherence: 0,
-      verbPresence: 0,
-    },
-  },
-  // Verb presence focus
-  {
-    name: 'Verb Presence Focus',
-    score: {
-      sentiment: 0.5,
-      markovChain: 0.1,
-      pos: 0.3,
-      trigram: 0.5,
-      phonetics: 0.2,
-      uniqueness: 0.6,
-      verseDistance: 0,
-      lineLengthBalance: 0,
-      imageryDensity: 0,
-      semanticCoherence: 0,
-      verbPresence: 0.5,
-    },
-  },
-];
 
 const SERVER_URL = process.env.SERVER_URI || 'http://localhost:4000/graphql';
 
@@ -313,30 +174,29 @@ async function runAnalytics(iterations: number): Promise<void> {
         const response = await fetchHaiku(config.score);
         const haiku = response.data?.haiku;
 
-        if (haiku && haiku.quality) {
-          successes++;
-          totalExecutionTime += haiku.executionTime;
-          qualityScores.push(haiku.quality.totalScore);
-
-          qualityAggregates.natureWords += haiku.quality.natureWords;
-          qualityAggregates.repeatedWords += haiku.quality.repeatedWords;
-          qualityAggregates.weakStarts += haiku.quality.weakStarts;
-          qualityAggregates.sentiment += haiku.quality.sentiment;
-          qualityAggregates.grammar += haiku.quality.grammar;
-          qualityAggregates.trigramFlow += haiku.quality.trigramFlow;
-          qualityAggregates.uniqueness += haiku.quality.uniqueness;
-          qualityAggregates.alliteration += haiku.quality.alliteration;
-          qualityAggregates.verseDistance += haiku.quality.verseDistance;
-          qualityAggregates.lineLengthBalance +=
-            haiku.quality.lineLengthBalance;
-          qualityAggregates.imageryDensity += haiku.quality.imageryDensity;
-          qualityAggregates.semanticCoherence +=
-            haiku.quality.semanticCoherence;
-          qualityAggregates.verbPresence += haiku.quality.verbPresence;
-          qualityAggregates.totalScore += haiku.quality.totalScore;
-        } else {
+        if (!haiku || !haiku.quality) {
           failures++;
+          continue;
         }
+
+        successes++;
+        totalExecutionTime += haiku.executionTime;
+        qualityScores.push(haiku.quality.totalScore);
+
+        qualityAggregates.natureWords += haiku.quality.natureWords;
+        qualityAggregates.repeatedWords += haiku.quality.repeatedWords;
+        qualityAggregates.weakStarts += haiku.quality.weakStarts;
+        qualityAggregates.sentiment += haiku.quality.sentiment;
+        qualityAggregates.grammar += haiku.quality.grammar;
+        qualityAggregates.trigramFlow += haiku.quality.trigramFlow;
+        qualityAggregates.uniqueness += haiku.quality.uniqueness;
+        qualityAggregates.alliteration += haiku.quality.alliteration;
+        qualityAggregates.verseDistance += haiku.quality.verseDistance;
+        qualityAggregates.lineLengthBalance += haiku.quality.lineLengthBalance;
+        qualityAggregates.imageryDensity += haiku.quality.imageryDensity;
+        qualityAggregates.semanticCoherence += haiku.quality.semanticCoherence;
+        qualityAggregates.verbPresence += haiku.quality.verbPresence;
+        qualityAggregates.totalScore += haiku.quality.totalScore;
       } catch {
         failures++;
       }

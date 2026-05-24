@@ -92,6 +92,8 @@ const themeTooltip = computed(() => {
       return t('theme.enableSystem');
     case 'system':
       return t('theme.switchToLight');
+    default:
+      return '';
   }
 });
 

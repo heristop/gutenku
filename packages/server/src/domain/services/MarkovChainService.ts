@@ -520,11 +520,12 @@ export class MarkovChainService {
     );
     this.totalBigrams = jsonData.totalBigrams;
 
-    if (jsonData.bigramTotals) {
-      this.bigramTotals = new Map(jsonData.bigramTotals);
-    } else {
+    if (!jsonData.bigramTotals) {
       this.computeBigramTotals();
+      return;
     }
+
+    this.bigramTotals = new Map(jsonData.bigramTotals);
   }
 
   private loadTrigramsFromJson(jsonData: {
@@ -541,32 +542,35 @@ export class MarkovChainService {
     );
     this.totalTrigrams = jsonData.totalTrigrams || 0;
 
-    if (jsonData.trigramTotals) {
-      this.trigramTotals = new Map(jsonData.trigramTotals);
-    } else {
+    if (!jsonData.trigramTotals) {
       this.computeTrigramTotals();
+      return;
     }
+
+    this.trigramTotals = new Map(jsonData.trigramTotals);
   }
 
   private loadVocabularyFromJson(jsonData: { vocabulary?: string[] }): void {
-    if (jsonData.vocabulary) {
-      this.vocabulary = new Set(jsonData.vocabulary);
-    } else {
+    if (!jsonData.vocabulary) {
       this.computeVocabulary();
+      return;
     }
+
+    this.vocabulary = new Set(jsonData.vocabulary);
   }
 
   private handleLoadError(error: unknown): void {
     const isFileNotFound =
       error instanceof Error && 'code' in error && error.code === 'ENOENT';
 
-    if (isFileNotFound) {
-      log.info(
-        'Markov model not found at ./data/markov_model.json - run "pnpm mc:train" to generate it',
-      );
-    } else {
+    if (!isFileNotFound) {
       log.error({ err: error }, 'Failed to load Markov model');
+      return;
     }
+
+    log.info(
+      'Markov model not found at ./data/markov_model.json - run "pnpm mc:train" to generate it',
+    );
   }
 
   private computeBigramTotals(): void {

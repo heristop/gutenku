@@ -181,10 +181,17 @@ onUnmounted(() => {
 
         <!-- Description -->
         <article class="hero__description stagger-3">
-          <!-- eslint-disable-next-line vue/no-v-html -->
-          <p v-html="t('hero.description')" />
-          <!-- eslint-disable-next-line vue/no-v-html -->
-          <p v-html="t('hero.welcome')" />
+          <p>
+            <i18n-t keypath="hero.description" tag="span" scope="global">
+              <template #gutenverse><strong>GutenVerse</strong></template>
+              <template #gutenguess><strong>GutenGuess</strong></template>
+            </i18n-t>
+          </p>
+          <p>
+            <i18n-t keypath="hero.welcome" tag="span" scope="global">
+              <template #brand><strong>GutenKu</strong></template>
+            </i18n-t>
+          </p>
         </article>
       </div>
     </div>

@@ -1,6 +1,6 @@
 {
-  "name": "GutenKu",
-  "short_name": "GutenKu",
+  "name": "GutenVerse",
+  "short_name": "GutenVerse",
   "description": "AI-powered haiku generator from classic literature and daily book guessing game",
   "start_url": "/",
   "icons": [

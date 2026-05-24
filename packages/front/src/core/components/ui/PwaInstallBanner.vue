@@ -136,48 +136,48 @@ function handleIosModalClose() {
 <style lang="scss" scoped>
 .pwa-install-banner {
   position: fixed;
-  top: 0;
+  bottom: 0;
   left: 0;
   right: 0;
   z-index: 1500;
   padding: 0.5rem 0.75rem;
-  padding-top: calc(0.5rem + env(safe-area-inset-top, 0));
-  // Only the pill itself is interactive; the layer lets clicks pass through.
+  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0));
+  // Only the card itself is interactive; the layer lets clicks pass through.
   pointer-events: none;
 
   @media (min-width: 600px) {
-    padding-top: calc(0.75rem + env(safe-area-inset-top, 0));
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0));
   }
 }
 
 .pwa-install-banner__content {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.625rem;
   width: max-content;
   max-width: min(92vw, 420px);
   margin: 0 auto;
   pointer-events: auto;
 
-  padding: 0.3rem 0.4rem 0.3rem 0.9rem;
+  padding: 0.5rem 0.55rem 0.5rem 1rem;
 
-  background: oklch(0.98 0.01 85 / 0.92);
+  background: oklch(0.98 0.01 85 / 0.94);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 
   border: 1px solid var(--gutenku-paper-border);
-  border-radius: var(--gutenku-radius-full);
+  border-radius: var(--gutenku-radius-lg);
   box-shadow:
-    0 4px 16px oklch(0 0 0 / 0.08),
-    0 1px 4px oklch(0 0 0 / 0.04);
+    0 8px 28px oklch(0 0 0 / 0.1),
+    0 2px 6px oklch(0 0 0 / 0.05);
 }
 
 [data-theme='dark'] .pwa-install-banner__content {
-  background: oklch(0.18 0.015 70 / 0.92);
-  border-color: oklch(0.35 0.02 75 / 0.4);
+  background: oklch(0.18 0.015 70 / 0.94);
+  border-color: oklch(0.35 0.02 75 / 0.45);
   box-shadow:
-    0 4px 16px oklch(0 0 0 / 0.3),
-    0 1px 4px oklch(0 0 0 / 0.2);
+    0 8px 28px oklch(0 0 0 / 0.35),
+    0 2px 6px oklch(0 0 0 / 0.22);
 }
 
 [data-theme='dark'] .pwa-install-banner__label {
@@ -198,12 +198,12 @@ function handleIosModalClose() {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 2rem;
+  height: 2rem;
   padding: 0;
   background: transparent;
   border: none;
-  border-radius: var(--gutenku-radius-full);
+  border-radius: var(--gutenku-radius-md);
   color: var(--gutenku-text-muted);
   cursor: pointer;
   transition:
@@ -238,12 +238,12 @@ function handleIosModalClose() {
 }
 
 .pwa-banner-enter-from {
-  transform: translateY(-100%);
+  transform: translateY(100%);
   opacity: 0;
 }
 
 .pwa-banner-leave-to {
-  transform: translateY(-100%);
+  transform: translateY(100%);
   opacity: 0;
 }
 

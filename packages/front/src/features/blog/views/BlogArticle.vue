@@ -56,7 +56,10 @@ function handleKeydown(e: KeyboardEvent) {
       name: 'BlogArticle',
       params: { slug: prevArticle.value.slug },
     });
-  } else if (e.key === 'ArrowRight' && nextArticle.value) {
+    return;
+  }
+
+  if (e.key === 'ArrowRight' && nextArticle.value) {
     router.push({
       name: 'BlogArticle',
       params: { slug: nextArticle.value.slug },

@@ -169,6 +169,32 @@ function displayQualityScores(haiku: HaikuValue): void {
   );
 }
 
+async function prepareGenerator(
+  generator: HaikuGeneratorService,
+  markovEvaluator: MarkovEvaluatorService,
+  spinner: ReturnType<typeof ora>,
+  skipMarkov: boolean,
+): Promise<void> {
+  if (skipMarkov) {
+    generator.disableMarkovValidation();
+    spinner.succeed(pc.green('Generator ready (Markov validation skipped)'));
+    return;
+  }
+
+  await generator.prepare();
+
+  if (markovEvaluator.isReady()) {
+    spinner.succeed(pc.green('Generator ready (Markov model loaded)'));
+    return;
+  }
+
+  spinner.warn(
+    pc.yellow('Markov model not found - run ') +
+      pc.cyan('pnpm mc:train') +
+      pc.yellow(' to generate it (validation disabled)'),
+  );
+}
+
 async function generateSingleHaiku(
   generator: HaikuGeneratorService,
   method: 'punctuation' | 'chunk' | null,
@@ -371,24 +397,12 @@ try {
   const markovEvaluator = container.resolve(MarkovEvaluatorService);
   const prepSpinner = ora('Preparing generator...').start();
 
-  if (options.skipMarkov) {
-    generator.disableMarkovValidation();
-    prepSpinner.succeed(
-      pc.green('Generator ready (Markov validation skipped)'),
-    );
-  } else {
-    await generator.prepare();
-
-    if (markovEvaluator.isReady()) {
-      prepSpinner.succeed(pc.green('Generator ready (Markov model loaded)'));
-    } else {
-      prepSpinner.warn(
-        pc.yellow('Markov model not found - run ') +
-          pc.cyan('pnpm mc:train') +
-          pc.yellow(' to generate it (validation disabled)'),
-      );
-    }
-  }
+  await prepareGenerator(
+    generator,
+    markovEvaluator,
+    prepSpinner,
+    options.skipMarkov,
+  );
 
   const candidates: HaikuValue[] = [];
 

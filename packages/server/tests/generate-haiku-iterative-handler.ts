@@ -511,4 +511,51 @@ describe('GenerateHaikuIterativeHandler', () => {
     expect(mockOpenAIGenerator.configure).not.toHaveBeenCalled();
     expect(mockOpenAIGenerator.enrichHaikuWithMetadata).not.toHaveBeenCalled();
   });
+
+  it('uses the unknown chapter id fallback when seed chapter has no title', async () => {
+    const seedHaiku = {
+      verses: ['line one here', 'line two is longer here', 'line three end'],
+      book: {
+        title: 'Test Book',
+        author: 'Test Author',
+        reference: 'test-ref',
+      },
+      chapter: { content: 'Some chapter content here' }, // no title
+      quality: { totalScore: 0.5 },
+    } as HaikuValue;
+    mockHaikuGenerator.buildFromDb.mockResolvedValue(seedHaiku);
+
+    mockEvolveWithProgress.mockImplementation(function* () {
+      yield createGAProgress(GA_GENS, GA_GENS, 0.5, true);
+    });
+
+    await collectAllProgress(handler.generate({ iterations: 1 }));
+
+    expect(
+      mockHaikuGenerator.extractVersePoolsFromContent,
+    ).toHaveBeenCalledWith('Some chapter content here', 'test-ref', 'unknown');
+  });
+
+  it('does not cache or finalize when GA never produces a haiku', async () => {
+    const seedHaiku = createMockHaiku(0.5);
+    mockHaikuGenerator.buildFromDb.mockResolvedValue(seedHaiku);
+
+    // GA yields nothing -> iterationBestHaiku stays null -> bestOverallHaiku null
+    mockEvolveWithProgress.mockImplementation(function* () {
+      // empty generator: no progress events
+    });
+
+    const results = await collectAllProgress(
+      handler.generate({ iterations: 2 }),
+    );
+
+    const final = results.at(-1);
+    expect(final?.isComplete).toBeTruthy();
+    expect(final?.bestHaiku).toBeNull();
+    // null best haiku -> appendImg never called, repository not asked to cache
+    expect(mockHaikuGenerator.appendImg).not.toHaveBeenCalled();
+    expect(mockHaikuRepository.createCacheWithTTL).not.toHaveBeenCalled();
+    // but the haiku counter is always incremented
+    expect(mockGlobalStatsRepository.incrementHaikuCount).toHaveBeenCalled();
+  });
 });

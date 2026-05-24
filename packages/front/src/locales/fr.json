@@ -101,8 +101,8 @@
   },
   "hero": {
     "ariaLabel": "À propos de GutenKu",
-    "description": "La prose devient poésie. Les livres deviennent énigmes. <strong>GutenVerse</strong> distille les classiques en haïkus. <strong>GutenGuess</strong> transforme vos lectures en jeu.",
-    "welcome": "Bienvenue sur <strong>GutenKu</strong>—basé sur Project Gutenberg.",
+    "description": "La prose devient poésie. Les livres deviennent énigmes. {gutenverse} distille les classiques en haïkus. {gutenguess} transforme vos lectures en jeu.",
+    "welcome": "Bienvenue sur {brand}—basé sur Project Gutenberg.",
     "stats": {
       "haikusCrafted": "haïkus créés"
     }
@@ -369,12 +369,12 @@
   },
   "pwa": {
     "bannerLabel": "Invitation à installer l'application",
-    "installPrompt": "Installer GutenKu ?",
-    "addToHomeScreen": "Ajouter GutenKu à l'écran d'accueil",
+    "installPrompt": "Installer GutenVerse",
+    "addToHomeScreen": "Ajouter GutenVerse à l'écran d'accueil",
     "installSubtitle": "Accès rapide aux haïkus et jeux",
     "install": "Installer",
-    "installButton": "Installer l'application GutenKu",
-    "iosModalTitle": "Installer GutenKu",
+    "installButton": "Installer l'application GutenVerse",
+    "iosModalTitle": "Installer GutenVerse",
     "iosModalDescription": "Ajoute à ton écran d'accueil pour une meilleure expérience",
     "iosStep1Title": "Appuie sur le bouton Partager",
     "iosStep1Desc": "Trouve-le dans la barre d'outils Safari en bas",

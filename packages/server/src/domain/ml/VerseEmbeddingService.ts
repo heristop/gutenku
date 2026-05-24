@@ -101,10 +101,11 @@ export class VerseEmbeddingService {
       const cached = this.embeddingCache.get(texts[i]);
       if (cached) {
         results[i] = cached;
-      } else {
-        uncachedIndices.push(i);
-        uncachedTexts.push(texts[i]);
+        continue;
       }
+
+      uncachedIndices.push(i);
+      uncachedTexts.push(texts[i]);
     }
 
     // Batch encode uncached

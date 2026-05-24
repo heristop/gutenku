@@ -93,34 +93,33 @@ async function runAnalytics(iterations: number = 50): Promise<void> {
         const haiku = await generator.buildFromDb();
         const execTime = (Date.now() - startTime) / 1000;
 
-        if (haiku && haiku.quality) {
-          successes++;
-          totalExecutionTime += execTime;
-          qualityScores.push(haiku.quality.totalScore);
-
-          qualityAggregates.natureWords += haiku.quality.natureWords;
-          qualityAggregates.repeatedWords += haiku.quality.repeatedWords;
-          qualityAggregates.weakStarts += haiku.quality.weakStarts;
-          qualityAggregates.blacklistedVerses +=
-            haiku.quality.blacklistedVerses ?? 0;
-          qualityAggregates.properNouns += haiku.quality.properNouns ?? 0;
-          qualityAggregates.sentiment += haiku.quality.sentiment;
-          qualityAggregates.grammar += haiku.quality.grammar;
-          qualityAggregates.trigramFlow += haiku.quality.trigramFlow;
-          qualityAggregates.markovFlow += haiku.quality.markovFlow;
-          qualityAggregates.uniqueness += haiku.quality.uniqueness;
-          qualityAggregates.alliteration += haiku.quality.alliteration;
-          qualityAggregates.verseDistance += haiku.quality.verseDistance;
-          qualityAggregates.lineLengthBalance +=
-            haiku.quality.lineLengthBalance;
-          qualityAggregates.imageryDensity += haiku.quality.imageryDensity;
-          qualityAggregates.semanticCoherence +=
-            haiku.quality.semanticCoherence;
-          qualityAggregates.verbPresence += haiku.quality.verbPresence;
-          qualityAggregates.totalScore += haiku.quality.totalScore;
-        } else {
+        if (!haiku || !haiku.quality) {
           failures++;
+          continue;
         }
+
+        successes++;
+        totalExecutionTime += execTime;
+        qualityScores.push(haiku.quality.totalScore);
+
+        qualityAggregates.natureWords += haiku.quality.natureWords;
+        qualityAggregates.repeatedWords += haiku.quality.repeatedWords;
+        qualityAggregates.weakStarts += haiku.quality.weakStarts;
+        qualityAggregates.blacklistedVerses +=
+          haiku.quality.blacklistedVerses ?? 0;
+        qualityAggregates.properNouns += haiku.quality.properNouns ?? 0;
+        qualityAggregates.sentiment += haiku.quality.sentiment;
+        qualityAggregates.grammar += haiku.quality.grammar;
+        qualityAggregates.trigramFlow += haiku.quality.trigramFlow;
+        qualityAggregates.markovFlow += haiku.quality.markovFlow;
+        qualityAggregates.uniqueness += haiku.quality.uniqueness;
+        qualityAggregates.alliteration += haiku.quality.alliteration;
+        qualityAggregates.verseDistance += haiku.quality.verseDistance;
+        qualityAggregates.lineLengthBalance += haiku.quality.lineLengthBalance;
+        qualityAggregates.imageryDensity += haiku.quality.imageryDensity;
+        qualityAggregates.semanticCoherence += haiku.quality.semanticCoherence;
+        qualityAggregates.verbPresence += haiku.quality.verbPresence;
+        qualityAggregates.totalScore += haiku.quality.totalScore;
       } catch (error) {
         failures++;
         if (i === 0) {

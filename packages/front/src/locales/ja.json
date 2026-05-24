@@ -101,8 +101,8 @@
   },
   "hero": {
     "ariaLabel": "GutenKuについて",
-    "description": "散文が詩になる。本が謎になる。<strong>GutenVerse</strong>は名作を俳句に凝縮。<strong>GutenGuess</strong>は読書をゲームに変える。",
-    "welcome": "<strong>GutenKu</strong>へようこそ—Project Gutenberg提供。",
+    "description": "散文が詩になる。本が謎になる。{gutenverse}は名作を俳句に凝縮。{gutenguess}は読書をゲームに変える。",
+    "welcome": "{brand}へようこそ—Project Gutenberg提供。",
     "stats": {
       "haikusCrafted": "作成俳句数"
     }
@@ -369,12 +369,12 @@
   },
   "pwa": {
     "bannerLabel": "アプリインストールのお知らせ",
-    "installPrompt": "GutenKu をインストール？",
-    "addToHomeScreen": "GutenKuをホーム画面に追加",
+    "installPrompt": "GutenVerse をインストール",
+    "addToHomeScreen": "GutenVerseをホーム画面に追加",
     "installSubtitle": "俳句とゲームに素早くアクセス",
     "install": "インストール",
-    "installButton": "GutenKuアプリをインストール",
-    "iosModalTitle": "GutenKuをインストール",
+    "installButton": "GutenVerseアプリをインストール",
+    "iosModalTitle": "GutenVerseをインストール",
     "iosModalDescription": "最高の体験のためにホーム画面に追加してください",
     "iosStep1Title": "共有ボタンをタップ",
     "iosStep1Desc": "下部のSafariツールバーにあります",

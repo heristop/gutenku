@@ -174,15 +174,16 @@ export class HaikuEmbeddingModel {
     const { maxLength } = this.config;
 
     for (let i = 0; i < maxLength; i++) {
-      if (i < text.length) {
-        const char = text[i];
-        indices.push(
-          this.charToIndex.get(char) ?? this.charToIndex.get('<UNK>')!,
-        );
-      } else {
+      if (i >= text.length) {
         // Padding
         indices.push(this.charToIndex.get('<PAD>')!);
+        continue;
       }
+
+      const char = text[i];
+      indices.push(
+        this.charToIndex.get(char) ?? this.charToIndex.get('<UNK>')!,
+      );
     }
 
     return indices;
@@ -327,11 +328,12 @@ export class HaikuEmbeddingModel {
   async loadModel(path: string): Promise<void> {
     // Load model topology
     const topologyContent = await readFile(`${path}/model.json`, 'utf-8');
-    const modelTopology = JSON.parse(topologyContent);
+    const modelTopology = JSON.parse(topologyContent) as Parameters<
+      typeof tf.models.modelFromJSON
+    >[0];
 
     // Rebuild model from topology
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.model = await tf.models.modelFromJSON(modelTopology as any);
+    this.model = await tf.models.modelFromJSON(modelTopology);
 
     // Load weights
     const weightsContent = await readFile(`${path}/weights.json`, 'utf-8');

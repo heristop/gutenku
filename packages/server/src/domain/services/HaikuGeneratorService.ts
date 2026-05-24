@@ -1,8 +1,5 @@
-/* eslint-disable max-lines */
 import { promisify } from 'node:util';
-import { createLogger } from '~/infrastructure/services/Logger';
 import { unlink } from 'node:fs';
-import { syllable } from 'syllable';
 import { singleton, inject } from 'tsyringe';
 import type {
   BookValue,
@@ -30,18 +27,6 @@ import {
 import { MaxAttemptsException } from '~/domain/exceptions';
 import {
   calculateHaikuQuality,
-  MIN_QUOTES_THRESHOLD,
-  DEFAULT_SENTIMENT_MIN_SCORE,
-  DEFAULT_MARKOV_MIN_SCORE,
-  DEFAULT_GRAMMAR_MIN_SCORE,
-  DEFAULT_TRIGRAM_MIN_SCORE,
-  DEFAULT_UNIQUENESS_MIN_SCORE,
-  DEFAULT_ALLITERATION_MIN_SCORE,
-  DEFAULT_VERSE_DISTANCE_MIN_SCORE,
-  DEFAULT_LINE_BALANCE_MIN_SCORE,
-  DEFAULT_IMAGERY_MIN_SCORE,
-  DEFAULT_COHERENCE_MIN_SCORE,
-  DEFAULT_VERB_MIN_SCORE,
   type QualityMetrics,
 } from '~/shared/constants/validation';
 import type {
@@ -52,35 +37,25 @@ import type {
   QuoteCandidate,
   RejectionStats,
 } from './HaikuGeneratorTypes';
-import type { VersePools, VerseCandidate } from './genetic/types';
+import type { VersePools } from './genetic/types';
 import type {
   VerseEmbeddingService,
   EnhancedVersePools,
 } from '../ml/VerseEmbeddingService';
-
-const log = createLogger('haiku');
+import {
+  computeQualityMetrics,
+  extractQuotes,
+  filterQuotesCountingSyllables,
+  quotesToVersePools,
+  selectHaikuVerses,
+} from './HaikuExtractionHelpers';
+import {
+  DEFAULT_GENERATOR_CONFIG,
+  buildThresholds,
+} from './HaikuGeneratorConfig';
 
 @singleton()
 export default class HaikuGeneratorService implements IGenerator {
-  private static readonly DEFAULT_CONFIG: GeneratorConfig = {
-    cache: { minCachedDocs: 100, ttl: 0, enabled: false },
-    score: {
-      sentiment: null,
-      markovChain: null,
-      pos: null,
-      trigram: null,
-      tfidf: null,
-      phonetics: null,
-      uniqueness: null,
-      verseDistance: null,
-      lineLengthBalance: null,
-      imageryDensity: null,
-      semanticCoherence: null,
-      verbPresence: null,
-    },
-    theme: 'random',
-  };
-
   private readonly maxAttempts = 500;
   private readonly maxAttemptsInBook = 50;
   private readonly chunkSize = 10;
@@ -130,7 +105,7 @@ export default class HaikuGeneratorService implements IGenerator {
   }
 
   configure(options?: Partial<GeneratorConfig>): HaikuGeneratorService {
-    const defaults = HaikuGeneratorService.DEFAULT_CONFIG;
+    const defaults = DEFAULT_GENERATOR_CONFIG;
     const cache = { ...defaults.cache, ...options?.cache };
     const score = { ...defaults.score, ...options?.score };
 
@@ -141,7 +116,7 @@ export default class HaikuGeneratorService implements IGenerator {
     this.bookPool = [];
     this.forcedExtractionMethod = null;
     this.validator.clearCache();
-    this.cachedThresholds = this.buildThresholds(score);
+    this.cachedThresholds = buildThresholds(score);
     this.validator.resetRejectionStats();
 
     return this;
@@ -176,26 +151,6 @@ export default class HaikuGeneratorService implements IGenerator {
     this.tfidfMinScore = score.tfidf;
     this.phoneticsMinScore = score.phonetics;
     this.uniquenessMinScore = score.uniqueness;
-  }
-
-  private buildThresholds(score: ScoreConfig): ScoreThresholds {
-    return {
-      sentiment: score.sentiment ?? DEFAULT_SENTIMENT_MIN_SCORE,
-      markov: score.markovChain ?? DEFAULT_MARKOV_MIN_SCORE,
-      pos: score.pos ?? DEFAULT_GRAMMAR_MIN_SCORE,
-      trigram: score.trigram ?? DEFAULT_TRIGRAM_MIN_SCORE,
-      tfidf: score.tfidf ?? 0,
-      phonetics: score.phonetics ?? DEFAULT_ALLITERATION_MIN_SCORE,
-      uniqueness: score.uniqueness ?? DEFAULT_UNIQUENESS_MIN_SCORE,
-      verseDistance: score.verseDistance ?? DEFAULT_VERSE_DISTANCE_MIN_SCORE,
-      lineLengthBalance:
-        score.lineLengthBalance ?? DEFAULT_LINE_BALANCE_MIN_SCORE,
-      imageryDensity: score.imageryDensity ?? DEFAULT_IMAGERY_MIN_SCORE,
-      semanticCoherence: score.semanticCoherence ?? DEFAULT_COHERENCE_MIN_SCORE,
-      verbPresence: score.verbPresence ?? DEFAULT_VERB_MIN_SCORE,
-      maxRepeatedWords: 0,
-      allowWeakStart: true,
-    };
   }
 
   filter(filterWords: string[]): HaikuGeneratorService {
@@ -508,175 +463,49 @@ export default class HaikuGeneratorService implements IGenerator {
     verseIndices: number[] = [],
     totalQuotes = 0,
   ): QualityMetrics {
-    if (verses.length === 0) {
-      return {
-        sentiment: 0.5,
-        grammar: 0,
-        trigramFlow: 0,
-        markovFlow: 0,
-        alliteration: 0,
-      };
-    }
-
-    const sentimentSum = verses.reduce(
-      (acc, verse) => acc + this.naturalLanguage.analyzeSentiment(verse),
-      0,
-    );
-    const sentiment = sentimentSum / verses.length;
-
-    const grammarSum = verses.reduce(
-      (acc, verse) => acc + this.naturalLanguage.analyzeGrammar(verse).score,
-      0,
-    );
-    const grammar = grammarSum / verses.length;
-
-    const trigramFlow = this.markovEvaluator.evaluateHaikuTrigrams(verses);
-    const markovFlow = this.markovEvaluator.evaluateHaiku(verses);
-
-    const phonetics = this.naturalLanguage.analyzePhonetics(verses);
-    const alliteration = phonetics.alliterationScore;
-
-    const posResults = verses.flatMap((v) =>
-      this.naturalLanguage.getPOSTags(v),
-    );
-
-    return {
-      sentiment,
-      grammar,
-      trigramFlow,
-      markovFlow,
-      alliteration,
+    return computeQualityMetrics(
+      this.naturalLanguage,
+      this.markovEvaluator,
+      verses,
       verseIndices,
       totalQuotes,
-      posResults,
-    };
+    );
   }
 
   extractQuotes(chapter: string): QuoteCandidate[] {
-    const nl = this.naturalLanguage;
-    const allExtractors: [ExtractionMethod, () => string[]][] = [
-      ['punctuation', () => nl.extractSentencesByPunctuation(chapter)],
-      ['chunk', () => nl.extractWordChunks(chapter)],
-    ];
+    const { quotes, method } = extractQuotes(this.naturalLanguage, chapter, {
+      forcedExtractionMethod: this.forcedExtractionMethod,
+      thresholds: this.cachedThresholds,
+    });
 
-    const extractors = this.forcedExtractionMethod
-      ? allExtractors.filter(([name]) => name === this.forcedExtractionMethod)
-      : allExtractors;
-
-    for (const [name, fn] of extractors) {
-      const sentences = fn();
-
-      if ((this.cachedThresholds?.tfidf ?? 0) > 0) {
-        nl.initTfIdf(sentences);
-      }
-      let quotes = this.filterQuotesCountingSyllables(
-        sentences.map((quote, index) => ({ index, quote })),
-      );
-
-      if (name === 'chunk') {
-        quotes = quotes.filter((q) => {
-          const grammar = nl.analyzeGrammar(q.quote);
-          if (grammar.score < 0.5) {
-            return false;
-          }
-
-          const words = q.quote.split(/\s+/);
-          for (let i = 1; i < words.length; i++) {
-            if (words[i] && /^[A-Z]/.test(words[i])) {
-              return false;
-            }
-          }
-          return true;
-        });
-      }
-
-      const minRequired = MIN_QUOTES_THRESHOLD[name];
-
-      if (quotes.length >= minRequired) {
-        this.lastExtractionMethod = name;
-        log.debug(
-          { method: name, count: quotes.length, threshold: minRequired },
-          'Extraction succeeded',
-        );
-        return quotes;
-      }
+    if (method !== null) {
+      this.lastExtractionMethod = method;
     }
-    return [];
+
+    return quotes;
   }
 
   filterQuotesCountingSyllables(
     quotes: { quote: string; index: number }[],
   ): QuoteCandidate[] {
-    const filtered: QuoteCandidate[] = [];
-
-    for (const { quote, index } of quotes) {
-      const words = this.naturalLanguage.extractWords(quote);
-
-      if (!words) {
-        continue;
-      }
-      const syllableCount = words.reduce((c, w) => c + syllable(w), 0);
-
-      if (syllableCount === 5 || syllableCount === 7) {
-        filtered.push({ quote, index, syllableCount });
-      }
-    }
-    return filtered;
+    return filterQuotesCountingSyllables(this.naturalLanguage, quotes);
   }
 
   selectHaikuVerses(
     quotes: QuoteCandidate[],
     totalQuotes?: number,
   ): { verses: string[]; indices: number[] } | null {
-    const syllableCounts = [5, 7, 5];
-    const thresholds = this.getScoreThresholds();
-    const selectedVerses: QuoteCandidate[] = [];
-    const usedIndices = new Set<number>();
-
-    for (let i = 0; i < syllableCounts.length; i++) {
-      const targetSyllables = syllableCounts[i];
-
-      const syllableMatches = quotes.filter(
-        (q) => q.syllableCount === targetSyllables && !usedIndices.has(q.index),
-      );
-
-      const matchingQuotes = syllableMatches.filter((candidate) =>
-        this.validator.isQuoteValidForVerse(
-          candidate,
-          i === 0,
-          selectedVerses,
-          thresholds,
-        ),
-      );
-
-      if (matchingQuotes.length === 0) {
-        return null;
-      }
-
-      const randomIndex = Math.floor(Math.random() * matchingQuotes.length);
-      const selectedQuote = matchingQuotes[randomIndex];
-
-      selectedVerses.push(selectedQuote);
-      usedIndices.add(selectedQuote.index);
-    }
-
-    const verses = selectedVerses.map(({ quote }) => quote);
-    const indices = selectedVerses.map(({ index }) => index);
-    const total = totalQuotes ?? quotes.length;
-
-    if (
-      !this.validator.passesFullHaikuFilters(verses, indices, total, thresholds)
-    ) {
-      return null;
-    }
-
-    return { verses, indices };
+    return selectHaikuVerses(
+      this.validator,
+      quotes,
+      this.getScoreThresholds(),
+      totalQuotes,
+    );
   }
 
   private getScoreThresholds(): ScoreThresholds {
     return (
-      this.cachedThresholds ??
-      this.buildThresholds(HaikuGeneratorService.DEFAULT_CONFIG.score)
+      this.cachedThresholds ?? buildThresholds(DEFAULT_GENERATOR_CONFIG.score)
     );
   }
 
@@ -694,32 +523,7 @@ export default class HaikuGeneratorService implements IGenerator {
   ): VersePools {
     const quotes = this.extractQuotes(content);
 
-    const fiveSyllable: VerseCandidate[] = [];
-    const sevenSyllable: VerseCandidate[] = [];
-
-    for (const candidate of quotes) {
-      const verseCandidate: VerseCandidate = {
-        text: candidate.quote,
-        syllableCount: candidate.syllableCount as 5 | 7,
-        sourceIndex: candidate.index,
-      };
-
-      if (candidate.syllableCount === 5) {
-        fiveSyllable.push(verseCandidate);
-        continue;
-      }
-
-      if (candidate.syllableCount === 7) {
-        sevenSyllable.push(verseCandidate);
-      }
-    }
-
-    return {
-      fiveSyllable,
-      sevenSyllable,
-      bookId,
-      chapterId,
-    };
+    return quotesToVersePools(quotes, bookId, chapterId);
   }
 
   /**
@@ -754,27 +558,28 @@ export default class HaikuGeneratorService implements IGenerator {
    * Extract verse pools with computed embeddings from chapter content
    * Returns verse pools with 64-dimensional embedding vectors for each verse
    */
-  async extractEnhancedVersePoolsFromContent(
-    content: string,
-    bookId: string,
-    chapterId: string,
-  ): Promise<EnhancedVersePools> {
-    // First extract basic verse pools
-    const versePools = this.extractVersePoolsFromContent(
-      content,
-      bookId,
-      chapterId,
-    );
-
-    // If no embedding service, throw error
+  private requireVerseEmbeddingService(): VerseEmbeddingService {
     if (!this.verseEmbeddingService) {
       throw new Error(
         'VerseEmbeddingService not set. Call setVerseEmbeddingService first.',
       );
     }
 
-    // Enhance with embeddings
-    return this.verseEmbeddingService.embedVersePools(versePools);
+    return this.verseEmbeddingService;
+  }
+
+  async extractEnhancedVersePoolsFromContent(
+    content: string,
+    bookId: string,
+    chapterId: string,
+  ): Promise<EnhancedVersePools> {
+    const versePools = this.extractVersePoolsFromContent(
+      content,
+      bookId,
+      chapterId,
+    );
+
+    return this.requireVerseEmbeddingService().embedVersePools(versePools);
   }
 
   /**
@@ -784,12 +589,8 @@ export default class HaikuGeneratorService implements IGenerator {
   async computeEmbeddingCoherence(
     verses: [string, string, string],
   ): Promise<number> {
-    if (!this.verseEmbeddingService) {
-      throw new Error(
-        'VerseEmbeddingService not set. Call setVerseEmbeddingService first.',
-      );
-    }
-
-    return this.verseEmbeddingService.computeSemanticCoherenceFromText(verses);
+    return this.requireVerseEmbeddingService().computeSemanticCoherenceFromText(
+      verses,
+    );
   }
 }

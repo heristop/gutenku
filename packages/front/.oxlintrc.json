@@ -36,5 +36,23 @@
     "jsx-a11y/scope": "error",
     "jsx-a11y/tabindex-no-positive": "error"
   },
+  "overrides": [
+    {
+      "files": [
+        "**/*.test.ts",
+        "**/*.spec.ts",
+        "tests/**",
+        "cypress/**",
+        "**/*.cy.ts",
+        "**/vitest.setup.ts"
+      ],
+      "rules": {
+        "vitest/require-mock-type-parameters": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-namespace": "off",
+        "max-lines": "off"
+      }
+    }
+  ],
   "ignorePatterns": ["node_modules", "dist", "cypress"]
 }

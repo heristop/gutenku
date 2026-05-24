@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxlint/main/npm/oxlint/configuration_schema.json",
+  "extends": ["../../.oxlintrc.json"],
+  "overrides": [
+    {
+      "files": ["tests/**/*.ts", "**/*.test.ts"],
+      "rules": {
+        "vitest/prefer-to-be-truthy": "off",
+        "vitest/prefer-to-be-falsy": "off"
+      }
+    }
+  ]
+}

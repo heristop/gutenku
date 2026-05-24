@@ -24,6 +24,79 @@ const body = {
   query,
 };
 
+type ChapterList = NonNullable<ChapterResponseData['chapters']>;
+
+async function trainParallel(
+  markovEvaluator: MarkovEvaluatorService,
+  chapters: ChapterList,
+): Promise<void> {
+  const parallelTrainer = new ParallelMarkovTrainer();
+  const chapterContents = chapters.map((c) => c.content);
+
+  // Show worker count
+  const { cpus } = await import('node:os');
+  const workerCount = Math.max(1, cpus().length - 1);
+
+  const renderProgress = (completed: number, total: number): void => {
+    const percentage = Math.round((completed / total) * 100);
+    const barWidth = 40;
+    const filledWidth = Math.round((completed / total) * barWidth);
+    const bar =
+      pc.cyan('█'.repeat(filledWidth)) + '░'.repeat(barWidth - filledWidth);
+    logUpdate(
+      `Workers ${bar} ${pc.yellow(`${percentage}%`)} | ${completed}/${total}`,
+    );
+  };
+
+  renderProgress(0, workerCount);
+
+  const result = await parallelTrainer.train(
+    chapterContents,
+    (completed, total) => {
+      renderProgress(completed, total);
+    },
+  );
+
+  logUpdate.done();
+
+  // Import merged results
+  markovEvaluator.importTrainingData(result);
+}
+
+async function trainSequential(
+  markovEvaluator: MarkovEvaluatorService,
+  chapters: ChapterList,
+): Promise<void> {
+  const progressBar = new cliProgress.SingleBar({
+    format: `Training ${pc.cyan('{bar}')} ${pc.yellow('{percentage}%')} | {value}/{total}`,
+    barCompleteChar: '█',
+    barIncompleteChar: '░',
+    hideCursor: true,
+  });
+
+  progressBar.start(chapters.length, 0);
+
+  const yieldToGC = (): Promise<void> =>
+    new Promise((resolve) => {
+      setImmediate(resolve);
+    });
+  const forceGC =
+    typeof globalThis.gc === 'function' ? (globalThis.gc as () => void) : null;
+  const GC_INTERVAL = 50;
+
+  for (let i = 0; i < chapters.length; i++) {
+    markovEvaluator.trainMarkovChain(chapters[i].content);
+    progressBar.increment();
+
+    if ((i + 1) % GC_INTERVAL === 0) {
+      forceGC?.();
+      await yieldToGC();
+    }
+  }
+
+  progressBar.stop();
+}
+
 const formatNumber = (n: number): string => n.toLocaleString('en-US');
 
 const formatDuration = (ms: number): string => {
@@ -77,73 +150,9 @@ try {
 
   const markovEvaluator = container.resolve(MarkovEvaluatorService);
 
-  if (useParallel) {
-    // Parallel training mode
-    const parallelTrainer = new ParallelMarkovTrainer();
-    const chapterContents = chapters.map((c) => c.content);
-
-    // Show worker count
-    const { cpus } = await import('node:os');
-    const workerCount = Math.max(1, cpus().length - 1);
-
-    const renderProgress = (completed: number, total: number): void => {
-      const percentage = Math.round((completed / total) * 100);
-      const barWidth = 40;
-      const filledWidth = Math.round((completed / total) * barWidth);
-      const bar =
-        pc.cyan('\u2588'.repeat(filledWidth)) +
-        '\u2591'.repeat(barWidth - filledWidth);
-      logUpdate(
-        `Workers ${bar} ${pc.yellow(`${percentage}%`)} | ${completed}/${total}`,
-      );
-    };
-
-    renderProgress(0, workerCount);
-
-    const result = await parallelTrainer.train(
-      chapterContents,
-      (completed, total) => {
-        renderProgress(completed, total);
-      },
-    );
-
-    logUpdate.done();
-
-    // Import merged results
-    markovEvaluator.importTrainingData(result);
-  } else {
-    // Sequential training mode (original)
-    const progressBar = new cliProgress.SingleBar({
-      format: `Training ${pc.cyan('{bar}')} ${pc.yellow('{percentage}%')} | {value}/{total}`,
-      barCompleteChar: '\u2588',
-      barIncompleteChar: '\u2591',
-      hideCursor: true,
-    });
-
-    progressBar.start(chapters.length, 0);
-
-    const yieldToGC = (): Promise<void> =>
-      new Promise((resolve) => {
-        setImmediate(resolve);
-      });
-    const forceGC =
-      typeof globalThis.gc === 'function'
-        ? (globalThis.gc as () => void)
-        : null;
-    const GC_INTERVAL = 50;
-
-    for (let i = 0; i < chapters.length; i++) {
-      markovEvaluator.trainMarkovChain(chapters[i].content);
-      progressBar.increment();
-
-      if ((i + 1) % GC_INTERVAL === 0) {
-        forceGC?.();
-        await yieldToGC();
-      }
-    }
-
-    progressBar.stop();
-  }
+  await (useParallel
+    ? trainParallel(markovEvaluator, chapters)
+    : trainSequential(markovEvaluator, chapters));
 
   // Save model with spinner
   const saveSpinner = ora('Saving model...').start();
@@ -151,7 +160,9 @@ try {
 
   if (saved) {
     saveSpinner.succeed(pc.green('Model saved successfully'));
-  } else {
+  }
+
+  if (!saved) {
     saveSpinner.warn(pc.yellow('Model save returned false'));
   }
 

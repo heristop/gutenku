@@ -331,9 +331,11 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
   private scoreVerse(verse: VerseCandidate): number {
     // Use the Markov evaluator to score fluency based on word transitions
     const words = verse.text.toLowerCase().split(/\s+/);
+
     if (words.length < 2) {
       return 0;
     }
+
     // Evaluate as a single-verse "haiku" to get transition score
     return this.markovEvaluator.evaluateHaiku(words);
   }

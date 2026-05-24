@@ -14,9 +14,13 @@
   },
   "scripts": {
     "build": "tsdown src/index.ts --format esm --dts",
-    "dev": "tsdown src/index.ts --format esm --dts --watch"
+    "dev": "tsdown src/index.ts --format esm --dts --watch",
+    "test": "vitest run",
+    "test:cov": "vitest run --coverage"
   },
   "devDependencies": {
-    "typescript": "^6.0.3"
+    "@vitest/coverage-v8": "4.1.7",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.7"
   }
 }
