@@ -473,6 +473,79 @@ describe('OpenAIGeneratorService - private methods', () => {
     expect(result.fr).toBe('Fr');
   });
 
+  it('generateDescription returns defaults when OpenAI response is not valid JSON', async () => {
+    vi.mocked(mockOpenAIClient.chatCompletionsCreate).mockResolvedValueOnce({
+      choices: [{ message: { content: 'not-json at all' } }],
+    });
+
+    // @ts-expect-error - accessing private method
+    const result = await service.generateDescription(['a', 'b', 'c']);
+
+    expect(result.title).toBe('Untitled Haiku');
+    expect(result.description).toBe('A beautiful haiku');
+    expect(result.hashtags).toBe(
+      '#haiku #poetry #nature #zen #peaceful #gutenku',
+    );
+  });
+
+  it('generateDescription falls back per field when types are wrong', async () => {
+    vi.mocked(mockOpenAIClient.chatCompletionsCreate).mockResolvedValueOnce({
+      choices: [
+        {
+          message: {
+            content: '{"title":123,"description":null,"hashtags":["#a"]}',
+          },
+        },
+      ],
+    });
+
+    // @ts-expect-error - accessing private method
+    const result = await service.generateDescription(['a', 'b', 'c']);
+
+    expect(result.title).toBe('Untitled Haiku');
+    expect(result.description).toBe('A beautiful haiku');
+    expect(result.hashtags).toBe(
+      '#haiku #poetry #nature #zen #peaceful #gutenku',
+    );
+  });
+
+  it('generateTranslations returns verse fallback when JSON parse fails', async () => {
+    vi.mocked(mockOpenAIClient.chatCompletionsCreate).mockResolvedValueOnce({
+      choices: [{ message: { content: '<not json>' } }],
+    });
+
+    // @ts-expect-error - accessing private method
+    const result = await service.generateTranslations(['line1', 'line2']);
+
+    const expected = 'line1 / line2';
+    expect(result).toEqual({
+      fr: expected,
+      jp: expected,
+      es: expected,
+      it: expected,
+      de: expected,
+    });
+  });
+
+  it('generateTranslations falls back per locale when fields are wrong type', async () => {
+    vi.mocked(mockOpenAIClient.chatCompletionsCreate).mockResolvedValueOnce({
+      choices: [
+        {
+          message: { content: '{"fr":"Fr","jp":42,"es":null,"it":"It"}' },
+        },
+      ],
+    });
+
+    // @ts-expect-error - accessing private method
+    const result = await service.generateTranslations(['a', 'b']);
+
+    expect(result.fr).toBe('Fr');
+    expect(result.it).toBe('It');
+    expect(result.jp).toBe('a / b');
+    expect(result.es).toBe('a / b');
+    expect(result.de).toBe('a / b');
+  });
+
   it('generateBookmojis calls OpenAI with correct prompt', async () => {
     vi.mocked(mockOpenAIClient.chatCompletionsCreate).mockResolvedValueOnce({
       choices: [{ message: { content: '📚 ✨ 🌸' } }],

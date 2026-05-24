@@ -132,6 +132,41 @@ describe('MongoConnection', () => {
 
     expect(result).toBeNull();
   });
+
+  it('connect throws when MONGODB_URI is unset in production', async () => {
+    delete process.env.MONGODB_URI;
+    process.env.NODE_ENV = 'production';
+
+    await expect(mongoConnection.connect()).rejects.toThrow(
+      /MONGODB_URI must be set in production/,
+    );
+  });
+
+  it('connect redacts credentials from URI passed to logs', async () => {
+    process.env.MONGODB_URI = 'mongodb://user:secret@host:27017';
+
+    vi.mocked(mongoose.connect).mockResolvedValueOnce(
+      mongoose as typeof mongoose,
+    );
+
+    await mongoConnection.connect();
+
+    // The full URI with credentials must still be used to connect.
+    expect(mongoose.connect).toHaveBeenCalledWith(
+      'mongodb://user:secret@host:27017',
+      expect.any(Object),
+    );
+  });
+
+  it('connect handles an invalid URI gracefully in the redactor', async () => {
+    // A URI new URL() cannot parse triggers the redactUri catch branch.
+    process.env.MONGODB_URI = 'not a real uri';
+
+    vi.mocked(mongoose.connect).mockRejectedValueOnce(new Error('Invalid URI'));
+
+    const result = await mongoConnection.connect();
+    expect(result).toBeNull();
+  });
 });
 
 describe('MongoConnection - event handlers', () => {
