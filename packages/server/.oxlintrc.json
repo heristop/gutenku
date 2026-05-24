@@ -12,7 +12,10 @@
       ],
       "rules": {
         "max-lines": "off",
+        "complexity": "off",
         "vitest/require-mock-type-parameters": "off",
+        "vitest/require-to-throw-message": "off",
+        "vitest/no-conditional-expect": "off",
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-namespace": "off"
       }
