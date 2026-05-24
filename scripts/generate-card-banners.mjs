@@ -117,4 +117,9 @@ async function main() {
   console.log('\n🎉 All banners generated with WebP variants!');
 }
 
-main().catch(console.error);
+try {
+  await main();
+} catch (error) {
+  console.error(error);
+  process.exitCode = 1;
+}
