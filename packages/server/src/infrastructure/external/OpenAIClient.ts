@@ -24,6 +24,7 @@ export default class OpenAIClient implements IOpenAIClient {
     const completion = await this.client.chat.completions.create(
       params as ChatCompletionCreateParamsNonStreaming,
     );
+
     return {
       choices: completion.choices.map((c) => ({
         message: { content: c.message?.content ?? '' },

@@ -38,57 +38,63 @@ export function useTextCompacting(options: CompactingOptions = {}) {
           !usedSentenceIndices.has(idx) && sentence.includes(verse.trim()),
       );
 
-      if (verseSentenceIndex !== -1) {
-        // Get surrounding sentences
-        const prevSentence =
-          includePrevSentence && verseSentenceIndex > 0
-            ? sentences[verseSentenceIndex - 1].trim()
-            : '';
-        const verseSentence = sentences[verseSentenceIndex].trim();
-        const nextSentence =
-          includeNextSentence && verseSentenceIndex < sentences.length - 1
-            ? sentences[verseSentenceIndex + 1].trim()
-            : '';
-
-        // Create compacted section with proper punctuation
-        let section = '';
-
-        if (prevSentence) {
-          section += ensurePunctuation(prevSentence) + ' ';
-        }
-
-        section += ensurePunctuation(verseSentence);
-
-        if (nextSentence) {
-          section += ' ' + ensurePunctuation(nextSentence);
-        }
-
-        compactedSections.push(section);
-        usedSentenceIndices.add(verseSentenceIndex);
-        if (prevSentence) {usedSentenceIndices.add(verseSentenceIndex - 1);}
-        if (nextSentence) {usedSentenceIndices.add(verseSentenceIndex + 1);}
-      } else {
+      if (verseSentenceIndex === -1) {
         // Fallback: verse spans a sentence boundary or regex failed
         const trimmedVerse = verse.trim();
         const verseIdx = content.indexOf(trimmedVerse, fallbackSearchStart);
-        if (verseIdx !== -1) {
-          const ctxStart = Math.max(0, verseIdx - 100);
-          const ctxEnd = Math.min(
-            content.length,
-            verseIdx + trimmedVerse.length + 100,
-          );
-          const before = content
-            .slice(ctxStart, verseIdx)
-            .replace(/^\S*\s/, '');
-          const after = content
-            .slice(verseIdx + trimmedVerse.length, ctxEnd)
-            .replace(/\s\S*$/, '');
-          compactedSections.push(
-            ensurePunctuation((before + trimmedVerse + after).trim()),
-          );
-          fallbackSearchStart = verseIdx + trimmedVerse.length;
+
+        if (verseIdx === -1) {
+          return;
         }
+        const ctxStart = Math.max(0, verseIdx - 100);
+        const ctxEnd = Math.min(
+          content.length,
+          verseIdx + trimmedVerse.length + 100,
+        );
+        const before = content
+          .slice(ctxStart, verseIdx)
+          .replace(/^\S*\s/, '');
+        const after = content
+          .slice(verseIdx + trimmedVerse.length, ctxEnd)
+          .replace(/\s\S*$/, '');
+        compactedSections.push(
+          ensurePunctuation((before + trimmedVerse + after).trim()),
+        );
+        fallbackSearchStart = verseIdx + trimmedVerse.length;
+
+        return;
       }
+
+      // Get surrounding sentences
+      const prevSentence =
+        includePrevSentence && verseSentenceIndex > 0
+          ? sentences[verseSentenceIndex - 1].trim()
+          : '';
+      const verseSentence = sentences[verseSentenceIndex].trim();
+      const nextSentence =
+        includeNextSentence && verseSentenceIndex < sentences.length - 1
+          ? sentences[verseSentenceIndex + 1].trim()
+          : '';
+
+      // Create compacted section with proper punctuation
+      let section = '';
+
+      if (prevSentence) {
+        section += ensurePunctuation(prevSentence) + ' ';
+      }
+
+      section += ensurePunctuation(verseSentence);
+
+      if (nextSentence) {
+        section += ' ' + ensurePunctuation(nextSentence);
+      }
+
+      compactedSections.push(section);
+      usedSentenceIndices.add(verseSentenceIndex);
+
+      if (prevSentence) {usedSentenceIndices.add(verseSentenceIndex - 1);}
+
+      if (nextSentence) {usedSentenceIndices.add(verseSentenceIndex + 1);}
     });
 
     return compactedSections.join(sectionSeparator);

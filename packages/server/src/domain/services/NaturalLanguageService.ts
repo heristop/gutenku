@@ -93,6 +93,7 @@ export default class NaturalLanguageService {
         chunks.push(words.slice(i, i + size).join(' '));
       }
     }
+
     return chunks;
   }
 
@@ -148,41 +149,60 @@ export default class NaturalLanguageService {
     }
 
     const tagged = this.posTagger.tag(words);
+    const flags = this.detectGrammarFlags(tagged.taggedWords);
+    const score = this.computeGrammarScore(flags);
+
+    return { ...flags, score };
+  }
+
+  private detectGrammarFlags(
+    taggedWords: ReadonlyArray<{ tag: string }>,
+  ): { hasNoun: boolean; hasVerb: boolean; hasAdjective: boolean } {
     let hasNoun = false;
     let hasVerb = false;
     let hasAdjective = false;
 
-    for (const { tag } of tagged.taggedWords) {
+    for (const { tag } of taggedWords) {
       if (tag.startsWith('NN')) {
         hasNoun = true;
       }
+
       if (tag.startsWith('VB')) {
         hasVerb = true;
       }
+
       if (tag.startsWith('JJ')) {
         hasAdjective = true;
       }
     }
 
-    const result = { hasNoun, hasVerb, hasAdjective };
+    return { hasNoun, hasVerb, hasAdjective };
+  }
+
+  private computeGrammarScore(flags: {
+    hasNoun: boolean;
+    hasVerb: boolean;
+    hasAdjective: boolean;
+  }): number {
+    const { hasNoun, hasVerb, hasAdjective } = flags;
 
     if (hasNoun && hasVerb) {
-      return { ...result, score: 1 };
+      return 1;
     }
 
     if (hasNoun && hasAdjective) {
-      return { ...result, score: 0.8 };
+      return 0.8;
     }
 
     if (hasNoun) {
-      return { ...result, score: 0.5 };
+      return 0.5;
     }
 
     if (hasVerb) {
-      return { ...result, score: 0.3 };
+      return 0.3;
     }
 
-    return { ...result, score: 0 };
+    return 0;
   }
 
   initTfIdf(corpus: string[]): void {
@@ -211,6 +231,7 @@ export default class NaturalLanguageService {
     }
 
     const avgScore = totalScore / words.length;
+
     return Math.tanh(avgScore / 5);
   }
 
@@ -219,6 +240,7 @@ export default class NaturalLanguageService {
 
     for (const verse of verses) {
       const words = this.extractWords(verse);
+
       if (words) {
         allWords.push(...words);
       }
@@ -233,6 +255,7 @@ export default class NaturalLanguageService {
     for (const word of allWords) {
       if (word.length > 0) {
         const code = this.metaphone.process(word);
+
         if (code.length > 0) {
           phoneCodes.push(code[0]);
         }

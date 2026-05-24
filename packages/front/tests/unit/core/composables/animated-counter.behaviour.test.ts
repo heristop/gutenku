@@ -12,7 +12,8 @@ describe('useAnimatedCounter (animation behaviour)', () => {
     now = 0;
     vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((cb) => {
       rafCallbacks.push(cb);
-      return rafCallbacks.length;
+      
+return rafCallbacks.length;
     });
     vi.spyOn(globalThis, 'cancelAnimationFrame').mockImplementation(() => {});
     vi.spyOn(performance, 'now').mockImplementation(() => now);
@@ -28,7 +29,8 @@ describe('useAnimatedCounter (animation behaviour)', () => {
       now += stepMs;
       const cbs = rafCallbacks;
       rafCallbacks = [];
-      for (const cb of cbs) {
+      
+for (const cb of cbs) {
         cb(now);
       }
     }

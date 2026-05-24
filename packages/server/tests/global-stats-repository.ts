@@ -39,7 +39,8 @@ function getTodayString(): string {
 function getYesterdayString(): string {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  return yesterday.toISOString().split('T')[0];
+  
+return yesterday.toISOString().split('T')[0];
 }
 
 function getWeekString(): string {
@@ -49,7 +50,8 @@ function getWeekString(): string {
     (now.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000),
   );
   const weekNumber = Math.ceil((days + startOfYear.getDay() + 1) / 7);
-  return `${now.getFullYear()}-W${weekNumber.toString().padStart(2, '0')}`;
+  
+return `${now.getFullYear()}-W${weekNumber.toString().padStart(2, '0')}`;
 }
 
 function getLastWeekString(): string {
@@ -60,7 +62,8 @@ function getLastWeekString(): string {
     (now.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000),
   );
   const weekNumber = Math.ceil((days + startOfYear.getDay() + 1) / 7);
-  return `${now.getFullYear()}-W${weekNumber.toString().padStart(2, '0')}`;
+  
+return `${now.getFullYear()}-W${weekNumber.toString().padStart(2, '0')}`;
 }
 
 function num(doc: MockDocument | null, key: keyof MockDocument): number {
@@ -230,10 +233,12 @@ function simulateIncrementGamePlayed(
     };
   } else {
     inc.todayGamesPlayed = 1;
-    if (won) {
+    
+if (won) {
       inc.todayGamesWon = 1;
     }
-    if (hints) {
+    
+if (hints) {
       inc.todayEmoticonScratches = hints.emoticonScratches;
       inc.todayHaikuReveals = hints.haikuReveals;
       inc.todayRoundHints = hints.roundHints;
@@ -252,10 +257,12 @@ function simulateIncrementGamePlayed(
     };
   } else {
     inc.weekGamesPlayed = 1;
-    if (won) {
+    
+if (won) {
       inc.weekGamesWon = 1;
     }
-    if (hints) {
+    
+if (hints) {
       inc.weekEmoticonScratches = hints.emoticonScratches;
       inc.weekHaikuReveals = hints.haikuReveals;
       inc.weekRoundHints = hints.roundHints;

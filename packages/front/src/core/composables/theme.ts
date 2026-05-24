@@ -9,6 +9,7 @@ const supportsViewTransition = (): boolean => {
   if (import.meta.env.SSR) {
     return false;
   }
+
   return (
     typeof document !== 'undefined' &&
     'startViewTransition' in document &&
@@ -44,6 +45,7 @@ function getColorMode() {
         if (!isInitialized) {
           isInitialized = true;
           defaultHandler(mode);
+
           return;
         }
 
@@ -53,6 +55,7 @@ function getColorMode() {
               startViewTransition: (callback: () => void) => void;
             }
           ).startViewTransition(() => defaultHandler(mode));
+
           return;
         }
 

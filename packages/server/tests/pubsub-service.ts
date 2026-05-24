@@ -52,19 +52,16 @@ describe('PubSubService', () => {
     const svc = new PubSubService();
     const iter = svc.iterator(['TEST']);
 
-    // return and throw are optional on AsyncIterableIterator
-    if (iter.return) {
-      expect(typeof iter.return).toBe('function');
-    }
+    // return and throw are optional on AsyncIterableIterator: either undefined
+    // or a function. typeof undefined === 'undefined', typeof fn === 'function'.
+    expect(['function', 'undefined']).toContain(typeof iter.return);
   });
 
   it('iterator has optional throw method', () => {
     const svc = new PubSubService();
     const iter = svc.iterator(['TEST']);
 
-    if (iter.throw) {
-      expect(typeof iter.throw).toBe('function');
-    }
+    expect(['function', 'undefined']).toContain(typeof iter.throw);
   });
 
   it('instance is a PubSub object with publish capability', () => {

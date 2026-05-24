@@ -11,6 +11,7 @@ export async function shareContent(data: ShareData): Promise<boolean> {
   // Native share
   if (isNative) {
     const canShare = await Share.canShare();
+
     if (canShare.value) {
       await Share.share({
         title: data.title,
@@ -18,6 +19,7 @@ export async function shareContent(data: ShareData): Promise<boolean> {
         url: data.url,
         dialogTitle: 'Share',
       });
+
       return true;
     }
   }
@@ -29,12 +31,14 @@ export async function shareContent(data: ShareData): Promise<boolean> {
       text: data.text,
       url: data.url,
     });
+
     return true;
   }
 
   // Clipboard fallback
   if (typeof navigator !== 'undefined' && navigator.clipboard) {
     await navigator.clipboard.writeText(`${data.text}\n${data.url}`);
+
     return true;
   }
 

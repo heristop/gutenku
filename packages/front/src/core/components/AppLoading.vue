@@ -50,6 +50,7 @@ const displayMessage = computed<LoadingMessage>(() => {
   if (props.text) {
     return { icon: Sparkles, text: props.text };
   }
+
   return randomMessage.value ?? defaultMessage;
 });
 

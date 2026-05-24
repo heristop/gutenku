@@ -76,13 +76,11 @@ describe('Puzzle Edge Cases - Quote Fallback', () => {
     expect(result.allHints).toBeDefined();
     expect(result.allHints!.length).toBeGreaterThan(0);
 
-    // Find quote hint if present
+    // Find quote hint if present. Should use the fallback text since
+    // notableQuotes is empty, when a quote hint is generated at all.
     const quoteHint = result.allHints!.find((h) => h.type === 'quote');
-
-    if (quoteHint) {
-      // Should use the fallback text since notableQuotes is empty
-      expect(quoteHint.content).toBe('A famous quote from this book...');
-    }
+    const quoteContent = quoteHint?.content ?? 'A famous quote from this book...';
+    expect(quoteContent).toBe('A famous quote from this book...');
   });
 
   it('uses fallback quote when quote index is out of bounds', async () => {
@@ -96,7 +94,8 @@ describe('Puzzle Edge Cases - Quote Fallback', () => {
 
     // Test multiple dates to exercise quote selection
     let foundFallback = false;
-    for (let day = 1; day <= 50; day++) {
+    
+for (let day = 1; day <= 50; day++) {
       const date = `2026-01-${String(day).padStart(2, '0')}`;
       try {
         const query = new SubmitGuessQuery(date, 'wrong', 6);
@@ -178,25 +177,25 @@ describe('Puzzle Edge Cases - Book Selection Swap', () => {
         const puzzleResult = await puzzleHandler.execute(puzzleQuery);
 
         // Find the correct book by trying guesses
-        let correctBookFound = false;
-        for (const book of puzzleResult.availableBooks) {
+        let correctBook: { reference: string } | undefined;
+        
+for (const book of puzzleResult.availableBooks) {
           const guessQuery = new SubmitGuessQuery(date, book.reference, 1);
           const guessResult = await submitHandler.execute(guessQuery);
 
-
           if (guessResult.isCorrect) {
-            correctBookFound = true;
-            // Verify it's in the available books
-            expect(
-              puzzleResult.availableBooks.some(
-                (b) => b.reference === book.reference,
-              ),
-            ).toBeTruthy();
+            correctBook = book;
             break;
           }
         }
 
-        expect(correctBookFound).toBeTruthy();
+        expect(correctBook).toBeDefined();
+        // Verify the correct book is in the available books list
+        expect(
+          puzzleResult.availableBooks.some(
+            (b) => b.reference === correctBook?.reference,
+          ),
+        ).toBeTruthy();
       } catch {
         continue;
       }
@@ -229,7 +228,7 @@ describe('Puzzle Edge Cases - Era/Century Replacement', () => {
     vi.mocked(dataModule.getGutenGuessBooks).mockReturnValue([singleBook]);
 
     // Test many dates to exercise the exclusion/replacement logic
-    let testedCount = 0;
+    const hintResults: { hasEra: boolean; hasCentury: boolean }[] = [];
 
     for (let day = 1; day <= 365; day++) {
       const month = Math.floor((day - 1) / 28) % 12 + 1;
@@ -241,22 +240,22 @@ describe('Puzzle Edge Cases - Era/Century Replacement', () => {
         const result = await handler.execute(query);
 
         if (result.allHints) {
-          const hasEra = result.allHints.some((h) => h.type === 'era');
-          const hasCentury = result.allHints.some(
-            (h) => h.type === 'publication_century',
-          );
-
-          // The exclusion rule: era and publication_century should never both appear
-          expect(hasEra && hasCentury).toBeFalsy();
-          testedCount++;
+          hintResults.push({
+            hasEra: result.allHints.some((h) => h.type === 'era'),
+            hasCentury: result.allHints.some(
+              (h) => h.type === 'publication_century',
+            ),
+          });
         }
       } catch {
         continue;
       }
     }
 
+    // The exclusion rule: era and publication_century should never both appear
+    expect(hintResults.every((r) => !(r.hasEra && r.hasCentury))).toBeTruthy();
     // Verify we tested enough dates
-    expect(testedCount).toBeGreaterThan(100);
+    expect(hintResults.length).toBeGreaterThan(100);
   });
 
   it('exercises replacement logic when era and century would both appear', async () => {
@@ -286,18 +285,19 @@ describe('Puzzle Edge Cases - Era/Century Replacement', () => {
         const result = await handler.execute(query);
 
         if (result.allHints) {
-          const hintTypes = new Set(result.allHints.map((h) => h.type));
-          hintTypeSets.push(hintTypes);
-
-          // Verify exclusion rule
-          const hasEra = hintTypes.has('era');
-          const hasCentury = hintTypes.has('publication_century');
-          expect(hasEra && hasCentury).toBeFalsy();
+          hintTypeSets.push(new Set(result.allHints.map((h) => h.type)));
         }
       } catch {
         continue;
       }
     }
+
+    // Verify exclusion rule across every collected hint type set
+    expect(
+      hintTypeSets.every(
+        (s) => !(s.has('era') && s.has('publication_century')),
+      ),
+    ).toBeTruthy();
 
     // We should have found cases with era OR century (but not both)
     const casesWithEra = hintTypeSets.filter((s) => s.has('era')).length;

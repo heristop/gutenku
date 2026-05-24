@@ -26,6 +26,7 @@ export function useInView(
             isInView.value = true;
             stop();
           }, delay);
+
           return;
         }
 
@@ -38,6 +39,7 @@ export function useInView(
   onMounted(() => {
     nextTick(() => {
       isReady = true;
+
       if (pendingIntersection && !isInView.value) {
         setTimeout(() => {
           isInView.value = true;

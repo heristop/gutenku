@@ -3,6 +3,7 @@ import { useVibrate } from '@vueuse/core';
 
 // Chrome requires a tap before vibrate() works
 let hasUserTapped = false;
+
 if (typeof document !== 'undefined') {
   document.addEventListener(
     'click',
@@ -20,7 +21,6 @@ interface UsePullToRefreshOptions {
   disabled?: Ref<boolean>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ComponentOrElement = HTMLElement | { $el: HTMLElement } | null;
 
 function getElement(ref: ComponentOrElement): HTMLElement | Document {
@@ -35,6 +35,7 @@ function getElement(ref: ComponentOrElement): HTMLElement | Document {
   if (ref instanceof HTMLElement) {
     return ref;
   }
+
   return document;
 }
 

@@ -3,7 +3,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 // Mock Vue lifecycle hooks at top level
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue');
-  return {
+  
+return {
     ...actual,
     onMounted: vi.fn((cb) => cb()),
     onUnmounted: vi.fn(),

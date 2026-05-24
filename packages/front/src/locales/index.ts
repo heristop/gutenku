@@ -21,6 +21,7 @@ const messages = SUPPORTED_LOCALES.reduce(
     const mainMessages = localeModules[`./${locale}.json`]?.default || {};
     const gameMessages = gameLocales[locale] || {};
     acc[locale] = { ...mainMessages, ...gameMessages };
+
     return acc;
   },
   {} as Record<SupportedLocale, Record<string, unknown>>,
@@ -44,6 +45,7 @@ function getInitialLocale(): SupportedLocale {
 
   for (const locale of SUPPORTED_LOCALES) {
     const config = LOCALE_CONFIG[locale];
+
     if (config.browserCodes.some((code) => browserLang.startsWith(code))) {
       return locale;
     }

@@ -59,6 +59,7 @@ export function extractVersePoolsFromContent(
   for (let i = 0; i < sentences.length; i++) {
     const sentence = sentences[i];
     const words = naturalLanguage.extractWords(sentence);
+
     if (!words) {
       continue;
     }
@@ -148,6 +149,7 @@ function calculateStdDev(values: number[]): number {
   const mean = values.reduce((a, b) => a + b, 0) / values.length;
   const variance =
     values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length;
+
   return Math.sqrt(variance);
 }
 
@@ -216,6 +218,7 @@ function chartAxisLabel(
 
   if (row === Math.floor(chartHeight / 2)) {
     const midVal = minVal + range / 2;
+
     return pc.dim(`  ${midVal.toFixed(1).padStart(6)} ┤`) + line;
   }
 

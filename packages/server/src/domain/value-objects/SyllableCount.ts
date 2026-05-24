@@ -13,6 +13,7 @@ export class SyllableCount {
   static fromText(text: string): SyllableCount {
     const words = text.split(/\s+/).filter((w) => w.length > 0);
     const count = words.reduce((sum, word) => sum + syllable(word), 0);
+
     return new SyllableCount(count);
   }
 
@@ -25,6 +26,7 @@ export class SyllableCount {
         },
       });
     }
+
     return new SyllableCount(count);
   }
 

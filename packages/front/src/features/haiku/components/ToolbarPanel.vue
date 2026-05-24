@@ -71,6 +71,7 @@ const progressPercent = computed(() => {
   if (generationProgress.value.total === 0) {
     return 0;
   }
+
   return Math.round(
     (generationProgress.value.current / generationProgress.value.total) * 100,
   );
@@ -140,6 +141,7 @@ const estimatedTimeLeft = computed(() => {
     iterationTimes.value.length;
   const remaining =
     generationProgress.value.total - generationProgress.value.current;
+
   return Math.ceil((avgTime * remaining) / 1000);
 });
 
@@ -194,6 +196,7 @@ const buttonLabel = computed<string>(() => {
       ? t('toolbar.generating')
       : t('toolbar.extracting');
   }
+
   return firstLoaded.value ? t('toolbar.generate') : t('toolbar.extract');
 });
 
@@ -225,6 +228,7 @@ async function copyHaiku(): Promise<void> {
 
   if (copySuccess) {
     success(t('toolbar.copySuccess'));
+
     return;
   }
 

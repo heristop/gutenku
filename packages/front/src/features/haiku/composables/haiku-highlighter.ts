@@ -81,6 +81,7 @@ export function useHaikuHighlighter(config: HighlighterConfig = {}) {
 
     const processBatch = () => {
       const end = Math.min(index + batchSize, highlights.length);
+
       for (let i = index; i < end; i++) {
         applyHighlight(highlights[i] as HTMLElement);
       }
@@ -99,6 +100,7 @@ export function useHaikuHighlighter(config: HighlighterConfig = {}) {
   ): void => {
     const runHighlighting = () => {
       const highlights = document.querySelectorAll(selector);
+
       if (highlights.length === 0) {
         return;
       }
@@ -108,9 +110,11 @@ export function useHaikuHighlighter(config: HighlighterConfig = {}) {
 
     if ('requestIdleCallback' in globalThis) {
       requestIdleCallback(() => runHighlighting(), { timeout: 2000 });
-    } else {
-      setTimeout(runHighlighting, 100);
+
+      return;
     }
+
+    setTimeout(runHighlighting, 100);
   };
 
   return {

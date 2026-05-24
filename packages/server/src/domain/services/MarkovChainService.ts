@@ -5,6 +5,19 @@ import { createLogger } from '~/infrastructure/services/Logger';
 
 const log = createLogger('markov');
 import { inject, singleton } from 'tsyringe';
+import {
+  MIN_BIGRAM_COUNT,
+  MIN_TRIGRAM_COUNT,
+  pruneNgramMap,
+  writeModelToStream,
+} from '~/domain/services/MarkovChainService.serialize';
+import {
+  handleLoadError,
+  loadBigramsFromJson,
+  loadTrigramsFromJson,
+  loadVocabularyFromJson,
+  type MarkovModelJson,
+} from '~/domain/services/MarkovChainService.loaders';
 
 const FANBOYS_SET = new Set(['for', 'and', 'nor', 'but', 'or', 'yet', 'so']);
 
@@ -13,10 +26,6 @@ const SMOOTHING_ALPHA = 0.01;
 
 // Maximum model file size to attempt loading (500MB)
 const MAX_MODEL_SIZE_BYTES = 500 * 1024 * 1024;
-
-// Pruning thresholds to reduce model size (entries below these counts are removed)
-const MIN_BIGRAM_COUNT = 3;
-const MIN_TRIGRAM_COUNT = 5;
 
 @singleton()
 export class MarkovChainService {
@@ -132,6 +141,7 @@ export class MarkovChainService {
 
       if (count) {
         const totalTransitions = this.bigramTotals.get(lastWordFrom) || 0;
+
         return totalTransitions > 0 ? count / totalTransitions : 0;
       }
     }
@@ -157,6 +167,7 @@ export class MarkovChainService {
 
       if (count) {
         const totalTransitions = this.trigramTotals.get(key) || 0;
+
         return totalTransitions > 0 ? count / totalTransitions : 0;
       }
     }
@@ -236,16 +247,22 @@ export class MarkovChainService {
     });
 
     try {
-      const { pruned: prunedBigrams, totals: bigramTotals } =
-        this.pruneNgramMap(this.bigrams, MIN_BIGRAM_COUNT);
-      const { pruned: prunedTrigrams, totals: trigramTotals } =
-        this.pruneNgramMap(this.trigrams, MIN_TRIGRAM_COUNT);
+      const { pruned: prunedBigrams, totals: bigramTotals } = pruneNgramMap(
+        this.bigrams,
+        MIN_BIGRAM_COUNT,
+      );
+      const { pruned: prunedTrigrams, totals: trigramTotals } = pruneNgramMap(
+        this.trigrams,
+        MIN_TRIGRAM_COUNT,
+      );
 
       const vocabulary = new Set<string>();
-      for (const key of prunedBigrams.keys()) {
+      
+for (const key of prunedBigrams.keys()) {
         vocabulary.add(key);
       }
-      for (const t of prunedBigrams.values()) {
+      
+for (const t of prunedBigrams.values()) {
         for (const w of t.keys()) {
           vocabulary.add(w);
         }
@@ -261,197 +278,23 @@ export class MarkovChainService {
         'Pruned low-frequency entries',
       );
 
-      await this.writeModelToStream(
+      await writeModelToStream(
         stream,
         prunedBigrams,
         prunedTrigrams,
         bigramTotals,
         trigramTotals,
         vocabulary,
+        this.totalBigrams,
+        this.totalTrigrams,
       );
+
       return true;
     } catch (error) {
       log.error({ err: error }, 'Error saving model');
       stream.destroy();
+
       return false;
-    }
-  }
-
-  private pruneNgramMap(
-    source: Map<string, Map<string, number>>,
-    minCount: number,
-  ): { pruned: Map<string, Map<string, number>>; totals: Map<string, number> } {
-    const pruned = new Map<string, Map<string, number>>();
-    const totals = new Map<string, number>();
-
-    for (const [key, transitions] of source) {
-      const prunedTransitions = new Map<string, number>();
-      let total = 0;
-
-      for (const [word, count] of transitions) {
-        if (count >= minCount) {
-          prunedTransitions.set(word, count);
-          total += count;
-        }
-      }
-
-      if (prunedTransitions.size > 0) {
-        pruned.set(key, prunedTransitions);
-        totals.set(key, total);
-      }
-    }
-
-    return { pruned, totals };
-  }
-
-  private async writeModelToStream(
-    stream: ReturnType<typeof createWriteStream>,
-    bigrams: Map<string, Map<string, number>>,
-    trigrams: Map<string, Map<string, number>>,
-    bigramTotals: Map<string, number>,
-    trigramTotals: Map<string, number>,
-    vocabulary: Set<string>,
-  ): Promise<void> {
-    const BATCH_SIZE = 10000;
-
-    const yieldToGC = (): Promise<void> =>
-      new Promise((resolve) => {
-        setImmediate(resolve);
-      });
-
-    const waitForDrain = (): Promise<void> =>
-      new Promise((resolve) => {
-        stream.once('drain', resolve);
-      });
-
-    stream.write('{"bigrams":[');
-    await this.writeMapEntries(
-      stream,
-      bigrams,
-      BATCH_SIZE,
-      yieldToGC,
-      waitForDrain,
-      true,
-    );
-
-    stream.write('],"trigrams":[');
-    await this.writeMapEntries(
-      stream,
-      trigrams,
-      BATCH_SIZE,
-      yieldToGC,
-      waitForDrain,
-      true,
-    );
-
-    stream.write('],"bigramTotals":[');
-    await this.writeMapEntries(
-      stream,
-      bigramTotals,
-      BATCH_SIZE,
-      yieldToGC,
-      waitForDrain,
-      false,
-    );
-
-    stream.write('],"trigramTotals":[');
-    await this.writeMapEntries(
-      stream,
-      trigramTotals,
-      BATCH_SIZE,
-      yieldToGC,
-      waitForDrain,
-      false,
-    );
-
-    stream.write('],"totalBigrams":');
-    stream.write(String(this.totalBigrams));
-    stream.write(',"totalTrigrams":');
-    stream.write(String(this.totalTrigrams));
-
-    stream.write(',"vocabulary":[');
-    await this.writeSetEntries(stream, vocabulary, BATCH_SIZE, yieldToGC);
-    stream.write(']}');
-
-    await new Promise<void>((resolve, reject) => {
-      stream.on('error', reject);
-      stream.on('finish', resolve);
-      stream.end();
-    });
-  }
-
-  private async writeMapEntries<K, V>(
-    stream: ReturnType<typeof createWriteStream>,
-    map: Map<K, V>,
-    batchSize: number,
-    yieldToGC: () => Promise<void>,
-    waitForDrain: () => Promise<void>,
-    spreadValue: boolean,
-  ): Promise<void> {
-    const STRINGIFY_BATCH = 500;
-    let first = true;
-    let count = 0;
-    let batch: unknown[] = [];
-
-    for (const [key, value] of map) {
-      const data = spreadValue
-        ? [key, [...(value as Map<string, number>)]]
-        : [key, value];
-      batch.push(data);
-
-      if (batch.length >= STRINGIFY_BATCH) {
-        const prefix = first ? '' : ',';
-        first = false;
-        const ok = stream.write(
-          prefix + batch.map((b) => JSON.stringify(b)).join(','),
-        );
-        batch = [];
-
-        if (!ok) {
-          await waitForDrain();
-        }
-      }
-
-      if (++count % batchSize === 0) {
-        await yieldToGC();
-      }
-    }
-
-    if (batch.length > 0) {
-      const prefix = first ? '' : ',';
-      stream.write(prefix + batch.map((b) => JSON.stringify(b)).join(','));
-    }
-  }
-
-  private async writeSetEntries(
-    stream: ReturnType<typeof createWriteStream>,
-    set: Set<string>,
-    batchSize: number,
-    yieldToGC: () => Promise<void>,
-  ): Promise<void> {
-    const STRINGIFY_BATCH = 500;
-    let first = true;
-    let count = 0;
-    let batch: string[] = [];
-
-    for (const item of set) {
-      batch.push(item);
-
-      if (batch.length >= STRINGIFY_BATCH) {
-        const prefix = first ? '' : ',';
-        first = false;
-        stream.write(prefix + batch.map((b) => JSON.stringify(b)).join(','));
-        batch = [];
-      }
-
-      if (++count % batchSize === 0) {
-        await yieldToGC();
-      }
-    }
-
-    if (batch.length > 0) {
-      const prefix = first ? '' : ',';
-      stream.write(prefix + batch.map((b) => JSON.stringify(b)).join(','));
     }
   }
 
@@ -488,120 +331,40 @@ export class MarkovChainService {
           { size: stats.size, maxSize: MAX_MODEL_SIZE_BYTES },
           'Markov model file too large, skipping load to prevent OOM',
         );
+
         return false;
       }
 
       const data = await fs.readFile('./data/markov_model.json', 'utf8');
-      const jsonData = JSON.parse(data);
+      const jsonData = JSON.parse(data) as MarkovModelJson;
 
-      this.loadBigramsFromJson(jsonData);
-      this.loadTrigramsFromJson(jsonData);
-      this.loadVocabularyFromJson(jsonData);
+      this.applyLoadedJson(jsonData);
 
       this.loaded = true;
       log.info(
         { bigrams: this.bigrams.size, trigrams: this.trigrams.size },
         'Markov model loaded',
       );
+
       return true;
     } catch (error) {
-      this.handleLoadError(error);
+      handleLoadError(error);
+
       return false;
     }
   }
 
-  private loadBigramsFromJson(jsonData: {
-    bigrams: [string, [string, number][]][];
-    totalBigrams: number;
-    bigramTotals?: [string, number][];
-  }): void {
-    this.bigrams = new Map(
-      jsonData.bigrams.map(([key, value]) => [key, new Map(value)]),
-    );
-    this.totalBigrams = jsonData.totalBigrams;
+  private applyLoadedJson(jsonData: MarkovModelJson): void {
+    const bigramData = loadBigramsFromJson(jsonData);
+    this.bigrams = bigramData.bigrams;
+    this.bigramTotals = bigramData.bigramTotals;
+    this.totalBigrams = bigramData.totalBigrams;
 
-    if (!jsonData.bigramTotals) {
-      this.computeBigramTotals();
-      return;
-    }
+    const trigramData = loadTrigramsFromJson(jsonData);
+    this.trigrams = trigramData.trigrams;
+    this.trigramTotals = trigramData.trigramTotals;
+    this.totalTrigrams = trigramData.totalTrigrams;
 
-    this.bigramTotals = new Map(jsonData.bigramTotals);
-  }
-
-  private loadTrigramsFromJson(jsonData: {
-    trigrams?: [string, [string, number][]][];
-    totalTrigrams?: number;
-    trigramTotals?: [string, number][];
-  }): void {
-    if (!jsonData.trigrams) {
-      return;
-    }
-
-    this.trigrams = new Map(
-      jsonData.trigrams.map(([key, value]) => [key, new Map(value)]),
-    );
-    this.totalTrigrams = jsonData.totalTrigrams || 0;
-
-    if (!jsonData.trigramTotals) {
-      this.computeTrigramTotals();
-      return;
-    }
-
-    this.trigramTotals = new Map(jsonData.trigramTotals);
-  }
-
-  private loadVocabularyFromJson(jsonData: { vocabulary?: string[] }): void {
-    if (!jsonData.vocabulary) {
-      this.computeVocabulary();
-      return;
-    }
-
-    this.vocabulary = new Set(jsonData.vocabulary);
-  }
-
-  private handleLoadError(error: unknown): void {
-    const isFileNotFound =
-      error instanceof Error && 'code' in error && error.code === 'ENOENT';
-
-    if (!isFileNotFound) {
-      log.error({ err: error }, 'Failed to load Markov model');
-      return;
-    }
-
-    log.info(
-      'Markov model not found at ./data/markov_model.json - run "pnpm mc:train" to generate it',
-    );
-  }
-
-  private computeBigramTotals(): void {
-    for (const [key, transitions] of this.bigrams) {
-      let total = 0;
-      for (const count of transitions.values()) {
-        total += count;
-      }
-      this.bigramTotals.set(key, total);
-    }
-  }
-
-  private computeTrigramTotals(): void {
-    for (const [key, transitions] of this.trigrams) {
-      let total = 0;
-      for (const count of transitions.values()) {
-        total += count;
-      }
-      this.trigramTotals.set(key, total);
-    }
-  }
-
-  private computeVocabulary(): void {
-    // Backward compatibility: build vocabulary from bigram keys
-    for (const key of this.bigrams.keys()) {
-      this.vocabulary.add(key);
-    }
-    for (const transitions of this.bigrams.values()) {
-      for (const word of transitions.keys()) {
-        this.vocabulary.add(word);
-      }
-    }
+    this.vocabulary = loadVocabularyFromJson(jsonData);
   }
 }

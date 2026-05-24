@@ -3,6 +3,7 @@ import { useSwipe, useVibrate, useMediaQuery } from '@vueuse/core';
 
 // Chrome requires a tap before vibrate() works
 let hasUserTapped = false;
+
 if (typeof document !== 'undefined') {
   document.addEventListener(
     'click',
@@ -81,18 +82,21 @@ export function useTouchGestures(
       if (dir === 'left' && onSwipeLeft) {
         triggerVibration();
         onSwipeLeft();
+
         return;
       }
 
       if (dir === 'right' && onSwipeRight) {
         triggerVibration();
         onSwipeRight();
+
         return;
       }
 
       if (dir === 'up' && onSwipeUp) {
         triggerVibration();
         onSwipeUp();
+
         return;
       }
 
@@ -244,6 +248,7 @@ export function useLongPress(
     }
 
     const touch = e.touches[0];
+
     if (touch) {
       startX = touch.clientX;
       startY = touch.clientY;
@@ -268,6 +273,7 @@ export function useLongPress(
 
   function handleTouchMove(e: TouchEvent) {
     const touch = e.touches[0];
+
     if (!touch) {
       return;
     }
@@ -277,6 +283,7 @@ export function useLongPress(
 
     if (gesturePhase === 'observing' && dy > scrollThreshold) {
       cancelGesture();
+
       return;
     }
 
@@ -362,6 +369,7 @@ export function useLongPress(
 
   onUnmounted(() => {
     cancelGesture();
+
     if (currentEl) {
       detachListeners(currentEl);
       currentEl = null;

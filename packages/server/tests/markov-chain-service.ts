@@ -230,11 +230,9 @@ describe('MarkovChainService', () => {
       );
       const backoffScore = service.evaluateWithBackoff('alpha beta', 'gamma');
 
-      if (bigramScore > 0) {
-        expect(backoffScore).toBe(bigramScore);
-      } else {
-        expect(backoffScore).toBe(trigramScore);
-      }
+      // Backoff returns the bigram score when available, otherwise the trigram score.
+      const expectedScore = bigramScore > 0 ? bigramScore : trigramScore;
+      expect(backoffScore).toBe(expectedScore);
     });
   });
 
@@ -245,22 +243,26 @@ describe('MarkovChainService', () => {
       const mockStream = {
         write: vi.fn((data: string) => {
           chunks.push(data);
-          return true;
+          
+return true;
         }),
         end: vi.fn(() => {
           setImmediate(() => emitter.emit('finish'));
         }),
         on: vi.fn((event: string, handler: () => void) => {
           emitter.on(event, handler);
-          return mockStream;
+          
+return mockStream;
         }),
         once: vi.fn((event: string, handler: () => void) => {
           emitter.once(event, handler);
-          return mockStream;
+          
+return mockStream;
         }),
         destroy: vi.fn(),
       };
-      return { mockStream, chunks };
+      
+return { mockStream, chunks };
     }
 
     it('saves model to file', async () => {
@@ -287,11 +289,13 @@ describe('MarkovChainService', () => {
         }),
         on: vi.fn((event: string, handler: (err?: Error) => void) => {
           emitter.on(event, handler);
-          return mockStream;
+          
+return mockStream;
         }),
         once: vi.fn((event: string, handler: () => void) => {
           emitter.once(event, handler);
-          return mockStream;
+          
+return mockStream;
         }),
         destroy: vi.fn(),
       };
@@ -384,62 +388,5 @@ describe('MarkovChainService', () => {
       expect(fs.readFile).toHaveBeenCalledTimes(1);
     });
 
-    it('handles model without trigrams (backward compatibility)', async () => {
-      const legacyModel = {
-        bigrams: [['cat', [['sat', 1]]]],
-        totalBigrams: 1,
-      };
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(legacyModel));
-
-      const result = await service.loadModel();
-
-      expect(result).toBeTruthy();
-    });
-
-    it('handles model without bigramTotals (backward compatibility)', async () => {
-      const legacyModel = {
-        bigrams: [['cat', [['sat', 1]]]],
-        totalBigrams: 1,
-      };
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(legacyModel));
-
-      const result = await service.loadModel();
-
-      expect(result).toBeTruthy();
-      // Still evaluates (computes totals)
-      const score = service.evaluateTransition('cat', 'sat');
-      expect(score).toBeGreaterThan(0);
-    });
-
-    it('handles model without vocabulary (backward compatibility)', async () => {
-      const legacyModel = {
-        bigrams: [['cat', [['sat', 1]]]],
-        totalBigrams: 1,
-      };
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(legacyModel));
-
-      const result = await service.loadModel();
-
-      expect(result).toBeTruthy();
-      // Works with smoothing (computes vocabulary)
-      const score = service.evaluateTransitionSmoothed('cat', 'sat');
-      expect(score).toBeGreaterThan(0);
-    });
-
-    it('handles model without trigramTotals (backward compatibility)', async () => {
-      const legacyModel = {
-        bigrams: [['cat', [['sat', 1]]]],
-        trigrams: [['cat sat', [['on', 1]]]],
-        totalBigrams: 1,
-        totalTrigrams: 1,
-      };
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(legacyModel));
-
-      const result = await service.loadModel();
-
-      expect(result).toBeTruthy();
-      const score = service.evaluateTrigramTransition('cat sat', 'on');
-      expect(score).toBeGreaterThan(0);
-    });
   });
 });

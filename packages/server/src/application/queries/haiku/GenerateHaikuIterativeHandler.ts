@@ -66,6 +66,7 @@ export class GenerateHaikuIterativeHandler {
     this.configureGenerator(theme, filter);
 
     const seedHaiku = await this.getSeedHaiku();
+
     if (!seedHaiku?.chapter) {
       yield this.createEmptyProgress(iterations);
 
@@ -101,6 +102,7 @@ export class GenerateHaikuIterativeHandler {
 
       const foundBetter =
         iterationBestScore > bestOverallScore && iterationBestHaiku;
+
       if (foundBetter) {
         bestOverallScore = iterationBestScore;
         bestOverallHaiku = iterationBestHaiku;
@@ -169,6 +171,7 @@ export class GenerateHaikuIterativeHandler {
     });
 
     const filterTokens = filter ? filter.split(' ') : [];
+
     if (filterTokens.length > 0) {
       this.haikuGenerator.filter(filterTokens);
     }
@@ -177,6 +180,7 @@ export class GenerateHaikuIterativeHandler {
   private async getSeedHaiku(): Promise<HaikuValue | null> {
     try {
       const seedHaiku = await this.haikuGenerator.buildFromDb();
+
       if (!seedHaiku?.chapter) {
         log.warn('No seed haiku available, cannot run GA evolution');
 

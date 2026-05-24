@@ -253,7 +253,8 @@ describe('GraphQL Resolvers', () => {
       });
 
       const results: unknown[] = [];
-      for await (const result of generator) {
+      
+for await (const result of generator) {
         results.push(result);
       }
 

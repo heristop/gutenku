@@ -36,9 +36,11 @@ export function useImageDownload(defaultDelayMs = 1000) {
         setTimeout(resolve, delayMs);
       });
       inProgress.value = false;
+
       return true;
     } catch {
       inProgress.value = false;
+
       return false;
     }
   };

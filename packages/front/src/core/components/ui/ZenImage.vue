@@ -57,9 +57,11 @@ function parseDimension(value: string | number | undefined): number {
   if (typeof value === 'number') {
     return value;
   }
+
   if (typeof value === 'string') {
     return Number.parseInt(value, 10);
   }
+
   return 0;
 }
 
@@ -77,12 +79,14 @@ function computeAspectRatio(
   if (explicitRatio) {
     return explicitRatio;
   }
+
   if (!width || !height) {
     return undefined;
   }
 
   const w = parseDimension(width);
   const h = parseDimension(height);
+
   return w && h ? `${w} / ${h}` : undefined;
 }
 
@@ -95,6 +99,7 @@ const containerStyle = computed(() => {
     props.width,
     props.height,
   );
+
   if (aspectRatio) {
     style.aspectRatio = aspectRatio;
   }
@@ -102,9 +107,11 @@ const containerStyle = computed(() => {
   if (props.width) {
     style.width = formatDimension(props.width);
   }
+
   if (props.height) {
     style.height = formatDimension(props.height);
   }
+
   if (props.viewTransitionName) {
     style.viewTransitionName = props.viewTransitionName;
   }
@@ -117,6 +124,7 @@ const loadingAttr = computed(() => {
   if (props.priority) {
     return 'eager';
   }
+
   return props.lazy ? 'lazy' : 'eager';
 });
 
@@ -135,6 +143,7 @@ const currentSrc = computed(() => {
   if (hasError.value && props.fallback) {
     return props.fallback;
   }
+
   return props.src;
 });
 
@@ -149,6 +158,7 @@ function onError(event: Event) {
     // Try fallback image
     hasError.value = false;
     emit('error', event);
+
     return;
   }
 

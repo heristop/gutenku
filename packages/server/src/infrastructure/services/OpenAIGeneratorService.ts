@@ -16,9 +16,21 @@ import {
 import {
   GeneticAlgorithmService,
   type GAConfig,
-  type DecodedHaiku,
   DEFAULT_GA_CONFIG,
 } from '~/domain/services/genetic';
+import {
+  buildSelectionPrompt,
+  generateBookmojis,
+  generateDescription,
+  generateTranslations,
+  parseSelectionAnswer,
+  type DescriptionResult,
+  type TranslationsResult,
+} from '~/infrastructure/services/OpenAIGeneratorService.prompts';
+import {
+  convertGAResultToHaikuValue,
+  formatHaikuCandidate,
+} from '~/infrastructure/services/OpenAIGeneratorService.formatters';
 
 @singleton()
 export default class OpenAIGeneratorService implements IGenerator {
@@ -102,12 +114,7 @@ export default class OpenAIGeneratorService implements IGenerator {
 
       const completion = await this.openai.chatCompletionsCreate({
         max_completion_tokens: 1200,
-        messages: [
-          {
-            role: 'user',
-            content: prompt,
-          },
-        ],
+        messages: [{ role: 'user', content: prompt }],
         model: this.MODEL,
         temperature: this.temperature,
       });
@@ -119,27 +126,9 @@ export default class OpenAIGeneratorService implements IGenerator {
         'OpenAI selection response received',
       );
 
-      let index: number;
-      let reason: string;
+      const parsed = parseSelectionAnswer(answer);
+      let { index, reason } = parsed;
 
-      try {
-        // Extract JSON from response (may contain surrounding text)
-        const jsonMatch = answer?.match(/\{[\s\S]*"id"[\s\S]*\}/);
-        const jsonStr = jsonMatch ? jsonMatch[0] : answer;
-        const output = JSON.parse(jsonStr);
-        index = output.id;
-        reason = output.reason || '';
-      } catch (parseError) {
-        // Fallback: use first haiku (highest score from sorting)
-        log.warn(
-          { rawAnswer: answer, err: parseError },
-          'JSON parse failed, using top-scored haiku',
-        );
-        index = 0;
-        reason = 'Selected by score (parse error)';
-      }
-
-      // Validate index is within bounds
       if (index < 0 || index >= this.haikuSelection.length) {
         log.warn(
           { index, haikuCount: this.haikuSelection.length },
@@ -152,8 +141,6 @@ export default class OpenAIGeneratorService implements IGenerator {
       log.info({ selectedIndex: index, reason }, 'Selected haiku index');
 
       const generatedCount = this.haikuSelection.length;
-
-      // Store candidates with quality scores
       const allCandidates = this.haikuSelection.map((h) => ({
         verses: h.verses,
         book: { title: h.book.title, author: h.book.author },
@@ -223,137 +210,42 @@ export default class OpenAIGeneratorService implements IGenerator {
 
   private async generateSelectionPrompt(): Promise<string> {
     const haikus = await this.fetchHaikus();
-    const criteria =
-      'Nature imagery, word variety, opening strength, sentiment, grammar, flow (markov/trigram), sound patterns (alliteration), narrative coherence (verse distance), imagery density, line balance, verb usage, and overall tranquility/insight.';
-    const prompt = `Select the best haiku from ${this.haikuSelection.length} candidates. Criteria: ${criteria}`;
-    return `${prompt}\n(Format: {"id": <index_number>, "reason": "<why this haiku>"})\n${haikus.join('\n')}\nSTOP\n`;
+
+    return buildSelectionPrompt(this.haikuSelection.length, haikus);
   }
 
   private async generateDescription(
     verses: string[],
-  ): Promise<{ title: string; description: string; hashtags: string }> {
-    const prompt = `Act as an English Literature Teacher and describe the Haiku: "${verses.join('\\n')}"`;
-    const outputFormat =
-      '{"title":"<Give a creative short title to describe the haiku>","description":"<Describe and explain the haiku>","hashtags":"<Give 6 lowercase hashtags>"}';
-
-    const completion = await this.openai.chatCompletionsCreate({
-      max_completion_tokens: 1000,
-      messages: [
-        {
-          role: 'user',
-          content: `${prompt} (Use the following format: ${outputFormat})`,
-        },
-      ],
-      model: this.MODEL,
-      temperature: this.temperature,
-    });
-
-    const answer = completion.choices[0].message.content;
-    try {
-      const parsed = JSON.parse(answer ?? '');
-      return {
-        title:
-          typeof parsed.title === 'string' ? parsed.title : 'Untitled Haiku',
-        description:
-          typeof parsed.description === 'string'
-            ? parsed.description
-            : 'A beautiful haiku',
-        hashtags:
-          typeof parsed.hashtags === 'string'
-            ? parsed.hashtags
-            : '#haiku #poetry #nature #zen #peaceful #gutenku',
-      };
-    } catch (err) {
-      log.warn(
-        { rawAnswer: answer, err },
-        'generateDescription JSON parse failed, using defaults',
-      );
-      return {
-        title: 'Untitled Haiku',
-        description: 'A beautiful haiku',
-        hashtags: '#haiku #poetry #nature #zen #peaceful #gutenku',
-      };
-    }
+  ): Promise<DescriptionResult> {
+    return generateDescription(
+      this.openai,
+      this.MODEL,
+      this.temperature,
+      verses,
+    );
   }
 
   private async generateTranslations(
     verses: string[],
-  ): Promise<{ fr: string; jp: string; es: string; it: string; de: string }> {
-    const outputFormat =
-      '{"fr":"<french>","jp":"<rōmaji>","es":"<spanish>","it":"<italian>","de":"<german>"}';
-    const prompt = `Translate this haiku (\\n separator): "${verses.join('\\n')}" (Format: ${outputFormat})`;
-    const completion = await this.openai.chatCompletionsCreate({
-      max_completion_tokens: 1000,
-      messages: [{ role: 'user', content: prompt }],
-      model: this.MODEL,
-      temperature: this.temperature,
-    });
-    const fallback = verses.join(' / ');
-    const fallbackAll = {
-      fr: fallback,
-      jp: fallback,
-      es: fallback,
-      it: fallback,
-      de: fallback,
-    };
-    try {
-      const raw = completion.choices[0].message.content;
-      const parsed = JSON.parse(raw ?? '');
-      return {
-        fr: typeof parsed.fr === 'string' ? parsed.fr : fallback,
-        jp: typeof parsed.jp === 'string' ? parsed.jp : fallback,
-        es: typeof parsed.es === 'string' ? parsed.es : fallback,
-        it: typeof parsed.it === 'string' ? parsed.it : fallback,
-        de: typeof parsed.de === 'string' ? parsed.de : fallback,
-      };
-    } catch (err) {
-      log.warn(
-        { err },
-        'generateTranslations JSON parse failed, using verse fallback',
-      );
-      return fallbackAll;
-    }
+  ): Promise<TranslationsResult> {
+    return generateTranslations(
+      this.openai,
+      this.MODEL,
+      this.temperature,
+      verses,
+    );
   }
 
   private async generateBookmojis(book: {
     title: string;
     author: string;
   }): Promise<string> {
-    log.info(
-      { bookTitle: book.title, bookAuthor: book.author },
-      'Generating bookmojis',
+    return generateBookmojis(
+      this.openai,
+      this.MODEL,
+      this.EMOTICONS_TEMPERATURE,
+      book,
     );
-
-    const completion = await this.openai.chatCompletionsCreate({
-      max_completion_tokens: 20,
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are an emoji generator. Respond ONLY with 3-5 emojis that visually represent the given book. No text, no spaces, just emojis.',
-        },
-        {
-          role: 'user',
-          content: `"${book.title}" by ${book.author}`,
-        },
-      ],
-      model: this.MODEL,
-      temperature: this.EMOTICONS_TEMPERATURE,
-    });
-
-    const rawContent = completion.choices[0]?.message?.content;
-    const emoticons = rawContent?.replaceAll(/[\n\s]+/g, '') || '';
-
-    log.info(
-      {
-        book: `${book.title} by ${book.author}`,
-        rawContent,
-        emoticons,
-      },
-      'Bookmojis generation result',
-    );
-
-    return emoticons;
   }
 
   private async fetchHaikus(): Promise<string[]> {
@@ -361,7 +253,6 @@ export default class OpenAIGeneratorService implements IGenerator {
     const dbCandidates: HaikuValue[] = [];
     const liveCandidates: HaikuValue[] = [];
 
-    // Fetch from DB if requested
     if (this.fromDb > 0) {
       log.info(
         { fromDb: this.fromDb },
@@ -372,7 +263,6 @@ export default class OpenAIGeneratorService implements IGenerator {
       log.info({ count: dbCandidates.length }, 'Fetched haikus from database');
     }
 
-    // Generate live haikus with GA if requested
     if (this.liveCount > 0) {
       log.info({ liveCount: this.liveCount }, 'Generating live haikus with GA');
       const liveHaikus = await this.fetchHaikusWithGAInternal();
@@ -380,17 +270,15 @@ export default class OpenAIGeneratorService implements IGenerator {
       log.info({ count: liveCandidates.length }, 'Generated live haikus');
     }
 
-    // Combine candidates
     const allCandidates = [...dbCandidates, ...liveCandidates];
 
-    // Sort by totalScore descending
     allCandidates.sort((a, b) => {
       const scoreA = a.quality?.totalScore ?? 0;
       const scoreB = b.quality?.totalScore ?? 0;
+
       return scoreB - scoreA;
     });
 
-    // Take top N for GPT selection
     this.haikuSelection = allCandidates.slice(0, this.GPT_SELECTION_POOL_SIZE);
 
     log.info(
@@ -404,10 +292,8 @@ export default class OpenAIGeneratorService implements IGenerator {
       'Combined candidates for GPT selection',
     );
 
-    // Format candidates with quality metrics
     for (const [i, haiku] of this.haikuSelection.entries()) {
-      const entry = this.formatHaikuCandidate(haiku, i);
-      haikus.push(entry);
+      haikus.push(formatHaikuCandidate(haiku, i));
     }
 
     return haikus;
@@ -419,6 +305,7 @@ export default class OpenAIGeneratorService implements IGenerator {
 
       if (!seedHaiku || !seedHaiku.chapter) {
         log.warn('Failed to get seed haiku for GA');
+
         return [];
       }
 
@@ -458,88 +345,12 @@ export default class OpenAIGeneratorService implements IGenerator {
       );
 
       return evolutionResult.topCandidates.map((candidate) =>
-        this.convertGAResultToHaikuValue(candidate, seedHaiku),
+        convertGAResultToHaikuValue(candidate, seedHaiku),
       );
     } catch (err) {
       log.error({ err }, 'GA evolution failed');
+
       return [];
     }
-  }
-
-  private convertGAResultToHaikuValue(
-    gaResult: DecodedHaiku,
-    seedHaiku: HaikuValue,
-  ): HaikuValue {
-    return {
-      book: {
-        reference: seedHaiku.book.reference,
-        title: seedHaiku.book.title,
-        author: seedHaiku.book.author,
-        emoticons: seedHaiku.book.emoticons,
-      },
-      cacheUsed: false,
-      chapter: seedHaiku.chapter,
-      context: [], // Empty context for GA-generated haikus
-      executionTime: 0,
-      rawVerses: [...gaResult.verses],
-      verses: [...gaResult.verses],
-      quality: {
-        totalScore: gaResult.fitness,
-        natureWords: gaResult.metrics.natureWords,
-        repeatedWords: gaResult.metrics.repeatedWords,
-        weakStarts: gaResult.metrics.weakStarts,
-        blacklistedVerses: gaResult.metrics.blacklistedVerses ?? 0,
-        properNouns: gaResult.metrics.properNouns ?? 0,
-        verseLengthPenalty: gaResult.metrics.verseLengthPenalty ?? 0,
-        sentiment: gaResult.metrics.sentiment,
-        grammar: gaResult.metrics.grammar,
-        markovFlow: gaResult.metrics.markovFlow,
-        trigramFlow: gaResult.metrics.trigramFlow,
-        uniqueness: gaResult.metrics.uniqueness,
-        alliteration: gaResult.metrics.alliteration,
-        verseDistance: gaResult.metrics.verseDistance,
-        lineLengthBalance: gaResult.metrics.lineLengthBalance,
-        imageryDensity: gaResult.metrics.imageryDensity,
-        semanticCoherence: gaResult.metrics.semanticCoherence,
-        verbPresence: gaResult.metrics.verbPresence,
-      },
-      extractionMethod: 'genetic_algorithm',
-    };
-  }
-
-  private formatHaikuCandidate(haiku: HaikuValue, index: number): string {
-    const q = haiku.quality;
-    const qualityDetails = this.formatQualityDetails(q);
-
-    log.debug(
-      { id: index, verses: haiku.verses, quality: q },
-      'Haiku candidate with quality score',
-    );
-
-    return `[Id]: ${index}\n[Verses]: ${haiku.verses.join(' / ')}\n[Quality]: ${qualityDetails}\n`;
-  }
-
-  private formatQualityDetails(q?: HaikuValue['quality']): string {
-    if (!q) {
-      return 'nature_words=0, repeated_words=0, weak_starts=0, sentiment=0.50, grammar=0.00, markov_flow=0.00, trigram_flow=0.00, uniqueness=0.00, alliteration=0.00, verse_distance=0.00, line_balance=0.00, imagery=0.00, coherence=0.00, verb_presence=0.00, total_score=0.00';
-    }
-    const parts = [
-      `nature_words=${q.natureWords}`,
-      `repeated_words=${q.repeatedWords}`,
-      `weak_starts=${q.weakStarts}`,
-      `sentiment=${q.sentiment.toFixed(2)}`,
-      `grammar=${q.grammar.toFixed(2)}`,
-      `markov_flow=${q.markovFlow.toFixed(2)}`,
-      `trigram_flow=${q.trigramFlow.toFixed(2)}`,
-      `uniqueness=${q.uniqueness.toFixed(2)}`,
-      `alliteration=${q.alliteration.toFixed(2)}`,
-      `verse_distance=${q.verseDistance.toFixed(2)}`,
-      `line_balance=${q.lineLengthBalance.toFixed(2)}`,
-      `imagery=${q.imageryDensity.toFixed(2)}`,
-      `coherence=${q.semanticCoherence.toFixed(2)}`,
-      `verb_presence=${q.verbPresence.toFixed(2)}`,
-      `total_score=${q.totalScore.toFixed(2)}`,
-    ];
-    return parts.join(', ');
   }
 }

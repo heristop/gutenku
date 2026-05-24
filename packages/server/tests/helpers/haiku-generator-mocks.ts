@@ -58,8 +58,10 @@ export const createNaturalLanguage = () => ({
   extractWordChunks: (t: string) => {
     const words = t.split(/\s+/g).filter(Boolean);
     const chunks: string[] = [];
-    for (let i = 0; i <= words.length - 2; i += 2) {chunks.push(words.slice(i, i + 2).join(' '));}
-    return chunks;
+    
+for (let i = 0; i <= words.length - 2; i += 2) {chunks.push(words.slice(i, i + 2).join(' '));}
+    
+return chunks;
   },
   extractWords: (t: string) => t.split(/\s+/g).filter(Boolean),
   getPOSTags: vi.fn(() => [{ word: 'test', tag: 'VB' }]),

@@ -50,7 +50,8 @@ describe('useHaikuHighlighter (apply behaviour)', () => {
   it('uses requestIdleCallback when available', () => {
     const idle = vi.fn((cb: () => void) => {
       cb();
-      return 1;
+      
+return 1;
     });
     (globalThis as Record<string, unknown>).requestIdleCallback = idle;
 
@@ -77,13 +78,15 @@ describe('useHaikuHighlighter (apply behaviour)', () => {
       .spyOn(globalThis, 'requestAnimationFrame')
       .mockImplementation((cb) => {
         cb(0);
-        return 1;
+        
+return 1;
       });
 
     const { applyToAllHighlights } = useHaikuHighlighter();
     const root = document.createElement('div');
     root.className = 'chapter-text';
-    for (let i = 0; i < 12; i++) {
+    
+for (let i = 0; i < 12; i++) {
       root.append(document.createElement('mark'));
     }
     document.body.append(root);
@@ -92,7 +95,8 @@ describe('useHaikuHighlighter (apply behaviour)', () => {
     vi.advanceTimersByTime(100);
 
     expect(rafSpy).toHaveBeenCalled();
-    for (const mark of root.querySelectorAll('mark')) {
+    
+for (const mark of root.querySelectorAll('mark')) {
       expect(
         (mark as HTMLElement).style.getPropertyValue('--unique-highlighter-bg'),
       ).toContain('data:image/svg+xml');

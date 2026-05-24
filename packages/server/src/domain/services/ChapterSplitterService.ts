@@ -155,6 +155,7 @@ export class ChapterSplitterService {
 
     for (const chapterPattern of this.patterns) {
       const chapters = cleanedContent.split(chapterPattern.pattern);
+
       if (chapters.length > 1) {
         // Filter empty strings and short fragments
         const validChapters = chapters.filter(
@@ -222,6 +223,7 @@ export class ChapterSplitterService {
   private removeGutenbergFooter(content: string): string {
     const footerPattern =
       /\*{3}\s*END\s+OF\s+(?:THE\s+)?PROJECT\s+GUTENBERG.*$/is;
+
     return content.replace(footerPattern, '').trim();
   }
 

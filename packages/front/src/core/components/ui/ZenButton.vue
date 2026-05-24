@@ -70,6 +70,7 @@ const component = computed(() => {
   if (props.href) {
     return 'a';
   }
+
   return 'button';
 });
 
@@ -91,6 +92,7 @@ const componentProps = computed(() => {
       'aria-disabled': isDisabled.value || undefined,
     };
   }
+
   return {
     type: props.type,
     disabled: isDisabled.value,
@@ -100,6 +102,7 @@ const componentProps = computed(() => {
 function handleClick(event: MouseEvent) {
   if (isDisabled.value) {
     event.preventDefault();
+
     return;
   }
   emit('click', event);

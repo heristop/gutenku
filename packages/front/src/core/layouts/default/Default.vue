@@ -32,8 +32,10 @@ function skipToMain(): void {
 
   for (const id of targets) {
     const el = document.getElementById(id);
+
     if (el) {
       el.focus();
+
       return;
     }
   }
@@ -64,6 +66,7 @@ useHead({
         imagesizes: '(max-width: 600px) 240px, (max-width: 768px) 280px, 320px',
       });
     }
+
     return links;
   }),
   meta: computed(() => {

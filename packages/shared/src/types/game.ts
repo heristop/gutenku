@@ -45,7 +45,7 @@ export interface GameState {
   isComplete: boolean;
   isWon: boolean;
   correctBook?: BookValue;
-  scratchedEmoticons: number;
+  scratchedPositions: number[];
   revealedHaikus: string[];
   allEmoticonsRevealed: boolean;
   hasReducedBooks?: boolean;

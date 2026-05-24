@@ -31,6 +31,7 @@ onMounted(async () => {
   // Defer analytics to idle callback (client-side only)
   if ('requestIdleCallback' in globalThis) {
     requestIdleCallback(() => import('./analytics-setup'));
+
     return;
   }
 

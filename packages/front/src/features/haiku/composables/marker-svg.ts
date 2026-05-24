@@ -38,10 +38,12 @@ export interface MarkerStroke {
 // Seeded PRNG (mulberry32) for deterministic per-line randomness
 function createRng(seed: number): () => number {
   let t = seed | 0;
+
   return () => {
     t = (t + 0x6D2B79F5) | 0;
     let r = Math.imul(t ^ (t >>> 15), 1 | t);
     r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
+
     return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
   };
 }
@@ -153,6 +155,7 @@ export function generateLineSegments(
 
   for (const cutout of sorted) {
     const segWidth = cutout.startX - currentX;
+
     if (segWidth > 20) {
       segments.push({
         x: currentX,
@@ -169,6 +172,7 @@ export function generateLineSegments(
 
   // Final segment after last cutout
   const finalWidth = containerWidth - currentX;
+
   if (finalWidth > 20) {
     segments.push({
       x: currentX,

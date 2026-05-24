@@ -72,6 +72,7 @@ export default class HaikuRepository implements IHaikuRepository {
         { err: error },
         'Cache extraction failed, falling back to generation',
       );
+
       return [];
     }
   }
@@ -146,6 +147,7 @@ export default class HaikuRepository implements IHaikuRepository {
           },
           'Not enough cached documents from yesterday',
         );
+
         return null;
       }
 
@@ -170,6 +172,7 @@ export default class HaikuRepository implements IHaikuRepository {
       );
 
       const selected = result[0] as unknown as HaikuDocument;
+
       return {
         book: selected.book,
         cacheUsed: true,
@@ -184,6 +187,7 @@ export default class HaikuRepository implements IHaikuRepository {
         { err: error },
         'Deterministic cache extraction failed, falling back to generation',
       );
+
       return null;
     }
   }
@@ -226,6 +230,7 @@ export default class HaikuRepository implements IHaikuRepository {
       return this.mapCachedHaikuValue(result as HaikuDocument[]);
     } catch (error) {
       log.warn({ err: error }, 'Top-scored extraction failed');
+
       return [];
     }
   }
@@ -237,6 +242,7 @@ export default class HaikuRepository implements IHaikuRepository {
 
     try {
       const haikusCollection = this.db.collection('haikus');
+
       return await haikusCollection.estimatedDocumentCount();
     } catch {
       return 0;

@@ -156,7 +156,9 @@ describe('OpenAIGeneratorService - GA live generation path', () => {
     });
 
     // No DB and no live candidates -> selection empty -> index out of bounds path
-    await expect(service.generate()).rejects.toThrow();
+    await expect(service.generate()).rejects.toThrow(
+      /Cannot set propert(?:ies|y) .*selectionInfo/,
+    );
   });
 
   it('recovers from GA evolution failure and continues', async () => {

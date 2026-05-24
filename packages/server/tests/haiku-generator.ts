@@ -52,10 +52,12 @@ const makeService = () => {
     extractWordChunks: (t: string) => {
       const words = t.split(/\s+/g).filter(Boolean);
       const chunks: string[] = [];
-      for (let i = 0; i <= words.length - 2; i += 2) {
+      
+for (let i = 0; i <= words.length - 2; i += 2) {
         chunks.push(words.slice(i, i + 2).join(' '));
       }
-      return chunks;
+      
+return chunks;
     },
     extractWords: (t: string) => t.split(/\s+/g).filter(Boolean),
     getPOSTags: vi.fn(() => [{ word: 'test', tag: 'VB' }]),
@@ -562,8 +564,9 @@ describe('HaikuGeneratorService - generate flow', () => {
       theme: 'default',
     });
 
-    // Will throw since mock repos don't return valid data for building haiku
-    await expect(svc.generate()).rejects.toThrow();
+    // Mock repos are minimal stubs — generation throws as soon as it hits an
+    // unimplemented method (e.g., selectRandomBooks). We assert any error is raised.
+    await expect(svc.generate()).rejects.toThrow(Error);
   });
 
   it('generate throws when filter yields no matching chapters', async () => {
@@ -576,8 +579,9 @@ describe('HaikuGeneratorService - generate flow', () => {
     });
     svc.filter(['whale', 'ocean']);
 
-    // Will throw since no chapters match the filter
-    await expect(svc.generate()).rejects.toThrow();
+    // Mock repos are minimal stubs — generation throws on the unimplemented
+    // helper. We assert any error is raised.
+    await expect(svc.generate()).rejects.toThrow(Error);
   });
 
   it('getVerses calls extractQuotes and selectHaikuVerses', () => {

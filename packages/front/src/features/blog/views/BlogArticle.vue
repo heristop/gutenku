@@ -40,6 +40,7 @@ const { readingProgress, showBackToTop, scrollToTop } = useReadingProgress();
 // Arrow key nav
 function handleKeydown(e: KeyboardEvent) {
   const target = e.target as HTMLElement;
+
   if (
     target.tagName === 'INPUT' ||
     target.tagName === 'TEXTAREA' ||
@@ -56,6 +57,7 @@ function handleKeydown(e: KeyboardEvent) {
       name: 'BlogArticle',
       params: { slug: prevArticle.value.slug },
     });
+
     return;
   }
 
@@ -79,6 +81,7 @@ const ogImage = computed(() => {
   if (!article.value) {
     return `${SITE_URL}/og-image.png`;
   }
+
   return article.value.image.startsWith('/')
     ? `${SITE_URL}${article.value.image}`
     : article.value.image;
@@ -125,6 +128,7 @@ useHead({
     }
     const links: { rel: string; hreflang: string; href: string }[] = [];
     const availableLocales = getAvailableLocalesForSlug(slug.value);
+
     for (const loc of availableLocales) {
       const localeConfig = LOCALE_CONFIG[loc];
       links.push({
@@ -138,6 +142,7 @@ useHead({
       hreflang: 'x-default',
       href: `${SITE_URL}/blog/${slug.value}`,
     });
+
     return links;
   }),
   script: computed(() =>

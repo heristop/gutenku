@@ -26,18 +26,13 @@ export function useBotDetection() {
 
     // Defer bot detection to run after page is interactive
     if ('requestIdleCallback' in globalThis) {
-      requestIdleCallback(
-        () => {
-          runDetection();
-        },
-        { timeout: 5000 },
-      );
-    } else {
-      // Fallback for browsers without requestIdleCallback (Safari)
-      setTimeout(() => {
-        runDetection();
-      }, 2000);
+      requestIdleCallback(() => runDetection(), { timeout: 5000 });
+
+      return;
     }
+
+    // Fallback for browsers without requestIdleCallback (Safari)
+    setTimeout(() => runDetection(), 2000);
   };
 
   return { isBot, isLoading, detectBot };

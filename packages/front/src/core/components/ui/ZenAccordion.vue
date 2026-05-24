@@ -40,6 +40,7 @@ const isExpanded = computed({
     if (modelValue.value !== undefined) {
       modelValue.value = val;
     }
+
     if (storageState) {
       storageState.value.value = val;
     }
@@ -349,7 +350,7 @@ $ink-easing: cubic-bezier(0.22, 1, 0.36, 1);
   margin-top: 0.125rem;
 }
 
-// Header actions slot (now below header, centered)
+// Header actions slot, below the header, centered.
 .zen-accordion__actions {
   display: flex;
   align-items: center;

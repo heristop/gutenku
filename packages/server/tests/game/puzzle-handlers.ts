@@ -130,14 +130,16 @@ describe('Puzzle Handlers', () => {
       });
 
       let foundCorrect = false;
-      for (const book of result.availableBooks) {
+      
+for (const book of result.availableBooks) {
         const guessQuery = new SubmitGuessQuery(
           '2026-01-15',
           book.reference,
           1,
         );
         const guessResult = await handler2.execute(guessQuery);
-        if (guessResult.isCorrect) {
+        
+if (guessResult.isCorrect) {
           foundCorrect = true;
           break;
         }
@@ -225,7 +227,8 @@ describe('Puzzle Handlers', () => {
         'author_nationality',
         'author_name',
       ];
-      for (const type of hintTypes) {
+      
+for (const type of hintTypes) {
         expect(validTypes).toContain(type);
       }
     });
@@ -296,7 +299,8 @@ describe('Puzzle Handlers', () => {
           1,
         );
         const guessResult = await handler.execute(guessQuery);
-        if (guessResult.isCorrect) {
+        
+if (guessResult.isCorrect) {
           correctBookId = book.reference;
           break;
         }
@@ -343,7 +347,8 @@ describe('Puzzle Handlers', () => {
           1,
         );
         const guessResult = await handler.execute(guessQuery);
-        if (guessResult.isCorrect) {
+        
+if (guessResult.isCorrect) {
           break;
         }
       }
@@ -413,20 +418,26 @@ describe('Puzzle Handlers', () => {
       const puzzleQuery = new GetDailyPuzzleQuery('2026-01-15', []);
       const puzzleResult = await puzzleHandler.execute(puzzleQuery);
 
-      // Find correct book
-      for (const book of puzzleResult.availableBooks) {
+      // Find correct book by submitting a guess for every available book
+      let correctResult: Awaited<ReturnType<typeof handler.execute>> | undefined;
+      
+for (const book of puzzleResult.availableBooks) {
         const guessQuery = new SubmitGuessQuery(
           '2026-01-15',
           book.reference,
           1,
         );
         const guessResult = await handler.execute(guessQuery);
-        if (guessResult.isCorrect) {
-          expect(guessResult.allHints).toBeDefined();
-          expect(guessResult.allHints!.length).toBe(6);
+        
+if (guessResult.isCorrect) {
+          correctResult = guessResult;
           break;
         }
       }
+
+      expect(correctResult).toBeDefined();
+      expect(correctResult!.allHints).toBeDefined();
+      expect(correctResult!.allHints!.length).toBe(6);
     });
 
     it('does not return all hints for wrong guess before round 6', async () => {
@@ -561,10 +572,12 @@ describe('ReduceBooksHandler', () => {
     });
 
     let correctBookRef: string | undefined;
-    for (const book of puzzleResult.availableBooks) {
+    
+for (const book of puzzleResult.availableBooks) {
       const guessQuery = new SubmitGuessQuery('2026-01-15', book.reference, 1);
       const guessResult = await submitHandler.execute(guessQuery);
-      if (guessResult.isCorrect) {
+      
+if (guessResult.isCorrect) {
         correctBookRef = book.reference;
         break;
       }
@@ -599,13 +612,11 @@ describe('ReduceBooksHandler', () => {
     const refs1 = result1.map((b) => b.reference).join(',');
     const refs2 = result2.map((b) => b.reference).join(',');
 
-    // With small test data, the same books may be returned but in different order
-    // If we have the same books, at least the order should differ
-    if (result1.length === result2.length && result1.length > 1) {
-      // Either the order is different or, with small dataset, they might be same
-      expect(refs1).toBeDefined();
-      expect(refs2).toBeDefined();
-    }
+    // With small test data, the same books may be returned but in different order.
+    // The deterministic shuffle is exercised; both reference strings should be
+    // defined regardless of whether the orders happen to coincide.
+    expect(refs1).toBeDefined();
+    expect(refs2).toBeDefined();
   });
 
   it('returns books with required properties', async () => {
@@ -622,13 +633,14 @@ describe('ReduceBooksHandler', () => {
   it('throws error for invalid date format', async () => {
     const query = new ReduceBooksQuery('invalid-date');
 
-    await expect(handler.execute(query)).rejects.toThrow();
+    // Zod schema rejects with a validation error referencing the date field
+    await expect(handler.execute(query)).rejects.toThrow(/date/i);
   });
 
   it('throws error for malformed date', async () => {
     const query = new ReduceBooksQuery('2026/01/15');
 
-    await expect(handler.execute(query)).rejects.toThrow();
+    await expect(handler.execute(query)).rejects.toThrow(/date/i);
   });
 
   it('handles edge case dates', async () => {
@@ -723,7 +735,7 @@ describe('SubmitGuessHandler Hint Coverage', () => {
   });
 
   it('generates first_letter hint through SubmitGuessHandler', async () => {
-    let foundFirstLetter = false;
+    let firstLetterContent: string | undefined;
 
     for (let day = 1; day <= 90; day++) {
       const date = `2026-${String(Math.floor(day / 28) + 1).padStart(2, '0')}-${String((day % 28) + 1).padStart(2, '0')}`;
@@ -733,18 +745,19 @@ describe('SubmitGuessHandler Hint Coverage', () => {
       const firstLetterHint = result.allHints?.find(
         (h) => h.type === 'first_letter',
       );
-      if (firstLetterHint) {
-        expect(firstLetterHint.content).toMatch(/^[A-Z]\.\.\.$/);
-        foundFirstLetter = true;
+      
+if (firstLetterHint) {
+        firstLetterContent = firstLetterHint.content;
         break;
       }
     }
 
-    expect(foundFirstLetter).toBeTruthy();
+    expect(firstLetterContent).toBeDefined();
+    expect(firstLetterContent!).toMatch(/^[A-Z]\.\.\.$/);
   });
 
   it('generates publication_century hint through SubmitGuessHandler', async () => {
-    let foundCentury = false;
+    let centuryContent: string | undefined;
 
     for (let day = 1; day <= 90; day++) {
       const date = `2026-${String(Math.floor(day / 28) + 1).padStart(2, '0')}-${String((day % 28) + 1).padStart(2, '0')}`;
@@ -754,20 +767,21 @@ describe('SubmitGuessHandler Hint Coverage', () => {
       const centuryHint = result.allHints?.find(
         (h) => h.type === 'publication_century',
       );
-      if (centuryHint) {
-        expect(centuryHint.content).toMatch(/^\d+(st|nd|rd|th) century$/);
-        foundCentury = true;
+      
+if (centuryHint) {
+        centuryContent = centuryHint.content;
         break;
       }
     }
 
-    expect(foundCentury).toBeTruthy();
+    expect(centuryContent).toBeDefined();
+    expect(centuryContent!).toMatch(/^\d+(st|nd|rd|th) century$/);
   });
 
   it('triggers era/century exclusion replacement logic', async () => {
     // Test many dates to find one where era/century exclusion happens
     // This exercises the replacement logic in generateAllHints
-    let checkedDates = 0;
+    const eraCenturyPairs: { hasEra: boolean; hasCentury: boolean }[] = [];
 
     for (let day = 1; day <= 120; day++) {
       const date = `2026-${String(Math.floor(day / 28) + 1).padStart(2, '0')}-${String((day % 28) + 1).padStart(2, '0')}`;
@@ -776,16 +790,18 @@ describe('SubmitGuessHandler Hint Coverage', () => {
 
       if (result.allHints) {
         const hintTypes = result.allHints.map((h) => h.type);
-        const hasEra = hintTypes.includes('era');
-        const hasCentury = hintTypes.includes('publication_century');
-
-        // Verify the exclusion rule is enforced
-        expect(hasEra && hasCentury).toBeFalsy();
-        checkedDates++;
+        eraCenturyPairs.push({
+          hasEra: hintTypes.includes('era'),
+          hasCentury: hintTypes.includes('publication_century'),
+        });
       }
     }
 
-    expect(checkedDates).toBeGreaterThan(0);
+    expect(eraCenturyPairs.length).toBeGreaterThan(0);
+    // Verify the exclusion rule is enforced across every date with hints
+    expect(
+      eraCenturyPairs.every((p) => !(p.hasEra && p.hasCentury)),
+    ).toBeTruthy();
   });
 });
 
@@ -811,23 +827,25 @@ describe('Hint Type Coverage', () => {
       '2026-06-15',
     ];
 
-    let foundFirstLetter = false;
-    for (const date of dates) {
+    let firstLetterContent: string | undefined;
+    
+for (const date of dates) {
       const query = new GetDailyPuzzleQuery(date, [1, 2, 3, 4, 5, 6]);
       const result = await puzzleHandler.execute(query);
 
       const firstLetterHint = result.puzzle.hints.find(
         (h) => h.type === 'first_letter',
       );
-      if (firstLetterHint) {
-        // First letter hint should end with "..."
-        expect(firstLetterHint.content).toMatch(/^[A-Z]\.\.\.$/);
-        foundFirstLetter = true;
+      
+if (firstLetterHint) {
+        firstLetterContent = firstLetterHint.content;
         break;
       }
     }
 
-    expect(foundFirstLetter).toBeTruthy();
+    expect(firstLetterContent).toBeDefined();
+    // First letter hint should end with "..."
+    expect(firstLetterContent!).toMatch(/^[A-Z]\.\.\.$/);
   });
 
   it('generates publication_century hint with correct suffix', async () => {
@@ -845,23 +863,25 @@ describe('Hint Type Coverage', () => {
       '2026-06-15',
     ];
 
-    let foundCentury = false;
-    for (const date of dates) {
+    let centuryContent: string | undefined;
+    
+for (const date of dates) {
       const query = new GetDailyPuzzleQuery(date, [1, 2, 3, 4, 5, 6]);
       const result = await puzzleHandler.execute(query);
 
       const centuryHint = result.puzzle.hints.find(
         (h) => h.type === 'publication_century',
       );
-      if (centuryHint) {
-        // Should match pattern like "19th century"
-        expect(centuryHint.content).toMatch(/^\d+(st|nd|rd|th) century$/);
-        foundCentury = true;
+      
+if (centuryHint) {
+        centuryContent = centuryHint.content;
         break;
       }
     }
 
-    expect(foundCentury).toBeTruthy();
+    expect(centuryContent).toBeDefined();
+    // Should match pattern like "19th century"
+    expect(centuryContent!).toMatch(/^\d+(st|nd|rd|th) century$/);
   });
 
   it('generates title_word_count hint correctly', async () => {
@@ -873,23 +893,25 @@ describe('Hint Type Coverage', () => {
       '2026-04-01',
     ];
 
-    let foundWordCount = false;
-    for (const date of dates) {
+    let wordCountContent: string | undefined;
+    
+for (const date of dates) {
       const query = new GetDailyPuzzleQuery(date, [1, 2, 3, 4, 5, 6]);
       const result = await puzzleHandler.execute(query);
 
       const wordCountHint = result.puzzle.hints.find(
         (h) => h.type === 'title_word_count',
       );
-      if (wordCountHint) {
-        // Should match pattern like "3" (just the number, more i18n-friendly)
-        expect(wordCountHint.content).toMatch(/^\d+$/);
-        foundWordCount = true;
+      
+if (wordCountHint) {
+        wordCountContent = wordCountHint.content;
         break;
       }
     }
 
-    expect(foundWordCount).toBeTruthy();
+    expect(wordCountContent).toBeDefined();
+    // Should match pattern like "3" (just the number, more i18n-friendly)
+    expect(wordCountContent!).toMatch(/^\d+$/);
   });
 
   it('generates quote hint from book notable quotes', async () => {
@@ -904,21 +926,23 @@ describe('Hint Type Coverage', () => {
       '2026-05-15',
     ];
 
-    let foundQuote = false;
-    for (const date of dates) {
+    let quoteContent: string | undefined;
+    
+for (const date of dates) {
       const query = new GetDailyPuzzleQuery(date, [1, 2, 3, 4, 5, 6]);
       const result = await puzzleHandler.execute(query);
 
       const quoteHint = result.puzzle.hints.find((h) => h.type === 'quote');
-      if (quoteHint) {
-        // Quote should be a non-empty string
-        expect(quoteHint.content.length).toBeGreaterThan(0);
-        foundQuote = true;
+      
+if (quoteHint) {
+        quoteContent = quoteHint.content;
         break;
       }
     }
 
-    expect(foundQuote).toBeTruthy();
+    expect(quoteContent).toBeDefined();
+    // Quote should be a non-empty string
+    expect(quoteContent!.length).toBeGreaterThan(0);
   });
 
   it('generates author_name hint with first name only', async () => {
@@ -935,24 +959,26 @@ describe('Hint Type Coverage', () => {
       '2026-06-15',
     ];
 
-    let foundAuthorName = false;
-    for (const date of dates) {
+    let authorNameContent: string | undefined;
+    
+for (const date of dates) {
       const query = new GetDailyPuzzleQuery(date, [1, 2, 3, 4, 5, 6]);
       const result = await puzzleHandler.execute(query);
 
       const authorNameHint = result.puzzle.hints.find(
         (h) => h.type === 'author_name',
       );
-      if (authorNameHint) {
-        // Should be a single word (first name)
-        expect(authorNameHint.content).not.toContain(' ');
-        expect(authorNameHint.content.length).toBeGreaterThan(0);
-        foundAuthorName = true;
+      
+if (authorNameHint) {
+        authorNameContent = authorNameHint.content;
         break;
       }
     }
 
-    expect(foundAuthorName).toBeTruthy();
+    expect(authorNameContent).toBeDefined();
+    // Should be a single word (first name)
+    expect(authorNameContent!).not.toContain(' ');
+    expect(authorNameContent!.length).toBeGreaterThan(0);
   });
 
   it('generates all hint types across multiple dates', async () => {
@@ -1358,7 +1384,7 @@ describe('SubmitGuessHandler Quote Fallback', () => {
 
   it('handles quote generation with fallback for missing quotes', async () => {
     // Test many dates to exercise quote selection branches
-    let foundQuoteHint = false;
+    let quoteContent: string | undefined;
 
     for (let day = 1; day <= 30; day++) {
       const date = `2026-${String(Math.floor(day / 28) + 1).padStart(2, '0')}-${String((day % 28) + 1).padStart(2, '0')}`;
@@ -1366,15 +1392,16 @@ describe('SubmitGuessHandler Quote Fallback', () => {
       const result = await handler.execute(query);
 
       const quoteHint = result.allHints?.find((h) => h.type === 'quote');
-      if (quoteHint) {
-        // Verify quote content is non-empty (either real quote or fallback)
-        expect(quoteHint.content.length).toBeGreaterThan(0);
-        foundQuoteHint = true;
+      
+if (quoteHint) {
+        quoteContent = quoteHint.content;
         break;
       }
     }
 
-    expect(foundQuoteHint).toBeTruthy();
+    expect(quoteContent).toBeDefined();
+    // Verify quote content is non-empty (either real quote or fallback)
+    expect(quoteContent!.length).toBeGreaterThan(0);
   });
 
   it('exercises all hint types across various dates', async () => {
@@ -1403,7 +1430,7 @@ describe('SubmitGuessHandler Quote Fallback', () => {
 
   it('exercises era/publication_century exclusion rule', async () => {
     // Run many dates to hit the exclusion replacement logic
-    let foundExclusionCase = false;
+    const cases: { hasEra: boolean; hasCentury: boolean }[] = [];
 
     for (let day = 1; day <= 500; day++) {
       const month = (Math.floor((day - 1) / 28) % 12) + 1;
@@ -1420,11 +1447,9 @@ describe('SubmitGuessHandler Quote Fallback', () => {
           const hasCentury = result.allHints.some(
             (h) => h.type === 'publication_century',
           );
-
-          // Verify exclusion rule is working (both should never appear together)
-          if (hasEra || hasCentury) {
-            expect(hasEra && hasCentury).toBeFalsy();
-            foundExclusionCase = true;
+          
+if (hasEra || hasCentury) {
+            cases.push({ hasEra, hasCentury });
           }
         }
       } catch {
@@ -1433,7 +1458,9 @@ describe('SubmitGuessHandler Quote Fallback', () => {
     }
 
     // We should have found at least one case with era or century
-    expect(foundExclusionCase).toBeTruthy();
+    expect(cases.length).toBeGreaterThan(0);
+    // Verify exclusion rule is working (both should never appear together)
+    expect(cases.every((c) => !(c.hasEra && c.hasCentury))).toBeTruthy();
   });
 });
 
@@ -1454,10 +1481,12 @@ describe('GetDailyPuzzleHandler Book Selection', () => {
 
       // Find correct book by testing guesses
       let correctBookRef: string | null = null;
-      for (const book of puzzleResult.availableBooks) {
+      
+for (const book of puzzleResult.availableBooks) {
         const guessQuery = new SubmitGuessQuery(date, book.reference, 1);
         const guessResult = await submitHandler.execute(guessQuery);
-        if (guessResult.isCorrect) {
+        
+if (guessResult.isCorrect) {
           correctBookRef = book.reference;
           break;
         }

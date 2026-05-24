@@ -41,6 +41,7 @@ const barSegments = computed<BarSegment[][]>(() => {
   if (!layout.value.lines.length || !layout.value.containerWidth) {
     return [];
   }
+
   return generateAllLineSegments(
     layout.value.lines,
     layout.value.containerWidth,
@@ -61,6 +62,7 @@ const allSegments = computed(() => {
       result.push({ lineIndex: li, segIndex: si, seg, line });
     });
   });
+
   return result;
 });
 
@@ -68,12 +70,14 @@ const allSegments = computed(() => {
 
 const verseSegments = computed(() => {
   const lines = layout.value.lines;
+
   if (!lines.length) {return [];}
 
   // Join all line texts; trimEnd avoids double spaces from pretext trailing whitespace
   const lineOffsets: number[] = [];
   const lineLengths: number[] = [];
   let joined = '';
+
   for (const line of lines) {
     const trimmed = line.text.trimEnd();
     lineOffsets.push(joined.length);
@@ -83,9 +87,11 @@ const verseSegments = computed(() => {
 
   // Find all verse ranges in the joined text
   const verseRanges: Array<{ start: number; end: number }> = [];
+
   for (const verse of props.verses) {
     if (!verse || !verse.trim()) {continue;}
     const idx = joined.indexOf(verse.trim());
+
     if (idx !== -1) {
       verseRanges.push({ start: idx, end: idx + verse.trim().length });
     }
@@ -97,6 +103,7 @@ const verseSegments = computed(() => {
     const lineEnd = lineStart + lineLengths[li];
 
     const overlaps: Array<{ from: number; to: number }> = [];
+
     for (const vr of verseRanges) {
       if (vr.start < lineEnd && vr.end > lineStart) {
         overlaps.push({
@@ -113,6 +120,7 @@ const verseSegments = computed(() => {
     overlaps.sort((a, b) => a.from - b.from);
     const segments: TextSegment[] = [];
     let cursor = 0;
+
     for (const ov of overlaps) {
       if (ov.from > cursor) {
         segments.push({
@@ -123,9 +131,11 @@ const verseSegments = computed(() => {
       segments.push({ text: line.text.slice(ov.from, ov.to), isVerse: true });
       cursor = ov.to;
     }
+
     if (cursor < line.text.length) {
       segments.push({ text: line.text.slice(cursor), isVerse: false });
     }
+
     return segments;
   });
 });
@@ -153,11 +163,13 @@ const localSpotlight = computed(() => {
   }
   const myEl = containerRef.value;
   const parentEl = myEl.closest('.book-content');
+
   if (!parentEl) {
     return null;
   }
   const myRect = myEl.getBoundingClientRect();
   const parentRect = parentEl.getBoundingClientRect();
+
   return {
     x: props.spotlight.x - (myRect.left - parentRect.left),
     y: props.spotlight.y - (myRect.top - parentRect.top),
@@ -177,9 +189,11 @@ const NOISE_FILTER_COUNT = 4;
 
 const noiseSeeds = computed(() => {
   const segs = allSegments.value;
+
   if (!segs.length) {
     return [];
   }
+
   return segs.slice(0, NOISE_FILTER_COUNT).map((s) => s.seg.stroke.noiseSeed);
 });
 
@@ -195,6 +209,7 @@ watch(
         isRevealing.value = false;
       }, totalTime + 100);
     }
+
     if (!oldHidden && newHidden) {
       hasDrawn.value = false;
       nextTick(() => {
@@ -212,6 +227,7 @@ watch(ready, (isReady) => {
 
 function getSegmentStyle(line: MarkerLine, seg: BarSegment, lineIndex: number) {
   const stroke = seg.stroke;
+
   return {
     '--draw-delay': `${props.delay + lineIndex * DRAW_STAGGER}ms`,
     '--draw-duration': `${DRAW_DURATION}ms`,

@@ -45,6 +45,7 @@ export class BookMetadataExtractorService {
   extract(rawText: RawBookText): BookMetadata {
     const title = this.extractTitle(rawText.content);
     const author = this.extractAuthor(rawText.content);
+
     if (!title && !author) {
       throw new MetadataExtractionException('both', {
         metadata: {
@@ -53,6 +54,7 @@ export class BookMetadataExtractorService {
         },
       });
     }
+
     if (!title) {
       throw new MetadataExtractionException('title', {
         metadata: {
@@ -61,6 +63,7 @@ export class BookMetadataExtractorService {
         },
       });
     }
+
     if (!author) {
       throw new MetadataExtractionException('author', {
         metadata: {

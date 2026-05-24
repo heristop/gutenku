@@ -10,14 +10,16 @@ const mockState = {
 // Mock node:fs for createWriteStream
 vi.mock('node:fs', async () => {
   const { EventEmitter } = await import('node:events');
-  return {
+  
+return {
     createWriteStream: vi.fn(() => {
       const chunks: string[] = [];
       const emitter = new EventEmitter();
       const mockStream = {
         write: (data: string) => {
           chunks.push(data);
-          return true;
+          
+return true;
         },
         end: () => {
           mockState.savedData = chunks.join('');
@@ -25,15 +27,18 @@ vi.mock('node:fs', async () => {
         },
         on: (event: string, handler: () => void) => {
           emitter.on(event, handler);
-          return mockStream;
+          
+return mockStream;
         },
         once: (event: string, handler: () => void) => {
           emitter.once(event, handler);
-          return mockStream;
+          
+return mockStream;
         },
         destroy: vi.fn(),
       };
-      return mockStream;
+      
+return mockStream;
     }),
   };
 });
@@ -186,11 +191,13 @@ describe('MarkovChainService - persistence', () => {
       }),
       on: vi.fn((event: string, handler: (err?: Error) => void) => {
         emitter.on(event, handler);
-        return mockStream;
+        
+return mockStream;
       }),
       once: vi.fn((event: string, handler: () => void) => {
         emitter.once(event, handler);
-        return mockStream;
+        
+return mockStream;
       }),
       destroy: vi.fn(),
     };
@@ -353,7 +360,8 @@ const makeWorkingStream = () => {
   const mockStream: Record<string, unknown> = {
     write: (data: string) => {
       chunks.push(data);
-      return true;
+      
+return true;
     },
     end: () => {
       mockState.savedData = chunks.join('');
@@ -361,15 +369,18 @@ const makeWorkingStream = () => {
     },
     on: (event: string, handler: () => void) => {
       emitter.on(event, handler);
-      return mockStream;
+      
+return mockStream;
     },
     once: (event: string, handler: () => void) => {
       emitter.once(event, handler);
-      return mockStream;
+      
+return mockStream;
     },
     destroy: vi.fn(),
   };
-  return mockStream;
+  
+return mockStream;
 };
 
 describe('MarkovChainService - model state', () => {
@@ -433,7 +444,8 @@ describe('MarkovChainService - model state', () => {
     // Build a corpus with > 500 distinct bigram keys, each repeated enough
     // times (>= MIN_BIGRAM_COUNT) to survive pruning and trigger batch writes.
     const sentences: string[] = [];
-    for (let i = 0; i < 700; i++) {
+    
+for (let i = 0; i < 700; i++) {
       // "worda{i} wordb{i}" bigram appears 3x per sentence.
       sentences.push(
         `worda${i} wordb${i} worda${i} wordb${i} worda${i} wordb${i}`,

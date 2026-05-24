@@ -17,7 +17,8 @@ describe('useBotDetection', () => {
     // Mock requestIdleCallback to run immediately
     requestIdleCallbackSpy = vi.fn((cb: IdleRequestCallback) => {
       cb({ didTimeout: false, timeRemaining: () => 50 } as IdleDeadline);
-      return 1;
+      
+return 1;
     });
     vi.stubGlobal('requestIdleCallback', requestIdleCallbackSpy);
   });

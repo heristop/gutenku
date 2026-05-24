@@ -95,6 +95,7 @@ export class Verse {
     }
 
     const syllableCount = SyllableCount.fromText(normalizedText);
+
     if (!syllableCount.isValidFor(expectedSyllables)) {
       throw new InvalidSyllableCountException(
         expectedSyllables,

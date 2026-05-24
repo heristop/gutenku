@@ -47,7 +47,8 @@ function updateStats(
   } else if (newHaiku.cacheUsed !== true) {
     // Track crafted haikus (non-cached, non-daily)
     stats.haikusGenerated += 1;
-    if (typeof newHaiku.executionTime === 'number') {
+    
+if (typeof newHaiku.executionTime === 'number') {
       stats.totalExecutionTime += newHaiku.executionTime;
     }
   }

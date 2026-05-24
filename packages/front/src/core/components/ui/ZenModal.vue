@@ -92,6 +92,7 @@ function handleKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape' && !props.persistent) {
     e.preventDefault();
     close();
+
     return;
   }
 
@@ -111,6 +112,7 @@ function handleKeydown(e: KeyboardEvent) {
         e.preventDefault();
         lastElement?.focus();
       }
+
       return;
     }
 
@@ -186,6 +188,7 @@ watch(modelValue, async (isOpen) => {
 onBeforeUnmount(() => {
   if (modelValue.value) {
     document.removeEventListener('keydown', handleKeydown);
+
     if (props.lockBodyScroll) {
       unlockScroll();
     }

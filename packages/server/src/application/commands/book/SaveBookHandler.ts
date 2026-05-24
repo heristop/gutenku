@@ -39,10 +39,12 @@ export class SaveBookHandler implements ICommandHandler<
     const existingBook = await this.bookRepository.findByReference(
       command.bookId,
     );
+
     if (existingBook) {
       const chapters = await this.chapterRepository.getChaptersByBookReference(
         existingBook.reference,
       );
+
       return {
         bookId: command.bookId,
         success: true,

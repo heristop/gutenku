@@ -48,8 +48,10 @@ export default class BookRepository implements IBookRepository {
       if (retries <= 0) {
         throw new Error('Failed to find book with chapters after max retries');
       }
+
       return this.selectRandomBook(retries - 1);
     }
+
     return books[0];
   }
 

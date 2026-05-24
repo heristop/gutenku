@@ -67,11 +67,13 @@ describe('SubmitGuessHandler locale and hint usage', () => {
     const probe = makeHandler();
     const { getGutenGuessBooks } = await import('../../data');
     let correctRef: string | undefined;
-    for (const book of getGutenGuessBooks()) {
+    
+for (const book of getGutenGuessBooks()) {
       const r = await probe.execute(
         new SubmitGuessQuery('2026-01-15', book.id.toString(), 1),
       );
-      if (r.isCorrect) {
+      
+if (r.isCorrect) {
         correctRef = book.id.toString();
         break;
       }

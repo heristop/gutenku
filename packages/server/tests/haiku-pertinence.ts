@@ -122,7 +122,8 @@ const createGenerator = () => {
       uniqueness: 0,
     },
   });
-  return gen;
+  
+return gen;
 };
 
 describe('Haiku Pertinence Tests', () => {
@@ -431,16 +432,24 @@ describe('Haiku Pertinence Tests', () => {
 
       const result = gen.selectHaikuVerses(quotes);
 
-      // First verse (5) should have lower index than second (7)
-      // Second verse (7) should have lower index than third (5)
-      if (result && result.verses.length === 3) {
-        const firstQuote = quotes.find((q) => q.quote === result.verses[0]);
-        const secondQuote = quotes.find((q) => q.quote === result.verses[1]);
-        const thirdQuote = quotes.find((q) => q.quote === result.verses[2]);
+      // selectHaikuVerses is stochastic; with these inputs it may return null
+      // when scoring filters reject every candidate. When a haiku IS produced,
+      // verses must appear in strictly increasing source-index order.
+      // Compute the assertion target unconditionally so the expect is unconditional.
+      const indicesOrSentinel: number[] =
+        result && result.verses.length === 3
+          ? result.verses.map(
+              (v) => quotes.find((q) => q.quote === v)!.index,
+            )
+          : [];
 
-        expect(firstQuote!.index).toBeLessThan(secondQuote!.index);
-        expect(secondQuote!.index).toBeLessThan(thirdQuote!.index);
-      }
+      // Either no haiku was produced (empty array), or the indices are strictly
+      // increasing — both are valid outcomes for this stochastic flow.
+      const isStrictlyIncreasing =
+        indicesOrSentinel.length === 0 ||
+        (indicesOrSentinel[0] < indicesOrSentinel[1] &&
+          indicesOrSentinel[1] < indicesOrSentinel[2]);
+      expect(isStrictlyIncreasing).toBeTruthy();
     });
   });
 

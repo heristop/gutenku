@@ -13,6 +13,7 @@ export class BookReference {
     if (!reference || reference.trim().length === 0) {
       throw new InvalidBookReferenceException(reference);
     }
+
     return new BookReference(reference.trim());
   }
 

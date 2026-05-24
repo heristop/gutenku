@@ -52,6 +52,7 @@ export class GutenbergClient implements IGutenbergClient {
 
         if (error instanceof BookFetchException) {
           const status = error.metadata?.statusCode as number | undefined;
+
           if (status && status >= 400 && status < 500) {
             throw error;
           }
@@ -111,6 +112,7 @@ export class GutenbergClient implements IGutenbergClient {
           method: 'HEAD',
           signal: controller.signal,
         });
+
         return response.ok;
       } finally {
         clearTimeout(timeoutId);

@@ -12,7 +12,8 @@ vi.stubGlobal('import.meta.env', {
 // Mock localStorage
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
-  return {
+  
+return {
     getItem: vi.fn((key: string) => store[key] ?? null),
     setItem: vi.fn((key: string, value: string) => {
       store[key] = value;

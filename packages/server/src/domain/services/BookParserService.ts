@@ -43,33 +43,17 @@ export class BookParserService {
   ) {}
 
   parse(rawText: RawBookText, options?: ParsingOptions): ParsingResult {
-    const errors: string[] = [];
     const warnings: string[] = [];
 
     const metadata = this.metadataExtractor.tryExtract(rawText);
+    const metadataErrors = this.collectMetadataErrors(metadata, rawText);
 
-    if (!metadata.title) {
-      errors.push(`Failed to extract title from book ${rawText.gutenbergId}`);
-    }
-    if (!metadata.author) {
-      errors.push(`Failed to extract author from book ${rawText.gutenbergId}`);
-    }
-    if (errors.length > 0) {
-      return {
-        parsedBook: null,
-        isValid: false,
-        errors,
-        warnings,
-        patternUsed: null,
-        stats: {
-          rawChapterCount: 0,
-          validChapterCount: 0,
-          rejectedChapterCount: 0,
-        },
-      };
+    if (metadataErrors.length > 0) {
+      return this.buildEmptyResult(metadataErrors, warnings);
     }
 
     const splitResult = this.chapterSplitter.split(rawText);
+
     if (!splitResult.patternUsed) {
       warnings.push(
         'No chapter pattern matched, using entire text as single chapter',
@@ -90,36 +74,17 @@ export class BookParserService {
     const minChapters =
       options?.validation?.minChapters ??
       ChapterValidatorService.getDefaultConfig().minChapters;
-    if (validationResult.validChapters.length < minChapters) {
-      errors.push(
-        `Insufficient chapters: found ${validationResult.validChapters.length}, required ${minChapters}`,
-      );
+    const insufficientResult = this.handleInsufficientChapters(
+      validationResult,
+      splitResult,
+      minChapters,
+      rawText,
+      warnings,
+      options,
+    );
 
-      if (options?.throwOnInvalidBook) {
-        throw new InsufficientChaptersException(
-          validationResult.validChapters.length,
-          minChapters,
-          {
-            metadata: {
-              gutenbergId: rawText.gutenbergId,
-              patternUsed: splitResult.patternUsed?.name,
-            },
-          },
-        );
-      }
-
-      return {
-        parsedBook: null,
-        isValid: false,
-        errors,
-        warnings,
-        patternUsed: splitResult.patternUsed,
-        stats: {
-          rawChapterCount: splitResult.rawSegmentCount,
-          validChapterCount: validationResult.validChapters.length,
-          rejectedChapterCount: validationResult.rejectedChapters.length,
-        },
-      };
+    if (insufficientResult) {
+      return insufficientResult;
     }
 
     // Reuse metadata from tryExtract (already validated as non-null above)
@@ -136,6 +101,84 @@ export class BookParserService {
     return {
       parsedBook,
       isValid: true,
+      errors: [],
+      warnings,
+      patternUsed: splitResult.patternUsed,
+      stats: {
+        rawChapterCount: splitResult.rawSegmentCount,
+        validChapterCount: validationResult.validChapters.length,
+        rejectedChapterCount: validationResult.rejectedChapters.length,
+      },
+    };
+  }
+
+  private collectMetadataErrors(
+    metadata: { title?: string | null; author?: string | null },
+    rawText: RawBookText,
+  ): string[] {
+    const errors: string[] = [];
+
+    if (!metadata.title) {
+      errors.push(`Failed to extract title from book ${rawText.gutenbergId}`);
+    }
+
+    if (!metadata.author) {
+      errors.push(`Failed to extract author from book ${rawText.gutenbergId}`);
+    }
+
+    return errors;
+  }
+
+  private buildEmptyResult(
+    errors: string[],
+    warnings: string[],
+  ): ParsingResult {
+    return {
+      parsedBook: null,
+      isValid: false,
+      errors,
+      warnings,
+      patternUsed: null,
+      stats: {
+        rawChapterCount: 0,
+        validChapterCount: 0,
+        rejectedChapterCount: 0,
+      },
+    };
+  }
+
+  private handleInsufficientChapters(
+    validationResult: ReturnType<ChapterValidatorService['validate']>,
+    splitResult: ReturnType<ChapterSplitterService['split']>,
+    minChapters: number,
+    rawText: RawBookText,
+    warnings: string[],
+    options?: ParsingOptions,
+  ): ParsingResult | null {
+    if (validationResult.validChapters.length >= minChapters) {
+      return null;
+    }
+
+    const errors = [
+      `Insufficient chapters: found ${validationResult.validChapters.length}, required ${minChapters}`,
+    ];
+
+    if (options?.throwOnInvalidBook) {
+      throw new InsufficientChaptersException(
+        validationResult.validChapters.length,
+        minChapters,
+        {
+          metadata: {
+            gutenbergId: rawText.gutenbergId,
+            patternUsed: splitResult.patternUsed?.name,
+          },
+        },
+      );
+    }
+
+    return {
+      parsedBook: null,
+      isValid: false,
       errors,
       warnings,
       patternUsed: splitResult.patternUsed,
@@ -153,6 +196,7 @@ export class BookParserService {
     options?: ParsingOptions,
   ): ParsingResult {
     const rawText = RawBookText.create({ content, gutenbergId });
+
     return this.parse(rawText, options);
   }
 }

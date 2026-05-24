@@ -204,6 +204,8 @@ describe('HaikuGeneratorService.buildFromDb', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0);
 
     // No verse contains the filter word, so generation exhausts attempts and throws.
-    await expect(svc.buildFromDb()).rejects.toThrow();
+    await expect(svc.buildFromDb()).rejects.toThrow(
+      /Failed to generate haiku after \d+ attempts/,
+    );
   });
 });

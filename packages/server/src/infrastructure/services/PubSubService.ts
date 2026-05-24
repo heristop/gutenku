@@ -43,6 +43,7 @@ export class PubSubService {
           return this;
         },
       } as AsyncIterableIterator<T>;
+
       return asyncIter;
     }
 

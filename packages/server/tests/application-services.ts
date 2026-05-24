@@ -55,7 +55,8 @@ describe('Application services', () => {
           if (query instanceof GetAllBooksQuery && query.filter) {
             return ['filtered'];
           }
-          return ['all'];
+          
+return ['all'];
         }),
       };
       const svc = new BookService(mockQueryBus);
@@ -108,7 +109,8 @@ describe('Application services', () => {
           if (query instanceof GetAllChaptersQuery && query.filter) {
             return ['filtered-chapter'];
           }
-          return ['all-chapters'];
+          
+return ['all-chapters'];
         }),
       };
       const svc = new ChapterService(mockQueryBus);

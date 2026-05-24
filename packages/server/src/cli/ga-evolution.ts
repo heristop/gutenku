@@ -133,6 +133,7 @@ function extractVersePoolsFromContent(
   for (let i = 0; i < sentences.length; i++) {
     const sentence = sentences[i];
     const words = naturalLanguage.extractWords(sentence);
+
     if (!words) {
       continue;
     }
@@ -242,6 +243,7 @@ async function runAnimatedEvolution(
     // Check termination (skip convergence check if --no-early-stop)
     const hasConverged =
       !DISABLE_EARLY_STOP && populationManager.hasConverged(population);
+
     if (gen >= gaConfig.maxGenerations || hasConverged) {
       convergenceGeneration = gen;
       break;
@@ -307,6 +309,7 @@ function printConfiguration(): void {
   console.log(
     `  ${pc.dim('Snapshots:')}     ${pc.cyan(SAVE_SNAPSHOTS ? SNAPSHOT_DIR : 'disabled')}`,
   );
+
   if (gaConfig.seed) {
     console.log(`  ${pc.dim('Seed:')}          ${pc.cyan(gaConfig.seed)}`);
   }
@@ -318,6 +321,7 @@ function printResults(result: EvolutionResult, seedScore: number): void {
       `\n✓ Evolution completed in ${(result.executionTimeMs / 1000).toFixed(2)}s`,
     ),
   );
+
   if (SAVE_SNAPSHOTS) {
     console.log(pc.dim(`  Snapshots saved to: ${SNAPSHOT_DIR}/`));
   }

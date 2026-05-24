@@ -16,7 +16,8 @@ export function withSetup<T>(composable: () => T): {
   const app = createApp({
     setup() {
       result = composable();
-      return () => null;
+      
+return () => null;
     },
   });
 

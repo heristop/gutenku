@@ -48,6 +48,22 @@ async function stopTestServer() {
   httpServer?.close();
 }
 
+function computeScoreInvariant(args: {
+  totalScore: number;
+  noNatureWithPenalties: boolean;
+  natureWithoutPenalties: boolean;
+}): boolean {
+  if (args.noNatureWithPenalties) {
+    return args.totalScore <= 0;
+  }
+  
+if (args.natureWithoutPenalties) {
+    return args.totalScore > 0;
+  }
+  
+return true;
+}
+
 async function graphqlQuery<T>(
   query: string,
   variables?: Record<string, unknown>,
@@ -58,12 +74,14 @@ async function graphqlQuery<T>(
     body: JSON.stringify({ query, variables }),
   });
   const json = await response.json();
-  if (json.errors) {
+  
+if (json.errors) {
     throw new Error(
       json.errors.map((e: { message: string }) => e.message).join(', '),
     );
   }
-  return json.data;
+  
+return json.data;
 }
 
 describe('Haiku GraphQL E2E Tests', () => {
@@ -153,7 +171,8 @@ describe('Haiku GraphQL E2E Tests', () => {
           'Haiku generation skipped (no books in DB):',
           (error as Error).message,
         );
-        expect(true).toBeTruthy(); // Pass test if no DB
+        // No assertion needed; reaching here means the DB is empty and we
+        // intentionally skip the deep checks. Test still passes.
       }
     }, 60000);
 
@@ -396,7 +415,7 @@ describe('Haiku GraphQL E2E Tests', () => {
           'Scoring test skipped (no books in DB):',
           (error as Error).message,
         );
-        expect(true).toBeTruthy();
+        // No assertion needed; skipping deep checks when DB is empty.
       }
     }, 60000);
 
@@ -435,15 +454,20 @@ describe('Haiku GraphQL E2E Tests', () => {
         // totalScore should decrease with more repeated words (negative contribution)
         // totalScore should decrease with more weak starts (negative contribution)
 
-        // Basic sanity check: if no nature words and has penalties, score should be lower
-        if (natureWords === 0 && (repeatedWords > 0 || weakStarts > 0)) {
-          expect(totalScore).toBeLessThanOrEqual(0);
-        }
+        const noNatureWithPenalties =
+          natureWords === 0 && (repeatedWords > 0 || weakStarts > 0);
+        const natureWithoutPenalties =
+          natureWords > 0 && repeatedWords === 0 && weakStarts === 0;
 
+        // Basic sanity check: if no nature words and has penalties, score should be lower
         // If has nature words and no penalties, score should be positive
-        if (natureWords > 0 && repeatedWords === 0 && weakStarts === 0) {
-          expect(totalScore).toBeGreaterThan(0);
-        }
+        // Otherwise: no specific invariant to assert for this haiku
+        const scoreInvariantHolds = computeScoreInvariant({
+          totalScore,
+          noNatureWithPenalties,
+          natureWithoutPenalties,
+        });
+        expect(scoreInvariantHolds).toBeTruthy();
 
         console.log('Score analysis:', {
           natureWords,
@@ -457,7 +481,7 @@ describe('Haiku GraphQL E2E Tests', () => {
           'Score analysis skipped (no books in DB):',
           (error as Error).message,
         );
-        expect(true).toBeTruthy();
+        // No assertion needed; skipping deep checks when DB is empty.
       }
     }, 60000);
 
@@ -510,7 +534,8 @@ describe('Haiku GraphQL E2E Tests', () => {
         'tfidfMinScore',
         'phoneticsMinScore',
       ];
-      for (const paramName of floatParams) {
+      
+for (const paramName of floatParams) {
         const param = haikuField!.args.find((a) => a.name === paramName);
         expect(param?.type.name).toBe('Float');
       }
@@ -550,7 +575,7 @@ describe('Haiku GraphQL E2E Tests', () => {
       } catch (error) {
         // May fail if no haiku meets the threshold - this is acceptable
         console.log('High markov threshold test:', (error as Error).message);
-        expect(true).toBeTruthy();
+        // No assertion needed; threshold failure is an accepted outcome here.
       }
     }, 60000);
   });
@@ -585,7 +610,7 @@ describe('Haiku GraphQL E2E Tests', () => {
           'Books query failed (expected if no DB):',
           (error as Error).message,
         );
-        expect(true).toBeTruthy();
+        // No assertion needed; query failing without DB is the documented behavior.
       }
     }, 15000);
   });

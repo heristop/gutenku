@@ -75,12 +75,14 @@ export class VerseEmbeddingService {
 
     // Check cache first
     const cached = this.embeddingCache.get(text);
+
     if (cached) {
       return cached;
     }
 
     const embedding = await this.model.encodeToArray(text);
     this.embeddingCache.set(text, embedding);
+
     return embedding;
   }
 
@@ -99,6 +101,7 @@ export class VerseEmbeddingService {
 
     for (let i = 0; i < texts.length; i++) {
       const cached = this.embeddingCache.get(texts[i]);
+
       if (cached) {
         results[i] = cached;
         continue;
@@ -111,6 +114,7 @@ export class VerseEmbeddingService {
     // Batch encode uncached
     if (uncachedTexts.length > 0) {
       const embeddings = await this.model.encodeManyToArrays(uncachedTexts);
+
       for (let j = 0; j < uncachedIndices.length; j++) {
         const idx = uncachedIndices[j];
         results[idx] = embeddings[j];
@@ -205,6 +209,7 @@ export class VerseEmbeddingService {
     verses: [string, string, string],
   ): Promise<number> {
     const embeddings = await this.embedMany(verses);
+
     return this.computeSemanticCoherence(
       embeddings[0],
       embeddings[1],
@@ -255,6 +260,7 @@ export class VerseEmbeddingService {
     centroid: number[],
   ): Promise<number> {
     const embedding = await this.embed(haikuText);
+
     return this.scoreAgainstCentroid(embedding, centroid);
   }
 
@@ -272,6 +278,7 @@ export class VerseEmbeddingService {
     const size = this.embeddingCache.size;
     // Each embedding is 64 floats = 256 bytes, plus string key overhead (~100 bytes avg)
     const memoryEstimateBytes = size * (256 + 100);
+
     return { size, memoryEstimateBytes };
   }
 

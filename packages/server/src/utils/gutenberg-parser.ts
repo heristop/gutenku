@@ -88,7 +88,8 @@ export function extractTopBooksFromHtml(html: string): GutenbergBook[] {
   const itemPattern = /<li[^>]*><a href="\/ebooks\/(\d+)"[^>]*>([^<]+)<\/a>/g;
 
   let match;
-  while ((match = itemPattern.exec(listHtml)) !== null) {
+  
+while ((match = itemPattern.exec(listHtml)) !== null) {
     const id = Number.parseInt(match[1], 10);
     const fullText = match[2].trim();
 
@@ -121,16 +122,19 @@ export function extractBooksFromBookshelfHtml(html: string): GutenbergBook[] {
   const itemPattern = /<li[^>]*class="booklink"[^>]*>[\s\S]*?<\/li>/gi;
 
   let match;
-  while ((match = itemPattern.exec(html)) !== null) {
+  
+while ((match = itemPattern.exec(html)) !== null) {
     const block = match[0];
 
     const idMatch = block.match(/href="\/ebooks\/(\d+)"/);
-    if (!idMatch) {
+    
+if (!idMatch) {
       continue;
     }
 
     const id = Number.parseInt(idMatch[1], 10);
-    if (seen.has(id)) {
+    
+if (seen.has(id)) {
       continue;
     }
     seen.add(id);
@@ -158,11 +162,13 @@ export function getNextPageUrl(html: string): string | null {
   const nextMatch = html.match(
     /href="([^"]*\?start_index=\d+)"[^>]*>Next<\/a>/i,
   );
+
   if (nextMatch) {
     const path = nextMatch[1];
 
     return path.startsWith('http') ? path : `https://www.gutenberg.org${path}`;
   }
+
   return null;
 }
 
@@ -175,6 +181,7 @@ export function removeDuplicates(books: GutenbergBook[]): {
 
   for (const book of books) {
     const normalized = normalizeTitle(book.title);
+
     if (!byNormalizedTitle.has(normalized)) {
       byNormalizedTitle.set(normalized, []);
     }

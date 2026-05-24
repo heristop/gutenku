@@ -185,6 +185,7 @@ function getDisplayValue(key: keyof HaikuQualityScore, value: number): string {
   ) {
     return (value ?? 0).toString();
   }
+
   return `${Math.round(value * 100)}%`;
 }
 

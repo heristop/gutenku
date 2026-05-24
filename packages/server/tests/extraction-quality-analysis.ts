@@ -108,12 +108,14 @@ function extractAndFilter(text: string, method: ExtractionMethod, applyGrammarFi
 
     if (method === 'chunk' && applyGrammarFilter) {
       const grammar = nl.analyzeGrammar(trimmed);
-      if (grammar.score < 0.5) {
+      
+if (grammar.score < 0.5) {
         passesGrammar = false;
       } else {
         // Reject chunks with capitalized words mid-phrase (indicates mid-sentence slice)
         const words = trimmed.split(/\s+/);
-        for (let i = 1; i < words.length; i++) {
+        
+for (let i = 1; i < words.length; i++) {
           if (words[i] && /^[A-Z]/.test(words[i])) {
             passesGrammar = false;
             break;
@@ -208,7 +210,8 @@ describe('Extraction Method Quality Analysis', () => {
 
     beforeAll(() => {
       results = new Map();
-      for (const method of methods) {
+      
+for (const method of methods) {
         results.set(method, analyzeMethod(SAMPLE_TEXTS.literary, method));
       }
     });
@@ -242,14 +245,15 @@ describe('Extraction Method Quality Analysis', () => {
         );
       }
 
-      // All methods should produce some quality haikus from literary text
-      for (const method of methods) {
-        const r = results.get(method)!;
-        if (r.sampleHaikus.length > 0) {
-          // Nature words should be found in literary nature text
-          expect(r.averageQuality.natureWords).toBeGreaterThanOrEqual(0);
-        }
-      }
+      // All methods that produced sample haikus should have non-negative nature scores
+      const methodsWithSamples = methods
+        .map((m) => results.get(m)!)
+        .filter((r) => r.sampleHaikus.length > 0);
+      expect(
+        methodsWithSamples.every(
+          (r) => r.averageQuality.natureWords >= 0,
+        ),
+      ).toBeTruthy();
     });
 
     it('shows sample haikus from each method', () => {
@@ -258,7 +262,8 @@ describe('Extraction Method Quality Analysis', () => {
       for (const method of methods) {
         const r = results.get(method)!;
         console.log(`\n[${method.toUpperCase()}] (${r.sampleHaikus.length} generated)`);
-        for (const h of r.sampleHaikus.slice(0, 2)) {
+        
+for (const h of r.sampleHaikus.slice(0, 2)) {
           console.log(`  "${h.verses[0]}"`);
           console.log(`  "${h.verses[1]}"`);
           console.log(`  "${h.verses[2]}"`);
@@ -275,7 +280,8 @@ describe('Extraction Method Quality Analysis', () => {
 
     beforeAll(() => {
       results = new Map();
-      for (const method of methods) {
+      
+for (const method of methods) {
         results.set(method, analyzeMethod(SAMPLE_TEXTS.sparse, method));
       }
     });
@@ -325,7 +331,8 @@ describe('Extraction Method Quality Analysis', () => {
 
     beforeAll(() => {
       results = new Map();
-      for (const method of methods) {
+      
+for (const method of methods) {
         results.set(method, analyzeMethod(SAMPLE_TEXTS.minimal, method));
       }
     });
@@ -351,7 +358,8 @@ describe('Extraction Method Quality Analysis', () => {
       const chunk = results.get('chunk')!;
 
       console.log('\n[CHUNK METHOD] Sample haikus from minimal text:');
-      for (const h of chunk.sampleHaikus.slice(0, 3)) {
+      
+for (const h of chunk.sampleHaikus.slice(0, 3)) {
         console.log(`  "${h.verses[0]}"`);
         console.log(`  "${h.verses[1]}"`);
         console.log(`  "${h.verses[2]}"`);
@@ -380,7 +388,8 @@ describe('Extraction Method Quality Analysis', () => {
           const analysis = analyzeMethod(textType, method);
           const methodData = allResults.get(method)!;
           methodData.haikusGenerated += analysis.sampleHaikus.length;
-          for (const h of analysis.sampleHaikus) {
+          
+for (const h of analysis.sampleHaikus) {
             methodData.scores.push(h.quality.totalScore);
           }
         }
@@ -392,7 +401,8 @@ describe('Extraction Method Quality Analysis', () => {
 
       for (const method of methods) {
         const data = allResults.get(method)!;
-        if (data.scores.length > 0) {
+        
+if (data.scores.length > 0) {
           const avg = data.scores.reduce((a, b) => a + b, 0) / data.scores.length;
           const min = Math.min(...data.scores);
           const max = Math.max(...data.scores);

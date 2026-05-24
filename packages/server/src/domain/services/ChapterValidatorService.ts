@@ -102,6 +102,7 @@ export class ChapterValidatorService {
     ) {
       reasons.push('Contains Gutenberg template text');
     }
+
     if (!this.hasSufficientParagraphs(content, config.minParagraphs)) {
       reasons.push(
         `Insufficient paragraphs (requires ${config.minParagraphs})`,

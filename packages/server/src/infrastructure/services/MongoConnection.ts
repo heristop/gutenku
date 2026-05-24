@@ -8,10 +8,12 @@ const log = createLogger('mongo');
 function redactUri(uri: string): string {
   try {
     const parsed = new URL(uri);
+
     if (parsed.username || parsed.password) {
       parsed.username = '***';
       parsed.password = '***';
     }
+
     return parsed.toString();
   } catch {
     return '<invalid-uri>';

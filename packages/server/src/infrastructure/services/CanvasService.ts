@@ -25,64 +25,72 @@ export default class CanvasService {
     this.theme = theme;
   }
 
+  private static readonly STATIC_THEMES = [
+    'colored',
+    'greentea',
+    'watermark',
+  ] as const;
+
+  private static readonly AI_THEMES = [
+    'nihonga',
+    'sumie',
+    'ukiyoe',
+    'zengarden',
+    'wabisabi',
+    'bookzen',
+  ] as const;
+
+  private static readonly THEME_CREATORS: Record<
+    string,
+    (haiku: HaikuValue) => Promise<Canvas.Canvas>
+  > = {
+    colored: colored.create,
+    greentea: greentea.create,
+    watermark: watermark.create,
+    nihonga: nihonga.create,
+    sumie: sumie.create,
+    ukiyoe: ukiyoe.create,
+    zengarden: zengarden.create,
+    wabisabi: wabisabi.create,
+    bookzen: bookzen.create,
+  };
+
+  private pickRandomTheme(useImageAI: boolean): string {
+    const themes = useImageAI
+      ? CanvasService.AI_THEMES
+      : CanvasService.STATIC_THEMES;
+    const randomIndex = Math.floor(Math.random() * themes.length);
+
+    return themes[randomIndex];
+  }
+
+  private resolveCreator(
+    themeName: string,
+  ): (haiku: HaikuValue) => Promise<Canvas.Canvas> {
+    const creator = CanvasService.THEME_CREATORS[themeName];
+
+    if (!creator) {
+      throw new Error(`Unsupported theme: ${themeName}`);
+    }
+
+    return creator;
+  }
+
   async create(
     haiku: HaikuValue,
     useImageAI: boolean = false,
   ): Promise<string> {
-    let createCanvas = null;
-
     log.info({ theme: this.theme, useImageAI }, 'Crafting image');
 
     if (this.theme === 'random') {
-      const staticThemes = ['colored', 'greentea', 'watermark'];
-      const aiThemes = [
-        'nihonga',
-        'sumie',
-        'ukiyoe',
-        'zengarden',
-        'wabisabi',
-        'bookzen',
-      ];
-      const themes = useImageAI ? aiThemes : staticThemes;
-      const randomIndex = Math.floor(Math.random() * themes.length);
-      this.theme = themes[randomIndex];
+      this.theme = this.pickRandomTheme(useImageAI);
       log.info(
         { selectedTheme: this.theme, useImageAI },
         'Random theme selected',
       );
     }
 
-    switch (this.theme) {
-      case 'colored':
-        createCanvas = colored.create;
-        break;
-      case 'greentea':
-        createCanvas = greentea.create;
-        break;
-      case 'watermark':
-        createCanvas = watermark.create;
-        break;
-      case 'nihonga':
-        createCanvas = nihonga.create;
-        break;
-      case 'sumie':
-        createCanvas = sumie.create;
-        break;
-      case 'ukiyoe':
-        createCanvas = ukiyoe.create;
-        break;
-      case 'zengarden':
-        createCanvas = zengarden.create;
-        break;
-      case 'wabisabi':
-        createCanvas = wabisabi.create;
-        break;
-      case 'bookzen':
-        createCanvas = bookzen.create;
-        break;
-      default:
-        throw new Error(`Unsupported theme: ${this.theme}`);
-    }
+    const createCanvas = this.resolveCreator(this.theme);
 
     try {
       const canvas = await createCanvas(haiku);

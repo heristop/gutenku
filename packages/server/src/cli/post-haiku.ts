@@ -16,6 +16,13 @@ import {
   post as socialPost,
   generateSocialCaption,
 } from '~/application/services/SocialService';
+import {
+  GRAPHQL_QUERY,
+  buildVariables,
+  displayCandidates,
+  displayQuality,
+  displayTranslations,
+} from './post-haiku-helpers';
 
 dotenv.config();
 
@@ -49,108 +56,10 @@ const argv = process.argv.filter((arg) => arg !== '--');
 program.parse(argv);
 
 const options = program.opts();
+const variables = buildVariables(options);
+const body = { query: GRAPHQL_QUERY, variables };
 
-const query = `
-    query Query(
-        $useAi: Boolean,
-        $useCache: Boolean,
-        $appendImg: Boolean,
-        $useImageAI: Boolean,
-        $selectionCount: Int,
-        $fromDb: Int,
-        $liveCount: Int,
-        $theme: String
-    ) {
-        haiku(
-            useAI: $useAi,
-            useCache: $useCache,
-            appendImg: $appendImg,
-            useImageAI: $useImageAI,
-            selectionCount: $selectionCount,
-            fromDb: $fromDb,
-            liveCount: $liveCount,
-            theme: $theme
-        ) {
-            book {
-                title
-                author
-                emoticons
-            }
-            verses
-            title
-            description
-            image
-            hashtags
-            translations {
-                fr
-                jp
-                es
-                it
-                de
-            }
-            quality {
-                natureWords
-                repeatedWords
-                weakStarts
-                blacklistedVerses
-                properNouns
-                sentiment
-                grammar
-                trigramFlow
-                markovFlow
-                uniqueness
-                alliteration
-                verseDistance
-                lineLengthBalance
-                imageryDensity
-                semanticCoherence
-                verbPresence
-                totalScore
-            }
-            selectionInfo {
-                requestedCount
-                generatedCount
-                selectedIndex
-                reason
-            }
-            candidates {
-                verses
-                book {
-                    title
-                    author
-                }
-                quality {
-                    natureWords
-                    repeatedWords
-                    weakStarts
-                    sentiment
-                    markovFlow
-                    totalScore
-                }
-            }
-        }
-    }
-`;
-
-const variables = {
-  appendImg: true,
-  selectionCount: options.selectionCount
-    ? Number.parseInt(options.selectionCount, 10)
-    : undefined,
-  fromDb: options.fromDb ? Number.parseInt(options.fromDb, 10) : undefined,
-  liveCount: options.live ? Number.parseInt(options.live, 10) : undefined,
-  theme: options.theme,
-  useAi: options.aiDescription,
-  useImageAI: options.withImageAi,
-  useCache: options.cache,
-};
-
-const body = {
-  query,
-  variables,
-};
-
-try {
+function printRunHeader(): void {
   console.log(pc.bold('\n📮 Haiku Post\n'));
 
   console.log(pc.dim(`Theme: ${options.theme}`));
@@ -166,16 +75,14 @@ try {
   );
   console.log(pc.dim(`From DB (top 10%): ${variables.fromDb ?? 0}`));
   console.log(pc.dim(`Live (GA): ${variables.liveCount ?? 'default'}`));
+}
 
-  const generateSpinner = ora('Generating haiku with image...').start();
-
-  // 3-minute timeout for generation
+async function fetchHaikuPayload(spinner: ReturnType<typeof ora>) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 180000);
 
-  let response;
   try {
-    response = await fetch(
+    const response = await fetch(
       process.env.SERVER_URI || 'http://localhost:4000/graphql',
       {
         body: JSON.stringify(body),
@@ -184,45 +91,23 @@ try {
         signal: controller.signal,
       },
     );
+    clearTimeout(timeoutId);
+    
+return response;
   } catch (error) {
     clearTimeout(timeoutId);
-    if (error instanceof Error && error.name === 'AbortError') {
-      generateSpinner.fail(pc.red('Request timed out after 3 minutes'));
+    
+if (error instanceof Error && error.name === 'AbortError') {
+      spinner.fail(pc.red('Request timed out after 3 minutes'));
       process.exit(1);
     }
     throw error;
   }
-  clearTimeout(timeoutId);
+}
 
-  const data = (await response.json()) as { data: HaikuResponseData };
-  const haiku = data.data?.haiku;
-
-  if (!haiku) {
-    generateSpinner.fail(pc.red('Failed to generate haiku'));
-    console.error(pc.red('\nError response:'), data);
-    process.exit(1);
-  }
-
-  if (!haiku.selectionInfo) {
-    const cacheStatus = options.cache
-      ? pc.dim(' (from cache)')
-      : pc.yellow(' [fresh]');
-    generateSpinner.succeed(pc.green('Haiku generated') + cacheStatus);
-  }
-
-  if (haiku.selectionInfo) {
-    const { requestedCount, generatedCount, selectedIndex } =
-      haiku.selectionInfo;
-    const cacheStatus = options.cache ? '' : pc.yellow(' [fresh]');
-    generateSpinner.succeed(
-      pc.green(`Haiku generated`) +
-        pc.dim(
-          ` (${requestedCount} requested → ${generatedCount} candidates → selected #${selectedIndex + 1})`,
-        ) +
-        cacheStatus,
-    );
-  }
-
+async function processAndSaveImage(
+  haiku: HaikuResponseData['haiku'],
+): Promise<void> {
   const imageSpinner = ora('Processing image...').start();
 
   if (!haiku.image) {
@@ -260,55 +145,6 @@ try {
 
   imageSpinner.succeed(pc.green('Image processed'));
 
-  // Show candidates for fresh generations or when selection occurred
-  const showCandidates =
-    haiku.candidates &&
-    haiku.candidates.length > 0 &&
-    (!options.cache || haiku.selectionInfo);
-
-  if (showCandidates && haiku.candidates) {
-    const headerText = !options.cache
-      ? `Top ${haiku.candidates.length} Candidates (scored & filtered)`
-      : 'All Candidates';
-    console.log(pc.bold(`\n═══ ${headerText} ═══\n`));
-
-    const selectedIndex = haiku.selectionInfo?.selectedIndex ?? -1;
-
-    haiku.candidates.forEach((candidate, i) => {
-      const isSelected = i === selectedIndex;
-      const marker = isSelected ? pc.green('★ SELECTED') : '';
-      const indexStr = isSelected
-        ? pc.green(pc.bold(`#${i + 1}`))
-        : pc.dim(`#${i + 1}`);
-      const bookInfo = pc.dim(`(${candidate.book.title})`);
-
-      // Display quality scores
-      const q = candidate.quality;
-      const scoreInfo = q
-        ? pc.magenta(
-            ` [score: ${q.totalScore?.toFixed(1)} | nature: ${q.natureWords} | flow: ${q.markovFlow?.toFixed(1)} | sentiment: ${q.sentiment?.toFixed(2)}]`,
-          )
-        : '';
-
-      console.log(`${indexStr} ${marker} ${bookInfo}${scoreInfo}`);
-      candidate.verses.forEach((verse) => {
-        const displayVerse = capitalizeVerse(verse);
-        const verseText = isSelected
-          ? pc.cyan(`  ${displayVerse}`)
-          : pc.dim(`  ${displayVerse}`);
-        console.log(verseText);
-      });
-      console.log();
-    });
-
-    if (haiku.selectionInfo?.reason) {
-      console.log(pc.yellow('💡 Selection reason:'));
-      console.log(pc.italic(`   ${haiku.selectionInfo.reason}\n`));
-    }
-  }
-
-  console.log(pc.bold('═══ Generated Haiku ═══\n'));
-
   try {
     const preview = await terminalImage.buffer(imageData, { width: 50 });
     console.log(preview);
@@ -316,52 +152,19 @@ try {
     // Terminal doesn't support image protocol - show file path instead
     console.log(pc.dim(`  📷 Image saved: ${haiku.imagePath}`));
   }
+}
 
+function displayHaikuHeader(haiku: HaikuResponseData['haiku']): void {
   console.log(pc.cyan('  ' + haiku.verses.map(capitalizeVerse).join('\n  ')));
   console.log(pc.dim(`\n  — ${haiku.book.title}`));
   console.log(pc.dim(`    by ${haiku.book.author}`));
-  if (haiku.book.emoticons) {
+  
+if (haiku.book.emoticons) {
     console.log(`    ${haiku.book.emoticons}`);
   }
+}
 
-  if (haiku.quality) {
-    const q = haiku.quality;
-    console.log(pc.bold('\n═══ Quality Score ═══\n'));
-    console.log(pc.green(`  Total Score: ${q.totalScore?.toFixed(2)}`));
-    console.log(pc.dim('  ─────────────────────────────────'));
-    console.log(`  ${pc.dim('Nature Words:')}     ${q.natureWords}`);
-    console.log(`  ${pc.dim('Repeated Words:')}   ${q.repeatedWords}`);
-    console.log(`  ${pc.dim('Weak Starts:')}      ${q.weakStarts}`);
-    console.log(`  ${pc.dim('Blacklisted:')}      ${q.blacklistedVerses ?? 0}`);
-    console.log(`  ${pc.dim('Proper Nouns:')}     ${q.properNouns ?? 0}`);
-    console.log(pc.dim('  ─────────────────────────────────'));
-    console.log(`  ${pc.dim('Sentiment:')}        ${q.sentiment?.toFixed(3)}`);
-    console.log(`  ${pc.dim('Grammar:')}          ${q.grammar?.toFixed(3)}`);
-    console.log(`  ${pc.dim('Markov Flow:')}      ${q.markovFlow?.toFixed(3)}`);
-    console.log(
-      `  ${pc.dim('Trigram Flow:')}     ${q.trigramFlow?.toFixed(3)}`,
-    );
-    console.log(`  ${pc.dim('Uniqueness:')}       ${q.uniqueness?.toFixed(3)}`);
-    console.log(
-      `  ${pc.dim('Alliteration:')}     ${q.alliteration?.toFixed(3)}`,
-    );
-    console.log(
-      `  ${pc.dim('Verse Distance:')}   ${q.verseDistance?.toFixed(3)}`,
-    );
-    console.log(
-      `  ${pc.dim('Line Balance:')}     ${q.lineLengthBalance?.toFixed(3)}`,
-    );
-    console.log(
-      `  ${pc.dim('Imagery Density:')}  ${q.imageryDensity?.toFixed(3)}`,
-    );
-    console.log(
-      `  ${pc.dim('Sem. Coherence:')}   ${q.semanticCoherence?.toFixed(3)}`,
-    );
-    console.log(
-      `  ${pc.dim('Verb Presence:')}    ${q.verbPresence?.toFixed(3)}`,
-    );
-  }
-
+function displayMetadata(haiku: HaikuResponseData['haiku']): void {
   if (haiku.selectionInfo?.reason) {
     console.log(pc.bold('\n═══ Selection ═══\n'));
     console.log(pc.yellow(`  💡 ${haiku.selectionInfo.reason}`));
@@ -378,44 +181,112 @@ try {
   if (haiku.hashtags) {
     console.log(`${pc.dim('Hashtags:')} ${pc.blue(haiku.hashtags)}`);
   }
+}
 
-  if (haiku.translations) {
-    console.log(pc.bold('\n═══ Translations ═══\n'));
+async function handleSocialPlatform(
+  haiku: HaikuResponseData['haiku'],
+): Promise<void> {
+  const socialSpinner = ora('Generating social caption...').start();
+  const socialCaption = generateSocialCaption(haiku);
+  const captionPath = path.join(DATA_DIRECTORY, 'social_caption.txt');
+  await fs.writeFile(captionPath, socialCaption);
+  socialSpinner.succeed(pc.green('Social caption generated'));
 
-    if (haiku.translations.fr) {
-      console.log(`${pc.dim('FR:')} ${haiku.translations.fr}`);
-    }
+  console.log(pc.bold('\n═══ Social Caption ═══\n'));
+  console.log(socialCaption);
+  console.log(pc.dim(`\nSaved to: ${captionPath}`));
+  console.log(pc.bold(pc.green('\n✨ Done!\n')));
+  process.exit(0);
+}
 
-    if (haiku.translations.jp) {
-      console.log(`${pc.dim('JP:')} ${haiku.translations.jp}`);
-    }
-
-    if (haiku.translations.es) {
-      console.log(`${pc.dim('ES:')} ${haiku.translations.es}`);
-    }
-
-    if (haiku.translations.it) {
-      console.log(`${pc.dim('IT:')} ${haiku.translations.it}`);
-    }
-
-    if (haiku.translations.de) {
-      console.log(`${pc.dim('DE:')} ${haiku.translations.de}`);
-    }
+function reportGenerated(
+  haiku: HaikuResponseData['haiku'],
+  generateSpinner: ReturnType<typeof ora>,
+): void {
+  if (!haiku.selectionInfo) {
+    const cacheStatus = options.cache
+      ? pc.dim(' (from cache)')
+      : pc.yellow(' [fresh]');
+    generateSpinner.succeed(pc.green('Haiku generated') + cacheStatus);
+    
+return;
   }
+
+  const { requestedCount, generatedCount, selectedIndex } = haiku.selectionInfo;
+  const cacheStatus = options.cache ? '' : pc.yellow(' [fresh]');
+  generateSpinner.succeed(
+    pc.green(`Haiku generated`) +
+      pc.dim(
+        ` (${requestedCount} requested → ${generatedCount} candidates → selected #${selectedIndex + 1})`,
+      ) +
+      cacheStatus,
+  );
+}
+
+function promptToPost(haiku: HaikuResponseData['haiku']): void {
+  const rl = createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  const timeout = setTimeout(() => {
+    console.log(pc.yellow('\n⏱ No input received, closing...'));
+    rl.close();
+    process.exit(0);
+  }, 10000);
+
+  rl.question(
+    `\n${pc.bold('Post on Discord?')} ${pc.dim('(y/n)')} ${pc.yellow('[n]')} `,
+    async (answer: string) => {
+      clearTimeout(timeout);
+
+      const wantsPost = answer === 'y' || answer === 'yes';
+
+      if (!wantsPost) {
+        console.log(pc.dim('\nSkipped posting.'));
+      }
+
+      if (wantsPost) {
+        const postSpinner = ora('Posting to Discord...').start();
+        await socialPost(haiku);
+        postSpinner.succeed(pc.green('Posted to Discord'));
+      }
+
+      console.log(pc.bold(pc.green('\n✨ Done!\n')));
+      rl.close();
+      process.exit(0);
+    },
+  );
+}
+
+try {
+  printRunHeader();
+
+  const generateSpinner = ora('Generating haiku with image...').start();
+  const response = await fetchHaikuPayload(generateSpinner);
+  const data = (await response.json()) as { data: HaikuResponseData };
+  const haiku = data.data?.haiku;
+
+  if (!haiku) {
+    generateSpinner.fail(pc.red('Failed to generate haiku'));
+    console.error(pc.red('\nError response:'), data);
+    process.exit(1);
+  }
+
+  reportGenerated(haiku, generateSpinner);
+  await processAndSaveImage(haiku);
+
+  displayCandidates(haiku, options.cache);
+
+  console.log(pc.bold('═══ Generated Haiku ═══\n'));
+  displayHaikuHeader(haiku);
+  displayQuality(haiku);
+  displayMetadata(haiku);
+  displayTranslations(haiku);
 
   // Handle social platform (generates caption file only, no Discord post)
   if (options.platform === 'social') {
-    const socialSpinner = ora('Generating social caption...').start();
-    const socialCaption = generateSocialCaption(haiku);
-    const captionPath = path.join(DATA_DIRECTORY, 'social_caption.txt');
-    await fs.writeFile(captionPath, socialCaption);
-    socialSpinner.succeed(pc.green('Social caption generated'));
-
-    console.log(pc.bold('\n═══ Social Caption ═══\n'));
-    console.log(socialCaption);
-    console.log(pc.dim(`\nSaved to: ${captionPath}`));
-    console.log(pc.bold(pc.green('\n✨ Done!\n')));
-    process.exit(0);
+    await handleSocialPlatform(haiku);
   }
 
   if (options.post === false) {
@@ -432,39 +303,7 @@ try {
   }
 
   if (options.post === true) {
-    const rl = createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
-
-    const timeout = setTimeout(() => {
-      console.log(pc.yellow('\n⏱ No input received, closing...'));
-      rl.close();
-      process.exit(0);
-    }, 10000);
-
-    rl.question(
-      `\n${pc.bold('Post on Discord?')} ${pc.dim('(y/n)')} ${pc.yellow('[n]')} `,
-      async (answer: string) => {
-        clearTimeout(timeout);
-
-        const wantsPost = answer === 'y' || answer === 'yes';
-
-        if (!wantsPost) {
-          console.log(pc.dim('\nSkipped posting.'));
-        }
-
-        if (wantsPost) {
-          const postSpinner = ora('Posting to Discord...').start();
-          await socialPost(haiku);
-          postSpinner.succeed(pc.green('Posted to Discord'));
-        }
-
-        console.log(pc.bold(pc.green('\n✨ Done!\n')));
-        rl.close();
-        process.exit(0);
-      },
-    );
+    promptToPost(haiku);
   }
 } catch (error) {
   console.error(pc.red('\n✗ Fatal error:'), error);

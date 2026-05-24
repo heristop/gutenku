@@ -85,5 +85,6 @@ export function cleanVerses(verses: string[]): string[] {
 
 export function capitalizeVerse(verse: string): string {
   const trimmed = verse.trim();
-  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+  
+return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
 }

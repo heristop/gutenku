@@ -34,6 +34,7 @@ export function useAnimatedCounter(
   function animate() {
     if (!isClient || target.value === 0) {
       count.value = target.value;
+
       return;
     }
 
@@ -51,6 +52,7 @@ export function useAnimatedCounter(
 
       if (progress < 1) {
         animationFrame = requestAnimationFrame(update);
+
         return;
       }
 
@@ -80,6 +82,7 @@ export function useAnimatedCounter(
       if (isFirstAnimation && initialDelay > 0) {
         isFirstAnimation = false;
         delayTimeout = setTimeout(animate, initialDelay);
+
         return;
       }
 

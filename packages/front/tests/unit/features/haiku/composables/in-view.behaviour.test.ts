@@ -9,14 +9,16 @@ const stopMock = vi.fn();
 vi.mock('@vueuse/core', () => ({
   useIntersectionObserver: vi.fn((_target, cb) => {
     observerCallback = cb;
-    return { stop: stopMock };
+    
+return { stop: stopMock };
   }),
 }));
 
 // onMounted runs the callback immediately so the composable becomes "ready"
 vi.mock('vue', async () => {
   const actual = await vi.importActual<typeof import('vue')>('vue');
-  return {
+  
+return {
     ...actual,
     onMounted: (cb: () => void) => cb(),
   };

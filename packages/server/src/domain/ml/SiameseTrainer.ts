@@ -224,6 +224,7 @@ export class SiameseTrainer {
       // Early stopping if accuracy exceeds threshold and minimum epochs reached
       const minEpochs = this.trainingConfig.minEpochs ?? 3;
       const threshold = this.trainingConfig.earlyStoppingThreshold ?? 99.5;
+
       if (epoch + 1 >= minEpochs && tripletAccuracy > threshold) {
         break;
       }
@@ -263,8 +264,10 @@ export class SiameseTrainer {
 
     // Compute average distance to centroid
     let totalDistance = 0;
+
     for (const embedding of embeddings) {
       let dist = 0;
+
       for (let i = 0; i < dim; i++) {
         dist += Math.pow(embedding[i] - centroid[i], 2);
       }
@@ -412,6 +415,7 @@ export class SiameseTrainer {
    */
   hasTrainedModel(): boolean {
     const { weightsPath } = this.paths;
+
     return existsSync(weightsPath);
   }
 

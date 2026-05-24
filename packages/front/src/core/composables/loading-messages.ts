@@ -137,6 +137,7 @@ export function useLoadingMessages(options: UseLoadingMessagesOptions = {}): {
     if (options.context && MESSAGE_POOLS[options.context]) {
       return MESSAGE_POOLS[options.context];
     }
+
     return MESSAGE_POOLS.default;
   })();
 

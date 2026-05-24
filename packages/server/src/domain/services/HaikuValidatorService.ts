@@ -81,6 +81,7 @@ export class HaikuValidatorService {
         thresholds,
       );
     }
+
     return true;
   }
 
@@ -92,20 +93,24 @@ export class HaikuValidatorService {
     if (isFirstVerse && this.naturalLanguage.startWithConjunction(quote)) {
       this.rejectionStats.basic++;
       this.rejectionStats.total++;
+
       return false;
     }
 
     if (this.isQuoteInvalid(quote)) {
       this.rejectionStats.basic++;
       this.rejectionStats.total++;
+
       return false;
     }
 
     if (!thresholds.allowWeakStart && hasWeakStart(quote)) {
       this.rejectionStats.basic++;
       this.rejectionStats.total++;
+
       return false;
     }
+
     return true;
   }
 
@@ -116,6 +121,7 @@ export class HaikuValidatorService {
       score = this.naturalLanguage.analyzeSentiment(quote);
       this.sentimentCache.set(quote, score);
     }
+
     return score;
   }
 
@@ -125,23 +131,28 @@ export class HaikuValidatorService {
     if (sentimentScore < thresholds.sentiment) {
       this.rejectionStats.sentiment++;
       this.rejectionStats.total++;
+
       return false;
     }
 
     if (thresholds.pos > 0) {
       const grammarAnalysis = this.naturalLanguage.analyzeGrammar(quote);
+
       if (grammarAnalysis.score < thresholds.pos) {
         this.rejectionStats.grammar++;
         this.rejectionStats.total++;
+
         return false;
       }
     }
 
     if (thresholds.tfidf > 0) {
       const tfidfScore = this.naturalLanguage.scoreDistinctiveness(quote);
+
       if (tfidfScore < thresholds.tfidf) {
         this.rejectionStats.tfidf++;
         this.rejectionStats.total++;
+
         return false;
       }
     }
@@ -165,6 +176,7 @@ export class HaikuValidatorService {
 
     if (thresholds.maxRepeatedWords > 0) {
       const repeatedCount = countRepeatedWords(quotesToEvaluate);
+
       if (repeatedCount > thresholds.maxRepeatedWords) {
         return false;
       }
@@ -175,15 +187,18 @@ export class HaikuValidatorService {
     if (markovScore < thresholds.markov) {
       this.rejectionStats.markov++;
       this.rejectionStats.total++;
+
       return false;
     }
 
     if (thresholds.trigram > 0) {
       const trigramScore =
         this.markovEvaluator.evaluateHaikuTrigrams(quotesToEvaluate);
+
       if (trigramScore < thresholds.trigram) {
         this.rejectionStats.trigram++;
         this.rejectionStats.total++;
+
         return false;
       }
     }
@@ -191,18 +206,22 @@ export class HaikuValidatorService {
     if (thresholds.phonetics > 0) {
       const phoneticsAnalysis =
         this.naturalLanguage.analyzePhonetics(quotesToEvaluate);
+
       if (phoneticsAnalysis.alliterationScore < thresholds.phonetics) {
         this.rejectionStats.phonetics++;
         this.rejectionStats.total++;
+
         return false;
       }
     }
 
     if (quotesToEvaluate.length === 3 && thresholds.uniqueness > 0) {
       const uniqueness = calculateWordUniqueness(quotesToEvaluate);
+
       if (uniqueness < thresholds.uniqueness) {
         this.rejectionStats.uniqueness++;
         this.rejectionStats.total++;
+
         return false;
       }
     }
@@ -218,36 +237,44 @@ export class HaikuValidatorService {
   ): boolean {
     if (thresholds.verseDistance > 0) {
       const distance = calculateVerseDistance(indices, totalQuotes);
+
       if (distance < thresholds.verseDistance) {
         this.rejectionStats.verseDistance++;
         this.rejectionStats.total++;
+
         return false;
       }
     }
 
     if (thresholds.lineLengthBalance > 0) {
       const balance = calculateLineLengthBalance(verses);
+
       if (balance < thresholds.lineLengthBalance) {
         this.rejectionStats.lineLengthBalance++;
         this.rejectionStats.total++;
+
         return false;
       }
     }
 
     if (thresholds.imageryDensity > 0) {
       const density = calculateImageryDensity(verses);
+
       if (density < thresholds.imageryDensity) {
         this.rejectionStats.imageryDensity++;
         this.rejectionStats.total++;
+
         return false;
       }
     }
 
     if (thresholds.semanticCoherence > 0) {
       const coherence = calculateSemanticCoherence(verses);
+
       if (coherence < thresholds.semanticCoherence) {
         this.rejectionStats.semanticCoherence++;
         this.rejectionStats.total++;
+
         return false;
       }
     }
@@ -257,9 +284,11 @@ export class HaikuValidatorService {
         this.naturalLanguage.getPOSTags(v),
       );
       const presence = calculateVerbPresence(posResults);
+
       if (presence < thresholds.verbPresence) {
         this.rejectionStats.verbPresence++;
         this.rejectionStats.total++;
+
         return false;
       }
     }
@@ -279,6 +308,7 @@ export class HaikuValidatorService {
     if (quote.length >= VERSE_MAX_LENGTH) {
       return true;
     }
+
     return false;
   }
 }

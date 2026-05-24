@@ -209,6 +209,7 @@ async function runIteration(
 
   if (!seedHaiku) {
     console.log(pc.red('Failed to fetch haiku'));
+
     return null;
   }
 

@@ -12,7 +12,8 @@ let colorModeState: {
 vi.mock('@vueuse/core', () => ({
   useColorMode: vi.fn((opts: { onChanged?: typeof capturedOnChanged }) => {
     capturedOnChanged = opts.onChanged;
-    return colorModeState;
+    
+return colorModeState;
   }),
 }));
 

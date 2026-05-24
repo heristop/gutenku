@@ -84,6 +84,7 @@ export class PopulationManager {
       child2 = this.mutationOperator.mutate(child2);
 
       nextChromosomes.push(child1);
+
       if (nextChromosomes.length < this.config.populationSize) {
         nextChromosomes.push(child2);
       }
@@ -125,6 +126,7 @@ export class PopulationManager {
 
     const avgImprovement =
       improvements.reduce((a, b) => a + b, 0) / improvements.length;
+
     return Math.abs(avgImprovement) < this.config.convergenceThreshold;
   }
 

@@ -23,6 +23,7 @@ function seededRandom(seed: number): () => number {
     let t = (seed += 0x6D2B79F5);
     t = Math.imul(t ^ (t >>> 15), t | 1);
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
@@ -68,6 +69,7 @@ function shuffleWithSeed<T>(array: T[], random: () => number): T[] {
     const j = Math.floor(random() * (i + 1));
     [result[i], result[j]] = [result[j], result[i]];
   }
+
   return result;
 }
 
@@ -202,6 +204,7 @@ export class SubmitGuessHandler implements IQueryHandler<
       this.globalStatsRepository
         .incrementGamePlayed(true, hintStats)
         .catch(() => {});
+
       return {
         isCorrect: true,
         correctBook: bookToValue(correctBook, locale),
@@ -224,6 +227,7 @@ export class SubmitGuessHandler implements IQueryHandler<
     this.globalStatsRepository
       .incrementGamePlayed(false, hintStats)
       .catch(() => {});
+
     return {
       isCorrect: false,
       correctBook: bookToValue(correctBook, locale),

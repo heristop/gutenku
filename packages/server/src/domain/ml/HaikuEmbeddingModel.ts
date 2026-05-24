@@ -163,6 +163,7 @@ export class HaikuEmbeddingModel {
     if (!this.model) {
       throw new Error('Model not built. Call buildModel() first.');
     }
+
     return this.model;
   }
 
@@ -237,6 +238,7 @@ export class HaikuEmbeddingModel {
     const tensor = this.encode(haiku);
     const array = await tensor.array();
     tensor.dispose();
+
     return array;
   }
 
@@ -247,6 +249,7 @@ export class HaikuEmbeddingModel {
     const tensor = this.encodeMany(haikus);
     const arrays = await tensor.array();
     tensor.dispose();
+
     return arrays;
   }
 
@@ -265,6 +268,7 @@ export class HaikuEmbeddingModel {
     }
 
     const denominator = Math.sqrt(norm1) * Math.sqrt(norm2);
+
     return denominator > 0 ? dotProduct / denominator : 0;
   }
 
@@ -273,10 +277,12 @@ export class HaikuEmbeddingModel {
    */
   euclideanDistance(embedding1: number[], embedding2: number[]): number {
     let sum = 0;
+
     for (let i = 0; i < embedding1.length; i++) {
       const diff = embedding1[i] - embedding2[i];
       sum += diff * diff;
     }
+
     return Math.sqrt(sum);
   }
 
@@ -366,6 +372,7 @@ export class HaikuEmbeddingModel {
     if (!this.model) {
       return 0;
     }
+
     return this.model.countParams();
   }
 

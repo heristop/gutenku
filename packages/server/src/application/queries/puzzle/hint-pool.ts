@@ -25,6 +25,7 @@ export const HINT_POOL: HintDefinition[] = [
     difficulty: 2,
     generator: (book, _random, locale) => {
       const title = book.title?.[locale] || book.title?.en || '';
+
       if (!title) {
         return '0';
       }
@@ -106,6 +107,7 @@ export const HINT_POOL: HintDefinition[] = [
           fr: 'Une citation célèbre de ce livre...',
           ja: 'この本の有名な引用...',
         };
+
         return fallbacks[locale];
       }
 
@@ -118,6 +120,7 @@ export const HINT_POOL: HintDefinition[] = [
     generator: (book, _random, locale) => {
       const title = book.title[locale] || book.title.en;
       const firstChar = [...title][0]; // Multi-byte character support
+
       return `${firstChar.toUpperCase()}...`;
     },
   },
@@ -131,6 +134,7 @@ export const HINT_POOL: HintDefinition[] = [
     difficulty: 10,
     generator: (book, _random, locale) => {
       const firstName = book.author?.split(' ')[0];
+
       if (firstName) {
         return firstName;
       }
@@ -139,6 +143,7 @@ export const HINT_POOL: HintDefinition[] = [
         fr: 'Inconnu',
         ja: '不明',
       };
+
       return fallbacks[locale];
     },
   },

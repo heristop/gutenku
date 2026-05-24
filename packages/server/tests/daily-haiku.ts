@@ -297,7 +297,8 @@ describe('Daily Haiku', () => {
 
       return getAvailableHaikus(haikus, now).filter((h) => {
         const createdAt = new Date(h.createdAt);
-        return createdAt >= minCreatedAt && createdAt < maxCreatedAt;
+        
+return createdAt >= minCreatedAt && createdAt < maxCreatedAt;
       });
     }
 

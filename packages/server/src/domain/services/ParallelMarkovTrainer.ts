@@ -43,6 +43,7 @@ export class ParallelMarkovTrainer {
   ): Promise<MergedResult> {
     const batches = this.splitIntoBatches(chapters);
     const results = await this.runWorkers(batches, onProgress);
+
     return this.mergeResults(results);
   }
 
@@ -108,44 +109,11 @@ export class ParallelMarkovTrainer {
     let totalTrigrams = 0;
 
     for (const result of results) {
-      // Merge bigrams
-      for (const [key, transitions] of result.bigrams) {
-        let existing = bigrams.get(key);
+      this.mergeTransitions(bigrams, result.bigrams);
+      this.mergeTransitions(trigrams, result.trigrams);
+      this.mergeTotals(bigramTotals, result.bigramTotals);
+      this.mergeTotals(trigramTotals, result.trigramTotals);
 
-        if (!existing) {
-          existing = new Map();
-          bigrams.set(key, existing);
-        }
-
-        for (const [word, count] of transitions) {
-          existing.set(word, (existing.get(word) || 0) + count);
-        }
-      }
-
-      // Merge trigrams
-      for (const [key, transitions] of result.trigrams) {
-        let existing = trigrams.get(key);
-
-        if (!existing) {
-          existing = new Map();
-          trigrams.set(key, existing);
-        }
-
-        for (const [word, count] of transitions) {
-          existing.set(word, (existing.get(word) || 0) + count);
-        }
-      }
-
-      // Merge totals
-      for (const [key, count] of result.bigramTotals) {
-        bigramTotals.set(key, (bigramTotals.get(key) || 0) + count);
-      }
-
-      for (const [key, count] of result.trigramTotals) {
-        trigramTotals.set(key, (trigramTotals.get(key) || 0) + count);
-      }
-
-      // Merge vocabulary
       for (const word of result.vocabulary) {
         vocabulary.add(word);
       }
@@ -163,5 +131,32 @@ export class ParallelMarkovTrainer {
       totalTrigrams,
       vocabulary,
     };
+  }
+
+  private mergeTransitions(
+    target: Map<string, Map<string, number>>,
+    source: [string, [string, number][]][],
+  ): void {
+    for (const [key, transitions] of source) {
+      let existing = target.get(key);
+
+      if (!existing) {
+        existing = new Map();
+        target.set(key, existing);
+      }
+
+      for (const [word, count] of transitions) {
+        existing.set(word, (existing.get(word) || 0) + count);
+      }
+    }
+  }
+
+  private mergeTotals(
+    target: Map<string, number>,
+    source: [string, number][],
+  ): void {
+    for (const [key, count] of source) {
+      target.set(key, (target.get(key) || 0) + count);
+    }
   }
 }

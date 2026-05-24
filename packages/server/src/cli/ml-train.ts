@@ -76,22 +76,28 @@ const INNER_WIDTH = BOX_WIDTH - 4;
 
 function fitToWidth(str: string, width: number): string {
   const visWidth = stringWidth(str);
+
   if (visWidth === width) {
     return str;
   }
+
   if (visWidth > width) {
     let result = '';
     let currentWidth = 0;
+
     for (const char of str) {
       const charWidth = stringWidth(char);
+
       if (currentWidth + charWidth > width - 3) {
         break;
       }
       result += char;
       currentWidth += charWidth;
     }
+
     return result + '...';
   }
+
   return str + ' '.repeat(width - visWidth);
 }
 
@@ -118,6 +124,7 @@ function progressBar(current: number, total: number, width: number): string {
   const filled = Math.round(pct * width);
   const empty = width - filled;
   const bar = pc.green('█'.repeat(filled)) + pc.dim('░'.repeat(empty));
+
   return bar + ' ' + pc.cyan((pct * 100).toFixed(0).padStart(3) + '%');
 }
 
@@ -133,6 +140,7 @@ function sparkline(values: number[], width: number): string {
 
   // Sample values to fit width
   const sampled: number[] = [];
+
   for (let i = 0; i < width; i++) {
     const idx = Math.floor((i / width) * values.length);
     sampled.push(values[idx]);
@@ -145,6 +153,7 @@ function sparkline(values: number[], width: number): string {
         blocks.length - 1,
         Math.floor(normalized * blocks.length),
       );
+
       return pc.cyan(blocks[blockIdx]);
     })
     .join('');
@@ -274,9 +283,11 @@ function formatDuration(ms: number): string {
   if (hours > 0) {
     return `${hours}h ${minutes % 60}m`;
   }
+
   if (minutes > 0) {
     return `${minutes}m ${seconds % 60}s`;
   }
+
   return `${seconds}s`;
 }
 
@@ -337,6 +348,7 @@ async function main(): Promise<void> {
   for (let i = 0; i < tripletCount; i++) {
     const anchorIdx = Math.floor(Math.random() * positives.length);
     let positiveIdx = Math.floor(Math.random() * positives.length);
+
     while (positiveIdx === anchorIdx && positives.length > 1) {
       positiveIdx = Math.floor(Math.random() * positives.length);
     }
@@ -424,6 +436,7 @@ async function main(): Promise<void> {
 
   // Save model
   const saveSpinner = ora('Saving model...').start();
+
   if (!existsSync(outputDir)) {
     await mkdir(outputDir, { recursive: true });
   }

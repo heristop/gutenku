@@ -116,7 +116,8 @@ describe('Gutenberg E2E Extraction', () => {
 
         it('chapters have content', () => {
           const chapters = parseResult.parsedBook?.chapters ?? [];
-          for (const chapter of chapters) {
+          
+for (const chapter of chapters) {
             expect(chapter.content.length).toBeGreaterThan(100);
           }
         });
@@ -170,7 +171,9 @@ describe('Gutenberg E2E Extraction', () => {
 
   describe('Error Handling', () => {
     it('throws on non-existent book', async () => {
-      await expect(client.fetchBook(999999999)).rejects.toThrow();
+      await expect(client.fetchBook(999999999)).rejects.toThrow(
+        /Failed to fetch book 999999999/,
+      );
     }, 30000);
   });
 });

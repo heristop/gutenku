@@ -36,7 +36,12 @@ export const DEFAULT_GENERATOR_CONFIG: GeneratorConfig = {
   theme: 'random',
 };
 
-export function buildThresholds(score: ScoreConfig): ScoreThresholds {
+function resolvePrimaryScores(
+  score: ScoreConfig,
+): Pick<
+  ScoreThresholds,
+  'sentiment' | 'markov' | 'pos' | 'trigram' | 'tfidf' | 'phonetics'
+> {
   return {
     sentiment: score.sentiment ?? DEFAULT_SENTIMENT_MIN_SCORE,
     markov: score.markovChain ?? DEFAULT_MARKOV_MIN_SCORE,
@@ -44,6 +49,21 @@ export function buildThresholds(score: ScoreConfig): ScoreThresholds {
     trigram: score.trigram ?? DEFAULT_TRIGRAM_MIN_SCORE,
     tfidf: score.tfidf ?? 0,
     phonetics: score.phonetics ?? DEFAULT_ALLITERATION_MIN_SCORE,
+  };
+}
+
+function resolveSecondaryScores(
+  score: ScoreConfig,
+): Pick<
+  ScoreThresholds,
+  | 'uniqueness'
+  | 'verseDistance'
+  | 'lineLengthBalance'
+  | 'imageryDensity'
+  | 'semanticCoherence'
+  | 'verbPresence'
+> {
+  return {
     uniqueness: score.uniqueness ?? DEFAULT_UNIQUENESS_MIN_SCORE,
     verseDistance: score.verseDistance ?? DEFAULT_VERSE_DISTANCE_MIN_SCORE,
     lineLengthBalance:
@@ -51,6 +71,13 @@ export function buildThresholds(score: ScoreConfig): ScoreThresholds {
     imageryDensity: score.imageryDensity ?? DEFAULT_IMAGERY_MIN_SCORE,
     semanticCoherence: score.semanticCoherence ?? DEFAULT_COHERENCE_MIN_SCORE,
     verbPresence: score.verbPresence ?? DEFAULT_VERB_MIN_SCORE,
+  };
+}
+
+export function buildThresholds(score: ScoreConfig): ScoreThresholds {
+  return {
+    ...resolvePrimaryScores(score),
+    ...resolveSecondaryScores(score),
     maxRepeatedWords: 0,
     allowWeakStart: true,
   };

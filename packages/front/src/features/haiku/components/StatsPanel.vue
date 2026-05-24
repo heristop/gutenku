@@ -63,6 +63,7 @@ function animateValue(
   // Skip animation during SSR
   if (typeof document === 'undefined') {
     callback(end);
+
     return;
   }
 
@@ -130,6 +131,7 @@ watch(
   (val, oldVal) => {
     if (hasAnimated.value) {
       animatedHaikus.value = val;
+
       if (val !== oldVal) {
         triggerPulse(pulsingHaikus);
       }
@@ -141,6 +143,7 @@ watch(
   (val, oldVal) => {
     if (hasAnimated.value) {
       animatedBooks.value = val;
+
       if (val !== oldVal) {
         triggerPulse(pulsingBooks);
       }
@@ -152,6 +155,7 @@ watch(
   (val, oldVal) => {
     if (hasAnimated.value) {
       animatedDaily.value = val;
+
       if (val !== oldVal) {
         triggerPulse(pulsingDaily);
       }
@@ -161,6 +165,7 @@ watch(
 watch(avgTime, (val, oldVal) => {
   if (hasAnimated.value) {
     animatedTime.value = Number.parseFloat(val);
+
     if (val !== oldVal) {
       triggerPulse(pulsingTime);
     }

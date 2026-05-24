@@ -38,7 +38,8 @@ describe('usePwaInstall', () => {
 
   async function loadComposable() {
     const mod = await import('@/core/composables/pwa-install');
-    return mod.usePwaInstall;
+    
+return mod.usePwaInstall;
   }
 
   it('detects iOS from the user agent', async () => {

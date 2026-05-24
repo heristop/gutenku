@@ -28,7 +28,8 @@ function isBooksData(value: unknown): value is BooksData {
     return false;
   }
   const books = (value as { books: unknown }).books;
-  return Array.isArray(books);
+  
+return Array.isArray(books);
 }
 
 describe('GraphQL Query: books', () => {
@@ -47,8 +48,8 @@ describe('GraphQL Query: books', () => {
     expect(data).toBeDefined();
     expect(isBooksData(data)).toBeTruthy();
 
-    if (isBooksData(data)) {
-      expect(data.books.length).toBe(0);
-    }
+    // Type guard above asserted the shape; narrow now so the next assertion is unconditional.
+    const booksData = data as BooksData;
+    expect(booksData.books.length).toBe(0);
   });
 });

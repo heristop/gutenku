@@ -46,7 +46,8 @@ describe('useReadingProgress', () => {
     if (originalScrollY) {
       Object.defineProperty(globalThis, 'scrollY', originalScrollY);
     }
-    if (originalScrollHeight) {
+    
+if (originalScrollHeight) {
       Object.defineProperty(
         document.documentElement,
         'scrollHeight',

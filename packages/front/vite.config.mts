@@ -22,19 +22,22 @@ function getBlogSlugs(): string[] {
     dirname(fileURLToPath(import.meta.url)),
     './content',
   );
-  if (!existsSync(contentDir)) {
+  
+if (!existsSync(contentDir)) {
     return [];
   }
   const files = readdirSync(contentDir).filter((f) => f.endsWith('.md'));
   const slugs = new Set<string>();
-  for (const file of files) {
+  
+for (const file of files) {
     // Extract slug: "2026-01-13-gutenku-when-two-frauds.en.md" → "gutenku-when-two-frauds"
     const slug = file
       .replace(/^\d{4}-\d{2}-\d{2}-/, '')
       .replace(/\.(en|fr|ja)?\.md$/, '');
     slugs.add(slug);
   }
-  return [...slugs];
+  
+return [...slugs];
 }
 
 const gutenguessBasePath =
@@ -171,7 +174,8 @@ export default defineConfig(({ isSsrBuild }) => ({
       const blogSlugs = getBlogSlugs();
       const blogRoutes = blogSlugs.map((slug) => `/blog/${slug}`);
       const ssgRoutes = ['/', '/haiku', '/blog', '/game', ...blogRoutes];
-      return [...new Set([...paths, ...ssgRoutes])];
+      
+return [...new Set([...paths, ...ssgRoutes])];
     },
   },
 }));

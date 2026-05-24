@@ -33,6 +33,21 @@ const banners = [
   },
 ];
 
+/**
+ * Resolve the image bytes from an OpenAI image-generation response entry.
+ * Returns null when neither inline base64 nor a URL is present.
+ */
+async function loadImageBuffer(imageData) {
+  if (imageData.b64_json) {
+    return Buffer.from(imageData.b64_json, 'base64');
+  }
+  if (imageData.url) {
+    const response = await fetch(imageData.url);
+    return Buffer.from(await response.arrayBuffer());
+  }
+  return null;
+}
+
 async function generateBanner(banner) {
   console.log(`\n🎨 Generating ${banner.name} banner...`);
   console.log(`📝 Output: ${banner.output}`);
@@ -65,14 +80,10 @@ async function generateBanner(banner) {
     banner.output,
   );
 
-  if (imageData.b64_json) {
-    fs.writeFileSync(outputPath, Buffer.from(imageData.b64_json, 'base64'));
-  } else if (imageData.url) {
-    const imageResponse = await fetch(imageData.url);
-    fs.writeFileSync(
-      outputPath,
-      Buffer.from(await imageResponse.arrayBuffer()),
-    );
+  const buffer = await loadImageBuffer(imageData);
+
+  if (buffer) {
+    fs.writeFileSync(outputPath, buffer);
   }
 
   console.log(`✅ Saved: ${outputPath}`);

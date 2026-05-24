@@ -9,21 +9,26 @@ export const INNER_WIDTH = BOX_WIDTH - 4; // "║ " + content + " ║"
 /** Pad/truncate string to exact visual width */
 export function fitToWidth(str: string, width: number): string {
   const visWidth = stringWidth(str);
+
   if (visWidth === width) {
     return str;
   }
+
   if (visWidth > width) {
     // Truncate - simple approach for plain strings
     let result = '';
     let currentWidth = 0;
+
     for (const char of str) {
       const charWidth = stringWidth(char);
+
       if (currentWidth + charWidth > width - 3) {
         break;
       }
       result += char;
       currentWidth += charWidth;
     }
+
     return result + '...';
   }
   // Pad
@@ -62,6 +67,7 @@ export function progressBar(
   const filled = Math.round(pct * width);
   const empty = width - filled;
   const bar = pc.green('█'.repeat(filled)) + pc.dim('░'.repeat(empty));
+
   return bar + ' ' + pc.cyan((pct * 100).toFixed(0).padStart(3) + '%');
 }
 
@@ -79,6 +85,7 @@ export function sparkline(values: number[], width: number): string {
   // Sample to fit
   const step = Math.max(1, Math.ceil(values.length / width));
   const sampled: number[] = [];
+
   for (let i = 0; i < values.length && sampled.length < width; i += step) {
     sampled.push(values[i]);
   }
@@ -87,11 +94,13 @@ export function sparkline(values: number[], width: number): string {
     .map((v) => {
       const norm = (v - min) / range;
       const idx = Math.min(Math.floor(norm * chars.length), chars.length - 1);
+
       return chars[idx];
     })
     .join('');
 
   const padding = width - stringWidth(line);
+
   return pc.green(line) + pc.dim('─'.repeat(Math.max(0, padding)));
 }
 
@@ -123,6 +132,7 @@ export function cleanVerse(verse: string): string {
     .replaceAll(/[\r\n]+/g, ' ')
     .replaceAll(/\s+/g, ' ')
     .trim();
+
   return cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
 }
 
@@ -196,6 +206,7 @@ export function renderFrame(data: FrameData): string {
   if (data.bestHaiku?.length === 3) {
     lines.push(boxSep());
     lines.push(boxLine(pc.cyan('Current Best Haiku:')));
+
     for (const verse of data.bestHaiku) {
       const cleaned = cleanVerse(verse);
       const display =
@@ -284,6 +295,7 @@ export function drawFinalChart(
 
   for (let row = height - 1; row >= 0; row--) {
     let line = '';
+
     for (let col = 0; col < sampled.length; col++) {
       const bNorm = Math.floor(((best[col] - min) / range) * height);
       const aNorm = Math.floor(((avg[col] - min) / range) * height);

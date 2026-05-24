@@ -29,6 +29,7 @@ const sizeConfig = computed(() => {
     md: { diameter: 48, strokeWidth: 4, fontSize: '0.75rem' },
     lg: { diameter: 64, strokeWidth: 5, fontSize: '1rem' },
   };
+
   return configs[props.size];
 });
 
@@ -55,6 +56,7 @@ const strokeOffset = computed(() => {
 function animateValue() {
   if (!props.animated || typeof document === 'undefined') {
     displayedValue.value = normalizedValue.value;
+
     return;
   }
 
@@ -72,6 +74,7 @@ function animateValue() {
 
     if (progress < 1) {
       requestAnimationFrame(update);
+
       return;
     }
 

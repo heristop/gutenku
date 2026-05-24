@@ -51,6 +51,7 @@ export class SelectionOperator {
 
     for (const chromosome of chromosomes) {
       cumulative += chromosome.fitness + shift;
+
       if (cumulative >= threshold) {
         return chromosome;
       }
@@ -77,6 +78,7 @@ export class SelectionOperator {
 
     for (let i = 0; i < n; i++) {
       cumulative += i + 1;
+
       if (cumulative >= threshold) {
         return sorted[i];
       }

@@ -20,7 +20,8 @@ vi.mock('node:fs/promises', () => {
         vocabulary: [],
       }),
   );
-  return {
+  
+return {
     default: { stat, writeFile, readFile },
     stat,
     readFile,

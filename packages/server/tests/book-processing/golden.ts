@@ -72,7 +72,8 @@ describe('Golden Tests - Book Parsing Regression', () => {
     const metadataExtractor = new BookMetadataExtractorService();
     const chapterSplitter = new ChapterSplitterService();
     const chapterValidator = new ChapterValidatorService();
-    return new BookParserService(
+    
+return new BookParserService(
       metadataExtractor,
       chapterSplitter,
       chapterValidator,
@@ -81,12 +82,14 @@ describe('Golden Tests - Book Parsing Regression', () => {
 
   const parseBook = (bookId: number): ParsingResult | null => {
     const filePath = path.join(dataDir, `book_${bookId}.txt`);
-    if (!fs.existsSync(filePath)) {
+    
+if (!fs.existsSync(filePath)) {
       return null;
     }
     const content = fs.readFileSync(filePath, 'utf-8');
     const rawBookText = RawBookText.create({ content, gutenbergId: bookId });
-    return createParser().parse(rawBookText);
+    
+return createParser().parse(rawBookText);
   };
 
   GOLDEN_TEST_CASES.forEach((testCase) => {

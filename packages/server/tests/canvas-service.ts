@@ -15,7 +15,8 @@ vi.mock('node:fs', () => {
       if (event === 'finish') {
         setTimeout(callback, 0);
       }
-      return mockWriteStream;
+      
+return mockWriteStream;
     }),
   };
 

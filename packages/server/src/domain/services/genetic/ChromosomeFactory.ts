@@ -79,6 +79,7 @@ export class ChromosomeFactory {
    */
   isValid(chromosome: HaikuChromosome): boolean {
     const [g0, g1, g2] = chromosome.genes;
+
     return (
       g0 >= 0 &&
       g0 < this.versePools.fiveSyllable.length &&

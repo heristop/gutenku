@@ -40,7 +40,9 @@ onMounted(() => {
 
 onUnmounted(() => {
   svgRef.value?.removeEventListener('animationstart', handleAnimationStart);
+
   if (pauseTimeout) {clearTimeout(pauseTimeout);}
+
   if (resumeTimeout) {clearTimeout(resumeTimeout);}
 });
 </script>

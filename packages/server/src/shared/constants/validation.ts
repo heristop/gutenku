@@ -110,14 +110,16 @@ export function hasWeakStart(text: string): boolean {
  */
 export function countNatureWords(verses: string[]): number {
   let count = 0;
-  for (const verse of verses) {
+  
+for (const verse of verses) {
     for (const word of verse.toLowerCase().split(WORD_SPLIT_REGEX)) {
       if (word.length > 0 && NATURE_WORDS.has(word)) {
         count++;
       }
     }
   }
-  return count;
+  
+return count;
 }
 
 /**
@@ -133,14 +135,16 @@ export function hasBlacklistedChars(verse: string): boolean {
  */
 export function hasProperNoun(text: string): boolean {
   const words = text.split(/\s+/);
-  for (let i = 1; i < words.length; i++) {
+  
+for (let i = 1; i < words.length; i++) {
     const word = words[i];
     // Check if word starts with uppercase (and has lowercase after, to avoid acronyms)
     if (word && /^[A-Z][a-z]/.test(word)) {
       return true;
     }
   }
-  return false;
+  
+return false;
 }
 
 /**
@@ -182,13 +186,16 @@ export function countBlacklistedVerses(verses: string[]): number {
  */
 function isProperNoun(word: string, isFirstWord: boolean): boolean {
   const lower = word.toLowerCase();
-  if (TITLES.has(lower)) {
+  
+if (TITLES.has(lower)) {
     return true;
   }
-  if (isFirstWord) {
+  
+if (isFirstWord) {
     return COMMON_NAMES.has(lower);
   }
-  return /^[A-Z]/.test(word);
+  
+return /^[A-Z]/.test(word);
 }
 
 /**
@@ -198,16 +205,20 @@ function isProperNoun(word: string, isFirstWord: boolean): boolean {
  */
 export function countProperNouns(verses: string[]): number {
   let count = 0;
-  for (const verse of verses) {
+  
+for (const verse of verses) {
     const words = verse.split(WORD_SPLIT_REGEX);
-    for (let i = 0; i < words.length; i++) {
+    
+for (let i = 0; i < words.length; i++) {
       const word = words[i];
-      if (word && isProperNoun(word, i === 0)) {
+      
+if (word && isProperNoun(word, i === 0)) {
         count++;
       }
     }
   }
-  return count;
+  
+return count;
 }
 
 /**
@@ -233,7 +244,8 @@ export function calculateVerseDistance(
 export function calculateLineLengthBalance(verses: string[]): number {
   const lengths = verses.map((v) => v.length);
   const mean = lengths.reduce((a, b) => a + b, 0) / lengths.length;
-  if (mean === 0) {
+  
+if (mean === 0) {
     return 1;
   }
   const variance =
@@ -349,7 +361,8 @@ export function countLongVerses(verses: string[]): number {
 export function calculateWordUniqueness(verses: string[]): number {
   const words = verses.flatMap((v) => v.toLowerCase().split(WORD_SPLIT_REGEX));
   const filtered = words.filter((w) => w.length > 0);
-  if (filtered.length === 0) {
+  
+if (filtered.length === 0) {
     return 0;
   }
   const unique = new Set(filtered);

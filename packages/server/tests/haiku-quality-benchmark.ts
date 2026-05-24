@@ -187,7 +187,8 @@ const calculateStats = (values: number[]): BenchmarkStats => {
   const max = Math.max(...values);
   const variance = values.reduce((sum, v) => sum + (v - mean) ** 2, 0) / count;
   const stdDev = Math.sqrt(variance);
-  return { count, mean, min, max, stdDev };
+  
+return { count, mean, min, max, stdDev };
 };
 
 describe('Haiku Quality Benchmark', () => {
@@ -226,7 +227,8 @@ describe('Haiku Quality Benchmark', () => {
         } as ChapterValue,
         sample.verses,
       );
-      if (haiku.quality) {
+      
+if (haiku.quality) {
         results.push({
           verses: haiku.verses,
           quality: haiku.quality,
@@ -259,10 +261,8 @@ describe('Haiku Quality Benchmark', () => {
       console.log(`   StdDev: ${stats.stdDev.toFixed(2)}`);
 
       // Total scores should vary (not all the same)
-
-      if (stats.count > 1) {
-        expect(stats.stdDev).toBeGreaterThanOrEqual(0);
-      }
+      // stdDev is always >= 0 by definition; assert this regardless of count
+      expect(stats.stdDev).toBeGreaterThanOrEqual(0);
     });
 
     it('sentiment scores are in valid range [0, 1]', () => {

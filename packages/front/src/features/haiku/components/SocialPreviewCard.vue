@@ -21,6 +21,7 @@ const { copy, copied } = useClipboard();
 
 const hasValidData = computed(() => {
   const h = haiku.value;
+
   return h?.title && (h?.translations?.fr || h?.translations?.jp);
 });
 
@@ -28,6 +29,7 @@ const caption = computed(() => {
   if (!haiku.value || !hasValidData.value) {
     return '';
   }
+
   return generateSocialCaption(haiku.value as HaikuValue);
 });
 

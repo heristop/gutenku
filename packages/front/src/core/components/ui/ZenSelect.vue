@@ -41,6 +41,7 @@ const flatOptions = computed(() => {
   if (isGrouped.value) {
     return (props.options as OptionGroup[]).flatMap((g) => g.options);
   }
+
   return props.options as string[];
 });
 
@@ -48,6 +49,7 @@ const groupedOptions = computed(() => {
   if (isGrouped.value) {
     return props.options as OptionGroup[];
   }
+
   return [{ group: '', options: props.options as string[] }];
 });
 
@@ -125,6 +127,7 @@ const handleEnterSpace = (event: KeyboardEvent) => {
 
   if (isOpen.value && highlightedIndex.value >= 0) {
     select(flatOptions.value[highlightedIndex.value]);
+
     return;
   }
 
@@ -136,6 +139,7 @@ const handleArrowDown = (event: KeyboardEvent) => {
 
   if (!isOpen.value) {
     openDropdown();
+
     return;
   }
 
@@ -240,9 +244,11 @@ const setOptionRef = (el: HTMLLIElement | null, index: number) => {
 
 const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
   let flatIdx = 0;
+
   for (let i = 0; i < groupIndex; i++) {
     flatIdx += groupedOptions.value[i].options.length;
   }
+
   return flatIdx + optionIndex;
 };
 </script>

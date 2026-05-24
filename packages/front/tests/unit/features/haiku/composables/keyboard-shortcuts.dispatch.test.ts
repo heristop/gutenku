@@ -5,7 +5,8 @@ import { withSetup } from '../../../helpers/with-setup';
 function dispatchKey(init: KeyboardEventInit): KeyboardEvent {
   const event = new KeyboardEvent('keydown', { cancelable: true, ...init });
   globalThis.dispatchEvent(event);
-  return event;
+  
+return event;
 }
 
 describe('useKeyboardShortcuts (dispatch behaviour)', () => {
@@ -85,7 +86,8 @@ describe('useKeyboardShortcuts (dispatch behaviour)', () => {
     const { unmount } = withSetup(() => useKeyboardShortcuts(handlers));
 
     dispatchKey({ code: 'KeyZ' });
-    for (const handler of Object.values(handlers)) {
+    
+for (const handler of Object.values(handlers)) {
       expect(handler).not.toHaveBeenCalled();
     }
     unmount();

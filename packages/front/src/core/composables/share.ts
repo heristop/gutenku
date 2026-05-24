@@ -47,6 +47,34 @@ function canShareFiles(): boolean {
   return navigator.canShare({ files: [testFile] });
 }
 
+async function performNativeShare(
+  haiku: HaikuValue,
+  text: string,
+  title: string,
+): Promise<void> {
+  // Try to share image if available and supported
+  if (haiku.image && canShareFiles()) {
+    const bookTitle = haiku.book?.title || 'haiku';
+    const chapterTitle = haiku.chapter?.title || '';
+    const filename = `${bookTitle}_${chapterTitle}.png`.replaceAll(
+      /\s+/g,
+      '_',
+    );
+    const imageFile = base64ToFile(haiku.image, filename);
+
+    await navigator.share({
+      files: [imageFile],
+      title,
+      text,
+    });
+
+    return;
+  }
+
+  // Fall back to text-only share
+  await navigator.share({ text, title });
+}
+
 export function useShare() {
   const { copy, copied } = useClipboard();
   const shared = ref(false);
@@ -55,52 +83,38 @@ export function useShare() {
     if (typeof navigator === 'undefined') {
       return false;
     }
+
     return 'share' in navigator && typeof navigator.share === 'function';
   });
 
-  async function share(haiku: HaikuValue): Promise<boolean> {
+  async function tryNativeShare(haiku: HaikuValue): Promise<boolean> {
     const text = formatHaikuForShare(haiku);
     const title = haiku.title || 'Haiku';
 
-    if (canNativeShare.value) {
-      try {
-        // Try to share image if available and supported
-        if (haiku.image && canShareFiles()) {
-          const bookTitle = haiku.book?.title || 'haiku';
-          const chapterTitle = haiku.chapter?.title || '';
-          const filename = `${bookTitle}_${chapterTitle}.png`.replaceAll(
-            /\s+/g,
-            '_',
-          );
-          const imageFile = base64ToFile(haiku.image, filename);
+    try {
+      await performNativeShare(haiku, text, title);
+      shared.value = true;
+      setTimeout(() => {
+        shared.value = false;
+      }, 2000);
 
-          await navigator.share({
-            files: [imageFile],
-            title,
-            text,
-          });
-        }
-
-        // Fall back to text-only share
-        if (!haiku.image || !canShareFiles()) {
-          await navigator.share({ text, title });
-        }
-
-        shared.value = true;
-        setTimeout(() => {
-          shared.value = false;
-        }, 2000);
-        return true;
-      } catch (error) {
-        if ((error as Error).name === 'AbortError') {
-          return false;
-        }
-        await copy(text);
-
-        return true;
+      return true;
+    } catch (error) {
+      if ((error as Error).name === 'AbortError') {
+        return false;
       }
+      await copy(text);
+
+      return true;
+    }
+  }
+
+  async function share(haiku: HaikuValue): Promise<boolean> {
+    if (canNativeShare.value) {
+      return tryNativeShare(haiku);
     }
 
+    const text = formatHaikuForShare(haiku);
     await copy(text);
     shared.value = copied.value;
 

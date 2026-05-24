@@ -49,7 +49,8 @@ describe('useBotDetection (detection behaviour)', () => {
       cb: () => void,
     ) => {
       cb();
-      return 1;
+      
+return 1;
     };
     detect.mockReturnValue({ bot: false });
 

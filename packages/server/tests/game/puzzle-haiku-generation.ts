@@ -12,11 +12,13 @@ const SEVEN = 'the river flows down to sea'; // 7 syllables
 
 const buildContent = () => {
   const sentences: string[] = [];
-  for (let i = 0; i < 8; i++) {
+  
+for (let i = 0; i < 8; i++) {
     sentences.push(FIVE);
     sentences.push(SEVEN);
   }
-  return sentences.join('. ') + '.';
+  
+return sentences.join('. ') + '.';
 };
 
 const makeNL = (): NaturalLanguageService =>
@@ -56,12 +58,10 @@ describe('GetDailyPuzzleHandler full haiku generation', () => {
 
     expect(Array.isArray(result.puzzle.haikus)).toBeTruthy();
     // When pools are big enough we expect 3 generated haikus, each 3 lines
-    if (result.puzzle.haikus.length > 0) {
-      expect(result.puzzle.haikus.length).toBeLessThanOrEqual(3);
-      for (const h of result.puzzle.haikus) {
-        expect(h.split('\n').length).toBe(3);
-      }
-    }
+    expect(result.puzzle.haikus.length).toBeLessThanOrEqual(3);
+    expect(
+      result.puzzle.haikus.every((h) => h.split('\n').length === 3),
+    ).toBeTruthy();
   });
 
   it('scores verses through the markov evaluator', async () => {

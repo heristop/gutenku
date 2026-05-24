@@ -6,9 +6,11 @@ export function formatPercent(value: number): string {
   if (value >= 80) {
     return `${value.toFixed(1)}%`;
   }
+
   if (value >= 50) {
     return `${value.toFixed(1)}%`;
   }
+
   return `${value.toFixed(1)}%`;
 }
 
@@ -16,6 +18,7 @@ export function formatRejectPercent(count: number, total: number): string {
   if (total === 0) {
     return '0%';
   }
+
   return ((count / total) * 100).toFixed(1) + '%';
 }
 
@@ -33,6 +36,7 @@ export function calculateMean(values: number[]): number {
   if (values.length === 0) {
     return 0;
   }
+
   return values.reduce((a, b) => a + b, 0) / values.length;
 }
 
@@ -71,9 +75,11 @@ export function getSentimentLevel(
   if (value > 0.6) {
     return 'positive';
   }
+
   if (value < 0.4) {
     return 'negative';
   }
+
   return 'neutral';
 }
 
@@ -83,9 +89,11 @@ export function getSuccessRateLevel(
   if (rate >= 80) {
     return 'excellent';
   }
+
   if (rate >= 50) {
     return 'good';
   }
+
   return 'poor';
 }
 

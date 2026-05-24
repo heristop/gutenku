@@ -14,7 +14,8 @@ import type { VersePools } from '../src/domain/services/genetic/types';
 // Use vi.hoisted to create mock that's available at mock definition time
 const { mockEvolveWithProgress } = vi.hoisted(() => {
   const mockEvolveWithProgress = vi.fn();
-  return { mockEvolveWithProgress };
+  
+return { mockEvolveWithProgress };
 });
 
 // Mock fs to prevent actual file system access in MarkovChainService
@@ -187,10 +188,12 @@ describe('GenerateHaikuIterativeHandler', () => {
     generator: AsyncGenerator<HaikuProgress>,
   ): Promise<HaikuProgress[]> {
     const results: HaikuProgress[] = [];
-    for await (const progress of generator) {
+    
+for await (const progress of generator) {
       results.push(progress);
     }
-    return results;
+    
+return results;
   }
 
   it('yields progress for every iteration with best score tracked', async () => {

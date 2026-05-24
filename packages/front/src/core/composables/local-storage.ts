@@ -5,5 +5,6 @@ export function useExpandedState(key: string, defaultValue = true) {
   const toggle = () => {
     value.value = !value.value;
   };
+
   return { value, toggle };
 }

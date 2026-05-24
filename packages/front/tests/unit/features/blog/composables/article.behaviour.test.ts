@@ -14,7 +14,8 @@ vi.mock('marked', () => {
     vi.fn(async (md: string) => `<rendered>${md}</rendered>`),
     { use: vi.fn() },
   );
-  return { marked };
+  
+return { marked };
 });
 
 const katexRender = vi.fn(() => '<span class="katex">x</span>');
@@ -33,7 +34,8 @@ const SLUG = 'gutenku-technical-deep-dive';
 
 async function loadUseArticle() {
   const mod = await import('@/features/blog/composables/article');
-  return mod;
+  
+return mod;
 }
 
 function buildBody({ math = false, mermaid = false } = {}) {

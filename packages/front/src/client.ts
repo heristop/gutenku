@@ -25,6 +25,7 @@ function getWSClient(): WSClient {
       lazyCloseTimeout: 3000,
     });
   }
+
   return wsClient;
 }
 
@@ -43,9 +44,11 @@ export const urqlClient = new Client({
     subscriptionExchange({
       forwardSubscription(request) {
         const input = { ...request, query: request.query || '' };
+
         return {
           subscribe(sink) {
             const unsubscribe = getWSClient().subscribe(input, sink);
+
             return { unsubscribe };
           },
         };

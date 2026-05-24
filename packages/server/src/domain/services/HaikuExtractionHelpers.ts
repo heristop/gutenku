@@ -34,6 +34,7 @@ export function filterQuotesCountingSyllables(
       filtered.push({ quote, index, syllableCount });
     }
   }
+
   return filtered;
 }
 
@@ -47,16 +48,19 @@ export function isValidChunkQuote(
   quote: string,
 ): boolean {
   const grammar = naturalLanguage.analyzeGrammar(quote);
+
   if (grammar.score < 0.5) {
     return false;
   }
 
   const words = quote.split(/\s+/);
+
   for (let i = 1; i < words.length; i++) {
     if (words[i] && /^[A-Z]/.test(words[i])) {
       return false;
     }
   }
+
   return true;
 }
 
@@ -141,6 +145,7 @@ export function extractQuotes(
         { method: name, count: quotes.length, threshold: minRequired },
         'Extraction succeeded',
       );
+
       return { quotes, method: name };
     }
   }

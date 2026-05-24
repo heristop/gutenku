@@ -21,6 +21,7 @@ export function useTypewriter(text: string, options: TypewriterOptions = {}) {
       displayText.value += text.charAt(charIndex);
       charIndex++;
       timeout = setTimeout(typeNextChar, speed);
+
       return;
     }
 
@@ -38,6 +39,7 @@ export function useTypewriter(text: string, options: TypewriterOptions = {}) {
 
     if (startDelay > 0) {
       timeout = setTimeout(typeNextChar, startDelay);
+
       return;
     }
 

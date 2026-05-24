@@ -14,10 +14,11 @@
         "max-lines": "off",
         "complexity": "off",
         "vitest/require-mock-type-parameters": "off",
-        "vitest/require-to-throw-message": "off",
-        "vitest/no-conditional-expect": "off",
         "@typescript-eslint/no-explicit-any": "off",
-        "@typescript-eslint/no-namespace": "off"
+        "@typescript-eslint/no-namespace": "off",
+        "gutenku/no-else": "off",
+        "gutenku/padding-line-before-flow": "off",
+        "gutenku/no-disable-comment": "off"
       }
     }
   ]

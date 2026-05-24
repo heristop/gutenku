@@ -42,7 +42,8 @@ function getBlogArticles(): Route[] {
   return files
     .map((file) => {
       const match = file.match(/^(\d{4}-\d{2}-\d{2})-(.+)\.md$/);
-      if (!match) {return null;}
+      
+if (!match) {return null;}
 
       const [, date, slugPart] = match;
       const content = readFileSync(resolve(contentDir, file), 'utf-8');

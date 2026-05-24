@@ -257,6 +257,7 @@ async function runAnalytics(iterations: number): Promise<void> {
       if (successRate >= 50) {
         return pc.yellow;
       }
+
       return pc.red;
     };
     const successColor = getSuccessColor();
@@ -416,6 +417,7 @@ function formatPercent(value: number): string {
   if (value >= 50) {
     return pc.yellow(value.toFixed(1) + '%');
   }
+
   return pc.red(value.toFixed(1) + '%');
 }
 

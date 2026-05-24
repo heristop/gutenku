@@ -48,6 +48,7 @@ function stopQuoteRotation() {
 function handleVisibilityChange() {
   if (document.hidden) {
     stopQuoteRotation();
+
     return;
   }
 
@@ -67,6 +68,7 @@ const {
 onMounted(() => {
   // IntersectionObserver pauses quote rotation when hero is off-screen
   const heroEl = heroRef.value?.$el;
+
   if (heroEl) {
     intersectionObserver = new IntersectionObserver(
       (entries) => {
@@ -74,6 +76,7 @@ onMounted(() => {
 
         if (isVisible.value) {
           startQuoteRotation();
+
           return;
         }
 

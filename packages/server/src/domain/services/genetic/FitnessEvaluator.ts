@@ -70,6 +70,7 @@ export class FitnessEvaluator {
     // Check cache first
     if (this.useCache && this.cache.has(chromosome.id)) {
       const cached = this.cache.get(chromosome.id)!;
+
       return {
         ...chromosome,
         fitness: cached.fitness,
@@ -131,6 +132,7 @@ export class FitnessEvaluator {
 
       case 'hybrid':
         const neuralScore = this.calculateNeuralScore(verses);
+
         return ruleWeight * ruleBasedScore + neuralWeight * neuralScore;
 
       default:
@@ -154,6 +156,7 @@ export class FitnessEvaluator {
       // Note: scoreHaiku is async, but GA requires sync evaluation
       // Production implementation should use pre-computed embeddings cached during pool creation
       const centroid = this.siameseTrainer.getCentroid();
+
       if (!centroid) {
         return 0;
       }
@@ -179,6 +182,7 @@ export class FitnessEvaluator {
     // Check cache first
     if (this.useCache && this.cache.has(chromosome.id)) {
       const cached = this.cache.get(chromosome.id)!;
+
       return {
         ...chromosome,
         fitness: cached.fitness,
@@ -243,6 +247,7 @@ export class FitnessEvaluator {
 
       case 'hybrid':
         const neuralScore = await this.calculateNeuralScoreAsync(verses);
+
         return ruleWeight * ruleBasedScore + neuralWeight * neuralScore;
 
       default:
@@ -289,6 +294,7 @@ export class FitnessEvaluator {
       this.evaluationCount > this.cache.size
         ? this.evaluationCount - this.cache.size
         : 0;
+
     return {
       evaluationCount: this.evaluationCount,
       cacheSize: this.cache.size,

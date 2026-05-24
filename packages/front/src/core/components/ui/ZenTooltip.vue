@@ -69,6 +69,7 @@ function handleClickOutside(event: MouseEvent | TouchEvent) {
   }
 
   const target = event.target as Node;
+
   if (
     triggerRef.value &&
     !triggerRef.value.contains(target) &&
@@ -184,12 +185,15 @@ onUnmounted(() => {
   globalThis.removeEventListener('resize', updatePosition);
   document.removeEventListener('touchstart', handleClickOutside);
   document.removeEventListener('click', handleClickOutside);
+
   if (showTimeout) {
     clearTimeout(showTimeout);
   }
+
   if (hideTimeout) {
     clearTimeout(hideTimeout);
   }
+
   if (longPressTimeout) {
     clearTimeout(longPressTimeout);
   }

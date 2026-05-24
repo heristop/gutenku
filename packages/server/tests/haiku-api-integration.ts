@@ -89,7 +89,8 @@ const createGenerator = () => {
       uniqueness: 0,
     },
   });
-  return gen;
+  
+return gen;
 };
 
 describe('Haiku API Integration Tests', () => {
@@ -146,14 +147,14 @@ describe('Haiku API Integration Tests', () => {
       );
 
       // When no method yields enough quotes, extractQuotes returns empty
-      // and method stays at last attempted
-
-      if (quotes.length === 0) {
-        // Any method could have been last attempted
-        expect(['punctuation', 'tokenizer', 'clause', 'chunk']).toContain(haiku.extractionMethod);
-      } else {
-        expect(['tokenizer', 'clause', 'chunk']).toContain(haiku.extractionMethod);
-      }
+      // and method stays at last attempted. Any method (including punctuation)
+      // could have been last attempted. When quotes were extracted, punctuation
+      // would have been replaced by a later method.
+      const allowedMethods =
+        quotes.length === 0
+          ? ['punctuation', 'tokenizer', 'clause', 'chunk']
+          : ['tokenizer', 'clause', 'chunk'];
+      expect(allowedMethods).toContain(haiku.extractionMethod);
     });
 
     it('chunk method generates many candidates from minimal text', () => {

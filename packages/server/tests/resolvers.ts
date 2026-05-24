@@ -26,7 +26,8 @@ vi.mock('tsyringe', async (importOriginal) => {
   const queryBusMock = {
     execute: vi.fn().mockImplementation(async (query) => {
       const queryName = query.constructor.name;
-      switch (queryName) {
+      
+switch (queryName) {
         case 'GetAllBooksQuery':
           return [];
         case 'GetBookByIdQuery':
@@ -75,7 +76,8 @@ vi.mock('tsyringe', async (importOriginal) => {
     }
     // Handle class-based resolution
     const name = tokenOrCls?.name;
-    switch (name) {
+    
+switch (name) {
       case 'PubSubService':
         return pubSubMock;
       default:

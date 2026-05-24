@@ -121,6 +121,7 @@ const isActive = (path: string) => {
   if (path === '/') {
     return route.path === '/';
   }
+
   return route.path === path || route.path.startsWith(path + '/');
 };
 
@@ -148,6 +149,7 @@ function handleClick(event: MouseEvent, to: string) {
   // If already on this page, don't navigate
   if (isActive(to)) {
     event.preventDefault();
+
     return;
   }
 

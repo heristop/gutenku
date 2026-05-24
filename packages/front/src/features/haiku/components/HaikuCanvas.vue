@@ -57,6 +57,7 @@ const loadingLabel = computed(() => {
   if (generationProgress.value.stopReason) {
     return t('haikuCanvas.drawing');
   }
+
   return t('haikuCanvas.loading');
 });
 

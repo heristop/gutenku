@@ -5,7 +5,8 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 vi.mock('mongoose', () => {
   const mockOn = vi.fn();
   const mockConnection = { on: mockOn };
-  return {
+  
+return {
     default: {
       connect: vi.fn(),
       connection: mockConnection,

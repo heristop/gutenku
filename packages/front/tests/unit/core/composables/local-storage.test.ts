@@ -5,7 +5,8 @@ import { useExpandedState } from '@/core/composables/local-storage';
 vi.mock('@vueuse/core', () => ({
   useLocalStorage: vi.fn((key: string, defaultValue: boolean) => {
     const storage: Record<string, boolean> = {};
-    return {
+    
+return {
       get value() {
         return storage[key] ?? defaultValue;
       },

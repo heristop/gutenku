@@ -41,6 +41,7 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
       (now.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000),
     );
     const weekNumber = Math.ceil((days + startOfYear.getDay() + 1) / 7);
+
     return `${now.getFullYear()}-W${weekNumber.toString().padStart(2, '0')}`;
   }
 
@@ -212,33 +213,41 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
     if (won) {
       inc.totalGamesWon = 1;
     }
+
     if (hints) {
       inc.totalEmoticonScratches = hints.emoticonScratches;
       inc.totalHaikuReveals = hints.haikuReveals;
       inc.totalRoundHints = hints.roundHints;
     }
+
     if (!isNewDay) {
       inc.todayGamesPlayed = 1;
+
       if (won) {
         inc.todayGamesWon = 1;
       }
+
       if (hints) {
         inc.todayEmoticonScratches = hints.emoticonScratches;
         inc.todayHaikuReveals = hints.haikuReveals;
         inc.todayRoundHints = hints.roundHints;
       }
     }
+
     if (!isNewWeek) {
       inc.weekGamesPlayed = 1;
+
       if (won) {
         inc.weekGamesWon = 1;
       }
+
       if (hints) {
         inc.weekEmoticonScratches = hints.emoticonScratches;
         inc.weekHaikuReveals = hints.haikuReveals;
         inc.weekRoundHints = hints.roundHints;
       }
     }
+
     return inc;
   }
 
@@ -273,6 +282,7 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
         this.buildGameStats(won, hints, 'today'),
       );
     }
+
     if (isNewWeek) {
       Object.assign(
         set,
@@ -280,6 +290,7 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
         this.buildGameStats(won, hints, 'week'),
       );
     }
+
     return set;
   }
 
@@ -351,6 +362,7 @@ export default class GlobalStatsRepository implements IGlobalStatsRepository {
       return stats;
     } catch (error) {
       log.warn({ err: error }, 'Failed to get global stats');
+
       return this.getDefaultStats();
     }
   }

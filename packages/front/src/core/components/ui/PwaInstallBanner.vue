@@ -32,6 +32,7 @@ watch(shouldShowBanner, (show) => {
 async function handleInstallClick() {
   if (isIos.value) {
     showIosModal.value = true;
+
     return;
   }
 

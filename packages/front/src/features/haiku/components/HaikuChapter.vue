@@ -85,6 +85,7 @@ const craftingStyle = computed(() => {
   if (!cardPosition.value.width) {
     return {};
   }
+
   return {
     '--crafting-top': `${cardPosition.value.top + 16}px`,
     '--crafting-left': `${cardPosition.value.left + cardPosition.value.width / 2}px`,
@@ -142,11 +143,13 @@ const pageNumber = computed(() => {
 
   const combined = haiku.value.book.title + haiku.value.chapter.title;
   let hash = 0;
+
   for (let i = 0; i < combined.length; i++) {
     const char = combined.charCodeAt(i);
     hash = (hash << 5) - hash + char;
     hash = hash & hash;
   }
+
   return Math.abs(hash % 200) + 1;
 });
 
@@ -154,6 +157,7 @@ function getCompactedText(): string {
   if (!haiku.value?.chapter.content || !haiku.value?.rawVerses) {
     return '';
   }
+
   return compactText(haiku.value.chapter.content, haiku.value.rawVerses);
 }
 

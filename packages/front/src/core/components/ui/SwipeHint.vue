@@ -27,6 +27,7 @@ useSwipe(containerRef, {
   onSwipeEnd: (_e, direction) => {
     if (direction === 'left') {
       emit('next');
+
       return;
     }
 

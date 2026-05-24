@@ -14,7 +14,8 @@ describe('locales config', () => {
 
   it('lists the supported locales derived from config', () => {
     expect(SUPPORTED_LOCALES).toEqual(['en', 'fr', 'ja']);
-    for (const loc of SUPPORTED_LOCALES) {
+    
+for (const loc of SUPPORTED_LOCALES) {
       expect(LOCALE_CONFIG[loc]).toBeDefined();
       expect(LOCALE_CONFIG[loc].htmlLang).toBeTruthy();
       expect(LOCALE_CONFIG[loc].ogLocale).toContain('_');

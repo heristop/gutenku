@@ -49,6 +49,7 @@ export function usePwaInstall() {
     if (typeof navigator === 'undefined') {
       return false;
     }
+
     return (
       /iPad|iPhone|iPod/.test(navigator.userAgent) &&
       !('MSStream' in globalThis)
@@ -59,6 +60,7 @@ export function usePwaInstall() {
     if (globalThis.matchMedia === undefined) {
       return false;
     }
+
     return (
       globalThis.matchMedia('(display-mode: standalone)').matches ||
       (globalThis.navigator as Navigator & { standalone?: boolean })
@@ -88,6 +90,7 @@ export function usePwaInstall() {
       return false;
     }
     const cooldownMs = DISMISSAL_COOLDOWN_DAYS * 24 * 60 * 60 * 1000;
+
     return Date.now() - dismissal.value.dismissedAt < cooldownMs;
   });
 
@@ -100,6 +103,7 @@ export function usePwaInstall() {
 
   const isReturningVisitor = computed(() => {
     const minMs = MIN_DAYS_BEFORE_PROMPT * 24 * 60 * 60 * 1000;
+
     return Date.now() - firstVisitAt.value >= minMs;
   });
 

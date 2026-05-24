@@ -13,6 +13,7 @@ export default class ChapterRepository implements IChapterRepository {
   async getAllChapters(filter: string | null) {
     if (filter) {
       const sanitizedFilter = mongoSanitize(filter) as string;
+
       return await ChapterModel.find(
         { $text: { $search: sanitizedFilter } },
         { score: { $meta: 'textScore' } },

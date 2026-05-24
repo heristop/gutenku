@@ -62,6 +62,7 @@ const currentThemeState = computed<ThemeState>(() => {
   if (systemPreferenceEnabled.value) {
     return 'system';
   }
+
   return isDarkMode.value ? 'dark' : 'light';
 });
 
@@ -108,6 +109,7 @@ function toggleSystemPreference() {
   if (systemPreferenceEnabled.value) {
     saveSystemPreferenceEnabled(false);
     setTheme(isDarkMode.value ? 'dark' : 'light');
+
     return;
   }
 

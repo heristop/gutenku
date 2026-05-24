@@ -33,6 +33,7 @@ function seededRandom(seed: number): () => number {
     let t = (seed += 0x6D2B79F5);
     t = Math.imul(t ^ (t >>> 15), t | 1);
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
@@ -131,10 +132,12 @@ function generateHints(
  */
 function shuffleWithSeed<T>(array: T[], random: () => number): T[] {
   const result = [...array];
+
   for (let i = result.length - 1; i > 0; i--) {
     const j = Math.floor(random() * (i + 1));
     [result[i], result[j]] = [result[j], result[i]];
   }
+
   return result;
 }
 
@@ -177,9 +180,11 @@ function getAvailableBooks(
  */
 function countSyllables(sentence: string): number {
   const words = sentence.toLowerCase().match(/[a-z]+/g);
+
   if (!words) {
     return 0;
   }
+
   return words.reduce((sum, word) => sum + syllable(word), 0);
 }
 
@@ -396,6 +401,7 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
 
       // Generate 3 haikus (5-7-5 structure)
       const haikus: string[] = [];
+
       for (let i = 0; i < 3; i++) {
         const line1 = shuffledFive[i * 2].text; // 5 syllables
         const line2 = shuffledSeven[i].text; // 7 syllables

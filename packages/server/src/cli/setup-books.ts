@@ -107,6 +107,7 @@ try {
 
   // Print details for failed books
   const failed = result.results.filter((r) => !r.success && r.error);
+
   if (failed.length > 0) {
     console.log(pc.red('\nFailed books:'));
     failed.forEach((r) => {
@@ -116,6 +117,7 @@ try {
 
   // Print details for successful books (summarized)
   const successful = result.results.filter((r) => r.success);
+
   if (successful.length > 0) {
     const totalChapters = successful.reduce(
       (sum, r) => sum + r.chaptersCount,

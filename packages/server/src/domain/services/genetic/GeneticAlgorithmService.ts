@@ -22,6 +22,10 @@ import {
   CrossoverOperator,
   MutationOperator,
 } from './operators';
+import {
+  computeTerminationState,
+  snapshotBestHaiku,
+} from './evolutionProgressHelpers';
 import type NaturalLanguageService from '../NaturalLanguageService';
 import type { MarkovEvaluatorService } from '../MarkovEvaluatorService';
 import type { EvolutionDataCollector } from '~/infrastructure/ml/EvolutionDataCollector';
@@ -73,6 +77,7 @@ export class GeneticAlgorithmService {
         },
         'Pools too small for GA, falling back to random sampling',
       );
+
       return this.fallbackRandomSampling(versePools, startTime);
     }
 
@@ -136,6 +141,7 @@ export class GeneticAlgorithmService {
       }
 
       const evalStats = fitnessEvaluator.getStats();
+
       if (evalStats.evaluationCount >= MAX_EVALUATIONS) {
         log.warn(
           { evaluations: evalStats.evaluationCount },
@@ -231,24 +237,7 @@ export class GeneticAlgorithmService {
 
     // Validate pools - if too small, yield single fallback result
     if (!this.validatePools(versePools)) {
-      log.warn(
-        {
-          fiveCount: versePools.fiveSyllable.length,
-          sevenCount: versePools.sevenSyllable.length,
-        },
-        'Pools too small for GA, falling back to random sampling',
-      );
-      const fallbackResult = this.fallbackRandomSampling(versePools, startTime);
-      yield {
-        generation: 1,
-        maxGenerations: 1,
-        bestHaiku: fallbackResult.topCandidates[0],
-        bestFitness: fallbackResult.topCandidates[0].fitness,
-        averageFitness: fallbackResult.topCandidates[0].fitness,
-        diversity: 1,
-        isComplete: true,
-      };
-      return fallbackResult;
+      return yield* this.yieldFallbackProgress(versePools, startTime);
     }
 
     // Initialize components
@@ -303,51 +292,25 @@ export class GeneticAlgorithmService {
 
     // Evolution loop with progress yields
     for (let gen = 0; gen < this.config.maxGenerations; gen++) {
-      // Check termination conditions
-      const hasConverged = populationManager.hasConverged(population);
-      const evalStats = fitnessEvaluator.getStats();
-      const maxEvalsReached = evalStats.evaluationCount >= MAX_EVALUATIONS;
-      const timeLimitReached = Date.now() - startTime >= MAX_EVOLUTION_TIME_MS;
-      const isLastGeneration = gen >= this.config.maxGenerations - 1;
+      const termination = computeTerminationState(
+        populationManager,
+        fitnessEvaluator,
+        population,
+        gen,
+        startTime,
+        this.config.maxGenerations,
+      );
 
-      const isComplete =
-        hasConverged || maxEvalsReached || timeLimitReached || isLastGeneration;
-
-      if (hasConverged || maxEvalsReached || timeLimitReached) {
+      if (termination.shouldUpdateConvergence) {
         convergenceGeneration = gen;
       }
 
-      // Get best chromosome for progress update
-      const bestChromosome = populationManager.getTopChromosomes(
+      const bestHaiku = snapshotBestHaiku(
+        populationManager,
+        chromosomeFactory,
         population,
-        1,
-      )[0];
-      const bestHaiku: DecodedHaiku = {
-        verses: chromosomeFactory.decode(bestChromosome),
-        metrics: bestChromosome.metrics!,
-        fitness: bestChromosome.fitness,
-        chromosomeId: bestChromosome.id,
-      };
+      );
 
-      // Determine stop reason
-      const getStopReason = (): EvolutionProgress['stopReason'] => {
-        if (hasConverged) {
-          return 'converged';
-        }
-        if (maxEvalsReached) {
-          return 'max_evaluations';
-        }
-        if (timeLimitReached) {
-          return 'time_limit';
-        }
-        if (isLastGeneration) {
-          return 'completed';
-        }
-        return undefined;
-      };
-      const stopReason = getStopReason();
-
-      // Yield progress
       yield {
         generation: gen + 1,
         maxGenerations: this.config.maxGenerations,
@@ -355,11 +318,11 @@ export class GeneticAlgorithmService {
         bestFitness: population.statistics.bestFitness,
         averageFitness: population.statistics.averageFitness,
         diversity: population.statistics.diversity,
-        isComplete,
-        stopReason,
+        isComplete: termination.isComplete,
+        stopReason: termination.stopReason,
       };
 
-      if (isComplete) {
+      if (termination.isComplete) {
         break;
       }
 
@@ -415,6 +378,34 @@ export class GeneticAlgorithmService {
       totalEvaluations: evalStats.evaluationCount,
       executionTimeMs,
     };
+  }
+
+  /**
+   * Yield a single fallback progress event when pools are too small
+   */
+  private *yieldFallbackProgress(
+    versePools: VersePools,
+    startTime: number,
+  ): Generator<EvolutionProgress, EvolutionResult> {
+    log.warn(
+      {
+        fiveCount: versePools.fiveSyllable.length,
+        sevenCount: versePools.sevenSyllable.length,
+      },
+      'Pools too small for GA, falling back to random sampling',
+    );
+    const fallbackResult = this.fallbackRandomSampling(versePools, startTime);
+    yield {
+      generation: 1,
+      maxGenerations: 1,
+      bestHaiku: fallbackResult.topCandidates[0],
+      bestFitness: fallbackResult.topCandidates[0].fitness,
+      averageFitness: fallbackResult.topCandidates[0].fitness,
+      diversity: 1,
+      isComplete: true,
+    };
+
+    return fallbackResult;
   }
 
   /**

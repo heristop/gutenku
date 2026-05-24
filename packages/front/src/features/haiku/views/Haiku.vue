@@ -109,8 +109,10 @@ const loadingLabel = computed(() => {
   if (!firstLoaded.value || loading.value) {
     const messages = literaryLoadingMessages.value;
     const index = Math.floor(Date.now() / 2500) % messages.length;
+
     return messages[index];
   }
+
   return t('home.readyMessage');
 });
 

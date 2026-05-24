@@ -30,6 +30,7 @@ function shouldIgnoreKeydown(event: KeyboardEvent): boolean {
   const isTyping =
     TYPING_ELEMENTS.includes(target.tagName) || target.isContentEditable;
   const hasModifier = event.ctrlKey || event.metaKey || event.altKey;
+
   return isTyping || hasModifier;
 }
 
@@ -48,6 +49,7 @@ export function useKeyboardShortcuts(options: KeyboardShortcutsOptions) {
     if (handler) {
       if (event.code !== 'Escape') {event.preventDefault();}
       options[handler]?.();
+
       return;
     }
 

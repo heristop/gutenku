@@ -26,6 +26,7 @@ const containerClasses = computed(() => [
 // Staggered indentation pattern for haiku aesthetic
 const lineIndent = (index: number): string => {
   const indents = ['0.5rem', '1.25rem', '0.25rem'];
+
   return indents[index % indents.length];
 };
 </script>

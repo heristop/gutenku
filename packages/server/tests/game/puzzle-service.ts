@@ -19,7 +19,8 @@ describe('PuzzleService standalone helpers', () => {
     const seqA = [a(), a(), a()];
     const seqB = [b(), b(), b()];
     expect(seqA).toEqual(seqB);
-    for (const v of seqA) {
+    
+for (const v of seqA) {
       expect(v).toBeGreaterThanOrEqual(0);
       expect(v).toBeLessThan(1);
     }

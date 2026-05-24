@@ -22,6 +22,7 @@ const statusText = computed(() => {
   if (props.shouldRelease) {
     return t('pullToRefresh.release');
   }
+
   return t('pullToRefresh.pull');
 });
 </script>

@@ -11,7 +11,8 @@ describe('ReduceBooksHandler locale handling', () => {
       new ReduceBooksQuery('2026-01-15', 'fr'),
     );
     expect(result.length).toBeGreaterThan(0);
-    for (const b of result) {
+    
+for (const b of result) {
       expect(typeof b.title).toBe('string');
       expect(b.title.length).toBeGreaterThan(0);
     }

@@ -16,6 +16,7 @@ export class SeededRandom {
    */
   next(): number {
     this.callCount++;
+
     return this.rng();
   }
 
@@ -38,10 +39,12 @@ export class SeededRandom {
    */
   shuffle<T>(array: T[]): T[] {
     const result = [...array];
+
     for (let i = result.length - 1; i > 0; i--) {
       const j = this.nextInt(0, i + 1);
       [result[i], result[j]] = [result[j], result[i]];
     }
+
     return result;
   }
 
@@ -50,6 +53,7 @@ export class SeededRandom {
    */
   sample<T>(array: T[], k: number): T[] {
     const shuffled = this.shuffle(array);
+
     return shuffled.slice(0, k);
   }
 

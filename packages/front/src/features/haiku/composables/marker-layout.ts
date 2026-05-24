@@ -39,6 +39,7 @@ async function loadPretext() {
   if (!pretextModule) {
     pretextModule = await import('@chenglou/pretext');
   }
+
   return pretextModule;
 }
 
@@ -49,9 +50,11 @@ function getElementFont(el: HTMLElement): string {
 function getElementLineHeight(el: HTMLElement): number {
   const style = getComputedStyle(el);
   const lh = Number.parseFloat(style.lineHeight);
+
   if (!Number.isNaN(lh)) {
     return lh;
   }
+
   return Number.parseFloat(style.fontSize) * 1.8;
 }
 
@@ -74,6 +77,7 @@ function measureTextWidth(
   }
   const prepared = pretext.prepareWithSegments(text, font);
   const result = pretext.layoutWithLines(prepared, Infinity, lineHeight);
+
   return result.lines[0]?.width ?? 0;
 }
 
@@ -91,6 +95,7 @@ function computeAllCutouts(
   const lineOffsets: number[] = [];
   const lineLengths: number[] = [];
   let joined = '';
+
   for (const line of lines) {
     const trimmed = line.text.trimEnd();
     lineOffsets.push(joined.length);
@@ -99,9 +104,11 @@ function computeAllCutouts(
   }
 
   const verseRanges: Array<{ start: number; end: number }> = [];
+
   for (const verse of verses) {
     if (!verse || !verse.trim()) {continue;}
     const idx = joined.indexOf(verse.trim());
+
     if (idx !== -1) {
       verseRanges.push({ start: idx, end: idx + verse.trim().length });
     }
@@ -155,8 +162,10 @@ export function useMarkerLayout(
 
   async function computeLayout() {
     const el = elementRef.value;
+
     if (!el || !textContent.value) {
       layout.value = { lines: [], containerWidth: 0, containerHeight: 0 };
+
       return;
     }
 
@@ -213,6 +222,7 @@ export function useMarkerLayout(
         font,
         lineHeight,
       );
+
       for (let i = 0; i < allLines.length; i++) {
         allLines[i].cutouts = allCutouts[i];
       }
@@ -247,6 +257,7 @@ export function useMarkerLayout(
 
   watch(elementRef, (newEl) => {
     resizeObserver?.disconnect();
+
     if (newEl) {
       resizeObserver = new ResizeObserver(() => debouncedCompute());
       resizeObserver.observe(newEl);

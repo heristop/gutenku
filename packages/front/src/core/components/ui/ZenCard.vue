@@ -25,6 +25,7 @@ const computedRole = computed(() => {
   if (props.role) {
     return props.role;
   }
+
   switch (props.variant) {
     case 'book':
       return 'article';

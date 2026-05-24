@@ -15,6 +15,15 @@ import {
   DEFAULT_LOCALE,
   SITE_URL,
 } from '@/locales/config';
+import {
+  extractMetadata,
+  getLocaleFromPath,
+  getSlugFromFilename,
+} from './article-metadata';
+import {
+  renderMathFormulas,
+  renderMermaidDiagrams,
+} from './article-rendering';
 
 // Configure marked to add target="_blank" for external links
 const renderer: Partial<Renderer> = {
@@ -25,6 +34,7 @@ const renderer: Partial<Renderer> = {
     const externalAttrs = isExternal
       ? ' target="_blank" rel="noopener noreferrer"'
       : '';
+
     return `<a href="${href}"${titleAttr}${externalAttrs}>${text}</a>`;
   },
 };
@@ -49,144 +59,6 @@ const articlesRaw = import.meta.glob('@content/*.md', {
   eager: true,
 }) as Record<string, string>;
 
-/**
- * Extract locale from filename
- * Example: "2026-01-18-gutenku-technical-deep-dive.fr.md" → "fr"
- * Example: "2026-01-18-gutenku-technical-deep-dive.en.md" → "en"
- */
-function getLocaleFromPath(filename: string): SupportedLocale {
-  const match = filename.match(/\.(en|fr|ja)\.md$/);
-  return (match?.[1] as SupportedLocale) || DEFAULT_LOCALE;
-}
-
-/**
- * Extract slug from filename
- * Example: "2026-01-13-gutenku-when-two-frauds-make-a-truth.en.md" → "gutenku-when-two-frauds-make-a-truth"
- */
-function getSlugFromFilename(filename: string): string {
-  return filename
-    .replace(/^\d{4}-\d{2}-\d{2}-/, '') // Remove date prefix
-    .replace(/\.(en|fr|ja)?\.md$/, ''); // Remove locale and .md extension
-}
-
-interface Frontmatter {
-  description?: string;
-  image?: string;
-}
-
-/**
- * Parse YAML frontmatter from markdown content
- * Frontmatter format:
- * ---
- * description: Your description here
- * image: /path/to/image.webp
- * ---
- */
-function parseFrontmatter(content: string): {
-  frontmatter: Frontmatter;
-  body: string;
-} {
-  const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n/;
-  const match = content.match(frontmatterRegex);
-
-  if (!match) {
-    return { frontmatter: {}, body: content };
-  }
-
-  const frontmatter: Frontmatter = {};
-  const yamlContent = match[1];
-
-  // Parse simple key: value pairs
-  for (const line of yamlContent.split('\n')) {
-    const colonIndex = line.indexOf(':');
-    if (colonIndex === -1) {
-      continue;
-    }
-
-    const key = line.slice(0, colonIndex).trim();
-    const value = line
-      .slice(colonIndex + 1)
-      .trim()
-      .replaceAll(/^['"]|['"]$/g, '');
-
-    if (key === 'description') {
-      frontmatter.description = value;
-    }
-    if (key === 'image') {
-      frontmatter.image = value;
-    }
-  }
-
-  const body = content.slice(match[0].length);
-  return { frontmatter, body };
-}
-
-function extractMetadata(content: string): {
-  title: string;
-  description: string;
-  image: string;
-  body: string;
-} {
-  const { frontmatter, body } = parseFrontmatter(content);
-
-  // Extract title from first H1 (# Title)
-  const titleMatch = body.match(/^#\s+(.+)$/m);
-  const title = titleMatch ? titleMatch[1].trim() : 'GutenKu Blog';
-
-  // Remove the first H1 from body (it's displayed in header)
-  const bodyWithoutTitle = titleMatch ? body.replace(/^#\s+.+\n*/, '') : body;
-
-  // Use frontmatter image or extract first image from content
-  let image = frontmatter.image;
-  if (!image) {
-    const imageMatch = body.match(/!\[.*?\]\(([^)]+)\)/);
-    image = imageMatch ? imageMatch[1] : '/og-image.png';
-  }
-
-  // Use frontmatter description or extract from content
-  let description = frontmatter.description;
-  if (!description) {
-    const lines = body.split('\n');
-    let foundTitle = false;
-
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (trimmed.startsWith('# ')) {
-        foundTitle = true;
-        continue;
-      }
-      if (!foundTitle) {
-        continue;
-      }
-      if (!trimmed || trimmed.startsWith('!') || trimmed.startsWith('_')) {
-        continue;
-      }
-      if (trimmed.startsWith('#')) {
-        continue;
-      }
-      if (/^[-*_]{3,}$/.test(trimmed)) {
-        continue;
-      }
-
-      description = trimmed
-        .replaceAll(/\*\*([^*]+)\*\*/g, '$1')
-        .replaceAll(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-        .replaceAll(/_([^_]+)_/g, '$1')
-        .slice(0, 160);
-      break;
-    }
-  }
-
-  return {
-    title,
-    description:
-      description ||
-      'Articles about GutenKu, AI haiku generation, and classic literature.',
-    image,
-    body: bodyWithoutTitle,
-  };
-}
-
 function parseArticle(path: string, rawContent: string): Article {
   const filename = path.split('/').pop() || '';
   const dateMatch = filename.match(/^(\d{4}-\d{2}-\d{2})/);
@@ -209,6 +81,7 @@ function parseArticle(path: string, rawContent: string): Article {
 
 function getAllArticles(): Article[] {
   const sortedPaths = Object.keys(articlesRaw).sort().reverse();
+
   return sortedPaths.map((path) => parseArticle(path, articlesRaw[path]));
 }
 
@@ -217,6 +90,7 @@ const cachedArticles = getAllArticles();
 
 // Build articles indexed by slug+locale for quick lookup
 const articlesBySlugAndLocale = new Map<string, Article>();
+
 for (const article of cachedArticles) {
   const key = `${article.slug}:${article.locale}`;
   articlesBySlugAndLocale.set(key, article);
@@ -230,11 +104,13 @@ const uniqueSlugs = [...new Set(cachedArticles.map((a) => a.slug))];
  */
 export function getAvailableLocalesForSlug(slug: string): SupportedLocale[] {
   const locales: SupportedLocale[] = [];
+
   for (const article of cachedArticles) {
     if (article.slug === slug) {
       locales.push(article.locale);
     }
   }
+
   return locales;
 }
 
@@ -248,12 +124,14 @@ function getArticleBySlugAndLocale(
   // Try requested locale first
   const key = `${slug}:${locale}`;
   const article = articlesBySlugAndLocale.get(key);
+
   if (article) {
     return article;
   }
 
   // Fallback to English
   const fallbackKey = `${slug}:${DEFAULT_LOCALE}`;
+
   return articlesBySlugAndLocale.get(fallbackKey) || null;
 }
 
@@ -270,6 +148,7 @@ export function useArticles() {
 
     for (const slug of uniqueSlugs) {
       const article = getArticleBySlugAndLocale(slug, currentLocale);
+
       if (article) {
         result.push(article);
       }
@@ -290,6 +169,7 @@ export function useArticles() {
 
   function getReadingTime(content: string): number {
     const wordCount = content.split(/\s+/).length;
+
     return Math.ceil(wordCount / 200);
   }
 
@@ -313,6 +193,7 @@ export function useArticle(slugRef: MaybeRef<string>) {
   const article = computed(() => {
     const currentSlug = toValue(slugRef);
     const currentLocale = locale.value as SupportedLocale;
+
     return getArticleBySlugAndLocale(currentSlug, currentLocale);
   });
 
@@ -325,12 +206,15 @@ export function useArticle(slugRef: MaybeRef<string>) {
   const sortedLocaleArticles = computed(() => {
     const currentLocale = locale.value as SupportedLocale;
     const localeArticles: Article[] = [];
+
     for (const slug of uniqueSlugs) {
       const art = getArticleBySlugAndLocale(slug, currentLocale);
+
       if (art) {
         localeArticles.push(art);
       }
     }
+
     return localeArticles.sort((a, b) => b.date.getTime() - a.date.getTime());
   });
 
@@ -339,6 +223,7 @@ export function useArticle(slugRef: MaybeRef<string>) {
     if (!article.value) {
       return -1;
     }
+
     return sortedLocaleArticles.value.findIndex(
       (a) => a.slug === article.value?.slug,
     );
@@ -347,17 +232,21 @@ export function useArticle(slugRef: MaybeRef<string>) {
   const nextArticle = computed(() => {
     const idx = currentIndex.value;
     const articles = sortedLocaleArticles.value;
+
     if (idx === -1 || idx >= articles.length - 1) {
       return null;
     }
+
     return articles[idx + 1];
   });
 
   const prevArticle = computed(() => {
     const idx = currentIndex.value;
+
     if (idx <= 0) {
       return null;
     }
+
     return sortedLocaleArticles.value[idx - 1];
   });
 
@@ -366,6 +255,7 @@ export function useArticle(slugRef: MaybeRef<string>) {
       return 0;
     }
     const wordCount = article.value.content.split(/\s+/).length;
+
     return Math.ceil(wordCount / 200);
   });
 
@@ -373,6 +263,7 @@ export function useArticle(slugRef: MaybeRef<string>) {
     if (!article.value) {
       return '';
     }
+
     return article.value.date.toLocaleDateString(locale.value, {
       weekday: 'long',
       year: 'numeric',
@@ -382,107 +273,10 @@ export function useArticle(slugRef: MaybeRef<string>) {
     });
   });
 
-  async function renderMathFormulas() {
-    const katex = await import('katex');
-    await import('katex/dist/katex.min.css');
-
-    const contentEl = document.querySelector('.blog-article__body');
-    if (!contentEl) {return;}
-
-    // Match $$ ... $$ (display math) - marked may wrap in <p> tags
-    const mathRegex = /\$\$([\s\S]*?)\$\$/g;
-
-    // Process all elements that might contain math
-    const elements = contentEl.querySelectorAll('p, li, td');
-    for (const el of elements) {
-      if (el.innerHTML.includes('$$')) {
-        el.innerHTML = el.innerHTML.replace(mathRegex, (_, tex) => {
-          try {
-            return `<span class="katex-display">${katex.default.renderToString(
-              tex.trim(),
-              {
-                displayMode: true,
-                throwOnError: false,
-              },
-            )}</span>`;
-          } catch {
-            return `<code class="katex-error">${tex}</code>`;
-          }
-        });
-      }
-    }
-  }
-
-  async function renderMermaidDiagrams() {
-    const mermaid = await import('mermaid');
-    const isDark =
-      document.documentElement.getAttribute('data-theme') === 'dark';
-
-    const lightTheme = {
-      background: 'transparent',
-      primaryColor: '#e8e2d9',
-      secondaryColor: '#f5f0e8',
-      tertiaryColor: '#dcd5c9',
-      primaryBorderColor: '#5a7a6b',
-      secondaryBorderColor: '#7a9a8b',
-      lineColor: '#5a7a6b',
-      textColor: '#2d3b35',
-      primaryTextColor: '#2d3b35',
-      secondaryTextColor: '#2d3b35',
-      tertiaryTextColor: '#2d3b35',
-      nodeTextColor: '#2d3b35',
-      nodeBorder: '#5a7a6b',
-      clusterBkg: '#f5f0e8',
-      edgeLabelBackground: '#f5f0e8',
-      fontFamily: '"JMH Typewriter", monospace',
-    };
-
-    const darkTheme = {
-      background: 'transparent',
-      primaryColor: '#2a3a35',
-      secondaryColor: '#1e2d28',
-      tertiaryColor: '#243530',
-      primaryBorderColor: '#6b9a8b',
-      secondaryBorderColor: '#5a8a7b',
-      lineColor: '#6b9a8b',
-      textColor: '#c8d5d0',
-      primaryTextColor: '#c8d5d0',
-      secondaryTextColor: '#b8c5c0',
-      tertiaryTextColor: '#a8b5b0',
-      nodeTextColor: '#c8d5d0',
-      nodeBorder: '#6b9a8b',
-      clusterBkg: '#1e2d28',
-      edgeLabelBackground: '#2a3a35',
-      fontFamily: '"JMH Typewriter", monospace',
-    };
-
-    mermaid.default.initialize({
-      startOnLoad: false,
-      theme: 'base',
-      fontFamily: '"JMH Typewriter", monospace',
-      themeVariables: isDark ? darkTheme : lightTheme,
-    });
-
-    const mermaidBlocks = document.querySelectorAll(
-      'pre code.language-mermaid',
-    );
-    for (const block of mermaidBlocks) {
-      const pre = block.parentElement;
-      if (pre) {
-        const code = block.textContent || '';
-        const id = `mermaid-${Math.random().toString(36).slice(2, 9)}`;
-        const { svg } = await mermaid.default.render(id, code);
-        const div = document.createElement('div');
-        div.className = 'mermaid-diagram';
-        div.innerHTML = svg;
-        pre.replaceWith(div);
-      }
-    }
-  }
-
   async function loadArticle() {
     if (!article.value) {
       loading.value = false;
+
       return;
     }
 
@@ -496,11 +290,13 @@ export function useArticle(slugRef: MaybeRef<string>) {
       await nextTick();
 
       const hasMermaid = article.value?.content.includes('```mermaid');
+
       if (hasMermaid) {
         await renderMermaidDiagrams();
       }
 
       const hasMath = article.value?.content.includes('$$');
+
       if (hasMath) {
         await renderMathFormulas();
       }

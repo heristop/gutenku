@@ -1,9 +1,7 @@
 import { defineComponent, h } from 'vue';
 
-// Drop-in replacements for the brand icons removed from lucide v1
-// (Apple, Github, Instagram, Linkedin, Twitter). They mirror the Lucide
-// functional-component API (size prop, currentColor stroke) so existing
-// usage sites need no template changes.
+// Brand icons (Apple, Github, Instagram, Linkedin, Twitter) with the same
+// `size` / `strokeWidth` props and `currentColor` stroke as @lucide/vue icons.
 
 interface IconProps {
   size?: number | string;

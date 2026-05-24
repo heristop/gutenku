@@ -47,10 +47,12 @@ let resizeObserver: ResizeObserver | null = null;
 
 function computeLayout() {
   const el = containerRef.value;
+
   if (!el) {
     return;
   }
   const parent = el.parentElement;
+
   if (!parent) {
     return;
   }
@@ -64,6 +66,7 @@ function computeLayout() {
   const lineCount = Math.max(1, Math.round(contentHeight / lineHeight));
 
   const lines: MarkerLine[] = [];
+
   for (let i = 0; i < lineCount; i++) {
     lines.push({
       x: 0,
@@ -110,6 +113,7 @@ const strokes = computed<MarkerStroke[]>(() => {
   if (!layout.value.lines.length || !layout.value.containerWidth) {
     return [];
   }
+
   return generateMarkerStrokes(layout.value.lines, layout.value.containerWidth);
 });
 
@@ -129,6 +133,7 @@ const noiseSeeds = computed(() => {
   if (!strokes.value.length) {
     return [];
   }
+
   return strokes.value.slice(0, NOISE_FILTER_COUNT).map((s) => s.noiseSeed);
 });
 
@@ -143,11 +148,13 @@ const localSpotlight = computed(() => {
   }
   const myEl = containerRef.value;
   const parentEl = myEl.closest('.book-content');
+
   if (!parentEl) {
     return null;
   }
   const myRect = myEl.getBoundingClientRect();
   const parentRect = parentEl.getBoundingClientRect();
+
   return {
     x: props.spotlight.x - (myRect.left - parentRect.left),
     y: props.spotlight.y - (myRect.top - parentRect.top),
@@ -166,6 +173,7 @@ watch(
         isRevealing.value = false;
       }, totalRevealTime + 100);
     }
+
     if (!oldHidden && newHidden) {
       hasDrawn.value = false;
       nextTick(() => {

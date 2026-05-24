@@ -22,6 +22,7 @@ export default {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     const backgroundImageData = await generateWabiSabiBackground(haiku);
+
     if (backgroundImageData) {
       const background = await Canvas.loadImage(backgroundImageData);
       ctx.globalAlpha = 0.82;

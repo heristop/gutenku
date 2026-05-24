@@ -83,6 +83,7 @@ function requestInvokesAI(body: GraphQLBody | undefined): boolean {
       // Default behavior of these fields includes AI unless explicitly disabled.
       if (!useAIArg) {
         invokesAI = true;
+
         return;
       }
 
@@ -90,11 +91,13 @@ function requestInvokesAI(body: GraphQLBody | undefined): boolean {
         if (useAIArg.value.value) {
           invokesAI = true;
         }
+
         return;
       }
 
       if (useAIArg.value.kind === 'Variable') {
         const varName = useAIArg.value.name.value;
+
         if (body.variables?.[varName] !== false) {
           invokesAI = true;
         }
@@ -123,15 +126,20 @@ const aiLimiter = rateLimit({
 function aiKeyGuard(req: Request, res: Response, next: NextFunction): void {
   if (!INTERNAL_API_KEY) {
     next();
+
     return;
   }
+
   if (!requestInvokesAI(req.body as GraphQLBody)) {
     next();
+
     return;
   }
   const provided = req.header('x-internal-key');
+
   if (provided && provided === INTERNAL_API_KEY) {
     next();
+
     return;
   }
   res.status(401).json({
@@ -218,8 +226,8 @@ async function listen(port: number) {
 
   app.use(compression());
 
-  // Rate-limit and AI-key gate the GraphQL endpoint in all environments.
-  // bodyParser must run before the rate limiter so the GraphQL body is parsed.
+  // bodyParser must run before the rate limiter so the GraphQL body is parsed
+  // when `requestInvokesAI` inspects it.
   app.use(
     '/graphql',
     cors<cors.CorsRequest>({

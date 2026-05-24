@@ -34,7 +34,8 @@ function makeHaiku(overrides: Partial<HaikuValue> = {}): HaikuValue {
 
 async function freshStore() {
   const { useHaikuStore } = await import('@/features/haiku/store/haiku');
-  return useHaikuStore();
+  
+return useHaikuStore();
 }
 
 describe('useHaikuStore behaviour', () => {
@@ -150,7 +151,8 @@ describe('useHaikuStore behaviour', () => {
           },
         },
       });
-      return { unsubscribe: vi.fn() };
+      
+return { unsubscribe: vi.fn() };
     };
 
     const store = await freshStore();
@@ -168,7 +170,8 @@ describe('useHaikuStore behaviour', () => {
   it('handles subscription errors by rejecting and recording the error', async () => {
     subscribeImpl = (sink) => {
       sink({ error: new Error('sub failed') });
-      return { unsubscribe: vi.fn() };
+      
+return { unsubscribe: vi.fn() };
     };
 
     const store = await freshStore();
@@ -218,7 +221,8 @@ describe('useHaikuStore behaviour', () => {
           },
         },
       });
-      return { unsubscribe: vi.fn() };
+      
+return { unsubscribe: vi.fn() };
     };
 
     const store = await freshStore();
@@ -353,7 +357,8 @@ describe('useHaikuStore behaviour', () => {
           },
         },
       });
-      return { unsubscribe: vi.fn() };
+      
+return { unsubscribe: vi.fn() };
     };
 
     const store = await freshStore();
@@ -389,7 +394,8 @@ describe('useHaikuStore behaviour', () => {
           },
         },
       });
-      return { unsubscribe: vi.fn() };
+      
+return { unsubscribe: vi.fn() };
     };
   }
 
@@ -545,7 +551,8 @@ describe('useHaikuStore behaviour', () => {
           },
         },
       });
-      return { unsubscribe: vi.fn() };
+      
+return { unsubscribe: vi.fn() };
     };
 
     const store = await freshStore();

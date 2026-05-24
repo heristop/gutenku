@@ -86,6 +86,7 @@ export class EvolutionDataCollector {
 
     // Mark eliminated chromosomes
     const aliveIds = new Set(chromosomes.map((c) => c.id));
+
     for (const [id, tracking] of this.currentRunTracking) {
       if (!aliveIds.has(id) && tracking.generationDied === -1) {
         tracking.generationDied = generation;
@@ -114,6 +115,7 @@ export class EvolutionDataCollector {
     // Deduplicate chromosomes - keep first (best fitness) occurrence of each ID
     const uniqueChromosomes: typeof sorted = [];
     const seenIds = new Set<string>();
+
     for (const chromosome of sorted) {
       if (!seenIds.has(chromosome.id)) {
         seenIds.add(chromosome.id);
@@ -129,6 +131,7 @@ export class EvolutionDataCollector {
     // Update final rankings and elite status
     uniqueChromosomes.forEach((chromosome, uniqueIndex) => {
       const tracking = this.currentRunTracking.get(chromosome.id);
+
       if (tracking) {
         tracking.finalRank = uniqueIndex + 1;
         tracking.wasElite = uniqueIndex < uniqueEliteThreshold;
@@ -219,6 +222,7 @@ export class EvolutionDataCollector {
    */
   getNegativeSamples(): EvolutionSample[] {
     const { earlyEliminationThreshold } = this.config;
+
     return this.samples.filter(
       (s) =>
         s.generationDied > 0 && s.generationDied <= earlyEliminationThreshold,
@@ -230,6 +234,7 @@ export class EvolutionDataCollector {
    */
   getNeutralSamples(): EvolutionSample[] {
     const { earlyEliminationThreshold } = this.config;
+
     return this.samples.filter(
       (s) =>
         !s.wasElite &&
@@ -252,6 +257,7 @@ export class EvolutionDataCollector {
         `Need at least 2 positive samples, have ${positives.length}`,
       );
     }
+
     if (negatives.length < 1) {
       throw new Error(
         `Need at least 1 negative sample, have ${negatives.length}`,
@@ -267,6 +273,7 @@ export class EvolutionDataCollector {
 
       // Select different positive for positive example
       let positiveIdx = Math.floor(Math.random() * positives.length);
+
       while (positiveIdx === anchorIdx && positives.length > 1) {
         positiveIdx = Math.floor(Math.random() * positives.length);
       }
@@ -320,11 +327,13 @@ export class EvolutionDataCollector {
 
     // Ensure directory exists
     const dir = dirname(filePath);
+
     if (!existsSync(dir)) {
       await mkdir(dir, { recursive: true });
     }
 
     await writeFile(filePath, JSON.stringify(dataset, null, 2));
+
     return filePath;
   }
 
@@ -343,6 +352,7 @@ export class EvolutionDataCollector {
 
     // Merge with existing samples (deduplicate by ID)
     const existingIds = new Set(this.samples.map((s) => s.id));
+
     for (const sample of dataset.samples) {
       if (!existingIds.has(sample.id)) {
         this.samples.push(sample);
