@@ -10,7 +10,7 @@ import {
   Image,
   AlertTriangle,
   ChevronRight,
-} from 'lucide-vue-next';
+} from '@lucide/vue';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
 import ZenModal from '@/core/components/ui/ZenModal.vue';
 import RadialProgress from './ui/RadialProgress.vue';

@@ -9,7 +9,7 @@ import {
   Monitor,
   ALargeSmall,
   Feather,
-} from 'lucide-vue-next';
+} from '@lucide/vue';
 import ToriiIcon from '@/core/components/icons/ToriiIcon.vue';
 import { withViewTransition } from '@/core/composables/view-transition';
 import { useI18n } from 'vue-i18n';

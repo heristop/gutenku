@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { CheckCircle, AlertCircle, Info, X } from 'lucide-vue-next';
+import { CheckCircle, AlertCircle, Info, X } from '@lucide/vue';
 import { useToast } from '@/core/composables/toast';
 
 const { toasts, remove } = useToast();

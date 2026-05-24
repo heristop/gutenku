@@ -8,7 +8,7 @@ import {
   useSlots,
   nextTick,
 } from 'vue';
-import { ChevronDown, Check, Sparkles } from 'lucide-vue-next';
+import { ChevronDown, Check, Sparkles } from '@lucide/vue';
 
 interface OptionGroup {
   group: string;

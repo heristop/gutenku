@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Keyboard } from 'lucide-vue-next';
+import { Keyboard } from '@lucide/vue';
 import ZenModal from '@/core/components/ui/ZenModal.vue';
 import ZenButton from '@/core/components/ui/ZenButton.vue';
 

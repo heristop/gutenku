@@ -1,11 +1,11 @@
 <script lang="ts" setup>
+import { ExternalLink } from '@lucide/vue';
 import {
-  ExternalLink,
   Instagram,
   Github,
   Linkedin,
   Twitter,
-} from 'lucide-vue-next';
+} from '@/core/components/ui/icons/BrandIcons';
 import { useI18n } from 'vue-i18n';
 import ZenModal from '@/core/components/ui/ZenModal.vue';
 import ZenButton from '@/core/components/ui/ZenButton.vue';

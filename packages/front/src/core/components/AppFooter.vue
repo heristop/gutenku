@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { Instagram, BookOpen } from 'lucide-vue-next';
+import { BookOpen } from '@lucide/vue';
+import { Instagram } from '@/core/components/ui/icons/BrandIcons';
 import ZenTooltip from '@/core/components/ui/ZenTooltip.vue';
 import ZenCreditsModal from '@/core/components/ui/ZenCreditsModal.vue';
 import ThemeToggle from '@/core/components/ThemeToggle.vue';

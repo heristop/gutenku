@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
-import { Star } from 'lucide-vue-next';
+import { Star } from '@lucide/vue';
 
 const props = withDefaults(
   defineProps<{
@@ -73,7 +73,10 @@ const stars = computed(() => {
       :key="star.index"
       class="star"
       :class="`star--${star.type}`"
-      :style="{ '--index': star.index, '--delay': animated ? star.index : undefined }"
+      :style="{
+        '--index': star.index,
+        '--delay': animated ? star.index : undefined,
+      }"
     >
       <Star class="star__icon" />
     </span>
@@ -97,8 +100,7 @@ const stars = computed(() => {
   .star__icon {
     color: oklch(0.78 0.16 75);
     fill: url(#star-gradient);
-    filter:
-      drop-shadow(0 0 3px oklch(0.8 0.2 70 / 0.5))
+    filter: drop-shadow(0 0 3px oklch(0.8 0.2 70 / 0.5))
       drop-shadow(0 1px 2px oklch(0.6 0.15 60 / 0.4));
     animation: stars-glow 2.5s ease-in-out infinite;
   }
@@ -119,8 +121,7 @@ const stars = computed(() => {
 [data-theme='dark'] .star {
   .star__icon {
     color: oklch(0.82 0.18 75);
-    filter:
-      drop-shadow(0 0 4px oklch(0.85 0.2 70 / 0.6))
+    filter: drop-shadow(0 0 4px oklch(0.85 0.2 70 / 0.6))
       drop-shadow(0 0 8px oklch(0.7 0.15 60 / 0.3));
   }
 
@@ -136,15 +137,14 @@ const stars = computed(() => {
 }
 
 @keyframes stars-glow {
-  0%, 100% {
-    filter:
-      drop-shadow(0 0 3px oklch(0.8 0.2 70 / 0.5))
+  0%,
+  100% {
+    filter: drop-shadow(0 0 3px oklch(0.8 0.2 70 / 0.5))
       drop-shadow(0 1px 2px oklch(0.6 0.15 60 / 0.4));
     opacity: 1;
   }
   50% {
-    filter:
-      drop-shadow(0 0 6px oklch(0.85 0.22 70 / 0.7))
+    filter: drop-shadow(0 0 6px oklch(0.85 0.22 70 / 0.7))
       drop-shadow(0 0 12px oklch(0.7 0.18 60 / 0.4));
     opacity: 0.95;
   }
@@ -184,9 +184,11 @@ const stars = computed(() => {
     animation-delay: calc(var(--delay) * 100ms + 150ms);
 
     .star__icon {
-      animation: star-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
-                 stars-glow 2s ease-in-out infinite;
-      animation-delay: calc(var(--delay) * 100ms + 150ms), calc(var(--delay) * 100ms + 650ms);
+      animation:
+        star-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+        stars-glow 2s ease-in-out infinite;
+      animation-delay:
+        calc(var(--delay) * 100ms + 150ms), calc(var(--delay) * 100ms + 650ms);
     }
   }
 

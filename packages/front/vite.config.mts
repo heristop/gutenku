@@ -54,7 +54,7 @@ const vendorChunks: Record<string, string[]> = {
   graphql: ['@urql/vue', 'graphql', 'graphql-ws'],
   vueuse: ['@vueuse/core', '@vueuse/motion'],
   i18n: ['vue-i18n'],
-  icons: ['lucide-vue-next'],
+  icons: ['@lucide/vue'],
 };
 
 export default defineConfig(({ isSsrBuild }) => ({
@@ -144,7 +144,7 @@ export default defineConfig(({ isSsrBuild }) => ({
       'graphql',
       '@vueuse/core',
       '@vueuse/motion',
-      'lucide-vue-next',
+      '@lucide/vue',
       '@unhead/vue',
     ],
   },

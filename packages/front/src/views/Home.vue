@@ -2,7 +2,7 @@
 import { defineAsyncComponent, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useSeoMeta } from '@unhead/vue';
-import { ChevronDown } from 'lucide-vue-next';
+import { ChevronDown } from '@lucide/vue';
 import { withViewTransition } from '@/core/composables/view-transition';
 import { useGlobalStats } from '@/core/composables/global-stats';
 import ZenSkeleton from '@/core/components/ZenSkeleton.vue';

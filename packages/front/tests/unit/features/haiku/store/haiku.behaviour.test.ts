@@ -19,7 +19,7 @@ vi.mock('@/client', () => ({
   },
 }));
 
-vi.mock('lucide-vue-next', () => ({ Leaf: { name: 'Leaf' } }));
+vi.mock('@lucide/vue', () => ({ Leaf: { name: 'Leaf' } }));
 
 function makeHaiku(overrides: Partial<HaikuValue> = {}): HaikuValue {
   return {

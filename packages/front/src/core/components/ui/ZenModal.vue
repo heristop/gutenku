@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, watch, onBeforeUnmount, ref, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { X } from 'lucide-vue-next';
+import { X } from '@lucide/vue';
 import { useScrollLock } from '@/core/composables/scroll-lock';
 
 interface Props {

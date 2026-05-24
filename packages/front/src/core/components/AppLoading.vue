@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref, watch, type PropType, type Component } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { CloudOff, RefreshCw, Sparkles } from 'lucide-vue-next';
+import { CloudOff, RefreshCw, Sparkles } from '@lucide/vue';
 import ZenButton from '@/core/components/ui/ZenButton.vue';
 import InkDropLoader from '@/core/components/InkDropLoader.vue';
 import SumieCat from '@/core/components/decorative/SumieCat.vue';

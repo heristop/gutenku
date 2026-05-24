@@ -2,7 +2,13 @@
 import { computed, ref, useTemplateRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useMediaQuery } from '@vueuse/core';
-import { BookOpenText, Feather, Palette, ChevronRight, type LucideIcon } from 'lucide-vue-next';
+import {
+  BookOpenText,
+  Feather,
+  Palette,
+  ChevronRight,
+  type LucideIcon,
+} from '@lucide/vue';
 import { useTouchGestures } from '@/core/composables/touch-gestures';
 import SwipeHint from '@/core/components/ui/SwipeHint.vue';
 

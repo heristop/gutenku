@@ -30,7 +30,7 @@ describe('useLoadingMessages', () => {
   });
 
   it('should accept custom messages', async () => {
-    const { Sparkles } = await import('lucide-vue-next');
+    const { Sparkles } = await import('@lucide/vue');
     const { useLoadingMessages } =
       await import('@/core/composables/loading-messages');
 

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { Download, X, Share, Plus } from 'lucide-vue-next';
+import { Download, X, Share, Plus } from '@lucide/vue';
 import ZenButton from '@/core/components/ui/ZenButton.vue';
 import ZenModal from '@/core/components/ui/ZenModal.vue';
 import { usePwaInstall } from '@/core/composables/pwa-install';

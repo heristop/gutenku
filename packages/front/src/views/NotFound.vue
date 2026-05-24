@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { Home } from 'lucide-vue-next';
+import { Home } from '@lucide/vue';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
 import ZenButton from '@/core/components/ui/ZenButton.vue';
 import ZenHaiku from '@/core/components/ui/ZenHaiku.vue';

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { ALargeSmall } from 'lucide-vue-next';
+import { ALargeSmall } from '@lucide/vue';
 import { useAccessibility } from '@/core/composables/accessibility';
 import ZenTooltip from '@/core/components/ui/ZenTooltip.vue';
 

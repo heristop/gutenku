@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, computed, markRaw } from 'vue';
 import type { HaikuValue, HaikuVersion } from '@gutenku/shared';
 import type { CombinedError } from '@urql/vue';
-import { Leaf, type LucideIcon } from 'lucide-vue-next';
+import { Leaf, type LucideIcon } from '@lucide/vue';
 import { urqlClient } from '@/client';
 import type { PersistenceOptions } from 'pinia-plugin-persistedstate';
 import {

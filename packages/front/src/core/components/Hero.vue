@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { Sparkles } from 'lucide-vue-next';
+import { Sparkles } from '@lucide/vue';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
 import ZenQuote from '@/core/components/ui/ZenQuote.vue';
 import { useGlobalStats } from '@/core/composables/global-stats';

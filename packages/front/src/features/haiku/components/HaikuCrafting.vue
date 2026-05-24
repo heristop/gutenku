@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { Component } from 'vue';
-import { Sparkles } from 'lucide-vue-next';
+import { Sparkles } from '@lucide/vue';
 import { useI18n } from 'vue-i18n';
 import { useLoadingMessages } from '@/core/composables/loading-messages';
 import ZenCard from '@/core/components/ui/ZenCard.vue';

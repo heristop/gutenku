@@ -2,7 +2,7 @@
 import { computed, ref, watch, useTemplateRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
-import { BookOpenText, BookUp2 } from 'lucide-vue-next';
+import { BookOpenText, BookUp2 } from '@lucide/vue';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
 import { useInView } from '@/features/haiku/composables/in-view';
 import ZenCard from '@/core/components/ui/ZenCard.vue';

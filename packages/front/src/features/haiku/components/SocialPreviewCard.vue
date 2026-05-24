@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, useTemplateRef } from 'vue';
 import { storeToRefs } from 'pinia';
-import { Share2, Copy, Check, Sparkles } from 'lucide-vue-next';
+import { Share2, Copy, Check, Sparkles } from '@lucide/vue';
 import { generateSocialCaption, type HaikuValue } from '@gutenku/shared';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
 import { useInView } from '@/features/haiku/composables/in-view';

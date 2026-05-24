@@ -10,7 +10,7 @@ import {
 import { useI18n } from 'vue-i18n';
 import { useSeoMeta } from '@unhead/vue';
 import { storeToRefs } from 'pinia';
-import { Feather } from 'lucide-vue-next';
+import { Feather } from '@lucide/vue';
 import ZenSkeleton from '@/core/components/ZenSkeleton.vue';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
 import { useToast } from '@/core/composables/toast';

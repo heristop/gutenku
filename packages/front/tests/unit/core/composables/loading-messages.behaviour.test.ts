@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { withSetup } from '../../helpers/with-setup';
-import { Sparkles } from 'lucide-vue-next';
+import { Sparkles } from '@lucide/vue';
 
 describe('useLoadingMessages (rotation behaviour)', () => {
   beforeEach(() => {

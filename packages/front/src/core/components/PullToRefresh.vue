@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { RefreshCw } from 'lucide-vue-next';
+import { RefreshCw } from '@lucide/vue';
 
 const props = defineProps<{
   pullDistance: number;
@@ -102,7 +102,9 @@ const statusText = computed(() => {
 
 .pull-indicator-enter-active,
 .pull-indicator-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .pull-indicator-enter-from,

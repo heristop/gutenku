@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useSeoMeta } from '@unhead/vue';
-import { ArrowRight, Rss } from 'lucide-vue-next';
+import { ArrowRight, Rss } from '@lucide/vue';
 import { RouterLink } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import ZenCard from '@/core/components/ui/ZenCard.vue';

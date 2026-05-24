@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ArrowRight } from 'lucide-vue-next';
+import { ArrowRight } from '@lucide/vue';
 import { useMouseParallax } from '@/core/composables/parallax';
 
 defineProps<{

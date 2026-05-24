@@ -2,7 +2,7 @@
 import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
-import { Palette, ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { Palette, ChevronLeft, ChevronRight } from '@lucide/vue';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
 import { useInView } from '@/features/haiku/composables/in-view';
 import { useDebouncedCallback } from '@/core/composables/debounce';

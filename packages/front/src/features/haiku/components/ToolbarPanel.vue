@@ -17,7 +17,7 @@ import {
   Square,
   Trophy,
   Image as ImageIcon,
-} from 'lucide-vue-next';
+} from '@lucide/vue';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
 import { useClipboard } from '@/core/composables/clipboard';
 import { useShare } from '@/core/composables/share';

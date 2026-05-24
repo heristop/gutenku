@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { Linkedin, Link } from 'lucide-vue-next';
+import { Link } from '@lucide/vue';
+import { Linkedin } from '@/core/components/ui/icons/BrandIcons';
 import { useToast } from '@/core/composables/toast';
 
 const props = defineProps<{

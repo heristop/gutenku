@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useSwipe } from '@vueuse/core';
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { ChevronLeft, ChevronRight } from '@lucide/vue';
 
 withDefaults(
   defineProps<{

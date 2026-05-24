@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { Sun, Moon, Monitor, ALargeSmall } from 'lucide-vue-next';
+import { Sun, Moon, Monitor, ALargeSmall } from '@lucide/vue';
 import { useTheme } from '@/core/composables/theme';
 import { useLocale, type SupportedLocale } from '@/core/composables/locale';
 import { useAccessibility } from '@/core/composables/accessibility';

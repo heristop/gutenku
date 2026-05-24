@@ -16,8 +16,8 @@ vi.mock('@/client', () => ({
   },
 }));
 
-// Mock lucide-vue-next
-vi.mock('lucide-vue-next', () => ({
+// Mock @lucide/vue
+vi.mock('@lucide/vue', () => ({
   Leaf: {},
 }));
 

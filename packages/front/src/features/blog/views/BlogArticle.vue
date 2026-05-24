@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter, RouterLink } from 'vue-router';
-import { Loader2, ArrowUp, ArrowLeft, ArrowRight } from 'lucide-vue-next';
+import { Loader2, ArrowUp, ArrowLeft, ArrowRight } from '@lucide/vue';
 import SumieCat from '@/core/components/decorative/SumieCat.vue';
 import { useSeoMeta, useHead } from '@unhead/vue';
 import { useI18n } from 'vue-i18n';

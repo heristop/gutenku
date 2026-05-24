@@ -18,7 +18,7 @@ import {
   ChevronsDownUp,
   BookOpen,
   Sparkles,
-} from 'lucide-vue-next';
+} from '@lucide/vue';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
 import { useHaikuHighlighter } from '@/features/haiku/composables/haiku-highlighter';
 import { useTextCompacting } from '@/features/haiku/composables/text-compacting';
