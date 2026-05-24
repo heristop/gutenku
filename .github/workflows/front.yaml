@@ -19,12 +19,7 @@ jobs:
           git submodule sync --recursive
           git submodule update --init --recursive
 
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
+      - uses: jdx/mise-action@v4
 
       - name: Install dependencies
         run: pnpm install
@@ -44,8 +39,8 @@ jobs:
       - name: Build
         run: pnpm --filter @gutenku/front build
 
-      - name: Unit tests
-        run: pnpm --filter @gutenku/front test:unit
+      - name: Unit tests (with coverage)
+        run: pnpm --filter @gutenku/front test:cov
 
       - name: Typecheck
         run: pnpm --filter @gutenku/front typecheck

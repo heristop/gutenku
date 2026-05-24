@@ -1,0 +1,5 @@
+# Project tool versions managed by mise (https://mise.jdx.dev).
+# Single source of truth for Node + pnpm versions; CI uses jdx/mise-action.
+[tools]
+node = "24.12.0"
+pnpm = "11.2.2"
