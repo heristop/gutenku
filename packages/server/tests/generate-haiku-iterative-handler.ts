@@ -32,7 +32,7 @@ vi.mock('node:fs/promises', () => ({
         vocabulary: [],
       }),
     ),
-    writeFile: vi.fn().mockResolvedValue(undefined),
+    writeFile: vi.fn().mockResolvedValue(),
   },
 }));
 

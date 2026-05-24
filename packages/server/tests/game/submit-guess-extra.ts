@@ -6,7 +6,7 @@ import { SubmitGuessQuery } from '../../src/application/queries/puzzle/SubmitGue
 const makeHandler = () =>
   new SubmitGuessHandler({
     getGlobalStats: vi.fn(),
-    incrementGamePlayed: vi.fn().mockResolvedValue(undefined),
+    incrementGamePlayed: vi.fn().mockResolvedValue(),
   });
 
 describe('SubmitGuessHandler locale and hint usage', () => {
@@ -37,7 +37,7 @@ describe('SubmitGuessHandler locale and hint usage', () => {
   });
 
   it('uses provided hint usage counters in stats tracking', async () => {
-    const incrementGamePlayed = vi.fn().mockResolvedValue(undefined);
+    const incrementGamePlayed = vi.fn().mockResolvedValue();
     const handler = new SubmitGuessHandler({
       getGlobalStats: vi.fn(),
       incrementGamePlayed,

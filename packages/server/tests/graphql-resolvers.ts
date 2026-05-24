@@ -237,7 +237,7 @@ describe('GraphQL Resolvers', () => {
       ];
 
       const mockHandler = {
-        generate: async function* () {
+        async *generate() {
           for (const p of mockProgress) {
             yield p;
           }

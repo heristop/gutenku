@@ -66,7 +66,7 @@ describe('ML Configuration', () => {
 
       const config = getMLConfig();
 
-      expect(config.tensorflow.useGPU).toBe(false);
+      expect(config.tensorflow.useGPU).toBeFalsy();
       expect(config.tensorflow.backend).toBe('tensorflow');
     });
 
@@ -75,7 +75,7 @@ describe('ML Configuration', () => {
 
       const config = getMLConfig();
 
-      expect(config.tensorflow.useGPU).toBe(true);
+      expect(config.tensorflow.useGPU).toBeTruthy();
       expect(config.tensorflow.backend).toBe('tensorflow-gpu');
     });
   });
@@ -90,17 +90,17 @@ describe('ML Configuration', () => {
     it('weights sum to 1.0', () => {
       const sum =
         DEFAULT_SCORING_CONFIG.ruleWeight + DEFAULT_SCORING_CONFIG.neuralWeight;
-      expect(sum).toBe(1.0);
+      expect(sum).toBe(1);
     });
   });
 
   describe('DEFAULT_TENSORFLOW_CONFIG', () => {
     it('has fallback to CPU enabled', () => {
-      expect(DEFAULT_TENSORFLOW_CONFIG.fallbackToCPU).toBe(true);
+      expect(DEFAULT_TENSORFLOW_CONFIG.fallbackToCPU).toBeTruthy();
     });
 
     it('has memory optimization enabled', () => {
-      expect(DEFAULT_TENSORFLOW_CONFIG.enableMemoryOptimization).toBe(true);
+      expect(DEFAULT_TENSORFLOW_CONFIG.enableMemoryOptimization).toBeTruthy();
     });
   });
 });

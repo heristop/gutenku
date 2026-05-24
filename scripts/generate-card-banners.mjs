@@ -12,6 +12,7 @@ const envContent = fs.readFileSync(envPath, 'utf-8');
 const envVars = {};
 envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^#=]+)=(.*)$/);
+
   if (match) {
     envVars[match[1].trim()] = match[2].trim().replaceAll(/^["']|["']$/g, '');
   }

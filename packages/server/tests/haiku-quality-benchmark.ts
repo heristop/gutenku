@@ -10,7 +10,12 @@ import type { IBookRepository } from '../src/domain/repositories/IBookRepository
 import type { ICanvasService } from '../src/domain/services/ICanvasService';
 import type { IEventBus } from '../src/domain/events/IEventBus';
 import { PubSubService } from '../src/infrastructure/services/PubSubService';
-import type { BookValue, ChapterValue, HaikuValue, HaikuQualityScore } from '../src/shared/types';
+import type {
+  BookValue,
+  ChapterValue,
+  HaikuValue,
+  HaikuQualityScore,
+} from '../src/shared/types';
 import {
   calculateHaikuQuality,
   countNatureWords,
@@ -24,70 +29,131 @@ import {
 const SAMPLE_HAIKUS = [
   {
     source: 'Nature Poetry',
-    verses: ['The old pond sits still', 'A frog jumps into water', 'Splash sounds in the night'],
+    verses: [
+      'The old pond sits still',
+      'A frog jumps into water',
+      'Splash sounds in the night',
+    ],
   },
   {
     source: 'Nature Poetry',
-    verses: ['Autumn moonlight falls', 'Leaves drift on the gentle wind', 'Winter comes at last'],
+    verses: [
+      'Autumn moonlight falls',
+      'Leaves drift on the gentle wind',
+      'Winter comes at last',
+    ],
   },
   {
     source: 'Nature Poetry',
-    verses: ['Cherry blossoms fall', 'Pink petals on the water', 'Spring returns again'],
+    verses: [
+      'Cherry blossoms fall',
+      'Pink petals on the water',
+      'Spring returns again',
+    ],
   },
   {
     source: 'Classical Literature',
-    verses: ['She walks in the rain', 'Umbrella shields from the storms', 'Puddles at her feet'],
+    verses: [
+      'She walks in the rain',
+      'Umbrella shields from the storms',
+      'Puddles at her feet',
+    ],
   },
   {
     source: 'Classical Literature',
-    verses: ['He reads by the fire', 'Pages turn in quiet room', 'Clock ticks on the wall'],
+    verses: [
+      'He reads by the fire',
+      'Pages turn in quiet room',
+      'Clock ticks on the wall',
+    ],
   },
   {
     source: 'Philosophy',
-    verses: ['Truth speaks in silence', 'Wise men listen to the wind', 'Knowledge grows in time'],
+    verses: [
+      'Truth speaks in silence',
+      'Wise men listen to the wind',
+      'Knowledge grows in time',
+    ],
   },
   {
     source: 'Philosophy',
-    verses: ['Water finds its way', 'Through the stones and valleys now', 'Patience conquers all'],
+    verses: [
+      'Water finds its way',
+      'Through the stones and valleys now',
+      'Patience conquers all',
+    ],
   },
   {
     source: 'Adventure',
-    verses: ['Ships sail on the sea', 'Waves crash on the distant shore', 'Gulls cry in the wind'],
+    verses: [
+      'Ships sail on the sea',
+      'Waves crash on the distant shore',
+      'Gulls cry in the wind',
+    ],
   },
   {
     source: 'Adventure',
-    verses: ['Land appears at dawn', 'Sailors cheer the rising sun', 'New worlds wait ahead'],
+    verses: [
+      'Land appears at dawn',
+      'Sailors cheer the rising sun',
+      'New worlds wait ahead',
+    ],
   },
   {
     source: 'Mixed Nature',
-    verses: ['Mountains touch the sky', 'Rivers flow through ancient stones', 'Birds sing morning songs'],
+    verses: [
+      'Mountains touch the sky',
+      'Rivers flow through ancient stones',
+      'Birds sing morning songs',
+    ],
   },
 ];
 
 // Fake repositories for testing
 class FakeHaikuRepository implements IHaikuRepository {
   async createCacheWithTTL(): Promise<void> {}
-  async extractFromCache(): Promise<HaikuValue[]> { return []; }
-  async extractOneFromCache(): Promise<HaikuValue | null> { return null; }
+  async extractFromCache(): Promise<HaikuValue[]> {
+    return [];
+  }
+  async extractOneFromCache(): Promise<HaikuValue | null> {
+    return null;
+  }
 }
 
 class FakeChapterRepository implements IChapterRepository {
-  async getAllChapters(): Promise<ChapterValue[]> { return []; }
-  async getChapterById(): Promise<ChapterValue | null> { return null; }
-  async getFilteredChapters(): Promise<ChapterValue[]> { return []; }
+  async getAllChapters(): Promise<ChapterValue[]> {
+    return [];
+  }
+  async getChapterById(): Promise<ChapterValue | null> {
+    return null;
+  }
+  async getFilteredChapters(): Promise<ChapterValue[]> {
+    return [];
+  }
 }
 
 class FakeBookRepository implements IBookRepository {
-  async getAllBooks(): Promise<BookValue[]> { return []; }
-  async getBookById(): Promise<BookValue | null> { return null; }
+  async getAllBooks(): Promise<BookValue[]> {
+    return [];
+  }
+  async getBookById(): Promise<BookValue | null> {
+    return null;
+  }
   async selectRandomBook(): Promise<BookValue> {
-    return { author: 'Test Author', chapters: ['ch1'], reference: 'test-ref', title: 'Test Book' } as unknown as BookValue;
+    return {
+      author: 'Test Author',
+      chapters: ['ch1'],
+      reference: 'test-ref',
+      title: 'Test Book',
+    } as unknown as BookValue;
   }
 }
 
 class FakeCanvasService implements ICanvasService {
   useTheme(): void {}
-  async create(): Promise<string> { return '/tmp/test.png'; }
+  async create(): Promise<string> {
+    return '/tmp/test.png';
+  }
   async read(): Promise<{ data: Buffer; contentType: string }> {
     return { contentType: 'image/jpeg', data: Buffer.from('test') };
   }
@@ -128,7 +194,7 @@ describe('Haiku Quality Benchmark', () => {
   let generator: HaikuGeneratorService;
   let naturalLanguage: NaturalLanguageService;
   let markovEvaluator: MarkovEvaluatorService;
-  let results: BenchmarkResult[] = [];
+  const results: BenchmarkResult[] = [];
 
   beforeAll(async () => {
     naturalLanguage = new NaturalLanguageService();
@@ -149,8 +215,15 @@ describe('Haiku Quality Benchmark', () => {
     // Build haikus from pre-defined samples with quality scoring
     for (const sample of SAMPLE_HAIKUS) {
       const haiku = generator.buildHaiku(
-        { author: 'Test Author', reference: 'test', title: sample.source } as BookValue,
-        { content: sample.verses.join('. '), title: 'Chapter 1' } as ChapterValue,
+        {
+          author: 'Test Author',
+          reference: 'test',
+          title: sample.source,
+        } as BookValue,
+        {
+          content: sample.verses.join('. '),
+          title: 'Chapter 1',
+        } as ChapterValue,
         sample.verses,
       );
       if (haiku.quality) {
@@ -203,7 +276,9 @@ describe('Haiku Quality Benchmark', () => {
 
       console.log('\n📊 Sentiment Distribution:');
       console.log(`   Mean:  ${stats.mean.toFixed(3)}`);
-      console.log(`   Range: [${stats.min.toFixed(3)}, ${stats.max.toFixed(3)}]`);
+      console.log(
+        `   Range: [${stats.min.toFixed(3)}, ${stats.max.toFixed(3)}]`,
+      );
     });
 
     it('grammar scores are in valid range [0, 1]', () => {
@@ -217,7 +292,9 @@ describe('Haiku Quality Benchmark', () => {
 
       console.log('\n📊 Grammar (POS) Distribution:');
       console.log(`   Mean:  ${stats.mean.toFixed(3)}`);
-      console.log(`   Range: [${stats.min.toFixed(3)}, ${stats.max.toFixed(3)}]`);
+      console.log(
+        `   Range: [${stats.min.toFixed(3)}, ${stats.max.toFixed(3)}]`,
+      );
     });
 
     it('trigramFlow scores are non-negative', () => {
@@ -230,7 +307,9 @@ describe('Haiku Quality Benchmark', () => {
 
       console.log('\n📊 Trigram Flow Distribution:');
       console.log(`   Mean:  ${stats.mean.toFixed(3)}`);
-      console.log(`   Range: [${stats.min.toFixed(3)}, ${stats.max.toFixed(3)}]`);
+      console.log(
+        `   Range: [${stats.min.toFixed(3)}, ${stats.max.toFixed(3)}]`,
+      );
     });
 
     it('uniqueness scores are in valid range [0, 1]', () => {
@@ -244,7 +323,9 @@ describe('Haiku Quality Benchmark', () => {
 
       console.log('\n📊 Uniqueness Distribution:');
       console.log(`   Mean:  ${stats.mean.toFixed(3)}`);
-      console.log(`   Range: [${stats.min.toFixed(3)}, ${stats.max.toFixed(3)}]`);
+      console.log(
+        `   Range: [${stats.min.toFixed(3)}, ${stats.max.toFixed(3)}]`,
+      );
     });
 
     it('alliteration scores are in valid range [0, 1]', () => {
@@ -258,7 +339,9 @@ describe('Haiku Quality Benchmark', () => {
 
       console.log('\n📊 Alliteration Distribution:');
       console.log(`   Mean:  ${stats.mean.toFixed(3)}`);
-      console.log(`   Range: [${stats.min.toFixed(3)}, ${stats.max.toFixed(3)}]`);
+      console.log(
+        `   Range: [${stats.min.toFixed(3)}, ${stats.max.toFixed(3)}]`,
+      );
     });
 
     it('natureWords count is non-negative', () => {
@@ -277,7 +360,11 @@ describe('Haiku Quality Benchmark', () => {
 
   describe('Metric Calculation Verification', () => {
     it('calculateHaikuQuality produces consistent results', () => {
-      const testVerses = ['The autumn wind blows', 'Leaves fall gently to the ground', 'Winter comes at last'];
+      const testVerses = [
+        'The autumn wind blows',
+        'Leaves fall gently to the ground',
+        'Winter comes at last',
+      ];
 
       const metrics = {
         sentiment: 0.6,
@@ -295,8 +382,16 @@ describe('Haiku Quality Benchmark', () => {
     });
 
     it('countNatureWords detects nature vocabulary', () => {
-      const withNature = ['sun moon stars sky', 'river mountain tree', 'flower wind rain'];
-      const withoutNature = ['the quick brown fox', 'jumps over fence', 'lazy dog sleeps'];
+      const withNature = [
+        'sun moon stars sky',
+        'river mountain tree',
+        'flower wind rain',
+      ];
+      const withoutNature = [
+        'the quick brown fox',
+        'jumps over fence',
+        'lazy dog sleeps',
+      ];
 
       const natureCount = countNatureWords(withNature);
       const noNatureCount = countNatureWords(withoutNature);
@@ -305,8 +400,16 @@ describe('Haiku Quality Benchmark', () => {
     });
 
     it('countRepeatedWords detects repetition', () => {
-      const withRepeats = ['moon shines bright', 'moon glows softly', 'moon fades at dawn'];
-      const noRepeats = ['sun rises high', 'clouds drift past', 'birds sing songs'];
+      const withRepeats = [
+        'moon shines bright',
+        'moon glows softly',
+        'moon fades at dawn',
+      ];
+      const noRepeats = [
+        'sun rises high',
+        'clouds drift past',
+        'birds sing songs',
+      ];
 
       const repeatsCount = countRepeatedWords(withRepeats);
       const noRepeatsCount = countRepeatedWords(noRepeats);
@@ -322,7 +425,11 @@ describe('Haiku Quality Benchmark', () => {
     });
 
     it('calculateWordUniqueness measures vocabulary diversity', () => {
-      const unique = ['sun moon stars', 'river mountain tree', 'flower wind rain'];
+      const unique = [
+        'sun moon stars',
+        'river mountain tree',
+        'flower wind rain',
+      ];
       const repetitive = ['the the the', 'the the the', 'the the the'];
 
       const uniqueScore = calculateWordUniqueness(unique);
@@ -337,13 +444,33 @@ describe('Haiku Quality Benchmark', () => {
   describe('Score Component Weights', () => {
     it('nature words contribute positively to score', () => {
       const withNature = calculateHaikuQuality(
-        ['The autumn wind blows', 'Cherry blossoms fall softly', 'Moon rises tonight'],
-        { sentiment: 0.5, grammar: 0.5, trigramFlow: 0, markovFlow: 0, alliteration: 0 },
+        [
+          'The autumn wind blows',
+          'Cherry blossoms fall softly',
+          'Moon rises tonight',
+        ],
+        {
+          sentiment: 0.5,
+          grammar: 0.5,
+          trigramFlow: 0,
+          markovFlow: 0,
+          alliteration: 0,
+        },
       );
 
       const withoutNature = calculateHaikuQuality(
-        ['The man walked slowly', 'People gathered in the room', 'Time passed by quickly'],
-        { sentiment: 0.5, grammar: 0.5, trigramFlow: 0, markovFlow: 0, alliteration: 0 },
+        [
+          'The man walked slowly',
+          'People gathered in the room',
+          'Time passed by quickly',
+        ],
+        {
+          sentiment: 0.5,
+          grammar: 0.5,
+          trigramFlow: 0,
+          markovFlow: 0,
+          alliteration: 0,
+        },
       );
 
       expect(withNature.natureWords).toBeGreaterThan(withoutNature.natureWords);
@@ -351,13 +478,29 @@ describe('Haiku Quality Benchmark', () => {
 
     it('repeated words reduce score', () => {
       const noRepeats = calculateHaikuQuality(
-        ['Sun rises high now', 'Moon glows in the night', 'Stars shine brightly too'],
-        { sentiment: 0.5, grammar: 0.5, trigramFlow: 0, markovFlow: 0, alliteration: 0 },
+        [
+          'Sun rises high now',
+          'Moon glows in the night',
+          'Stars shine brightly too',
+        ],
+        {
+          sentiment: 0.5,
+          grammar: 0.5,
+          trigramFlow: 0,
+          markovFlow: 0,
+          alliteration: 0,
+        },
       );
 
       const withRepeats = calculateHaikuQuality(
         ['Sun rises sun high', 'Sun glows in the sun', 'Sun shines sun sun'],
-        { sentiment: 0.5, grammar: 0.5, trigramFlow: 0, markovFlow: 0, alliteration: 0 },
+        {
+          sentiment: 0.5,
+          grammar: 0.5,
+          trigramFlow: 0,
+          markovFlow: 0,
+          alliteration: 0,
+        },
       );
 
       expect(noRepeats.totalScore).toBeGreaterThan(withRepeats.totalScore);
@@ -365,13 +508,29 @@ describe('Haiku Quality Benchmark', () => {
 
     it('weak starts reduce score', () => {
       const strongStarts = calculateHaikuQuality(
-        ['Mountains stand so tall', 'Rivers flow downstream', 'Eagles soar above'],
-        { sentiment: 0.5, grammar: 0.5, trigramFlow: 0, markovFlow: 0, alliteration: 0 },
+        [
+          'Mountains stand so tall',
+          'Rivers flow downstream',
+          'Eagles soar above',
+        ],
+        {
+          sentiment: 0.5,
+          grammar: 0.5,
+          trigramFlow: 0,
+          markovFlow: 0,
+          alliteration: 0,
+        },
       );
 
       const weakStarts = calculateHaikuQuality(
         ['It was a dark night', 'There is nothing here', 'This is all we have'],
-        { sentiment: 0.5, grammar: 0.5, trigramFlow: 0, markovFlow: 0, alliteration: 0 },
+        {
+          sentiment: 0.5,
+          grammar: 0.5,
+          trigramFlow: 0,
+          markovFlow: 0,
+          alliteration: 0,
+        },
       );
 
       expect(strongStarts.weakStarts).toBe(0);
@@ -381,13 +540,33 @@ describe('Haiku Quality Benchmark', () => {
 
     it('higher sentiment improves score', () => {
       const positive = calculateHaikuQuality(
-        ['Joy fills the morning', 'Love blossoms in spring', 'Peace comes at sunset'],
-        { sentiment: 0.8, grammar: 0.5, trigramFlow: 0, markovFlow: 0, alliteration: 0 },
+        [
+          'Joy fills the morning',
+          'Love blossoms in spring',
+          'Peace comes at sunset',
+        ],
+        {
+          sentiment: 0.8,
+          grammar: 0.5,
+          trigramFlow: 0,
+          markovFlow: 0,
+          alliteration: 0,
+        },
       );
 
       const negative = calculateHaikuQuality(
-        ['Joy fills the morning', 'Love blossoms in spring', 'Peace comes at sunset'],
-        { sentiment: 0.2, grammar: 0.5, trigramFlow: 0, markovFlow: 0, alliteration: 0 },
+        [
+          'Joy fills the morning',
+          'Love blossoms in spring',
+          'Peace comes at sunset',
+        ],
+        {
+          sentiment: 0.2,
+          grammar: 0.5,
+          trigramFlow: 0,
+          markovFlow: 0,
+          alliteration: 0,
+        },
       );
 
       expect(positive.totalScore).toBeGreaterThan(negative.totalScore);
@@ -395,13 +574,33 @@ describe('Haiku Quality Benchmark', () => {
 
     it('higher grammar score improves total', () => {
       const goodGrammar = calculateHaikuQuality(
-        ['Test verse one here', 'Test verse two is here', 'Test verse three here'],
-        { sentiment: 0.5, grammar: 0.9, trigramFlow: 0, markovFlow: 0, alliteration: 0 },
+        [
+          'Test verse one here',
+          'Test verse two is here',
+          'Test verse three here',
+        ],
+        {
+          sentiment: 0.5,
+          grammar: 0.9,
+          trigramFlow: 0,
+          markovFlow: 0,
+          alliteration: 0,
+        },
       );
 
       const badGrammar = calculateHaikuQuality(
-        ['Test verse one here', 'Test verse two is here', 'Test verse three here'],
-        { sentiment: 0.5, grammar: 0.1, trigramFlow: 0, markovFlow: 0, alliteration: 0 },
+        [
+          'Test verse one here',
+          'Test verse two is here',
+          'Test verse three here',
+        ],
+        {
+          sentiment: 0.5,
+          grammar: 0.1,
+          trigramFlow: 0,
+          markovFlow: 0,
+          alliteration: 0,
+        },
       );
 
       expect(goodGrammar.totalScore).toBeGreaterThan(badGrammar.totalScore);
@@ -409,13 +608,33 @@ describe('Haiku Quality Benchmark', () => {
 
     it('higher trigram flow improves score', () => {
       const goodFlow = calculateHaikuQuality(
-        ['Test verse one here', 'Test verse two is here', 'Test verse three here'],
-        { sentiment: 0.5, grammar: 0.5, trigramFlow: 8, markovFlow: 0, alliteration: 0 },
+        [
+          'Test verse one here',
+          'Test verse two is here',
+          'Test verse three here',
+        ],
+        {
+          sentiment: 0.5,
+          grammar: 0.5,
+          trigramFlow: 8,
+          markovFlow: 0,
+          alliteration: 0,
+        },
       );
 
       const badFlow = calculateHaikuQuality(
-        ['Test verse one here', 'Test verse two is here', 'Test verse three here'],
-        { sentiment: 0.5, grammar: 0.5, trigramFlow: 0, markovFlow: 0, alliteration: 0 },
+        [
+          'Test verse one here',
+          'Test verse two is here',
+          'Test verse three here',
+        ],
+        {
+          sentiment: 0.5,
+          grammar: 0.5,
+          trigramFlow: 0,
+          markovFlow: 0,
+          alliteration: 0,
+        },
       );
 
       expect(goodFlow.totalScore).toBeGreaterThan(badFlow.totalScore);
@@ -423,13 +642,33 @@ describe('Haiku Quality Benchmark', () => {
 
     it('higher alliteration improves score', () => {
       const highAllit = calculateHaikuQuality(
-        ['Test verse one here', 'Test verse two is here', 'Test verse three here'],
-        { sentiment: 0.5, grammar: 0.5, trigramFlow: 0, markovFlow: 0, alliteration: 0.9 },
+        [
+          'Test verse one here',
+          'Test verse two is here',
+          'Test verse three here',
+        ],
+        {
+          sentiment: 0.5,
+          grammar: 0.5,
+          trigramFlow: 0,
+          markovFlow: 0,
+          alliteration: 0.9,
+        },
       );
 
       const lowAllit = calculateHaikuQuality(
-        ['Test verse one here', 'Test verse two is here', 'Test verse three here'],
-        { sentiment: 0.5, grammar: 0.5, trigramFlow: 0, markovFlow: 0, alliteration: 0.1 },
+        [
+          'Test verse one here',
+          'Test verse two is here',
+          'Test verse three here',
+        ],
+        {
+          sentiment: 0.5,
+          grammar: 0.5,
+          trigramFlow: 0,
+          markovFlow: 0,
+          alliteration: 0.1,
+        },
       );
 
       expect(highAllit.totalScore).toBeGreaterThan(lowAllit.totalScore);
@@ -455,12 +694,22 @@ describe('Haiku Quality Benchmark', () => {
           console.log(`  Nature Words:   ${result.quality.natureWords}`);
           console.log(`  Repeated Words: ${result.quality.repeatedWords}`);
           console.log(`  Weak Starts:    ${result.quality.weakStarts}`);
-          console.log(`  Sentiment:      ${result.quality.sentiment.toFixed(3)}`);
+          console.log(
+            `  Sentiment:      ${result.quality.sentiment.toFixed(3)}`,
+          );
           console.log(`  Grammar:        ${result.quality.grammar.toFixed(3)}`);
-          console.log(`  Trigram Flow:   ${result.quality.trigramFlow.toFixed(3)}`);
-          console.log(`  Uniqueness:     ${result.quality.uniqueness.toFixed(3)}`);
-          console.log(`  Alliteration:   ${result.quality.alliteration.toFixed(3)}`);
-          console.log(`  Total Score:    ${result.quality.totalScore.toFixed(2)}`);
+          console.log(
+            `  Trigram Flow:   ${result.quality.trigramFlow.toFixed(3)}`,
+          );
+          console.log(
+            `  Uniqueness:     ${result.quality.uniqueness.toFixed(3)}`,
+          );
+          console.log(
+            `  Alliteration:   ${result.quality.alliteration.toFixed(3)}`,
+          );
+          console.log(
+            `  Total Score:    ${result.quality.totalScore.toFixed(2)}`,
+          );
           console.log('');
         }
 
@@ -470,7 +719,9 @@ describe('Haiku Quality Benchmark', () => {
 
         console.log('--- Overall Statistics ---');
         console.log(`  Mean Score:     ${stats.mean.toFixed(2)}`);
-        console.log(`  Score Range:    [${stats.min.toFixed(2)}, ${stats.max.toFixed(2)}]`);
+        console.log(
+          `  Score Range:    [${stats.min.toFixed(2)}, ${stats.max.toFixed(2)}]`,
+        );
         console.log(`  Std Deviation:  ${stats.stdDev.toFixed(2)}`);
       }
 
