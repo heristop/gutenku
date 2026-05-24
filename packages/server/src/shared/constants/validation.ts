@@ -72,11 +72,6 @@ export function containsCommonName(text: string): boolean {
   return words.some((word) => COMMON_NAMES.has(word));
 }
 
-// ============================================================================
-// Soft Scoring Functions (for ranking, not rejection)
-// ============================================================================
-
-/** Common words allowed to repeat across verses without penalty */
 /**
  * Count repeated content words across verses.
  * Returns count of repeated words.
@@ -180,11 +175,10 @@ export function countBlacklistedVerses(verses: string[]): number {
   return verses.filter((v) => hasBlacklistedChars(v)).length;
 }
 
-/** Common titles to detect as proper nouns */
 /**
  * Check if a word is a proper noun.
- * - First words: check against COMMON_NAMES or TITLES list
- * - Other words: check if capitalized or is a title
+ * - First words: checked against COMMON_NAMES or TITLES list
+ * - Other words: checked for capitalization
  */
 function isProperNoun(word: string, isFirstWord: boolean): boolean {
   const lower = word.toLowerCase();
@@ -216,11 +210,6 @@ export function countProperNouns(verses: string[]): number {
   return count;
 }
 
-// ============================================================================
-// KPI Calculation Functions
-// ============================================================================
-
-/** Sensory/imagery words for density scoring */
 /**
  * Calculate verse distance score from quote proximity in source text.
  * 1.0 for adjacent verses, lower for larger spans.
@@ -308,10 +297,6 @@ export function calculateVerbPresence(
 
   return Math.min(1, verbCount / 3);
 }
-
-// ============================================================================
-// Haiku Quality Scoring (for ranking)
-// ============================================================================
 
 export interface HaikuQualityScore {
   natureWords: number; // Count of nature/imagery words

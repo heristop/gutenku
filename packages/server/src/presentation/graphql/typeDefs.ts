@@ -182,7 +182,6 @@ const typeDefs = `#graphql
         ): Haiku
         globalStats: GlobalStats!
         dailyPuzzle(date: String!, revealedRounds: [Int!], visibleEmoticonCount: Int, revealedHaikuCount: Int, locale: String): DailyPuzzleResponse!
-        submitGuess(date: String!, guessedBookId: ID!, currentRound: Int!, hints: HintUsageInput, locale: String): GuessResult!
         reduceBooks(date: String!, locale: String): [Book!]!
         puzzleVersion(date: String!): PuzzleVersion!
         haikuVersion(date: String!): HaikuVersion!
@@ -210,6 +209,7 @@ const typeDefs = `#graphql
     type Mutation {
         revealEmoticon(date: String!, scratchedPositions: [Int!]!): EmoticonRevealResult!
         revealHaiku(date: String!, index: Int!): String
+        submitGuess(date: String!, guessedBookId: ID!, currentRound: Int!, hints: HintUsageInput, locale: String): GuessResult!
     }
 `;
 

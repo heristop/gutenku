@@ -6,10 +6,6 @@ import type { DecodedHaiku } from '~/domain/services/genetic';
 export const BOX_WIDTH = 62;
 export const INNER_WIDTH = BOX_WIDTH - 4; // "║ " + content + " ║"
 
-// ============================================================================
-// UI RENDERING HELPERS
-// ============================================================================
-
 /** Pad/truncate string to exact visual width */
 export function fitToWidth(str: string, width: number): string {
   const visWidth = stringWidth(str);
@@ -130,10 +126,6 @@ export function cleanVerse(verse: string): string {
   return cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
 }
 
-// ============================================================================
-// FRAME RENDERING
-// ============================================================================
-
 export interface FrameData {
   generation: number;
   maxGenerations: number;
@@ -218,10 +210,6 @@ export function renderFrame(data: FrameData): string {
 
   return lines.join('\n');
 }
-
-// ============================================================================
-// FINAL CHART
-// ============================================================================
 
 function finalChartGlyph(bNorm: number, aNorm: number, row: number): string {
   if (bNorm === row && aNorm === row) {
@@ -314,10 +302,6 @@ export function drawFinalChart(
   console.log();
   console.log(`  ${pc.green('●')} Best  ${pc.yellow('○')} Average`);
 }
-
-// ============================================================================
-// DISPLAY HAIKU
-// ============================================================================
 
 export function displayHaikuCandidate(
   haiku: DecodedHaiku,

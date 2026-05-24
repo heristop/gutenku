@@ -1,4 +1,5 @@
 import { injectable } from 'tsyringe';
+import mongoSanitize from 'mongo-sanitize';
 import type { ChapterValue, ChapterWithBook } from '~/shared/types';
 import type {
   IChapterRepository,
@@ -11,8 +12,9 @@ import BookModel from '~/infrastructure/models/BookModel';
 export default class ChapterRepository implements IChapterRepository {
   async getAllChapters(filter: string | null) {
     if (filter) {
+      const sanitizedFilter = mongoSanitize(filter) as string;
       return await ChapterModel.find(
-        { $text: { $search: filter } },
+        { $text: { $search: sanitizedFilter } },
         { score: { $meta: 'textScore' } },
       )
         .sort({ score: { $meta: 'textScore' } })

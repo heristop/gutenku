@@ -22,6 +22,9 @@ describe('WCAG 2.2 Accessibility Tests', () => {
 
   describe('Haiku Page', () => {
     beforeEach(() => {
+      // Mock the GraphQL backend so the toolbar renders deterministically
+      // (without this, no-backend triggers networkError and hides the toolbar).
+      cy.interceptGraphQL();
       cy.visit('/haiku');
       cy.injectAxe();
     });

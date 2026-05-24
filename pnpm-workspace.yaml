@@ -2,6 +2,18 @@ packages:
   - packages/*
   - private/gutenguess/packages/*
 
+# Pin transitive deps with known CVEs.
+# Most come in via vite-plugin-imagemin's binary-installer chains and assorted
+# build-time tooling. These overrides force safe versions.
+overrides:
+  semver-regex: '>=3.1.4'
+  trim-newlines: '>=3.0.1'
+  http-cache-semantics: '>=4.1.1'
+  cross-spawn: '>=6.0.6'
+  tar: '>=7.5.11'
+  minimatch: '>=3.1.4'
+  serialize-javascript: '>=7.0.3'
+
 allowBuilds:
   '@apollo/protobufjs': true
   '@parcel/watcher': true

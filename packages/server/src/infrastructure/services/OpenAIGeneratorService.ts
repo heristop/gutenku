@@ -24,7 +24,7 @@ import {
 export default class OpenAIGeneratorService implements IGenerator {
   private readonly MAX_SELECTION_COUNT: number = 50;
   private readonly GPT_SELECTION_POOL_SIZE: number = 5;
-  private readonly MODEL = 'gpt-5.2';
+  private readonly MODEL = process.env.OPENAI_GPT_MODEL || 'gpt-5.4-mini';
   private readonly DEFAULT_TEMPERATURE = 0.7;
   private readonly EMOTICONS_TEMPERATURE = 0.1;
 
@@ -249,7 +249,31 @@ export default class OpenAIGeneratorService implements IGenerator {
     });
 
     const answer = completion.choices[0].message.content;
-    return JSON.parse(answer);
+    try {
+      const parsed = JSON.parse(answer ?? '');
+      return {
+        title:
+          typeof parsed.title === 'string' ? parsed.title : 'Untitled Haiku',
+        description:
+          typeof parsed.description === 'string'
+            ? parsed.description
+            : 'A beautiful haiku',
+        hashtags:
+          typeof parsed.hashtags === 'string'
+            ? parsed.hashtags
+            : '#haiku #poetry #nature #zen #peaceful #gutenku',
+      };
+    } catch (err) {
+      log.warn(
+        { rawAnswer: answer, err },
+        'generateDescription JSON parse failed, using defaults',
+      );
+      return {
+        title: 'Untitled Haiku',
+        description: 'A beautiful haiku',
+        hashtags: '#haiku #poetry #nature #zen #peaceful #gutenku',
+      };
+    }
   }
 
   private async generateTranslations(
@@ -264,7 +288,31 @@ export default class OpenAIGeneratorService implements IGenerator {
       model: this.MODEL,
       temperature: this.temperature,
     });
-    return JSON.parse(completion.choices[0].message.content);
+    const fallback = verses.join(' / ');
+    const fallbackAll = {
+      fr: fallback,
+      jp: fallback,
+      es: fallback,
+      it: fallback,
+      de: fallback,
+    };
+    try {
+      const raw = completion.choices[0].message.content;
+      const parsed = JSON.parse(raw ?? '');
+      return {
+        fr: typeof parsed.fr === 'string' ? parsed.fr : fallback,
+        jp: typeof parsed.jp === 'string' ? parsed.jp : fallback,
+        es: typeof parsed.es === 'string' ? parsed.es : fallback,
+        it: typeof parsed.it === 'string' ? parsed.it : fallback,
+        de: typeof parsed.de === 'string' ? parsed.de : fallback,
+      };
+    } catch (err) {
+      log.warn(
+        { err },
+        'generateTranslations JSON parse failed, using verse fallback',
+      );
+      return fallbackAll;
+    }
   }
 
   private async generateBookmojis(book: {

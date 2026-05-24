@@ -145,7 +145,6 @@ onUnmounted(closeWSClient);
     </div>
 
     <main
-      v-else
       id="main-content"
       class="haiku-page__content"
       :aria-busy="loading"
@@ -178,6 +177,7 @@ onUnmounted(closeWSClient);
 
             <div
               class="book-skeleton__haiku"
+              role="status"
               aria-busy="true"
               :aria-label="loadingLabel"
             >

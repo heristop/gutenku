@@ -3,7 +3,11 @@ import bodyParser from 'body-parser';
 import compression from 'compression';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import express from 'express';
+import express, {
+  type Request,
+  type Response,
+  type NextFunction,
+} from 'express';
 import helmet from 'helmet';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,6 +20,7 @@ import { createServer } from 'node:http';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { WebSocketServer } from 'ws';
 import { useServer } from 'graphql-ws/use/ws';
+import { parse as parseGraphql, visit, type DocumentNode } from 'graphql';
 import type { Connection } from 'mongoose';
 import resolvers from '~/presentation/graphql/resolvers';
 import typeDefs from '~/presentation/graphql/typeDefs';
@@ -30,6 +35,7 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const log = createLogger('server');
 const isProduction = process.env.NODE_ENV === 'production';
+const INTERNAL_API_KEY = process.env.INTERNAL_API_KEY;
 
 // Rate limiting for all GraphQL requests
 const generalLimiter = rateLimit({
@@ -42,6 +48,63 @@ const generalLimiter = rateLimit({
   },
 });
 
+// Fields whose execution triggers OpenAI calls (priced operations).
+const AI_FIELD_NAMES = new Set(['haiku', 'haikuGeneration']);
+
+interface GraphQLBody {
+  query?: string;
+  variables?: Record<string, unknown>;
+}
+
+// Detect AI-invoking operations by parsing the GraphQL document.
+// Returns true if the request would trigger an OpenAI call.
+function requestInvokesAI(body: GraphQLBody | undefined): boolean {
+  if (!body?.query) {
+    return false;
+  }
+
+  let doc: DocumentNode;
+  try {
+    doc = parseGraphql(body.query);
+  } catch {
+    // Malformed query: let GraphQL produce the error, no need to rate-limit.
+    return false;
+  }
+
+  let invokesAI = false;
+  visit(doc, {
+    Field(node) {
+      if (!AI_FIELD_NAMES.has(node.name.value)) {
+        return;
+      }
+
+      const useAIArg = node.arguments?.find((a) => a.name.value === 'useAI');
+
+      // Default behavior of these fields includes AI unless explicitly disabled.
+      if (!useAIArg) {
+        invokesAI = true;
+        return;
+      }
+
+      if (useAIArg.value.kind === 'BooleanValue') {
+        if (useAIArg.value.value) {
+          invokesAI = true;
+        }
+        return;
+      }
+
+      if (useAIArg.value.kind === 'Variable') {
+        const varName = useAIArg.value.name.value;
+        if (body.variables?.[varName] !== false) {
+          invokesAI = true;
+        }
+      }
+    },
+  });
+
+  return invokesAI;
+}
+
 // Stricter rate limiting for expensive AI operations
 const aiLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
@@ -51,14 +114,32 @@ const aiLimiter = rateLimit({
   message: {
     errors: [{ message: 'Rate limit exceeded for AI operations' }],
   },
-  skip: (req) => {
-    const body = req.body as {
-      query?: string;
-      variables?: { useAI?: boolean };
-    };
-    return !body?.query?.includes('haiku') || body?.variables?.useAI === false;
-  },
+  skip: (req) => !requestInvokesAI(req.body as GraphQLBody),
 });
+
+// Optional API-key gate for AI operations. When INTERNAL_API_KEY is set,
+// AI-invoking requests must present a matching X-Internal-Key header.
+// When unset, the gate is a no-op (rate limiting still applies).
+function aiKeyGuard(req: Request, res: Response, next: NextFunction): void {
+  if (!INTERNAL_API_KEY) {
+    next();
+    return;
+  }
+  if (!requestInvokesAI(req.body as GraphQLBody)) {
+    next();
+    return;
+  }
+  const provided = req.header('x-internal-key');
+  if (provided && provided === INTERNAL_API_KEY) {
+    next();
+    return;
+  }
+  res.status(401).json({
+    errors: [
+      { message: 'AI operations require a valid X-Internal-Key header' },
+    ],
+  });
+}
 
 interface MyContext {
   db?: Connection;
@@ -120,7 +201,7 @@ async function listen(port: number) {
         directives: {
           defaultSrc: ["'self'"],
           scriptSrc: ["'self'"],
-          styleSrc: ["'self'", "'unsafe-inline'"],
+          styleSrc: ["'self'"],
           imgSrc: ["'self'", 'data:', 'https:'],
           connectSrc: ["'self'", 'https://api.openai.com'],
           objectSrc: ["'none'"],
@@ -130,7 +211,6 @@ async function listen(port: number) {
       strictTransportSecurity: isProduction
         ? { maxAge: 63072000, includeSubDomains: true, preload: true }
         : false,
-      crossOriginEmbedderPolicy: false,
       crossOriginOpenerPolicy: { policy: 'same-origin' },
       referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
     }),
@@ -138,12 +218,8 @@ async function listen(port: number) {
 
   app.use(compression());
 
-  // Apply rate limiters to GraphQL endpoint (production only)
-  if (isProduction) {
-    app.use('/graphql', generalLimiter);
-    app.use('/graphql', aiLimiter);
-  }
-
+  // Rate-limit and AI-key gate the GraphQL endpoint in all environments.
+  // bodyParser must run before the rate limiter so the GraphQL body is parsed.
   app.use(
     '/graphql',
     cors<cors.CorsRequest>({
@@ -151,7 +227,10 @@ async function listen(port: number) {
         ',',
       ),
     }),
-    bodyParser.json(),
+    bodyParser.json({ limit: '128kb' }),
+    generalLimiter,
+    aiLimiter,
+    aiKeyGuard,
     expressMiddleware(server, {
       context: async () => ({ db: db ?? undefined }),
     }),

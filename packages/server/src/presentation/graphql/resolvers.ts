@@ -117,33 +117,6 @@ const resolvers = {
         ),
       );
     },
-    submitGuess: async (
-      _: unknown,
-      {
-        date,
-        guessedBookId,
-        currentRound,
-        hints,
-        locale,
-      }: {
-        date: string;
-        guessedBookId: string;
-        currentRound: number;
-        hints?: { emoticonScratches: number; haikuReveals: number };
-        locale?: string;
-      },
-    ) => {
-      const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
-      return queryBus.execute(
-        new SubmitGuessQuery(
-          date,
-          guessedBookId,
-          currentRound,
-          hints,
-          locale || 'en',
-        ),
-      );
-    },
     reduceBooks: async (
       _: unknown,
       { date, locale }: { date: string; locale?: string },
@@ -185,6 +158,33 @@ const resolvers = {
     ) => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
       return queryBus.execute(new RevealHaikuQuery(date, index));
+    },
+    submitGuess: async (
+      _: unknown,
+      {
+        date,
+        guessedBookId,
+        currentRound,
+        hints,
+        locale,
+      }: {
+        date: string;
+        guessedBookId: string;
+        currentRound: number;
+        hints?: { emoticonScratches: number; haikuReveals: number };
+        locale?: string;
+      },
+    ) => {
+      const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
+      return queryBus.execute(
+        new SubmitGuessQuery(
+          date,
+          guessedBookId,
+          currentRound,
+          hints,
+          locale || 'en',
+        ),
+      );
     },
   },
   Subscription: {

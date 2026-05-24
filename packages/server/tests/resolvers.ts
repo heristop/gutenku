@@ -193,8 +193,8 @@ describe('GraphQL resolvers', () => {
     expect(result.puzzle).toBeDefined();
   });
 
-  it('submitGuess query resolves via QueryBus', async () => {
-    const result = await resolvers.Query.submitGuess(undefined, {
+  it('submitGuess mutation resolves via QueryBus', async () => {
+    const result = await resolvers.Mutation.submitGuess(undefined, {
       date: '2026-01-15',
       guessedBookId: 'book-123',
       currentRound: 1,
@@ -213,6 +213,8 @@ describe('GraphQL resolvers', () => {
   it('haikuGeneration subscription is properly defined', () => {
     expect(resolvers.Subscription.haikuGeneration).toBeDefined();
     expect(resolvers.Subscription.haikuGeneration.subscribe).toBeDefined();
-    expect(typeof resolvers.Subscription.haikuGeneration.subscribe).toBe('function');
+    expect(typeof resolvers.Subscription.haikuGeneration.subscribe).toBe(
+      'function',
+    );
   });
 });

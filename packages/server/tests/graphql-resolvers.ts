@@ -159,12 +159,12 @@ describe('GraphQL Resolvers', () => {
     });
   });
 
-  describe('Query.submitGuess', () => {
+  describe('Mutation.submitGuess', () => {
     it('calls query bus with SubmitGuessQuery', async () => {
       const guessResult = { correct: true, score: 100 };
       mockQueryBus.execute.mockResolvedValue(guessResult);
 
-      const result = await resolvers.Query.submitGuess(null, {
+      const result = await resolvers.Mutation.submitGuess(null, {
         date: '2024-01-01',
         guessedBookId: 'book123',
         currentRound: 3,

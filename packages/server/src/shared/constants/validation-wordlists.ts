@@ -1,7 +1,3 @@
-/**
- * Word-list data sets used by validation helpers.
- * Extracted from validation.ts to keep that module focused on logic.
- */
 import { SENSORY_WORDS_01 } from './validation-sensory-01';
 import { SENSORY_WORDS_02 } from './validation-sensory-02';
 import { SENSORY_WORDS_03 } from './validation-sensory-03';

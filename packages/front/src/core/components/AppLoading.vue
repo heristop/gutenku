@@ -433,7 +433,8 @@ const currentIcon = computed<Component>(() => currentMessage.value.icon);
   gap: 0.5rem;
 
   &--error {
-    color: oklch(0.5 0.12 30);
+    // WCAG AA: darker than oklch(0.5 ...) for ≥4.5:1 contrast on paper bg.
+    color: oklch(0.42 0.12 30);
     font-style: normal;
     font-weight: 500;
   }
