@@ -27,8 +27,8 @@ interface MergedResult {
 }
 
 export class ParallelMarkovTrainer {
-  private workerPath: string;
-  private workerCount: number;
+  private readonly workerPath: string;
+  private readonly workerCount: number;
 
   constructor(workerCount?: number) {
     this.workerCount = workerCount ?? Math.max(1, cpus().length - 1);

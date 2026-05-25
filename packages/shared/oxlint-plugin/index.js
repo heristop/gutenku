@@ -1,5 +1,5 @@
 // Custom workspace ESLint-compatible plugin loaded by oxlint via `jsPlugins`.
-// Two rules:
+// Three rules:
 //   - gutenku/no-else
 //       Forbid `else` / `else if` branches. Use guard clauses / early returns
 //       / lookup maps instead.
@@ -8,26 +8,10 @@
 //       Require a blank line before `if`, `for`, `while`, `switch`, and
 //       `return` statements when they follow non-empty code that does not
 //       open a new block / is not a continuation line.
-
-const FLOW_TYPES = new Set([
-  'IfStatement',
-  'ForStatement',
-  'ForInStatement',
-  'ForOfStatement',
-  'WhileStatement',
-  'DoWhileStatement',
-  'SwitchStatement',
-  'ReturnStatement',
-]);
-
-function isCommentOnLine(comments, line) {
-  for (const c of comments) {
-    if (c.loc.start.line <= line && c.loc.end.line >= line) {
-      return true;
-    }
-  }
-  return false;
-}
+//
+//   - gutenku/no-disable-comment
+//       Forbid linter suppression annotations (the eslint and oxlint
+//       single-line / next-line / block disable comment families).
 
 const noElseRule = {
   meta: {
@@ -46,6 +30,7 @@ const noElseRule = {
     const sourceCode = context.getSourceCode
       ? context.getSourceCode()
       : context.sourceCode;
+
     return {
       IfStatement(node) {
         if (!node.alternate) {
@@ -64,6 +49,21 @@ const noElseRule = {
     };
   },
 };
+
+// Tokens that open a new block or continue a previous statement — when one of
+// these is the last token on the line above, no blank-line padding is required.
+const CONTINUATION_TOKENS = new Set(['{', '(', '[', ',', ':', '=>']);
+
+function hasAttachedLeadingComment(sourceCode, node, currStartLine) {
+  const leadingComments = sourceCode.getCommentsBefore?.(node);
+
+  if (!leadingComments?.length) {
+    return false;
+  }
+  const lastComment = leadingComments.at(-1);
+
+  return lastComment.loc.end.line === currStartLine - 1;
+}
 
 const paddingBeforeFlowRule = {
   meta: {
@@ -85,49 +85,43 @@ const paddingBeforeFlowRule = {
 
     function check(node, keyword) {
       const firstToken = sourceCode.getFirstToken(node);
+
       if (!firstToken) {
         return;
       }
       const tokenBefore = sourceCode.getTokenBefore(firstToken, {
         includeComments: false,
       });
+
       if (!tokenBefore) {
         return;
       }
-      // Exempt when the previous token opens a block or is a continuation.
-      const prevValue = tokenBefore.value;
-      if (
-        prevValue === '{' ||
-        prevValue === '(' ||
-        prevValue === '[' ||
-        prevValue === ',' ||
-        prevValue === ':' ||
-        prevValue === '=>'
-      ) {
+
+      if (CONTINUATION_TOKENS.has(tokenBefore.value)) {
         return;
       }
-      const prevEndLine = tokenBefore.loc.end.line;
       const currStartLine = firstToken.loc.start.line;
+
       // Already at least one blank line between them.
-      if (currStartLine - prevEndLine >= 2) {
+      if (currStartLine - tokenBefore.loc.end.line >= 2) {
         return;
       }
-      // If a comment sits on the line immediately above the current statement,
-      // accept it as the leading attached comment (no padding needed).
-      const leadingComments =
-        sourceCode.getCommentsBefore && sourceCode.getCommentsBefore(node);
-      if (leadingComments && leadingComments.length > 0) {
-        const lastComment = leadingComments[leadingComments.length - 1];
-        if (lastComment.loc.end.line === currStartLine - 1) {
-          return;
-        }
+
+      if (hasAttachedLeadingComment(sourceCode, node, currStartLine)) {
+        return;
       }
+
+      // Insert the blank line at the START of the line containing firstToken
+      // so the existing indentation is preserved (rather than splitting the
+      // line at the token and leaving the keyword flush-left).
+      const lineStart = firstToken.range[0] - firstToken.loc.start.column;
+
       context.report({
         node: firstToken,
         messageId: 'missingPadding',
         data: { keyword },
         fix(fixer) {
-          return fixer.insertTextBefore(firstToken, '\n');
+          return fixer.insertTextBeforeRange([lineStart, lineStart], '\n');
         },
       });
     }
@@ -136,8 +130,7 @@ const paddingBeforeFlowRule = {
       IfStatement(node) {
         // Skip `else if (...)` — that's a chained-alternate, not a fresh stmt.
         if (
-          node.parent &&
-          node.parent.type === 'IfStatement' &&
+          node.parent?.type === 'IfStatement' &&
           node.parent.alternate === node
         ) {
           return;
@@ -189,11 +182,12 @@ const noDisableCommentRule = {
     const sourceCode = context.getSourceCode
       ? context.getSourceCode()
       : context.sourceCode;
+
     return {
       Program() {
         for (const comment of sourceCode.getAllComments()) {
-          const text = comment.value;
-          const m = DISABLE_COMMENT_RX.exec(text);
+          const m = DISABLE_COMMENT_RX.exec(comment.value);
+
           if (!m) {
             continue;
           }

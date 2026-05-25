@@ -20,10 +20,7 @@ import {
   getLocaleFromPath,
   getSlugFromFilename,
 } from './article-metadata';
-import {
-  renderMathFormulas,
-  renderMermaidDiagrams,
-} from './article-rendering';
+import { renderMathFormulas, renderMermaidDiagrams } from './article-rendering';
 
 // Configure marked to add target="_blank" for external links
 const renderer: Partial<Renderer> = {
@@ -59,9 +56,15 @@ const articlesRaw = import.meta.glob('@content/*.md', {
   eager: true,
 }) as Record<string, string>;
 
+function getReadingTime(content: string): number {
+  const wordCount = content.split(/\s+/).length;
+
+  return Math.ceil(wordCount / 200);
+}
+
 function parseArticle(path: string, rawContent: string): Article {
   const filename = path.split('/').pop() || '';
-  const dateMatch = filename.match(/^(\d{4}-\d{2}-\d{2})/);
+  const dateMatch = /^(\d{4}-\d{2}-\d{2})/.exec(filename);
   const date = dateMatch ? new Date(dateMatch[1]) : new Date();
   const slug = getSlugFromFilename(filename);
   const locale = getLocaleFromPath(filename);
@@ -80,7 +83,9 @@ function parseArticle(path: string, rawContent: string): Article {
 }
 
 function getAllArticles(): Article[] {
-  const sortedPaths = Object.keys(articlesRaw).sort().reverse();
+  const sortedPaths = Object.keys(articlesRaw).sort((a, b) =>
+    b.localeCompare(a),
+  );
 
   return sortedPaths.map((path) => parseArticle(path, articlesRaw[path]));
 }
@@ -165,12 +170,6 @@ export function useArticles() {
       day: 'numeric',
       timeZone: 'UTC',
     });
-  }
-
-  function getReadingTime(content: string): number {
-    const wordCount = content.split(/\s+/).length;
-
-    return Math.ceil(wordCount / 200);
   }
 
   return {
