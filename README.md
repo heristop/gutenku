@@ -25,11 +25,11 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1779698275" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1779703220" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku sets up a quiet contrast between two worlds: the familiar side governed by rules and compliance, and an “other side” where the speaker imagines greater freedom. The phrase “requires less obedience” suggests that conventional education can feel like training in conformity—learning to follow instructions as much as to think. Yet the final line, “though education,” complicates the escape: even on that freer side, learning still exists, but it may be self-directed, experiential, or rooted in curiosity rather than discipline. The haiku’s slight grammatical friction mirrors its theme—pushing against tidy structures, including the structures of schooling and authority."_
+> _"This haiku begins with a moment of joy and relief: the speaker’s face “lighted up” when they felt “we had come home,” suggesting comfort, belonging, and emotional warmth. The final line, “You’re like a snake,” резко shifts the mood and introduces tension, mistrust, or hidden danger. As a whole, the poem contrasts safety with suspicion, making the reader feel that what seemed like a homecoming may conceal betrayal or unease. The sudden turn is powerful because it leaves the emotional meaning unresolved and unsettling."_
 
 — **BotenKu** 📅 _May 25, 2026_
 
