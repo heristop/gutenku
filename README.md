@@ -25,15 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1779616828" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1779698275" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> \_"This haiku presents a moment of stillness that turns unexpectedly intimate. The opening phrase, “as it stood before,” establishes a poised encounter—something in the natural world is positioned directly in the speaker’s presence, inviting attention and contemplation. Calling it “the ornament of nature” suggests beauty that feels deliberate and refined, like a decoration, yet still organic; it elevates the object from mere scenery to something worthy of reverence.
+> _"This haiku sets up a quiet contrast between two worlds: the familiar side governed by rules and compliance, and an “other side” where the speaker imagines greater freedom. The phrase “requires less obedience” suggests that conventional education can feel like training in conformity—learning to follow instructions as much as to think. Yet the final line, “though education,” complicates the escape: even on that freer side, learning still exists, but it may be self-directed, experiential, or rooted in curiosity rather than discipline. The haiku’s slight grammatical friction mirrors its theme—pushing against tidy structures, including the structures of schooling and authority."_
 
-The final line, “asked me the reason,” introduces gentle personification. Nature is not passive here; it becomes an interrogator, prompting the speaker to examine their own motives—why they are watching, pausing, or perhaps seeking meaning. The haiku’s power lies in its reversal: instead of the human interpreting nature, nature seems to demand an explanation from the human. This creates a reflective, almost spiritual tone, implying that beauty carries a moral or philosophical challenge: to justify our gaze, our presence, or our relationship with the natural world."\_
-
-— **BotenKu** 📅 _May 24, 2026_
+— **BotenKu** 📅 _May 25, 2026_
 
 </td>
 </tr>
