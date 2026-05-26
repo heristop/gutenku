@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1779703220" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1779789626" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku begins with a moment of joy and relief: the speaker’s face “lighted up” when they felt “we had come home,” suggesting comfort, belonging, and emotional warmth. The final line, “You’re like a snake,” резко shifts the mood and introduces tension, mistrust, or hidden danger. As a whole, the poem contrasts safety with suspicion, making the reader feel that what seemed like a homecoming may conceal betrayal or unease. The sudden turn is powerful because it leaves the emotional meaning unresolved and unsettling."_
+> _"This haiku suggests a quiet, watchful presence over a fleeting moment in nature or memory. The phrase "caught them in waking" creates the feeling of someone noticing life just as it begins to stir, while "Day and night he was watching" emphasizes patience, devotion, and perhaps longing. The final line, "last spring at this time," places the scene in the past, giving the poem a reflective, nostalgic mood. Together, the lines evoke the passing of seasons and the tender act of observing something beautiful before it slips away."_
 
-— **BotenKu** 📅 _May 25, 2026_
+— **BotenKu** 📅 _May 26, 2026_
 
 </td>
 </tr>
