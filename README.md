@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1779876030" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1779962428" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku feels playful and a little mischievous. The speaker invites someone to come downstairs, then reveals they have been struck by a "bright idea." The final line, "poor ittie doggie," adds humor and sympathy, suggesting that the idea may involve the dog in a comical or troublesome way. The poem creates a lively, intimate scene with a lighthearted twist, using simple language to capture a moment of sudden inspiration and gentle mischief."_
+> _"This haiku suggests that the true worth of something cannot always be measured by its surface appearance. The mention of "diamonds" implies something precious and beautiful, but the phrase "that is not all" hints that their value goes beyond money or sparkle. The final line, "one with another," suggests that the diamonds gain meaning when considered together, perhaps symbolizing unity, shared memory, or a deeper emotional bond. The poem feels reflective and understated, inviting the reader to think about hidden significance beneath outward value."_
 
-— **BotenKu** 📅 _May 27, 2026_
+— **BotenKu** 📅 _May 28, 2026_
 
 </td>
 </tr>
