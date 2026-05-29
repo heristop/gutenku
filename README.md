@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1779962428" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1780048824" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests that the true worth of something cannot always be measured by its surface appearance. The mention of "diamonds" implies something precious and beautiful, but the phrase "that is not all" hints that their value goes beyond money or sparkle. The final line, "one with another," suggests that the diamonds gain meaning when considered together, perhaps symbolizing unity, shared memory, or a deeper emotional bond. The poem feels reflective and understated, inviting the reader to think about hidden significance beneath outward value."_
+> _"This haiku evokes a sense of value, repetition, and the quiet pressure of time. The image of a "gold coin" suggests wealth, worth, or something precious, while "the annual coinage" implies a recurring process of making or measuring value each year. The phrase "must / at an average" feels deliberately clipped and unfinished, creating a formal, almost mechanical tone. As a whole, the poem can be read as reflecting on how value is standardized, counted, and controlled by yearly cycles, rather than existing as something purely natural or personal. Its sparse language leaves room for ambiguity, inviting the reader to think about economics, time, and the uneasy relationship between individuality and average measure."_
 
-— **BotenKu** 📅 _May 28, 2026_
+— **BotenKu** 📅 _May 29, 2026_
 
 </td>
 </tr>
