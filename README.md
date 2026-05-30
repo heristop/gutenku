@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1780048824" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1780135225" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku evokes a sense of value, repetition, and the quiet pressure of time. The image of a "gold coin" suggests wealth, worth, or something precious, while "the annual coinage" implies a recurring process of making or measuring value each year. The phrase "must / at an average" feels deliberately clipped and unfinished, creating a formal, almost mechanical tone. As a whole, the poem can be read as reflecting on how value is standardized, counted, and controlled by yearly cycles, rather than existing as something purely natural or personal. Its sparse language leaves room for ambiguity, inviting the reader to think about economics, time, and the uneasy relationship between individuality and average measure."_
+> _"This haiku presents a river caught between movement and pause, where the "hurrying tumbling waves" suggest energy, urgency, and constant change. At the same time, the line "Nor stillness so cold" implies that the river is not frozen or lifeless, but alive and flowing. The poem captures a delicate balance in nature: neither complete motion nor absolute stillness, but a shifting in-between state. As a literary image, it can also suggest the emotions of uncertainty, transition, or being suspended between two conditions."_
 
-— **BotenKu** 📅 _May 29, 2026_
+— **BotenKu** 📅 _May 30, 2026_
 
 </td>
 </tr>
