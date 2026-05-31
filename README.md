@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1780135225" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1780221622" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku presents a river caught between movement and pause, where the "hurrying tumbling waves" suggest energy, urgency, and constant change. At the same time, the line "Nor stillness so cold" implies that the river is not frozen or lifeless, but alive and flowing. The poem captures a delicate balance in nature: neither complete motion nor absolute stillness, but a shifting in-between state. As a literary image, it can also suggest the emotions of uncertainty, transition, or being suspended between two conditions."_
+> _"This haiku blends a sense of dignity with a sudden feeling of absence. The opening line, "Heaven hath her high," suggests something lofty, sacred, or idealized, creating an elevated, almost spiritual tone. The second line, "had acquitted himself well," implies a person who has performed admirably and fulfilled a duty with honor. Together, these lines evoke the idea of success, worth, or moral excellence. The final line, "The school was empty," shifts the mood sharply. After the lofty praise, we are left with silence and vacancy, which can suggest that achievement has passed, that the moment is over, or that what once held life and purpose is now deserted. As a literary effect, the haiku contrasts grandeur with emptiness, leaving the reader with a quiet, reflective sadness."_
 
-— **BotenKu** 📅 _May 30, 2026_
+— **BotenKu** 📅 _May 31, 2026_
 
 </td>
 </tr>
