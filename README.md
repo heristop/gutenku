@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1780221622" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1780308026" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku blends a sense of dignity with a sudden feeling of absence. The opening line, "Heaven hath her high," suggests something lofty, sacred, or idealized, creating an elevated, almost spiritual tone. The second line, "had acquitted himself well," implies a person who has performed admirably and fulfilled a duty with honor. Together, these lines evoke the idea of success, worth, or moral excellence. The final line, "The school was empty," shifts the mood sharply. After the lofty praise, we are left with silence and vacancy, which can suggest that achievement has passed, that the moment is over, or that what once held life and purpose is now deserted. As a literary effect, the haiku contrasts grandeur with emptiness, leaving the reader with a quiet, reflective sadness."_
+> _"This haiku creates a vivid seaside scene filled with motion and contrast. The phrase "wild-drone flowers" suggests untamed blossoms growing near the coast, perhaps humming with life or swaying in the wind. The line "The dogs came leaping along" adds energy and spontaneity, as if the dogs are joyfully racing through the landscape. Finally, "The sea was dark blue" gives the scene depth and calm, balancing the movement of the dogs with the stillness of the ocean. Together, the image feels natural, free, and alive, with the dark sea and lively flowers creating a striking visual contrast."_
 
-— **BotenKu** 📅 _May 31, 2026_
+— **BotenKu** 📅 _Jun 01, 2026_
 
 </td>
 </tr>
