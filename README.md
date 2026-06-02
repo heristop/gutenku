@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1780308026" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1780394426" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a vivid seaside scene filled with motion and contrast. The phrase "wild-drone flowers" suggests untamed blossoms growing near the coast, perhaps humming with life or swaying in the wind. The line "The dogs came leaping along" adds energy and spontaneity, as if the dogs are joyfully racing through the landscape. Finally, "The sea was dark blue" gives the scene depth and calm, balancing the movement of the dogs with the stillness of the ocean. Together, the image feels natural, free, and alive, with the dark sea and lively flowers creating a striking visual contrast."_
+> _"This haiku creates a somber, haunting image of boats that are no longer able to move freely, perhaps damaged or “disabled,” yet still used to carry what is left over, the “spare.” The phrase suggests usefulness in spite of ruin, as if these boats are being pushed into service even though they are already broken or exhausted. The final line, “but were dead ere night,” deepens the mood of loss and finality. It implies that whatever fragile purpose they had was brief, ending before darkness fell. As a whole, the haiku reflects transience, decay, and the quiet tragedy of things that are used up before their time."_
 
-— **BotenKu** 📅 _Jun 01, 2026_
+— **BotenKu** 📅 _Jun 02, 2026_
 
 </td>
 </tr>
