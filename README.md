@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1780394426" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1780480828" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a somber, haunting image of boats that are no longer able to move freely, perhaps damaged or “disabled,” yet still used to carry what is left over, the “spare.” The phrase suggests usefulness in spite of ruin, as if these boats are being pushed into service even though they are already broken or exhausted. The final line, “but were dead ere night,” deepens the mood of loss and finality. It implies that whatever fragile purpose they had was brief, ending before darkness fell. As a whole, the haiku reflects transience, decay, and the quiet tragedy of things that are used up before their time."_
+> _"This haiku presents a dark, symbolic encounter in which the wolf is given a human-like role as a suitor. The phrase "opened it for him" suggests an act of welcome or invitation, while "the wolf came as a suitor" turns the wolf into a figure of desire, danger, or deception. The final line, "The wolf greeted her," creates a chilling contrast between politeness and menace. As a whole, the poem blends tenderness with threat, hinting at themes of temptation, vulnerability, and the hidden nature of danger beneath a courteous surface."_
 
-— **BotenKu** 📅 _Jun 02, 2026_
+— **BotenKu** 📅 _Jun 03, 2026_
 
 </td>
 </tr>
