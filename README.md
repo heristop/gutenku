@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1780567229" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1780653629" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a tense and unsettling image of helplessness and fear. The repeated line, "falling on the ground," frames the poem like a cycle or a loop, suggesting both physical collapse and emotional defeat. In the middle, "pursued by a pack of wolves" introduces danger, urgency, and instinctive survival. The wolves can be read literally as predators, or symbolically as threats, pressures, or fears that chase the speaker. The repetition at the end reinforces the sense that escape is impossible, making the poem feel trapped, frantic, and bleak. Its simplicity gives it power, leaving the reader with a stark impression of vulnerability and pursuit."_
+> _"This haiku captures the gentle arrival of morning as if the world is slowly awakening in rhythm. The phrase "going from left to right" suggests a calm, deliberate movement, perhaps of the eye across a scene or of time itself unfolding. "Amid a sound of music" gives the moment a soft, harmonious atmosphere, making dawn feel not just seen but heard and felt. The final image, "rosy-fingered Dawn," is a classic poetic personification that paints sunrise as tender, graceful, and alive. Together, the lines create a serene picture of beauty, motion, and new beginnings."_
 
-— **BotenKu** 📅 _Jun 04, 2026_
+— **BotenKu** 📅 _Jun 05, 2026_
 
 </td>
 </tr>
