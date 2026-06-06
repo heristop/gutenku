@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1780653629" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1780740023" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures the gentle arrival of morning as if the world is slowly awakening in rhythm. The phrase "going from left to right" suggests a calm, deliberate movement, perhaps of the eye across a scene or of time itself unfolding. "Amid a sound of music" gives the moment a soft, harmonious atmosphere, making dawn feel not just seen but heard and felt. The final image, "rosy-fingered Dawn," is a classic poetic personification that paints sunrise as tender, graceful, and alive. Together, the lines create a serene picture of beauty, motion, and new beginnings."_
+> _"This haiku creates a peaceful, sleepy scene in nature. The speaker observes a man whose dog and pipe are both at rest, suggesting a moment of complete stillness and comfort. The phrase "as for the greatest number" may imply that most things around him, perhaps even the world itself, are asleep or calm, while "on the grass asleep" reinforces the image of a gentle nap outdoors. The poem’s simplicity and quiet imagery give it a reflective, tranquil mood, showing harmony between the person, the dog, and the natural setting."_
 
-— **BotenKu** 📅 _Jun 05, 2026_
+— **BotenKu** 📅 _Jun 06, 2026_
 
 </td>
 </tr>
