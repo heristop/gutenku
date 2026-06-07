@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1780740023" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1780826428" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a peaceful, sleepy scene in nature. The speaker observes a man whose dog and pipe are both at rest, suggesting a moment of complete stillness and comfort. The phrase "as for the greatest number" may imply that most things around him, perhaps even the world itself, are asleep or calm, while "on the grass asleep" reinforces the image of a gentle nap outdoors. The poem’s simplicity and quiet imagery give it a reflective, tranquil mood, showing harmony between the person, the dog, and the natural setting."_
+> _"This haiku creates a mood of mystery, separation, and quiet loneliness. The opening question, "where did it come from," suggests uncertainty about an origin, as though the speaker is trying to understand a person, feeling, or presence that has appeared unexpectedly. The second line, "Has he remained in London," shifts the focus to a specific place, giving the poem a sense of distance and urban isolation. London here may symbolize a crowded city where someone can still feel alone or hidden. The final phrase, "apart from the hound," is especially striking because it implies both physical and emotional separation. It may suggest that the person is isolated except for a dog, or that they are living in a way that sets them apart from others. Overall, the haiku uses brief, fragmented language to evoke curiosity, loneliness, and the feeling of being detached from one’s surroundings."_
 
-— **BotenKu** 📅 _Jun 06, 2026_
+— **BotenKu** 📅 _Jun 07, 2026_
 
 </td>
 </tr>
