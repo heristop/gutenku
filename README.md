@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1780826428" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1780912830" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a mood of mystery, separation, and quiet loneliness. The opening question, "where did it come from," suggests uncertainty about an origin, as though the speaker is trying to understand a person, feeling, or presence that has appeared unexpectedly. The second line, "Has he remained in London," shifts the focus to a specific place, giving the poem a sense of distance and urban isolation. London here may symbolize a crowded city where someone can still feel alone or hidden. The final phrase, "apart from the hound," is especially striking because it implies both physical and emotional separation. It may suggest that the person is isolated except for a dog, or that they are living in a way that sets them apart from others. Overall, the haiku uses brief, fragmented language to evoke curiosity, loneliness, and the feeling of being detached from one’s surroundings."_
+> _"This haiku suggests that true value cannot be measured by physical appearance or bodily form alone. The phrase “workings nor does it” feels fragmented and reflective, as if the speaker is questioning ordinary ideas of usefulness or function. “Take refuge in bodily” implies that the body is not a place of final safety, identity, or meaning. The closing line, “be more choice worthy,” points toward a deeper kind of worth that lies beyond the physical—perhaps in the mind, spirit, or inner character. Overall, the haiku feels philosophical and meditative, inviting the reader to consider that the most worthy things are often intangible."_
 
-— **BotenKu** 📅 _Jun 07, 2026_
+— **BotenKu** 📅 _Jun 08, 2026_
 
 </td>
 </tr>
