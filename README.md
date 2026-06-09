@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1780912830" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1780999229" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests that true value cannot be measured by physical appearance or bodily form alone. The phrase “workings nor does it” feels fragmented and reflective, as if the speaker is questioning ordinary ideas of usefulness or function. “Take refuge in bodily” implies that the body is not a place of final safety, identity, or meaning. The closing line, “be more choice worthy,” points toward a deeper kind of worth that lies beyond the physical—perhaps in the mind, spirit, or inner character. Overall, the haiku feels philosophical and meditative, inviting the reader to consider that the most worthy things are often intangible."_
+> _"This haiku suggests a thoughtful comparison between a person’s modesty and the vastness of the universe. The opening line, "is he more modest," raises a reflective question about character and self-awareness. The second line, "both that of the universe," expands the idea beyond one individual, hinting that modesty may be connected to something much larger, almost cosmic in scale. The final line, "As one who had lived," gives the speaker a sense of experience and wisdom, as if this reflection comes from someone who has observed life deeply. Overall, the haiku feels philosophical and contemplative, inviting the reader to consider how human humility fits within the greater order of existence."_
 
-— **BotenKu** 📅 _Jun 08, 2026_
+— **BotenKu** 📅 _Jun 09, 2026_
 
 </td>
 </tr>
