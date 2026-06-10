@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1780999229" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1781085628" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a thoughtful comparison between a person’s modesty and the vastness of the universe. The opening line, "is he more modest," raises a reflective question about character and self-awareness. The second line, "both that of the universe," expands the idea beyond one individual, hinting that modesty may be connected to something much larger, almost cosmic in scale. The final line, "As one who had lived," gives the speaker a sense of experience and wisdom, as if this reflection comes from someone who has observed life deeply. Overall, the haiku feels philosophical and contemplative, inviting the reader to consider how human humility fits within the greater order of existence."_
+> _"This haiku suggests a quiet passage between moments, as if something important happens just beyond the open door. The phrase "through the open door" creates a sense of invitation, movement, and transition, while "When the appointed night came" adds a feeling of fate or inevitability, as though the event was destined to arrive. The final line, "on the next morning," shifts the scene into daylight, creating a subtle contrast between night and morning, expectation and realization. Together, the lines evoke mystery, time passing, and the delicate boundary between what is awaited and what is revealed."_
 
-— **BotenKu** 📅 _Jun 09, 2026_
+— **BotenKu** 📅 _Jun 10, 2026_
 
 </td>
 </tr>
