@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1781085628" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1781172027" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a quiet passage between moments, as if something important happens just beyond the open door. The phrase "through the open door" creates a sense of invitation, movement, and transition, while "When the appointed night came" adds a feeling of fate or inevitability, as though the event was destined to arrive. The final line, "on the next morning," shifts the scene into daylight, creating a subtle contrast between night and morning, expectation and realization. Together, the lines evoke mystery, time passing, and the delicate boundary between what is awaited and what is revealed."_
+> _"This haiku blends ordinary kitchen imagery with playful, almost chaotic energy. The first line, "the dough is kneaded," grounds the poem in a simple domestic act, suggesting preparation and patience. The second line, "a storm of tomfoolery," suddenly introduces humor and disorder, as if the calm process of baking is interrupted by lively mischief. This creates a surprising contrast between the practical and the absurd. The final line, "The oven is hot," brings the poem back to reality, but the heat also feels symbolic: the scene is now charged with intensity, anticipation, and transformation. Overall, the haiku uses playful language and vivid imagery to turn a familiar baking moment into something whimsical and memorable."_
 
-— **BotenKu** 📅 _Jun 10, 2026_
+— **BotenKu** 📅 _Jun 11, 2026_
 
 </td>
 </tr>
