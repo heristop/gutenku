@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1781258430" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1781344827" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku reflects the quiet passing of winter and the arrival of spring. The opening question, "Where is now the ice," suggests surprise and loss, as if the speaker is noticing how quickly the frozen landscape has changed. The phrase "by the sound of brooklet" uses sound imagery to show the gentle presence of a small stream, whose flowing water signals thaw and movement. In the final line, "The wave hath eaten," the poet personifies the water as something powerful enough to consume the ice, creating a vivid image of nature’s slow but unstoppable transformation. Overall, the haiku captures impermanence, seasonal change, and the soft triumph of water over frost."_
+> _"This haiku captures a quiet but tense moment in nature. The phrase "set by a current" suggests something being carried or positioned by the flowing water, while "fast sleeping on the water" creates a calm, almost dreamlike image of stillness. However, this peace is disrupted by "a rising gale," which hints that a storm is approaching. The poem contrasts calm and movement, sleep and danger, creating a sense of suspense. Like many haiku, it uses simple language to evoke a vivid natural scene and an emotional atmosphere."_
 
-— **BotenKu** 📅 _Jun 12, 2026_
+— **BotenKu** 📅 _Jun 13, 2026_
 
 </td>
 </tr>
