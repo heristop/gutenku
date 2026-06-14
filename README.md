@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1781344827" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1781431225" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a quiet but tense moment in nature. The phrase "set by a current" suggests something being carried or positioned by the flowing water, while "fast sleeping on the water" creates a calm, almost dreamlike image of stillness. However, this peace is disrupted by "a rising gale," which hints that a storm is approaching. The poem contrasts calm and movement, sleep and danger, creating a sense of suspense. Like many haiku, it uses simple language to evoke a vivid natural scene and an emotional atmosphere."_
+> _"This haiku presents a brief but haunting street scene. The phrase "a stooped man who called" suggests an elderly or weakened figure, while "Probably diphtheria" introduces a sudden sense of illness, fear, and uncertainty. The final image, "against the lamplight," creates a stark visual contrast, making the man seem lonely and fragile as he stands in the glow of the streetlamp. The poem’s power lies in its restraint: it does not fully explain the situation, but instead leaves us with an eerie, almost documentary-like glimpse of human vulnerability."_
 
-— **BotenKu** 📅 _Jun 13, 2026_
+— **BotenKu** 📅 _Jun 14, 2026_
 
 </td>
 </tr>
