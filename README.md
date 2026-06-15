@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1781431225" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1781517628" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku presents a brief but haunting street scene. The phrase "a stooped man who called" suggests an elderly or weakened figure, while "Probably diphtheria" introduces a sudden sense of illness, fear, and uncertainty. The final image, "against the lamplight," creates a stark visual contrast, making the man seem lonely and fragile as he stands in the glow of the streetlamp. The poem’s power lies in its restraint: it does not fully explain the situation, but instead leaves us with an eerie, almost documentary-like glimpse of human vulnerability."_
+> _"This haiku reflects a quiet, intimate family scene centered on the father as the head of the household. The phrase "The whole household" suggests unity and togetherness, while "with my father at its head" emphasizes his role as the guiding presence in the family. The final line, "A little time would," feels incomplete and creates a sense of pause, longing, or interruption. It may suggest that this family moment is fragile and temporary, or that only a short time is needed for something to change. The poem’s brevity mirrors the fleeting nature of domestic life and leaves the reader with a feeling of reflection and uncertainty."_
 
-— **BotenKu** 📅 _Jun 14, 2026_
+— **BotenKu** 📅 _Jun 15, 2026_
 
 </td>
 </tr>
