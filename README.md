@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1781517628" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1781604032" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku reflects a quiet, intimate family scene centered on the father as the head of the household. The phrase "The whole household" suggests unity and togetherness, while "with my father at its head" emphasizes his role as the guiding presence in the family. The final line, "A little time would," feels incomplete and creates a sense of pause, longing, or interruption. It may suggest that this family moment is fragile and temporary, or that only a short time is needed for something to change. The poem’s brevity mirrors the fleeting nature of domestic life and leaves the reader with a feeling of reflection and uncertainty."_
+> _"This haiku feels like a brief, puzzling memory from childhood or family life. The speaker seems to be asking why someone once pulled them aside for a private moment, while also hinting at a deeper absence or separation: "my aunt never saw." The broken, fragmentary phrasing creates uncertainty, as if the speaker is trying to recall something emotional but cannot fully explain it. As a piece of literature, the haiku’s power lies in its mystery, silence, and emotional distance, leaving the reader to wonder what happened and why it matters."_
 
-— **BotenKu** 📅 _Jun 15, 2026_
+— **BotenKu** 📅 _Jun 16, 2026_
 
 </td>
 </tr>
