@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1781604032" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1781690425" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku feels like a brief, puzzling memory from childhood or family life. The speaker seems to be asking why someone once pulled them aside for a private moment, while also hinting at a deeper absence or separation: "my aunt never saw." The broken, fragmentary phrasing creates uncertainty, as if the speaker is trying to recall something emotional but cannot fully explain it. As a piece of literature, the haiku’s power lies in its mystery, silence, and emotional distance, leaving the reader to wonder what happened and why it matters."_
+> _"This haiku captures a moment of quiet tension and emotional fragility. The arrival of the doctor suggests illness, urgency, or a serious family concern, while the phrase "her last remaining daughter" hints at loss, loneliness, and the weight of only one child left. The image of the daughter whispering "through a crack" creates a sense of secrecy, distance, and vulnerability, as if communication itself has become fragile. The poem’s spare language leaves much unsaid, which deepens its emotional power and invites the reader to imagine grief, fear, and hope existing all at once."_
 
-— **BotenKu** 📅 _Jun 16, 2026_
+— **BotenKu** 📅 _Jun 17, 2026_
 
 </td>
 </tr>
