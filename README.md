@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1781690425" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1781776833" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a moment of quiet tension and emotional fragility. The arrival of the doctor suggests illness, urgency, or a serious family concern, while the phrase "her last remaining daughter" hints at loss, loneliness, and the weight of only one child left. The image of the daughter whispering "through a crack" creates a sense of secrecy, distance, and vulnerability, as if communication itself has become fragile. The poem’s spare language leaves much unsaid, which deepens its emotional power and invites the reader to imagine grief, fear, and hope existing all at once."_
+> _"This haiku creates a haunting image of devastation and lingering heat. The phrase "which was still on fire" suggests that something terrible has recently happened, leaving behind destruction and danger. The line "The houses seemed deserted" adds a sense of emptiness and loss, as if the people have fled or been driven away. The repetition of "which was still on fire" at the end intensifies the feeling of shock and unfinished disaster, making the scene feel frozen in a moment of aftermath. The poem is brief, but it powerfully conveys ruin, silence, and the unsettling persistence of fire."_
 
-— **BotenKu** 📅 _Jun 17, 2026_
+— **BotenKu** 📅 _Jun 18, 2026_
 
 </td>
 </tr>
