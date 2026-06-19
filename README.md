@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1781776833" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1781863229" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a haunting image of devastation and lingering heat. The phrase "which was still on fire" suggests that something terrible has recently happened, leaving behind destruction and danger. The line "The houses seemed deserted" adds a sense of emptiness and loss, as if the people have fled or been driven away. The repetition of "which was still on fire" at the end intensifies the feeling of shock and unfinished disaster, making the scene feel frozen in a moment of aftermath. The poem is brief, but it powerfully conveys ruin, silence, and the unsettling persistence of fire."_
+> _"This haiku suggests a sudden, sharp moment of betrayal or suspicion. The phrase "darting forth a prong" creates an image of something quick, pointed, and possibly dangerous, as if an attack or accusation has emerged. "Turning to my guide his face" introduces a person who should be trusted, a guide, but the shift in attention makes the moment feel uneasy, as though the speaker is searching for reassurance. The final line, "vessel of all guile," reveals the true emotional center of the poem: the guide’s face becomes a container of deceit, suggesting that the person who seemed trustworthy is actually full of cunning and trickery. The haiku is brief but powerful, using vivid imagery and a dramatic turn to explore the theme of hidden dishonesty."_
 
-— **BotenKu** 📅 _Jun 18, 2026_
+— **BotenKu** 📅 _Jun 19, 2026_
 
 </td>
 </tr>
