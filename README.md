@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1781863229" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1781949628" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a sudden, sharp moment of betrayal or suspicion. The phrase "darting forth a prong" creates an image of something quick, pointed, and possibly dangerous, as if an attack or accusation has emerged. "Turning to my guide his face" introduces a person who should be trusted, a guide, but the shift in attention makes the moment feel uneasy, as though the speaker is searching for reassurance. The final line, "vessel of all guile," reveals the true emotional center of the poem: the guide’s face becomes a container of deceit, suggesting that the person who seemed trustworthy is actually full of cunning and trickery. The haiku is brief but powerful, using vivid imagery and a dramatic turn to explore the theme of hidden dishonesty."_
+> _"This haiku creates a haunting, mysterious mood. The phrase "death-like silence" suggests an eerie stillness, as if nature itself has paused in reverence or fear. The image of a "variable star" introduces a celestial presence that is unstable or changing, which gives the poem a sense of uncertainty and quiet tension. By placing this star "loomed above the sea," the poet connects the vast sky and ocean, making the scene feel immense, lonely, and slightly ominous. Overall, the haiku uses stark imagery and silence to evoke awe, mystery, and a subtle sense of foreboding."_
 
-— **BotenKu** 📅 _Jun 19, 2026_
+— **BotenKu** 📅 _Jun 20, 2026_
 
 </td>
 </tr>
