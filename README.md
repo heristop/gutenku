@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1781949628" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1782036028" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a haunting, mysterious mood. The phrase "death-like silence" suggests an eerie stillness, as if nature itself has paused in reverence or fear. The image of a "variable star" introduces a celestial presence that is unstable or changing, which gives the poem a sense of uncertainty and quiet tension. By placing this star "loomed above the sea," the poet connects the vast sky and ocean, making the scene feel immense, lonely, and slightly ominous. Overall, the haiku uses stark imagery and silence to evoke awe, mystery, and a subtle sense of foreboding."_
+> _"This haiku captures a brief, vivid moment filled with unease and social judgment. The phrase "electric light" suggests a modern, artificial setting, while "Carlyle had scowled at her" introduces a sharp emotional reaction, implying disapproval, discomfort, or conflict. The final line, "When she saw the club," hints that the woman’s reaction is tied to an encounter with a club, which may symbolize exclusivity, social class, or a place of forbidden access. Overall, the poem creates a tense atmosphere by blending modern imagery with a subtle story of human judgment and social boundaries."_
 
-— **BotenKu** 📅 _Jun 20, 2026_
+— **BotenKu** 📅 _Jun 21, 2026_
 
 </td>
 </tr>
