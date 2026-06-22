@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1782036028" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1782122428" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a brief, vivid moment filled with unease and social judgment. The phrase "electric light" suggests a modern, artificial setting, while "Carlyle had scowled at her" introduces a sharp emotional reaction, implying disapproval, discomfort, or conflict. The final line, "When she saw the club," hints that the woman’s reaction is tied to an encounter with a club, which may symbolize exclusivity, social class, or a place of forbidden access. Overall, the poem creates a tense atmosphere by blending modern imagery with a subtle story of human judgment and social boundaries."_
+> _"This haiku suggests a moment of confusion and uncertainty, where those in authority—an officer or sergeant—are trying to identify a trail, but the townspeople know nothing about it. The poem creates a sense of distance between official power and local knowledge, hinting that the truth is hidden or that no one can fully explain what is happening. Its brief, fragmented lines leave the reader with a feeling of mystery and unease."_
 
-— **BotenKu** 📅 _Jun 21, 2026_
+— **BotenKu** 📅 _Jun 22, 2026_
 
 </td>
 </tr>
