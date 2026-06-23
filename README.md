@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1782122428" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1782208828" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a moment of confusion and uncertainty, where those in authority—an officer or sergeant—are trying to identify a trail, but the townspeople know nothing about it. The poem creates a sense of distance between official power and local knowledge, hinting that the truth is hidden or that no one can fully explain what is happening. Its brief, fragmented lines leave the reader with a feeling of mystery and unease."_
+> _"This haiku captures a tense, reflective moment in which silence is both broken and repeated, creating a sense of circularity and emphasis. The phrase "breaking the silence" appears at the beginning and end, framing the middle line and suggesting that the act of speaking is significant enough to be echoed back. The mention of "Poirot"—the famous detective—adds a feeling of scrutiny and careful attention, as though the speaker’s words are being examined and mirrored with precision. The repetition gives the poem a mysterious, almost dramatic quality, implying that silence itself has weight, and once disturbed, cannot be easily restored. It is a compact but powerful meditation on speech, attention, and the uneasy space between quiet and revelation."_
 
-— **BotenKu** 📅 _Jun 22, 2026_
+— **BotenKu** 📅 _Jun 23, 2026_
 
 </td>
 </tr>
