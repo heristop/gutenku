@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1782295227" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1782381629" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku contrasts abundance with decay. The opening phrase, "heated with the feast," suggests a moment of lively consumption, warmth, and celebration. But this energy is sharply interrupted by "an old worm-eaten patent," which introduces age, damage, and neglect. The final line, "How many are there," turns the poem into a quiet question of uncertainty, as if the speaker is counting or noticing something overlooked. Together, the lines create a subtle tension between richness and ruin, reminding us that even what seems valuable or complete may be worn away by time."_
+> _"This haiku creates a hushed, mysterious city scene. The phrase "swung up on the steps" suggests a sudden or graceful movement, as if someone or something has risen into view. "Under the sleepy street-lamp" gives the setting a dim, late-night atmosphere, making the moment feel still and slightly dreamlike. The final line, "beside the left ear," is especially intriguing: it focuses on a small, intimate detail, which may imply closeness, whispering, or a subtle sensation rather than a full clear image. Overall, the poem blends movement, silence, and ambiguity, inviting the reader to imagine a fleeting urban moment filled with quiet tension and delicacy."_
 
-— **BotenKu** 📅 _Jun 24, 2026_
+— **BotenKu** 📅 _Jun 25, 2026_
 
 </td>
 </tr>
