@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1782381629" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1782468029" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a hushed, mysterious city scene. The phrase "swung up on the steps" suggests a sudden or graceful movement, as if someone or something has risen into view. "Under the sleepy street-lamp" gives the setting a dim, late-night atmosphere, making the moment feel still and slightly dreamlike. The final line, "beside the left ear," is especially intriguing: it focuses on a small, intimate detail, which may imply closeness, whispering, or a subtle sensation rather than a full clear image. Overall, the poem blends movement, silence, and ambiguity, inviting the reader to imagine a fleeting urban moment filled with quiet tension and delicacy."_
+> _"This haiku creates a quiet but unsettling mood, beginning with the image of someone or something “still trembling with fright.” The phrase suggests fear that lingers even after the danger has passed. The next line, “which happened to be empty,” adds a strange and haunting twist, implying that the source of fear may not have been real, or that the space left behind is what feels frightening. The final line, “As dawn was breaking,” brings in the first light of morning, a moment usually associated with hope and renewal. Here, however, dawn does not fully dispel the fear; instead, it reveals the emptiness and leaves the reader with a sense of silence, vulnerability, and mystery. The poem’s power lies in its contrast between fear and emptiness, darkness and dawn."_
 
-— **BotenKu** 📅 _Jun 25, 2026_
+— **BotenKu** 📅 _Jun 26, 2026_
 
 </td>
 </tr>
