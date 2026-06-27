@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1782468029" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1782554428" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a quiet but unsettling mood, beginning with the image of someone or something “still trembling with fright.” The phrase suggests fear that lingers even after the danger has passed. The next line, “which happened to be empty,” adds a strange and haunting twist, implying that the source of fear may not have been real, or that the space left behind is what feels frightening. The final line, “As dawn was breaking,” brings in the first light of morning, a moment usually associated with hope and renewal. Here, however, dawn does not fully dispel the fear; instead, it reveals the emptiness and leaves the reader with a sense of silence, vulnerability, and mystery. The poem’s power lies in its contrast between fear and emptiness, darkness and dawn."_
+> _"This haiku captures a tense, uncertain moment in which a person is being urged by others to take a cab, yet remains visibly nervous. The phrase "as the people thought" suggests social pressure or the opinions of those around him, while "bidding him to take a cab" adds a sense of practical concern and gentle insistence. The final line, "still very nervous," reveals the emotional core of the poem: even with advice and attention from others, the speaker or subject cannot easily calm down. The haiku is effective because it contrasts outward action with inward feeling, showing how anxiety can linger despite reassurance."_
 
-— **BotenKu** 📅 _Jun 26, 2026_
+— **BotenKu** 📅 _Jun 27, 2026_
 
 </td>
 </tr>
