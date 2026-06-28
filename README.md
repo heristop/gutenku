@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1782554428" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1782640827" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a tense, uncertain moment in which a person is being urged by others to take a cab, yet remains visibly nervous. The phrase "as the people thought" suggests social pressure or the opinions of those around him, while "bidding him to take a cab" adds a sense of practical concern and gentle insistence. The final line, "still very nervous," reveals the emotional core of the poem: even with advice and attention from others, the speaker or subject cannot easily calm down. The haiku is effective because it contrasts outward action with inward feeling, showing how anxiety can linger despite reassurance."_
+> _"This haiku suggests a quiet moment of discovery after absence and exhaustion. The opening line, "very out of breath," creates a sense of urgency and physical strain, as though the speaker has been searching or rushing. The next line, "The other man left last night," introduces a feeling of loss, separation, or mystery, implying that someone important has gone away. The final line, "finds the manuscript," brings a surprising turn: something hidden or meaningful is recovered. As a whole, the poem feels sparse but emotionally rich, hinting at departure, search, and the fragile recovery of words, memory, or truth."_
 
-— **BotenKu** 📅 _Jun 27, 2026_
+— **BotenKu** 📅 _Jun 28, 2026_
 
 </td>
 </tr>
