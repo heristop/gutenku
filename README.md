@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1782640827" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1782727230" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a quiet moment of discovery after absence and exhaustion. The opening line, "very out of breath," creates a sense of urgency and physical strain, as though the speaker has been searching or rushing. The next line, "The other man left last night," introduces a feeling of loss, separation, or mystery, implying that someone important has gone away. The final line, "finds the manuscript," brings a surprising turn: something hidden or meaningful is recovered. As a whole, the poem feels sparse but emotionally rich, hinting at departure, search, and the fragile recovery of words, memory, or truth."_
+> _"This haiku evokes a stark, almost haunting landscape where the earth seems to stretch endlessly, yet also feels sharp and dangerous, as if it has an edge that can wound even the wind. The image creates a sense of tension between vastness and fragility, suggesting that nature is both beautiful and harsh. The final line, "my eyes will water," adds a deeply human response: the speaker may be moved by wind, sorrow, or the emotional intensity of the scene. Together, the poem blends physical sensation with feeling, leaving the reader with a quiet sense of awe and melancholy."_
 
-— **BotenKu** 📅 _Jun 28, 2026_
+— **BotenKu** 📅 _Jun 29, 2026_
 
 </td>
 </tr>
