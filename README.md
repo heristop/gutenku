@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1782813631" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1782900033" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a brief but powerful scene of surprise and awareness. The phrase "turned slowly around" creates a sense of suspense, as if something important is about to be revealed. "On seeing the young man" suggests a sudden shift in attention, while "Cromwell raised his head" gives the moment dignity and alertness, as though the figure named Cromwell responds with authority or curiosity. The poem is spare and direct, but it invites the reader to imagine the relationship between the two figures and the significance of the encounter. As in much haiku, the meaning lies not only in what is said, but in the silence and tension between the lines."_
+> _"This haiku suggests a quiet, fleeting transformation. The image of something "becomes a shadow" implies that the object loses its solid presence and is reduced to an outline, as if light has overwhelmed it. The phrase "with its full trough of water" adds a sense of completeness and stillness, perhaps hinting at a container or channel filled to the brim, reflecting the surrounding world. When "this light shone out," the brightness seems so strong that it alters perception, making the scene feel momentary and almost dreamlike. Overall, the haiku captures the delicate relationship between light, reflection, and shadow, emphasizing how illumination can both reveal and erase."_
 
-— **BotenKu** 📅 _Jun 30, 2026_
+— **BotenKu** 📅 _Jul 01, 2026_
 
 </td>
 </tr>
