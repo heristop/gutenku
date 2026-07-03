@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1782986432" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1783072829" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku conveys a tense, urgent mood. The speaker warns that something must happen quickly because there is fear of being stopped or prevented if the plan becomes known. The phrase "Caska be sodaine" suggests haste and immediacy, while "for we feare preuention" reveals anxiety about interference. The final line, "If this be knowne," intensifies the secrecy and danger, implying that knowledge itself could ruin the moment. Overall, the poem feels dramatic, suspenseful, and full of hidden intent."_
+> _"This haiku creates a haunting, dreamlike scene of ruin and movement. The phrase "a devastated road" suggests destruction, emptiness, or the aftermath of some great loss, while the surrounding "night" deepens the mood of silence and uncertainty. The scattered wording gives the poem a fragmented feel, as if the landscape itself has been broken apart. At the same time, the mention of "forest" and "across" hints at nature pressing in beyond the ruined road, suggesting endurance and quiet life continuing despite devastation. Overall, the haiku feels mysterious and reflective, blending images of desolation with the presence of the natural world."_
 
-— **BotenKu** 📅 _Jul 02, 2026_
+— **BotenKu** 📅 _Jul 03, 2026_
 
 </td>
 </tr>
