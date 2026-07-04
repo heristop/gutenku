@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1783072829" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1783159225" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a haunting, dreamlike scene of ruin and movement. The phrase "a devastated road" suggests destruction, emptiness, or the aftermath of some great loss, while the surrounding "night" deepens the mood of silence and uncertainty. The scattered wording gives the poem a fragmented feel, as if the landscape itself has been broken apart. At the same time, the mention of "forest" and "across" hints at nature pressing in beyond the ruined road, suggesting endurance and quiet life continuing despite devastation. Overall, the haiku feels mysterious and reflective, blending images of desolation with the presence of the natural world."_
+> _"This haiku captures a quiet moment of peace in nature. The image of the sky growing clearer during summer rain suggests a gentle transformation, where heaviness gives way to calm. The phrase "serene and smiling" gives the scene a human warmth, as if nature itself is content. The poem’s simplicity and soft imagery create a mood of stillness, hope, and quiet joy."_
 
-— **BotenKu** 📅 _Jul 03, 2026_
+— **BotenKu** 📅 _Jul 04, 2026_
 
 </td>
 </tr>
