@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1783159225" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1783245634" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a quiet moment of peace in nature. The image of the sky growing clearer during summer rain suggests a gentle transformation, where heaviness gives way to calm. The phrase "serene and smiling" gives the scene a human warmth, as if nature itself is content. The poem’s simplicity and soft imagery create a mood of stillness, hope, and quiet joy."_
+> _"This haiku suggests that power is uncertain and temporary, while words can carry a different kind of strength. The phrase "you might have power" implies authority or control, but the word "might" makes it sound unstable or only possible, not guaranteed. "The heath occasionally" creates a natural, open landscape that feels changeable and quiet, suggesting moments that come and go. The final line, "his words was equal," implies that someone’s speech or voice stands on the same level as power itself, perhaps even challenging it. Overall, the haiku contrasts external power with the equalizing force of language, hinting that words can matter as much as status or strength."_
 
-— **BotenKu** 📅 _Jul 04, 2026_
+— **BotenKu** 📅 _Jul 05, 2026_
 
 </td>
 </tr>
