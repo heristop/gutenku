@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1783245634" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1783332036" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests that power is uncertain and temporary, while words can carry a different kind of strength. The phrase "you might have power" implies authority or control, but the word "might" makes it sound unstable or only possible, not guaranteed. "The heath occasionally" creates a natural, open landscape that feels changeable and quiet, suggesting moments that come and go. The final line, "his words was equal," implies that someone’s speech or voice stands on the same level as power itself, perhaps even challenging it. Overall, the haiku contrasts external power with the equalizing force of language, hinting that words can matter as much as status or strength."_
+> _"This haiku suggests a speaker who feels exposed and deeply marked by pain, as if even the clean, life-giving freshness of water cannot fully erase or explain their suffering. The phrase "made such a report of me" gives the poem a reflective, almost accusatory tone, as though the speaker is being “read” or judged by what is seen. "Observing my wounds" emphasizes vulnerability, implying that the wounds are not only physical but emotional or spiritual as well. Overall, the haiku captures a quiet moment of self-awareness, where nature or another presence witnesses suffering without offering complete healing."_
 
-— **BotenKu** 📅 _Jul 05, 2026_
+— **BotenKu** 📅 _Jul 06, 2026_
 
 </td>
 </tr>
