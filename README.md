@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1783418432" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1783504835" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a moment of quiet realization and shared emotion. The phrase "the same characters" suggests familiar people or figures, perhaps unchanged in appearance but now viewed with new understanding. "In a state of silent awe" creates a powerful stillness, showing that the moment is too profound for words. The final line, "In a few moments," adds a sense of passing time and anticipation, suggesting that this brief pause will soon give way to change, reflection, or action. Overall, the haiku presents a delicate instant of wonder and stillness, where meaning is felt deeply rather than spoken aloud."_
+> _"This haiku creates a quiet, sorrowful scene in which the horses’ restless pawing suggests unease or grief. Their gaze toward the moon gives the image a lonely, reflective mood, as if they are searching for comfort in the night sky. The final line, “picked a flower,” adds a gentle, surprising softness that can symbolize a brief act of tenderness, memory, or fragile beauty amid sadness. Together, the images blend nature, emotion, and stillness to evoke a deeply melancholic atmosphere."_
 
-— **BotenKu** 📅 _Jul 07, 2026_
+— **BotenKu** 📅 _Jul 08, 2026_
 
 </td>
 </tr>
