@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1783504835" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1783591236" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a quiet, sorrowful scene in which the horses’ restless pawing suggests unease or grief. Their gaze toward the moon gives the image a lonely, reflective mood, as if they are searching for comfort in the night sky. The final line, “picked a flower,” adds a gentle, surprising softness that can symbolize a brief act of tenderness, memory, or fragile beauty amid sadness. Together, the images blend nature, emotion, and stillness to evoke a deeply melancholic atmosphere."_
+> _"This haiku captures the lingering physical and emotional effects of a powerful experience. The word "emphatically" creates a sudden, forceful opening, suggesting certainty, intensity, or a strong reaction. The next line, "A day or two afterwards," shifts the poem into a moment after the event, emphasizing the passage of time and the way emotions can continue to echo beyond the present. The final line, "Haggard and red-eyed," gives a vivid image of exhaustion, distress, or perhaps grief, allowing the reader to feel the speaker’s weariness without explaining the cause directly. The poem’s strength lies in its restraint: it hints at something deeply affecting while leaving space for the reader to imagine what happened."_
 
-— **BotenKu** 📅 _Jul 08, 2026_
+— **BotenKu** 📅 _Jul 09, 2026_
 
 </td>
 </tr>
