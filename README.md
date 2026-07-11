@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1783677626" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1783764029" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku feels like a small, mysterious scene glimpsed in passing. The first line, "one looks in a shop," suggests an ordinary moment of observation, as if someone is peering into a window or noticing something unexpected. The second line, "Kitty was glad of all this," introduces a character named Kitty, whose satisfaction adds a warm, personal response to the scene. The final line, "The colonel smiled," brings in another figure and ends the poem with quiet approval. Together, the lines create a sense of subtle social interaction and gentle harmony, though the exact relationship between the characters remains open to interpretation. Like much haiku, its power lies in suggestion, brevity, and the way it invites readers to imagine the larger story behind the moment."_
+> _"This haiku creates a light, dreamlike mood through the phrase "she walked on air," suggesting that Rowena feels joyful, excited, or almost unreal in her happiness. "Rowena was in the clouds" continues this sense of elevation, showing her thoughts lifted away from ordinary life. The final line, "the twins in advance," adds a surprising twist, hinting that the twins are ahead of time or perhaps arriving before expected, which gives the poem a slightly playful or mysterious ending. Overall, the haiku blends wonder, motion, and anticipation in a brief but vivid image."_
 
-— **BotenKu** 📅 _Jul 10, 2026_
+— **BotenKu** 📅 _Jul 11, 2026_
 
 </td>
 </tr>
