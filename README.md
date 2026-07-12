@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1783764029" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1783850434" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a light, dreamlike mood through the phrase "she walked on air," suggesting that Rowena feels joyful, excited, or almost unreal in her happiness. "Rowena was in the clouds" continues this sense of elevation, showing her thoughts lifted away from ordinary life. The final line, "the twins in advance," adds a surprising twist, hinting that the twins are ahead of time or perhaps arriving before expected, which gives the poem a slightly playful or mysterious ending. Overall, the haiku blends wonder, motion, and anticipation in a brief but vivid image."_
+> _"This haiku captures a tense inner struggle. The phrase "with a forced calmness" suggests someone trying to appear composed, but the calm is unnatural and difficult to maintain. "to all action or feeling" implies that both movement and emotion are being suppressed, as if the speaker is trying to hold everything inside. The final line, "Knocking still louder," creates a powerful contrast: even while silence is forced, the pressure of emotion or urgency grows stronger. The haiku conveys the feeling of restrained distress, where what is hidden becomes even more intense."_
 
-— **BotenKu** 📅 _Jul 11, 2026_
+— **BotenKu** 📅 _Jul 12, 2026_
 
 </td>
 </tr>
