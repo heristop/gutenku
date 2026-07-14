@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1783936833" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1784023233" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a moment of restrained, almost old-fashioned social grace. The opening line, "when young men were pure," evokes nostalgia for a time remembered as innocent or morally unspoiled. The second line, "as she did not take his arm," introduces a subtle tension: a missed gesture of intimacy, or a deliberate refusal of closeness. The final line, "sat down at the harp," shifts the scene into something elegant and delicate, where the harp symbolizes refinement, music, and perhaps emotional expression that is felt but not spoken. Together, the lines create a mood of quiet longing, innocence, and unfulfilled connection."_
+> _"This haiku suggests a sudden shift in judgment and feeling. The phrase "as his brother was" hints at closeness, family ties, or shared fate, while "in a very little while" creates a sense of swift change and urgency. The ending, "whoever had blamed him," implies regret or reconsideration, as if blame has been replaced by understanding. Together, the lines feel reflective and compressed, showing how quickly perspective can change and how easily sympathy can emerge when we see someone as connected to ourselves."_
 
-— **BotenKu** 📅 _Jul 13, 2026_
+— **BotenKu** 📅 _Jul 14, 2026_
 
 </td>
 </tr>
