@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1784023233" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1784109634" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a sudden shift in judgment and feeling. The phrase "as his brother was" hints at closeness, family ties, or shared fate, while "in a very little while" creates a sense of swift change and urgency. The ending, "whoever had blamed him," implies regret or reconsideration, as if blame has been replaced by understanding. Together, the lines feel reflective and compressed, showing how quickly perspective can change and how easily sympathy can emerge when we see someone as connected to ourselves."_
+> _"This haiku suggests a quiet journey from uncertainty to belonging. The opening question, "Who are your neighbours," creates a sense of curiosity and perhaps distance, as if the speaker is newly arrived in an unfamiliar place. The second line, "After a time the wind fell," implies that change, restlessness, or hardship has passed. With the wind gone, the speaker can finally settle. In the last line, "spreading my roots there," the image of roots shows growth, stability, and connection to the land and people around them. Overall, the haiku beautifully captures the movement from isolation to acceptance, using nature to express emotional belonging."_
 
-— **BotenKu** 📅 _Jul 14, 2026_
+— **BotenKu** 📅 _Jul 15, 2026_
 
 </td>
 </tr>
