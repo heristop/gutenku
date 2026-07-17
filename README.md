@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1784196035" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1784282435" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku reflects the idea that true power lies in accepting the natural order of life. The phrase "seed-time and harvest" suggests the endless cycle of planting and reaping, symbolizing growth, patience, and reward. By saying these are "the laws of his kingdom," the poem presents a ruler whose authority is not based on force, but on harmony with nature. The final line, "leaves to be a king," implies that only by respecting these laws can he genuinely fulfill his role as king. The haiku quietly celebrates wisdom, humility, and the responsibility of leadership."_
+> _"This haiku presents a striking and mysterious encounter between a woman and a wolf, blurring the line between danger and desire. The phrase "the wolf greeted her" gives the animal an almost human courtesy, while "the wolf came as a suitor" suggests courtship, temptation, or an unwanted romantic advance. The final line, "Up with the window," creates a sudden sense of urgency and defense, as though the window is being shut to protect the woman from the wolf’s presence. The poem’s power lies in its tension: the wolf may symbolize wild instinct, hidden threat, or forbidden attraction, and the abrupt ending leaves the reader with suspense and unease."_
 
-— **BotenKu** 📅 _Jul 16, 2026_
+— **BotenKu** 📅 _Jul 17, 2026_
 
 </td>
 </tr>
