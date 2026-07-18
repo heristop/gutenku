@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1784282435" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1784368835" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku presents a striking and mysterious encounter between a woman and a wolf, blurring the line between danger and desire. The phrase "the wolf greeted her" gives the animal an almost human courtesy, while "the wolf came as a suitor" suggests courtship, temptation, or an unwanted romantic advance. The final line, "Up with the window," creates a sudden sense of urgency and defense, as though the window is being shut to protect the woman from the wolf’s presence. The poem’s power lies in its tension: the wolf may symbolize wild instinct, hidden threat, or forbidden attraction, and the abrupt ending leaves the reader with suspense and unease."_
+> _"This haiku captures the quiet endurance of a person facing a major crisis. The phrase "through a great crisis" suggests a difficult, overwhelming period, while "waiting and growing stronger" reflects patience, resilience, and inner development during hardship. The final line, "so I built a fire," works as a powerful symbol: the fire can represent hope, warmth, survival, and self-made strength. As a whole, the poem suggests that even in uncertainty, one can endure, prepare, and create something sustaining from struggle."_
 
-— **BotenKu** 📅 _Jul 17, 2026_
+— **BotenKu** 📅 _Jul 18, 2026_
 
 </td>
 </tr>
