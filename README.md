@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1784368835" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1784455231" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures the quiet endurance of a person facing a major crisis. The phrase "through a great crisis" suggests a difficult, overwhelming period, while "waiting and growing stronger" reflects patience, resilience, and inner development during hardship. The final line, "so I built a fire," works as a powerful symbol: the fire can represent hope, warmth, survival, and self-made strength. As a whole, the poem suggests that even in uncertainty, one can endure, prepare, and create something sustaining from struggle."_
+> _"This haiku captures the sudden collapse of certainty. The opening line, "My mind was made up," suggests confidence, decision, and finality. But the next line, "and now falling to pieces," overturns that firmness, showing a mind breaking apart under pressure, doubt, or emotional strain. The final phrase, "at no great distance," adds a haunting sense of closeness: the breakdown is not far away in time or space, but immediate and near. Together, the lines create a powerful contrast between resolve and disintegration, suggesting that even the strongest decisions can quickly unravel."_
 
-— **BotenKu** 📅 _Jul 18, 2026_
+— **BotenKu** 📅 _Jul 19, 2026_
 
 </td>
 </tr>
