@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1784455231" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1784541643" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures the sudden collapse of certainty. The opening line, "My mind was made up," suggests confidence, decision, and finality. But the next line, "and now falling to pieces," overturns that firmness, showing a mind breaking apart under pressure, doubt, or emotional strain. The final phrase, "at no great distance," adds a haunting sense of closeness: the breakdown is not far away in time or space, but immediate and near. Together, the lines create a powerful contrast between resolve and disintegration, suggesting that even the strongest decisions can quickly unravel."_
+> _"This haiku creates a quiet, tense scene of movement and restraint. The phrase "rising to her feet" suggests a gentle awakening or careful preparation, while "as she went from rock to rock" evokes a difficult, uneven journey, perhaps across a riverbank or shoreline. The final line, "were silent for fear," introduces an atmosphere of anxiety and caution, implying that the speaker or others are keeping still and quiet to avoid danger. The poem’s power lies in its simplicity: the imagery is vivid, but the meaning remains open, allowing readers to sense both physical movement and emotional unease. The silence becomes more than the absence of sound—it becomes a sign of fear, vulnerability, and suspense."_
 
-— **BotenKu** 📅 _Jul 19, 2026_
+— **BotenKu** 📅 _Jul 20, 2026_
 
 </td>
 </tr>
