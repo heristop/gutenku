@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1784628037" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1784714435" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a moment of sudden emotional stillness. The image of Barrois touching a spring suggests the beginning of action or discovery, but the line "seeing he did not move" creates a striking pause, as if he is frozen by what he has witnessed or felt. The final phrase, "pale with emotion," reveals that the reaction is deeply internal rather than spoken or dramatic. As a whole, the haiku uses restraint and simplicity to show how powerful emotion can be when it leaves someone physically motionless, turning a small scene into a vivid expression of shock, awe, or grief."_
+> _"This haiku suggests the quiet sameness and monotony of early winter. The phrase “the first winter month” sets a cold, subdued scene, while “very frequently / The same evening” implies that days feel repetitive, as if one evening blends into the next. The poem captures a sense of stillness, routine, and time passing slowly, which is often associated with winter. Its simplicity leaves room for reflection, making the mood feel calm, slightly lonely, and contemplative."_
 
-— **BotenKu** 📅 _Jul 21, 2026_
+— **BotenKu** 📅 _Jul 22, 2026_
 
 </td>
 </tr>
