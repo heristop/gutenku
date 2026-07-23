@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1784714435" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1784800839" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests the quiet sameness and monotony of early winter. The phrase “the first winter month” sets a cold, subdued scene, while “very frequently / The same evening” implies that days feel repetitive, as if one evening blends into the next. The poem captures a sense of stillness, routine, and time passing slowly, which is often associated with winter. Its simplicity leaves room for reflection, making the mood feel calm, slightly lonely, and contemplative."_
+> _"This haiku captures a quiet, reflective moment charged with tension and ambiguity. The image of someone lighting a cigarette suggests pause, contemplation, or nervousness, while rising from the table implies a decision or departure. The final line, “If the thing was true,” introduces doubt and suspense, leaving the reader with a sense that something important has been heard, suspected, or revealed, but not yet confirmed. The poem’s power lies in its restraint: ordinary actions become meaningful because they are framed by uncertainty and emotional weight."_
 
-— **BotenKu** 📅 _Jul 22, 2026_
+— **BotenKu** 📅 _Jul 23, 2026_
 
 </td>
 </tr>
