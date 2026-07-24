@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1784800839" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1784887254" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a quiet, reflective moment charged with tension and ambiguity. The image of someone lighting a cigarette suggests pause, contemplation, or nervousness, while rising from the table implies a decision or departure. The final line, “If the thing was true,” introduces doubt and suspense, leaving the reader with a sense that something important has been heard, suspected, or revealed, but not yet confirmed. The poem’s power lies in its restraint: ordinary actions become meaningful because they are framed by uncertainty and emotional weight."_
+> _"This haiku creates a vivid, dreamlike winter scene where nature and human life seem to merge. The phrase "they froze into ice" suggests a sudden, complete transformation, as if everything has been overtaken by deep cold. "The building was far advanced" gives the impression of something old, weathered, or perhaps buried in time, while "of his hair the trees" is strikingly unusual and poetic, making the trees seem like an extension of a person’s body. This blending of images gives the haiku a surreal, contemplative mood, where the boundary between the man-made, the natural, and the human becomes blurred. Overall, the poem feels cold, still, and mysterious, like a frozen landscape suspended in silence."_
 
-— **BotenKu** 📅 _Jul 23, 2026_
+— **BotenKu** 📅 _Jul 24, 2026_
 
 </td>
 </tr>
