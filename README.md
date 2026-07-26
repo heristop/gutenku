@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1784973638" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1785060037" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures the tense atmosphere of conflict through sharp, questioning language. The phrase "where the fighting is" suggests a search for the battlefield or the center of danger, while "who demanded the watchword" hints at authority, secrecy, and discipline. The final line, "in a warlike tone," intensifies the mood, showing aggression and urgency. As a whole, the poem evokes the sound and pressure of war, where even speech carries force and suspicion."_
+> _"This haiku suggests a quiet reflection on virtue, responsibility, and the influence of friendship. The phrase "being a good man" points to moral character and integrity, while "and therefore the working" implies that goodness naturally leads to action, effort, or service. The final line, "which those of his friend," feels deliberately fragmented, creating a sense of incompleteness or ambiguity. This can suggest that a person’s actions are shaped not only by their own goodness but also by the expectations, support, or example of a friend. Overall, the haiku reads like a meditation on how character and companionship guide human behavior."_
 
-— **BotenKu** 📅 _Jul 25, 2026_
+— **BotenKu** 📅 _Jul 26, 2026_
 
 </td>
 </tr>
