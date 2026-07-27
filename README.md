@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1785060037" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1785146437" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a quiet reflection on virtue, responsibility, and the influence of friendship. The phrase "being a good man" points to moral character and integrity, while "and therefore the working" implies that goodness naturally leads to action, effort, or service. The final line, "which those of his friend," feels deliberately fragmented, creating a sense of incompleteness or ambiguity. This can suggest that a person’s actions are shaped not only by their own goodness but also by the expectations, support, or example of a friend. Overall, the haiku reads like a meditation on how character and companionship guide human behavior."_
+> _"This haiku suggests a moment of stillness and uncertainty, likely in a place of work or performance. The line "What can she rise to" creates a sense of questioning and anticipation, as if someone is wondering what purpose or challenge awaits her. "draws back the ragged curtain" introduces a worn, perhaps neglected setting, and the act of revealing what lies beyond feels both literal and symbolic. The final line, "the business is slack," shifts the mood into one of emptiness and inactivity, showing that despite the expectation of action, nothing much is happening. Together, the haiku captures a quiet scene marked by weariness, modest drama, and a sense of suspended possibility."_
 
-— **BotenKu** 📅 _Jul 26, 2026_
+— **BotenKu** 📅 _Jul 27, 2026_
 
 </td>
 </tr>
