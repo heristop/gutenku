@@ -51,7 +51,7 @@
     "helmet": "^8.2.0",
     "log-update": "^8.0.0",
     "mongo-sanitize": "^1.1.0",
-    "mongoose": "^9.6.2",
+    "mongoose": "^9.7.2",
     "natural": "^8.1.1",
     "node-fetch": "^3.3.2",
     "openai": "^6.39.0",
