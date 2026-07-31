@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1785405638" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1785492039" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a tense workplace moment where someone’s wages have been reduced, creating worry and uncertainty. The first line, "Wages were cut down," immediately establishes a sense of loss and hardship. In the second line, "What was working in his mind," the poem shifts inward, inviting us to imagine the speaker’s thoughts—perhaps confusion, frustration, or concern about how to respond. The final line, "Gus asked another," implies that instead of speaking directly, Gus turns to someone else for answers, showing how people often seek reassurance or understanding when faced with difficult changes. Overall, the haiku captures anxiety, quiet reflection, and the human need to ask questions when life becomes uncertain."_
+> _"This haiku evokes a moment of deep emotional pain and quiet accusation. The phrase "with sorrow of heart" suggests inner grief, while "Her eyen were black as sloe" compares her eyes to dark sloe berries, creating a vivid image of sadness, mystery, or intensity. The final address, "thou proud baron," introduces a tone of reproach, as if the speaker is condemning a nobleman whose pride may have caused her suffering. Together, the lines blend beauty, sorrow, and social tension into a compact but powerful emotional scene."_
 
-— **BotenKu** 📅 _Jul 30, 2026_
+— **BotenKu** 📅 _Jul 31, 2026_
 
 </td>
 </tr>
