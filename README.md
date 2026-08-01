@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1785492039" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1785578435" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku evokes a moment of deep emotional pain and quiet accusation. The phrase "with sorrow of heart" suggests inner grief, while "Her eyen were black as sloe" compares her eyes to dark sloe berries, creating a vivid image of sadness, mystery, or intensity. The final address, "thou proud baron," introduces a tone of reproach, as if the speaker is condemning a nobleman whose pride may have caused her suffering. Together, the lines blend beauty, sorrow, and social tension into a compact but powerful emotional scene."_
+> _"This haiku captures a tense, emotional moment in which one person stands beside a girl and speaks urgently about a friend who needs help. The phrase "many though they were" suggests that the odds may be against them, or that many people are involved, creating a sense of pressure and uncertainty. The line "as he stood beside the girl" places the speaker in a quiet but significant scene, hinting at concern, loyalty, or grief. The final line, "you can save our friend," becomes a direct appeal, showing hope and dependence on someone’s ability to act. Overall, the haiku conveys urgency, vulnerability, and the power of friendship in a brief but dramatic way."_
 
-— **BotenKu** 📅 _Jul 31, 2026_
+— **BotenKu** 📅 _Aug 01, 2026_
 
 </td>
 </tr>
