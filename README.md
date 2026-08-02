@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1785578435" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1785664838" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a tense, emotional moment in which one person stands beside a girl and speaks urgently about a friend who needs help. The phrase "many though they were" suggests that the odds may be against them, or that many people are involved, creating a sense of pressure and uncertainty. The line "as he stood beside the girl" places the speaker in a quiet but significant scene, hinting at concern, loyalty, or grief. The final line, "you can save our friend," becomes a direct appeal, showing hope and dependence on someone’s ability to act. Overall, the haiku conveys urgency, vulnerability, and the power of friendship in a brief but dramatic way."_
+> _"This haiku suggests a vivid, dreamlike movement from heat and confinement toward freedom and renewal. The first line, "the heat of the sun," creates a strong physical sensation, making us feel the intensity of summer or pressure. The second line, "in order to go to sea," shifts suddenly toward motion and openness, as if the speaker seeks release by traveling outward. The final line, "to shoot off the rain," is strikingly imaginative: it sounds as though going to sea will somehow drive away the rain, or perhaps launch the rain away like an object. This unusual image gives the poem a surreal, almost playful quality. Overall, the haiku contrasts heat and rain, stillness and movement, while suggesting a desire to escape discomfort and transform the weather through action."_
 
-— **BotenKu** 📅 _Aug 01, 2026_
+— **BotenKu** 📅 _Aug 02, 2026_
 
 </td>
 </tr>
