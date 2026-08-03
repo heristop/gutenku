@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1785664838" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1785751240" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a vivid, dreamlike movement from heat and confinement toward freedom and renewal. The first line, "the heat of the sun," creates a strong physical sensation, making us feel the intensity of summer or pressure. The second line, "in order to go to sea," shifts suddenly toward motion and openness, as if the speaker seeks release by traveling outward. The final line, "to shoot off the rain," is strikingly imaginative: it sounds as though going to sea will somehow drive away the rain, or perhaps launch the rain away like an object. This unusual image gives the poem a surreal, almost playful quality. Overall, the haiku contrasts heat and rain, stillness and movement, while suggesting a desire to escape discomfort and transform the weather through action."_
+> _"This haiku suggests a person who is deeply absorbed in his own thoughts, emotionally and mentally distant from others. The phrase "no one knew exactly where" creates a sense of mystery, as if his true feelings or location are hidden from the world. "Far from any road" adds to the image of isolation, implying both physical remoteness and a symbolic separation from ordinary life. Overall, the poem captures solitude, inward reflection, and the quiet distance between one person and everyone else."_
 
-— **BotenKu** 📅 _Aug 02, 2026_
+— **BotenKu** 📅 _Aug 03, 2026_
 
 </td>
 </tr>
