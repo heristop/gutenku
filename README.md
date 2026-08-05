@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1785837638" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1785924044" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku conveys a quiet sense of waiting, loss, and the passage of time. The first line, "Still She returned not," suggests the speaker’s disappointment and continued hope that someone important will come back. The second line, "resumed his former station," implies a return to an earlier place, role, or state, but it also feels uncertain, as if life has gone back to its usual position while the desired person remains absent. The final line, "The night flies apace," highlights how quickly time passes, deepening the feeling of loneliness and impatience. Together, the lines create a mood of restrained sorrow, where absence is felt intensely even as the world moves on."_
+> _"This haiku suggests a gentle respect for the artist’s careful work. The phrase "the sweet dignity" gives the poem a calm, honorable tone, as if the artist’s effort has beauty and worth beyond fame. "The artist was diligent" emphasizes patience, discipline, and devotion to craft. The final line, "and they are still used," implies that the artist’s creations continue to serve a purpose, showing that true art can endure through time and remain meaningful in daily life. Together, the haiku celebrates skill, usefulness, and the lasting dignity of creative labor."_
 
-— **BotenKu** 📅 _Aug 04, 2026_
+— **BotenKu** 📅 _Aug 05, 2026_
 
 </td>
 </tr>
