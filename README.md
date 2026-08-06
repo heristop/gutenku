@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1785924044" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1786010437" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a gentle respect for the artist’s careful work. The phrase "the sweet dignity" gives the poem a calm, honorable tone, as if the artist’s effort has beauty and worth beyond fame. "The artist was diligent" emphasizes patience, discipline, and devotion to craft. The final line, "and they are still used," implies that the artist’s creations continue to serve a purpose, showing that true art can endure through time and remain meaningful in daily life. Together, the haiku celebrates skill, usefulness, and the lasting dignity of creative labor."_
+> _"This haiku suggests a quiet moment of expectation and change. The phrase "when it was ready" creates a sense of patience and timing, as if something or someone must wait for the right moment. "And would prefer another" hints at a choice, dissatisfaction, or longing for something different. The final line, "as he had promised," introduces a human presence and a sense of duty, showing that a promise has been made and is now being fulfilled. Together, the lines feel restrained and reflective, leaving the reader to imagine what is being replaced, offered, or given anew."_
 
-— **BotenKu** 📅 _Aug 05, 2026_
+— **BotenKu** 📅 _Aug 06, 2026_
 
 </td>
 </tr>
