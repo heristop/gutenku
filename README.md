@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1786010437" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1786096841" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a quiet moment of expectation and change. The phrase "when it was ready" creates a sense of patience and timing, as if something or someone must wait for the right moment. "And would prefer another" hints at a choice, dissatisfaction, or longing for something different. The final line, "as he had promised," introduces a human presence and a sense of duty, showing that a promise has been made and is now being fulfilled. Together, the lines feel restrained and reflective, leaving the reader to imagine what is being replaced, offered, or given anew."_
+> _"This haiku creates a strange, unsettling image of movement and confusion. In the first line, "all seemed to swim round," the speaker suggests that the world feels dizzy, unstable, or dreamlike, as if everything is spinning or floating. The second line, "Presently I closed my eyes," shows a deliberate withdrawal, as though the speaker is overwhelmed and wants to escape the strange sensation. The final line, "crawling like a snake," is vivid and eerie: it suggests slow, silent, and possibly threatening movement. Together, the haiku feels surreal and tense, blending dizziness with animal imagery to create a mood of unease and mystery."_
 
-— **BotenKu** 📅 _Aug 06, 2026_
+— **BotenKu** 📅 _Aug 07, 2026_
 
 </td>
 </tr>
