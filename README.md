@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1786096841" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1786183237" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a strange, unsettling image of movement and confusion. In the first line, "all seemed to swim round," the speaker suggests that the world feels dizzy, unstable, or dreamlike, as if everything is spinning or floating. The second line, "Presently I closed my eyes," shows a deliberate withdrawal, as though the speaker is overwhelmed and wants to escape the strange sensation. The final line, "crawling like a snake," is vivid and eerie: it suggests slow, silent, and possibly threatening movement. Together, the haiku feels surreal and tense, blending dizziness with animal imagery to create a mood of unease and mystery."_
+> _"This haiku suggests a formal yet deeply personal moment. The phrase "the solemn service" creates a serious, almost sacred atmosphere, while "was to feast genially" introduces warmth, generosity, and human connection. The final line, "for he has seen me," reveals the emotional heart of the poem: the speaker feels truly noticed or recognized by another person. The contrast between solemnity and genial feasting gives the haiku a reflective tone, showing how being seen can feel both reverent and comforting."_
 
-— **BotenKu** 📅 _Aug 07, 2026_
+— **BotenKu** 📅 _Aug 08, 2026_
 
 </td>
 </tr>
