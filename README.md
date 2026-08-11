@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1786356032" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1786442439" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku feels dreamlike and elusive, using unusual phrasing to create a sense of mystery and reflection. The opening line, "Were I but so light," suggests a wish for freedom, delicacy, or release from burden. The second line, "where like conference is held," introduces an abstract, almost ceremonial space—perhaps a place of meeting, exchange, or inner dialogue. The final line, "The horse remember," gives the poem a striking, symbolic ending: the horse may represent strength, instinct, or memory itself, as if even something powerful and physical is capable of recalling the past. Overall, the haiku invites readers to think about memory, weight, and the contrast between human longing and animal instinct, while its fragmented language enhances its mysterious, contemplative mood."_
+> _"This haiku suggests a quiet warning about haste. The phrase "soon caught his notice" implies that something important was noticed quickly, while "do not be in a hurry" gives direct advice to slow down and think carefully. "Take my word for it" adds a tone of experience and trust, as if the speaker has learned this lesson firsthand. Overall, the poem reflects the value of patience, caution, and listening to wise advice."_
 
-— **BotenKu** 📅 _Aug 10, 2026_
+— **BotenKu** 📅 _Aug 11, 2026_
 
 </td>
 </tr>
