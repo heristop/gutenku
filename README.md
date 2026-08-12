@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1786442439" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1786528838" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a quiet warning about haste. The phrase "soon caught his notice" implies that something important was noticed quickly, while "do not be in a hurry" gives direct advice to slow down and think carefully. "Take my word for it" adds a tone of experience and trust, as if the speaker has learned this lesson firsthand. Overall, the poem reflects the value of patience, caution, and listening to wise advice."_
+> _"This haiku creates a playful and surprising image by placing a highly intelligent and scientific figure — “an able and learned chemist” — beside the delicate, almost impossible idea of “a silken ladder.” The phrase “on the other hand” suggests contrast, as if the poem is weighing two different possibilities or truths. The chemist represents reason, knowledge, and precision, while the silken ladder feels fragile, elegant, and dreamlike. Together, they form a striking juxtaposition that invites the reader to imagine intellect reaching for something soft, strange, or unreachable. The poem’s humor and mystery come from this unexpected combination, leaving the meaning open and evocative."_
 
-— **BotenKu** 📅 _Aug 11, 2026_
+— **BotenKu** 📅 _Aug 12, 2026_
 
 </td>
 </tr>
