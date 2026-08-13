@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1786528838" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1786615238" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a playful and surprising image by placing a highly intelligent and scientific figure — “an able and learned chemist” — beside the delicate, almost impossible idea of “a silken ladder.” The phrase “on the other hand” suggests contrast, as if the poem is weighing two different possibilities or truths. The chemist represents reason, knowledge, and precision, while the silken ladder feels fragile, elegant, and dreamlike. Together, they form a striking juxtaposition that invites the reader to imagine intellect reaching for something soft, strange, or unreachable. The poem’s humor and mystery come from this unexpected combination, leaving the meaning open and evocative."_
+> _"This haiku creates a gentle, reflective mood through its soft and mysterious imagery. The phrase “in her quiet way” suggests a woman who acts with subtlety, restraint, and emotional depth rather than open display. “Throwing these into distance” can be read as an image of sending memories, feelings, or small objects far away, symbolizing separation, loss, or the letting go of something important. The final line, “When he did come down,” adds a sense of movement and timing, as if someone has descended from a higher place, perhaps physically or emotionally, after a period of absence. Together, the lines suggest distance between two people and the quiet, almost hidden emotions that surround their relationship. The haiku’s power lies in its ambiguity: it invites the reader to imagine sorrow, memory, and a delicate human connection without explaining everything directly."_
 
-— **BotenKu** 📅 _Aug 12, 2026_
+— **BotenKu** 📅 _Aug 13, 2026_
 
 </td>
 </tr>
