@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1786701636" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1786788032" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a quiet, intimate mood through its soft language and restrained emotion. The phrase "though in subdued tones" suggests a hushed, careful voice, as if the speaker is speaking privately or with tenderness. "as I had the night before" hints at a continuing moment, memory, or repeated encounter, giving the poem a sense of lingering feeling and continuity. The final image, "the fair-haired beauty," introduces a striking figure who seems admired from a distance, but the speaker’s tone remains controlled rather than openly passionate. Overall, the haiku captures a delicate moment of admiration, memory, and quiet emotional tension."_
+> _"This haiku reflects a quiet, intimate moment shared between a child and their mother, seated together by the fire. The opening line, "God ordains it all," suggests a belief that every event in life is guided by a higher power or divine plan. This gives the poem a thoughtful, spiritual tone. The second line, "as we sat over the fire," creates a warm domestic setting, symbolizing comfort, closeness, and reflection. The final line, "my dear mother guessed," hints at the mother’s wisdom and intuition. She seems to understand something unspoken, perhaps about life, fate, or the speaker’s feelings. Overall, the haiku beautifully combines faith, family, and quiet insight in a brief but meaningful scene."_
 
-— **BotenKu** 📅 _Aug 14, 2026_
+— **BotenKu** 📅 _Aug 15, 2026_
 
 </td>
 </tr>
