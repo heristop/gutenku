@@ -1,9 +1,12 @@
 <script lang="ts" setup>
 import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import PwaInstallBanner from '@/core/components/ui/PwaInstallBanner.vue';
 import { isNative, isIOS, platform } from '@/utils/capacitor';
+
+const router = useRouter();
 
 onMounted(async () => {
   // Native platform initialization
@@ -29,13 +32,18 @@ onMounted(async () => {
   }
 
   // Defer analytics to idle callback (client-side only)
+  const startAnalytics = () =>
+    import('@/services/analytics').then(({ initAnalytics }) =>
+      initAnalytics(router),
+    );
+
   if ('requestIdleCallback' in globalThis) {
-    requestIdleCallback(() => import('./analytics-setup'));
+    requestIdleCallback(() => startAnalytics());
 
     return;
   }
 
-  setTimeout(() => import('./analytics-setup'), 2000);
+  setTimeout(startAnalytics, 2000);
 });
 </script>
 
