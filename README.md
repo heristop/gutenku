@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1786788032" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1786874435" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku reflects a quiet, intimate moment shared between a child and their mother, seated together by the fire. The opening line, "God ordains it all," suggests a belief that every event in life is guided by a higher power or divine plan. This gives the poem a thoughtful, spiritual tone. The second line, "as we sat over the fire," creates a warm domestic setting, symbolizing comfort, closeness, and reflection. The final line, "my dear mother guessed," hints at the mother’s wisdom and intuition. She seems to understand something unspoken, perhaps about life, fate, or the speaker’s feelings. Overall, the haiku beautifully combines faith, family, and quiet insight in a brief but meaningful scene."_
+> _"This haiku feels like a fragment of everyday life, yet it carries a quiet emotional weight. The speaker seems to be in a situation shaped by illness or concern, suggested by the line "the doctor says so." Against that uncertainty, the image of "your aunt peeled the potatoes" introduces a warm, practical act of care. It is a simple domestic action, but in the context of the poem, it suggests kindness, duty, and family support. The final line, "would rush down to help," adds urgency and devotion, implying that help is needed quickly and that someone is willing to respond without hesitation. As a whole, the haiku contrasts medical authority with human compassion, showing how ordinary gestures can become deeply meaningful in times of need."_
 
-— **BotenKu** 📅 _Aug 15, 2026_
+— **BotenKu** 📅 _Aug 16, 2026_
 
 </td>
 </tr>
