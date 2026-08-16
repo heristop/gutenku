@@ -73,6 +73,35 @@ describe('initAnalytics', () => {
     });
   });
 
+  it('reports a repeated navigation to the same route only once', async () => {
+    const { module, provider } = await loadAnalytics(true);
+    const { router, navigate } = stubRouter('/haiku', 'Haiku');
+
+    module.initAnalytics(router);
+    // InkBrushNav lets RouterLink navigate and then pushes the same route
+    // again, so afterEach fires twice for one click.
+    navigate('/blog', 'Blog');
+    navigate('/blog', 'Blog');
+
+    const blogViews = provider.trackPageView.mock.calls.filter(
+      ([view]) => view.path === '/blog',
+    );
+
+    expect(blogViews).toHaveLength(1);
+  });
+
+  it('reports a route revisited after leaving it', async () => {
+    const { module, provider } = await loadAnalytics(true);
+    const { router, navigate } = stubRouter('/', 'Home');
+
+    module.initAnalytics(router);
+    navigate('/blog', 'Blog');
+    navigate('/', 'Home');
+
+    // Only consecutive repeats collapse — coming back is a real visit.
+    expect(provider.trackPageView).toHaveBeenCalledTimes(3);
+  });
+
   it('only registers once', async () => {
     const { module, provider } = await loadAnalytics(true);
     const { router } = stubRouter('/', 'Home');

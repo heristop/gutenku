@@ -5,12 +5,23 @@ import type { AnalyticsProvider, EventParams, PageView } from './types';
 const providers: AnalyticsProvider[] = [gaProvider];
 
 let started = false;
+let lastPath: string | undefined;
 
 function activeProviders(): AnalyticsProvider[] {
   return providers.filter((provider) => provider.isAvailable());
 }
 
 export function trackPageView(view: PageView): void {
+  // A single nav click can resolve twice — InkBrushNav lets RouterLink navigate
+  // and then pushes the same route again — which would double every visit in
+  // the reports. Only consecutive repeats are dropped, so genuinely returning
+  // to a page still counts.
+  if (view.path === lastPath) {
+    return;
+  }
+
+  lastPath = view.path;
+
   for (const provider of activeProviders()) {
     provider.trackPageView(view);
   }
@@ -69,9 +80,10 @@ export function initAnalytics(router: Router): void {
   });
 }
 
-/** Test seam: module-scope `started` would otherwise leak between cases. */
+/** Test seam: module scope would otherwise leak between cases. */
 export function resetAnalyticsForTests(): void {
   started = false;
+  lastPath = undefined;
 }
 
 export type { AnalyticsProvider, EventParams, PageView };
