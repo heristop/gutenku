@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { useRoute, useRouter, RouterLink } from 'vue-router';
+import { useRoute, RouterLink } from 'vue-router';
 import {
   Leaf,
   Lightbulb,
@@ -19,7 +19,6 @@ import { useTheme } from '@/core/composables/theme';
 import { useAccessibility } from '@/core/composables/accessibility';
 
 const route = useRoute();
-const router = useRouter();
 const { t } = useI18n();
 const { currentLocale, availableLocales, setLocale, getLocaleLabel } =
   useLocale();
@@ -145,21 +144,34 @@ function handleMouseLeave() {
   hoveredItem.value = null;
 }
 
-function handleClick(event: MouseEvent, to: string) {
+function handleClick(event: MouseEvent, to: string, navigate: () => void) {
+  // Leave modified clicks to the browser so "open in new tab" keeps working.
+  // The anchor carries a real href, so not calling preventDefault is enough.
+  if (
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey ||
+    event.button !== 0
+  ) {
+    return;
+  }
+
+  event.preventDefault();
+
   // If already on this page, don't navigate
   if (isActive(to)) {
-    event.preventDefault();
-
     return;
   }
 
   // Visual click feedback
   clickedItem.value = to;
 
-  // Navigate with view transition
-  event.preventDefault();
+  // Navigate with view transition. `navigate` comes from RouterLink's custom
+  // slot: the link no longer routes on its own, so this is the only navigation
+  // and the route resolves once per click.
   withViewTransition(() => {
-    router.push(to);
+    navigate();
   });
 
   setTimeout(() => {
@@ -178,36 +190,38 @@ function handleClick(event: MouseEvent, to: string) {
     </RouterLink>
     <ul class="ink-nav__container">
       <li v-for="item in navItems" :key="item.to" class="ink-nav__list-item">
-        <RouterLink
-          :to="item.to"
-          class="ink-nav__item"
-          :class="{
-            'ink-nav__item--active': isActive(item.to),
-            'ink-nav__item--hovered': hoveredItem === item.to,
-            'ink-nav__item--clicked': clickedItem === item.to,
-          }"
-          :aria-current="isActive(item.to) ? 'page' : undefined"
-          :aria-label="t(item.ariaLabel)"
-          @mouseenter="handleMouseEnter(item.to)"
-          @mouseleave="handleMouseLeave"
-          @click="handleClick($event, item.to)"
-        >
-          <span
-            class="ink-nav__icon-wrapper"
-            :style="{ viewTransitionName: item.transitionName }"
-            aria-hidden="true"
+        <RouterLink v-slot="{ href, navigate }" :to="item.to" custom>
+          <a
+            :href="href"
+            class="ink-nav__item"
+            :class="{
+              'ink-nav__item--active': isActive(item.to),
+              'ink-nav__item--hovered': hoveredItem === item.to,
+              'ink-nav__item--clicked': clickedItem === item.to,
+            }"
+            :aria-current="isActive(item.to) ? 'page' : undefined"
+            :aria-label="t(item.ariaLabel)"
+            @mouseenter="handleMouseEnter(item.to)"
+            @mouseleave="handleMouseLeave"
+            @click="handleClick($event, item.to, navigate)"
           >
-            <svg
-              v-if="isActive(item.to)"
-              class="ink-nav__enso"
-              viewBox="0 0 50 50"
+            <span
+              class="ink-nav__icon-wrapper"
+              :style="{ viewTransitionName: item.transitionName }"
               aria-hidden="true"
             >
-              <circle cx="25" cy="25" r="22" />
-            </svg>
-            <component :is="item.icon" :size="20" class="ink-nav__icon" />
-          </span>
-          <span class="ink-nav__label">{{ t(item.labelKey) }}</span>
+              <svg
+                v-if="isActive(item.to)"
+                class="ink-nav__enso"
+                viewBox="0 0 50 50"
+                aria-hidden="true"
+              >
+                <circle cx="25" cy="25" r="22" />
+              </svg>
+              <component :is="item.icon" :size="20" class="ink-nav__icon" />
+            </span>
+            <span class="ink-nav__label">{{ t(item.labelKey) }}</span>
+          </a>
         </RouterLink>
       </li>
     </ul>
