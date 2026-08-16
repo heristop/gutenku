@@ -34,7 +34,7 @@
     "@tensorflow/tfjs": "^4.22.0",
     "@tensorflow/tfjs-node": "^4.22.0",
     "axios": "^1.16.1",
-    "body-parser": "^2.2.2",
+    "body-parser": "^2.3.0",
     "canvas": "^3.2.3",
     "cli-progress": "^3.12.0",
     "commander": "^14.0.3",
