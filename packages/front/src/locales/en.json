@@ -383,8 +383,8 @@
   },
   "consent": {
     "bannerLabel": "Cookie choices",
-    "title": "A word about cookies",
-    "message": "We would like to count visits, nothing more. No ads, no profiles.",
+    "title": "Privacy-first",
+    "message": "Visits are counted the way pages are turned—nothing more. No ads, no profiles.",
     "accept": "Accept",
     "decline": "Decline",
     "acceptLabel": "Accept analytics cookies",
