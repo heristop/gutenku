@@ -381,6 +381,16 @@
     "iosStep2Title": "Sur l'écran d'accueil",
     "iosStep2Desc": "Fais défiler et appuie sur « Sur l'écran d'accueil »"
   },
+  "consent": {
+    "bannerLabel": "Choix des cookies",
+    "title": "Un mot sur les cookies",
+    "message": "Nous aimerions compter les visites, rien de plus. Aucune publicité, aucun profil.",
+    "accept": "Accepter",
+    "decline": "Refuser",
+    "acceptLabel": "Accepter les cookies de mesure d'audience",
+    "declineLabel": "Refuser les cookies de mesure d'audience",
+    "manage": "Cookies"
+  },
   "locale": {
     "switch": "Langue"
   },

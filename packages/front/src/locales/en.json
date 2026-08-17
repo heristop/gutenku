@@ -381,6 +381,16 @@
     "iosStep2Title": "Add to Home Screen",
     "iosStep2Desc": "Scroll down and tap 'Add to Home Screen'"
   },
+  "consent": {
+    "bannerLabel": "Cookie choices",
+    "title": "A word about cookies",
+    "message": "We would like to count visits, nothing more. No ads, no profiles.",
+    "accept": "Accept",
+    "decline": "Decline",
+    "acceptLabel": "Accept analytics cookies",
+    "declineLabel": "Decline analytics cookies",
+    "manage": "Cookies"
+  },
   "locale": {
     "switch": "Language"
   },

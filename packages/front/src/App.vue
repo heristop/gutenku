@@ -1,12 +1,44 @@
 <script lang="ts" setup>
-import { onMounted } from 'vue';
+import { onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import PwaInstallBanner from '@/core/components/ui/PwaInstallBanner.vue';
+import CookieConsentBanner from '@/core/components/ui/CookieConsentBanner.vue';
+import { useCookieConsent } from '@/core/composables/cookie-consent';
 import { isNative, isIOS, platform } from '@/utils/capacitor';
 
 const router = useRouter();
+const { analyticsAllowed } = useCookieConsent();
+
+const startAnalytics = () =>
+  import('@/services/analytics').then(({ initAnalytics }) =>
+    initAnalytics(router),
+  );
+
+// initAnalytics guards against a second call, so scheduling twice is harmless.
+function scheduleAnalytics() {
+  if ('requestIdleCallback' in globalThis) {
+    // Without the timeout the callback can simply never fire: a page that
+    // animates continuously never reports an idle period to the browser.
+    requestIdleCallback(() => startAnalytics(), { timeout: 2000 });
+
+    return;
+  }
+
+  setTimeout(startAnalytics, 2000);
+}
+
+// Accepting mid-session takes effect at once, with no reload and no idle wait.
+watch(analyticsAllowed, (allowed) => {
+  if (!allowed) {
+    return;
+  }
+
+  startAnalytics().catch(() => {
+    // A blocked analytics chunk must never take the page down with it.
+  });
+});
 
 onMounted(async () => {
   // Native platform initialization
@@ -31,19 +63,10 @@ onMounted(async () => {
     }
   }
 
-  // Defer analytics to idle callback (client-side only)
-  const startAnalytics = () =>
-    import('@/services/analytics').then(({ initAnalytics }) =>
-      initAnalytics(router),
-    );
-
-  if ('requestIdleCallback' in globalThis) {
-    requestIdleCallback(() => startAnalytics());
-
-    return;
+  // Analytics is opt-in: nothing loads until the visitor has said yes.
+  if (analyticsAllowed.value) {
+    scheduleAnalytics();
   }
-
-  setTimeout(startAnalytics, 2000);
 });
 </script>
 
@@ -51,5 +74,6 @@ onMounted(async () => {
   <router-view />
   <client-only>
     <PwaInstallBanner />
+    <CookieConsentBanner />
   </client-only>
 </template>

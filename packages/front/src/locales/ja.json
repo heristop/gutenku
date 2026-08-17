@@ -381,6 +381,16 @@
     "iosStep2Title": "ホーム画面に追加",
     "iosStep2Desc": "スクロールして「ホーム画面に追加」をタップ"
   },
+  "consent": {
+    "bannerLabel": "クッキーの設定",
+    "title": "クッキーについて",
+    "message": "訪問数を数えるだけです。広告も、プロフィールの作成もありません。",
+    "accept": "同意する",
+    "decline": "拒否する",
+    "acceptLabel": "アクセス解析クッキーに同意する",
+    "declineLabel": "アクセス解析クッキーを拒否する",
+    "manage": "クッキー"
+  },
   "locale": {
     "switch": "言語"
   },

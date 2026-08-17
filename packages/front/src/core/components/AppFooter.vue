@@ -8,6 +8,7 @@ import ZenCreditsModal from '@/core/components/ui/ZenCreditsModal.vue';
 import ThemeToggle from '@/core/components/ThemeToggle.vue';
 import AccessibilityToggle from '@/core/components/AccessibilityToggle.vue';
 import { useLocale } from '@/core/composables/locale';
+import { openCookieConsent } from '@/core/composables/cookie-consent';
 
 const { t } = useI18n();
 const { currentLocale, availableLocales, setLocale, getLocaleLabel } =
@@ -157,6 +158,15 @@ function openSocialLink(url: string) {
           >
         </button>
       </ZenTooltip>
+
+      <!-- Reopen the cookie choice; consent has to be withdrawable. -->
+      <button
+        type="button"
+        class="footer-copyright footer-consent stagger-5"
+        @click="openCookieConsent"
+      >
+        <span class="copyright-text">{{ t('consent.manage') }}</span>
+      </button>
 
       <!-- Ink Brushstroke Divider -->
       <svg class="ink-divider stagger-6" viewBox="0 0 2 20" aria-hidden="true">
@@ -324,7 +334,9 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   justify-content: center;
   gap: 1.25rem;
   flex-wrap: wrap;
-  max-width: 52rem;
+  // Measured: the row needs ~910px once the consent control is present.
+  // At 52rem (832px) the toggles wrapped onto a second line on desktop.
+  max-width: 58rem;
   margin: 0 auto;
 }
 
@@ -494,6 +506,39 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   &:focus-visible {
     outline: 2px solid var(--gutenku-focus-ring);
     outline-offset: 2px;
+  }
+}
+
+// The copyright is a label that happens to be clickable; this is a real
+// action, so it gets a link's affordance without competing with the nav.
+.footer-consent {
+  color: var(--gutenku-zen-primary);
+  text-decoration: underline;
+  text-decoration-color: color-mix(
+    in oklch,
+    var(--gutenku-zen-primary) 35%,
+    transparent
+  );
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+
+  &:hover {
+    color: var(--gutenku-zen-primary);
+    text-decoration-color: currentcolor;
+  }
+}
+
+[data-theme='dark'] .footer-consent {
+  color: var(--gutenku-zen-accent);
+
+  text-decoration-color: color-mix(
+    in oklch,
+    var(--gutenku-zen-accent) 35%,
+    transparent
+  );
+
+  &:hover {
+    color: var(--gutenku-zen-accent);
   }
 }
 

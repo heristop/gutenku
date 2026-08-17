@@ -5,6 +5,15 @@ import 'cypress-axe';
 // Fail-safe: don't fail tests for 3rd-party runtime errors
 Cypress.on('uncaught:exception', () => false);
 
+// Settle the cookie question before every visit. Left undecided the banner
+// docks over the footer and swallows clicks; the banner has its own coverage.
+Cypress.on('window:before:load', (win) => {
+  win.localStorage.setItem(
+    'gutenku-cookie-consent',
+    JSON.stringify({ version: 1, decidedAt: Date.now(), analytics: false }),
+  );
+});
+
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Cypress {
