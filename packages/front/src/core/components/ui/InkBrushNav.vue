@@ -370,7 +370,7 @@ function handleClick(event: MouseEvent, to: string, navigate: () => void) {
     }
 
     &:focus-visible {
-      outline: 2px solid var(--gutenku-zen-accent);
+      outline: 2px solid var(--gutenku-focus-ring);
       outline-offset: 4px;
       border-radius: var(--gutenku-radius-sm);
     }

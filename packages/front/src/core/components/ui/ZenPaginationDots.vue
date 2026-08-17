@@ -89,7 +89,7 @@ function handleClick(index: number) {
 }
 
 .zen-pagination-dots__dot:focus-visible {
-  outline: 2px solid var(--gutenku-zen-accent);
+  outline: 2px solid var(--gutenku-focus-ring);
   outline-offset: 2px;
 }
 

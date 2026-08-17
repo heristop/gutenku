@@ -210,7 +210,7 @@ useHead({
 
   &:focus {
     top: 0;
-    outline: 2px solid var(--gutenku-zen-accent);
+    outline: 2px solid var(--gutenku-focus-ring);
     outline-offset: 2px;
   }
 }
