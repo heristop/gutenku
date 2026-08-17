@@ -7,8 +7,8 @@ import ZenTooltip from '@/core/components/ui/ZenTooltip.vue';
 import ZenCreditsModal from '@/core/components/ui/ZenCreditsModal.vue';
 import ThemeToggle from '@/core/components/ThemeToggle.vue';
 import AccessibilityToggle from '@/core/components/AccessibilityToggle.vue';
+import CookieConsentToggle from '@/core/components/CookieConsentToggle.vue';
 import { useLocale } from '@/core/composables/locale';
-import { openCookieConsent } from '@/core/composables/cookie-consent';
 
 const { t } = useI18n();
 const { currentLocale, availableLocales, setLocale, getLocaleLabel } =
@@ -159,15 +159,6 @@ function openSocialLink(url: string) {
         </button>
       </ZenTooltip>
 
-      <!-- Reopen the cookie choice; consent has to be withdrawable. -->
-      <button
-        type="button"
-        class="footer-copyright footer-consent stagger-5"
-        @click="openCookieConsent"
-      >
-        <span class="copyright-text">{{ t('consent.manage') }}</span>
-      </button>
-
       <!-- Ink Brushstroke Divider -->
       <svg class="ink-divider stagger-6" viewBox="0 0 2 20" aria-hidden="true">
         <path
@@ -229,6 +220,9 @@ function openSocialLink(url: string) {
           />
         </div>
         <AccessibilityToggle class="stagger-9" />
+        <!-- Consent is a site preference, so it sits with the other
+             preferences rather than beside the copyright. -->
+        <CookieConsentToggle class="stagger-10" />
       </div>
     </div>
 
@@ -334,9 +328,9 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   justify-content: center;
   gap: 1.25rem;
   flex-wrap: wrap;
-  // Measured: the row needs ~910px once the consent control is present.
-  // At 52rem (832px) the toggles wrapped onto a second line on desktop.
-  max-width: 58rem;
+  // Measured: the row needs ~860px with the consent control in the toggle
+  // cluster, at its 44px sizing. At 52rem (832px) the toggles wrapped.
+  max-width: 56rem;
   margin: 0 auto;
 }
 
@@ -374,6 +368,10 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
 
 .stagger-9 {
   animation: social-pop-in 0.25s $ease-zen-out 0.28s both;
+}
+
+.stagger-10 {
+  animation: social-pop-in 0.25s $ease-zen-out 0.31s both;
 }
 
 .footer-nav {
@@ -509,39 +507,6 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
-// The copyright is a label that happens to be clickable; this is a real
-// action, so it gets a link's affordance without competing with the nav.
-.footer-consent {
-  color: var(--gutenku-zen-primary);
-  text-decoration: underline;
-  text-decoration-color: color-mix(
-    in oklch,
-    var(--gutenku-zen-primary) 35%,
-    transparent
-  );
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.25em;
-
-  &:hover {
-    color: var(--gutenku-zen-primary);
-    text-decoration-color: currentcolor;
-  }
-}
-
-[data-theme='dark'] .footer-consent {
-  color: var(--gutenku-zen-accent);
-
-  text-decoration-color: color-mix(
-    in oklch,
-    var(--gutenku-zen-accent) 35%,
-    transparent
-  );
-
-  &:hover {
-    color: var(--gutenku-zen-accent);
-  }
-}
-
 .ink-ripple {
   position: absolute;
   width: 4px;
@@ -580,8 +545,9 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
+  // 44px: the iOS minimum touch target, shared by the whole toggle cluster.
+  width: 2.75rem;
+  height: 2.75rem;
   padding: 0;
   border: 1.5px solid oklch(0.45 0.1 195 / 0.2);
   border-radius: var(--gutenku-radius-full);
@@ -844,6 +810,7 @@ $ease-zen-out: cubic-bezier(0.16, 1, 0.3, 1);
   .stagger-7,
   .stagger-8,
   .stagger-9,
+  .stagger-10,
   .ink-stroke {
     animation: none;
     opacity: 1;

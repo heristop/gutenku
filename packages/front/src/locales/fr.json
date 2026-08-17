@@ -389,7 +389,8 @@
     "decline": "Refuser",
     "acceptLabel": "Accepter les cookies de mesure d'audience",
     "declineLabel": "Refuser les cookies de mesure d'audience",
-    "manage": "Cookies"
+    "manage": "Cookies",
+    "manageLabel": "Gérer les choix de cookies"
   },
   "locale": {
     "switch": "Langue"

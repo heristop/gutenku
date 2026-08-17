@@ -389,7 +389,8 @@
     "decline": "Decline",
     "acceptLabel": "Accept analytics cookies",
     "declineLabel": "Decline analytics cookies",
-    "manage": "Cookies"
+    "manage": "Cookies",
+    "manageLabel": "Manage cookie choices"
   },
   "locale": {
     "switch": "Language"

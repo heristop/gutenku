@@ -1,38 +1,28 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { ALargeSmall } from '@lucide/vue';
-import { useAccessibility } from '@/core/composables/accessibility';
+import { Cookie } from '@lucide/vue';
+import { openCookieConsent } from '@/core/composables/cookie-consent';
 import ZenTooltip from '@/core/components/ui/ZenTooltip.vue';
 
 const { t } = useI18n();
-const { dyslexiaEnabled, toggleDyslexia } = useAccessibility();
-
-const dyslexiaTooltip = computed(() =>
-  dyslexiaEnabled.value
-    ? t('footer.accessibility.dyslexiaOn')
-    : t('footer.accessibility.dyslexiaOff'),
-);
 </script>
 
 <template>
-  <ZenTooltip :text="dyslexiaTooltip" position="top">
+  <ZenTooltip :text="t('consent.manage')" position="top">
     <button
       type="button"
-      class="a11y-toggle-btn"
-      :class="{ 'a11y-toggle-btn--active': dyslexiaEnabled }"
-      :aria-label="dyslexiaTooltip"
-      :aria-pressed="dyslexiaEnabled"
-      @click="toggleDyslexia"
+      class="consent-toggle-btn"
+      :aria-label="t('consent.manageLabel')"
+      @click="openCookieConsent"
     >
-      <span class="a11y-toggle-btn__circle" aria-hidden="true" />
-      <ALargeSmall :size="20" :stroke-width="1.5" />
+      <span class="consent-toggle-btn__circle" aria-hidden="true" />
+      <Cookie :size="20" :stroke-width="1.5" />
     </button>
   </ZenTooltip>
 </template>
 
 <style lang="scss" scoped>
-.a11y-toggle-btn {
+.consent-toggle-btn {
   position: relative;
   display: grid;
   place-items: center;
@@ -61,14 +51,14 @@ const dyslexiaTooltip = computed(() =>
       transform: translateY(-2px) scale(1.05);
     }
 
-    .a11y-toggle-btn__circle {
+    .consent-toggle-btn__circle {
       transform: scale(1) rotate(0deg);
       opacity: 0.1;
     }
   }
 
   &:focus-visible {
-    outline: 2px solid var(--gutenku-zen-primary);
+    outline: 2px solid var(--gutenku-focus-ring);
     outline-offset: 2px;
   }
 
@@ -88,33 +78,17 @@ const dyslexiaTooltip = computed(() =>
       transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
       opacity 0.25s ease;
   }
-
-  // Active state
-  &--active {
-    color: var(--gutenku-zen-primary);
-
-    .a11y-toggle-btn__circle {
-      transform: scale(1) rotate(0deg);
-      opacity: 0.15;
-    }
-
-    &:hover {
-      .a11y-toggle-btn__circle {
-        opacity: 0.2;
-      }
-    }
-  }
 }
 
 // Dark theme
-[data-theme='dark'] .a11y-toggle-btn {
+[data-theme='dark'] .consent-toggle-btn {
   color: var(--gutenku-text-primary);
 
   &:hover {
     color: var(--gutenku-zen-accent);
   }
 
-  .a11y-toggle-btn__circle {
+  .consent-toggle-btn__circle {
     background: radial-gradient(
       circle at center,
       var(--gutenku-zen-accent) 0%,
@@ -122,15 +96,11 @@ const dyslexiaTooltip = computed(() =>
       transparent 100%
     );
   }
-
-  &--active {
-    color: var(--gutenku-zen-accent);
-  }
 }
 
 // Reduced motion
 @media (prefers-reduced-motion: reduce) {
-  .a11y-toggle-btn {
+  .consent-toggle-btn {
     transition: none;
 
     svg {

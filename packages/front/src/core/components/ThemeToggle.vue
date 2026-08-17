@@ -755,8 +755,9 @@ onMounted(() => {
   position: relative;
   display: grid;
   place-items: center;
-  width: 2.5rem;
-  height: 2.5rem;
+  // 44px: the iOS minimum touch target, shared by the whole toggle cluster.
+  width: 2.75rem;
+  height: 2.75rem;
   padding: 0;
   background: transparent;
   border: none;

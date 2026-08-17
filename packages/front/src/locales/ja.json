@@ -389,7 +389,8 @@
     "decline": "拒否する",
     "acceptLabel": "アクセス解析クッキーに同意する",
     "declineLabel": "アクセス解析クッキーを拒否する",
-    "manage": "クッキー"
+    "manage": "クッキー",
+    "manageLabel": "クッキーの設定を管理する"
   },
   "locale": {
     "switch": "言語"

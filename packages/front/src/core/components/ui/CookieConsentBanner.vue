@@ -69,7 +69,7 @@ watch(isBannerVisible, (show) => {
             </ZenButton>
 
             <ZenButton
-              variant="ghost"
+              variant="cta"
               size="sm"
               spring
               :aria-label="t('consent.acceptLabel')"
@@ -168,8 +168,8 @@ watch(isBannerVisible, (show) => {
   gap: 0.5rem;
 }
 
-// Both answers are the same button at the same size and weight: the choice is
-// never nudged one way. The floor also keeps them at a 44px touch target.
+// Accept carries the CTA fill; decline stays ghost. Both keep the same size
+// and the same 44px touch target, so refusing is never harder than accepting.
 .cookie-consent__actions :deep(.zen-btn) {
   min-height: 2.75rem;
   min-width: 5.5rem;
