@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1786960837" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1787047246" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku paints a vivid scene of movement and pain. The first line, "The water ran down," suggests rain, tears, or a stream flowing steadily, creating a somber mood. The second line, "The same cry arose from all," emphasizes unity in suffering, showing that many people are experiencing the same distress at once. The final line, "who fell to the ground," gives the image a physical and emotional weight, as if the falling is both literal and symbolic of defeat or hardship. Together, the haiku captures a moment of collective struggle, where nature and human pain seem to echo one another."_
+> _"This haiku presents a lively kitchen scene where simple baking becomes almost theatrical. The opening line, "The oven is hot," sets a warm, immediate setting and suggests preparation, energy, and anticipation. The second line, "a storm of tomfoolery," introduces playful chaos, as if the act of baking is full of mischief, noise, or silly activity. This unexpected phrase gives the poem a humorous and whimsical tone. Finally, "the dough is kneaded" grounds the haiku in a concrete action, reminding us that behind the playful disorder there is real work and creation taking place. Together, the lines blend warmth, comedy, and craftsmanship, turning an ordinary kitchen moment into something vivid and memorable."_
 
-— **BotenKu** 📅 _Aug 17, 2026_
+— **BotenKu** 📅 _Aug 18, 2026_
 
 </td>
 </tr>
