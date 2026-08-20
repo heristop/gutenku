@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1787133640" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1787220034" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a moment of stillness that is suddenly transformed by the arrival of spring. The image of birch suggests a delicate, natural setting, while the phrase “for awhile all was quiet” creates a calm, almost suspended atmosphere. That quiet is then broken by “a sudden spring,” which brings a sense of renewal, movement, and surprise. The poem feels brief but vivid, using simple language to show how nature can shift from silence to life in an instant."_
+> _"This haiku suggests a deep state of emotional or mental emptiness, where time seems to have vanished in silence. The phrase "annihilated" creates a feeling of total destruction or numbness, as if the speaker has been consumed by despair, fatigue, or inner emptiness. "Hours upon hours passed away" emphasizes a long stretch of time slipping by unnoticed, reinforcing the sense of isolation or unconscious stillness. The final line, "something aroused me," introduces a sudden shift: a faint disturbance, memory, or feeling has stirred the speaker back into awareness. This ending gives the poem a mysterious and intimate quality, leaving the reader to wonder what awakened the speaker and whether it signals hope, fear, or renewed consciousness."_
 
-— **BotenKu** 📅 _Aug 19, 2026_
+— **BotenKu** 📅 _Aug 20, 2026_
 
 </td>
 </tr>
