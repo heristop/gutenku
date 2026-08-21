@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1787220034" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1787306436" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a deep state of emotional or mental emptiness, where time seems to have vanished in silence. The phrase "annihilated" creates a feeling of total destruction or numbness, as if the speaker has been consumed by despair, fatigue, or inner emptiness. "Hours upon hours passed away" emphasizes a long stretch of time slipping by unnoticed, reinforcing the sense of isolation or unconscious stillness. The final line, "something aroused me," introduces a sudden shift: a faint disturbance, memory, or feeling has stirred the speaker back into awareness. This ending gives the poem a mysterious and intimate quality, leaving the reader to wonder what awakened the speaker and whether it signals hope, fear, or renewed consciousness."_
+> _"This haiku reflects on the speaker’s self-aware, almost ironic relationship with art and expression. The word "bookishly" suggests a learned, intellectual, or overly literary approach, while "having attained my effect" implies that the speaker has successfully produced a desired impression. However, the final word, "artificially," undercuts the achievement by revealing that the effect was not natural or spontaneous, but carefully constructed. The poem therefore explores the tension between authenticity and performance, suggesting that art can be both skillful and self-conscious, even when it feels contrived. Its tone is clever, reflective, and slightly humorous, as if the speaker is both proud of and skeptical about their own artistry."_
 
-— **BotenKu** 📅 _Aug 20, 2026_
+— **BotenKu** 📅 _Aug 21, 2026_
 
 </td>
 </tr>
