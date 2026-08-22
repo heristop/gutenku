@@ -1,8 +1,10 @@
 import { isNative } from '@/utils/capacitor';
 
 /**
- * Umami self-hosted is cookieless and stores no visitor identifier, so it needs
- * no consent question. GA does. The mode therefore decides both which tag ships
+ * Umami self-hosted is cookieless and writes no identifier on the visitor's
+ * device, which is what a cookie banner asks about, so it needs no consent
+ * question. GA does. (Umami still derives a pseudonymous visitor hash on the
+ * server — cookieless is not the same claim as anonymous.) The mode therefore decides both which tag ships
  * and whether the cookie banner exists at all.
  *
  * It describes what is *configured*, not what will run: whether the runtime can

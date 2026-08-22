@@ -47,10 +47,12 @@ instead of twice. The mode is read from the env and nothing else: `cap:build`
 ships the very `dist` that vite-ssg prerendered, so an answer that varied by
 platform would prerender markup the device then hydrates without. Native
 (Capacitor) builds load no web tag all the same — the providers rule that out
-themselves. Self-hosted Umami sets no cookie and stores no visitor
-identifier, so there is nothing to consent to: in that mode the banner and the
-footer's cookie control are not rendered at all, and analytics starts on its
-own instead of waiting for a decision. Decisions already stored under GA are
+themselves. Self-hosted Umami sets no cookie and writes no identifier on the
+visitor's device — which is what a cookie banner asks about — so in that mode
+the banner and the footer's cookie control are not rendered at all, and
+analytics starts on its own instead of waiting for a decision. It does still
+derive a pseudonymous visitor hash server-side: cookieless is not the same
+claim as anonymous. Decisions already stored under GA are
 left in place, so switching back finds them.
 
 ```bash
