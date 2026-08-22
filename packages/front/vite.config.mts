@@ -40,6 +40,46 @@ function getBlogSlugs(): string[] {
   return [...slugs];
 }
 
+function originOf(url: string): string | undefined {
+  try {
+    return new URL(url).origin;
+  } catch {
+    // A relative script src — same origin, so nothing to preconnect to and the
+    // app's own caching rules already apply.
+    return undefined;
+  }
+}
+
+const GA_ORIGINS = [
+  'https://www.googletagmanager.com',
+  'https://region1.google-analytics.com',
+];
+
+/**
+ * Mirrors resolveAnalyticsMode() in src/services/analytics/config.ts. The build
+ * needs the same answer as the app to know which origins to preconnect and
+ * which ones must never be served from the service worker cache.
+ *
+ * Read with the build's own mode rather than the module-scope `env` above,
+ * which resolves `.env` only: a production build ships `.env.production`, and a
+ * hint pointing at the provider that is not the one loading is worse than none.
+ */
+function analyticsOrigins(mode: string): string[] {
+  const modeEnv = loadEnv(mode, process.cwd(), ['VITE_']);
+  const umamiScriptSrc = modeEnv.VITE_UMAMI_SRC?.trim() || '';
+  const umamiWebsiteId = modeEnv.VITE_UMAMI_WEBSITE_ID?.trim() || '';
+  const umamiHostUrl = modeEnv.VITE_UMAMI_HOST_URL?.trim() || '';
+
+  if (umamiScriptSrc && umamiWebsiteId) {
+    // Deduplicated: script and collect API usually share a single origin.
+    return [
+      ...new Set([originOf(umamiScriptSrc), originOf(umamiHostUrl)]),
+    ].filter((origin): origin is string => Boolean(origin));
+  }
+
+  return modeEnv.VITE_GA_MEASUREMENT_ID?.trim() ? GA_ORIGINS : [];
+}
+
 const gutenguessBasePath =
   env.GUTENGUESS_PATH ||
   resolve(dirname(fileURLToPath(import.meta.url)), '../../private/gutenguess');
@@ -60,125 +100,160 @@ const vendorChunks: Record<string, string[]> = {
   icons: ['@lucide/vue'],
 };
 
-export default defineConfig(({ isSsrBuild }) => ({
-  plugins: [
-    {
-      name: 'html-url-transform',
-      transformIndexHtml(html) {
-        return html.replaceAll('https://gutenku.xyz', siteUrl);
+export default defineConfig(({ isSsrBuild, mode }) => {
+  const trackerOrigins = analyticsOrigins(mode);
+  // GA's own hosts are already covered by a static rule below.
+  const selfHostedOrigins = trackerOrigins.filter(
+    (origin) => !GA_ORIGINS.includes(origin),
+  );
+
+  return {
+    plugins: [
+      {
+        name: 'html-url-transform',
+        transformIndexHtml(html) {
+          return html.replaceAll('https://gutenku.xyz', siteUrl);
+        },
       },
-    },
-    vue(),
-    VueI18nPlugin({
-      include: resolve(
-        dirname(fileURLToPath(import.meta.url)),
-        './src/locales/*.json',
-      ),
-      strictMessage: false,
-    }),
-    viteCompression(),
-    viteImagemin(),
-    webfontDownload(),
-    visualizer({
-      filename: 'dist/bundle-stats.html',
-      gzipSize: true,
-      brotliSize: true,
-    }),
-    VitePWA({
-      registerType: 'autoUpdate',
-      workbox: {
-        skipWaiting: true,
-        clientsClaim: true,
-        globPatterns: ['**/*.{js,css,ico,png,webp,woff2}'],
-        globIgnores: ['**/bundle-stats.html'],
-        navigateFallback: undefined,
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/.*\.webp$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'cover-images',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30,
+      {
+        // The hints have to follow the configured provider: left as authored,
+        // they would open a connection to Google on every page load of a site
+        // that no longer talks to it — and none at all to the one it does.
+        name: 'analytics-preconnect',
+        transformIndexHtml(html) {
+          const links = trackerOrigins
+            .map((origin) => `<link rel="preconnect" href="${origin}" />`)
+            .join('\n    ');
+
+          return html.replace(
+            /<!-- analytics-preconnect:start -->[\s\S]*?<!-- analytics-preconnect:end -->/,
+            links,
+          );
+        },
+      },
+      vue(),
+      VueI18nPlugin({
+        include: resolve(
+          dirname(fileURLToPath(import.meta.url)),
+          './src/locales/*.json',
+        ),
+        strictMessage: false,
+      }),
+      viteCompression(),
+      viteImagemin(),
+      webfontDownload(),
+      visualizer({
+        filename: 'dist/bundle-stats.html',
+        gzipSize: true,
+        brotliSize: true,
+      }),
+      VitePWA({
+        registerType: 'autoUpdate',
+        workbox: {
+          skipWaiting: true,
+          clientsClaim: true,
+          globPatterns: ['**/*.{js,css,ico,png,webp,woff2}'],
+          globIgnores: ['**/bundle-stats.html'],
+          navigateFallback: undefined,
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/.*\.webp$/,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'cover-images',
+                expiration: {
+                  maxEntries: 100,
+                  maxAgeSeconds: 60 * 60 * 24 * 30,
+                },
               },
             },
-          },
-          {
-            // Never cache the tag or its beacons: a stale gtag.js or a replayed
-            // /g/collect would corrupt the data it is meant to report.
-            urlPattern:
-              /^https:\/\/(www\.googletagmanager\.com|[a-z0-9-]*\.?google-analytics\.com)\/.*/,
-            handler: 'NetworkOnly',
-          },
-        ],
-      },
-      manifest: false,
-    }),
-  ],
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: isSsrBuild
-          ? undefined
-          : (id) => {
-              for (const [chunkName, modules] of Object.entries(vendorChunks)) {
-                if (
-                  modules.some((mod) => id.includes(`/node_modules/${mod}/`))
-                ) {
-                  return chunkName;
-                }
-              }
+            {
+              // Never cache the tag or its beacons: a stale gtag.js or a replayed
+              // /g/collect would corrupt the data it is meant to report.
+              urlPattern:
+                /^https:\/\/(www\.googletagmanager\.com|[a-z0-9-]*\.?google-analytics\.com)\/.*/,
+              handler: 'NetworkOnly',
             },
+            // Same reasoning for the self-hosted tracker: script.js is expected to
+            // be replaceable on the server, and /api/send must never be replayed
+            // from a cache.
+            ...selfHostedOrigins.map((origin) => ({
+              urlPattern: new RegExp(
+                `^${origin.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)}/.*`,
+              ),
+              handler: 'NetworkOnly' as const,
+            })),
+          ],
+        },
+        manifest: false,
+      }),
+    ],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: isSsrBuild
+            ? undefined
+            : (id) => {
+                for (const [chunkName, modules] of Object.entries(
+                  vendorChunks,
+                )) {
+                  if (
+                    modules.some((mod) => id.includes(`/node_modules/${mod}/`))
+                  ) {
+                    return chunkName;
+                  }
+                }
+              },
+        },
       },
     },
-  },
-  define: { 'process.env': {} },
-  resolve: {
-    alias: {
-      '@/features/game': gameModulePath,
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '@content': fileURLToPath(new URL('./content', import.meta.url)),
+    define: { 'process.env': {} },
+    resolve: {
+      alias: {
+        '@/features/game': gameModulePath,
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
+        '@content': fileURLToPath(new URL('./content', import.meta.url)),
+      },
+      extensions: ['.js', '.json', '.jsx', '.mjs', '.ts', '.tsx', '.vue'],
+      dedupe: [
+        'vue',
+        'pinia',
+        'vue-router',
+        'vue-i18n',
+        '@urql/vue',
+        'graphql',
+        '@vueuse/core',
+        '@vueuse/motion',
+        '@lucide/vue',
+        '@unhead/vue',
+      ],
     },
-    extensions: ['.js', '.json', '.jsx', '.mjs', '.ts', '.tsx', '.vue'],
-    dedupe: [
-      'vue',
-      'pinia',
-      'vue-router',
-      'vue-i18n',
-      '@urql/vue',
-      'graphql',
-      '@vueuse/core',
-      '@vueuse/motion',
-      '@lucide/vue',
-      '@unhead/vue',
-    ],
-  },
-  css: {
-    preprocessorOptions: {
-      sass: {
-        api: 'modern-compiler',
-      } as Record<string, unknown>,
-      scss: {
-        api: 'modern-compiler',
-      } as Record<string, unknown>,
+    css: {
+      preprocessorOptions: {
+        sass: {
+          api: 'modern-compiler',
+        } as Record<string, unknown>,
+        scss: {
+          api: 'modern-compiler',
+        } as Record<string, unknown>,
+      },
     },
-  },
-  server: {
-    port: 4444,
-  },
-  ssgOptions: {
-    script: 'async',
-    formatting: 'minify',
-    beastiesOptions: {
-      preload: 'media',
+    server: {
+      port: 4444,
     },
-    includedRoutes(paths) {
-      const blogSlugs = getBlogSlugs();
-      const blogRoutes = blogSlugs.map((slug) => `/blog/${slug}`);
-      const ssgRoutes = ['/', '/haiku', '/blog', '/game', ...blogRoutes];
+    ssgOptions: {
+      script: 'async',
+      formatting: 'minify',
+      beastiesOptions: {
+        preload: 'media',
+      },
+      includedRoutes(paths) {
+        const blogSlugs = getBlogSlugs();
+        const blogRoutes = blogSlugs.map((slug) => `/blog/${slug}`);
+        const ssgRoutes = ['/', '/haiku', '/blog', '/game', ...blogRoutes];
 
-      return [...new Set([...paths, ...ssgRoutes])];
+        return [...new Set([...paths, ...ssgRoutes])];
+      },
     },
-  },
-}));
+  };
+});

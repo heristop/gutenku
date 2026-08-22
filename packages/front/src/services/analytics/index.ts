@@ -1,8 +1,11 @@
 import type { RouteLocationNormalized, Router } from 'vue-router';
 import { gaProvider } from './ga';
+import { umamiProvider } from './umami';
 import type { AnalyticsProvider, EventParams, PageView } from './types';
 
-const providers: AnalyticsProvider[] = [gaProvider];
+// At most one is ever available: the mode picks the tag, and Umami wins when
+// both are configured. Listing them here keeps the choice a runtime concern.
+const providers: AnalyticsProvider[] = [umamiProvider, gaProvider];
 
 let started = false;
 let lastPath: string | undefined;
@@ -87,3 +90,5 @@ export function resetAnalyticsForTests(): void {
 }
 
 export type { AnalyticsProvider, EventParams, PageView };
+export { isConsentRequired, resolveAnalyticsMode } from './config';
+export type { AnalyticsMode } from './config';

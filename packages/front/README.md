@@ -30,6 +30,39 @@ Or copy env variables first:
 cp .env.example .env
 ```
 
+## Analytics
+
+Two providers ship behind one `AnalyticsProvider` interface
+(`src/services/analytics/`). Which one runs is decided by the env alone, and it
+decides the cookie banner with it.
+
+| Mode    | Env                                               | Cookie banner |
+| ------- | ------------------------------------------------- | ------------- |
+| `none`  | nothing set — also every native (Capacitor) build | none          |
+| `ga`    | `VITE_GA_MEASUREMENT_ID`                          | shown         |
+| `umami` | `VITE_UMAMI_SRC` **and** `VITE_UMAMI_WEBSITE_ID`  | none          |
+
+Umami wins when both are configured, so a half-finished migration measures once
+instead of twice. Self-hosted Umami sets no cookie and stores no visitor
+identifier, so there is nothing to consent to: in that mode the banner and the
+footer's cookie control are not rendered at all, and analytics starts on its
+own instead of waiting for a decision. Decisions already stored under GA are
+left in place, so switching back finds them.
+
+```bash
+VITE_UMAMI_SRC=https://umami.example.com/script.js
+VITE_UMAMI_WEBSITE_ID=00000000-0000-0000-0000-000000000000
+# Only when the collect API answers on another origin than the script.
+VITE_UMAMI_HOST_URL=
+```
+
+The build reads the same variables to swap the `preconnect` hints in
+`index.html` and to keep the tracker origin out of the service worker cache
+(`vite.config.mts`). If the site is served behind a Content-Security-Policy —
+none is defined in this repository, so it would live in the web server or CDN
+config — the Umami origin has to be allowed in `script-src` and `connect-src`,
+and the Google origins can be dropped once GA is gone.
+
 ## Tech Stack
 
 - Vue 3 (Composition API)

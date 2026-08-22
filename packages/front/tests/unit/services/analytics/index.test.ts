@@ -23,20 +23,28 @@ function stubRouter(path: string, title?: string): StubRouter {
   };
 }
 
-async function loadAnalytics(available: boolean) {
-  const provider = {
-    name: 'stub',
+function stubProvider(name: string, available: boolean) {
+  return {
+    name,
     isAvailable: vi.fn(() => available),
     load: vi.fn(),
     trackPageView: vi.fn(),
     trackEvent: vi.fn(),
   };
+}
+
+async function loadAnalytics(available: boolean) {
+  const provider = stubProvider('ga', available);
+  // Only one provider is ever available at a time; the other has to be stubbed
+  // out or the real module would read the ambient env.
+  const umami = stubProvider('umami', false);
 
   vi.doMock('@/services/analytics/ga', () => ({ gaProvider: provider }));
+  vi.doMock('@/services/analytics/umami', () => ({ umamiProvider: umami }));
 
   const module = await import('@/services/analytics');
 
-  return { module, provider };
+  return { module, provider, umami };
 }
 
 describe('initAnalytics', () => {
@@ -122,5 +130,27 @@ describe('initAnalytics', () => {
 
     expect(provider.load).not.toHaveBeenCalled();
     expect(provider.trackPageView).not.toHaveBeenCalled();
+  });
+
+  it('reports through the one provider the mode selected', async () => {
+    const ga = stubProvider('ga', false);
+    const umami = stubProvider('umami', true);
+
+    vi.doMock('@/services/analytics/ga', () => ({ gaProvider: ga }));
+    vi.doMock('@/services/analytics/umami', () => ({ umamiProvider: umami }));
+
+    const module = await import('@/services/analytics');
+    const { router } = stubRouter('/haiku', 'Haiku');
+
+    module.initAnalytics(router);
+    module.trackEvent('haiku_generated');
+
+    expect(umami.load).toHaveBeenCalledTimes(1);
+    expect(umami.trackPageView).toHaveBeenCalledTimes(1);
+    expect(umami.trackEvent).toHaveBeenCalledWith('haiku_generated', undefined);
+    // Switching providers must not leave the old tag sending in parallel.
+    expect(ga.load).not.toHaveBeenCalled();
+    expect(ga.trackPageView).not.toHaveBeenCalled();
+    expect(ga.trackEvent).not.toHaveBeenCalled();
   });
 });

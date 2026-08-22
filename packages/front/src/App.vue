@@ -9,7 +9,7 @@ import { useCookieConsent } from '@/core/composables/cookie-consent';
 import { isNative, isIOS, platform } from '@/utils/capacitor';
 
 const router = useRouter();
-const { analyticsAllowed } = useCookieConsent();
+const { analyticsAllowed, isConsentRequired } = useCookieConsent();
 
 const startAnalytics = () =>
   import('@/services/analytics').then(({ initAnalytics }) =>
@@ -30,6 +30,7 @@ function scheduleAnalytics() {
 }
 
 // Accepting mid-session takes effect at once, with no reload and no idle wait.
+// Only reachable under a provider that asks; the others start on their own.
 watch(analyticsAllowed, (allowed) => {
   if (!allowed) {
     return;
@@ -63,8 +64,9 @@ onMounted(async () => {
     }
   }
 
-  // Analytics is opt-in: nothing loads until the visitor has said yes.
-  if (analyticsAllowed.value) {
+  // Analytics is opt-in for as long as the tag needs a cookie. A cookieless,
+  // self-hosted provider is asked no question and starts straight away.
+  if (!isConsentRequired.value || analyticsAllowed.value) {
     scheduleAnalytics();
   }
 });
