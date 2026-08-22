@@ -9,8 +9,10 @@ import ThemeToggle from '@/core/components/ThemeToggle.vue';
 import AccessibilityToggle from '@/core/components/AccessibilityToggle.vue';
 import CookieConsentToggle from '@/core/components/CookieConsentToggle.vue';
 import { useLocale } from '@/core/composables/locale';
+import { useCookieConsent } from '@/core/composables/cookie-consent';
 
 const { t } = useI18n();
+const { isConsentRequired } = useCookieConsent();
 const { currentLocale, availableLocales, setLocale, getLocaleLabel } =
   useLocale();
 const currentYear = new Date().getFullYear();
@@ -221,8 +223,9 @@ function openSocialLink(url: string) {
         </div>
         <AccessibilityToggle class="stagger-9" />
         <!-- Consent is a site preference, so it sits with the other
-             preferences rather than beside the copyright. -->
-        <CookieConsentToggle class="stagger-10" />
+             preferences rather than beside the copyright. Gone entirely under a
+             cookieless provider: the control would open an empty question. -->
+        <CookieConsentToggle v-if="isConsentRequired" class="stagger-10" />
       </div>
     </div>
 

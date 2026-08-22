@@ -6,6 +6,9 @@ interface ImportMetaEnv {
   readonly VITE_SERVER_HOST?: string;
   readonly VITE_WEBSOCKET_HOST?: string;
   readonly VITE_GA_MEASUREMENT_ID?: string;
+  readonly VITE_UMAMI_SRC?: string;
+  readonly VITE_UMAMI_WEBSITE_ID?: string;
+  readonly VITE_UMAMI_HOST_URL?: string;
 }
 
 interface ImportMeta {

@@ -37,9 +37,14 @@
     <meta name="author" content="GutenKu" />
     <meta name="robots" content="index, follow" />
 
-    <!-- Preconnect for external services -->
+    <!-- Preconnect for external services. The block below is replaced at build
+         time with the origins of the configured analytics provider, and left
+         empty when there is none — see vite.config.mts. The GA hosts are the
+         authored default so the file stands on its own. -->
+    <!-- analytics-preconnect:start -->
     <link rel="preconnect" href="https://www.googletagmanager.com" />
     <link rel="preconnect" href="https://region1.google-analytics.com" />
+    <!-- analytics-preconnect:end -->
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
