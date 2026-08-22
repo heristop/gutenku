@@ -55,6 +55,16 @@ const GA_ORIGINS = [
   'https://region1.google-analytics.com',
 ];
 
+interface AnalyticsOrigins {
+  /** Origins worth a preconnect hint, whoever hosts them. */
+  preconnect: string[];
+  /**
+   * Self-hosted origins only. Kept apart from the GA hosts, which have their
+   * own literal caching rule below and never reach a built pattern.
+   */
+  selfHosted: string[];
+}
+
 /**
  * Mirrors resolveAnalyticsMode() in src/services/analytics/config.ts. The build
  * needs the same answer as the app to know which origins to preconnect and
@@ -64,7 +74,7 @@ const GA_ORIGINS = [
  * which resolves `.env` only: a production build ships `.env.production`, and a
  * hint pointing at the provider that is not the one loading is worse than none.
  */
-function analyticsOrigins(mode: string): string[] {
+function analyticsOrigins(mode: string): AnalyticsOrigins {
   const modeEnv = loadEnv(mode, process.cwd(), ['VITE_']);
   const umamiScriptSrc = modeEnv.VITE_UMAMI_SRC?.trim() || '';
   const umamiWebsiteId = modeEnv.VITE_UMAMI_WEBSITE_ID?.trim() || '';
@@ -72,12 +82,28 @@ function analyticsOrigins(mode: string): string[] {
 
   if (umamiScriptSrc && umamiWebsiteId) {
     // Deduplicated: script and collect API usually share a single origin.
-    return [
+    const origins = [
       ...new Set([originOf(umamiScriptSrc), originOf(umamiHostUrl)]),
     ].filter((origin): origin is string => Boolean(origin));
+
+    return { preconnect: origins, selfHosted: origins };
   }
 
-  return modeEnv.VITE_GA_MEASUREMENT_ID?.trim() ? GA_ORIGINS : [];
+  return {
+    preconnect: modeEnv.VITE_GA_MEASUREMENT_ID?.trim() ? GA_ORIGINS : [],
+    selfHosted: [],
+  };
+}
+
+/**
+ * Matches an origin and everything under it. Every metacharacter is escaped,
+ * the dots of the hostname included: left bare, `stats.example.com` would also
+ * match `statsXexample.com` — an origin somebody else can register.
+ */
+function originPrefixPattern(origin: string): RegExp {
+  const escaped = origin.replaceAll(/[$()*+.?[\\\]^{|}]/g, '\\$&');
+
+  return new RegExp(`^${escaped}/`);
 }
 
 const gutenguessBasePath =
@@ -102,10 +128,6 @@ const vendorChunks: Record<string, string[]> = {
 
 export default defineConfig(({ isSsrBuild, mode }) => {
   const trackerOrigins = analyticsOrigins(mode);
-  // GA's own hosts are already covered by a static rule below.
-  const selfHostedOrigins = trackerOrigins.filter(
-    (origin) => !GA_ORIGINS.includes(origin),
-  );
 
   return {
     plugins: [
@@ -121,7 +143,7 @@ export default defineConfig(({ isSsrBuild, mode }) => {
         // that no longer talks to it — and none at all to the one it does.
         name: 'analytics-preconnect',
         transformIndexHtml(html) {
-          const links = trackerOrigins
+          const links = trackerOrigins.preconnect
             .map((origin) => `<link rel="preconnect" href="${origin}" />`)
             .join('\n    ');
 
@@ -170,17 +192,18 @@ export default defineConfig(({ isSsrBuild, mode }) => {
             {
               // Never cache the tag or its beacons: a stale gtag.js or a replayed
               // /g/collect would corrupt the data it is meant to report.
+              // The subdomain group is optional as a whole: `[a-z0-9-]*\.?`
+              // would also match `evilgoogle-analytics.com`, a host anyone can
+              // register.
               urlPattern:
-                /^https:\/\/(www\.googletagmanager\.com|[a-z0-9-]*\.?google-analytics\.com)\/.*/,
+                /^https:\/\/(www\.googletagmanager\.com|(?:[a-z0-9-]+\.)?google-analytics\.com)\//,
               handler: 'NetworkOnly',
             },
             // Same reasoning for the self-hosted tracker: script.js is expected to
             // be replaceable on the server, and /api/send must never be replayed
             // from a cache.
-            ...selfHostedOrigins.map((origin) => ({
-              urlPattern: new RegExp(
-                `^${origin.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)}/.*`,
-              ),
+            ...trackerOrigins.selfHosted.map((origin) => ({
+              urlPattern: originPrefixPattern(origin),
               handler: 'NetworkOnly' as const,
             })),
           ],
