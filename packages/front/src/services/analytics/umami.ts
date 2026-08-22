@@ -18,6 +18,7 @@ const SCRIPT_ID = 'umami-tracker';
 const MAX_QUEUED_CALLS = 20;
 
 let loaded = false;
+let failed = false;
 let queue: Array<(tracker: UmamiTracker) => void> = [];
 
 function getTracker(): UmamiTracker | undefined {
@@ -38,6 +39,12 @@ function send(call: (tracker: UmamiTracker) => void): void {
   if (tracker) {
     call(tracker);
 
+    return;
+  }
+
+  // The script errored: every later call would buffer a closure that has
+  // nothing left to flush it, so stop holding them at all.
+  if (failed) {
     return;
   }
 
@@ -101,6 +108,7 @@ export const umamiProvider: AnalyticsProvider = {
     script.addEventListener(
       'error',
       () => {
+        failed = true;
         queue = [];
       },
       { once: true },
@@ -132,5 +140,6 @@ export const umamiProvider: AnalyticsProvider = {
 /** Test seam: module scope would otherwise leak between cases. */
 export function resetUmamiForTests(): void {
   loaded = false;
+  failed = false;
   queue = [];
 }

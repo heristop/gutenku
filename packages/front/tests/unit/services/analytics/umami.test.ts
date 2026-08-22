@@ -125,6 +125,23 @@ describe('umami provider', () => {
     expect(tracker.track).not.toHaveBeenCalled();
   });
 
+  it('stops buffering once the script has failed', async () => {
+    const { umamiProvider } = await loadProvider();
+
+    umamiProvider.load();
+    trackerScript()?.dispatchEvent(new Event('error'));
+
+    // Every later navigation would otherwise retain a closure with nothing
+    // left to flush it — the queue would refill and stay full for the session.
+    for (let index = 0; index < 50; index += 1) {
+      umamiProvider.trackPageView({ path: `/page-${index}` });
+    }
+
+    const tracker = arrive();
+
+    expect(tracker.track).not.toHaveBeenCalled();
+  });
+
   it('caps the queue so a blocked tracker cannot grow it without bound', async () => {
     const { umamiProvider } = await loadProvider();
 
