@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1787306436" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1787392830" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku reflects on the speaker’s self-aware, almost ironic relationship with art and expression. The word "bookishly" suggests a learned, intellectual, or overly literary approach, while "having attained my effect" implies that the speaker has successfully produced a desired impression. However, the final word, "artificially," undercuts the achievement by revealing that the effect was not natural or spontaneous, but carefully constructed. The poem therefore explores the tension between authenticity and performance, suggesting that art can be both skillful and self-conscious, even when it feels contrived. Its tone is clever, reflective, and slightly humorous, as if the speaker is both proud of and skeptical about their own artistry."_
+> _"This haiku suggests a feeling of starting over after hardship, with the phrase "beginning again" evoking renewal, resilience, and hope. The image of a "strong martial woman" presents a figure of discipline, courage, and inner power, perhaps someone shaped by struggle or training. The final phrase, "half precious stone," is especially evocative: it can imply something rare, valuable, and unfinished, as though the woman is both beautiful and incomplete, or in the process of becoming. Together, the haiku blends strength and vulnerability, suggesting that true value often lies in endurance and transformation."_
 
-— **BotenKu** 📅 _Aug 21, 2026_
+— **BotenKu** 📅 _Aug 22, 2026_
 
 </td>
 </tr>
