@@ -36,14 +36,18 @@ Two providers ship behind one `AnalyticsProvider` interface
 (`src/services/analytics/`). Which one runs is decided by the env alone, and it
 decides the cookie banner with it.
 
-| Mode    | Env                                               | Cookie banner |
-| ------- | ------------------------------------------------- | ------------- |
-| `none`  | nothing set — also every native (Capacitor) build | none          |
-| `ga`    | `VITE_GA_MEASUREMENT_ID`                          | shown         |
-| `umami` | `VITE_UMAMI_SRC` **and** `VITE_UMAMI_WEBSITE_ID`  | none          |
+| Mode    | Env                                              | Cookie banner |
+| ------- | ------------------------------------------------ | ------------- |
+| `none`  | nothing set                                      | none          |
+| `ga`    | `VITE_GA_MEASUREMENT_ID`                         | shown         |
+| `umami` | `VITE_UMAMI_SRC` **and** `VITE_UMAMI_WEBSITE_ID` | none          |
 
 Umami wins when both are configured, so a half-finished migration measures once
-instead of twice. Self-hosted Umami sets no cookie and stores no visitor
+instead of twice. The mode is read from the env and nothing else: `cap:build`
+ships the very `dist` that vite-ssg prerendered, so an answer that varied by
+platform would prerender markup the device then hydrates without. Native
+(Capacitor) builds load no web tag all the same — the providers rule that out
+themselves. Self-hosted Umami sets no cookie and stores no visitor
 identifier, so there is nothing to consent to: in that mode the banner and the
 footer's cookie control are not rendered at all, and analytics starts on its
 own instead of waiting for a decision. Decisions already stored under GA are

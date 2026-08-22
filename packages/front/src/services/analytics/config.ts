@@ -4,6 +4,9 @@ import { isNative } from '@/utils/capacitor';
  * Umami self-hosted is cookieless and stores no visitor identifier, so it needs
  * no consent question. GA does. The mode therefore decides both which tag ships
  * and whether the cookie banner exists at all.
+ *
+ * It describes what is *configured*, not what will run: whether the runtime can
+ * host a tag at all is the providers' question, answered by canHostTag().
  */
 export type AnalyticsMode = 'umami' | 'ga' | 'none';
 
@@ -46,19 +49,15 @@ export function getUmamiConfig(): UmamiConfig | undefined {
 
 /**
  * Umami wins over GA when both are configured, so a half-finished migration
- * measures once rather than twice. Native builds ship through the app stores
- * and carry no web tag at all.
+ * measures once rather than twice.
  *
- * Deliberately free of any `document` check: the banner's visibility derives
- * from this, and vite-ssg prerenders in Node — a mode that changed between the
- * prerender and the client would make the footer hydrate against a different
- * tree.
+ * Deliberately free of every runtime signal — `document`, the platform — and
+ * derived from the env alone. The footer's cookie control is prerendered from
+ * this, and `cap:build` ships the very `dist` that vite-ssg prerendered in Node
+ * to the app stores: a mode that answered differently on the device would make
+ * the footer hydrate against a different tree.
  */
 export function resolveAnalyticsMode(): AnalyticsMode {
-  if (isNative) {
-    return 'none';
-  }
-
   if (getUmamiConfig()) {
     return 'umami';
   }
@@ -66,9 +65,18 @@ export function resolveAnalyticsMode(): AnalyticsMode {
   return getGaMeasurementId() ? 'ga' : 'none';
 }
 
-/** False while prerendering: a vendor tag needs a live document to attach to. */
+/**
+ * Whether this runtime can host a vendor tag at all: vite-ssg prerenders with
+ * no document to attach one to, and native builds ship through the app stores
+ * rather than the web property.
+ */
 export function canHostTag(): boolean {
-  return typeof document !== 'undefined';
+  return typeof document !== 'undefined' && !isNative;
+}
+
+/** False when nothing is configured — not even a chunk is worth fetching. */
+export function isAnalyticsEnabled(): boolean {
+  return resolveAnalyticsMode() !== 'none';
 }
 
 export function isConsentRequired(): boolean {

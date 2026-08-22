@@ -73,6 +73,10 @@ interface AnalyticsOrigins {
  * Read with the build's own mode rather than the module-scope `env` above,
  * which resolves `.env` only: a production build ships `.env.production`, and a
  * hint pointing at the provider that is not the one loading is worse than none.
+ *
+ * Like resolveAnalyticsMode(), it reads the env and nothing else. `cap:build`
+ * ships this very `dist` to the app stores, so there is no build-time answer to
+ * which platform will run it.
  */
 function analyticsOrigins(mode: string): AnalyticsOrigins {
   const modeEnv = loadEnv(mode, process.cwd(), ['VITE_']);

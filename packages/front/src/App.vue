@@ -6,10 +6,13 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import PwaInstallBanner from '@/core/components/ui/PwaInstallBanner.vue';
 import CookieConsentBanner from '@/core/components/ui/CookieConsentBanner.vue';
 import { useCookieConsent } from '@/core/composables/cookie-consent';
+import { isAnalyticsEnabled } from '@/services/analytics/config';
 import { isNative, isIOS, platform } from '@/utils/capacitor';
 
 const router = useRouter();
 const { analyticsAllowed, isConsentRequired } = useCookieConsent();
+// No provider configured: loading the chunk would buy nothing but a no-op.
+const analyticsEnabled = isAnalyticsEnabled();
 
 const startAnalytics = () =>
   import('@/services/analytics').then(({ initAnalytics }) =>
@@ -32,7 +35,7 @@ function scheduleAnalytics() {
 // Accepting mid-session takes effect at once, with no reload and no idle wait.
 // Only reachable under a provider that asks; the others start on their own.
 watch(analyticsAllowed, (allowed) => {
-  if (!allowed) {
+  if (!allowed || !analyticsEnabled) {
     return;
   }
 
@@ -66,7 +69,10 @@ onMounted(async () => {
 
   // Analytics is opt-in for as long as the tag needs a cookie. A cookieless,
   // self-hosted provider is asked no question and starts straight away.
-  if (!isConsentRequired.value || analyticsAllowed.value) {
+  if (
+    analyticsEnabled &&
+    (!isConsentRequired.value || analyticsAllowed.value)
+  ) {
     scheduleAnalytics();
   }
 });

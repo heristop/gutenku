@@ -8,8 +8,8 @@ const SCRIPT_ID = 'ga-gtag';
 let loaded = false;
 
 export function isGaAvailable(): boolean {
-  // vite-ssg prerenders without a document to attach the tag to. The mode
-  // covers the rest: unconfigured, a native build, or Umami taking over.
+  // canHostTag() rules out the prerender and the native builds; the mode covers
+  // the rest: unconfigured, or Umami taking over.
   return canHostTag() && resolveAnalyticsMode() === 'ga';
 }
 

@@ -79,12 +79,38 @@ describe('analytics config', () => {
     expect(resolveAnalyticsMode()).toBe('none');
   });
 
-  it('ships no web tag in a native build', async () => {
-    vi.stubEnv('VITE_UMAMI_SRC', SCRIPT_SRC);
-    vi.stubEnv('VITE_UMAMI_WEBSITE_ID', WEBSITE_ID);
+  it('reports whether anything is configured at all', async () => {
+    const unconfigured = await loadConfig();
 
-    const { resolveAnalyticsMode } = await loadConfig({ native: true });
+    expect(unconfigured.isAnalyticsEnabled()).toBeFalsy();
 
-    expect(resolveAnalyticsMode()).toBe('none');
+    vi.resetModules();
+    vi.stubEnv('VITE_GA_MEASUREMENT_ID', MEASUREMENT_ID);
+
+    const configured = await loadConfig();
+
+    expect(configured.isAnalyticsEnabled()).toBeTruthy();
+  });
+
+  it('keeps the mode a build-time answer the platform cannot change', async () => {
+    vi.stubEnv('VITE_GA_MEASUREMENT_ID', MEASUREMENT_ID);
+
+    const { resolveAnalyticsMode, canHostTag } = await loadConfig({
+      native: true,
+    });
+
+    // `cap:build` ships the very dist vite-ssg prerendered in Node. A mode that
+    // answered differently on the device would prerender the footer's cookie
+    // control and then hydrate without it.
+    expect(resolveAnalyticsMode()).toBe('ga');
+    // The tag is kept out of native builds here instead, where the providers
+    // read it — nothing the prerendered markup depends on.
+    expect(canHostTag()).toBeFalsy();
+  });
+
+  it('hosts a tag in a browser', async () => {
+    const { canHostTag } = await loadConfig();
+
+    expect(canHostTag()).toBeTruthy();
   });
 });
