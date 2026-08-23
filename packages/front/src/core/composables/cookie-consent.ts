@@ -1,4 +1,7 @@
 import { computed, readonly, ref } from 'vue';
+// Config only — reading it pulls in no vendor tag, so the analytics chunk stays
+// lazily loaded as before.
+import { isConsentRequired } from '@/services/analytics/config';
 
 export type ConsentStatus = 'undecided' | 'accepted' | 'declined';
 
@@ -117,6 +120,12 @@ function decline(): void {
  * changes their mind twice is never left without one.
  */
 export function openCookieConsent(): void {
+  // A cookieless provider has nothing to ask about: opening would show a banner
+  // whose only outcome is turning off something that was never on.
+  if (!isConsentRequired()) {
+    return;
+  }
+
   hydrate();
   isReopened.value = true;
 }
@@ -124,12 +133,20 @@ export function openCookieConsent(): void {
 export function useCookieConsent() {
   hydrate();
 
+  // Constant for a build — it is derived from the env — but exposed as a
+  // computed so templates and watchers consume it like the rest.
+  const consentRequired = computed(() => isConsentRequired());
+
   return {
     status: readonly(status),
     isDecided: computed(() => status.value !== 'undecided'),
     analyticsAllowed: computed(() => status.value === 'accepted'),
+    /** False under a cookieless provider: no banner, no footer control. */
+    isConsentRequired: consentRequired,
     isBannerVisible: computed(
-      () => isReopened.value || status.value === 'undecided',
+      () =>
+        consentRequired.value &&
+        (isReopened.value || status.value === 'undecided'),
     ),
 
     accept,

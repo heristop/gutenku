@@ -13,6 +13,10 @@ describe('ga provider', () => {
     vi.resetModules();
     vi.clearAllMocks();
     vi.stubEnv('VITE_GA_MEASUREMENT_ID', MEASUREMENT_ID);
+    // The mode decides availability now, so an ambient Umami config in .env
+    // would take GA off the page and fail these cases for the wrong reason.
+    vi.stubEnv('VITE_UMAMI_SRC', '');
+    vi.stubEnv('VITE_UMAMI_WEBSITE_ID', '');
     document.head.innerHTML = '';
     delete (globalThis as { dataLayer?: unknown[] }).dataLayer;
   });

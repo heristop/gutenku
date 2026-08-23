@@ -1,4 +1,4 @@
-import { isNative } from '@/utils/capacitor';
+import { canHostTag, getGaMeasurementId, resolveAnalyticsMode } from './config';
 import type { AnalyticsProvider, EventParams, PageView } from './types';
 
 type GtagArgs = unknown[];
@@ -7,20 +7,10 @@ const SCRIPT_ID = 'ga-gtag';
 
 let loaded = false;
 
-export function getMeasurementId(): string | undefined {
-  const id = import.meta.env.VITE_GA_MEASUREMENT_ID;
-
-  return typeof id === 'string' && id.length > 0 ? id : undefined;
-}
-
 export function isGaAvailable(): boolean {
-  // vite-ssg prerenders without a document, and native builds ship through the
-  // app stores rather than the web property.
-  if (typeof document === 'undefined' || isNative) {
-    return false;
-  }
-
-  return getMeasurementId() !== undefined;
+  // canHostTag() rules out the prerender and the native builds; the mode covers
+  // the rest: unconfigured, or Umami taking over.
+  return canHostTag() && resolveAnalyticsMode() === 'ga';
 }
 
 /**
@@ -53,7 +43,7 @@ export const gaProvider: AnalyticsProvider = {
       return;
     }
 
-    const id = getMeasurementId();
+    const id = getGaMeasurementId();
 
     if (!id) {
       return;

@@ -1,7 +1,23 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { nextTick, watchEffect } from 'vue';
 
 const STORAGE_KEY = 'gutenku-cookie-consent';
+const MEASUREMENT_ID = 'G-TEST12345';
+const UMAMI_SRC = 'https://stats.example.test/script.js';
+const UMAMI_WEBSITE_ID = '0d1e2f34-5678-49ab-cdef-0123456789ab';
+
+/** The question only exists under a provider that needs a cookie. */
+function useGaMode(): void {
+  vi.stubEnv('VITE_GA_MEASUREMENT_ID', MEASUREMENT_ID);
+  vi.stubEnv('VITE_UMAMI_SRC', '');
+  vi.stubEnv('VITE_UMAMI_WEBSITE_ID', '');
+}
+
+function useUmamiMode(): void {
+  vi.stubEnv('VITE_GA_MEASUREMENT_ID', '');
+  vi.stubEnv('VITE_UMAMI_SRC', UMAMI_SRC);
+  vi.stubEnv('VITE_UMAMI_WEBSITE_ID', UMAMI_WEBSITE_ID);
+}
 
 type ConsentModule = typeof import('@/core/composables/cookie-consent');
 
@@ -37,6 +53,11 @@ describe('cookie consent', () => {
   beforeEach(() => {
     vi.resetModules();
     localStorage.clear();
+    useGaMode();
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it('starts undecided and keeps analytics off', async () => {
@@ -186,5 +207,54 @@ describe('cookie consent', () => {
     expect(useCookieConsent().status.value).toBe('undecided');
 
     getItem.mockRestore();
+  });
+});
+
+describe('cookie consent under a cookieless provider', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    localStorage.clear();
+    useUmamiMode();
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('never shows the banner', async () => {
+    const { useCookieConsent } = await loadConsent();
+    const consent = useCookieConsent();
+
+    expect(consent.isConsentRequired.value).toBeFalsy();
+    // Nothing was ever asked, so the visitor is still "undecided" — the banner
+    // must stay away all the same.
+    expect(consent.status.value).toBe('undecided');
+    expect(consent.isBannerVisible.value).toBeFalsy();
+  });
+
+  it('ignores a request to reopen the question', async () => {
+    const { useCookieConsent, openCookieConsent } = await loadConsent();
+    const consent = useCookieConsent();
+
+    openCookieConsent();
+    await nextTick();
+
+    // The footer control is hidden in this mode; if anything else reaches
+    // here, an empty banner is the one outcome that must not happen.
+    expect(consent.isBannerVisible.value).toBeFalsy();
+  });
+
+  it('leaves a decision recorded under GA untouched', async () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ version: 1, decidedAt: 0, analytics: false }),
+    );
+
+    const { useCookieConsent } = await loadConsent();
+    const consent = useCookieConsent();
+
+    // Nothing is dropped: switching back to GA has to find the old refusal.
+    expect(consent.status.value).toBe('declined');
+    expect(consent.isBannerVisible.value).toBeFalsy();
   });
 });
