@@ -34,21 +34,19 @@ function stubProvider(name: string, available: boolean) {
 }
 
 async function loadAnalytics(available: boolean) {
-  const provider = stubProvider('ga', available);
-  // Only one provider is ever available at a time; the others have to be
-  // stubbed out or the real modules would read the ambient env.
+  const provider = stubProvider('cloudflare', available);
+  // Only one provider is ever available at a time; the other has to be stubbed
+  // out or the real module would read the ambient env.
   const umami = stubProvider('umami', false);
-  const cloudflare = stubProvider('cloudflare', false);
 
-  vi.doMock('@/services/analytics/ga', () => ({ gaProvider: provider }));
-  vi.doMock('@/services/analytics/umami', () => ({ umamiProvider: umami }));
   vi.doMock('@/services/analytics/cloudflare', () => ({
-    cloudflareProvider: cloudflare,
+    cloudflareProvider: provider,
   }));
+  vi.doMock('@/services/analytics/umami', () => ({ umamiProvider: umami }));
 
   const module = await import('@/services/analytics');
 
-  return { module, provider, umami, cloudflare };
+  return { module, provider, umami };
 }
 
 describe('initAnalytics', () => {
@@ -137,11 +135,9 @@ describe('initAnalytics', () => {
   });
 
   it('reports through the one provider the mode selected', async () => {
-    const ga = stubProvider('ga', false);
     const umami = stubProvider('umami', true);
     const cloudflare = stubProvider('cloudflare', false);
 
-    vi.doMock('@/services/analytics/ga', () => ({ gaProvider: ga }));
     vi.doMock('@/services/analytics/umami', () => ({ umamiProvider: umami }));
     vi.doMock('@/services/analytics/cloudflare', () => ({
       cloudflareProvider: cloudflare,
@@ -156,9 +152,9 @@ describe('initAnalytics', () => {
     expect(umami.load).toHaveBeenCalledTimes(1);
     expect(umami.trackPageView).toHaveBeenCalledTimes(1);
     expect(umami.trackEvent).toHaveBeenCalledWith('haiku_generated', undefined);
-    // Switching providers must not leave the old tag sending in parallel.
-    expect(ga.load).not.toHaveBeenCalled();
-    expect(ga.trackPageView).not.toHaveBeenCalled();
-    expect(ga.trackEvent).not.toHaveBeenCalled();
+    // Switching providers must not leave the other tag sending in parallel.
+    expect(cloudflare.load).not.toHaveBeenCalled();
+    expect(cloudflare.trackPageView).not.toHaveBeenCalled();
+    expect(cloudflare.trackEvent).not.toHaveBeenCalled();
   });
 });

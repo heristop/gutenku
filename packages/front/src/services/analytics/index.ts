@@ -1,16 +1,11 @@
 import type { RouteLocationNormalized, Router } from 'vue-router';
 import { cloudflareProvider } from './cloudflare';
-import { gaProvider } from './ga';
 import { umamiProvider } from './umami';
 import type { AnalyticsProvider, EventParams, PageView } from './types';
 
 // At most one is ever available: the mode picks the tag, and Umami wins when
 // both are configured. Listing them here keeps the choice a runtime concern.
-const providers: AnalyticsProvider[] = [
-  umamiProvider,
-  cloudflareProvider,
-  gaProvider,
-];
+const providers: AnalyticsProvider[] = [umamiProvider, cloudflareProvider];
 
 let started = false;
 let lastPath: string | undefined;

@@ -34,7 +34,6 @@ describe('umami provider', () => {
     vi.stubEnv('VITE_UMAMI_SRC', SCRIPT_SRC);
     vi.stubEnv('VITE_UMAMI_WEBSITE_ID', WEBSITE_ID);
     vi.stubEnv('VITE_UMAMI_HOST_URL', '');
-    vi.stubEnv('VITE_GA_MEASUREMENT_ID', '');
     document.head.innerHTML = '';
     delete (globalThis as { umami?: TrackerStub }).umami;
   });

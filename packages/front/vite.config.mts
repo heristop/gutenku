@@ -50,11 +50,6 @@ function originOf(url: string): string | undefined {
   }
 }
 
-const GA_ORIGINS = [
-  'https://www.googletagmanager.com',
-  'https://region1.google-analytics.com',
-];
-
 /** Cloudflare serves its beacon from one origin, and collects on the same one. */
 const CLOUDFLARE_ORIGIN = 'https://static.cloudflareinsights.com';
 
@@ -111,14 +106,11 @@ function analyticsOrigins(mode: string): AnalyticsOrigins {
 
   if (modeEnv.VITE_CLOUDFLARE_TOKEN?.trim()) {
     // `selfHosted` stays empty: the beacon has a literal caching rule below,
-    // like the Google hosts, so this constant never reaches a built pattern.
+    // so this constant never reaches a built pattern.
     return { preconnect: [CLOUDFLARE_ORIGIN], selfHosted: [] };
   }
 
-  return {
-    preconnect: modeEnv.VITE_GA_MEASUREMENT_ID?.trim() ? GA_ORIGINS : [],
-    selfHosted: [],
-  };
+  return { preconnect: [], selfHosted: [] };
 }
 
 /**
@@ -216,20 +208,10 @@ export default defineConfig(({ isSsrBuild, mode }) => {
               },
             },
             {
-              // Never cache the tag or its beacons: a stale gtag.js or a replayed
-              // /g/collect would corrupt the data it is meant to report.
-              // The subdomain group is optional as a whole: `[a-z0-9-]*\.?`
-              // would also match `evilgoogle-analytics.com`, a host anyone can
-              // register.
-              urlPattern:
-                /^https:\/\/(www\.googletagmanager\.com|(?:[a-z0-9-]+\.)?google-analytics\.com)\//,
-              handler: 'NetworkOnly',
-            },
-            {
-              // Cloudflare's beacon, for the same reason: a stale script, or a
-              // replayed collect served from the cache, corrupts the data it is
-              // meant to report. A literal pattern with its dots escaped, not
-              // one built from the constant above.
+              // Never cache Cloudflare's beacon: a stale script, or a replayed
+              // collect served from the cache, corrupts the data it is meant to
+              // report. A literal pattern with its dots escaped, not one built
+              // from the constant above.
               urlPattern: /^https:\/\/static\.cloudflareinsights\.com\//,
               handler: 'NetworkOnly',
             },
