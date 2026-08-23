@@ -35,16 +35,20 @@ function stubProvider(name: string, available: boolean) {
 
 async function loadAnalytics(available: boolean) {
   const provider = stubProvider('ga', available);
-  // Only one provider is ever available at a time; the other has to be stubbed
-  // out or the real module would read the ambient env.
+  // Only one provider is ever available at a time; the others have to be
+  // stubbed out or the real modules would read the ambient env.
   const umami = stubProvider('umami', false);
+  const cloudflare = stubProvider('cloudflare', false);
 
   vi.doMock('@/services/analytics/ga', () => ({ gaProvider: provider }));
   vi.doMock('@/services/analytics/umami', () => ({ umamiProvider: umami }));
+  vi.doMock('@/services/analytics/cloudflare', () => ({
+    cloudflareProvider: cloudflare,
+  }));
 
   const module = await import('@/services/analytics');
 
-  return { module, provider, umami };
+  return { module, provider, umami, cloudflare };
 }
 
 describe('initAnalytics', () => {
@@ -135,9 +139,13 @@ describe('initAnalytics', () => {
   it('reports through the one provider the mode selected', async () => {
     const ga = stubProvider('ga', false);
     const umami = stubProvider('umami', true);
+    const cloudflare = stubProvider('cloudflare', false);
 
     vi.doMock('@/services/analytics/ga', () => ({ gaProvider: ga }));
     vi.doMock('@/services/analytics/umami', () => ({ umamiProvider: umami }));
+    vi.doMock('@/services/analytics/cloudflare', () => ({
+      cloudflareProvider: cloudflare,
+    }));
 
     const module = await import('@/services/analytics');
     const { router } = stubRouter('/haiku', 'Haiku');

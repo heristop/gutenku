@@ -55,12 +55,16 @@ const GA_ORIGINS = [
   'https://region1.google-analytics.com',
 ];
 
+/** Cloudflare serves its beacon from one origin, and collects on the same one. */
+const CLOUDFLARE_ORIGIN = 'https://static.cloudflareinsights.com';
+
 interface AnalyticsOrigins {
   /** Origins worth a preconnect hint, whoever hosts them. */
   preconnect: string[];
   /**
-   * Self-hosted origins only. Kept apart from the GA hosts, which have their
-   * own literal caching rule below and never reach a built pattern.
+   * Origins a `NetworkOnly` pattern is built for. The GA hosts are kept out:
+   * they have their own literal rule below and must never reach a built
+   * pattern, which is what CodeQL flagged when they could.
    */
   selfHosted: string[];
 }
@@ -78,19 +82,36 @@ interface AnalyticsOrigins {
  * ships this very `dist` to the app stores, so there is no build-time answer to
  * which platform will run it.
  */
+/** The Umami origins, or none when it is not the configured tracker. */
+function umamiOrigins(modeEnv: Record<string, string>): string[] {
+  const scriptSrc = modeEnv.VITE_UMAMI_SRC?.trim() || '';
+  const websiteId = modeEnv.VITE_UMAMI_WEBSITE_ID?.trim() || '';
+
+  if (!scriptSrc || !websiteId) {
+    return [];
+  }
+
+  // Deduplicated: script and collect API usually share a single origin.
+  return [
+    ...new Set([
+      originOf(scriptSrc),
+      originOf(modeEnv.VITE_UMAMI_HOST_URL?.trim() || ''),
+    ]),
+  ].filter((origin): origin is string => Boolean(origin));
+}
+
 function analyticsOrigins(mode: string): AnalyticsOrigins {
   const modeEnv = loadEnv(mode, process.cwd(), ['VITE_']);
-  const umamiScriptSrc = modeEnv.VITE_UMAMI_SRC?.trim() || '';
-  const umamiWebsiteId = modeEnv.VITE_UMAMI_WEBSITE_ID?.trim() || '';
-  const umamiHostUrl = modeEnv.VITE_UMAMI_HOST_URL?.trim() || '';
+  const umami = umamiOrigins(modeEnv);
 
-  if (umamiScriptSrc && umamiWebsiteId) {
-    // Deduplicated: script and collect API usually share a single origin.
-    const origins = [
-      ...new Set([originOf(umamiScriptSrc), originOf(umamiHostUrl)]),
-    ].filter((origin): origin is string => Boolean(origin));
+  if (umami.length > 0) {
+    return { preconnect: umami, selfHosted: umami };
+  }
 
-    return { preconnect: origins, selfHosted: origins };
+  if (modeEnv.VITE_CLOUDFLARE_TOKEN?.trim()) {
+    // Same reasoning as the trackers above: a stale beacon, or a replayed
+    // collect served from the cache, corrupts the data it is meant to report.
+    return { preconnect: [CLOUDFLARE_ORIGIN], selfHosted: [CLOUDFLARE_ORIGIN] };
   }
 
   return {

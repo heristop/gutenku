@@ -17,6 +17,7 @@ describe('analytics config', () => {
     vi.stubEnv('VITE_UMAMI_SRC', '');
     vi.stubEnv('VITE_UMAMI_WEBSITE_ID', '');
     vi.stubEnv('VITE_UMAMI_HOST_URL', '');
+    vi.stubEnv('VITE_CLOUDFLARE_TOKEN', '');
   });
 
   afterEach(() => {
@@ -112,5 +113,56 @@ describe('analytics config', () => {
     const { canHostTag } = await loadConfig();
 
     expect(canHostTag()).toBeTruthy();
+  });
+});
+
+describe('Cloudflare Web Analytics', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    vi.stubEnv('VITE_GA_MEASUREMENT_ID', '');
+    vi.stubEnv('VITE_UMAMI_SRC', '');
+    vi.stubEnv('VITE_UMAMI_WEBSITE_ID', '');
+    vi.stubEnv('VITE_CLOUDFLARE_TOKEN', '');
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('runs on a token alone, and removes the banner with it', async () => {
+    vi.stubEnv('VITE_CLOUDFLARE_TOKEN', 'abc123');
+
+    const { resolveAnalyticsMode, isConsentRequired } = await loadConfig();
+
+    expect(resolveAnalyticsMode()).toBe('cloudflare');
+    // Cookieless: nothing is written on the device, so the banner would be a
+    // question about nothing.
+    expect(isConsentRequired()).toBeFalsy();
+  });
+
+  it('ranks behind Umami and ahead of GA', async () => {
+    vi.stubEnv('VITE_CLOUDFLARE_TOKEN', 'abc123');
+    vi.stubEnv('VITE_GA_MEASUREMENT_ID', MEASUREMENT_ID);
+
+    const overGa = await loadConfig();
+
+    expect(overGa.resolveAnalyticsMode()).toBe('cloudflare');
+
+    vi.resetModules();
+    vi.stubEnv('VITE_UMAMI_SRC', SCRIPT_SRC);
+    vi.stubEnv('VITE_UMAMI_WEBSITE_ID', WEBSITE_ID);
+
+    const umamiFirst = await loadConfig();
+
+    expect(umamiFirst.resolveAnalyticsMode()).toBe('umami');
+  });
+
+  it('treats a blank-only token as unset', async () => {
+    vi.stubEnv('VITE_CLOUDFLARE_TOKEN', '   ');
+    vi.stubEnv('VITE_GA_MEASUREMENT_ID', MEASUREMENT_ID);
+
+    const { resolveAnalyticsMode } = await loadConfig();
+
+    expect(resolveAnalyticsMode()).toBe('ga');
   });
 });
