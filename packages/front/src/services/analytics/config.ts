@@ -3,15 +3,15 @@ import { isNative } from '@/utils/capacitor';
 /**
  * Self-hosted Umami and Cloudflare Web Analytics are both cookieless: neither
  * writes an identifier on the visitor's device, which is what a cookie banner
- * asks about, so neither needs a consent question. GA does. (Umami still
- * derives a pseudonymous visitor hash on the server — cookieless is not the
- * same claim as anonymous.) The mode therefore decides both which tag ships and
- * whether the cookie banner exists at all.
+ * asks about, so neither needs a consent question. (Umami still derives a
+ * pseudonymous visitor hash on the server — cookieless is not the same claim
+ * as anonymous.) The mode decides which tag ships, and with it whether the
+ * cookie banner exists at all.
  *
  * It describes what is *configured*, not what will run: whether the runtime can
  * host a tag at all is the providers' question, answered by canHostTag().
  */
-export type AnalyticsMode = 'umami' | 'cloudflare' | 'ga' | 'none';
+export type AnalyticsMode = 'umami' | 'cloudflare' | 'none';
 
 export interface UmamiConfig {
   scriptSrc: string;
@@ -38,10 +38,6 @@ export function getCloudflareToken(): string | undefined {
   return text(import.meta.env.VITE_CLOUDFLARE_TOKEN);
 }
 
-export function getGaMeasurementId(): string | undefined {
-  return text(import.meta.env.VITE_GA_MEASUREMENT_ID);
-}
-
 /** Undefined unless both halves are set: neither one alone can send a hit. */
 export function getUmamiConfig(): UmamiConfig | undefined {
   const scriptSrc = text(import.meta.env.VITE_UMAMI_SRC);
@@ -59,10 +55,9 @@ export function getUmamiConfig(): UmamiConfig | undefined {
 }
 
 /**
- * Umami first, then Cloudflare, then GA. The order only decides who wins when
- * two are configured at once — a mistake rather than a state to honour — and it
- * puts the cookieless pair ahead of the tracker that is not, so a half-finished
- * migration measures once rather than twice.
+ * Umami first, then Cloudflare. The order only decides who wins when both are
+ * configured at once — a mistake rather than a state to honour — so a
+ * half-finished migration measures once rather than twice.
  *
  * Deliberately free of every runtime signal — `document`, the platform — and
  * derived from the env alone. The footer's cookie control is prerendered from
@@ -75,11 +70,7 @@ export function resolveAnalyticsMode(): AnalyticsMode {
     return 'umami';
   }
 
-  if (getCloudflareToken()) {
-    return 'cloudflare';
-  }
-
-  return getGaMeasurementId() ? 'ga' : 'none';
+  return getCloudflareToken() ? 'cloudflare' : 'none';
 }
 
 /**
@@ -96,6 +87,11 @@ export function isAnalyticsEnabled(): boolean {
   return resolveAnalyticsMode() !== 'none';
 }
 
+/**
+ * Both shipping providers are cookieless, so nothing asks the visitor anything
+ * today. Kept as the seam a consent-requiring provider would flip, rather than
+ * scattering that decision across the banner and the footer control.
+ */
 export function isConsentRequired(): boolean {
-  return resolveAnalyticsMode() === 'ga';
+  return false;
 }

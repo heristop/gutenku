@@ -19,7 +19,6 @@ describe('cloudflare provider', () => {
     vi.stubEnv('VITE_CLOUDFLARE_TOKEN', TOKEN);
     vi.stubEnv('VITE_UMAMI_SRC', '');
     vi.stubEnv('VITE_UMAMI_WEBSITE_ID', '');
-    vi.stubEnv('VITE_GA_MEASUREMENT_ID', '');
     document.head.innerHTML = '';
   });
 
@@ -77,17 +76,14 @@ describe('cloudflare provider', () => {
   });
 
   it('reports nothing itself, rather than reaching for another vendor', async () => {
-    const scope = globalThis as { umami?: unknown; gtag?: unknown };
-    const previous = { umami: scope.umami, gtag: scope.gtag };
+    const scope = globalThis as { umami?: unknown };
+    const previous = scope.umami;
     let reached = false;
 
     scope.umami = {
       track: () => {
         reached = true;
       },
-    };
-    scope.gtag = () => {
-      reached = true;
     };
 
     try {
@@ -100,8 +96,7 @@ describe('cloudflare provider', () => {
       cloudflareProvider.trackPageView({ path: '/haiku' });
       cloudflareProvider.trackEvent('haiku_generated');
     } finally {
-      scope.umami = previous.umami;
-      scope.gtag = previous.gtag;
+      scope.umami = previous;
     }
 
     expect(reached).toBeFalsy();

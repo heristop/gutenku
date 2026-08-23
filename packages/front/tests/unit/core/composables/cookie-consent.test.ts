@@ -1,27 +1,20 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { nextTick, watchEffect } from 'vue';
 
 const STORAGE_KEY = 'gutenku-cookie-consent';
-const MEASUREMENT_ID = 'G-TEST12345';
-const UMAMI_SRC = 'https://stats.example.test/script.js';
-const UMAMI_WEBSITE_ID = '0d1e2f34-5678-49ab-cdef-0123456789ab';
-
-/** The question only exists under a provider that needs a cookie. */
-function useGaMode(): void {
-  vi.stubEnv('VITE_GA_MEASUREMENT_ID', MEASUREMENT_ID);
-  vi.stubEnv('VITE_UMAMI_SRC', '');
-  vi.stubEnv('VITE_UMAMI_WEBSITE_ID', '');
-}
-
-function useUmamiMode(): void {
-  vi.stubEnv('VITE_GA_MEASUREMENT_ID', '');
-  vi.stubEnv('VITE_UMAMI_SRC', UMAMI_SRC);
-  vi.stubEnv('VITE_UMAMI_WEBSITE_ID', UMAMI_WEBSITE_ID);
-}
 
 type ConsentModule = typeof import('@/core/composables/cookie-consent');
 
-async function loadConsent(): Promise<ConsentModule> {
+/**
+ * The question only exists under a provider that needs a cookie, and none
+ * ships today. Driving the seam directly keeps the dormant machinery honest
+ * for the day one does, instead of testing nothing at all.
+ */
+async function loadConsent(consentRequired = true): Promise<ConsentModule> {
+  vi.doMock('@/services/analytics/config', () => ({
+    isConsentRequired: () => consentRequired,
+  }));
+
   return import('@/core/composables/cookie-consent');
 }
 
@@ -49,15 +42,10 @@ function gateAnalytics(allowed: { value: boolean }) {
   return { initAnalytics, stop };
 }
 
-describe('cookie consent', () => {
+describe('cookie consent under a provider that needs one', () => {
   beforeEach(() => {
     vi.resetModules();
     localStorage.clear();
-    useGaMode();
-  });
-
-  afterEach(() => {
-    vi.unstubAllEnvs();
   });
 
   it('starts undecided and keeps analytics off', async () => {
@@ -214,15 +202,22 @@ describe('cookie consent under a cookieless provider', () => {
   beforeEach(() => {
     vi.resetModules();
     localStorage.clear();
-    useUmamiMode();
   });
 
-  afterEach(() => {
-    vi.unstubAllEnvs();
+  it('is what the shipped config asks for: no question at all', async () => {
+    // importActual: other cases in this file mock the seam, and doMock
+    // registrations outlive resetModules()
+    const { isConsentRequired } = await vi.importActual<
+      typeof import('@/services/analytics/config')
+    >('@/services/analytics/config');
+
+    // Every provider that ships is cookieless, so the whole stack below is
+    // dormant. This is the one line that reactivates it.
+    expect(isConsentRequired()).toBeFalsy();
   });
 
   it('never shows the banner', async () => {
-    const { useCookieConsent } = await loadConsent();
+    const { useCookieConsent } = await loadConsent(false);
     const consent = useCookieConsent();
 
     expect(consent.isConsentRequired.value).toBeFalsy();
@@ -233,7 +228,7 @@ describe('cookie consent under a cookieless provider', () => {
   });
 
   it('ignores a request to reopen the question', async () => {
-    const { useCookieConsent, openCookieConsent } = await loadConsent();
+    const { useCookieConsent, openCookieConsent } = await loadConsent(false);
     const consent = useCookieConsent();
 
     openCookieConsent();
@@ -244,16 +239,16 @@ describe('cookie consent under a cookieless provider', () => {
     expect(consent.isBannerVisible.value).toBeFalsy();
   });
 
-  it('leaves a decision recorded under GA untouched', async () => {
+  it('leaves a decision recorded earlier untouched', async () => {
     localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({ version: 1, decidedAt: 0, analytics: false }),
     );
 
-    const { useCookieConsent } = await loadConsent();
+    const { useCookieConsent } = await loadConsent(false);
     const consent = useCookieConsent();
 
-    // Nothing is dropped: switching back to GA has to find the old refusal.
+    // Nothing is dropped: reactivating the question has to find the old refusal.
     expect(consent.status.value).toBe('declined');
     expect(consent.isBannerVisible.value).toBeFalsy();
   });

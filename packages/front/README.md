@@ -33,27 +33,32 @@ cp .env.example .env
 ## Analytics
 
 Two providers ship behind one `AnalyticsProvider` interface
-(`src/services/analytics/`). Which one runs is decided by the env alone, and it
-decides the cookie banner with it.
+(`src/services/analytics/`). Which one runs is decided by the env alone.
 
-| Mode    | Env                                              | Cookie banner |
-| ------- | ------------------------------------------------ | ------------- |
-| `none`  | nothing set                                      | none          |
-| `ga`    | `VITE_GA_MEASUREMENT_ID`                         | shown         |
-| `umami` | `VITE_UMAMI_SRC` **and** `VITE_UMAMI_WEBSITE_ID` | none          |
+| Mode         | Env                                              |
+| ------------ | ------------------------------------------------ |
+| `none`       | nothing set                                      |
+| `umami`      | `VITE_UMAMI_SRC` **and** `VITE_UMAMI_WEBSITE_ID` |
+| `cloudflare` | `VITE_CLOUDFLARE_TOKEN`                          |
 
 Umami wins when both are configured, so a half-finished migration measures once
 instead of twice. The mode is read from the env and nothing else: `cap:build`
 ships the very `dist` that vite-ssg prerendered, so an answer that varied by
 platform would prerender markup the device then hydrates without. Native
 (Capacitor) builds load no web tag all the same — the providers rule that out
-themselves. Self-hosted Umami sets no cookie and writes no identifier on the
-visitor's device — which is what a cookie banner asks about — so in that mode
-the banner and the footer's cookie control are not rendered at all, and
-analytics starts on its own instead of waiting for a decision. It does still
-derive a pseudonymous visitor hash server-side: cookieless is not the same
-claim as anonymous. Decisions already stored under GA are
-left in place, so switching back finds them.
+themselves.
+
+Both providers are cookieless: neither sets a cookie nor writes an identifier
+on the visitor's device, which is what a cookie banner asks about. So no
+consent question is asked, the banner and the footer's cookie control never
+render, and analytics starts on its own instead of waiting for a decision.
+Umami does still derive a pseudonymous visitor hash server-side: cookieless is
+not the same claim as anonymous.
+
+The consent stack is kept, dormant, behind `isConsentRequired()` in
+`src/services/analytics/config.ts` — one function to flip should a provider
+that needs a cookie ever ship again. Decisions already stored by visitors are
+left untouched, so flipping it back finds them.
 
 ```bash
 VITE_UMAMI_SRC=https://umami.example.com/script.js
