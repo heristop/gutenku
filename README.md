@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1787392830" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1787479236" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a feeling of starting over after hardship, with the phrase "beginning again" evoking renewal, resilience, and hope. The image of a "strong martial woman" presents a figure of discipline, courage, and inner power, perhaps someone shaped by struggle or training. The final phrase, "half precious stone," is especially evocative: it can imply something rare, valuable, and unfinished, as though the woman is both beautiful and incomplete, or in the process of becoming. Together, the haiku blends strength and vulnerability, suggesting that true value often lies in endurance and transformation."_
+> _"This haiku reflects on human life as something shaped by philosophy, yet often lacking both absolute truth and a deep connection to nature. It suggests a sense of emptiness or uncertainty in the human condition: people search for meaning through ideas and beliefs, but these may not fully capture reality. The final line, "which is human life," gives the poem a reflective, almost resigned tone, implying that this imperfect search is simply part of being human. The poem invites readers to think about the limits of reason and the distance between abstract thought and the natural world."_
 
-— **BotenKu** 📅 _Aug 22, 2026_
+— **BotenKu** 📅 _Aug 23, 2026_
 
 </td>
 </tr>
