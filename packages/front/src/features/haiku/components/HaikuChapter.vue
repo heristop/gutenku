@@ -169,6 +169,17 @@ watch(isBot, (botDetected) => {
   }
 });
 
+// Every haiku is a fresh puzzle: re-arm the redaction when one arrives, so a
+// previous reveal does not leak the next chapter. Bots keep the text readable.
+watch(haiku, () => {
+  if (isBot.value) {
+    return;
+  }
+
+  spotlight.value = null;
+  blackMarker.value = true;
+});
+
 onMounted(async () => {
   detectBot();
   applyToAllHighlights();
@@ -351,7 +362,6 @@ onUnmounted(() => {
           :hidden="blackMarker"
           :delay="0"
           :spotlight="spotlight"
-          centered
         />
       </h2>
 
@@ -371,7 +381,6 @@ onUnmounted(() => {
           :hidden="blackMarker"
           :delay="200"
           :spotlight="spotlight"
-          centered
         />
       </div>
 
@@ -1063,7 +1072,10 @@ onUnmounted(() => {
           background-repeat: no-repeat !important;
           background-position: center !important;
           color: var(--gutenku-highlighter-text, #2c2c2c) !important;
+          // Negative margin cancels the padding's advance width, so revealing
+          // a verse never re-flows the pretext-measured line it sits on
           padding: 2px 8px;
+          margin: 0 -8px;
           border-radius: 0;
           font-weight: bold;
           position: relative;
@@ -1085,7 +1097,10 @@ onUnmounted(() => {
           background-repeat: no-repeat !important;
           background-position: center !important;
           color: var(--gutenku-highlighter-text, #2c2c2c) !important;
+          // Negative margin cancels the padding's advance width, so revealing
+          // a verse never re-flows the pretext-measured line it sits on
           padding: 2px 8px;
+          margin: 0 -8px;
           border-radius: 0;
           font-weight: bold;
           position: relative;

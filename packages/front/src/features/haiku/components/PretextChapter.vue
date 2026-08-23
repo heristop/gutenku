@@ -8,12 +8,8 @@ import {
 import {
   generateAllLineSegments,
   type BarSegment,
+  type VerseCutout,
 } from '@/features/haiku/composables/marker-svg';
-
-interface TextSegment {
-  text: string;
-  isVerse: boolean;
-}
 
 const props = withDefaults(
   defineProps<{
@@ -35,6 +31,63 @@ const versesRef = toRef(props, 'verses');
 
 const { layout, ready } = useMarkerLayout(containerRef, textRef, versesRef);
 
+// --- Verse cutouts, measured from the rendered <mark> boxes ---
+//
+// Pretext gives us the line breaks; the browser then justifies each line,
+// stretching the spaces. Reading the cutouts back off the DOM is the only
+// way to land the bar edges exactly on the verse, whatever justification,
+// font synthesis or letter-spacing did to it.
+
+/** Breathing room between a bar end and the verse it stops at (px) */
+const CUTOUT_PAD = 4;
+
+const cutouts = ref<VerseCutout[][]>([]);
+
+function measureCutouts() {
+  const el = containerRef.value;
+
+  if (!el || !layout.value.lines.length) {
+    cutouts.value = [];
+
+    return;
+  }
+
+  const lineEls = el.querySelectorAll<HTMLElement>('.text-line');
+
+  cutouts.value = layout.value.lines.map((_line, index) => {
+    const lineEl = lineEls[index];
+
+    if (!lineEl) {
+      return [];
+    }
+    const lineRect = lineEl.getBoundingClientRect();
+
+    if (!lineRect.width) {
+      return [];
+    }
+
+    return [...lineEl.querySelectorAll('mark')].map((markEl) => {
+      const rect = markEl.getBoundingClientRect();
+      // Discount the highlight's own padding: it differs between the redacted
+      // and revealed styles, and the window belongs to the glyphs, not the box
+      const markStyle = getComputedStyle(markEl);
+      const padLeft = Number.parseFloat(markStyle.paddingLeft) || 0;
+      const padRight = Number.parseFloat(markStyle.paddingRight) || 0;
+
+      return {
+        startX: rect.left - lineRect.left + padLeft - CUTOUT_PAD,
+        endX: rect.right - lineRect.left - padRight + CUTOUT_PAD,
+      };
+    });
+  });
+}
+
+watch(
+  () => layout.value,
+  () => nextTick(measureCutouts),
+  { immediate: true },
+);
+
 // --- Bar segments (split around verse cutouts) ---
 
 const barSegments = computed<BarSegment[][]>(() => {
@@ -45,6 +98,7 @@ const barSegments = computed<BarSegment[][]>(() => {
   return generateAllLineSegments(
     layout.value.lines,
     layout.value.containerWidth,
+    cutouts.value,
   );
 });
 
@@ -65,84 +119,6 @@ const allSegments = computed(() => {
 
   return result;
 });
-
-// --- Verse segmentation (handles verses spanning multiple lines) ---
-
-const verseSegments = computed(() => {
-  const lines = layout.value.lines;
-
-  if (!lines.length) {return [];}
-
-  // Join all line texts; trimEnd avoids double spaces from pretext trailing whitespace
-  const lineOffsets: number[] = [];
-  const lineLengths: number[] = [];
-  let joined = '';
-
-  for (const line of lines) {
-    const trimmed = line.text.trimEnd();
-    lineOffsets.push(joined.length);
-    lineLengths.push(trimmed.length);
-    joined += trimmed + ' ';
-  }
-
-  // Find all verse ranges in the joined text
-  const verseRanges: Array<{ start: number; end: number }> = [];
-
-  for (const verse of props.verses) {
-    if (!verse || !verse.trim()) {continue;}
-    const idx = joined.indexOf(verse.trim());
-
-    if (idx !== -1) {
-      verseRanges.push({ start: idx, end: idx + verse.trim().length });
-    }
-  }
-
-  // For each line, split text into verse/non-verse segments
-  return lines.map((line, li) => {
-    const lineStart = lineOffsets[li];
-    const lineEnd = lineStart + lineLengths[li];
-
-    const overlaps: Array<{ from: number; to: number }> = [];
-
-    for (const vr of verseRanges) {
-      if (vr.start < lineEnd && vr.end > lineStart) {
-        overlaps.push({
-          from: Math.max(0, vr.start - lineStart),
-          to: Math.min(line.text.length, vr.end - lineStart),
-        });
-      }
-    }
-
-    if (!overlaps.length) {
-      return [{ text: line.text, isVerse: false } as TextSegment];
-    }
-
-    overlaps.sort((a, b) => a.from - b.from);
-    const segments: TextSegment[] = [];
-    let cursor = 0;
-
-    for (const ov of overlaps) {
-      if (ov.from > cursor) {
-        segments.push({
-          text: line.text.slice(cursor, ov.from),
-          isVerse: false,
-        });
-      }
-      segments.push({ text: line.text.slice(ov.from, ov.to), isVerse: true });
-      cursor = ov.to;
-    }
-
-    if (cursor < line.text.length) {
-      segments.push({ text: line.text.slice(cursor), isVerse: false });
-    }
-
-    return segments;
-  });
-});
-
-function lineHasVerse(index: number): boolean {
-  return verseSegments.value[index]?.some((s) => s.isVerse) ?? false;
-}
 
 // --- Accessibility ---
 
@@ -261,19 +237,13 @@ function getSegmentStyle(line: MarkerLine, seg: BarSegment, lineIndex: number) {
           width: layout.containerWidth + 'px',
         }"
         ><!--
-        --><template v-if="lineHasVerse(i)"
+        --><template v-for="(seg, si) in line.segments" :key="si"
           ><!--
-          --><template v-for="(seg, si) in verseSegments[i]" :key="si"
-            ><!--
-            --><mark v-if="seg.isVerse" class="highlight">{{ seg.text }}</mark
-            ><!--
-            --><template v-else>{{ seg.text }}</template
-            ><!--
-          --></template
+          --><mark v-if="seg.isVerse" class="highlight">{{ seg.text }}</mark
+          ><!--
+          --><template v-else>{{ seg.text }}</template
           ><!--
         --></template
-        ><!--
-        --><template v-else>{{ line.text }}</template
         ><!--
       --></span>
 

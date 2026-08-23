@@ -2,18 +2,23 @@ import { ref, watch, onMounted, onUnmounted, type Ref, nextTick } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
 
 export interface VerseCutout {
-  /** Pixel X where verse starts within the line */
+  /** Pixel X where the clear window starts within the line */
   startX: number;
-  /** Pixel X where verse ends within the line */
+  /** Pixel X where the clear window ends within the line */
   endX: number;
 }
 
+export interface LineSegment {
+  /** Text content of this run */
+  text: string;
+  /** Whether this run is part of a haiku verse (rendered bold, never redacted) */
+  isVerse: boolean;
+}
+
 export interface MarkerLine {
-  /** X offset from container left edge (px) */
-  x: number;
   /** Y offset from container top edge (px) */
   y: number;
-  /** Measured text width on this line (px) */
+  /** Natural (pre-justification) text width on this line (px) */
   width: number;
   /** Line height (px) */
   lineHeight: number;
@@ -21,10 +26,8 @@ export interface MarkerLine {
   index: number;
   /** Whether this is the last line of its paragraph (left-aligned, not justified) */
   isLastLine: boolean;
-  /** The text content of this line */
-  text: string;
-  /** Verse cutouts — regions where marker bars should NOT render */
-  cutouts: VerseCutout[];
+  /** Verse / non-verse runs making up this line, in reading order */
+  segments: LineSegment[];
 }
 
 export interface MarkerLayoutResult {
@@ -33,22 +36,28 @@ export interface MarkerLayoutResult {
   containerHeight: number;
 }
 
-let pretextModule: typeof import('@chenglou/pretext') | null = null;
+type PretextRichInline = typeof import('@chenglou/pretext/rich-inline');
 
-async function loadPretext() {
-  if (!pretextModule) {
-    pretextModule = await import('@chenglou/pretext');
+let richInlineModule: PretextRichInline | null = null;
+
+async function loadRichInline(): Promise<PretextRichInline> {
+  if (!richInlineModule) {
+    richInlineModule = await import('@chenglou/pretext/rich-inline');
   }
 
-  return pretextModule;
+  return richInlineModule;
 }
 
-function getElementFont(el: HTMLElement): string {
-  return getComputedStyle(el).font;
+/**
+ * Canvas font shorthand matching an element's computed style.
+ * `weight` overrides font-weight — verses render bold, so they must be
+ * measured bold or every line carrying one comes out too narrow.
+ */
+function fontString(style: CSSStyleDeclaration, weight?: string): string {
+  return `${style.fontStyle} ${weight ?? style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
 }
 
-function getElementLineHeight(el: HTMLElement): number {
-  const style = getComputedStyle(el);
+function getElementLineHeight(style: CSSStyleDeclaration): number {
   const lh = Number.parseFloat(style.lineHeight);
 
   if (!Number.isNaN(lh)) {
@@ -58,93 +67,113 @@ function getElementLineHeight(el: HTMLElement): number {
   return Number.parseFloat(style.fontSize) * 1.8;
 }
 
-/** Gap before verse: small — bar ends close to the verse start */
-const CUTOUT_GAP_LEFT = 2;
-/** Gap after verse: larger — compensates for bold rendering being wider than measured */
-const CUTOUT_GAP_RIGHT = 40;
-
 /**
- * Measures the pixel width of a text string using pretext (single-line).
+ * Splits a paragraph into alternating non-verse / verse runs.
+ * Overlapping or touching verse matches are merged so runs strictly alternate.
  */
-function measureTextWidth(
-  pretext: typeof import('@chenglou/pretext'),
-  text: string,
-  font: string,
-  lineHeight: number,
-): number {
-  if (!text) {
-    return 0;
-  }
-  const prepared = pretext.prepareWithSegments(text, font);
-  const result = pretext.layoutWithLines(prepared, Infinity, lineHeight);
-
-  return result.lines[0]?.width ?? 0;
-}
-
-/**
- * Compute verse cutouts for all lines at once using joined text.
- * Handles verses that span across line boundaries.
- */
-function computeAllCutouts(
-  pretext: typeof import('@chenglou/pretext'),
-  lines: Array<{ text: string }>,
+export function splitIntoRuns(
+  paragraph: string,
   verses: string[],
-  font: string,
-  lineHeight: number,
-): VerseCutout[][] {
-  const lineOffsets: number[] = [];
-  const lineLengths: number[] = [];
-  let joined = '';
-
-  for (const line of lines) {
-    const trimmed = line.text.trimEnd();
-    lineOffsets.push(joined.length);
-    lineLengths.push(trimmed.length);
-    joined += trimmed + ' ';
-  }
-
-  const verseRanges: Array<{ start: number; end: number }> = [];
+): LineSegment[] {
+  const ranges: Array<{ start: number; end: number }> = [];
 
   for (const verse of verses) {
-    if (!verse || !verse.trim()) {continue;}
-    const idx = joined.indexOf(verse.trim());
+    const needle = verse?.trim();
+
+    if (!needle) {
+      continue;
+    }
+    const idx = paragraph.indexOf(needle);
 
     if (idx !== -1) {
-      verseRanges.push({ start: idx, end: idx + verse.trim().length });
+      ranges.push({ start: idx, end: idx + needle.length });
     }
   }
 
-  return lines.map((line, li) => {
-    const lineCharStart = lineOffsets[li];
-    const lineCharEnd = lineCharStart + lineLengths[li];
-    const cutouts: VerseCutout[] = [];
+  if (!ranges.length) {
+    return [{ text: paragraph, isVerse: false }];
+  }
 
-    for (const vr of verseRanges) {
-      if (vr.start >= lineCharEnd || vr.end <= lineCharStart) {continue;}
+  ranges.sort((a, b) => a.start - b.start);
 
-      const localCharStart = Math.max(0, vr.start - lineCharStart);
-      const localCharEnd = Math.min(line.text.length, vr.end - lineCharStart);
+  const merged: Array<{ start: number; end: number }> = [ranges[0]];
 
-      const beforeText = line.text.slice(0, localCharStart);
-      const verseText = line.text.slice(localCharStart, localCharEnd);
-      const startX = measureTextWidth(pretext, beforeText, font, lineHeight);
-      const verseWidth = measureTextWidth(pretext, verseText, font, lineHeight);
+  for (const range of ranges.slice(1)) {
+    const last = merged.at(-1)!;
 
-      cutouts.push({
-        startX: Math.max(0, startX - CUTOUT_GAP_LEFT),
-        endX: startX + verseWidth + CUTOUT_GAP_RIGHT,
-      });
+    if (range.start <= last.end) {
+      last.end = Math.max(last.end, range.end);
+
+      continue;
     }
+    merged.push(range);
+  }
 
-    return cutouts;
-  });
+  const runs: LineSegment[] = [];
+  let cursor = 0;
+
+  for (const range of merged) {
+    if (range.start > cursor) {
+      runs.push({ text: paragraph.slice(cursor, range.start), isVerse: false });
+    }
+    runs.push({ text: paragraph.slice(range.start, range.end), isVerse: true });
+    cursor = range.end;
+  }
+
+  if (cursor < paragraph.length) {
+    runs.push({ text: paragraph.slice(cursor), isVerse: false });
+  }
+
+  return runs;
 }
 
 /**
- * Measures text layout using pretext.
- * Splits text by paragraph breaks, computes per-line data with accurate
- * Y positioning using lineHeight arithmetic (guaranteed to match CSS).
- * Computes verse cutout positions for split marker bars.
+ * Folds one laid-out rich-inline line back into verse / non-verse runs.
+ * Collapsed inter-run whitespace is pushed outside the verse so the <mark>
+ * box hugs the verse text exactly — the marker cutouts are measured from it.
+ */
+function foldFragments(
+  fragments: Array<{ itemIndex: number; text: string; gapBefore: number }>,
+  runs: LineSegment[],
+): LineSegment[] {
+  const segments: LineSegment[] = [];
+
+  const push = (text: string, isVerse: boolean) => {
+    const last = segments.at(-1);
+
+    if (last && last.isVerse === isVerse) {
+      last.text += text;
+
+      return;
+    }
+    segments.push({ text, isVerse });
+  };
+
+  fragments.forEach((fragment, index) => {
+    const isVerse = runs[fragment.itemIndex]?.isVerse ?? false;
+    const previous = segments.at(-1);
+    const hasGap =
+      fragment.gapBefore > 0 && index > 0 && previous !== undefined;
+
+    // Keep the collapsed gap outside the <mark> so its box hugs the verse
+    if (hasGap && !previous.isVerse) {
+      previous.text += ' ';
+    }
+    push(
+      hasGap && previous?.isVerse && !isVerse
+        ? ' ' + fragment.text
+        : fragment.text,
+      isVerse,
+    );
+  });
+
+  return segments.filter((segment) => segment.text.length > 0);
+}
+
+/**
+ * Measures chapter text with pretext's rich-inline flow, so line breaking
+ * accounts for the bold verse runs instead of assuming a single font.
+ * Y positions come from lineHeight arithmetic, guaranteed to match CSS.
  */
 export function useMarkerLayout(
   elementRef: Ref<HTMLElement | null>,
@@ -169,62 +198,55 @@ export function useMarkerLayout(
       return;
     }
 
-    const pretext = await loadPretext();
-    const font = getElementFont(el);
-    const lineHeight = getElementLineHeight(el);
+    const rich = await loadRichInline();
+    const style = getComputedStyle(el);
+    const font = fontString(style);
+    const verseFont = fontString(style, 'bold');
+    const lineHeight = getElementLineHeight(style);
     const containerWidth = el.clientWidth;
 
-    if (!containerWidth || !font) {
+    if (!containerWidth) {
       return;
     }
 
     const paragraphs = textContent.value.split('\n\n').filter((p) => p.trim());
+    const activeVerses = verses?.value ?? [];
     const allLines: MarkerLine[] = [];
     let currentY = 0;
     let globalIndex = 0;
 
     for (let pi = 0; pi < paragraphs.length; pi++) {
-      // Paragraph gap: one blank line height (matches <br/><br/> in DOM)
+      // Paragraph gap: one blank line height (matches the rendered spacing)
       if (pi > 0) {
         currentY += lineHeight;
       }
 
-      const para = paragraphs[pi].trim();
-      const prepared = pretext.prepareWithSegments(para, font);
-      const result = pretext.layoutWithLines(
-        prepared,
-        containerWidth,
-        lineHeight,
+      const runs = splitIntoRuns(paragraphs[pi].trim(), activeVerses);
+      const prepared = rich.prepareRichInline(
+        runs.map((run) => ({
+          text: run.text,
+          font: run.isVerse ? verseFont : font,
+        })),
       );
 
-      for (let li = 0; li < result.lines.length; li++) {
-        const line = result.lines[li];
+      const paragraphStart = allLines.length;
+
+      rich.walkRichInlineLineRanges(prepared, containerWidth, (range) => {
+        const line = rich.materializeRichInlineLineRange(prepared, range);
+
         allLines.push({
-          text: line.text,
-          x: 0,
           y: currentY,
           width: line.width,
           lineHeight,
           index: globalIndex++,
-          isLastLine: li === result.lines.length - 1,
-          cutouts: [],
+          isLastLine: false,
+          segments: foldFragments(line.fragments, runs),
         });
         currentY += lineHeight;
-      }
-    }
+      });
 
-    // Compute cutouts across all lines (handles spanning verses)
-    if (verses?.value?.length) {
-      const allCutouts = computeAllCutouts(
-        pretext,
-        allLines,
-        verses.value,
-        font,
-        lineHeight,
-      );
-
-      for (let i = 0; i < allLines.length; i++) {
-        allLines[i].cutouts = allCutouts[i];
+      if (allLines.length > paragraphStart) {
+        allLines.at(-1)!.isLastLine = true;
       }
     }
 
@@ -238,7 +260,7 @@ export function useMarkerLayout(
 
   const debouncedCompute = useDebounceFn(computeLayout, 50);
 
-  watch(textContent, () => debouncedCompute());
+  watch([textContent, () => verses?.value], () => debouncedCompute());
 
   onMounted(async () => {
     if (import.meta.env.SSR) {
