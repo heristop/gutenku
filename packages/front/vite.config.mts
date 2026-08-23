@@ -62,9 +62,10 @@ interface AnalyticsOrigins {
   /** Origins worth a preconnect hint, whoever hosts them. */
   preconnect: string[];
   /**
-   * Origins a `NetworkOnly` pattern is built for. The GA hosts are kept out:
-   * they have their own literal rule below and must never reach a built
-   * pattern, which is what CodeQL flagged when they could.
+   * Origins a `NetworkOnly` pattern is built for — env-derived ones only. Every
+   * hostname this file knows as a literal is kept out and given a literal rule
+   * below instead: a constant spliced into a constructed regex is what CodeQL
+   * flags, and escaping it by hand is the fragile half of the fix.
    */
   selfHosted: string[];
 }
@@ -109,9 +110,9 @@ function analyticsOrigins(mode: string): AnalyticsOrigins {
   }
 
   if (modeEnv.VITE_CLOUDFLARE_TOKEN?.trim()) {
-    // Same reasoning as the trackers above: a stale beacon, or a replayed
-    // collect served from the cache, corrupts the data it is meant to report.
-    return { preconnect: [CLOUDFLARE_ORIGIN], selfHosted: [CLOUDFLARE_ORIGIN] };
+    // `selfHosted` stays empty: the beacon has a literal caching rule below,
+    // like the Google hosts, so this constant never reaches a built pattern.
+    return { preconnect: [CLOUDFLARE_ORIGIN], selfHosted: [] };
   }
 
   return {
@@ -222,6 +223,14 @@ export default defineConfig(({ isSsrBuild, mode }) => {
               // register.
               urlPattern:
                 /^https:\/\/(www\.googletagmanager\.com|(?:[a-z0-9-]+\.)?google-analytics\.com)\//,
+              handler: 'NetworkOnly',
+            },
+            {
+              // Cloudflare's beacon, for the same reason: a stale script, or a
+              // replayed collect served from the cache, corrupts the data it is
+              // meant to report. A literal pattern with its dots escaped, not
+              // one built from the constant above.
+              urlPattern: /^https:\/\/static\.cloudflareinsights\.com\//,
               handler: 'NetworkOnly',
             },
             // Same reasoning for the self-hosted tracker: script.js is expected to
