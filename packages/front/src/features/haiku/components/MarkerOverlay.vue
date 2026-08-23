@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
-import type { MarkerLine } from '@/features/haiku/composables/marker-layout';
 import {
-  generateMarkerStrokes,
+  generateMarkerStroke,
   type MarkerStroke,
 } from '@/features/haiku/composables/marker-svg';
 
@@ -15,35 +14,114 @@ const props = withDefaults(
     hidden: boolean;
     /** Base animation delay in ms (for cascading across sections) */
     delay?: number;
-    /** Whether text is centered (title/author) */
-    centered?: boolean;
     /** Cursor position relative to .book-content for spotlight reveal */
     spotlight?: { x: number; y: number } | null;
   }>(),
   {
     delay: 0,
-    centered: false,
     spotlight: null,
   },
 );
 
 const containerRef = ref<HTMLElement | null>(null);
 
-// DOM-based layout: count lines from parent's actual rendered height.
-// Correctly handles CSS text-transform, letter-spacing, etc.
-interface SimpleLayout {
-  lines: MarkerLine[];
+/** One rendered line box of the parent's text */
+interface TextLineBox {
+  /** X offset from the parent's padding box (px) */
+  x: number;
+  /** Y offset from the parent's padding box (px) */
+  y: number;
+  /** Measured width of the text on this line (px) */
+  width: number;
+  /** Measured height of the text on this line (px) */
+  height: number;
+  index: number;
+}
+
+interface OverlayLayout {
+  lines: TextLineBox[];
   containerWidth: number;
   containerHeight: number;
 }
 
-const layout = ref<SimpleLayout>({
+const layout = ref<OverlayLayout>({
   lines: [],
   containerWidth: 0,
   containerHeight: 0,
 });
 const ready = ref(false);
 let resizeObserver: ResizeObserver | null = null;
+
+/**
+ * Measures the parent's rendered text runs with a DOM Range. Unlike dividing
+ * the height by the line height, this yields the real per-line box — so a
+ * centered title gets a bar that hugs the words instead of spanning the whole
+ * page, and text-transform / letter-spacing are accounted for for free.
+ * Nested runs count too, or a wrapper like the author's "by" would stay legible.
+ */
+function measureTextLines(
+  parent: HTMLElement,
+  overlay: HTMLElement,
+): DOMRect[] {
+  const rects: DOMRect[] = [];
+  const range = document.createRange();
+  const walker = document.createTreeWalker(parent, NodeFilter.SHOW_TEXT, {
+    acceptNode: (node) =>
+      node.textContent?.trim() && !overlay.contains(node)
+        ? NodeFilter.FILTER_ACCEPT
+        : NodeFilter.FILTER_REJECT,
+  });
+
+  while (walker.nextNode()) {
+    range.selectNodeContents(walker.currentNode);
+    rects.push(...range.getClientRects());
+  }
+
+  return rects.filter((rect) => rect.width > 0 && rect.height > 0);
+}
+
+/** Groups raw client rects into one box per rendered line */
+function groupIntoLines(
+  rects: DOMRect[],
+  originX: number,
+  originY: number,
+): TextLineBox[] {
+  const rows: Array<{
+    left: number;
+    right: number;
+    top: number;
+    bottom: number;
+  }> = [];
+
+  // Runs on the same visual line can differ in height (a smaller "by" prefix),
+  // so rows are merged on vertical overlap rather than on an exact top match.
+  for (const rect of [...rects].sort((a, b) => a.top - b.top)) {
+    const row = rows.at(-1);
+
+    if (row && rect.top < row.bottom - 2) {
+      row.left = Math.min(row.left, rect.left);
+      row.right = Math.max(row.right, rect.right);
+      row.top = Math.min(row.top, rect.top);
+      row.bottom = Math.max(row.bottom, rect.bottom);
+
+      continue;
+    }
+    rows.push({
+      left: rect.left,
+      right: rect.right,
+      top: rect.top,
+      bottom: rect.bottom,
+    });
+  }
+
+  return rows.map((row, index) => ({
+    x: row.left - originX,
+    y: row.top - originY,
+    width: row.right - row.left,
+    height: row.bottom - row.top,
+    index,
+  }));
+}
 
 function computeLayout() {
   const el = containerRef.value;
@@ -58,29 +136,23 @@ function computeLayout() {
   }
 
   const style = getComputedStyle(parent);
-  const lineHeight =
-    Number.parseFloat(style.lineHeight) ||
-    Number.parseFloat(style.fontSize) * 1.8;
-  const containerWidth = parent.clientWidth;
-  const contentHeight = parent.scrollHeight;
-  const lineCount = Math.max(1, Math.round(contentHeight / lineHeight));
+  const parentRect = parent.getBoundingClientRect();
+  // .marker-overlay is inset:0 inside the parent, i.e. anchored to its padding box
+  const lines = groupIntoLines(
+    measureTextLines(parent, el),
+    parentRect.left + (Number.parseFloat(style.borderLeftWidth) || 0),
+    parentRect.top + (Number.parseFloat(style.borderTopWidth) || 0),
+  );
 
-  const lines: MarkerLine[] = [];
-
-  for (let i = 0; i < lineCount; i++) {
-    lines.push({
-      x: 0,
-      y: i * lineHeight,
-      width: containerWidth,
-      lineHeight,
-      index: i,
-      isLastLine: i === lineCount - 1,
-      text: '',
-      cutouts: [],
-    });
+  if (!lines.length) {
+    return;
   }
 
-  layout.value = { lines, containerWidth, containerHeight: contentHeight };
+  layout.value = {
+    lines,
+    containerWidth: parent.clientWidth,
+    containerHeight: parent.scrollHeight,
+  };
   ready.value = true;
 }
 
@@ -109,13 +181,23 @@ onUnmounted(() => {
   resizeObserver?.disconnect();
 });
 
-const strokes = computed<MarkerStroke[]>(() => {
-  if (!layout.value.lines.length || !layout.value.containerWidth) {
-    return [];
-  }
+/** Bar bleeds a little past the glyphs on each side, like a real pen pass */
+const TEXT_BLEED = 6;
+/**
+ * Client rects hug the glyph box, so the stroke is generated against a
+ * slightly taller virtual line box and then re-centred on the text.
+ */
+const BOX_SCALE = 1.5;
 
-  return generateMarkerStrokes(layout.value.lines, layout.value.containerWidth);
-});
+const strokes = computed<MarkerStroke[]>(() =>
+  layout.value.lines.map((line) =>
+    generateMarkerStroke({
+      extent: line.width + TEXT_BLEED * 2,
+      lineHeight: line.height * BOX_SCALE,
+      seed: 42 + line.index * 7919,
+    }),
+  ),
+);
 
 // Track animation state
 const hasDrawn = ref(false);
@@ -190,18 +272,13 @@ watch(ready, (isReady) => {
   }
 });
 
-function getLineStyle(line: MarkerLine, stroke: MarkerStroke, index: number) {
-  // For centered text, center the stroke within the container
-  const xPos = props.centered
-    ? (layout.value.containerWidth - stroke.width) / 2
-    : stroke.xOffset;
-
+function getLineStyle(line: TextLineBox, stroke: MarkerStroke, index: number) {
   return {
     '--draw-delay': `${props.delay + index * DRAW_STAGGER}ms`,
     '--draw-duration': `${DRAW_DURATION}ms`,
     '--reveal-delay': `${(totalLines.value - 1 - index) * REVEAL_STAGGER}ms`,
     '--reveal-duration': `${REVEAL_DURATION}ms`,
-    transform: `translate(${xPos}px, ${line.y + stroke.yOffset}px) rotate(${stroke.rotation}deg)`,
+    transform: `translate(${line.x - TEXT_BLEED + stroke.xOffset}px, ${line.y - (line.height * (BOX_SCALE - 1)) / 2 + stroke.yOffset}px) rotate(${stroke.rotation}deg)`,
   };
 }
 </script>
