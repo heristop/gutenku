@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1787479236" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1787565635" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku reflects on human life as something shaped by philosophy, yet often lacking both absolute truth and a deep connection to nature. It suggests a sense of emptiness or uncertainty in the human condition: people search for meaning through ideas and beliefs, but these may not fully capture reality. The final line, "which is human life," gives the poem a reflective, almost resigned tone, implying that this imperfect search is simply part of being human. The poem invites readers to think about the limits of reason and the distance between abstract thought and the natural world."_
+> _"This haiku captures a sudden shift from tension to silence. The first line, "Baby will get it," suggests a promise, warning, or emotional strain, though its exact meaning is left open. The second line, "Rinaldi was quiet now," creates a pause, showing that the speaker or character has fallen into stillness after some kind of emotional or dramatic moment. The final image, "The lamp was smoking," is especially powerful: it suggests something has just burned, broken, or ended, and leaves behind a faint, unsettling trace. Together, the lines create a mood of mystery, aftermath, and quiet unease."_
 
-— **BotenKu** 📅 _Aug 23, 2026_
+— **BotenKu** 📅 _Aug 24, 2026_
 
 </td>
 </tr>
