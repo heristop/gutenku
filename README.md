@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1787824838" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1787911237" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a tense and slightly playful moment. The image of a closed door suggests confinement, stillness, or a boundary, but the tiger’s awakening introduces sudden energy and latent power. Tigers often symbolize strength, danger, and wild instinct, so “has roused himself” implies that something formidable has been stirred into action. The final line, “Your honors,” said he, adds an unexpected touch of politeness and irony, as if this powerful creature is speaking with formal respect. This contrast between the fierce tiger and the courteous address gives the poem a witty, almost theatrical quality, blending menace with humor. Overall, the haiku captures the idea that quiet can hide great force, and that appearances can shift in surprising ways."_
+> _"This haiku creates a strong sense of tension and power as the noise steadily increases, leading to the sudden arrival of thunder. The phrase "the earth was shaken" suggests that the event is not only heard but deeply felt, making nature seem dramatic and overwhelming. The poem captures a moment of anticipation and force, using simple language to build a vivid image of a storm’s intensity."_
 
-— **BotenKu** 📅 _Aug 27, 2026_
+— **BotenKu** 📅 _Aug 28, 2026_
 
 </td>
 </tr>
