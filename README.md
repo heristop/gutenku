@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1787911237" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1787997637" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a strong sense of tension and power as the noise steadily increases, leading to the sudden arrival of thunder. The phrase "the earth was shaken" suggests that the event is not only heard but deeply felt, making nature seem dramatic and overwhelming. The poem captures a moment of anticipation and force, using simple language to build a vivid image of a storm’s intensity."_
+> _"This haiku focuses on the power of repetition and the tension between silence and speech. The phrase "breaking the silence" appears at both the beginning and the end, creating a circular structure that suggests the silence is never fully gone—it is interrupted, examined, and then left lingering again. The mention of Poirot, the famous detective, adds a sense of careful observation and mystery. When Poirot "repeated my words," it implies both listening and scrutiny: he echoes the speaker’s statement, perhaps to test its truth or to reveal hidden meaning. The poem’s simplicity gives it a quiet dramatic force, making the silence itself feel like an important presence."_
 
-— **BotenKu** 📅 _Aug 28, 2026_
+— **BotenKu** 📅 _Aug 29, 2026_
 
 </td>
 </tr>
