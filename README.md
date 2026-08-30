@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1787997637" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1788084039" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku focuses on the power of repetition and the tension between silence and speech. The phrase "breaking the silence" appears at both the beginning and the end, creating a circular structure that suggests the silence is never fully gone—it is interrupted, examined, and then left lingering again. The mention of Poirot, the famous detective, adds a sense of careful observation and mystery. When Poirot "repeated my words," it implies both listening and scrutiny: he echoes the speaker’s statement, perhaps to test its truth or to reveal hidden meaning. The poem’s simplicity gives it a quiet dramatic force, making the silence itself feel like an important presence."_
+> _"This haiku suggests a quiet, outwardly orderly moment that hides inner effort. The phrase "things were right enough" implies a sense of acceptable calm or stability, but not perfect happiness. "The silence was unbroken" creates an atmosphere of stillness, restraint, and perhaps emotional distance. The final line, "exerting herself," introduces tension: beneath the calm surface, someone is working hard, struggling, or forcing themselves to continue. The poem’s power lies in this contrast between external quiet and internal effort, leaving the reader to sense hidden pressure or endurance."_
 
-— **BotenKu** 📅 _Aug 29, 2026_
+— **BotenKu** 📅 _Aug 30, 2026_
 
 </td>
 </tr>
