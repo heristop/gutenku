@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1788084039" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1788170441" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a quiet, outwardly orderly moment that hides inner effort. The phrase "things were right enough" implies a sense of acceptable calm or stability, but not perfect happiness. "The silence was unbroken" creates an atmosphere of stillness, restraint, and perhaps emotional distance. The final line, "exerting herself," introduces tension: beneath the calm surface, someone is working hard, struggling, or forcing themselves to continue. The poem’s power lies in this contrast between external quiet and internal effort, leaving the reader to sense hidden pressure or endurance."_
+> _"This haiku creates a quiet but tense scene of pursuit. The "officials" suggest authority, order, or perhaps a group searching for someone important, while the darkness adds mystery and uncertainty. As the poem moves toward "almost at sunrise," the approaching light hints at revelation, hope, or the end of the search. The contrast between darkness and sunrise gives the haiku a feeling of suspense, as if something hidden is about to be discovered just as night gives way to day."_
 
-— **BotenKu** 📅 _Aug 30, 2026_
+— **BotenKu** 📅 _Aug 31, 2026_
 
 </td>
 </tr>
