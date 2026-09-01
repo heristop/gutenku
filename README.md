@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1788170441" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1788256841" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a quiet but tense scene of pursuit. The "officials" suggest authority, order, or perhaps a group searching for someone important, while the darkness adds mystery and uncertainty. As the poem moves toward "almost at sunrise," the approaching light hints at revelation, hope, or the end of the search. The contrast between darkness and sunrise gives the haiku a feeling of suspense, as if something hidden is about to be discovered just as night gives way to day."_
+> _"This haiku captures a small, everyday moment with a gentle, conversational tone. Christophe’s lateness suggests a familiar interruption, but the line "who is not such a bad sort" softens the judgment, implying affection or tolerance rather than annoyance. The image of "sipping her coffee" grounds the poem in a quiet domestic scene, where waiting becomes calm and reflective rather than tense. Overall, the haiku feels light, human, and slightly amused, turning a simple delay into a characterful snapshot of ordinary life."_
 
-— **BotenKu** 📅 _Aug 31, 2026_
+— **BotenKu** 📅 _Sep 01, 2026_
 
 </td>
 </tr>
