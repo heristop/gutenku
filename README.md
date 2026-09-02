@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1788256841" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1788343238" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a small, everyday moment with a gentle, conversational tone. Christophe’s lateness suggests a familiar interruption, but the line "who is not such a bad sort" softens the judgment, implying affection or tolerance rather than annoyance. The image of "sipping her coffee" grounds the poem in a quiet domestic scene, where waiting becomes calm and reflective rather than tense. Overall, the haiku feels light, human, and slightly amused, turning a simple delay into a characterful snapshot of ordinary life."_
+> _"This haiku suggests a moment of transformation, where a young author is seen before a fire is lit, symbolizing the beginning of insight, passion, or creative inspiration. The phrase "who now sat in state" gives the figure a sense of dignity and importance, as if youth has been elevated into authority or contemplation. The poem feels quietly ceremonial, contrasting the innocence or freshness of youth with the gravity that comes after awakening or experience. Its sparse language leaves room for reflection, making the scene feel both intimate and symbolic."_
 
-— **BotenKu** 📅 _Sep 01, 2026_
+— **BotenKu** 📅 _Sep 02, 2026_
 
 </td>
 </tr>
