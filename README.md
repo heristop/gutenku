@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1788343238" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1788429641" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a moment of transformation, where a young author is seen before a fire is lit, symbolizing the beginning of insight, passion, or creative inspiration. The phrase "who now sat in state" gives the figure a sense of dignity and importance, as if youth has been elevated into authority or contemplation. The poem feels quietly ceremonial, contrasting the innocence or freshness of youth with the gravity that comes after awakening or experience. Its sparse language leaves room for reflection, making the scene feel both intimate and symbolic."_
+> _"This haiku suggests a person who sees life like a game of chance and destiny. The phrase "player for he is" presents the subject as someone active, strategic, and perhaps competitive, while "who justifieth the future" implies that he tries to make sense of what is yet to come, as though he can defend or explain destiny itself. The final line, "fall in his favour," gives the poem a sense of irony and confidence: whatever happens, he believes the outcome will somehow benefit him. As a literary image, the haiku reflects ambition, self-belief, and the human desire to control or justify the uncertain future."_
 
-— **BotenKu** 📅 _Sep 02, 2026_
+— **BotenKu** 📅 _Sep 03, 2026_
 
 </td>
 </tr>
