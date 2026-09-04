@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1788429641" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1788516036" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a person who sees life like a game of chance and destiny. The phrase "player for he is" presents the subject as someone active, strategic, and perhaps competitive, while "who justifieth the future" implies that he tries to make sense of what is yet to come, as though he can defend or explain destiny itself. The final line, "fall in his favour," gives the poem a sense of irony and confidence: whatever happens, he believes the outcome will somehow benefit him. As a literary image, the haiku reflects ambition, self-belief, and the human desire to control or justify the uncertain future."_
+> _"This haiku creates a peaceful, almost dreamlike scene in which a man’s dog and pipe are both resting on the grass. The phrase "slept" gives the image of stillness and calm, while "As for the greatest number" suggests that many others may also be asleep or at rest, expanding the quiet mood beyond just these two objects. The final line, "on the grass asleep," reinforces the softness of the setting and makes nature feel like a place of universal peace. Overall, the haiku captures a moment of deep tranquility, where even ordinary objects seem to share in the stillness of the world."_
 
-— **BotenKu** 📅 _Sep 03, 2026_
+— **BotenKu** 📅 _Sep 04, 2026_
 
 </td>
 </tr>
