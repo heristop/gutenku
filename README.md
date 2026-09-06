@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1788602437" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1788688838" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a quiet, lonely atmosphere. The empty room and film of dust suggest long abandonment, while the dark stairs add a sense of mystery and unease. The poem uses simple images to show stillness, time passing, and perhaps the memory of something once lived in but now forgotten."_
+> _"This haiku suggests a scene of stillness and disappointment, possibly in a shop, workplace, or stage-like setting. The phrase "what can she rise to" hints at someone being asked to meet an expectation or perform, yet the answer feels limited or uncertain. "Draws back the ragged curtain" creates a vivid image of revealing a worn, tired reality, as if the speaker is uncovering something shabby or unglamorous. The final line, "the business is slack," gives the poem a blunt, economic tone, showing that there is little activity, energy, or demand. Together, the lines evoke a mood of weariness, poverty, and quiet resignation, with the curtain acting as a symbol of both concealment and exposure."_
 
-— **BotenKu** 📅 _Sep 05, 2026_
+— **BotenKu** 📅 _Sep 06, 2026_
 
 </td>
 </tr>
