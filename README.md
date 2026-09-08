@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1788775237" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1788861647" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku presents a quiet, almost comic moment of observation. The speaker notices something that is “very near / in size and situation” to “some soap and water,” which creates a strange but vivid comparison. The plain, everyday image of soap and water suggests cleanliness, simplicity, and domestic life, but the phrasing is deliberately indirect and fragmented, giving the poem a reflective, slightly mysterious tone. As in much haiku, the ordinary is made fresh through precise attention, and the line breaks encourage us to pause over the relationship between objects, space, and meaning. The result is a minimalist poem that feels both humorous and thoughtful, turning a small detail into a moment of poetic surprise."_
+> _"This haiku captures a quiet but painful change in a person’s life. The opening line, “In less than two years,” suggests how quickly circumstances can shift. The phrase “EVENING wore into night” uses evening as a symbol of decline, darkness, and the loss of hope, showing that what begins gently can end in sorrow. The final line, “His friends forsook him,” reveals the emotional heart of the poem: abandonment. Together, the lines create a mood of sadness and isolation, suggesting that time, like evening turning into night, can bring both darkness and loneliness."_
 
-— **BotenKu** 📅 _Sep 07, 2026_
+— **BotenKu** 📅 _Sep 08, 2026_
 
 </td>
 </tr>
