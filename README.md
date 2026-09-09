@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1788861647" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1788948045" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a quiet but painful change in a person’s life. The opening line, “In less than two years,” suggests how quickly circumstances can shift. The phrase “EVENING wore into night” uses evening as a symbol of decline, darkness, and the loss of hope, showing that what begins gently can end in sorrow. The final line, “His friends forsook him,” reveals the emotional heart of the poem: abandonment. Together, the lines create a mood of sadness and isolation, suggesting that time, like evening turning into night, can bring both darkness and loneliness."_
+> _"This haiku tells a brief but vivid story about O-Kuni, a miko, or shrine maiden, who is shown performing a sacred dance. The phrase "so the story goes" gives the poem a legendary, almost historical feeling, as if the speaker is passing on a tradition or remembered tale. The image of O-Kuni dancing suggests grace, ritual, and cultural significance, blending art and spirituality in a few simple lines. Like many haiku, it uses minimal words to create a strong sense of atmosphere and meaning."_
 
-— **BotenKu** 📅 _Sep 08, 2026_
+— **BotenKu** 📅 _Sep 09, 2026_
 
 </td>
 </tr>
