@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1788948045" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1789034444" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku tells a brief but vivid story about O-Kuni, a miko, or shrine maiden, who is shown performing a sacred dance. The phrase "so the story goes" gives the poem a legendary, almost historical feeling, as if the speaker is passing on a tradition or remembered tale. The image of O-Kuni dancing suggests grace, ritual, and cultural significance, blending art and spirituality in a few simple lines. Like many haiku, it uses minimal words to create a strong sense of atmosphere and meaning."_
+> _"This haiku creates a quiet, haunting image of a life shaped by darkness and emotional weight. The phrase "His life had been all shadows" suggests sorrow, hardship, or a lack of warmth and joy. Then, "turned aside their heads" gives the feeling of rejection, as if even the shadows themselves cannot fully face his suffering. The opening image, "are like a snowball," adds to the sense of something growing, gathering, and becoming heavier as it moves. Together, the lines suggest a life that has accumulated pain over time, making the poem feel solemn, reflective, and deeply human."_
 
-— **BotenKu** 📅 _Sep 09, 2026_
+— **BotenKu** 📅 _Sep 10, 2026_
 
 </td>
 </tr>
