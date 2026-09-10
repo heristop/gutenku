@@ -84,7 +84,7 @@
     "tsc-alias": "^1.8.17",
     "tsx": "^4.22.3",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.7"
+    "vitest": "^4.1.11"
   },
   "optionalDependencies": {
     "@gutenguess/server": "file:../../private/gutenguess/packages/server"
