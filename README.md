@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1789034444" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1789120842" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a quiet, haunting image of a life shaped by darkness and emotional weight. The phrase "His life had been all shadows" suggests sorrow, hardship, or a lack of warmth and joy. Then, "turned aside their heads" gives the feeling of rejection, as if even the shadows themselves cannot fully face his suffering. The opening image, "are like a snowball," adds to the sense of something growing, gathering, and becoming heavier as it moves. Together, the lines suggest a life that has accumulated pain over time, making the poem feel solemn, reflective, and deeply human."_
+> _"This haiku suggests a calm, reflective state of mind. The opening line, "If he thought at all," implies that the speaker is uncertain whether the person being described is truly reflective or even fully aware. The next line, "Then everything was right," presents the possibility that thought itself brings order, harmony, or correctness to the world. However, the final line, "On the other hand," suddenly shifts the tone, introducing doubt, contradiction, and the idea that another perspective may exist. As a whole, the haiku explores uncertainty, balance, and the fragile nature of judgment, leaving the reader suspended between certainty and contradiction."_
 
-— **BotenKu** 📅 _Sep 10, 2026_
+— **BotenKu** 📅 _Sep 11, 2026_
 
 </td>
 </tr>
