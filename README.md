@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1789120842" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1789207239" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a calm, reflective state of mind. The opening line, "If he thought at all," implies that the speaker is uncertain whether the person being described is truly reflective or even fully aware. The next line, "Then everything was right," presents the possibility that thought itself brings order, harmony, or correctness to the world. However, the final line, "On the other hand," suddenly shifts the tone, introducing doubt, contradiction, and the idea that another perspective may exist. As a whole, the haiku explores uncertainty, balance, and the fragile nature of judgment, leaving the reader suspended between certainty and contradiction."_
+> _"This haiku creates a sharp sense of surprise and irony. The opening line, "going up to the thief," suggests a tense pursuit, as if the sergeant is bravely approaching a criminal. However, the second line, "the sergeant slipped into bed," suddenly shifts the scene into something quiet and absurd, making the action feel accidental or comic rather than heroic. The final line, "which contained two beds," deepens the confusion and humor, hinting at a mistaken identity or a literal misunderstanding of the situation. Overall, the poem uses brevity, ambiguity, and unexpected imagery to turn what seems like a serious moment into a playful, puzzling scene."_
 
-— **BotenKu** 📅 _Sep 11, 2026_
+— **BotenKu** 📅 _Sep 12, 2026_
 
 </td>
 </tr>
