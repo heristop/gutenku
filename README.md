@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1789207239" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1789293637" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a sharp sense of surprise and irony. The opening line, "going up to the thief," suggests a tense pursuit, as if the sergeant is bravely approaching a criminal. However, the second line, "the sergeant slipped into bed," suddenly shifts the scene into something quiet and absurd, making the action feel accidental or comic rather than heroic. The final line, "which contained two beds," deepens the confusion and humor, hinting at a mistaken identity or a literal misunderstanding of the situation. Overall, the poem uses brevity, ambiguity, and unexpected imagery to turn what seems like a serious moment into a playful, puzzling scene."_
+> _"This haiku captures a sudden, wintry moment of stillness. The image of a door opening “dripping with snow and water” suggests someone has come in from the cold, bringing the outside world into the home. The detail is vivid and physical, making the scene feel immediate and real. The final line, “the larks were silent,” creates a striking contrast: larks are birds associated with song and liveliness, so their silence emphasizes the hush of the moment. The poem may suggest that nature itself pauses in response to the cold, or that the arrival described is so powerful it interrupts the usual sounds of life. Overall, the haiku uses simple imagery to create a calm, wintry mood and a sense of quiet wonder."_
 
-— **BotenKu** 📅 _Sep 12, 2026_
+— **BotenKu** 📅 _Sep 13, 2026_
 
 </td>
 </tr>
