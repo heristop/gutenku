@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1789293637" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1789380041" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a sudden, wintry moment of stillness. The image of a door opening “dripping with snow and water” suggests someone has come in from the cold, bringing the outside world into the home. The detail is vivid and physical, making the scene feel immediate and real. The final line, “the larks were silent,” creates a striking contrast: larks are birds associated with song and liveliness, so their silence emphasizes the hush of the moment. The poem may suggest that nature itself pauses in response to the cold, or that the arrival described is so powerful it interrupts the usual sounds of life. Overall, the haiku uses simple imagery to create a calm, wintry mood and a sense of quiet wonder."_
+> _"This haiku evokes a quiet but powerful sense of exploration and vastness. The phrase "held their adventure" suggests that the travelers’ experience is being contained or preserved by the landscape itself, as if the desert is both witness and participant in their journey. "An absolute sea of sand" creates a striking image of endless dunes, emphasizing the scale, emptiness, and timeless beauty of the desert. The final line, "The shallow valley," grounds the poem in a specific feature of the terrain, hinting at a low place where the travelers may pause, rest, or continue their path. Together, the lines suggest solitude, endurance, and the awe of moving through a landscape that feels both immense and intimate."_
 
-— **BotenKu** 📅 _Sep 13, 2026_
+— **BotenKu** 📅 _Sep 14, 2026_
 
 </td>
 </tr>
