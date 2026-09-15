@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1789380041" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1789466441" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku evokes a quiet but powerful sense of exploration and vastness. The phrase "held their adventure" suggests that the travelers’ experience is being contained or preserved by the landscape itself, as if the desert is both witness and participant in their journey. "An absolute sea of sand" creates a striking image of endless dunes, emphasizing the scale, emptiness, and timeless beauty of the desert. The final line, "The shallow valley," grounds the poem in a specific feature of the terrain, hinting at a low place where the travelers may pause, rest, or continue their path. Together, the lines suggest solitude, endurance, and the awe of moving through a landscape that feels both immense and intimate."_
+> _"This haiku captures a quiet moment of hesitation and reflection. The speaker is sitting up in bed and pulling on a dressing-gown, which suggests the ordinary beginning of a day. However, the final line—"What was to be done"—introduces a sense of uncertainty, as if the speaker is suddenly faced with a problem, decision, or emotional burden. The contrast between the simple physical actions and the unanswered question creates a mood of stillness, thoughtfulness, and perhaps mild anxiety. In just a few words, the poem turns a mundane morning scene into a deeper reflection on confusion and the challenge of action."_
 
-— **BotenKu** 📅 _Sep 14, 2026_
+— **BotenKu** 📅 _Sep 15, 2026_
 
 </td>
 </tr>
