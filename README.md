@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1789466441" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1789552848" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a quiet moment of hesitation and reflection. The speaker is sitting up in bed and pulling on a dressing-gown, which suggests the ordinary beginning of a day. However, the final line—"What was to be done"—introduces a sense of uncertainty, as if the speaker is suddenly faced with a problem, decision, or emotional burden. The contrast between the simple physical actions and the unanswered question creates a mood of stillness, thoughtfulness, and perhaps mild anxiety. In just a few words, the poem turns a mundane morning scene into a deeper reflection on confusion and the challenge of action."_
+> _"This haiku suggests a world of conflict and mystery beneath a glowing surface. The phrase "battles of the earth" evokes struggle, tension, and the hardships of human or natural life. Yet the next line, "Open but still a secret," creates a sense of paradox: something is visible and accessible, but its deeper meaning remains hidden. The final line, "the bright sun shining," brings warmth, clarity, and hope, implying that light continues despite the earth’s struggles. Overall, the haiku balances darkness and brightness, secrecy and openness, conflict and beauty."_
 
-— **BotenKu** 📅 _Sep 15, 2026_
+— **BotenKu** 📅 _Sep 16, 2026_
 
 </td>
 </tr>
