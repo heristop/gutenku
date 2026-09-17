@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1789552848" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1789639239" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a world of conflict and mystery beneath a glowing surface. The phrase "battles of the earth" evokes struggle, tension, and the hardships of human or natural life. Yet the next line, "Open but still a secret," creates a sense of paradox: something is visible and accessible, but its deeper meaning remains hidden. The final line, "the bright sun shining," brings warmth, clarity, and hope, implying that light continues despite the earth’s struggles. Overall, the haiku balances darkness and brightness, secrecy and openness, conflict and beauty."_
+> _"This haiku suggests that true generosity does not depend on having many people around us. Instead, it celebrates a generous spirit that finds joy in giving, in kindness, and in appreciating even a single person or moment. The phrase "no need of persons" implies a sense of independence from crowd or company, while "generous spirit is most" highlights the value of an open, giving heart. The final line, "take pleasure in one," can be read as finding delight in one person, one act of kindness, or one simple thing. Overall, the poem reflects quiet contentment and the idea that generosity is a state of mind, not a social display."_
 
-— **BotenKu** 📅 _Sep 16, 2026_
+— **BotenKu** 📅 _Sep 17, 2026_
 
 </td>
 </tr>
