@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1789725642" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1789812038" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a quiet, haunting scene in which the speaker watches flames brighten a room, suggesting both literal light and a moment of tense awareness. The phrase "watching each blaze up" gives the image movement and intensity, as if the fire is growing one flare at a time. By the second line, "The room was light enough now," the setting feels illuminated, but the word "enough" suggests a limited, uneasy comfort rather than warmth or peace. The final line, "His wife did not write," shifts the poem from physical light to emotional absence. The lack of a letter implies silence, distance, or perhaps grief, making the brightness of the room feel ironically hollow. Overall, the haiku uses simple imagery to convey longing, disappointment, and the painful weight of unreturned communication."_
+> _"This haiku feels reflective and slightly mysterious, as if the speaker is looking back on a moment of questioning that happened sometime in the past. The phrase "one day at this time" creates a sense of a specific memory, while "to inquire particulars" suggests a careful search for details or truth. The ending, "so far as it went," gives the poem a restrained, unfinished feeling, implying that the inquiry only reached a certain limit before stopping. Overall, the haiku captures the quiet, thoughtful act of trying to understand something, while also hinting that full clarity may never be possible."_
 
-— **BotenKu** 📅 _Sep 18, 2026_
+— **BotenKu** 📅 _Sep 19, 2026_
 
 </td>
 </tr>
