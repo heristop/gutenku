@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1789812038" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1789898437" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku feels reflective and slightly mysterious, as if the speaker is looking back on a moment of questioning that happened sometime in the past. The phrase "one day at this time" creates a sense of a specific memory, while "to inquire particulars" suggests a careful search for details or truth. The ending, "so far as it went," gives the poem a restrained, unfinished feeling, implying that the inquiry only reached a certain limit before stopping. Overall, the haiku captures the quiet, thoughtful act of trying to understand something, while also hinting that full clarity may never be possible."_
+> _"This haiku has a playful, ironic tone. The phrase "pagans and what not" suggests a loose, dismissive view of people or beliefs the speaker finds amusing or unimportant. "never mind how comical" deepens that sense of mockery, as if the speaker is laughing at the oddness of human behavior or ideas. The final line, "Towards evening," shifts the mood slightly, giving the poem a quiet, reflective ending. The contrast between the humorous middle and the calm closing creates a subtle sense of transition, as though the day is winding down while the speaker remains amused by the world around them."_
 
-— **BotenKu** 📅 _Sep 19, 2026_
+— **BotenKu** 📅 _Sep 20, 2026_
 
 </td>
 </tr>
