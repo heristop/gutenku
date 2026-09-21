@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1789898437" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1789984844" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku has a playful, ironic tone. The phrase "pagans and what not" suggests a loose, dismissive view of people or beliefs the speaker finds amusing or unimportant. "never mind how comical" deepens that sense of mockery, as if the speaker is laughing at the oddness of human behavior or ideas. The final line, "Towards evening," shifts the mood slightly, giving the poem a quiet, reflective ending. The contrast between the humorous middle and the calm closing creates a subtle sense of transition, as though the day is winding down while the speaker remains amused by the world around them."_
+> _"This haiku suggests a world of change, division, and identity being questioned. The phrase "plenty of new types" implies variety, growth, or perhaps new people and ideas emerging. "Refusing to bear his name" suggests rejection of authority, legacy, or ownership—these new forms do not wish to be defined by one person or tradition. "A number of hands" creates an image of many people acting together, or of labor, support, and collective effort. Overall, the haiku feels like a reflection on independence, transformation, and the power of many voices over one dominant name."_
 
-— **BotenKu** 📅 _Sep 20, 2026_
+— **BotenKu** 📅 _Sep 21, 2026_
 
 </td>
 </tr>
