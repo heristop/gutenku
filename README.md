@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1789984844" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1790071243" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a world of change, division, and identity being questioned. The phrase "plenty of new types" implies variety, growth, or perhaps new people and ideas emerging. "Refusing to bear his name" suggests rejection of authority, legacy, or ownership—these new forms do not wish to be defined by one person or tradition. "A number of hands" creates an image of many people acting together, or of labor, support, and collective effort. Overall, the haiku feels like a reflection on independence, transformation, and the power of many voices over one dominant name."_
+> _"This haiku feels like a plea for guidance in a moment of confusion or conflict. The speaker addresses the “right hand,” which can suggest strength, loyalty, or an inner helper, and asks it to explain how things have become so quiet or restrained. The phrase “are put to silence” creates a mood of tension, as if voices, actions, or truths have been suppressed. The language is compact but dramatic, leaving the reader with a sense of urgency, uncertainty, and hidden emotion."_
 
-— **BotenKu** 📅 _Sep 21, 2026_
+— **BotenKu** 📅 _Sep 22, 2026_
 
 </td>
 </tr>
