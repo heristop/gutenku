@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1790071243" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1790157637" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku feels like a plea for guidance in a moment of confusion or conflict. The speaker addresses the “right hand,” which can suggest strength, loyalty, or an inner helper, and asks it to explain how things have become so quiet or restrained. The phrase “are put to silence” creates a mood of tension, as if voices, actions, or truths have been suppressed. The language is compact but dramatic, leaving the reader with a sense of urgency, uncertainty, and hidden emotion."_
+> _"This haiku creates a vivid and surprising image of nature in motion. The phrase "over rocks and cliffs" suggests a rugged, wild landscape, while "gave the signal with his bark" introduces a living creature, likely a seal or sea lion, communicating across the scene. The final line, "beneath the ocean," shifts the setting below the surface, adding mystery and depth. Together, the lines blend land, sea, and sound to show a moment of connection in the natural world. The poem’s simplicity leaves room for imagination, making the reader feel both the beauty and the strangeness of the ocean environment."_
 
-— **BotenKu** 📅 _Sep 22, 2026_
+— **BotenKu** 📅 _Sep 23, 2026_
 
 </td>
 </tr>
