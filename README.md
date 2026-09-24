@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1790157637" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1790244043" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a vivid and surprising image of nature in motion. The phrase "over rocks and cliffs" suggests a rugged, wild landscape, while "gave the signal with his bark" introduces a living creature, likely a seal or sea lion, communicating across the scene. The final line, "beneath the ocean," shifts the setting below the surface, adding mystery and depth. Together, the lines blend land, sea, and sound to show a moment of connection in the natural world. The poem’s simplicity leaves room for imagination, making the reader feel both the beauty and the strangeness of the ocean environment."_
+> _"This haiku suggests a speaker exploring the sea’s mysterious depths and discovering that it feels limitless. The phrase "tried deep-sea soundings" implies an attempt to measure or understand the unknown, while "infinite in its extent" emphasizes vastness and awe. The final line, "This wondrous sea is," leaves the thought open-ended, inviting the reader to feel the sea’s beauty, mystery, and endless possibility. Overall, the poem captures wonder before nature’s immensity."_
 
-— **BotenKu** 📅 _Sep 23, 2026_
+— **BotenKu** 📅 _Sep 24, 2026_
 
 </td>
 </tr>
