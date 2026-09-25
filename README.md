@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1790244043" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1790330434" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a speaker exploring the sea’s mysterious depths and discovering that it feels limitless. The phrase "tried deep-sea soundings" implies an attempt to measure or understand the unknown, while "infinite in its extent" emphasizes vastness and awe. The final line, "This wondrous sea is," leaves the thought open-ended, inviting the reader to feel the sea’s beauty, mystery, and endless possibility. Overall, the poem captures wonder before nature’s immensity."_
+> _"This haiku creates a quiet, melancholy mood through simple but vivid images. The line "Her face was still veiled" suggests mystery, distance, or hidden emotion, as if the speaker cannot fully see or understand the woman. "The light soon faded away" deepens this feeling, symbolizing the passing of time, the end of hope, or the close of a moment. The final image, "every leaf that fell," evokes autumn, change, and loss, linking nature’s decline to the emotional tone of the poem. Together, the haiku suggests beauty, transience, and a gentle sadness."_
 
-— **BotenKu** 📅 _Sep 24, 2026_
+— **BotenKu** 📅 _Sep 25, 2026_
 
 </td>
 </tr>
