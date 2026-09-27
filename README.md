@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1790416840" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1790503239" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a quiet sense of longing and uncertainty. The speaker seems to be waiting for someone, asking whether they will come later in the evening, while morning has only just begun. The phrase "one gleam of day might" suggests a fragile hope—just a small trace of light or possibility. The poem’s beauty lies in its tension between the present moment and the uncertain future, creating an atmosphere of patience, anticipation, and gentle emotional restraint."_
+> _"This haiku suggests a person who ran a public-house, or inn, near the coast not for profit, but out of compassion. The phrase “to get a smell of the salt” evokes the salty sea air and the life of sailors or travelers, while “out of pure pity” reveals a gentle, generous motive. The poem feels quietly humorous and deeply humane, showing someone offering shelter or comfort simply because they cared about others."_
 
-— **BotenKu** 📅 _Sep 26, 2026_
+— **BotenKu** 📅 _Sep 27, 2026_
 
 </td>
 </tr>
