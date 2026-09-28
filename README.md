@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1790503239" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1790589643" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a person who ran a public-house, or inn, near the coast not for profit, but out of compassion. The phrase “to get a smell of the salt” evokes the salty sea air and the life of sailors or travelers, while “out of pure pity” reveals a gentle, generous motive. The poem feels quietly humorous and deeply humane, showing someone offering shelter or comfort simply because they cared about others."_
+> _"This haiku suggests the heavy price of violence and invention used for destruction. The phrase "than five thousand pounds" hints at money or value, while "got a patent for it there" suggests something was officially approved or claimed as an invention. The closing line, "to carry on wars," reveals the disturbing purpose behind it all: to continue conflict. As a piece of literature, the haiku creates irony by linking profit, ownership, and war, showing how human ingenuity can be turned toward harm rather than peace."_
 
-— **BotenKu** 📅 _Sep 27, 2026_
+— **BotenKu** 📅 _Sep 28, 2026_
 
 </td>
 </tr>
