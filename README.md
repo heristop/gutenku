@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1790589643" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1790676044" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests the heavy price of violence and invention used for destruction. The phrase "than five thousand pounds" hints at money or value, while "got a patent for it there" suggests something was officially approved or claimed as an invention. The closing line, "to carry on wars," reveals the disturbing purpose behind it all: to continue conflict. As a piece of literature, the haiku creates irony by linking profit, ownership, and war, showing how human ingenuity can be turned toward harm rather than peace."_
+> _"This haiku paints a quiet, vivid image of someone moving between rocks while half-asleep. The phrase “rising to her feet” suggests a slow, effortful awakening, as if she is struggling to become fully alert. “As she went from rock to rock” creates a sense of careful, uneven movement across a rough landscape, which may symbolize a difficult journey in life or mind. The final line, “weighed down with deep sleep,” gives the poem its emotional depth: sleep is described almost like a heavy burden, making the figure seem dreamy, exhausted, or lost in a state between waking and dreaming. The haiku’s simplicity and spare language leave room for mystery, inviting the reader to imagine both the physical scene and the inner stillness it reflects."_
 
-— **BotenKu** 📅 _Sep 28, 2026_
+— **BotenKu** 📅 _Sep 29, 2026_
 
 </td>
 </tr>
