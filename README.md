@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1790676044" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1790762439" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku paints a quiet, vivid image of someone moving between rocks while half-asleep. The phrase “rising to her feet” suggests a slow, effortful awakening, as if she is struggling to become fully alert. “As she went from rock to rock” creates a sense of careful, uneven movement across a rough landscape, which may symbolize a difficult journey in life or mind. The final line, “weighed down with deep sleep,” gives the poem its emotional depth: sleep is described almost like a heavy burden, making the figure seem dreamy, exhausted, or lost in a state between waking and dreaming. The haiku’s simplicity and spare language leave room for mystery, inviting the reader to imagine both the physical scene and the inner stillness it reflects."_
+> _"This haiku captures the calm yet mysterious feeling of evening arriving. The repeated line, "The evening came," creates a sense of inevitability, as if night is gently but steadily taking over. The middle line, "All the surprise and suspense," suggests that dusk brings a moment of anticipation, a pause between day and night when anything can seem possible. As an English Literature Teacher might explain it, the poem uses repetition and simplicity to emphasize mood rather than action. It evokes the emotional transition of the day ending, blending wonder, stillness, and a slight sense of drama."_
 
-— **BotenKu** 📅 _Sep 29, 2026_
+— **BotenKu** 📅 _Sep 30, 2026_
 
 </td>
 </tr>
