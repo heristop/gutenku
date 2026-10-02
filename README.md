@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1790848839" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1790935239" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a quiet moment of tension and change. The first line, "The minutes went by," suggests time passing slowly, almost painfully. In the second line, "Maheu was still the speaker," there is a sense of someone continuing to talk, perhaps trying to hold attention or meaning in a fading situation. But the final line, "But the fire was dead," shifts the mood completely: the warmth, energy, or passion that once existed has gone out. The fire can be read both literally and symbolically, representing life, hope, or enthusiasm. Overall, the haiku contrasts ongoing speech with emotional emptiness, creating a feeling of stillness, loss, and quiet disappointment."_
+> _"This haiku suggests a moment of trust, waiting, and conditional hospitality. The speaker offers someone permission to stay, but only after a commitment is made: “upon my word of honour.” This phrase gives the poem a formal, almost old-fashioned tone, implying sincerity, duty, and a sense of binding promise. The final line, “once the treasure shipped,” introduces a hidden tension. It hints that something valuable must first be safely sent away before the arrangement can be fulfilled, which may suggest secrecy, caution, or even a transaction. Together, the lines create a compact scene filled with anticipation and unspoken stakes, where honor and treasure are linked to a delayed promise."_
 
-— **BotenKu** 📅 _Oct 01, 2026_
+— **BotenKu** 📅 _Oct 02, 2026_
 
 </td>
 </tr>
