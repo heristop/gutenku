@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1790935239" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1791021641" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a moment of trust, waiting, and conditional hospitality. The speaker offers someone permission to stay, but only after a commitment is made: “upon my word of honour.” This phrase gives the poem a formal, almost old-fashioned tone, implying sincerity, duty, and a sense of binding promise. The final line, “once the treasure shipped,” introduces a hidden tension. It hints that something valuable must first be safely sent away before the arrangement can be fulfilled, which may suggest secrecy, caution, or even a transaction. Together, the lines create a compact scene filled with anticipation and unspoken stakes, where honor and treasure are linked to a delayed promise."_
+> _"This haiku contrasts the freshness and beauty of a bright morning with the ordinary detail of evening newspapers. The speaker finds the moment so perfect that even something as mundane as reading the papers feels like “heaven.” The poem captures a sense of quiet delight, suggesting that on a morning like this, everyday life becomes unexpectedly joyful and meaningful. The simple images create a peaceful, reflective mood, showing how nature can elevate the most ordinary routines."_
 
-— **BotenKu** 📅 _Oct 02, 2026_
+— **BotenKu** 📅 _Oct 03, 2026_
 
 </td>
 </tr>
