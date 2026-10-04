@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1791021641" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1791108036" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku contrasts the freshness and beauty of a bright morning with the ordinary detail of evening newspapers. The speaker finds the moment so perfect that even something as mundane as reading the papers feels like “heaven.” The poem captures a sense of quiet delight, suggesting that on a morning like this, everyday life becomes unexpectedly joyful and meaningful. The simple images create a peaceful, reflective mood, showing how nature can elevate the most ordinary routines."_
+> _"This haiku presents a striking contrast between size and innocence. The first line, "large though it was," suggests something immense, perhaps a school, institution, or community. Yet the next lines reveal that it was "composed wholly of boys," showing that its entire population is made up of children. The final phrase, "Its population," feels almost like a documentary or report, giving the poem a factual tone. Together, the lines create a picture of a large, boy-filled world, and they hint at youthful energy, discipline, and the scale of boyhood life within a shared space."_
 
-— **BotenKu** 📅 _Oct 03, 2026_
+— **BotenKu** 📅 _Oct 04, 2026_
 
 </td>
 </tr>
