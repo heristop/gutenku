@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1791194439" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1791280841" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku creates a tense, eerie mood by placing a fearful storm beside the quiet presence of a loyal dog. The first line suggests danger and unease, while the second line hints that the dog stays close to its owner, offering comfort or companionship. The final line, "nor heard the dog bark," deepens the silence and mystery, making the scene feel still, almost haunting. Together, the lines suggest that even in frightening circumstances, there is calm, loyalty, and quiet endurance."_
+> _"This haiku reflects on the nursery-school as a place of early guidance and shaping. The speaker seems to question how young children should be taught or managed in order to achieve a desired outcome, suggesting concern with education, discipline, or moral development. The phrase "What is to be done with them" gives the poem a thoughtful, almost anxious tone, as if the speaker is considering the responsibility of adults toward children. Overall, the haiku captures the tension between innocence and the need to prepare children for a specific future."_
 
-— **BotenKu** 📅 _Oct 05, 2026_
+— **BotenKu** 📅 _Oct 06, 2026_
 
 </td>
 </tr>
