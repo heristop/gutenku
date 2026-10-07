@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1791280841" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1791367241" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku reflects on the nursery-school as a place of early guidance and shaping. The speaker seems to question how young children should be taught or managed in order to achieve a desired outcome, suggesting concern with education, discipline, or moral development. The phrase "What is to be done with them" gives the poem a thoughtful, almost anxious tone, as if the speaker is considering the responsibility of adults toward children. Overall, the haiku captures the tension between innocence and the need to prepare children for a specific future."_
+> _"This haiku has a dry, witty tone that seems to poke fun at experts and certainty. The phrase "like all specialists" suggests people who claim authority, while "if it is as we suspect" introduces doubt rather than confidence. The final line, "have it your own way," sounds dismissive and ironic, as if the speaker is stepping back from debate and letting others believe what they want. Overall, the haiku captures skepticism, subtle sarcasm, and the limits of expertise in a few brief lines."_
 
-— **BotenKu** 📅 _Oct 06, 2026_
+— **BotenKu** 📅 _Oct 07, 2026_
 
 </td>
 </tr>
