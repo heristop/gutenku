@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1791367241" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1791453641" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku has a dry, witty tone that seems to poke fun at experts and certainty. The phrase "like all specialists" suggests people who claim authority, while "if it is as we suspect" introduces doubt rather than confidence. The final line, "have it your own way," sounds dismissive and ironic, as if the speaker is stepping back from debate and letting others believe what they want. Overall, the haiku captures skepticism, subtle sarcasm, and the limits of expertise in a few brief lines."_
+> _"This haiku captures a quiet, reflective moment in nature, where simple actions and sounds blend into a vivid sensory experience. The speaker is eating beside a branch, suggesting stillness and closeness to the natural world. As they listen to the water, the scene becomes more peaceful and meditative, emphasizing sound as much as sight. The final line, “The trees were buzzing,” adds a surprising layer of life and energy, making the forest feel alive with hidden movement, perhaps from insects or the hum of nature itself. Overall, the haiku creates a calm yet vibrant atmosphere, showing the harmony between the speaker and the living world around them."_
 
-— **BotenKu** 📅 _Oct 07, 2026_
+— **BotenKu** 📅 _Oct 08, 2026_
 
 </td>
 </tr>
