@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1791540017" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1791626423" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
 > _"This haiku captures a quiet, reflective moment in nature, where simple actions and sounds blend into a vivid sensory experience. The speaker is eating beside a branch, suggesting stillness and closeness to the natural world. As they listen to the water, the scene becomes more peaceful and meditative, emphasizing sound as much as sight. The final line, “The trees were buzzing,” adds a surprising layer of life and energy, making the forest feel alive with hidden movement, perhaps from insects or the hum of nature itself. Overall, the haiku creates a calm yet vibrant atmosphere, showing the harmony between the speaker and the living world around them."_
 
-— **BotenKu** 📅 _Oct 09, 2026_
+— **BotenKu** 📅 _Oct 10, 2026_
 
 </td>
 </tr>
