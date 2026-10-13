@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1791799243" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1791885642" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a dark and unsettling scene in which someone dreams that a wolf can be calmed or persuaded by the right words. The phrase "with certain words appeaseth" implies a hopeful belief that language can tame danger, but the final line shatters that hope: the wolf "mangleth all his wife." The poem creates a grim contrast between trust in speech and the violent reality that follows. Read as a symbolic piece, the wolf may represent cruelty, instinct, or betrayal, while the wife’s fate shows the failure of reason or persuasion to stop destruction. The archaic language gives the haiku a solemn, almost biblical tone, making the violence feel even more tragic and fated."_
+> _"This haiku suggests a brief moment of brightness interrupted by a return of darkness or threat. The image of the sun hints at hope, clarity, or peace, but the sudden arrival of the shadow creates a feeling of disruption and unease. The final line, “with the polished boots,” adds a human presence—perhaps someone official, powerful, or intimidating—whose polished boots symbolize authority, control, or a cold, deliberate march into the scene. The poem’s simple images create a tense contrast between light and shadow, calm and intrusion, making the moment feel both vivid and unsettling."_
 
-— **BotenKu** 📅 _Oct 12, 2026_
+— **BotenKu** 📅 _Oct 13, 2026_
 
 </td>
 </tr>
