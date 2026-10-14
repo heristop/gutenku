@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1791885642" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1791972045" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a brief moment of brightness interrupted by a return of darkness or threat. The image of the sun hints at hope, clarity, or peace, but the sudden arrival of the shadow creates a feeling of disruption and unease. The final line, “with the polished boots,” adds a human presence—perhaps someone official, powerful, or intimidating—whose polished boots symbolize authority, control, or a cold, deliberate march into the scene. The poem’s simple images create a tense contrast between light and shadow, calm and intrusion, making the moment feel both vivid and unsettling."_
+> _"This haiku suggests a quiet but intense moment of movement and anticipation. The line "Lawrence followed him" introduces a sense of mystery, as one person trails another, hinting at curiosity, duty, or tension. "It was a glorious night" shifts the mood toward beauty and wonder, suggesting that the setting is calm, clear, and perhaps emotionally significant. The final line, "In a few moments," creates suspense and leaves the reader expecting an important event to unfold soon. Together, the haiku blends atmosphere, action, and anticipation in a brief but vivid scene."_
 
-— **BotenKu** 📅 _Oct 13, 2026_
+— **BotenKu** 📅 _Oct 14, 2026_
 
 </td>
 </tr>
