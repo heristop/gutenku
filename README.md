@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1791972045" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1792058442" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a quiet but intense moment of movement and anticipation. The line "Lawrence followed him" introduces a sense of mystery, as one person trails another, hinting at curiosity, duty, or tension. "It was a glorious night" shifts the mood toward beauty and wonder, suggesting that the setting is calm, clear, and perhaps emotionally significant. The final line, "In a few moments," creates suspense and leaves the reader expecting an important event to unfold soon. Together, the haiku blends atmosphere, action, and anticipation in a brief but vivid scene."_
+> _"This haiku captures a moment of sudden danger and urgent despair. The image of a poisoned cup suggests betrayal or hidden harm, while the word "tottering" conveys weakness, shock, and instability as the person struggles toward her chamber. The final line, "No time for words now," heightens the tension by showing that speech, explanation, or comfort is no longer possible. Together, the lines create a tragic scene of silence, fear, and inevitability, where action has replaced language and fate is already unfolding."_
 
-— **BotenKu** 📅 _Oct 14, 2026_
+— **BotenKu** 📅 _Oct 15, 2026_
 
 </td>
 </tr>
