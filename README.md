@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1792058442" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1792144840" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a moment of sudden danger and urgent despair. The image of a poisoned cup suggests betrayal or hidden harm, while the word "tottering" conveys weakness, shock, and instability as the person struggles toward her chamber. The final line, "No time for words now," heightens the tension by showing that speech, explanation, or comfort is no longer possible. Together, the lines create a tragic scene of silence, fear, and inevitability, where action has replaced language and fate is already unfolding."_
+> _"This haiku suggests a moment of suspended thought and quiet tension. The phrase "would be in motion" implies energy, change, or movement that seems expected but not yet fully realized. "even late in the morning" adds a sense of time passing slowly, as if the day should already be underway, yet something remains unsettled. The final line, "The question now was," leaves the poem open-ended, emphasizing uncertainty and anticipation. Together, the lines create a reflective mood, where motion and stillness, clarity and doubt, exist side by side."_
 
-— **BotenKu** 📅 _Oct 15, 2026_
+— **BotenKu** 📅 _Oct 16, 2026_
 
 </td>
 </tr>
