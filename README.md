@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1792144840" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1792231245" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a moment of suspended thought and quiet tension. The phrase "would be in motion" implies energy, change, or movement that seems expected but not yet fully realized. "even late in the morning" adds a sense of time passing slowly, as if the day should already be underway, yet something remains unsettled. The final line, "The question now was," leaves the poem open-ended, emphasizing uncertainty and anticipation. Together, the lines create a reflective mood, where motion and stillness, clarity and doubt, exist side by side."_
+> _"This haiku captures a strange, uneasy calm at cocktail hour, a time usually associated with social ease and polished conversation. The word "exiles" suggests people who are displaced, isolated, or emotionally cut off, yet in this moment they "become peaceful," as if the ritual of drinking and gathering briefly softens their pain. The final phrase, "are all the bloodless," is especially striking: it can imply emotional numbness, exhaustion, or a loss of vitality. The poem therefore creates a mood of muted tension, where outward calm seems to hide inner emptiness. Its power lies in the contrast between social refinement and the haunting suggestion of detachment or lifelessness."_
 
-— **BotenKu** 📅 _Oct 16, 2026_
+— **BotenKu** 📅 _Oct 17, 2026_
 
 </td>
 </tr>
