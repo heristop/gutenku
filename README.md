@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1792231245" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1792317630" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a strange, uneasy calm at cocktail hour, a time usually associated with social ease and polished conversation. The word "exiles" suggests people who are displaced, isolated, or emotionally cut off, yet in this moment they "become peaceful," as if the ritual of drinking and gathering briefly softens their pain. The final phrase, "are all the bloodless," is especially striking: it can imply emotional numbness, exhaustion, or a loss of vitality. The poem therefore creates a mood of muted tension, where outward calm seems to hide inner emptiness. Its power lies in the contrast between social refinement and the haunting suggestion of detachment or lifelessness."_
+> _"This haiku suggests a quiet acceptance of loss or change. The phrase "Let it fall rather" implies that it is better to allow something to happen naturally than to force control over it. "Nor are those empty hearted" hints that true strength does not come from being emotionally detached, but from having a sincere and open heart. The final line, "reserue thy state," appears to mean preserving one’s dignity, inner peace, or rightful condition. Overall, the poem reflects a calm, philosophical attitude: it values restraint, emotional honesty, and the wisdom of not clinging too tightly to what must pass."_
 
-— **BotenKu** 📅 _Oct 17, 2026_
+— **BotenKu** 📅 _Oct 18, 2026_
 
 </td>
 </tr>
