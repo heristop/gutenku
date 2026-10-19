@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1792317630" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1792404032" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a quiet acceptance of loss or change. The phrase "Let it fall rather" implies that it is better to allow something to happen naturally than to force control over it. "Nor are those empty hearted" hints that true strength does not come from being emotionally detached, but from having a sincere and open heart. The final line, "reserue thy state," appears to mean preserving one’s dignity, inner peace, or rightful condition. Overall, the poem reflects a calm, philosophical attitude: it values restraint, emotional honesty, and the wisdom of not clinging too tightly to what must pass."_
+> _"This haiku presents a striking contrast between warmth, violence, and emotional control. The image of someone “smiling at the fire” suggests danger, pain, or emotional intensity, yet the smile implies calmness, resilience, or even defiance. The next line, “throw cold water over him,” introduces a sudden act of shock or attempted suppression, as if someone is trying to extinguish his spirit or passion. The final phrase, “composed of a stone,” deepens the meaning by portraying the person as unshaken, hard, and emotionally impenetrable. Overall, the haiku suggests a character who remains steady and composed despite pressure, hardship, or hostility."_
 
-— **BotenKu** 📅 _Oct 18, 2026_
+— **BotenKu** 📅 _Oct 19, 2026_
 
 </td>
 </tr>
