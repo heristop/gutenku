@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1792404032" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1792490429" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku presents a striking contrast between warmth, violence, and emotional control. The image of someone “smiling at the fire” suggests danger, pain, or emotional intensity, yet the smile implies calmness, resilience, or even defiance. The next line, “throw cold water over him,” introduces a sudden act of shock or attempted suppression, as if someone is trying to extinguish his spirit or passion. The final phrase, “composed of a stone,” deepens the meaning by portraying the person as unshaken, hard, and emotionally impenetrable. Overall, the haiku suggests a character who remains steady and composed despite pressure, hardship, or hostility."_
+> _"This haiku suggests a quiet moment of emotional acceptance and lingering desire. The phrase "having received them" implies that something or someone has been welcomed or accepted, while "even a little be friends" points to a modest but meaningful connection. Yet the final line, "which though it still yearned," introduces a sense of incompleteness: even in friendship or closeness, there remains a deeper longing that is not fully satisfied. The poem captures the delicate balance between gratitude for connection and the ache of still wanting more."_
 
-— **BotenKu** 📅 _Oct 19, 2026_
+— **BotenKu** 📅 _Oct 20, 2026_
 
 </td>
 </tr>
