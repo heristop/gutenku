@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1792490429" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1792576837" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a quiet moment of emotional acceptance and lingering desire. The phrase "having received them" implies that something or someone has been welcomed or accepted, while "even a little be friends" points to a modest but meaningful connection. Yet the final line, "which though it still yearned," introduces a sense of incompleteness: even in friendship or closeness, there remains a deeper longing that is not fully satisfied. The poem captures the delicate balance between gratitude for connection and the ache of still wanting more."_
+> _"This haiku captures a quiet journey at daybreak, where the speaker and another person begin their path in the early morning light. The line "he perceived several trees" suggests a moment of gentle observation, as nature slowly comes into view. The final line, "Not a sound inside," creates a sense of stillness and inward emptiness, emphasizing silence both in the surrounding world and within the speaker’s mind or heart. Together, the poem evokes calm, solitude, and a reflective mood."_
 
-— **BotenKu** 📅 _Oct 20, 2026_
+— **BotenKu** 📅 _Oct 21, 2026_
 
 </td>
 </tr>
