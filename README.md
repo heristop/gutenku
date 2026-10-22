@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1792576837" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1792663240" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a quiet journey at daybreak, where the speaker and another person begin their path in the early morning light. The line "he perceived several trees" suggests a moment of gentle observation, as nature slowly comes into view. The final line, "Not a sound inside," creates a sense of stillness and inward emptiness, emphasizing silence both in the surrounding world and within the speaker’s mind or heart. Together, the poem evokes calm, solitude, and a reflective mood."_
+> _"This haiku creates a quiet, slightly mysterious scene in just a few words. The image of the clock striking three suggests a late hour, when most people are asleep or absent. The phrase "the gentlemen being out" hints that the men are not present, perhaps away from home or engaged elsewhere, and "as might be supposed" adds a tone of dry, understated observation. Together, the lines suggest stillness, emptiness, and a subtle sense of social distance or secrecy. The poem’s power lies in its restraint: it says very little directly, yet invites us to imagine what is happening beyond the scene."_
 
-— **BotenKu** 📅 _Oct 21, 2026_
+— **BotenKu** 📅 _Oct 22, 2026_
 
 </td>
 </tr>
