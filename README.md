@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1792749640" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1792836034" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a feeling of disconnection from the natural world and from any fixed origin. The phrase "no root in nature" implies something that lacks grounding, belonging, or a true place in the order of things. The next line, "Every history which is," feels fragmented and reflective, as if all human stories are incomplete or uncertain. The final phrase, "heaven and earth to," opens outward into a vast, unfinished space, suggesting a connection between the spiritual and the earthly, but one that remains unresolved. Overall, the haiku feels philosophical and elusive, exploring identity, existence, and the tension between nature, history, and the cosmos."_
+> _"This haiku suggests the quiet power of a serene presence hidden in darkness. The phrase "in whose look serene" evokes a calm, gentle gaze, while "though hid in gloomiest shade" creates a contrast between inner peace and outer gloom. The final line, "thus the silence broke," implies that this calm presence has the ability to interrupt stillness, perhaps bringing comfort, hope, or emotional release. Overall, the poem captures the beauty of serenity shining through darkness and the moment when silence is transformed by subtle but meaningful presence."_
 
-— **BotenKu** 📅 _Oct 23, 2026_
+— **BotenKu** 📅 _Oct 24, 2026_
 
 </td>
 </tr>
