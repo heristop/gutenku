@@ -1,7 +1,7 @@
 import { markRaw, type Ref } from 'vue';
 import type { HaikuValue, HaikuVersion } from '@gutenku/shared';
 import type { CombinedError } from '@urql/vue';
-import { Leaf } from '@lucide/vue';
+import { Leaf } from '@/core/components/icons/ink';
 import { urqlClient } from '@/client';
 import {
   HAIKU_VERSION_QUERY,
@@ -14,7 +14,7 @@ import {
   type GenerationProgress,
   type Stats,
   MAX_HISTORY_SIZE,
-  getTodayUTC,
+  getDailyHaikuDate,
 } from './haiku.types';
 
 export interface HaikuStoreState {
@@ -29,8 +29,11 @@ export interface HaikuStoreState {
   optionTheme: Ref<string>;
   optionIterations: Ref<number>;
   optionUseAI: Ref<boolean>;
+  optionImageAI: Ref<boolean>;
   isGenerating: Ref<boolean>;
   generationProgress: Ref<GenerationProgress>;
+  imagePreviews: Ref<string[]>;
+  aiError: Ref<string | null>;
   stats: Ref<Stats>;
   cachedVersion: Ref<string | null>;
   cachedDailyHaiku: Ref<CachedDailyHaiku | null>;
@@ -46,6 +49,8 @@ interface HaikuGenerationResult {
       isComplete: boolean;
       stopReason?: string;
       bestHaiku?: HaikuValue;
+      imagePreview?: string | null;
+      aiError?: string | null;
     };
   };
   error?: Error;
@@ -233,6 +238,13 @@ export function createHaikuActions(state: HaikuStoreState) {
       stopReason: progress.stopReason,
     };
 
+    if (progress.imagePreview) {
+      state.imagePreviews.value = [
+        ...state.imagePreviews.value,
+        `data:image/jpeg;base64,${progress.imagePreview}`,
+      ];
+    }
+
     if (!progress.bestHaiku?.verses) {
       return;
     }
@@ -260,7 +272,7 @@ export function createHaikuActions(state: HaikuStoreState) {
   }
 
   async function fetchIterativeHaiku(): Promise<void> {
-    const today = getTodayUTC();
+    const today = getDailyHaikuDate();
 
     try {
       state.loading.value = true;
@@ -272,11 +284,14 @@ export function createHaikuActions(state: HaikuStoreState) {
         total: state.optionIterations.value,
         bestScore: 0,
       };
+      state.imagePreviews.value = [];
+      state.aiError.value = null;
 
       const variables = {
         iterations: state.optionIterations.value,
         theme: state.optionTheme.value,
         useAI: state.optionUseAI.value,
+        useImageAI: state.optionImageAI.value,
       };
 
       await new Promise<void>((resolve, reject) => {
@@ -300,6 +315,8 @@ export function createHaikuActions(state: HaikuStoreState) {
               handleIterativeProgress(progress, tracking);
 
               if (progress.isComplete) {
+                state.aiError.value = progress.aiError ?? null;
+
                 if (progress.bestHaiku) {
                   processNewHaiku(progress.bestHaiku, false, today);
                 }
@@ -317,6 +334,7 @@ export function createHaikuActions(state: HaikuStoreState) {
       handleFetchError(err);
     } finally {
       generationUnsubscribe = null;
+      state.imagePreviews.value = [];
       state.isGenerating.value = false;
       state.firstLoaded.value = true;
       state.loading.value = false;
@@ -325,7 +343,7 @@ export function createHaikuActions(state: HaikuStoreState) {
 
   async function fetchNewHaiku(): Promise<void> {
     const fetchingDaily = state.shouldUseDaily.value;
-    const today = getTodayUTC();
+    const today = getDailyHaikuDate();
 
     if (fetchingDaily && state.cachedDailyHaiku.value?.date === today) {
       const isValid = await checkHaikuVersion(today);

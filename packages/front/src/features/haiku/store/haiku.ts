@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { useOpenAIKey } from '@/core/composables/openai-key';
 import { ref, computed } from 'vue';
 import type { HaikuValue } from '@gutenku/shared';
 import {
@@ -46,6 +47,10 @@ export const useHaikuStore = defineStore(
       total: 0,
       bestScore: 0,
     });
+    // Drafts of the card (data URLs) while its AI background is painted
+    const imagePreviews = ref<string[]>([]);
+    // Why the last craft's AI fell short (invalid_key, no_quota, unavailable)
+    const aiError = ref<string | null>(null);
 
     const stats = ref<Stats>({
       haikusGenerated: 0,
@@ -62,8 +67,11 @@ export const useHaikuStore = defineStore(
     const networkError = computed(() => error.value === 'network-error');
     const notificationError = computed(() => error.value !== '');
 
+    // AI themes are offered with the server's key in dev, or with the
+    // visitor's own key anywhere
+    const { hasKey: hasOpenAIKey } = useOpenAIKey();
     const themeOptions = computed<OptionGroup[]>(() =>
-      optionImageAI.value && import.meta.env.DEV
+      optionImageAI.value && (import.meta.env.DEV || hasOpenAIKey.value)
         ? [
             { group: 'random', options: ['random'] },
             { group: 'ai', options: IMAGE_AI_THEMES },
@@ -104,8 +112,11 @@ export const useHaikuStore = defineStore(
       optionTheme,
       optionIterations,
       optionUseAI,
+      optionImageAI,
       isGenerating,
       generationProgress,
+      imagePreviews,
+      aiError,
       stats,
       cachedVersion,
       cachedDailyHaiku,
@@ -130,6 +141,8 @@ export const useHaikuStore = defineStore(
       optionIterations,
       isGenerating,
       generationProgress,
+      imagePreviews,
+      aiError,
       stats,
       cachedVersion,
       cachedDailyHaiku,
