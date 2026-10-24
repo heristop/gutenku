@@ -41,10 +41,13 @@ async function loadImageBuffer(imageData) {
   if (imageData.b64_json) {
     return Buffer.from(imageData.b64_json, 'base64');
   }
+
   if (imageData.url) {
     const response = await fetch(imageData.url);
+
     return Buffer.from(await response.arrayBuffer());
   }
+
   return null;
 }
 
@@ -59,7 +62,7 @@ async function generateBanner(banner) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'gpt-image-1.5',
+      model: 'gpt-image-2.5-sunburst',
       prompt: banner.prompt,
       n: 1,
       size: '1536x1024',
