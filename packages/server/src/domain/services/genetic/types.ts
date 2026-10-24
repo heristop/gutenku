@@ -165,19 +165,6 @@ export interface DecodedHaiku {
 }
 
 /**
- * Termination reason
- */
-export interface TerminationReason {
-  reason:
-    | 'converged'
-    | 'max_generations'
-    | 'max_evaluations'
-    | 'time_limit'
-    | 'target_reached';
-  details: Record<string, unknown>;
-}
-
-/**
  * Cached fitness result
  */
 export interface CachedFitness {
