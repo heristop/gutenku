@@ -138,19 +138,25 @@ describe('Blog Article Page', () => {
     });
   });
 
+  // The reading progress is the rule beside the table of contents, shown
+  // in the rail on wide screens
   describe('Reading Progress', () => {
+    beforeEach(() => {
+      cy.viewport(1440, 900);
+    });
+
     it('displays progress bar', () => {
-      cy.get('.blog-article__progress').should('exist');
+      cy.get('.article-toc__progress', { timeout: 10000 }).should('exist');
     });
 
     it('updates progress on scroll', () => {
-      cy.get('.blog-article__progress')
-        .invoke('css', 'width')
-        .then((initialWidth) => {
+      cy.get('.article-toc__progress', { timeout: 10000 })
+        .invoke('css', 'transform')
+        .then((initial) => {
           cy.scrollTo('bottom');
-          cy.get('.blog-article__progress')
-            .invoke('css', 'width')
-            .should('not.eq', initialWidth);
+          cy.get('.article-toc__progress')
+            .invoke('css', 'transform')
+            .should('not.eq', initial);
         });
     });
   });

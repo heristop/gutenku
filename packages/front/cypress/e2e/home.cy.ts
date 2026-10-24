@@ -89,16 +89,26 @@ describe('Home daily haiku archive', () => {
 
   beforeEach(() => {
     cy.clock(Date.UTC(2026, 9, 24, 12), ['Date']);
-    cy.intercept('POST', '**/graphql', (req) => {
-      if (
-        typeof req.body?.query === 'string' &&
-        req.body.query.includes('DailyHaikuSlip')
-      ) {
-        const date = (req.body.variables?.date as string | null) ?? TODAY;
-        req.reply({
-          data: { dailyHaiku: days[date] ? dailyHaiku(date) : null },
-        });
+    // Queries go out as GET (query in the address) or POST (in the body)
+    cy.intercept('**/graphql*', (req) => {
+      const url = new URL(req.url);
+      const body = typeof req.body === 'object' && req.body ? req.body : {};
+      const query =
+        typeof body.query === 'string'
+          ? body.query
+          : (url.searchParams.get('query') ?? '');
+
+      if (!query.includes('DailyHaikuSlip')) {
+        return;
       }
+
+      const variables =
+        body.variables ?? JSON.parse(url.searchParams.get('variables') ?? '{}');
+      const date = (variables?.date as string | null) ?? TODAY;
+
+      req.reply({
+        data: { dailyHaiku: days[date] ? dailyHaiku(date) : null },
+      });
     }).as('graphql');
   });
 
