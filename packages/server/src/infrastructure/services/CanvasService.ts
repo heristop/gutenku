@@ -6,7 +6,6 @@ const log = createLogger('canvas');
 import { promisify } from 'node:util';
 import { singleton } from 'tsyringe';
 import type { HaikuValue } from '~/shared/types';
-import colored from '~/shared/themes/colored';
 import greentea from '~/shared/themes/greentea';
 import watermark from '~/shared/themes/watermark';
 import nihonga from '~/shared/themes/nihonga';
@@ -15,6 +14,23 @@ import ukiyoe from '~/shared/themes/ukiyoe';
 import zengarden from '~/shared/themes/zengarden';
 import wabisabi from '~/shared/themes/wabisabi';
 import bookzen from '~/shared/themes/bookzen';
+import exlibris from '~/shared/themes/exlibris';
+import catalogue from '~/shared/themes/catalogue';
+import frontispiece from '~/shared/themes/frontispiece';
+import {
+  AI_IMAGE_THEMES,
+  type ThemeCreateOptions,
+} from '~/shared/themes/ai-image';
+import type { ImagePreviewHandler } from '~/domain/services/ICanvasService';
+
+type ThemeCreator = (
+  haiku: HaikuValue,
+  options?: ThemeCreateOptions,
+) => Promise<Canvas.Canvas>;
+
+// Width of the drafts sent while an AI background is still being painted
+const PREVIEW_WIDTH = 480;
+const PREVIEW_QUALITY = 0.7;
 
 @singleton()
 export default class CanvasService {
@@ -26,25 +42,16 @@ export default class CanvasService {
   }
 
   private static readonly STATIC_THEMES = [
-    'colored',
+    'catalogue',
     'greentea',
     'watermark',
+    'exlibris',
+    'frontispiece',
   ] as const;
 
-  private static readonly AI_THEMES = [
-    'nihonga',
-    'sumie',
-    'ukiyoe',
-    'zengarden',
-    'wabisabi',
-    'bookzen',
-  ] as const;
+  private static readonly AI_THEMES = AI_IMAGE_THEMES;
 
-  private static readonly THEME_CREATORS: Record<
-    string,
-    (haiku: HaikuValue) => Promise<Canvas.Canvas>
-  > = {
-    colored: colored.create,
+  private static readonly THEME_CREATORS: Record<string, ThemeCreator> = {
     greentea: greentea.create,
     watermark: watermark.create,
     nihonga: nihonga.create,
@@ -53,6 +60,9 @@ export default class CanvasService {
     zengarden: zengarden.create,
     wabisabi: wabisabi.create,
     bookzen: bookzen.create,
+    exlibris: exlibris.create,
+    catalogue: catalogue.create,
+    frontispiece: frontispiece.create,
   };
 
   private pickRandomTheme(useImageAI: boolean): string {
@@ -64,9 +74,7 @@ export default class CanvasService {
     return themes[randomIndex];
   }
 
-  private resolveCreator(
-    themeName: string,
-  ): (haiku: HaikuValue) => Promise<Canvas.Canvas> {
+  private resolveCreator(themeName: string): ThemeCreator {
     const creator = CanvasService.THEME_CREATORS[themeName];
 
     if (!creator) {
@@ -79,6 +87,7 @@ export default class CanvasService {
   async create(
     haiku: HaikuValue,
     useImageAI: boolean = false,
+    onPreview?: ImagePreviewHandler,
   ): Promise<string> {
     log.info({ theme: this.theme, useImageAI }, 'Crafting image');
 
@@ -93,7 +102,9 @@ export default class CanvasService {
     const createCanvas = this.resolveCreator(this.theme);
 
     try {
-      const canvas = await createCanvas(haiku);
+      const canvas = await createCanvas(haiku, {
+        onPreview: onPreview && ((draft) => onPreview(this.toPreview(draft))),
+      });
 
       Canvas.deregisterAllFonts();
 
@@ -102,6 +113,17 @@ export default class CanvasService {
       log.error({ err }, 'Failed to create canvas');
       throw err;
     }
+  }
+
+  private toPreview(canvas: Canvas.Canvas): string {
+    const height = Math.round((canvas.height / canvas.width) * PREVIEW_WIDTH);
+    const preview = Canvas.createCanvas(PREVIEW_WIDTH, height);
+
+    preview.getContext('2d').drawImage(canvas, 0, 0, PREVIEW_WIDTH, height);
+
+    return preview
+      .toBuffer('image/jpeg', { quality: PREVIEW_QUALITY })
+      .toString('base64');
   }
 
   async save(canvas: Canvas.Canvas): Promise<string> {

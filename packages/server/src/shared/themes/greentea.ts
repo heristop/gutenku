@@ -3,6 +3,13 @@ import { join } from 'node:path';
 import Canvas from 'canvas';
 import type { HaikuValue } from '~/shared/types';
 import {
+  GK,
+  drawTornCorners,
+  dyedImage,
+  dyePaper,
+  signWithSeal,
+} from '~/shared/themes/gutenku-palette';
+import {
   CANVAS_WIDTH,
   CANVAS_HEIGHT,
   drawImageCover,
@@ -29,9 +36,11 @@ export default {
     const background = new Canvas.Image();
     background.src = imagePath;
     drawImageCover(ctx, background, canvas.width, canvas.height);
+    // The grey sheet, dyed to the site's cream paper
+    dyePaper(ctx, GK.paper, canvas.width, canvas.height);
 
     ctx.font = '155px NanumBrushScript';
-    ctx.fillStyle = '#2F5D62';
+    ctx.fillStyle = GK.indigo;
     ctx.globalAlpha = 0.84;
 
     const x = 250;
@@ -45,14 +54,14 @@ export default {
     decor.src = './src/shared/assets/themes/greentea/decoration/torn_paper.png';
 
     ctx.globalAlpha = 1;
-    drawImageCover(ctx, decor, canvas.width, canvas.height);
+    drawTornCorners(ctx, decor, canvas.width, canvas.height);
 
     const pic = new Canvas.Image();
     pic.src = await catchNaturePic();
 
     ctx.globalAlpha = 0.92;
     ctx.drawImage(
-      pic,
+      dyedImage(pic, GK.indigo),
       canvas.width - pic.width - 400,
       canvas.height - pic.height - 420,
       pic.width,
@@ -60,8 +69,12 @@ export default {
     );
 
     ctx.font = '132px NanumBrushScript';
-    ctx.globalAlpha = 0.6;
-    ctx.fillText('- GutenKu', canvas.width - 780, canvas.height - 240);
+    ctx.globalAlpha = 1;
+    signWithSeal(ctx, haiku, {
+      right: canvas.width - 220,
+      baseline: canvas.height - 240,
+      size: 150,
+    });
 
     return canvas;
   },
