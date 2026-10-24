@@ -58,6 +58,20 @@ describe('usePullToRefresh', () => {
     unmount();
   });
 
+  it('ignores the mouse, so dragging to select text never refreshes', () => {
+    const onRefresh = vi.fn();
+    const { unmount } = withSetup(() =>
+      usePullToRefresh(ref(container), { onRefresh }),
+    );
+
+    expect(Object.keys(listeners).sort()).toEqual([
+      'touchend',
+      'touchmove',
+      'touchstart',
+    ]);
+    unmount();
+  });
+
   it('tracks pull distance and triggers refresh past the threshold', async () => {
     const onRefresh = vi.fn().mockResolvedValue();
     const { result, unmount } = withSetup(() =>

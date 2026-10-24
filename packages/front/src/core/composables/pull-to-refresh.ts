@@ -153,14 +153,8 @@ export function usePullToRefresh(
     container.addEventListener('touchend', handlePointerEnd as EventListener, {
       passive: true,
     });
-
-    container.addEventListener(
-      'mousedown',
-      handlePointerStart as EventListener,
-    );
-    container.addEventListener('mousemove', handlePointerMove as EventListener);
-    container.addEventListener('mouseup', handlePointerEnd as EventListener);
-    container.addEventListener('mouseleave', handlePointerEnd as EventListener);
+    // Touch only: a mouse drag down the page is a text selection (copying
+    // the poem), never a pull
   });
 
   onUnmounted(() => {
@@ -176,20 +170,6 @@ export function usePullToRefresh(
     );
     container.removeEventListener(
       'touchend',
-      handlePointerEnd as EventListener,
-    );
-
-    container.removeEventListener(
-      'mousedown',
-      handlePointerStart as EventListener,
-    );
-    container.removeEventListener(
-      'mousemove',
-      handlePointerMove as EventListener,
-    );
-    container.removeEventListener('mouseup', handlePointerEnd as EventListener);
-    container.removeEventListener(
-      'mouseleave',
       handlePointerEnd as EventListener,
     );
   });
