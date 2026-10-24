@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+  openAIScopeFor,
   resolveAIAccess,
   withoutDisallowedAI,
 } from '~/presentation/graphql/ai-access';
@@ -94,5 +95,20 @@ describe('AI access gate', () => {
     vi.stubEnv('OPENAI_API_KEY', 'sk-test');
 
     expect(withoutDisallowedAI({ useAI: true }).useAI).toBeFalsy();
+  });
+
+  it('opens the server key only to a request granted on it', () => {
+    expect(openAIScopeFor({ allowed: false })).toEqual({
+      apiKey: undefined,
+      allowServerKey: false,
+    });
+    expect(openAIScopeFor({ allowed: true })).toEqual({
+      apiKey: undefined,
+      allowServerKey: true,
+    });
+    expect(openAIScopeFor({ allowed: true, apiKey: 'sk-visitor' })).toEqual({
+      apiKey: 'sk-visitor',
+      allowServerKey: false,
+    });
   });
 });

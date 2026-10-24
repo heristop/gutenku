@@ -82,3 +82,20 @@ export function withoutDisallowedAI<T extends AIRequestArgs>(
     theme: isAITheme ? 'random' : args.theme,
   };
 }
+
+/**
+ * The OpenAI scope a request runs in: the visitor's own key, or the
+ * server's only when access was granted on it. A denied request (or one with
+ * no access decided) can never reach the server's key.
+ */
+export function openAIScopeFor(access: AIAccess | undefined): {
+  apiKey?: string;
+  allowServerKey: boolean;
+} {
+  const decided = access ?? resolveAIAccess();
+
+  return {
+    apiKey: decided.apiKey,
+    allowServerKey: decided.allowed && !decided.apiKey,
+  };
+}

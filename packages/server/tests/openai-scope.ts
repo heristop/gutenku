@@ -25,6 +25,17 @@ describe('OpenAI request scope', () => {
     expect(currentOpenAIKey()).toBe('server-key');
   });
 
+  it('never lends the server key to a request denied AI', () => {
+    vi.stubEnv('OPENAI_API_KEY', 'server-key');
+
+    runWithOpenAIScope({ allowServerKey: false }, () => {
+      expect(currentOpenAIKey()).toBeUndefined();
+    });
+    runWithOpenAIScope({ allowServerKey: true }, () => {
+      expect(currentOpenAIKey()).toBe('server-key');
+    });
+  });
+
   it('keeps two concurrent requests on their own keys', async () => {
     const seen: string[] = [];
     const request = (key: string, delay: number) =>

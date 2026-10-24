@@ -7,6 +7,9 @@ export type OpenAIFailure = 'invalid_key' | 'no_quota' | 'unavailable';
 
 export interface OpenAIScope {
   apiKey?: string;
+  // Whether the server's own key may stand in. A request denied AI says no,
+  // so nothing it runs can fall back to the server's key
+  allowServerKey?: boolean;
   // The first OpenAI failure met while serving the request, told back to
   // the visitor in plain words
   failure?: OpenAIFailure;
@@ -39,9 +42,21 @@ export async function* scopedGenerator<T>(
   }
 }
 
-// The request's own key first, else the server's
+// The request's own key first, else the server's when the request may use
+// it. Outside any request (the daily job) the server's key is used.
 export function currentOpenAIKey(): string | undefined {
-  return storage.getStore()?.apiKey || process.env.OPENAI_API_KEY || undefined;
+  const scope = storage.getStore();
+  const serverKey = process.env.OPENAI_API_KEY || undefined;
+
+  if (!scope) {
+    return serverKey;
+  }
+
+  if (scope.apiKey) {
+    return scope.apiKey;
+  }
+
+  return scope.allowServerKey ? serverKey : undefined;
 }
 
 export function classifyOpenAIError(error: unknown): OpenAIFailure {

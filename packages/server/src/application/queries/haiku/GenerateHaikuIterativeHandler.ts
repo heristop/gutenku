@@ -1,5 +1,8 @@
 import { inject, injectable } from 'tsyringe';
-import { currentOpenAIKey } from '~/infrastructure/external/openai-scope';
+import {
+  classifyOpenAIError,
+  currentOpenAIKey,
+} from '~/infrastructure/external/openai-scope';
 import type { HaikuValue } from '~/shared/types';
 import type { ImagePreviewHandler } from '~/domain/services/ICanvasService';
 import HaikuGeneratorService from '~/domain/services/HaikuGeneratorService';
@@ -337,7 +340,11 @@ export class GenerateHaikuIterativeHandler {
       // The text landed on the haiku itself; the card result keeps the rest
       return { ...withImage, ...haiku, image: withImage.image };
     } catch (error) {
-      log.error({ error }, 'Failed to generate image or enrich metadata');
+      // Only the kind of failure: OpenAI's message can quote part of a key
+      log.error(
+        { failure: classifyOpenAIError(error) },
+        'Failed to generate image or enrich metadata',
+      );
 
       return haiku;
     }

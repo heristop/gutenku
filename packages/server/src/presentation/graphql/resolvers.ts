@@ -1,6 +1,7 @@
 import { container } from 'tsyringe';
 import {
   type AIAccess,
+  openAIScopeFor,
   withoutDisallowedAI,
 } from '~/presentation/graphql/ai-access';
 import {
@@ -135,7 +136,7 @@ const resolvers = {
     ): Promise<HaikuValue> => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
 
-      return runWithOpenAIScope({ apiKey: context?.ai?.apiKey }, () =>
+      return runWithOpenAIScope(openAIScopeFor(context?.ai), () =>
         queryBus.execute(
           new GenerateHaikuQuery(withoutDisallowedAI(args, context?.ai)),
         ),
@@ -365,7 +366,7 @@ const resolvers = {
       ): AsyncGenerator<{ haikuGeneration: HaikuProgress }> {
         const handler = container.resolve(GenerateHaikuIterativeHandler);
         const allowed = withoutDisallowedAI(args, context?.ai);
-        const scope: OpenAIScope = { apiKey: context?.ai?.apiKey };
+        const scope: OpenAIScope = openAIScopeFor(context?.ai);
 
         for await (const progress of scopedGenerator(
           scope,
