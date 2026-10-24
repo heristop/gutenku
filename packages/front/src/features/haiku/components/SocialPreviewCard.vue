@@ -61,7 +61,6 @@ async function copyCaption() {
       subtitle="Dev mode only"
       storage-key="socialPanel-expanded"
       :default-expanded="true"
-      aria-label="Social Preview"
     >
       <div class="social-panel__content">
         <figure

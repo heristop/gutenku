@@ -90,7 +90,7 @@ watch(isExpanded, (val) => {
         :class="{ 'zen-accordion__header--expanded': isExpanded }"
         :aria-expanded="isExpanded"
         :aria-controls="contentId"
-        :aria-label="ariaLabel || title"
+        :aria-label="ariaLabel || undefined"
         @click="toggle"
         @keydown="handleKeydown"
       >

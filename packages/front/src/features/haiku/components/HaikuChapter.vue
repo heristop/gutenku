@@ -7,6 +7,7 @@ import {
   onUnmounted,
   nextTick,
   shallowRef,
+  useId,
 } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
 import { useI18n } from 'vue-i18n';
@@ -127,6 +128,8 @@ const compactedTooltip = computed(() =>
 const { compactText } = useTextCompacting();
 
 // Compute disclosure text
+const revealHintId = useId();
+
 const disclosureTextComputed = computed(() => {
   return blackMarker.value
     ? t('haikuChapter.disclosure.hidden')
@@ -344,12 +347,14 @@ onUnmounted(() => {
       </div>
     </div>
 
+    <!-- The hint describes the excerpt; its text stays its name -->
+    <span :id="revealHintId" class="sr-only">{{ disclosureTextComputed }}</span>
     <button
       ref="bookContentRef"
       type="button"
       class="book-content"
       :aria-expanded="!blackMarker"
-      :aria-label="disclosureTextComputed"
+      :aria-describedby="revealHintId"
       @click="toggle"
       @contextmenu.prevent
       @mousemove="onSpotlightMove"

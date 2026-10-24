@@ -54,7 +54,6 @@ const RANKS = ['i', 'ii', 'iii'];
       :title="t('stats.title')"
       storage-key="statsPanel-expanded"
       :default-expanded="true"
-      :aria-label="t('stats.ariaLabel')"
     >
       <div class="stats-panel__content">
         <div class="stats-panel__inner">
