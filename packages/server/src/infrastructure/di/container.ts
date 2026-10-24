@@ -15,10 +15,15 @@ import {
   type IGlobalStatsRepository,
   IGlobalStatsRepositoryToken,
 } from '~/domain/repositories/IGlobalStatsRepository';
+import {
+  type IDailyHaikuRepository,
+  IDailyHaikuRepositoryToken,
+} from '~/domain/repositories/IDailyHaikuRepository';
 import BookRepository from '~/infrastructure/repositories/BookRepository';
 import ChapterRepository from '~/infrastructure/repositories/ChapterRepository';
 import HaikuRepository from '~/infrastructure/repositories/HaikuRepository';
 import GlobalStatsRepository from '~/infrastructure/repositories/GlobalStatsRepository';
+import DailyHaikuRepository from '~/infrastructure/repositories/DailyHaikuRepository';
 import CanvasService from '~/infrastructure/services/CanvasService';
 import { ICanvasServiceToken } from '~/domain/services/ICanvasService';
 import { IEventBusToken } from '~/domain/events/IEventBus';
@@ -46,6 +51,10 @@ container.register<IHaikuRepository>(IHaikuRepositoryToken, {
 
 container.register<IGlobalStatsRepository>(IGlobalStatsRepositoryToken, {
   useClass: GlobalStatsRepository,
+});
+
+container.register<IDailyHaikuRepository>(IDailyHaikuRepositoryToken, {
+  useClass: DailyHaikuRepository,
 });
 
 container.register(ICanvasServiceToken, {

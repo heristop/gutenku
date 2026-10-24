@@ -8,6 +8,9 @@ import type HaikuGeneratorService from '../../src/domain/services/HaikuGenerator
 import type OpenAIGeneratorService from '../../src/infrastructure/services/OpenAIGeneratorService';
 import type { IGlobalStatsRepository } from '../../src/domain/repositories/IGlobalStatsRepository';
 import type { IHaikuRepository } from '../../src/domain/repositories/IHaikuRepository';
+import type { IDailyHaikuRepository } from '../../src/domain/repositories/IDailyHaikuRepository';
+import type { IChapterRepository } from '../../src/domain/repositories/IChapterRepository';
+import { getCurrentPublicationDate } from '../../src/domain/services/DailyHaikuSchedule';
 import type { HaikuValue, HaikuVariables } from '../../src/shared/types';
 
 const createMockHaiku = (overrides: Partial<HaikuValue> = {}): HaikuValue => ({
@@ -54,6 +57,9 @@ describe('Haiku Handlers', () => {
     let mockOpenAIGenerator: OpenAIGeneratorService;
     let mockGlobalStatsRepo: IGlobalStatsRepository;
     let mockHaikuRepo: IHaikuRepository;
+    let mockDailyRepo: Pick<IDailyHaikuRepository, 'findByDate'>;
+    let mockChapterRepo: Pick<IChapterRepository, 'getChapterById'>;
+    let mockRecorder: { ensureWithin: ReturnType<typeof vi.fn> };
     let originalEnv: NodeJS.ProcessEnv;
 
     beforeEach(() => {
@@ -84,11 +90,18 @@ describe('Haiku Handlers', () => {
         getFromCache: vi.fn(),
       } as unknown as IHaikuRepository;
 
+      mockDailyRepo = { findByDate: vi.fn().mockResolvedValue(null) };
+      mockChapterRepo = { getChapterById: vi.fn().mockResolvedValue(null) };
+      mockRecorder = { ensureWithin: vi.fn().mockResolvedValue(null) };
+
       handler = new GenerateHaikuHandler(
         mockHaikuGenerator,
         mockOpenAIGenerator,
         mockGlobalStatsRepo,
         mockHaikuRepo,
+        mockDailyRepo as IDailyHaikuRepository,
+        mockChapterRepo as IChapterRepository,
+        mockRecorder,
       );
     });
 
@@ -178,6 +191,92 @@ describe('Haiku Handlers', () => {
         '2026-01-15',
       );
       expect(result).toBe(mockHaiku);
+    });
+
+    it('serves the archived daily haiku with its chapter when recorded', async () => {
+      const chapter = { title: 'Solitude', content: 'old pond text' };
+      vi.mocked(mockDailyRepo.findByDate).mockResolvedValue({
+        date: '2026-01-15',
+        publishedAt: new Date('2026-01-15T10:00:00.000Z'),
+        verses: ['old pond', 'a frog jumps in', 'sound of water'],
+        rawVerses: ['Old pond,', 'a frog jumps in', 'sound of water.'],
+        title: 'Pond',
+        book: { title: 'Walden', author: 'Thoreau', reference: '205' },
+        source: 'auto',
+        chapterId: '68c701011a684efaf0205a60',
+        hasCard: false,
+      });
+      vi.mocked(mockChapterRepo.getChapterById).mockResolvedValue(chapter);
+      vi.mocked(mockHaikuGenerator.appendImg).mockImplementation(
+        async (haiku) => haiku,
+      );
+
+      const result = await handler.execute(
+        new GenerateHaikuQuery(
+          createDefaultVariables({ useDaily: true, date: '2026-01-15' }),
+        ),
+      );
+
+      expect(mockChapterRepo.getChapterById).toHaveBeenCalledWith(
+        '68c701011a684efaf0205a60',
+      );
+      expect(
+        mockHaikuRepo.extractDeterministicFromCache,
+      ).not.toHaveBeenCalled();
+      expect(result).toMatchObject({
+        verses: ['old pond', 'a frog jumps in', 'sound of water'],
+        rawVerses: ['Old pond,', 'a frog jumps in', 'sound of water.'],
+        chapter,
+        book: { title: 'Walden', author: 'Thoreau', reference: '205' },
+        title: 'Pond',
+        cacheUsed: true,
+      });
+    });
+
+    it('keeps the cache pick when the archived day has no chapter', async () => {
+      const mockHaiku = createMockHaiku();
+      vi.mocked(mockDailyRepo.findByDate).mockResolvedValue({
+        date: '2026-01-15',
+        publishedAt: new Date('2026-01-15T10:00:00.000Z'),
+        verses: ['a', 'b', 'c'],
+        book: { title: 'W', author: 'T' },
+        source: 'cli',
+        hasCard: true,
+      });
+      vi.mocked(mockHaikuRepo.extractDeterministicFromCache).mockResolvedValue(
+        mockHaiku,
+      );
+      vi.mocked(mockHaikuGenerator.appendImg).mockResolvedValue(mockHaiku);
+
+      const result = await handler.execute(
+        new GenerateHaikuQuery(
+          createDefaultVariables({ useDaily: true, date: '2026-01-15' }),
+        ),
+      );
+
+      expect(result).toBe(mockHaiku);
+      expect(mockChapterRepo.getChapterById).not.toHaveBeenCalled();
+    });
+
+    it('defaults to the publication date and records it when missing', async () => {
+      vi.mocked(mockHaikuRepo.extractDeterministicFromCache).mockResolvedValue(
+        createMockHaiku(),
+      );
+      vi.mocked(mockHaikuGenerator.appendImg).mockResolvedValue(
+        createMockHaiku(),
+      );
+
+      await handler.execute(
+        new GenerateHaikuQuery(createDefaultVariables({ useDaily: true })),
+      );
+
+      const current = getCurrentPublicationDate();
+      expect(mockRecorder.ensureWithin).toHaveBeenCalledWith(current);
+      expect(mockHaikuRepo.extractDeterministicFromCache).toHaveBeenCalledWith(
+        expect.any(Number),
+        0,
+        current,
+      );
     });
 
     it('falls back to standard generation when daily cache misses', async () => {
