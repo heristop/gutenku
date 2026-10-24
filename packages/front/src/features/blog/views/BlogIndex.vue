@@ -1,13 +1,19 @@
 <script lang="ts" setup>
 import { useSeoMeta } from '@unhead/vue';
-import { ArrowRight, Rss } from '@lucide/vue';
+import { Rss } from '@/core/components/icons/ink';
 import { RouterLink } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import ZenCard from '@/core/components/ui/ZenCard.vue';
-import { useArticles } from '../composables';
+import BrushRule from '@/core/components/ink/BrushRule.vue';
+import InkStamp from '@/core/components/ink/InkStamp.vue';
+import { toRomanNumeral, useArticles } from '../composables';
 
 const { t } = useI18n();
 const { articles, formatDate, getReadingTime } = useArticles();
+
+// Issues are numbered from the first article ever published
+function issueNumber(index: number): number {
+  return articles.value.length - index;
+}
 
 useSeoMeta({
   title: 'Blog - GutenKu',
@@ -35,405 +41,217 @@ useSeoMeta({
         rel="noopener"
         :title="t('blog.rss')"
       >
-        <span class="blog-index__rss-icon">
-          <Rss :size="14" />
-        </span>
-        <span class="blog-index__rss-label">{{ t('blog.rss') }}</span>
+        <Rss :size="14" aria-hidden="true" />
+        <span>{{ t('blog.rss') }}</span>
       </a>
     </header>
 
-    <!-- Ink brush divider -->
-    <div class="blog-index__divider" aria-hidden="true" />
+    <BrushRule class="blog-index__divider" aria-hidden="true" />
 
-    <div class="blog-index__list">
-      <ZenCard
+    <p v-if="!articles.length" class="blog-index__empty">
+      {{ t('blog.empty') }}
+    </p>
+
+    <ol v-else class="blog-index__list">
+      <li
         v-for="(article, index) in articles"
         :key="article.slug"
-        v-motion
         class="blog-index__card"
-        :initial="{ opacity: 0, y: 30, scale: 0.95 }"
-        :visible-once="{
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          transition: {
-            delay: index * 100,
-            duration: 500,
-            ease: [0.25, 0.8, 0.25, 1],
-          },
-        }"
       >
         <article class="blog-index__article">
+          <h2
+            class="blog-index__article-title"
+            :style="{ viewTransitionName: `blog-title-${article.slug}` }"
+          >
+            <RouterLink
+              :to="{ name: 'BlogArticle', params: { slug: article.slug } }"
+              class="blog-index__title-link"
+            >
+              {{ article.title }}
+            </RouterLink>
+          </h2>
+
           <div class="blog-index__meta">
-            <time class="blog-index__date">{{ formatDate(article.date) }}</time>
+            <InkStamp
+              :label="toRomanNumeral(issueNumber(index))"
+              tone="ink"
+              :size="34"
+              :tilt="3"
+            />
+            <span class="sr-only">
+              {{ t('blog.issue', { number: issueNumber(index) }) }}
+            </span>
+            <time
+              class="blog-index__date"
+              :datetime="article.date.toISOString()"
+              >{{ formatDate(article.date) }}</time
+            >
+            <span aria-hidden="true">·</span>
             <span class="blog-index__reading-time">
               {{ t('blog.minRead', { min: getReadingTime(article.content) }) }}
             </span>
           </div>
 
-          <h2
-            class="blog-index__article-title"
-            :style="{ viewTransitionName: `blog-title-${article.slug}` }"
-          >
-            {{ article.title }}
-          </h2>
-
           <p class="blog-index__description">{{ article.description }}</p>
-
-          <RouterLink
-            :to="{ name: 'BlogArticle', params: { slug: article.slug } }"
-            class="blog-index__read-more"
-          >
-            <span class="link-highlight">{{ t('blog.readArticle') }}</span>
-            <ArrowRight :size="14" />
-          </RouterLink>
         </article>
-      </ZenCard>
-    </div>
+      </li>
+    </ol>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .blog-index {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0.5rem;
-  padding-bottom: 2rem;
-
-  @media (min-width: 375px) {
-    padding: 0.5rem;
-    padding-bottom: 2rem;
-  }
+  max-width: 820px;
+  margin: 0.5rem auto 3rem;
+  padding: 1.5rem 1.125rem 1rem;
+  background: var(--gk-paper);
+  border-radius: var(--gk-radius-paper);
+  box-shadow: var(--gk-lift);
+  color: var(--gk-ink);
+  font-family: var(--gk-font);
 
   @media (min-width: 600px) {
-    padding: 1.5rem;
-    padding-bottom: 4rem;
+    padding: 2.5rem 2.5rem 1.5rem;
   }
 
   &__header {
-    text-align: center;
-    margin-bottom: 1rem;
-    padding: 1rem 1.25rem;
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
-    position: relative;
-    background: oklch(0.97 0.01 60 / 0.6);
-    backdrop-filter: blur(12px);
-    border-radius: 1rem;
-    border: 1px solid var(--gutenku-paper-border);
-    box-shadow: var(--gutenku-shadow-glass);
-
-    @media (min-width: 375px) {
-      margin-bottom: 1.25rem;
-      padding: 1.25rem 1.5rem;
-    }
-
-    @media (min-width: 600px) {
-      margin-bottom: 1.5rem;
-      margin-left: 0;
-      margin-right: 0;
-      padding: 1.5rem 2rem;
-    }
+    display: grid;
+    justify-items: start;
+    gap: 0.875rem;
   }
 
   &__title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--gutenku-zen-primary);
-    margin: 0 0 0.5rem;
-
-    @media (min-width: 375px) {
-      font-size: 1.75rem;
-    }
-
-    @media (min-width: 600px) {
-      font-size: 2rem;
-    }
+    margin: 0;
+    font-size: clamp(2.5rem, 7vw, 4rem);
+    font-weight: 400;
+    line-height: 0.92;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
   }
 
   &__subtitle {
-    font-size: 0.9rem;
-    color: var(--gutenku-text-muted);
+    max-width: 52ch;
     margin: 0;
-    font-style: italic;
-
-    @media (min-width: 600px) {
-      font-size: 1rem;
-    }
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--gk-ink-soft);
   }
 
   &__rss {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    margin-top: 0.75rem;
-    padding: 0.35rem 0.7rem;
-    font-size: 0.75rem;
-    color: var(--gutenku-text-muted);
-    text-decoration: none;
-    border: 1px solid var(--gutenku-zen-ink, oklch(0.35 0.02 260 / 0.15));
-    border-radius: 2rem;
-    background: var(--gutenku-zen-ink, oklch(0.35 0.02 260 / 0.03));
-    transition: all 0.3s ease;
-    letter-spacing: 0.02em;
+    min-height: 2.75rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--gk-indigo);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.25em;
 
-    @media (min-width: 600px) {
-      margin-top: 1rem;
-      padding: 0.4rem 0.8rem;
-      font-size: 0.8rem;
-    }
-
-    &:hover {
-      color: var(--gutenku-zen-secondary);
-      border-color: var(--gutenku-zen-secondary);
-      background: color-mix(
-        in oklch,
-        var(--gutenku-zen-secondary) 8%,
-        transparent
-      );
-      transform: translateY(-1px);
-
-      .blog-index__rss-icon {
-        animation: rss-pulse 1.5s ease-in-out infinite;
-        box-shadow: 0 0 0 0
-          color-mix(in oklch, var(--gutenku-zen-secondary) 40%, transparent);
-      }
+    &:focus-visible {
+      outline: 2px solid var(--gk-indigo);
+      outline-offset: 2px;
     }
   }
 
-  &__rss-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.25rem;
-    height: 1.25rem;
-    border-radius: 50%;
-    background: linear-gradient(
-      135deg,
-      var(--gutenku-zen-secondary) 0%,
-      color-mix(
-          in oklch,
-          var(--gutenku-zen-secondary) 70%,
-          var(--gutenku-zen-accent)
-        )
-        100%
-    );
-    color: var(--gutenku-paper-light, #fff);
-    box-shadow: 0 1px 3px oklch(0 0 0 / 0.1);
-    transition: box-shadow 0.3s ease;
-
-    svg {
-      width: 10px;
-      height: 10px;
-    }
-
-    @media (min-width: 600px) {
-      width: 1.35rem;
-      height: 1.35rem;
-
-      svg {
-        width: 11px;
-        height: 11px;
-      }
-    }
-  }
-
-  &__rss-label {
-    font-weight: 500;
-  }
-
+  // A single stroke: the label-less primitive would leave a gap mid-rule
   &__divider {
-    height: 2px;
-    margin: 1rem auto 1.5rem;
-    max-width: 150px;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      var(--gutenku-zen-ink, oklch(0.35 0.02 260 / 0.3)) 20%,
-      var(--gutenku-zen-ink, oklch(0.35 0.02 260 / 0.5)) 50%,
-      var(--gutenku-zen-ink, oklch(0.35 0.02 260 / 0.3)) 80%,
-      transparent 100%
-    );
-    border-radius: 1px;
-    animation: divider-draw 1.2s ease-out forwards;
-    transform-origin: center;
+    margin: 1rem 0 0.5rem;
+    padding: 0;
 
-    @media (min-width: 375px) {
-      margin: 1.25rem auto 1.75rem;
-      max-width: 175px;
-    }
-
-    @media (min-width: 600px) {
-      margin: 1.5rem auto 2rem;
-      max-width: 200px;
+    :deep(.brush-rule__stroke--end) {
+      display: none;
     }
   }
 
   &__list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-
-    @media (min-width: 600px) {
-      gap: 2rem;
-    }
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
   &__card {
-    padding: 1.25rem;
+    padding: 2rem 0;
+    border-bottom: var(--gk-rule-faint);
 
-    @media (min-width: 375px) {
-      padding: 1.5rem;
-    }
-
-    @media (min-width: 600px) {
-      padding: 2rem;
+    &:last-child {
+      border-bottom: 0;
     }
   }
 
   &__article {
-    display: flex;
-    flex-direction: column;
+    display: grid;
     gap: 0.75rem;
-
-    @media (min-width: 600px) {
-      gap: 1rem;
-    }
   }
 
   &__meta {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.625rem;
     flex-wrap: wrap;
+    font-size: 0.875rem;
+    color: var(--gk-ink-soft);
   }
 
   &__date {
-    font-size: 0.8rem;
-    color: var(--gutenku-text-muted);
     text-transform: capitalize;
-
-    @media (min-width: 600px) {
-      font-size: 0.875rem;
-    }
   }
 
   &__reading-time {
-    font-size: 0.75rem;
-    color: var(--gutenku-text-muted);
-    opacity: 0.8;
-
-    @media (min-width: 600px) {
-      font-size: 0.8rem;
-    }
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
   }
 
   &__article-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--gutenku-text-primary);
     margin: 0;
-    line-height: 1.3;
+    max-width: 24ch;
+    font-size: clamp(1.5rem, 3.6vw, 2.125rem);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
 
-    @media (min-width: 375px) {
-      font-size: 1.3rem;
+  &__title-link {
+    color: inherit;
+    text-decoration: none;
+    border-radius: var(--gk-radius-control);
+
+    @media (hover: hover) {
+      &:hover {
+        text-decoration: underline;
+        text-decoration-thickness: 1.5px;
+        text-underline-offset: 0.12em;
+      }
     }
 
-    @media (min-width: 600px) {
-      font-size: 1.5rem;
+    &:focus-visible {
+      outline: 2px solid var(--gk-indigo);
+      outline-offset: 3px;
     }
+  }
+
+  &__empty {
+    max-width: 52ch;
+    margin: 0;
+    padding: 2.5rem 0 2rem;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gk-ink-soft);
   }
 
   &__description {
-    font-size: 0.9rem;
-    color: var(--gutenku-text-muted);
-    line-height: 1.6;
+    max-width: 62ch;
     margin: 0;
-
-    @media (min-width: 600px) {
-      font-size: 1rem;
-      line-height: 1.7;
-    }
-  }
-
-  &__read-more {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    font-size: 0.875rem;
-    align-self: flex-start;
-    text-decoration: none;
-
-    .link-highlight::after {
-      height: 38%;
-      top: 42%;
-      background: linear-gradient(
-        172deg,
-        color-mix(in oklch, var(--gutenku-zen-secondary) 15%, transparent) 0%,
-        color-mix(in oklch, var(--gutenku-zen-secondary) 35%, transparent) 45%,
-        color-mix(in oklch, var(--gutenku-zen-secondary) 25%, transparent) 100%
-      );
-    }
-
-    svg {
-      color: var(--gutenku-zen-secondary);
-      transition: transform 0.2s ease;
-    }
-
-    &:hover svg {
-      transform: translateX(4px) translateY(-2px);
-    }
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gk-ink-soft);
   }
 }
 
-@keyframes divider-draw {
-  0% {
-    transform: scaleX(0);
-    opacity: 0;
-  }
-  100% {
-    transform: scaleX(1);
-    opacity: 1;
-  }
-}
-
-@keyframes rss-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0
-      color-mix(in oklch, var(--gutenku-zen-secondary) 40%, transparent);
-  }
-  50% {
-    box-shadow: 0 0 0 6px
-      color-mix(in oklch, var(--gutenku-zen-secondary) 0%, transparent);
-  }
-}
-
-// Dark theme
-[data-theme='dark'] .blog-index {
-  &__header {
-    background: oklch(0.12 0.02 60 / 0.5);
-  }
-
-  &__title {
-    color: var(--gutenku-text-primary);
-    text-shadow: 0 2px 8px oklch(0 0 0 / 0.3);
-  }
-
-  &__subtitle {
-    color: var(--gutenku-text-accent);
-  }
-
-  &__divider {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      var(--gutenku-zen-secondary) 20%,
-      var(--gutenku-zen-accent) 50%,
-      var(--gutenku-zen-secondary) 80%,
-      transparent 100%
-    );
-    opacity: 0.6;
-  }
+// Every page starts the same distance below the header's rule
+.blog-index {
+  margin-top: var(--gk-page-top);
 }
 </style>

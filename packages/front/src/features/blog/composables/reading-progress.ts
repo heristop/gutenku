@@ -13,7 +13,11 @@ export function useReadingProgress(scrollThreshold = 400) {
   }
 
   function scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const reduceMotion =
+      globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ??
+      false;
+
+    globalThis.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
   }
 
   onMounted(() => {
