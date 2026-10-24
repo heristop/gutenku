@@ -1,3 +1,4 @@
+import { currentOpenAIKey } from '~/infrastructure/external/openai-scope';
 import { inject, injectable } from 'tsyringe';
 import type { IQueryHandler } from '~/application/cqrs/IQueryHandler';
 import type { GenerateHaikuQuery } from './GenerateHaikuQuery';
@@ -12,7 +13,18 @@ import {
   type IHaikuRepository,
   IHaikuRepositoryToken,
 } from '~/domain/repositories/IHaikuRepository';
-import { dateToSeed, getTodayUTC } from '~/shared/helpers/SeededRandom';
+import {
+  type DailyHaikuRecord,
+  type IDailyHaikuRepository,
+  IDailyHaikuRepositoryToken,
+} from '~/domain/repositories/IDailyHaikuRepository';
+import {
+  type IChapterRepository,
+  IChapterRepositoryToken,
+} from '~/domain/repositories/IChapterRepository';
+import { getCurrentPublicationDate } from '~/domain/services/DailyHaikuSchedule';
+import { DailyHaikuRecorder } from '~/application/services/DailyHaikuRecorder';
+import { dateToSeed } from '~/shared/helpers/SeededRandom';
 import { createLogger } from '~/infrastructure/services/Logger';
 
 const log = createLogger('haiku-handler');
@@ -31,6 +43,15 @@ export class GenerateHaikuHandler implements IQueryHandler<
     private readonly globalStatsRepository: IGlobalStatsRepository,
     @inject(IHaikuRepositoryToken)
     private readonly haikuRepository: IHaikuRepository,
+    @inject(IDailyHaikuRepositoryToken)
+    private readonly dailyHaikuRepository: IDailyHaikuRepository,
+    @inject(IChapterRepositoryToken)
+    private readonly chapterRepository: IChapterRepository,
+    @inject(DailyHaikuRecorder)
+    private readonly dailyHaikuRecorder: Pick<
+      DailyHaikuRecorder,
+      'ensureWithin'
+    >,
   ) {}
 
   async execute(query: GenerateHaikuQuery): Promise<HaikuValue> {
@@ -87,10 +108,16 @@ export class GenerateHaikuHandler implements IQueryHandler<
       return null;
     }
 
-    const date = query.date || getTodayUTC();
+    const date = query.date || getCurrentPublicationDate();
     const seed = dateToSeed(date);
 
     log.info({ date, seed, useDaily: true }, 'Daily haiku mode');
+
+    const archived = await this.fromArchive(date);
+
+    if (archived) {
+      return archived;
+    }
 
     const haiku = await this.haikuRepository.extractDeterministicFromCache(
       seed,
@@ -109,16 +136,67 @@ export class GenerateHaikuHandler implements IQueryHandler<
     return haiku;
   }
 
+  /**
+   * Haiku of the day as recorded in daily_haikus, with its source chapter,
+   * so the first /haiku load matches the archive. Null when the record is
+   * missing or has no chapter reference (e.g. CLI publications).
+   */
+  private async fromArchive(date: string): Promise<HaikuValue | null> {
+    try {
+      const current = getCurrentPublicationDate();
+      let record: DailyHaikuRecord | null =
+        await this.dailyHaikuRepository.findByDate(date, { notAfter: current });
+
+      if (!record && date === current) {
+        record = await this.dailyHaikuRecorder.ensureWithin(date);
+      }
+
+      if (!record?.chapterId) {
+        return null;
+      }
+
+      const chapter = await this.chapterRepository.getChapterById(
+        record.chapterId,
+      );
+
+      if (!chapter) {
+        return null;
+      }
+
+      log.info({ date, source: record.source }, 'Daily haiku from archive');
+
+      return {
+        book: {
+          reference: record.book.reference ?? '',
+          title: record.book.title,
+          author: record.book.author,
+          emoticons: record.book.emoticons,
+        },
+        chapter,
+        verses: [...record.verses],
+        rawVerses: [...(record.rawVerses ?? record.verses)],
+        title: record.title,
+        description: record.description,
+        cacheUsed: true,
+      };
+    } catch (err) {
+      log.warn({ err, date }, 'Daily haiku archive lookup failed');
+
+      return null;
+    }
+  }
+
   private async tryOpenAIGeneration(
     query: GenerateHaikuQuery,
   ): Promise<HaikuValue | null> {
-    const isOpenAIEnabled =
-      query.useAI && process.env.OPENAI_API_KEY !== undefined;
+    // The request's key (a visitor's own) or the server's
+    const apiKey = currentOpenAIKey();
+    const isOpenAIEnabled = query.useAI && apiKey !== undefined;
 
     log.info(
       {
         useAI: query.useAI,
-        hasApiKey: !!process.env.OPENAI_API_KEY,
+        hasApiKey: !!apiKey,
         isOpenAIEnabled,
       },
       'OpenAI mode check',
@@ -129,7 +207,7 @@ export class GenerateHaikuHandler implements IQueryHandler<
     }
 
     this.openAIGenerator.configure({
-      apiKey: process.env.OPENAI_API_KEY!,
+      apiKey: apiKey!,
       selectionCount: query.selectionCount,
       fromDb: query.fromDb,
       liveCount: query.liveCount,
