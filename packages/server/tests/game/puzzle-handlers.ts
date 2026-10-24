@@ -5,6 +5,7 @@ import { GetDailyPuzzleQuery } from '../../src/application/queries/puzzle/GetDai
 import { SubmitGuessHandler } from '../../src/application/queries/puzzle/SubmitGuessHandler';
 import { SubmitGuessQuery } from '../../src/application/queries/puzzle/SubmitGuessQuery';
 import { ReduceBooksHandler } from '../../src/application/queries/puzzle/ReduceBooksHandler';
+import { PUZZLE_GENERATION } from '../../src/application/queries/puzzle/GetPuzzleVersionHandler';
 import { ReduceBooksQuery } from '../../src/application/queries/puzzle/ReduceBooksQuery';
 import { GetGlobalStatsHandler } from '../../src/application/queries/stats/GetGlobalStatsHandler';
 import { GetGlobalStatsQuery } from '../../src/application/queries/stats/GetGlobalStatsQuery';
@@ -130,16 +131,16 @@ describe('Puzzle Handlers', () => {
       });
 
       let foundCorrect = false;
-      
-for (const book of result.availableBooks) {
+
+      for (const book of result.availableBooks) {
         const guessQuery = new SubmitGuessQuery(
           '2026-01-15',
           book.reference,
           1,
         );
         const guessResult = await handler2.execute(guessQuery);
-        
-if (guessResult.isCorrect) {
+
+        if (guessResult.isCorrect) {
           foundCorrect = true;
           break;
         }
@@ -168,10 +169,24 @@ if (guessResult.isCorrect) {
       const result1 = await handler.execute(query1);
       const result2 = await handler.execute(query2);
 
-      // Different dates should produce different book orders (with high probability)
-      const refs1 = result1.availableBooks.map((b) => b.reference).join(',');
-      const refs2 = result2.availableBooks.map((b) => b.reference).join(',');
-      expect(refs1).not.toBe(refs2);
+      // Different dates should produce different book orders (with high
+      // probability; the 3-book fixture can coincide on a single pair)
+      const orders = new Set<string>();
+
+      for (const date of [
+        '2026-01-15',
+        '2026-06-20',
+        '2026-03-02',
+        '2026-09-11',
+      ]) {
+        const result = await handler.execute(new GetDailyPuzzleQuery(date, []));
+        orders.add(result.availableBooks.map((b) => b.reference).join(','));
+      }
+
+      expect(result1.availableBooks).toHaveLength(
+        result2.availableBooks.length,
+      );
+      expect(orders.size).toBeGreaterThan(1);
     });
 
     it('includes haikus in puzzle response', async () => {
@@ -227,8 +242,8 @@ if (guessResult.isCorrect) {
         'author_nationality',
         'author_name',
       ];
-      
-for (const type of hintTypes) {
+
+      for (const type of hintTypes) {
         expect(validTypes).toContain(type);
       }
     });
@@ -299,8 +314,8 @@ for (const type of hintTypes) {
           1,
         );
         const guessResult = await handler.execute(guessQuery);
-        
-if (guessResult.isCorrect) {
+
+        if (guessResult.isCorrect) {
           correctBookId = book.reference;
           break;
         }
@@ -347,8 +362,8 @@ if (guessResult.isCorrect) {
           1,
         );
         const guessResult = await handler.execute(guessQuery);
-        
-if (guessResult.isCorrect) {
+
+        if (guessResult.isCorrect) {
           break;
         }
       }
@@ -419,17 +434,19 @@ if (guessResult.isCorrect) {
       const puzzleResult = await puzzleHandler.execute(puzzleQuery);
 
       // Find correct book by submitting a guess for every available book
-      let correctResult: Awaited<ReturnType<typeof handler.execute>> | undefined;
-      
-for (const book of puzzleResult.availableBooks) {
+      let correctResult:
+        | Awaited<ReturnType<typeof handler.execute>>
+        | undefined;
+
+      for (const book of puzzleResult.availableBooks) {
         const guessQuery = new SubmitGuessQuery(
           '2026-01-15',
           book.reference,
           1,
         );
         const guessResult = await handler.execute(guessQuery);
-        
-if (guessResult.isCorrect) {
+
+        if (guessResult.isCorrect) {
           correctResult = guessResult;
           break;
         }
@@ -572,12 +589,12 @@ describe('ReduceBooksHandler', () => {
     });
 
     let correctBookRef: string | undefined;
-    
-for (const book of puzzleResult.availableBooks) {
+
+    for (const book of puzzleResult.availableBooks) {
       const guessQuery = new SubmitGuessQuery('2026-01-15', book.reference, 1);
       const guessResult = await submitHandler.execute(guessQuery);
-      
-if (guessResult.isCorrect) {
+
+      if (guessResult.isCorrect) {
         correctBookRef = book.reference;
         break;
       }
@@ -723,7 +740,7 @@ describe('SubmitGuessHandler Hint Coverage', () => {
       }
 
       // Early exit if we found all types
-      if (allHintTypes.size === requiredTypes.length) {
+      if (requiredTypes.every((type) => allHintTypes.has(type))) {
         break;
       }
     }
@@ -745,8 +762,8 @@ describe('SubmitGuessHandler Hint Coverage', () => {
       const firstLetterHint = result.allHints?.find(
         (h) => h.type === 'first_letter',
       );
-      
-if (firstLetterHint) {
+
+      if (firstLetterHint) {
         firstLetterContent = firstLetterHint.content;
         break;
       }
@@ -767,8 +784,8 @@ if (firstLetterHint) {
       const centuryHint = result.allHints?.find(
         (h) => h.type === 'publication_century',
       );
-      
-if (centuryHint) {
+
+      if (centuryHint) {
         centuryContent = centuryHint.content;
         break;
       }
@@ -828,16 +845,16 @@ describe('Hint Type Coverage', () => {
     ];
 
     let firstLetterContent: string | undefined;
-    
-for (const date of dates) {
+
+    for (const date of dates) {
       const query = new GetDailyPuzzleQuery(date, [1, 2, 3, 4, 5, 6]);
       const result = await puzzleHandler.execute(query);
 
       const firstLetterHint = result.puzzle.hints.find(
         (h) => h.type === 'first_letter',
       );
-      
-if (firstLetterHint) {
+
+      if (firstLetterHint) {
         firstLetterContent = firstLetterHint.content;
         break;
       }
@@ -864,16 +881,16 @@ if (firstLetterHint) {
     ];
 
     let centuryContent: string | undefined;
-    
-for (const date of dates) {
+
+    for (const date of dates) {
       const query = new GetDailyPuzzleQuery(date, [1, 2, 3, 4, 5, 6]);
       const result = await puzzleHandler.execute(query);
 
       const centuryHint = result.puzzle.hints.find(
         (h) => h.type === 'publication_century',
       );
-      
-if (centuryHint) {
+
+      if (centuryHint) {
         centuryContent = centuryHint.content;
         break;
       }
@@ -894,16 +911,16 @@ if (centuryHint) {
     ];
 
     let wordCountContent: string | undefined;
-    
-for (const date of dates) {
+
+    for (const date of dates) {
       const query = new GetDailyPuzzleQuery(date, [1, 2, 3, 4, 5, 6]);
       const result = await puzzleHandler.execute(query);
 
       const wordCountHint = result.puzzle.hints.find(
         (h) => h.type === 'title_word_count',
       );
-      
-if (wordCountHint) {
+
+      if (wordCountHint) {
         wordCountContent = wordCountHint.content;
         break;
       }
@@ -927,14 +944,14 @@ if (wordCountHint) {
     ];
 
     let quoteContent: string | undefined;
-    
-for (const date of dates) {
+
+    for (const date of dates) {
       const query = new GetDailyPuzzleQuery(date, [1, 2, 3, 4, 5, 6]);
       const result = await puzzleHandler.execute(query);
 
       const quoteHint = result.puzzle.hints.find((h) => h.type === 'quote');
-      
-if (quoteHint) {
+
+      if (quoteHint) {
         quoteContent = quoteHint.content;
         break;
       }
@@ -960,16 +977,16 @@ if (quoteHint) {
     ];
 
     let authorNameContent: string | undefined;
-    
-for (const date of dates) {
+
+    for (const date of dates) {
       const query = new GetDailyPuzzleQuery(date, [1, 2, 3, 4, 5, 6]);
       const result = await puzzleHandler.execute(query);
 
       const authorNameHint = result.puzzle.hints.find(
         (h) => h.type === 'author_name',
       );
-      
-if (authorNameHint) {
+
+      if (authorNameHint) {
         authorNameContent = authorNameHint.content;
         break;
       }
@@ -1008,7 +1025,7 @@ if (authorNameHint) {
       }
 
       // Early exit if we found all types
-      if (allHintTypes.size === requiredTypes.length) {
+      if (requiredTypes.every((type) => allHintTypes.has(type))) {
         break;
       }
     }
@@ -1392,8 +1409,8 @@ describe('SubmitGuessHandler Quote Fallback', () => {
       const result = await handler.execute(query);
 
       const quoteHint = result.allHints?.find((h) => h.type === 'quote');
-      
-if (quoteHint) {
+
+      if (quoteHint) {
         quoteContent = quoteHint.content;
         break;
       }
@@ -1447,8 +1464,8 @@ if (quoteHint) {
           const hasCentury = result.allHints.some(
             (h) => h.type === 'publication_century',
           );
-          
-if (hasEra || hasCentury) {
+
+          if (hasEra || hasCentury) {
             cases.push({ hasEra, hasCentury });
           }
         }
@@ -1481,12 +1498,12 @@ describe('GetDailyPuzzleHandler Book Selection', () => {
 
       // Find correct book by testing guesses
       let correctBookRef: string | null = null;
-      
-for (const book of puzzleResult.availableBooks) {
+
+      for (const book of puzzleResult.availableBooks) {
         const guessQuery = new SubmitGuessQuery(date, book.reference, 1);
         const guessResult = await submitHandler.execute(guessQuery);
-        
-if (guessResult.isCorrect) {
+
+        if (guessResult.isCorrect) {
           correctBookRef = book.reference;
           break;
         }
@@ -1521,7 +1538,7 @@ describe('GetPuzzleVersionHandler', () => {
 
     expect(result.puzzleNumber).toBeGreaterThan(0);
     expect(result.version).toContain(String(result.puzzleNumber));
-    expect(result.version).toMatch(/^\d+-\d+$/);
+    expect(result.version).toMatch(/^\d+-\d+-g\d+$/);
   });
 
   it('returns consistent version for same date', async () => {
@@ -1589,7 +1606,7 @@ describe('GetPuzzleVersionHandler', () => {
     const result = await handler.execute(query);
 
     const bookCount = getGutenGuessBooks().length;
-    const expectedVersion = `${result.puzzleNumber}-${bookCount}`;
+    const expectedVersion = `${result.puzzleNumber}-${bookCount}-${PUZZLE_GENERATION}`;
 
     expect(result.version).toBe(expectedVersion);
   });

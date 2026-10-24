@@ -5,7 +5,6 @@ import type { GetDailyPuzzleQuery } from './GetDailyPuzzleQuery';
 import {
   getPuzzleNumber,
   type DailyPuzzleResponse,
-  type PuzzleHint,
   type BookValue,
 } from '@gutenku/shared';
 import { getGutenGuessBooks, type GutenGuessBook } from '~~/data';
@@ -19,11 +18,10 @@ import type { VerseCandidate } from '~/domain/services/genetic/types';
 import { getEmoticonsByDate } from '~/domain/services/PuzzleService';
 import { cleanVerses } from '~/shared/helpers/HaikuHelper';
 import { dailyPuzzleSchema } from '~/infrastructure/validation/schemas';
-import { HINT_POOL, type HintLocale } from './hint-pool';
+import { generateHints, type HintLocale } from './hint-pool';
+import { getDailyShelf } from './puzzle-shelf';
+import { puzzleVersionFor } from './GetPuzzleVersionHandler';
 import { isValidPuzzleSentence } from '~/shared/constants/validation';
-
-// Limit the number of books shown in the selection dropdown
-const SELECTABLE_BOOKS_LIMIT = 50;
 
 /**
  * Mulberry32 seeded PRNG for deterministic random selection
@@ -71,63 +69,6 @@ function selectDailyBook(dateStr: string): GutenGuessBook {
 }
 
 /**
- * Generate 6 hints for the book: emoticons (round 1) + 5 randomly selected hints from pool.
- * Excludes era/publication_century pairs. Sorts by difficulty. Uses seeded PRNG.
- */
-function generateHints(
-  book: GutenGuessBook,
-  random: () => number,
-  locale: HintLocale = 'en',
-): PuzzleHint[] {
-  // Round 1: Always emoticons (shuffled separately)
-  const hints: PuzzleHint[] = [
-    {
-      round: 1,
-      type: 'emoticons',
-      content: book.emoticons,
-    },
-  ];
-
-  // Shuffle the hint pool and select 5
-  const shuffledPool = shuffleWithSeed([...HINT_POOL], random);
-  const selectedHints = shuffledPool.slice(0, 5);
-
-  // Exclusion rule: era and publication_century cannot both appear
-  const hasEra = selectedHints.some((h) => h.type === 'era');
-  const hasCentury = selectedHints.some(
-    (h) => h.type === 'publication_century',
-  );
-
-  if (hasEra && hasCentury) {
-    // Remove era and find a replacement from remaining pool
-    const eraIndex = selectedHints.findIndex((h) => h.type === 'era');
-    const remaining = shuffledPool.slice(5);
-    const replacement = remaining.find(
-      (h) => h.type !== 'era' && h.type !== 'publication_century',
-    );
-
-    if (replacement) {
-      selectedHints[eraIndex] = replacement;
-    }
-  }
-
-  // Sort by difficulty (ascending = harder hints first, easier hints later)
-  selectedHints.sort((a, b) => a.difficulty - b.difficulty);
-
-  // Generate content for each selected hint and assign rounds 2-6
-  for (let i = 0; i < selectedHints.length; i++) {
-    const hintDef = selectedHints[i];
-    hints.push({
-      round: i + 2,
-      type: hintDef.type,
-      content: hintDef.generator(book, random, locale),
-    });
-  }
-
-  return hints;
-}
-
-/**
  * Fisher-Yates shuffle with seeded random
  */
 function shuffleWithSeed<T>(array: T[], random: () => number): T[] {
@@ -142,37 +83,21 @@ function shuffleWithSeed<T>(array: T[], random: () => number): T[] {
 }
 
 /**
- * Return up to SELECTABLE_BOOKS_LIMIT books for autocomplete, ensuring correct book is included.
- * Shuffled deterministically by date. Returns localized titles.
+ * The day's shelf for the board: the answer among date-seeded decoys, with
+ * localized titles.
  */
 function getAvailableBooks(
   correctBook: GutenGuessBook,
   dateStr: string,
   locale: HintLocale = 'en',
 ): BookValue[] {
-  const allBooks = getGutenGuessBooks();
-
-  // Take first N books as the base selection
-  let selectedBooks = allBooks.slice(0, SELECTABLE_BOOKS_LIMIT);
-
-  // Check if the correct book is in the selection
-  const correctInSelection = selectedBooks.some((b) => b.id === correctBook.id);
-
-  if (!correctInSelection) {
-    // Swap in the correct book for the last one
-    selectedBooks[SELECTABLE_BOOKS_LIMIT - 1] = correctBook;
-  }
-
-  // Shuffle with date seed so order varies but is deterministic per day
-  const seed = dateToSeed(dateStr);
-  const random = seededRandom(seed);
-  selectedBooks = shuffleWithSeed(selectedBooks, random);
-
-  return selectedBooks.map((book) => ({
-    reference: book.id.toString(),
-    title: book.title[locale] || book.title.en,
-    author: book.author,
-  }));
+  return getDailyShelf(getGutenGuessBooks(), correctBook, dateStr).map(
+    (book) => ({
+      reference: book.id.toString(),
+      title: book.title[locale] || book.title.en,
+      author: book.author,
+    }),
+  );
 }
 
 /**
@@ -271,9 +196,23 @@ export class GetDailyPuzzleHandler implements IQueryHandler<
         emoticonCount,
         visibleIndices,
         nextPuzzleAvailableAt: tomorrow.toISOString(),
+        // Types only: the confirm sheet names the clue a miss would open
+        hintTypes: allHints.map((h) => h.type),
+        version: puzzleVersionFor(getPuzzleNumber(date)),
       },
       availableBooks: getAvailableBooks(book, date, locale),
     };
+  }
+
+  /**
+   * One of the day's haikus, as the "another haiku" helper reveals it. Reads
+   * the same list the puzzle serves, so a paid haiku never changes text when
+   * the puzzle is fetched again and never repeats the free one.
+   */
+  async getHaiku(date: string, index: number): Promise<string | null> {
+    const haikus = await this.generateHaikus(selectDailyBook(date), date);
+
+    return haikus[index] ?? null;
   }
 
   /**
