@@ -1,5 +1,13 @@
+<script lang="ts">
+// Shared by every tooltip: once one has been open, the next one within this
+// window opens at once and without animation, so scanning a row of icons
+// does not wait on each label.
+const WARM_WINDOW_MS = 400;
+const warmth = { until: 0 };
+</script>
+
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted, nextTick, useAttrs } from 'vue';
+import { ref, onMounted, onUnmounted, nextTick, useAttrs, watch } from 'vue';
 
 defineOptions({
   inheritAttrs: false,
@@ -15,15 +23,20 @@ const props = withDefaults(
     position?: Position;
     delay?: number;
     disabled?: boolean;
+    /** Trigger spans its container (for full-width buttons and rows) */
+    block?: boolean;
   }>(),
   {
     position: 'top',
     delay: 200,
     disabled: false,
+    block: false,
   },
 );
 
 const isVisible = ref(false);
+// Opened inside the warm window: skip the CSS transition
+const isInstant = ref(false);
 const isTouchDevice = ref(false);
 const triggerId = `zen-tooltip-trigger-${Math.random().toString(36).slice(2, 9)}`;
 const tooltipId = `zen-tooltip-${Math.random().toString(36).slice(2, 9)}`;
@@ -35,9 +48,12 @@ let showTimeout: ReturnType<typeof setTimeout> | null = null;
 let hideTimeout: ReturnType<typeof setTimeout> | null = null;
 let longPressTimeout: ReturnType<typeof setTimeout> | null = null;
 const LONG_PRESS_DELAY = 500;
+// Set when the trigger is pressed: the tooltip has done its job and must not
+// come back over whatever the press opened, until the pointer or focus leaves.
+let suppressed = false;
 
 function show() {
-  if (props.disabled) {
+  if (props.disabled || suppressed) {
     return;
   }
 
@@ -46,11 +62,23 @@ function show() {
     hideTimeout = null;
   }
 
-  showTimeout = setTimeout(() => {
-    isVisible.value = true;
-    nextTick(updatePosition);
-  }, props.delay);
+  const warm = Date.now() < warmth.until;
+
+  showTimeout = setTimeout(
+    () => {
+      isInstant.value = warm;
+      isVisible.value = true;
+      nextTick(updatePosition);
+    },
+    warm ? 0 : props.delay,
+  );
 }
+
+watch(isVisible, (visible) => {
+  if (!visible) {
+    warmth.until = Date.now() + WARM_WINDOW_MS;
+  }
+});
 
 function hide() {
   if (showTimeout) {
@@ -135,12 +163,39 @@ function handleKeydown(event: KeyboardEvent) {
   }
 }
 
+function hideNow() {
+  if (showTimeout) {
+    clearTimeout(showTimeout);
+    showTimeout = null;
+  }
+
+  clearLongPressTimeout();
+  isVisible.value = false;
+}
+
+function handlePress() {
+  suppressed = true;
+  hideNow();
+}
+
+function handleMouseLeave() {
+  suppressed = false;
+  hide();
+}
+
 function handleFocusIn() {
   show();
 }
 
-function handleFocusOut() {
-  hide();
+function handleFocusOut(event: FocusEvent) {
+  const next = event.relatedTarget as Node | null;
+
+  if (next && triggerRef.value?.contains(next)) {
+    return;
+  }
+
+  suppressed = false;
+  hideNow();
 }
 
 function handleTouchStart() {
@@ -205,10 +260,13 @@ onUnmounted(() => {
     :id="triggerId"
     ref="triggerRef"
     class="zen-tooltip-trigger"
+    :class="{ 'zen-tooltip-trigger--block': block }"
     :aria-describedby="isVisible && !disabled ? tooltipId : undefined"
     v-bind="attrs"
     @mouseenter="!isTouchDevice && show()"
-    @mouseleave="!isTouchDevice && hide()"
+    @mouseleave="!isTouchDevice && handleMouseLeave()"
+    @pointerdown="handlePress"
+    @click="handlePress"
     @touchstart.passive="handleTouchStart"
     @touchend.passive="handleTouchEnd"
     @touchmove.passive="handleTouchMove"
@@ -220,7 +278,7 @@ onUnmounted(() => {
   </span>
 
   <Teleport to="body">
-    <Transition :name="`zen-tooltip-${position}`">
+    <Transition :name="`zen-tooltip-${position}`" :css="!isInstant">
       <div
         v-if="isVisible && !disabled"
         :id="tooltipId"
@@ -241,8 +299,14 @@ onUnmounted(() => {
 </template>
 
 <style scoped lang="scss">
+// Ex Libris: a typed label in inverted ink. Hard edge, no blur, no bounce.
 .zen-tooltip-trigger {
   display: inline-block;
+
+  &--block {
+    display: block;
+    width: 100%;
+  }
 }
 
 .zen-tooltip {
@@ -254,318 +318,148 @@ onUnmounted(() => {
   &__content {
     position: relative;
     display: block;
-    padding: 0.5rem 0.75rem;
-    background:
-      radial-gradient(
-        ellipse at center,
-        oklch(0.55 0.08 170 / 0.06) 0%,
-        transparent 70%
-      ),
-      var(--gutenku-paper-bg-aged);
-    border: 1px solid var(--gutenku-paper-border);
-    border-radius: var(--gutenku-radius-sm);
-    box-shadow:
-      0 4px 12px oklch(0 0 0 / 0.1),
-      0 2px 4px oklch(0 0 0 / 0.06),
-      inset 0 1px 0 oklch(1 0 0 / 0.5);
+    padding: 0.4375rem 0.625rem;
+    background: var(--gk-ink);
+    border-radius: var(--gk-radius-control);
+    font-family: var(--gk-font);
     font-size: 0.8rem;
     line-height: 1.4;
-    color: var(--gutenku-text-primary);
+    color: var(--gk-paper);
     text-align: center;
-    overflow: hidden;
-
-    // Paper texture overlay
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-      opacity: 0.03;
-      pointer-events: none;
-      border-radius: inherit;
-    }
   }
 
   &__arrow {
     position: absolute;
     width: 8px;
     height: 8px;
-    background: var(--gutenku-paper-bg-aged);
-    border: 1px solid var(--gutenku-paper-border);
+    background: var(--gk-ink);
     transform: rotate(45deg);
   }
 
-  &--top {
-    .zen-tooltip__arrow {
-      bottom: -4px;
-      left: 50%;
-      margin-left: -4px;
-      border-top: none;
-      border-left: none;
-    }
+  &--top .zen-tooltip__arrow {
+    bottom: -4px;
+    left: 50%;
+    margin-left: -4px;
   }
 
-  &--bottom {
-    .zen-tooltip__arrow {
-      top: -4px;
-      left: 50%;
-      margin-left: -4px;
-      border-bottom: none;
-      border-right: none;
-    }
+  &--bottom .zen-tooltip__arrow {
+    top: -4px;
+    left: 50%;
+    margin-left: -4px;
   }
 
-  &--left {
-    .zen-tooltip__arrow {
-      right: -4px;
-      top: 50%;
-      margin-top: -4px;
-      border-bottom: none;
-      border-left: none;
-    }
+  &--left .zen-tooltip__arrow {
+    right: -4px;
+    top: 50%;
+    margin-top: -4px;
   }
 
-  &--right {
-    .zen-tooltip__arrow {
-      left: -4px;
-      top: 50%;
-      margin-top: -4px;
-      border-top: none;
-      border-right: none;
-    }
+  &--right .zen-tooltip__arrow {
+    left: -4px;
+    top: 50%;
+    margin-top: -4px;
   }
 }
 
-// Position-specific entry animations with directional slide + blur sharpen
 .zen-tooltip-top-enter-active {
-  animation: tooltip-slide-up 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition:
+    opacity var(--gk-dur-fast) var(--gk-ease-out),
+    transform var(--gk-dur-fast) var(--gk-ease-out);
 }
 
 .zen-tooltip-top-leave-active {
-  animation: tooltip-slide-up-out 0.18s ease-in forwards;
+  transition:
+    opacity var(--gk-dur-press) var(--gk-ease-out),
+    transform var(--gk-dur-press) var(--gk-ease-out);
+}
+
+.zen-tooltip-top-enter-from,
+.zen-tooltip-top-leave-to {
+  opacity: 0;
+  transform: translateY(4px);
 }
 
 .zen-tooltip-bottom-enter-active {
-  animation: tooltip-slide-down 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition:
+    opacity var(--gk-dur-fast) var(--gk-ease-out),
+    transform var(--gk-dur-fast) var(--gk-ease-out);
 }
 
 .zen-tooltip-bottom-leave-active {
-  animation: tooltip-slide-down-out 0.18s ease-in forwards;
+  transition:
+    opacity var(--gk-dur-press) var(--gk-ease-out),
+    transform var(--gk-dur-press) var(--gk-ease-out);
+}
+
+.zen-tooltip-bottom-enter-from,
+.zen-tooltip-bottom-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
 }
 
 .zen-tooltip-left-enter-active {
-  animation: tooltip-slide-left 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition:
+    opacity var(--gk-dur-fast) var(--gk-ease-out),
+    transform var(--gk-dur-fast) var(--gk-ease-out);
 }
 
 .zen-tooltip-left-leave-active {
-  animation: tooltip-slide-left-out 0.18s ease-in forwards;
+  transition:
+    opacity var(--gk-dur-press) var(--gk-ease-out),
+    transform var(--gk-dur-press) var(--gk-ease-out);
+}
+
+.zen-tooltip-left-enter-from,
+.zen-tooltip-left-leave-to {
+  opacity: 0;
+  transform: translateX(4px);
 }
 
 .zen-tooltip-right-enter-active {
-  animation: tooltip-slide-right 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition:
+    opacity var(--gk-dur-fast) var(--gk-ease-out),
+    transform var(--gk-dur-fast) var(--gk-ease-out);
 }
 
 .zen-tooltip-right-leave-active {
-  animation: tooltip-slide-right-out 0.18s ease-in forwards;
+  transition:
+    opacity var(--gk-dur-press) var(--gk-ease-out),
+    transform var(--gk-dur-press) var(--gk-ease-out);
 }
 
-// Entry keyframes - directional slide + blur sharpen + scale bounce
-@keyframes tooltip-slide-up {
-  0% {
-    opacity: 0;
-    transform: translateY(8px) scale(0.96);
-    filter: blur(4px);
-  }
-  70% {
-    transform: translateY(-1px) scale(1.02);
-    filter: blur(0);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
+.zen-tooltip-right-enter-from,
+.zen-tooltip-right-leave-to {
+  opacity: 0;
+  transform: translateX(-4px);
 }
 
-@keyframes tooltip-slide-down {
-  0% {
-    opacity: 0;
-    transform: translateY(-8px) scale(0.96);
-    filter: blur(4px);
-  }
-  70% {
-    transform: translateY(1px) scale(1.02);
-    filter: blur(0);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
-}
-
-@keyframes tooltip-slide-left {
-  0% {
-    opacity: 0;
-    transform: translateX(8px) scale(0.96);
-    filter: blur(4px);
-  }
-  70% {
-    transform: translateX(-1px) scale(1.02);
-    filter: blur(0);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-    filter: blur(0);
-  }
-}
-
-@keyframes tooltip-slide-right {
-  0% {
-    opacity: 0;
-    transform: translateX(-8px) scale(0.96);
-    filter: blur(4px);
-  }
-  70% {
-    transform: translateX(1px) scale(1.02);
-    filter: blur(0);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-    filter: blur(0);
-  }
-}
-
-// Exit keyframes - reverse directional slide + slight blur
-@keyframes tooltip-slide-up-out {
-  0% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(4px) scale(0.98);
-    filter: blur(2px);
-  }
-}
-
-@keyframes tooltip-slide-down-out {
-  0% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-4px) scale(0.98);
-    filter: blur(2px);
-  }
-}
-
-@keyframes tooltip-slide-left-out {
-  0% {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-    filter: blur(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(4px) scale(0.98);
-    filter: blur(2px);
-  }
-}
-
-@keyframes tooltip-slide-right-out {
-  0% {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-    filter: blur(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(-4px) scale(0.98);
-    filter: blur(2px);
-  }
-}
-
-// Dark theme
-[data-theme='dark'] .zen-tooltip {
-  &__content {
-    background:
-      radial-gradient(
-        ellipse at center,
-        oklch(0.5 0.06 170 / 0.08) 0%,
-        transparent 70%
-      ),
-      var(--gutenku-paper-bg);
-    box-shadow:
-      0 4px 16px oklch(0 0 0 / 0.4),
-      0 2px 4px oklch(0 0 0 / 0.2),
-      inset 0 1px 0 oklch(1 0 0 / 0.08);
-
-    &::before {
-      opacity: 0.04;
-    }
-  }
-
-  &__arrow {
-    background: var(--gutenku-paper-bg);
-  }
-}
-
-// Mobile responsive
 @media (max-width: 480px) {
   .zen-tooltip {
-    // Use dvw (dynamic viewport) which excludes scrollbar, fallback to fixed px
     max-width: min(280px, calc(100dvw - 2rem));
 
     &__content {
       font-size: 0.75rem;
-      padding: 0.4rem 0.6rem;
-    }
-
-    &__arrow {
-      width: 6px;
-      height: 6px;
-    }
-
-    &--top .zen-tooltip__arrow {
-      bottom: -3px;
-      margin-left: -3px;
-    }
-
-    &--bottom .zen-tooltip__arrow {
-      top: -3px;
-      margin-left: -3px;
-    }
-
-    &--left .zen-tooltip__arrow {
-      right: -3px;
-      margin-top: -3px;
-    }
-
-    &--right .zen-tooltip__arrow {
-      left: -3px;
-      margin-top: -3px;
+      padding: 0.375rem 0.5625rem;
     }
   }
 }
 
-// Reduced motion
 @media (prefers-reduced-motion: reduce) {
-  .zen-tooltip-top-enter-active,
-  .zen-tooltip-top-leave-active,
-  .zen-tooltip-bottom-enter-active,
-  .zen-tooltip-bottom-leave-active,
-  .zen-tooltip-left-enter-active,
-  .zen-tooltip-left-leave-active,
-  .zen-tooltip-right-enter-active,
-  .zen-tooltip-right-leave-active {
-    animation: none;
-    transition: opacity 0.15s ease;
+  .zen-tooltip-top-enter-from,
+  .zen-tooltip-top-leave-to,
+  .zen-tooltip-bottom-enter-from,
+  .zen-tooltip-bottom-leave-to,
+  .zen-tooltip-left-enter-from,
+  .zen-tooltip-left-leave-to,
+  .zen-tooltip-right-enter-from,
+  .zen-tooltip-right-leave-to {
+    transform: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .zen-tooltip__content {
+    border: 1px solid CanvasText;
   }
 }
 </style>

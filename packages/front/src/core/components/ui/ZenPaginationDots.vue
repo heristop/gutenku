@@ -50,101 +50,107 @@ function handleClick(index: number) {
 </template>
 
 <style lang="scss" scoped>
+// Ex Libris: hand-pressed ink drops. The current page is filled, the rest
+// outlined. Each clickable drop sits in a 44px key; only the drop is drawn.
 .zen-pagination-dots {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.375rem;
-  container-type: inline-size;
-  container-name: pagination-dots;
-}
-
-@container pagination-dots (min-width: 400px) {
-  .zen-pagination-dots {
-    gap: 0.5rem;
-  }
+  gap: 0;
 }
 
 .zen-pagination-dots__dot {
-  width: 8px;
-  height: 8px;
-  padding: 0;
-  background: var(--gutenku-paper-border);
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
+  --drop-w: 10px;
+  --drop-h: 11px;
 
-@container pagination-dots (min-width: 400px) {
-  .zen-pagination-dots__dot {
-    width: 10px;
-    height: 10px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 2.75rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--gk-radius-control);
+  cursor: pointer;
+
+  // The drawn drop
+  &::before {
+    content: '';
+    width: var(--drop-w);
+    height: var(--drop-h);
+    border: 1.5px solid var(--gk-ink);
+    border-radius: 52% 48% 46% 54% / 58% 56% 44% 42%;
+    transition: background-color var(--gk-dur-base) var(--gk-ease-out);
+  }
+
+  &:nth-child(2n)::before {
+    border-radius: 47% 53% 55% 45% / 54% 60% 40% 46%;
+  }
+
+  &:nth-child(3n)::before {
+    border-radius: 55% 45% 50% 50% / 60% 50% 50% 40%;
+  }
+
+  // Widen the hit area to 44px; neighbours overlap harmlessly at the edges
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0 -0.5rem;
   }
 }
 
-.zen-pagination-dots__dot:hover:not(.zen-pagination-dots__dot--active) {
-  background: var(--gutenku-zen-secondary);
-  transform: scale(1.2);
+@media (hover: hover) {
+  button.zen-pagination-dots__dot:hover:not(
+      .zen-pagination-dots__dot--active
+    )::before {
+    background: var(--gk-ink-faint);
+  }
 }
 
 .zen-pagination-dots__dot:focus-visible {
-  outline: 2px solid var(--gutenku-focus-ring);
-  outline-offset: 2px;
+  outline: 2px solid var(--gk-indigo);
+  outline-offset: -4px;
 }
 
-.zen-pagination-dots__dot--active {
-  background: var(--gutenku-zen-accent);
-  transform: scale(1.3);
-  box-shadow: 0 0 8px var(--gutenku-zen-accent);
+.zen-pagination-dots__dot--active::before {
+  background: var(--gk-ink);
 }
 
 .zen-pagination-dots--readonly {
-  gap: 0.35rem;
+  gap: 0.375rem;
 
   .zen-pagination-dots__dot {
-    width: 6px;
-    height: 6px;
+    --drop-w: 7px;
+    --drop-h: 8px;
+
+    width: auto;
+    height: auto;
     cursor: default;
 
-    &:hover:not(.zen-pagination-dots__dot--active) {
-      background: var(--gutenku-paper-border);
-      transform: none;
+    &::before {
+      border-width: 1.25px;
     }
 
-    &--active {
-      transform: scale(1.2);
-      box-shadow: none;
+    &::after {
+      content: none;
     }
-  }
-}
-
-[data-theme='dark'] .zen-pagination-dots__dot {
-  background: oklch(0.4 0.02 85);
-
-  &:hover:not(.zen-pagination-dots__dot--active) {
-    background: var(--gutenku-zen-secondary);
-  }
-
-  &--active {
-    background: var(--gutenku-zen-accent);
-    box-shadow: 0 0 10px oklch(0.75 0.08 175 / 0.6);
-  }
-}
-
-[data-theme='dark'] .zen-pagination-dots--readonly .zen-pagination-dots__dot {
-  &:hover:not(.zen-pagination-dots__dot--active) {
-    background: oklch(0.4 0.02 85);
-  }
-
-  &--active {
-    box-shadow: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .zen-pagination-dots__dot {
+  .zen-pagination-dots__dot::before {
     transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .zen-pagination-dots__dot::before {
+    border-color: CanvasText;
+  }
+
+  .zen-pagination-dots__dot--active::before {
+    background: CanvasText;
   }
 }
 </style>

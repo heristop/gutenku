@@ -1,7 +1,14 @@
 <script lang="ts" setup>
-import { computed, watch, onBeforeUnmount, ref, nextTick } from 'vue';
+import {
+  computed,
+  watch,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  nextTick,
+} from 'vue';
 import { useI18n } from 'vue-i18n';
-import { X } from '@lucide/vue';
+import { X } from '@/core/components/icons/ink';
 import { useScrollLock } from '@/core/composables/scroll-lock';
 
 interface Props {
@@ -15,6 +22,8 @@ interface Props {
   description?: string;
   lockBodyScroll?: boolean;
   fullscreen?: boolean;
+  /** CSS selector, inside the modal, for the element to focus on open */
+  initialFocus?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -27,6 +36,7 @@ const props = withDefaults(defineProps<Props>(), {
   description: '',
   lockBodyScroll: true,
   fullscreen: false,
+  initialFocus: undefined,
 });
 
 const emit = defineEmits<{
@@ -69,22 +79,55 @@ const modalClasses = computed(() => [
   { 'zen-modal--fullscreen': props.fullscreen },
 ]);
 
+const FOCUSABLE_SELECTOR = [
+  'button:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  'a[href]',
+  '[tabindex]:not([tabindex="-1"])',
+].join(', ');
+
 // WCAG 2.2: Get all focusable elements within the modal
 function getFocusableElements(): HTMLElement[] {
   if (!modalRef.value) {
     return [];
   }
 
-  const focusableSelectors = [
-    'button:not([disabled])',
-    'input:not([disabled])',
-    'select:not([disabled])',
-    'textarea:not([disabled])',
-    'a[href]',
-    '[tabindex]:not([tabindex="-1"])',
-  ].join(', ');
+  return [...modalRef.value.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)];
+}
 
-  return [...modalRef.value.querySelectorAll<HTMLElement>(focusableSelectors)];
+// Open on the thing the visitor came to do, not on the close button:
+// an explicit target, then a form field, then the primary action, then
+// the first control in the content.
+function getInitialFocusTarget(): HTMLElement | null {
+  const root = modalRef.value;
+
+  if (!root) {
+    return null;
+  }
+
+  const candidates = [
+    props.initialFocus,
+    '[data-autofocus]',
+    '.zen-modal__content :is(input, select, textarea):not([disabled])',
+    `.zen-modal__actions :is(${FOCUSABLE_SELECTOR})`,
+    `.zen-modal__content :is(${FOCUSABLE_SELECTOR})`,
+  ];
+
+  for (const selector of candidates) {
+    if (!selector) {
+      continue;
+    }
+
+    const target = root.querySelector<HTMLElement>(selector);
+
+    if (target) {
+      return target;
+    }
+  }
+
+  return null;
 }
 
 // WCAG 2.2: Trap focus within modal
@@ -145,34 +188,49 @@ function handleOverlayClick(e: MouseEvent) {
 // WCAG 2.2: Scroll lock for mobile compatibility
 const { lock: lockScroll, unlock: unlockScroll } = useScrollLock();
 
-watch(modelValue, async (isOpen) => {
-  if (isOpen) {
-    // Store the element that triggered the modal
-    previousActiveElement.value = document.activeElement as HTMLElement;
+// Open/close side effects run once per state change, whether the modal was
+// opened by a click, by code, or was already open when it mounted (a parent
+// rendering it with v-model true never triggers the watcher).
+let isActive = false;
 
-    if (props.lockBodyScroll) {
-      lockScroll();
-    }
-
-    document.addEventListener('keydown', handleKeydown);
-
-    // WCAG 2.2: Move focus to first focusable element in modal
-    await nextTick();
-    const focusableElements = getFocusableElements();
-
-    if (focusableElements.length > 0) {
-      focusableElements[0].focus();
-    }
-
-    // If no focusable elements, focus the modal itself
-    if (focusableElements.length === 0) {
-      modalRef.value?.focus();
-    }
-
+async function activate(): Promise<void> {
+  if (isActive) {
     return;
   }
 
-  // Modal closing
+  isActive = true;
+  // Store the element that triggered the modal
+  previousActiveElement.value = document.activeElement as HTMLElement;
+
+  if (props.lockBodyScroll) {
+    lockScroll();
+  }
+
+  // Escape is heard on the document, so it works wherever focus happens to be
+  document.addEventListener('keydown', handleKeydown);
+
+  // WCAG 2.2: Move focus into the modal
+  await nextTick();
+
+  if (!isActive) {
+    return;
+  }
+
+  const target = getInitialFocusTarget() ?? getFocusableElements()[0];
+  target?.focus();
+
+  // Nothing focusable (or the target refused focus): hold focus on the dialog
+  if (!modalRef.value?.contains(document.activeElement)) {
+    modalRef.value?.focus();
+  }
+}
+
+async function deactivate(): Promise<void> {
+  if (!isActive) {
+    return;
+  }
+
+  isActive = false;
   document.removeEventListener('keydown', handleKeydown);
 
   if (props.lockBodyScroll) {
@@ -181,12 +239,33 @@ watch(modelValue, async (isOpen) => {
 
   // WCAG 2.2: Return focus to triggering element
   await nextTick();
-  previousActiveElement.value?.focus();
+  const opener = previousActiveElement.value;
   previousActiveElement.value = null;
+
+  if (opener && opener !== document.body && opener.isConnected) {
+    opener.focus();
+  }
+}
+
+watch(modelValue, (isOpen) => {
+  if (isOpen) {
+    activate();
+
+    return;
+  }
+
+  deactivate();
+});
+
+onMounted(() => {
+  if (modelValue.value) {
+    activate();
+  }
 });
 
 onBeforeUnmount(() => {
-  if (modelValue.value) {
+  if (isActive) {
+    isActive = false;
     document.removeEventListener('keydown', handleKeydown);
 
     if (props.lockBodyScroll) {
@@ -251,7 +330,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style lang="scss" scoped>
-// Overlay with backdrop blur
+// Ex Libris: a sheet laid over a dimmed page. Sumi scrim, no blur.
 .zen-modal-overlay {
   position: fixed;
   inset: 0;
@@ -260,12 +339,9 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background: oklch(0 0 0 / 0.45);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: var(--gk-scrim);
 }
 
-// Modal container with zen aesthetics
 .zen-modal {
   position: relative;
   width: 100%;
@@ -273,71 +349,63 @@ onBeforeUnmount(() => {
   max-height: calc(100dvh - 2rem);
   padding: 1.5rem;
   overflow-y: auto;
-  border-radius: var(--gutenku-radius-lg, 12px);
+  background: var(--gk-paper-raised);
+  color: var(--gk-ink);
+  border-radius: var(--gk-radius-paper);
+  box-shadow: var(--gk-lift);
 
-  // Subtle shadow for depth
-  box-shadow:
-    0 0 0 1px oklch(0 0 0 / 0.05),
-    0 8px 24px oklch(0 0 0 / 0.12),
-    0 24px 48px oklch(0 0 0 / 0.08);
-
-  // WCAG 2.2: Ensure focus is visible when modal receives focus
   &:focus {
     outline: none;
   }
 
   &:focus-visible {
-    outline: 2px solid var(--gutenku-zen-primary);
-    outline-offset: 2px;
+    outline: 2px solid var(--gk-indigo);
+    outline-offset: 3px;
   }
 }
 
-// WCAG 2.2: Close button with 44x44 minimum touch target
+// 44x44 close target
 .zen-modal__close {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
   z-index: 10;
-
-  // WCAG 2.2: Minimum 44x44 touch target
   display: flex;
   align-items: center;
   justify-content: center;
   width: 2.75rem;
   height: 2.75rem;
   padding: 0;
-
   background: transparent;
   border: none;
-  border-radius: var(--gutenku-radius-full, 50%);
-  color: var(--gutenku-text-secondary);
+  border-radius: var(--gk-radius-control);
+  color: var(--gk-ink-soft);
   cursor: pointer;
-
   transition:
-    background-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.15s ease;
+    background-color var(--gk-dur-fast) var(--gk-ease-out),
+    color var(--gk-dur-fast) var(--gk-ease-out),
+    transform var(--gk-dur-press) var(--gk-ease-out);
 
-  &:hover {
-    background: var(--gutenku-zen-water, oklch(0.85 0.02 200));
-    color: var(--gutenku-text-primary);
+  @media (hover: hover) {
+    &:hover {
+      background: var(--gk-ink-faint);
+      color: var(--gk-ink);
+    }
   }
 
   &:active {
-    transform: scale(0.95);
+    transform: scale(0.96);
   }
 
-  // WCAG 2.2: High contrast focus indicator
   &:focus-visible {
-    outline: 2px solid var(--gutenku-zen-primary);
+    outline: 2px solid var(--gk-indigo);
     outline-offset: 2px;
-    background: var(--gutenku-zen-water, oklch(0.85 0.02 200));
   }
 }
 
 .zen-modal__header {
   margin-bottom: 1rem;
-  padding-right: 2.5rem; // Space for close button
+  padding-right: 2.5rem;
 }
 
 .zen-modal__content {
@@ -351,49 +419,29 @@ onBeforeUnmount(() => {
   justify-content: flex-end;
   margin-top: 1.5rem;
   padding-top: 1rem;
-  border-top: 1px solid var(--gutenku-paper-border, oklch(0.9 0.01 60));
+  border-top: var(--gk-rule);
 }
 
-// Variant: book - for book-related modals
-.zen-modal--book {
-  text-align: center;
-}
-
-// Variant: help - for help/info modals
 .zen-modal--help {
   .zen-modal__content {
     font-size: 0.95rem;
   }
 }
 
-// Variant: stats - for statistics modals
 .zen-modal--stats {
   .zen-modal__content {
     font-variant-numeric: tabular-nums;
   }
 }
 
-// Variant: scroll - for scrollable content modals
 .zen-modal--scroll {
   .zen-modal__content {
     max-height: 60vh;
     max-height: 60dvh;
     overflow-y: auto;
     padding-right: 0.5rem;
-
-    // Subtle scrollbar
-    &::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    &::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: var(--gutenku-zen-mist);
-      border-radius: 3px;
-    }
+    scrollbar-width: thin;
+    scrollbar-color: var(--gk-ink-faint) transparent;
 
     @media (max-width: 600px) {
       max-height: none;
@@ -403,142 +451,52 @@ onBeforeUnmount(() => {
   }
 }
 
-// With divider modifier
 .zen-modal--with-divider {
   .zen-modal__header {
     padding-bottom: 1rem;
-    border-bottom: 1px solid var(--gutenku-paper-border, oklch(0.9 0.01 60));
+    border-bottom: var(--gk-rule);
   }
 }
 
-// Transition animations - zen-inspired
+// Enter 240ms, leave 160ms, ease-out. Centred in the viewport, so it scales
+// from its own centre with a 4px settle; no overshoot.
 .zen-modal-enter-active {
-  transition:
-    opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    backdrop-filter 0.5s ease-out;
+  transition: opacity var(--gk-dur-base) var(--gk-ease-out);
 
   .zen-modal {
     transition:
-      transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
-      opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-      filter 0.4s ease-out,
-      box-shadow 0.5s ease-out;
+      transform var(--gk-dur-base) var(--gk-ease-out),
+      opacity var(--gk-dur-base) var(--gk-ease-out);
   }
 }
 
 .zen-modal-leave-active {
-  transition:
-    opacity 0.25s cubic-bezier(0.4, 0, 1, 1),
-    backdrop-filter 0.3s ease-in;
+  transition: opacity var(--gk-dur-exit) var(--gk-ease-out);
 
   .zen-modal {
     transition:
-      transform 0.25s cubic-bezier(0.4, 0, 1, 1),
-      opacity 0.2s ease-in;
+      transform var(--gk-dur-exit) var(--gk-ease-out),
+      opacity var(--gk-dur-exit) var(--gk-ease-out);
   }
 }
 
-.zen-modal-enter-from {
-  opacity: 0;
-  backdrop-filter: blur(0);
-
-  .zen-modal {
-    opacity: 0;
-    transform: translateY(24px) scale(0.92);
-    filter: blur(8px);
-    box-shadow:
-      0 0 0 1px oklch(0 0 0 / 0),
-      0 0 0 oklch(0 0 0 / 0);
-  }
-}
-
+.zen-modal-enter-from,
 .zen-modal-leave-to {
   opacity: 0;
 
   .zen-modal {
     opacity: 0;
-    transform: translateY(-12px) scale(0.96);
+    transform: translateY(4px) scale(0.97);
   }
 }
 
-// Entrance glow effect for zen aesthetic
-.zen-modal-enter-active .zen-modal {
-  animation: zen-glow 0.6s ease-out forwards;
-}
-
-@keyframes zen-glow {
-  0% {
-    box-shadow:
-      0 0 0 1px oklch(0 0 0 / 0.05),
-      0 0 0 oklch(0 0 0 / 0),
-      0 0 0 oklch(0 0 0 / 0);
-  }
-  40% {
-    box-shadow:
-      0 0 0 1px oklch(0 0 0 / 0.05),
-      0 0 40px oklch(0.7 0.08 180 / 0.15),
-      0 8px 32px oklch(0 0 0 / 0.15);
-  }
-  100% {
-    box-shadow:
-      0 0 0 1px oklch(0 0 0 / 0.05),
-      0 8px 24px oklch(0 0 0 / 0.12),
-      0 24px 48px oklch(0 0 0 / 0.08);
-  }
-}
-
-[data-theme='dark'] .zen-modal-enter-active .zen-modal {
-  animation: zen-glow-dark 0.6s ease-out forwards;
-}
-
-@keyframes zen-glow-dark {
-  0% {
-    box-shadow:
-      0 0 0 1px oklch(1 0 0 / 0.05),
-      0 0 0 oklch(0 0 0 / 0),
-      0 0 0 oklch(0 0 0 / 0);
-  }
-  40% {
-    box-shadow:
-      0 0 0 1px oklch(1 0 0 / 0.08),
-      0 0 50px oklch(0.6 0.1 180 / 0.2),
-      0 8px 40px oklch(0 0 0 / 0.4);
-  }
-  100% {
-    box-shadow:
-      0 0 0 1px oklch(1 0 0 / 0.05),
-      0 8px 24px oklch(0 0 0 / 0.3),
-      0 24px 48px oklch(0 0 0 / 0.25);
-  }
-}
-
-// Dark theme adjustments
-[data-theme='dark'] {
-  .zen-modal-overlay {
-    background: oklch(0 0 0 / 0.65);
-  }
-
-  .zen-modal {
-    box-shadow:
-      0 0 0 1px oklch(1 0 0 / 0.05),
-      0 8px 24px oklch(0 0 0 / 0.3),
-      0 24px 48px oklch(0 0 0 / 0.25);
-  }
-
-  .zen-modal__actions {
-    border-top-color: var(--gutenku-paper-border, oklch(0.3 0.01 60));
-  }
-}
-
-// WCAG 2.2: Respect reduced motion preference
 @media (prefers-reduced-motion: reduce) {
   .zen-modal-enter-active,
   .zen-modal-leave-active {
-    transition: opacity 0.15s ease;
+    transition: opacity 150ms ease;
 
     .zen-modal {
-      transition: opacity 0.15s ease;
-      animation: none;
+      transition: opacity 150ms ease;
     }
   }
 
@@ -546,36 +504,21 @@ onBeforeUnmount(() => {
   .zen-modal-leave-to {
     .zen-modal {
       transform: none;
-      filter: none;
     }
   }
 
   .zen-modal__close {
     transition: none;
   }
+}
 
-  @keyframes zen-glow {
-    from,
-    to {
-      box-shadow:
-        0 0 0 1px oklch(0 0 0 / 0.05),
-        0 8px 24px oklch(0 0 0 / 0.12),
-        0 24px 48px oklch(0 0 0 / 0.08);
-    }
-  }
-
-  @keyframes zen-glow-dark {
-    from,
-    to {
-      box-shadow:
-        0 0 0 1px oklch(1 0 0 / 0.05),
-        0 8px 24px oklch(0 0 0 / 0.3),
-        0 24px 48px oklch(0 0 0 / 0.25);
-    }
+@media (forced-colors: active) {
+  .zen-modal {
+    border: 2px solid CanvasText;
   }
 }
 
-// Mobile adjustments - bottom sheet with zen spring
+// Mobile: a sheet pulled up from the bottom edge
 @media (max-width: 600px) {
   .zen-modal-overlay {
     padding: 0;
@@ -586,49 +529,30 @@ onBeforeUnmount(() => {
     max-width: 100% !important;
     max-height: 100vh;
     max-height: 100dvh;
-    border-radius: var(--gutenku-radius-xl, 16px) var(--gutenku-radius-xl, 16px)
-      0 0;
+    border-radius: var(--gk-radius-paper) var(--gk-radius-paper) 0 0;
+    border-top: var(--gk-rule);
     padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0));
-
-    // Handle bar indicator
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0.5rem;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 2.5rem;
-      height: 0.25rem;
-      background: var(--gutenku-zen-mist);
-      border-radius: 2px;
-      opacity: 0.6;
-    }
   }
 
   .zen-modal-enter-active .zen-modal {
     transition:
-      transform 0.45s cubic-bezier(0.32, 1.2, 0.5, 1),
-      opacity 0.3s ease-out;
-    animation: none;
+      transform var(--gk-dur-base) var(--gk-ease-out),
+      opacity var(--gk-dur-press) var(--gk-ease-out);
   }
 
-  .zen-modal-leave-active .zen-modal {
-    transition:
-      transform 0.3s cubic-bezier(0.4, 0, 1, 1),
-      opacity 0.2s ease-in;
-  }
-
-  .zen-modal-enter-from .zen-modal {
-    transform: translateY(100%);
-    filter: none;
-  }
-
+  .zen-modal-enter-from .zen-modal,
   .zen-modal-leave-to .zen-modal {
     transform: translateY(100%);
   }
 }
 
-// Fullscreen mode for mobile/tablet
+@media (max-width: 600px) and (prefers-reduced-motion: reduce) {
+  .zen-modal-enter-from .zen-modal,
+  .zen-modal-leave-to .zen-modal {
+    transform: none;
+  }
+}
+
 @media (max-width: 768px) {
   .zen-modal-overlay--fullscreen {
     padding: 0;
@@ -641,8 +565,7 @@ onBeforeUnmount(() => {
     width: 100%;
     max-height: 100vh;
     max-height: 100dvh;
-    border-radius: var(--gutenku-radius-xl, 16px) var(--gutenku-radius-xl, 16px)
-      0 0;
+    border-radius: var(--gk-radius-paper) var(--gk-radius-paper) 0 0;
     padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0));
   }
 }

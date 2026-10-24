@@ -1,23 +1,17 @@
 <script setup lang="ts">
-import { computed, ref, watch, useTemplateRef } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
-import { BookOpenText, BookUp2 } from '@lucide/vue';
+import { BookOpenText } from '@/core/components/icons/ink';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
-import { useInView } from '@/features/haiku/composables/in-view';
+import { useCountUp } from '@/features/haiku/composables/count-up';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
-import ZenChip from '@/core/components/ui/ZenChip.vue';
-import ZenTooltip from '@/core/components/ui/ZenTooltip.vue';
 import ZenAccordion from '@/core/components/ui/ZenAccordion.vue';
 
 const { t } = useI18n();
 
-const cardRef = useTemplateRef<HTMLElement>('cardRef');
-const { isInView } = useInView(cardRef, { delay: 300 });
-
 const store = useHaikuStore();
 const { stats, loading } = storeToRefs(store);
-const avgTime = computed(() => store.avgExecutionTime.toFixed(2));
 
 const topBooks = computed(() => {
   const entries = Object.entries(stats.value.bookCounts || {}) as [
@@ -31,162 +25,33 @@ const topBooks = computed(() => {
 
 const expanded = ref(true);
 
-const animatedHaikus = ref(0);
-const animatedDaily = ref(0);
-const animatedBooks = ref(0);
-const animatedTime = ref(0);
-const hasAnimated = ref(false);
-
-// Pulse states for value updates
-const pulsingHaikus = ref(false);
-const pulsingBooks = ref(false);
-const pulsingDaily = ref(false);
-const pulsingTime = ref(false);
-
-function triggerPulse(pulseRef: typeof pulsingHaikus) {
-  pulseRef.value = true;
-  setTimeout(() => {
-    pulseRef.value = false;
-  }, 400);
-}
-
-function easeOutQuart(t: number): number {
-  return 1 - Math.pow(1 - t, 4);
-}
-
-function animateValue(
-  start: number,
-  end: number,
-  duration: number,
-  callback: (value: number) => void,
-) {
-  // Skip animation during SSR
-  if (typeof document === 'undefined') {
-    callback(end);
-
-    return;
-  }
-
-  const startTime = performance.now();
-
-  function update(currentTime: number) {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    const easedProgress = easeOutQuart(progress);
-    const current = start + (end - start) * easedProgress;
-
-    callback(current);
-
-    if (progress < 1) {
-      requestAnimationFrame(update);
-    }
-  }
-
-  requestAnimationFrame(update);
-}
-
-function triggerAnimations() {
-  if (hasAnimated.value) {
-    return;
-  }
-  hasAnimated.value = true;
-
-  setTimeout(() => {
-    animateValue(0, stats.value.haikusGenerated, 800, (v) => {
-      animatedHaikus.value = Math.round(v);
-    });
-  }, 100);
-
-  setTimeout(() => {
-    animateValue(0, stats.value.booksBrowsed, 800, (v) => {
-      animatedBooks.value = Math.round(v);
-    });
-  }, 200);
-
-  setTimeout(() => {
-    animateValue(0, stats.value.dailyHaikuViews, 800, (v) => {
-      animatedDaily.value = Math.round(v);
-    });
-  }, 300);
-
-  setTimeout(() => {
-    animateValue(0, Number.parseFloat(avgTime.value), 800, (v) => {
-      animatedTime.value = v;
-    });
-  }, 400);
-}
-
-watch(
-  expanded,
-  (isExpanded) => {
-    if (isExpanded) {
-      triggerAnimations();
-    }
-  },
-  { immediate: true },
-);
-
-watch(
-  () => stats.value.haikusGenerated,
-  (val, oldVal) => {
-    if (hasAnimated.value) {
-      animatedHaikus.value = val;
-
-      if (val !== oldVal) {
-        triggerPulse(pulsingHaikus);
-      }
-    }
-  },
-);
-watch(
-  () => stats.value.booksBrowsed,
-  (val, oldVal) => {
-    if (hasAnimated.value) {
-      animatedBooks.value = val;
-
-      if (val !== oldVal) {
-        triggerPulse(pulsingBooks);
-      }
-    }
-  },
-);
-watch(
-  () => stats.value.dailyHaikuViews,
-  (val, oldVal) => {
-    if (hasAnimated.value) {
-      animatedDaily.value = val;
-
-      if (val !== oldVal) {
-        triggerPulse(pulsingDaily);
-      }
-    }
-  },
-);
-watch(avgTime, (val, oldVal) => {
-  if (hasAnimated.value) {
-    animatedTime.value = Number.parseFloat(val);
-
-    if (val !== oldVal) {
-      triggerPulse(pulsingTime);
-    }
-  }
+// Figures read at rest and count up (≤400ms) only when a new haiku moves them
+const { value: dailyViews } = useCountUp(() => stats.value.dailyHaikuViews);
+const { value: booksBrowsed } = useCountUp(() => stats.value.booksBrowsed);
+const { value: haikusForged } = useCountUp(() => stats.value.haikusGenerated);
+const { value: avgSeconds } = useCountUp(() => store.avgExecutionTime, {
+  decimals: 2,
 });
+
+// No timed generation yet: the cell stays away rather than print a dash
+const hasAvgTime = computed(() => store.avgExecutionTime > 0);
+const avgTimeLabel = computed(() => `${avgSeconds.value.toFixed(2)}s`);
+
+// Ranks set like the Sources list on the same page
+const RANKS = ['i', 'ii', 'iii'];
 </script>
 
 <template>
   <ZenCard
-    ref="cardRef"
     variant="panel"
     :loading="loading"
     :aria-label="t('stats.ariaLabel')"
-    class="stats-panel stats-panel--card stats-panel-container animate-in"
-    :class="{ 'is-visible': isInView }"
+    class="stats-panel stats-panel--card stats-panel-container"
   >
     <ZenAccordion
       v-model="expanded"
       :icon="BookOpenText"
       :title="t('stats.title')"
-      :subtitle="t('stats.subtitle')"
       storage-key="statsPanel-expanded"
       :default-expanded="true"
       :aria-label="t('stats.ariaLabel')"
@@ -198,86 +63,51 @@ watch(avgTime, (val, oldVal) => {
               <div class="stats-panel__metric-label">
                 {{ t('stats.metrics.dailyViews') }}
               </div>
-              <div
-                class="stats-panel__metric-value"
-                :class="{ 'stats-panel__metric-value--pulse': pulsingDaily }"
-              >
-                {{ animatedDaily }}
-              </div>
+              <div class="stats-panel__metric-value">{{ dailyViews }}</div>
             </div>
             <div class="stats-panel__metric">
               <div class="stats-panel__metric-label">
                 {{ t('stats.metrics.booksBrowsed') }}
               </div>
-              <div
-                class="stats-panel__metric-value"
-                :class="{ 'stats-panel__metric-value--pulse': pulsingBooks }"
-              >
-                {{ animatedBooks }}
-              </div>
+              <div class="stats-panel__metric-value">{{ booksBrowsed }}</div>
             </div>
             <div class="stats-panel__metric">
               <div class="stats-panel__metric-label">
                 {{ t('stats.metrics.haikuForged') }}
               </div>
-              <div
-                class="stats-panel__metric-value"
-                :class="{ 'stats-panel__metric-value--pulse': pulsingHaikus }"
-              >
-                {{ animatedHaikus }}
-              </div>
+              <div class="stats-panel__metric-value">{{ haikusForged }}</div>
             </div>
-            <div class="stats-panel__metric">
+            <div v-if="hasAvgTime" class="stats-panel__metric">
               <div class="stats-panel__metric-label">
                 {{ t('stats.metrics.avgTime') }}
               </div>
-              <div
-                class="stats-panel__metric-value"
-                :class="{ 'stats-panel__metric-value--pulse': pulsingTime }"
-              >
-                {{ animatedTime.toFixed(2) }}s
-              </div>
+              <div class="stats-panel__metric-value">{{ avgTimeLabel }}</div>
             </div>
           </div>
         </div>
 
         <div class="stats-panel__books-section">
-          <div class="stats-panel__books-header">
-            <BookUp2 :size="18" class="stats-panel__books-icon" />
-            <span class="stats-panel__books-title">{{
-              t('stats.topBooks')
-            }}</span>
-          </div>
-          <div class="stats-panel__books-list">
-            <div
+          <h3 class="stats-panel__books-header">{{ t('stats.topBooks') }}</h3>
+          <ol v-if="topBooks.length" class="stats-panel__books-list">
+            <li
               v-for="([name, count], idx) in topBooks"
               :key="name"
-              class="stats-panel__book-item"
-              :style="{ '--book-index': idx }"
+              class="stats-panel__book"
             >
-              <div class="stats-panel__book">
-                <div class="stats-panel__book-info">
-                  <ZenTooltip :text="name" position="top">
-                    <ZenChip
-                      class="stats-panel__book-rank"
-                      variant="accent"
-                      size="sm"
-                      :ariaLabel="t('stats.bookRank', { rank: idx + 1 })"
-                    >
-                      #{{ idx + 1 }}
-                    </ZenChip>
-                  </ZenTooltip>
-                  <span class="stats-panel__book-title">{{ name }}</span>
-                </div>
-                <div class="stats-panel__book-count">
-                  {{ t('stats.times', { count }, count) }}
-                </div>
-              </div>
-            </div>
-            <div v-if="topBooks.length === 0" class="stats-panel__empty-state">
-              {{ t('stats.emptyState') }}
-            </div>
-          </div>
+              <span class="stats-panel__book-rank" aria-hidden="true">{{
+                RANKS[idx]
+              }}</span>
+              <span class="stats-panel__book-title" :title="name">{{
+                name
+              }}</span>
+              <span class="stats-panel__book-count">
+                {{ t('stats.times', { count }, count) }}
+              </span>
+            </li>
+          </ol>
+          <p v-else class="stats-panel__empty-state">
+            {{ t('stats.emptyState') }}
+          </p>
         </div>
       </div>
     </ZenAccordion>
@@ -287,221 +117,104 @@ watch(avgTime, (val, oldVal) => {
 <style scoped lang="scss">
 .stats-panel {
   position: relative;
-  padding: var(--gutenku-space-5);
-  margin-bottom: var(--gutenku-space-4);
+  padding: 1.25rem;
 
   &__content {
     padding-top: 0.5rem;
   }
 
+  // The figures sit on the card itself: groups are parted by ma, not frames
   &__inner {
-    background: var(--gutenku-paper-bg-aged);
-    border-radius: var(--gutenku-radius-sm);
-    box-shadow: 0 1px 2px oklch(0 0 0 / 0.06);
-    border: 1px solid var(--gutenku-paper-border);
-    padding: 0.75rem;
-    margin-bottom: 0.5rem;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin-block: 0.5rem 1rem;
   }
 
+  // A ledger: one figure per line, label left, number right, the same
+  // rhythm as the books list below; three or four figures never leave a gap
   &__metrics-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem 0;
+    gap: 0.375rem;
   }
 
   &__metric {
-    text-align: center;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
   }
 
   &__metric-label {
-    font-size: 0.75rem;
-    color: var(--gutenku-text-muted);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--gk-ink-soft);
   }
 
   &__metric-value {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--gutenku-text-primary);
-    transition:
-      transform 0.2s ease,
-      color 0.2s ease;
-
-    &--pulse {
-      animation: value-pulse 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+    color: var(--gk-ink);
+    font-variant-numeric: tabular-nums;
   }
 
   &__books-section {
-    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: var(--gk-rule-faint);
   }
 
   &__books-header {
-    display: flex;
-    align-items: center;
     font-size: 0.875rem;
-    font-weight: 500;
-    margin-top: 1rem;
-    margin-bottom: 0.5rem;
-    color: var(--gutenku-text-primary);
-  }
-
-  &__books-icon {
-    color: var(--gutenku-zen-primary);
-    margin-right: 0.5rem;
+    font-weight: 700;
+    line-height: 1.4;
+    margin: 0 0 0.5rem;
+    color: var(--gk-ink);
   }
 
   &__books-list {
-    display: flex;
-    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  &__book-item {
-    animation: book-slide-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    animation-delay: calc(600ms + var(--book-index, 0) * 100ms);
-    opacity: 0;
-  }
-
+  // A plain ruled list, numbered like the Sources beside the poem
   &__book {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 4px 0;
-  }
-
-  &__book-info {
-    display: flex;
-    align-items: center;
-    flex: 1;
-    min-width: 0;
+    display: grid;
+    grid-template-columns: 2em minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    font-size: 0.875rem;
+    line-height: 1.4;
   }
 
   &__book-rank {
-    margin-right: 0.5rem;
+    font-weight: 700;
+    color: var(--gk-ink);
   }
 
   &__book-count {
-    font-size: 0.75rem;
-    color: var(--gutenku-text-muted);
+    color: var(--gk-ink-soft);
+    font-variant-numeric: tabular-nums;
     white-space: nowrap;
-    margin-left: 0.5rem;
-    flex-shrink: 0;
   }
 
   &__book-title {
-    display: block;
-    font-size: 0.8rem;
-    line-height: 1.2;
-    color: var(--gutenku-text-primary);
-    letter-spacing: 0.2px;
+    color: var(--gk-ink);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   &__empty-state {
+    margin: 0;
+    padding: 0.75rem 0;
     text-align: center;
-    font-size: 0.75rem;
-    color: var(--gutenku-text-muted);
-  }
-}
-
-@keyframes value-pulse {
-  0% {
-    transform: scale(1);
-    color: inherit;
-  }
-  50% {
-    transform: scale(1.1);
-    color: var(--gutenku-zen-secondary);
-  }
-  100% {
-    transform: scale(1);
-    color: inherit;
-  }
-}
-
-@keyframes book-slide-in {
-  0% {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .stats-panel {
-    &__metric-value--pulse {
-      animation: none;
-    }
-
-    &__book-item {
-      animation: none;
-      opacity: 1;
-    }
-  }
-}
-
-[data-theme='dark'] .stats-panel {
-  &__inner {
-    background: var(--gutenku-paper-bg);
-    border: 1px solid oklch(0.72 0.04 178 / 0.3);
-  }
-
-  &__title,
-  &__books-title,
-  &__book-title,
-  &__metric-value {
-    color: var(--gutenku-text-primary);
-  }
-
-  &__subtitle,
-  &__metric-label,
-  &__book-count,
-  &__empty-state {
-    color: var(--gutenku-text-muted);
-  }
-}
-
-@media (min-width: 769px) {
-  .stats-panel {
-    &--card {
-      margin-bottom: 1.5rem !important;
-    }
-  }
-}
-
-@media (max-width: 768px) {
-  .stats-panel {
-    &--card {
-      padding: 1.25rem !important;
-      margin-bottom: 1.5rem !important;
-    }
-
-    &__content {
-      padding-top: 1rem;
-    }
-
-    &__inner {
-      padding: 1rem !important;
-    }
-
-    &__title {
-      font-size: 0.9rem;
-    }
-
-    &__book-title {
-      font-size: 0.75rem;
-    }
-  }
-
-  [data-theme='dark'] .stats-panel {
-    &__inner {
-      background: var(--gutenku-paper-bg);
-      border: 1px solid oklch(0.72 0.04 178 / 0.3);
-    }
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--gk-ink-soft);
   }
 }
 </style>

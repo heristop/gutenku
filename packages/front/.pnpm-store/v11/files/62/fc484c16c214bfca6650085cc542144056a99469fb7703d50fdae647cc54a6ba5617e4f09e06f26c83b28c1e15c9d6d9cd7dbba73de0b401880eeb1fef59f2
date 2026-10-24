@@ -1,0 +1,844 @@
+// File generated from our OpenAPI spec by Castiron. See CONTRIBUTING.md for details.
+
+import { APIResource } from '../core/resource';
+import { APIPromise } from '../core/api-promise';
+import { ConversationCursorPage, type ConversationCursorPageParams, PagePromise } from '../core/pagination';
+import { type Uploadable } from '../core/uploads';
+import { buildHeaders } from '../internal/headers';
+import { RequestOptions } from '../internal/request-options';
+import { maybeMultipartFormRequestOptions, multipartFormRequestOptions } from '../internal/uploads';
+import { path } from '../internal/utils/path';
+
+function resolveResourceRequestOptions(
+  options: RequestOptions | undefined,
+  buildOptions: (options: RequestOptions | undefined) => RequestOptions | Promise<RequestOptions>,
+): Promise<RequestOptions> {
+  return Promise.resolve(options).then(buildOptions);
+}
+
+function withBodyFinalization<T extends RequestOptions>(
+  options: T,
+  finalization: { streamFromBody?: true; finalizeMultipart?: true },
+): T {
+  return { ...options, __metadata: { ...options.__metadata, ...finalization } };
+}
+
+// Recognizable options across SDK runtime versions. Keep this independent of
+// private RequestOptions fields so older handwritten runtimes still compile.
+const normalizeRequestOptionsForQueryKeys = new Set([
+  'method',
+  'path',
+  'query',
+  'body',
+  'headers',
+  'maxRetries',
+  'stream',
+  'timeout',
+  'httpAgent',
+  'fetchOptions',
+  'signal',
+  'idempotencyKey',
+  'defaultBaseURL',
+  '__metadata',
+  '__binaryRequest',
+  '__binaryResponse',
+  '__streamClass',
+  '__security',
+  '__synthesizeEventData',
+]);
+
+function normalizeRequestOptionsForQuery(
+  value: unknown,
+  queryKeys: ReadonlyArray<string>,
+  options: RequestOptions | undefined,
+):
+  | ({
+      [K in 'headers' | 'maxRetries' | 'timeout' | 'signal' | 'idempotencyKey' | 'query']?: RequestOptions[K];
+    } & {
+      [
+        K in
+          | 'method'
+          | 'path'
+          | 'body'
+          | 'stream'
+          | 'httpAgent'
+          | 'fetchOptions'
+          | 'defaultBaseURL'
+          | '__metadata'
+          | '__binaryRequest'
+          | '__binaryResponse'
+          | '__streamClass'
+          | '__security'
+          | '__synthesizeEventData'
+      ]?: never;
+    })
+  | undefined {
+  if (typeof value !== 'object' || value === null) return undefined;
+  // Optional never fields can still be explicitly undefined unless consumers
+  // enable exactOptionalPropertyTypes. Snapshot data without invoking getters.
+  const entries = Object.entries(Object.getOwnPropertyDescriptors(value)).filter(
+    ([, descriptor]) => descriptor.enumerable && (!('value' in descriptor) || descriptor.value !== undefined),
+  );
+  const keys = entries.map(([key]) => key);
+  const requestOnly = keys.some(
+    (key) => normalizeRequestOptionsForQueryKeys.has(key) && !queryKeys.includes(key),
+  );
+  if (!requestOnly) return undefined;
+  // Declared query fields, including stream, must use the query argument.
+  // Mixing them with request-only options is ambiguous and could change the return type.
+  if (
+    options !== undefined ||
+    keys.some((key) => !normalizeRequestOptionsForQueryKeys.has(key) || queryKeys.includes(key))
+  ) {
+    throw new TypeError('Query parameters and request options must be passed as separate arguments.');
+  }
+  // The query position must not gain authority to change the request destination
+  // or transport. Those overrides require the explicit request options argument.
+  if (
+    keys.some(
+      (key) => !['headers', 'maxRetries', 'timeout', 'signal', 'idempotencyKey', 'query'].includes(key),
+    )
+  ) {
+    throw new TypeError('Pass transport overrides in the explicit request options argument.');
+  }
+  // Copy only the validated fields. Spreading value would reintroduce undefined
+  // transport overrides, and deleting them would mutate the caller's object.
+  return Object.fromEntries(
+    entries.map(([key, descriptor]) => {
+      if ('value' in descriptor) return [key, descriptor.value];
+      return [key, descriptor.get ? Reflect.apply(descriptor.get, value, []) : undefined];
+    }),
+  ) as {
+    [K in 'headers' | 'maxRetries' | 'timeout' | 'signal' | 'idempotencyKey' | 'query']?: RequestOptions[K];
+  } & {
+    [
+      K in
+        | 'method'
+        | 'path'
+        | 'body'
+        | 'stream'
+        | 'httpAgent'
+        | 'fetchOptions'
+        | 'defaultBaseURL'
+        | '__metadata'
+        | '__binaryRequest'
+        | '__binaryResponse'
+        | '__streamClass'
+        | '__security'
+        | '__synthesizeEventData'
+    ]?: never;
+  };
+}
+
+/**
+ * @deprecated The Sora API is scheduled to permanently shut down on September 24, 2026.
+ */
+export class Videos extends APIResource {
+  /**
+   * Create a new video generation job from a prompt and optional reference assets.
+   *
+   * @deprecated The Sora API is scheduled to permanently shut down on September 24, 2026.
+   */
+  create(body: VideoCreateParams, options?: RequestOptions): APIPromise<Video> {
+    return this._client.post(
+      '/videos',
+      resolveResourceRequestOptions(options, (options) =>
+        multipartFormRequestOptions({ body, ...options, __security: { bearerAuth: true } }, this._client),
+      ),
+    );
+  }
+
+  /**
+   * Fetch the latest metadata for a generated video.
+   *
+   * @deprecated The Sora API is scheduled to permanently shut down on September 24, 2026.
+   */
+  retrieve(videoID: string, options?: RequestOptions): APIPromise<Video> {
+    return this._client.get(
+      path`/videos/${videoID}`,
+      resolveResourceRequestOptions(options, (options) => ({ ...options, __security: { bearerAuth: true } })),
+    );
+  }
+
+  /**
+   * List recently generated videos for the current project.
+   *
+   * @deprecated The Sora API is scheduled to permanently shut down on September 24, 2026.
+   */
+  list(
+    query?:
+      | (VideoListParams &
+          (
+            | {
+                [
+                  K in
+                    | 'method'
+                    | 'path'
+                    | 'query'
+                    | 'body'
+                    | 'headers'
+                    | 'maxRetries'
+                    | 'stream'
+                    | 'timeout'
+                    | 'httpAgent'
+                    | 'fetchOptions'
+                    | 'signal'
+                    | 'idempotencyKey'
+                    | 'defaultBaseURL'
+                    | '__metadata'
+                    | '__binaryRequest'
+                    | '__binaryResponse'
+                    | '__streamClass'
+                    | '__security'
+                    | '__synthesizeEventData'
+                ]?: never;
+              }
+            | null
+            | undefined
+          ))
+      | null
+      | undefined,
+    options?: RequestOptions,
+  ): PagePromise<VideosPage, Video>;
+  list(
+    options?: {
+      [K in 'headers' | 'maxRetries' | 'timeout' | 'signal' | 'idempotencyKey' | 'query']?: RequestOptions[K];
+    } & {
+      [
+        K in
+          | 'method'
+          | 'path'
+          | 'body'
+          | 'stream'
+          | 'httpAgent'
+          | 'fetchOptions'
+          | 'defaultBaseURL'
+          | '__metadata'
+          | '__binaryRequest'
+          | '__binaryResponse'
+          | '__streamClass'
+          | '__security'
+          | '__synthesizeEventData'
+      ]?: never;
+    },
+  ): PagePromise<VideosPage, Video>;
+  list(
+    query:
+      | VideoListParams
+      | ({
+          [
+            K in 'headers' | 'maxRetries' | 'timeout' | 'signal' | 'idempotencyKey' | 'query'
+          ]?: RequestOptions[K];
+        } & {
+          [
+            K in
+              | 'method'
+              | 'path'
+              | 'body'
+              | 'stream'
+              | 'httpAgent'
+              | 'fetchOptions'
+              | 'defaultBaseURL'
+              | '__metadata'
+              | '__binaryRequest'
+              | '__binaryResponse'
+              | '__streamClass'
+              | '__security'
+              | '__synthesizeEventData'
+          ]?: never;
+        })
+      | null
+      | undefined = {},
+    options?: RequestOptions,
+  ): PagePromise<VideosPage, Video> {
+    const normalizeRequestOptionsForQueryOptions = normalizeRequestOptionsForQuery(
+      query,
+      ['after', 'limit', 'order'],
+      options,
+    );
+    if (normalizeRequestOptionsForQueryOptions !== undefined) {
+      options = normalizeRequestOptionsForQueryOptions;
+      query = {};
+    }
+    query = query as VideoListParams | null | undefined;
+    return this._client.getAPIList(
+      '/videos',
+      ConversationCursorPage<Video>,
+      resolveResourceRequestOptions(options, (options) => ({
+        query,
+        ...options,
+        __security: { bearerAuth: true },
+      })),
+    );
+  }
+
+  /**
+   * Permanently delete a completed or failed video and its stored assets.
+   *
+   * @deprecated The Sora API is scheduled to permanently shut down on September 24, 2026.
+   */
+  delete(videoID: string, options?: RequestOptions): APIPromise<VideoDeleteResponse> {
+    return this._client.delete(
+      path`/videos/${videoID}`,
+      resolveResourceRequestOptions(options, (options) => ({ ...options, __security: { bearerAuth: true } })),
+    );
+  }
+
+  /**
+   * Create a character from an uploaded video.
+   *
+   * @deprecated The Sora API is scheduled to permanently shut down on September 24, 2026.
+   */
+  createCharacter(
+    body: VideoCreateCharacterParams,
+    options?: RequestOptions,
+  ): APIPromise<VideoCreateCharacterResponse> {
+    return this._client.post(
+      '/videos/characters',
+      resolveResourceRequestOptions(options, (options) =>
+        multipartFormRequestOptions({ body, ...options, __security: { bearerAuth: true } }, this._client),
+      ),
+    );
+  }
+
+  /**
+   * Download the generated video bytes or a derived preview asset.
+   *
+   * Streams the rendered video content for the specified video job.
+   *
+   * @deprecated The Sora API is scheduled to permanently shut down on September 24, 2026.
+   */
+  downloadContent(
+    videoID: string,
+    query?:
+      | (VideoDownloadContentParams &
+          (
+            | {
+                [
+                  K in
+                    | 'method'
+                    | 'path'
+                    | 'query'
+                    | 'body'
+                    | 'headers'
+                    | 'maxRetries'
+                    | 'stream'
+                    | 'timeout'
+                    | 'httpAgent'
+                    | 'fetchOptions'
+                    | 'signal'
+                    | 'idempotencyKey'
+                    | 'defaultBaseURL'
+                    | '__metadata'
+                    | '__binaryRequest'
+                    | '__binaryResponse'
+                    | '__streamClass'
+                    | '__security'
+                    | '__synthesizeEventData'
+                ]?: never;
+              }
+            | null
+            | undefined
+          ))
+      | null
+      | undefined,
+    options?: RequestOptions,
+  ): APIPromise<Response>;
+  downloadContent(
+    videoID: string,
+    options?: {
+      [K in 'headers' | 'maxRetries' | 'timeout' | 'signal' | 'idempotencyKey' | 'query']?: RequestOptions[K];
+    } & {
+      [
+        K in
+          | 'method'
+          | 'path'
+          | 'body'
+          | 'stream'
+          | 'httpAgent'
+          | 'fetchOptions'
+          | 'defaultBaseURL'
+          | '__metadata'
+          | '__binaryRequest'
+          | '__binaryResponse'
+          | '__streamClass'
+          | '__security'
+          | '__synthesizeEventData'
+      ]?: never;
+    },
+  ): APIPromise<Response>;
+  downloadContent(
+    videoID: string,
+    query:
+      | VideoDownloadContentParams
+      | ({
+          [
+            K in 'headers' | 'maxRetries' | 'timeout' | 'signal' | 'idempotencyKey' | 'query'
+          ]?: RequestOptions[K];
+        } & {
+          [
+            K in
+              | 'method'
+              | 'path'
+              | 'body'
+              | 'stream'
+              | 'httpAgent'
+              | 'fetchOptions'
+              | 'defaultBaseURL'
+              | '__metadata'
+              | '__binaryRequest'
+              | '__binaryResponse'
+              | '__streamClass'
+              | '__security'
+              | '__synthesizeEventData'
+          ]?: never;
+        })
+      | null
+      | undefined = {},
+    options?: RequestOptions,
+  ): APIPromise<Response> {
+    const normalizeRequestOptionsForQueryOptions = normalizeRequestOptionsForQuery(
+      query,
+      ['variant'],
+      options,
+    );
+    if (normalizeRequestOptionsForQueryOptions !== undefined) {
+      options = normalizeRequestOptionsForQueryOptions;
+      query = {};
+    }
+    query = query as VideoDownloadContentParams | null | undefined;
+    return this._client.get(
+      path`/videos/${videoID}/content`,
+      resolveResourceRequestOptions(options, (options) => ({
+        query,
+        ...options,
+        headers: buildHeaders([{ Accept: 'application/binary' }, options?.headers]),
+        __security: { bearerAuth: true },
+        __binaryResponse: true,
+      })),
+    );
+  }
+
+  /**
+   * Create a new video generation job by editing a source video or existing
+   * generated video.
+   *
+   * @deprecated The Sora API is scheduled to permanently shut down on September 24, 2026.
+   */
+  edit(body: VideoEditParams, options?: RequestOptions): APIPromise<Video> {
+    return this._client.post(
+      '/videos/edits',
+      resolveResourceRequestOptions(options, (options) =>
+        multipartFormRequestOptions({ body, ...options, __security: { bearerAuth: true } }, this._client),
+      ),
+    );
+  }
+
+  /**
+   * Create an extension of a completed video.
+   *
+   * @deprecated The Sora API is scheduled to permanently shut down on September 24, 2026.
+   */
+  extend(body: VideoExtendParams, options?: RequestOptions): APIPromise<Video> {
+    return this._client.post(
+      '/videos/extensions',
+      resolveResourceRequestOptions(options, (options) =>
+        multipartFormRequestOptions({ body, ...options, __security: { bearerAuth: true } }, this._client),
+      ),
+    );
+  }
+
+  /**
+   * Fetch a character.
+   *
+   * @deprecated The Sora API is scheduled to permanently shut down on September 24, 2026.
+   */
+  getCharacter(characterID: string, options?: RequestOptions): APIPromise<VideoGetCharacterResponse> {
+    return this._client.get(
+      path`/videos/characters/${characterID}`,
+      resolveResourceRequestOptions(options, (options) => ({ ...options, __security: { bearerAuth: true } })),
+    );
+  }
+
+  /**
+   * Create a remix of a completed video using a refreshed prompt.
+   *
+   * @deprecated The Sora API is scheduled to permanently shut down on September 24, 2026.
+   */
+  remix(videoID: string, body: VideoRemixParams, options?: RequestOptions): APIPromise<Video> {
+    return this._client.post(
+      path`/videos/${videoID}/remix`,
+      resolveResourceRequestOptions(options, (options) =>
+        maybeMultipartFormRequestOptions(
+          withBodyFinalization(
+            { body, ...options, __security: { bearerAuth: true } },
+            { finalizeMultipart: true },
+          ),
+          this._client,
+        ),
+      ),
+    );
+  }
+}
+
+export type VideosPage = ConversationCursorPage<Video>;
+
+export interface ImageInputReferenceParam {
+  file_id?: string;
+
+  /**
+   * A fully qualified URL or base64-encoded data URL.
+   */
+  image_url?: string;
+}
+
+/**
+ * Structured information describing a generated video job.
+ */
+export interface Video {
+  /**
+   * Unique identifier for the video job.
+   */
+  id: string;
+
+  /**
+   * Unix timestamp (seconds) for when the job completed, if finished.
+   */
+  completed_at: number | null;
+
+  /**
+   * Unix timestamp (seconds) for when the job was created.
+   */
+  created_at: number;
+
+  /**
+   * Error payload that explains why generation failed, if applicable.
+   */
+  error: VideoCreateError | null;
+
+  /**
+   * Unix timestamp (seconds) for when the downloadable assets expire, if set.
+   */
+  expires_at: number | null;
+
+  /**
+   * The video generation model that produced the job.
+   */
+  model: VideoModel;
+
+  /**
+   * The object type, which is always `video`.
+   */
+  object: 'video';
+
+  /**
+   * Approximate completion percentage for the generation task.
+   */
+  progress: number;
+
+  /**
+   * The prompt that was used to generate the video.
+   */
+  prompt: string | null;
+
+  /**
+   * Identifier of the source video if this video is a remix.
+   */
+  remixed_from_video_id: string | null;
+
+  /**
+   * Duration of the generated clip in seconds. For extensions, this is the stitched
+   * total duration.
+   */
+  seconds: (string & {}) | VideoSeconds;
+
+  /**
+   * The resolution of the generated video.
+   */
+  size: VideoSize;
+
+  /**
+   * Current lifecycle status of the video job.
+   */
+  status: 'queued' | 'in_progress' | 'completed' | 'failed';
+}
+
+/**
+ * An error that occurred while generating the response.
+ */
+export interface VideoCreateError {
+  /**
+   * A machine-readable error code that was returned.
+   */
+  code: string;
+
+  /**
+   * A human-readable description of the error that was returned.
+   */
+  message: string;
+
+  /**
+   * The Retry-After and Retry-After-Ms headers returned with the original error, if
+   * any.
+   */
+  headers?: { [key: string]: string };
+
+  misalignment?: VideoCreateError.Misalignment;
+
+  /**
+   * The request parameter associated with the error, or null if none was recorded.
+   */
+  param?: string | null;
+
+  /**
+   * The original error type, or null if it was not recorded.
+   */
+  type?: string | null;
+}
+
+export namespace VideoCreateError {
+  export interface Misalignment {
+    /**
+     * The public explanation for this block.
+     */
+    detailed_explanation?: string;
+
+    /**
+     * An optional classification; clients must accept additional values.
+     */
+    error_type?:
+      | (string & {})
+      | 'potentially_unintended_data_transfer'
+      | 'potentially_unintended_data_access'
+      | 'potentially_unintended_destructive_activity'
+      | 'other';
+
+    /**
+     * An opaque target for explicitly continuing this review, or null when
+     * unavailable.
+     */
+    review_target?: string | null;
+
+    /**
+     * An optional public continuation instruction.
+     */
+    steer?: Misalignment.Steer;
+  }
+
+  export namespace Misalignment {
+    /**
+     * An optional public continuation instruction.
+     */
+    export interface Steer {
+      /**
+       * The public continuation instruction.
+       */
+      message: string;
+    }
+  }
+}
+
+export type VideoModel =
+  | (string & {})
+  | 'sora-2'
+  | 'sora-2-pro'
+  | 'sora-2-2025-10-06'
+  | 'sora-2-pro-2025-10-06'
+  | 'sora-2-2025-12-08';
+
+export type VideoSeconds = '4' | '8' | '12';
+
+export type VideoSize = '720x1280' | '1280x720' | '1024x1792' | '1792x1024';
+
+/**
+ * Confirmation payload returned after deleting a video.
+ */
+export interface VideoDeleteResponse {
+  /**
+   * Identifier of the deleted video.
+   */
+  id: string;
+
+  /**
+   * Indicates that the video resource was deleted.
+   */
+  deleted: boolean;
+
+  /**
+   * The object type that signals the deletion response.
+   */
+  object: 'video.deleted';
+}
+
+export interface VideoCreateCharacterResponse {
+  /**
+   * Identifier for the character creation cameo.
+   */
+  id: string | null;
+
+  /**
+   * Unix timestamp (in seconds) when the character was created.
+   */
+  created_at: number;
+
+  /**
+   * Display name for the character.
+   */
+  name: string | null;
+}
+
+export interface VideoGetCharacterResponse {
+  /**
+   * Identifier for the character creation cameo.
+   */
+  id: string | null;
+
+  /**
+   * Unix timestamp (in seconds) when the character was created.
+   */
+  created_at: number;
+
+  /**
+   * Display name for the character.
+   */
+  name: string | null;
+}
+
+export interface VideoCreateParams {
+  /**
+   * Text prompt that describes the video to generate.
+   */
+  prompt: string;
+
+  /**
+   * Optional reference asset upload or reference object that guides generation.
+   */
+  input_reference?: Uploadable | ImageInputReferenceParam;
+
+  /**
+   * The video generation model to use (allowed values: sora-2, sora-2-pro). Defaults
+   * to `sora-2`.
+   */
+  model?: VideoModel;
+
+  /**
+   * Clip duration in seconds (allowed values: 4, 8, 12). Defaults to 4 seconds.
+   */
+  seconds?: VideoSeconds;
+
+  /**
+   * Output resolution formatted as width x height (allowed values: 720x1280,
+   * 1280x720, 1024x1792, 1792x1024). Defaults to 720x1280.
+   */
+  size?: VideoSize;
+}
+
+export interface VideoListParams extends ConversationCursorPageParams {
+  /**
+   * Sort order of results by timestamp. Use `asc` for ascending order or `desc` for
+   * descending order.
+   */
+  order?: 'asc' | 'desc';
+}
+
+export interface VideoCreateCharacterParams {
+  /**
+   * Display name for this API character.
+   */
+  name: string;
+
+  /**
+   * Video file used to create a character.
+   */
+  video: Uploadable;
+}
+
+export interface VideoDownloadContentParams {
+  /**
+   * Which downloadable asset to return. Defaults to the MP4 video.
+   */
+  variant?: 'video' | 'thumbnail' | 'spritesheet';
+}
+
+export interface VideoEditParams {
+  /**
+   * Text prompt that describes how to edit the source video.
+   */
+  prompt: string;
+
+  /**
+   * Reference to the completed video to edit.
+   */
+  video: Uploadable | VideoEditParams.VideoReferenceInputParam;
+}
+
+export namespace VideoEditParams {
+  /**
+   * Reference to the completed video to edit.
+   */
+  export interface VideoReferenceInputParam {
+    /**
+     * The identifier of the completed video.
+     */
+    id: string;
+  }
+}
+
+export interface VideoExtendParams {
+  /**
+   * Updated text prompt that directs the extension generation.
+   */
+  prompt: string;
+
+  /**
+   * Length of the newly generated extension segment in seconds (allowed values: 4,
+   * 8, 12, 16, 20).
+   */
+  seconds: VideoSeconds;
+
+  /**
+   * Reference to the completed video to extend.
+   */
+  video: Uploadable | VideoExtendParams.VideoReferenceInputParam;
+}
+
+export namespace VideoExtendParams {
+  /**
+   * Reference to the completed video.
+   */
+  export interface VideoReferenceInputParam {
+    /**
+     * The identifier of the completed video.
+     */
+    id: string;
+  }
+}
+
+export interface VideoRemixParams {
+  /**
+   * Updated text prompt that directs the remix generation.
+   */
+  prompt: string;
+}
+
+export declare namespace Videos {
+  export {
+    type ImageInputReferenceParam as ImageInputReferenceParam,
+    type Video as Video,
+    type VideoCreateError as VideoCreateError,
+    type VideoModel as VideoModel,
+    type VideoSeconds as VideoSeconds,
+    type VideoSize as VideoSize,
+    type VideoDeleteResponse as VideoDeleteResponse,
+    type VideoCreateCharacterResponse as VideoCreateCharacterResponse,
+    type VideoGetCharacterResponse as VideoGetCharacterResponse,
+    type VideosPage as VideosPage,
+    type VideoCreateParams as VideoCreateParams,
+    type VideoListParams as VideoListParams,
+    type VideoCreateCharacterParams as VideoCreateCharacterParams,
+    type VideoDownloadContentParams as VideoDownloadContentParams,
+    type VideoEditParams as VideoEditParams,
+    type VideoExtendParams as VideoExtendParams,
+    type VideoRemixParams as VideoRemixParams,
+  };
+}

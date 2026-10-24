@@ -1,0 +1,1 @@
+import{storeFormat as e,stripBOM as t}from"./_chunks/_format.mjs";import{stripJsonComments as n}from"./_chunks/libs/strip-json-comments.mjs";import{stringifyJSON as r}from"./json.mjs";function i(r,i){let a=JSON.parse(n(t(r),{trailingCommas:i?.allowTrailingComma}));return e(r,a,i),a}function a(e,t){return r(e,t)}export{i as parseJSONC,a as stringifyJSONC};

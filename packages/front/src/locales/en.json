@@ -1,34 +1,26 @@
 {
   "common": {
-    "back": "Back",
-    "backToHome": "Return to home",
     "by": "by",
     "close": "Close",
     "cancel": "Cancel",
-    "clear": "Clear",
     "collapse": "Collapse",
     "expand": "Expand",
     "page": "Page",
-    "refresh": "Refresh",
-    "retry": "Try Again",
-    "retryWithReset": "Reset & Try Again",
+    "retry": "Try again",
     "loading": "Loading...",
     "opensInNewTab": "opens in new tab",
     "swipe": "Swipe",
     "previous": "Previous page",
     "next": "Next page",
-    "skip": "Skip",
-    "pageNavigation": "Page navigation",
-    "tapToDismiss": "Tap to dismiss"
+    "pageNavigation": "Page navigation"
   },
   "nav": {
     "mainNavigation": "Main navigation",
-    "pageNavigation": "Page navigation",
     "home": "Go to home page",
-    "haiku": "Go to GutenKu haiku generator",
+    "haiku": "Go to haiku generator",
     "game": "Go to GutenGuess word game",
     "homeLabel": "Home",
-    "haikuLabel": "GutenKu",
+    "haikuLabel": "Haiku",
     "gameLabel": "GutenGuess",
     "blogLabel": "Blog",
     "blog": "Go to blog"
@@ -36,23 +28,25 @@
   "haiku": {
     "articleLabel": "Generated haiku and source text",
     "controlsLabel": "Haiku controls and settings",
-    "dailyHaiku": "Haiku of the Day"
+    "dailyHaiku": "Haiku of the Day",
+    "poem": {
+      "label": "Haiku",
+      "signature": "cut from {book}, {chapter}",
+      "signatureNoChapter": "cut from {book}",
+      "sources": "Sources",
+      "reveal": "Reveal the book title",
+      "notFound": "Reworded from the chapter."
+    }
   },
   "notFound": {
-    "verse1": "The page you seek",
-    "verse2": "has wandered beyond the scroll—",
-    "verse3": "return to begin.",
-    "returnHome": "Return Home"
+    "returnHome": "Return Home",
+    "title": "Page not found",
+    "spine": "Lost leaf"
   },
   "theme": {
-    "currentLight": "Light mode - click to use system",
-    "currentSystem": "System mode - click for dark",
-    "currentDark": "Dark mode - click for light",
     "switchToLight": "Switch to light mode",
     "switchToDark": "Switch to dark mode",
-    "systemPreference": "Use system theme",
-    "enableSystem": "Use system theme",
-    "disableSystem": "Disable system theme"
+    "enableSystem": "Use system theme"
   },
   "pullToRefresh": {
     "pull": "Pull to refresh",
@@ -63,17 +57,10 @@
     "skipLink": "Skip to main content"
   },
   "footer": {
-    "copyright": "heristop © 2023-{year}",
     "openCredits": "Open credits",
-    "help": "Help & How to Play",
     "ariaLabel": "Site footer",
     "navAriaLabel": "Footer navigation",
     "socialAriaLabel": "Social links",
-    "nav": {
-      "home": "Home",
-      "gutenku": "GutenKu",
-      "gutenguess": "GutenGuess"
-    },
     "social": {
       "instagram": "Instagram",
       "gutenberg": "Gutenberg",
@@ -87,41 +74,19 @@
       "craftedBy": "Crafted by",
       "inspiredBy": "Inspired by",
       "years": "2023-{year}",
-      "github": "GitHub",
       "portfolio": "Portfolio",
-      "githubLabel": "Visit heristop on GitHub (opens in new tab)",
       "portfolioLabel": "Visit heristop portfolio (opens in new tab)",
-      "feedback": "Questions or ideas? Reach out on social media!"
+      "feedback": "Questions or ideas? Reach out on social media!",
+      "description": "Credits and links for GutenKu"
     },
     "accessibility": {
-      "dyslexia": "Dyslexia-friendly",
       "dyslexiaOn": "Disable dyslexia mode",
       "dyslexiaOff": "Enable dyslexia mode"
     }
   },
   "hero": {
     "ariaLabel": "About GutenKu",
-    "description": "Prose becomes poetry. Books become riddles. {gutenverse} distills classics into haikus. {gutenguess} turns your reading into a game.",
-    "welcome": "Welcome to {brand}—powered by Project Gutenberg.",
-    "stats": {
-      "haikusCrafted": "haikus crafted"
-    }
-  },
-  "haikuTitle": {
-    "quotes": {
-      "0": "Where words fail, poetry speaks",
-      "1": "In seventeen syllables, infinite worlds",
-      "2": "Every haiku holds a season of the soul",
-      "3": "Literature breathes life into silence",
-      "4": "From classic books to modern verse"
-    },
-    "theme": {
-      "systemDisableHint": "Disable System Theme to change manually",
-      "switchToLight": "Switch to Light Mode",
-      "switchToDark": "Switch to Dark Mode",
-      "disableSystem": "Disable System Theme",
-      "enableSystem": "Enable System Theme"
-    }
+    "description": "Prose becomes poetry. Books become riddles. {gutenku} distills classics into haikus. {gutenguess} turns your reading into a game."
   },
   "haikuChapter": {
     "ariaLabel": "Book chapter excerpt with highlighted haiku verses",
@@ -134,27 +99,6 @@
     "showCompacted": "Show Compacted View",
     "swipeHint": "Swipe for new haiku",
     "readOnGutenberg": "Read on Gutenberg"
-  },
-  "haikuProcess": {
-    "steps": {
-      "literature": {
-        "title": "Classic Literature",
-        "description": "Source from Project Gutenberg library"
-      },
-      "haiku": {
-        "title": "AI Haiku",
-        "description": "Extract passages as 5-7-5 syllables"
-      },
-      "visual": {
-        "title": "Visual Art",
-        "description": "Create artwork for haiku"
-      }
-    }
-  },
-  "haikuCrafting": {
-    "title": "Crafting Haiku",
-    "progress": "Crafting in progress...",
-    "pageNumber": "— Crafting —"
   },
   "haikuCanvas": {
     "loading": "Crafting...",
@@ -176,30 +120,60 @@
     "converged": "converged",
     "extracting": "Extracting",
     "generateTooltip": "Create a new haiku",
-    "subtitle": "Poetry from books",
+    "iterationPresets": "Iteration presets",
+    "aiText": "AI text",
+    "aiImage": "AI image",
     "iterations": "Iterations",
     "stop": "Stop",
     "stopTooltip": "Stop generation and use best haiku",
     "copyTooltip": "Copy haiku to clipboard",
-    "copySuccess": "Haiku copied to clipboard!",
     "copyError": "Could not copy to clipboard. Please try again.",
     "copiedLabel": "Haiku copied to clipboard",
     "shareTooltip": "Share haiku",
-    "shareSuccess": "Haiku shared!",
     "downloadTooltip": "Download as image",
-    "downloadSuccess": "Image saved!",
+    "downloadSuccess": "Image saved",
     "downloadError": "Could not save image. Please try again.",
     "previousTooltip": "Previous haiku",
     "nextTooltip": "Next haiku",
     "historyLabel": "Haiku history navigation",
+    "copy": "Copy",
+    "copied": "Copied",
+    "share": "Share",
+    "shared": "Shared",
+    "save": "Save",
+    "saveUnavailable": "Craft a haiku with an image to save it",
     "historyPosition": "Haiku {current} of {total}"
+  },
+  "aiKey": {
+    "title": "AI options",
+    "titleActive": "An OpenAI key is saved in this browser",
+    "label": "Your OpenAI key",
+    "check": "Check",
+    "checking": "Checking…",
+    "yourKey": "Your key",
+    "forget": "Forget key",
+    "note": "Kept in this browser only. It is sent with your own crafts so OpenAI can be called for you, and billed to your account; we never store it.",
+    "getKey": "Get a key",
+    "pricing": "Pricing",
+    "status": {
+      "malformed": "That doesn't look like an OpenAI key (it starts with sk-).",
+      "invalid": "OpenAI didn't accept this key.",
+      "unavailable": "Couldn't reach OpenAI. Try again in a moment."
+    },
+    "errors": {
+      "invalid_key": "OpenAI rejected your key: the haiku was crafted without AI. Check or replace your key.",
+      "no_quota": "Your OpenAI account has no credit left: the haiku was crafted without AI.",
+      "unavailable": "OpenAI didn't answer: the haiku was crafted without AI. Try again in a moment."
+    },
+    "show": "Show key",
+    "hide": "Hide key",
+    "accepted": "Key accepted. AI is on."
   },
   "scoring": {
     "title": "Quality Score",
     "subtitle": "Haiku analysis",
     "viewDetails": "View details",
     "total": "Overall",
-    "executionTime": "Generation time",
     "categories": {
       "language": "Language",
       "flow": "Flow",
@@ -228,76 +202,19 @@
   },
   "stats": {
     "title": "Your Statistics",
-    "subtitle": "Generation history",
     "ariaLabel": "Statistics, toggle to expand",
-    "haikusGenerated": "{count} haiku created | {count} haikus created",
-    "you": "You",
-    "global": "Global",
     "metrics": {
       "haikuForged": "Haikus created",
       "booksBrowsed": "Books used",
       "dailyViews": "Daily views",
       "avgTime": "Avg time"
     },
-    "cacheUsage": "Cache usage",
     "topBooks": "Most used books",
     "times": "{count} time | {count} times",
-    "bookRank": "Rank {rank}",
-    "emptyState": "No haikus created yet",
-    "tableHeaders": {
-      "rank": "Rank",
-      "book": "Book Title",
-      "count": "Times Used"
-    }
-  },
-  "config": {
-    "title": "Configuration",
-    "subtitle": "Adjust haiku creation settings",
-    "ariaLabel": "Configuration, toggle to expand",
-    "generateTooltip": "Create with current settings",
-    "stopTooltip": "Stop generation and use best haiku",
-    "resetTooltip": "Reset to defaults",
-    "advancedTooltip": "Adjust generation filters",
-    "showAdvanced": "Show advanced",
-    "hideAdvanced": "Hide advanced",
-    "sliderValue": "{label}: {value}",
-    "generating": "Crafting",
-    "filters": {
-      "iterations": "Iterations"
-    }
-  },
-  "social": {
-    "ariaLabel": "About GutenKu",
-    "linksAriaLabel": "Social links",
-    "description": "<strong>GutenKu</strong> is a haiku generator that uses books from <span class=\"visually-hidden\">the</span> Project Gutenberg library to extract quotes and create <strong>5</strong>-<strong>7</strong>-<strong>5</strong> haiku",
-    "links": {
-      "instagram": {
-        "name": "Instagram",
-        "label": "See published haikus on Instagram"
-      },
-      "gutenberg": {
-        "name": "Gutenberg",
-        "label": "Visit Project Gutenberg website"
-      },
-      "github": {
-        "name": "GitHub",
-        "label": "View source code on GitHub"
-      }
-    }
+    "emptyState": "No haikus created yet"
   },
   "home": {
-    "tagline": "Haiku from classic literature",
-    "haikusCrafted": "{count} haikus crafted",
-    "gamesPlayed": "{count} games",
-    "winRate": "{rate}% solved",
-    "todayHaikusCrafted": "{count} haikus crafted today",
-    "weekHaikusCrafted": "{count} haikus crafted this week",
-    "todayWinRate": "{rate}% solved today",
-    "todayAvgHints": "hints {avg}%",
-    "weekWinRate": "{rate}% solved",
-    "weekAvgHints": "hints {avg}%",
-    "networkError": "Cannot connect to the server :(",
-    "haikuReady": "Haiku ready",
+    "networkError": "The library is closed for a moment.",
     "readyMessage": "Ready to create poetry",
     "haikuContentLabel": "Haiku content",
     "loadingMessages": {
@@ -308,73 +225,59 @@
       "4": "Selecting aesthetic theme...",
       "5": "Crafting haiku artwork...",
       "6": "Finalizing your haiku..."
-    }
-  },
-  "loadingMessages": {
-    "default": {
-      "0": "Searching classic literature...",
-      "1": "Scanning book passages...",
-      "2": "Analyzing text sentiment...",
-      "3": "Composing seventeen syllables...",
-      "4": "Selecting aesthetic theme...",
-      "5": "Crafting haiku artwork...",
-      "6": "Finalizing your haiku...",
-      "7": "Processing seasonal imagery...",
-      "8": "Counting syllables: 5-7-5...",
-      "9": "Loading text sources...",
-      "10": "Fetching from Gutenberg library...",
-      "11": "Parsing chapter content...",
-      "12": "Assembling verse structure...",
-      "13": "Filtering word candidates...",
-      "14": "Validating syllable count...",
-      "15": "Refining line breaks...",
-      "16": "Checking haiku constraints...",
-      "17": "Formatting output...",
-      "18": "Building verse sequence...",
-      "19": "Analyzing word patterns...",
-      "20": "Applying kireji placement...",
-      "21": "Rendering in browser...",
-      "22": "Calculating spacing...",
-      "23": "Loading audio assets...",
-      "24": "Processing text grammar...",
-      "25": "Accessing public domain texts...",
-      "26": "Selecting imagery...",
-      "27": "Indexing source material...",
-      "28": "Processing language patterns...",
-      "29": "Adjusting punctuation...",
-      "30": "Structuring stanzas...",
-      "31": "Converting text to verses...",
-      "32": "Selecting vocabulary...",
-      "33": "Normalizing metaphors...",
-      "34": "Capturing text fragments..."
     },
-    "craft": {
-      "0": "Crafting your haiku...",
-      "1": "Assembling syllables...",
-      "2": "Processing imagery...",
-      "3": "Analyzing source text...",
-      "4": "Building verse rhythm...",
-      "5": "Formatting lines...",
-      "6": "Positioning elements...",
-      "7": "Adding line breaks...",
-      "8": "Structuring verses...",
-      "9": "Placing word pauses...",
-      "10": "Formatting stanzas...",
-      "11": "Counting syllables...",
-      "12": "Adjusting word weight...",
-      "13": "Referencing haiku rules...",
-      "14": "Applying punctuation...",
-      "15": "Finalizing structure..."
+    "hero": {
+      "colophonCount": "{count} haiku cut from Project Gutenberg since 2023.",
+      "colophon": "Haiku cut from Project Gutenberg since 2023.",
+      "headline": "Old books,{br}new {haiku}.",
+      "headlineHaiku": "haiku",
+      "write": "Write a haiku",
+      "play": "Play GutenGuess",
+      "playNumber": "Play No. {number}"
+    },
+    "daily": {
+      "label": "Today's haiku",
+      "loading": "Opening today's page…",
+      "empty": "Today's haiku is still being cut. Write your own meanwhile.",
+      "readMore": "Read the whole reading",
+      "readLess": "Show less",
+      "trace": "Trace the source",
+      "lifted": "Each line is lifted from a public-domain book.",
+      "bookmoji": "Bookmoji hint",
+      "source": "Today's verses come from {book}, {author}.",
+      "nextInHours": "Next haiku in {hours} h",
+      "nextInMinutes": "Next haiku in {minutes} min",
+      "nextSoon": "A new haiku is on its way",
+      "nextDaily": "A new haiku each day",
+      "labelPast": "Haiku of {date}",
+      "labelDay": "Haiku of the day",
+      "sourcePast": "These verses come from {book}, {author}.",
+      "backToToday": "Back to today",
+      "failed": "This haiku didn't load.",
+      "retry": "Try again",
+      "missing": "No haiku was recorded on this day.",
+      "nav": {
+        "label": "Browse past haiku",
+        "previous": "Previous haiku, {date}",
+        "previousNone": "No earlier haiku",
+        "next": "Next haiku, {date}",
+        "nextNone": "No later haiku"
+      }
+    },
+    "gameEntry": {
+      "description": "Guess today's classic from its clues.",
+      "numberLabel": "Puzzle No. {number}"
     }
   },
   "pwa": {
     "bannerLabel": "App installation prompt",
-    "installPrompt": "Install GutenVerse",
-    "addToHomeScreen": "Add GutenVerse to Home Screen",
-    "installSubtitle": "Quick access to haiku & games",
+    "installPrompt": "Install GutenKu",
+    "pitch": "Daily haiku and GutenGuess, one tap from your home screen.",
     "install": "Install",
-    "installButton": "Install GutenVerse app",
-    "iosModalTitle": "Install GutenVerse",
+    "notNow": "Not now",
+    "neverAsk": "Don't ask again",
+    "installButton": "Install GutenKu app",
+    "iosModalTitle": "Install GutenKu",
     "iosModalDescription": "Add to your home screen for the best experience",
     "iosStep1Title": "Tap the Share button",
     "iosStep1Desc": "Find it in your Safari toolbar at the bottom",
@@ -407,10 +310,23 @@
     "minRead": "{min} min read",
     "newerArticle": "Newer",
     "olderArticle": "Older",
-    "readArticle": "Read article",
     "notFound": "Article Not Found",
     "notFoundDescription": "The article you're looking for doesn't exist.",
     "rss": "Subscribe",
-    "keyboardNavHint": "Use ← → to navigate"
+    "keyboardNavHint": "Use {prev} {next} to navigate",
+    "keyPrev": "Left arrow",
+    "keyNext": "Right arrow",
+    "issue": "Issue {number}",
+    "empty": "No articles yet. The first entry is still being typed.",
+    "articleNav": "More articles",
+    "backToTop": "Back to top",
+    "shareLabel": "Share this article",
+    "shareOn": "Share on {network}",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied",
+    "copyFailed": "Could not copy the link. Copy it from the address bar.",
+    "tocTitle": "Contents",
+    "tocLabel": "Table of contents",
+    "tocCount": "{count} sections"
   }
 }

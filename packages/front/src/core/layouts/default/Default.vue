@@ -2,24 +2,18 @@
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useHead } from '@unhead/vue';
-import { useMediaQuery } from '@vueuse/core';
 import DefaultView from './View.vue';
 import ZenToast from '@/core/components/ui/ZenToast.vue';
-import ThemeToggle from '@/core/components/ThemeToggle.vue';
 import AppFooter from '@/core/components/AppFooter.vue';
 import InkBrushNav from '@/core/components/ui/InkBrushNav.vue';
+import InkSpine from '@/core/components/ui/InkSpine.vue';
+import InkLoadingIndicator from '@/core/components/ui/InkLoadingIndicator.vue';
 import { useLocaleSeo } from '@/core/composables/locale-seo';
 import { SITE_URL } from '@/locales/config';
 
 const route = useRoute();
 const { hreflangLinks, ogLocale, ogLocaleAlternates, htmlLang } =
   useLocaleSeo();
-
-const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
-const isMobile = useMediaQuery('(max-width: 767px)');
-const showParticles = computed(
-  () => !prefersReducedMotion.value && !isMobile.value,
-);
 
 function skipToMain(): void {
   const targets = [
@@ -57,13 +51,15 @@ useHead({
     ];
 
     if (shouldPreloadHeroImage.value) {
+      // Must mirror the frontispiece <img> in Home.vue (srcset and sizes):
+      // a preload that picks another candidate is fetched for nothing and
+      // the image is downloaded twice.
       links.push({
         rel: 'preload',
         as: 'image',
-        href: '/gutenmage-640.webp',
-        imagesrcset:
-          '/gutenmage-320.webp 320w, /gutenmage-640.webp 640w, /gutenmage-1024.webp 1024w',
-        imagesizes: '(max-width: 600px) 240px, (max-width: 768px) 280px, 320px',
+        href: '/gutenmage-320.webp',
+        imagesrcset: '/gutenmage-320.webp 320w, /gutenmage-640.webp 640w',
+        imagesizes: '(max-width: 600px) 170px, 330px',
       });
     }
 
@@ -129,46 +125,22 @@ useHead({
 <template>
   <div class="gutenku-app">
     <div class="gutenku-app__wrap">
-      <ZenToast />
-      <header role="banner" class="site-header">
-        <ThemeToggle />
-      </header>
-      <div class="light-beam-overlay" aria-hidden="true" />
-
-      <!-- Floating particles (disabled on mobile and reduced motion) -->
-      <div v-if="showParticles" class="floating-particles" aria-hidden="true">
-        <div class="floating-particles__particle" />
-        <div class="floating-particles__particle" />
-        <div class="floating-particles__particle" />
-        <div class="floating-particles__particle" />
-        <div class="floating-particles__particle" />
-        <div class="floating-particles__particle" />
-        <div class="floating-particles__particle" />
-        <div class="floating-particles__particle" />
-      </div>
-
       <a href="#main-content" class="skip-link" @click.prevent="skipToMain">
         {{ $t('layout.skipLink') }}
       </a>
-      <InkBrushNav />
+      <ZenToast />
+      <InkSpine />
+      <InkLoadingIndicator />
+      <header role="banner" class="site-header">
+        <InkBrushNav />
+      </header>
       <default-view />
-      <footer role="contentinfo">
-        <AppFooter />
-      </footer>
+      <AppFooter />
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.floating-particles {
-  contain: strict;
-  content-visibility: auto;
-}
-
-.light-beam-overlay {
-  contain: strict;
-}
-
 .gutenku-app__wrap {
   min-height: 100vh;
   min-height: 100dvh;
@@ -176,22 +148,25 @@ useHead({
   flex-direction: column;
   background-color: var(--gutenku-app-bg);
   background-image: var(--gutenku-app-bg-image);
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
+  background-size: 240px 240px;
+  background-repeat: repeat;
   // Safe area padding for landscape orientation (notch sides)
   // Top safe area is handled directly by InkBrushNav component
   padding-left: var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
   padding-right: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
+
+  // Reserve the left margin for the spine so it never covers content
+  @media (min-width: 1024px) {
+    padding-left: calc(
+      var(--safe-area-inset-left, env(safe-area-inset-left, 0px)) +
+        var(--gk-spine-width)
+    );
+  }
 }
 
 .site-header {
-  position: fixed;
-  top: 0;
-  right: 0;
-  z-index: 1000;
-  display: contents;
+  position: relative;
+  z-index: 10;
 }
 
 .skip-link {
@@ -201,17 +176,24 @@ useHead({
   transform: translateX(-50%);
   z-index: 9999;
   padding: 0.75rem 1.5rem;
-  background: var(--gutenku-zen-primary);
-  color: #fff;
+  background: var(--gk-indigo);
+  color: var(--gk-on-indigo);
+  font-family: var(--gk-font);
+  font-weight: 700;
   text-decoration: none;
-  border-radius: 0 0 8px 8px;
-  font-weight: 500;
-  transition: top 0.2s ease;
+  border-radius: 0 0 var(--gk-radius-control) var(--gk-radius-control);
+  transition: top var(--gk-dur-fast) var(--gk-ease-out);
 
   &:focus {
     top: 0;
-    outline: 2px solid var(--gutenku-focus-ring);
+    outline: 2px solid var(--gk-indigo);
     outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skip-link {
+    transition: none;
   }
 }
 </style>

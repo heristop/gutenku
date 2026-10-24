@@ -1,4 +1,5 @@
 import '@/assets/css/main.scss';
+import '@/assets/css/exlibris.scss';
 import App from './App.vue';
 import { ViteSSG } from 'vite-ssg';
 import urql from '@urql/vue';
@@ -6,9 +7,8 @@ import { urqlClient } from './client';
 import { MotionPlugin } from '@vueuse/motion';
 import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
-import i18n from '@/locales';
+import i18n, { globalLocale, loadLocaleMessages } from '@/locales';
 import { routes } from '@/router';
-import { loadFonts } from '@/core/plugins/webfontloader';
 import { isNative } from '@/utils/capacitor';
 
 export const createApp = ViteSSG(
@@ -17,7 +17,7 @@ export const createApp = ViteSSG(
     routes,
     base: import.meta.env.BASE_URL,
   },
-  ({ app, isClient, initialState }) => {
+  async ({ app, isClient, initialState }) => {
     // GraphQL - client only (requires network)
     if (isClient) {
       app.use(urql, urqlClient);
@@ -72,9 +72,6 @@ export const createApp = ViteSSG(
           },
         },
       });
-
-      // Load fonts on client
-      loadFonts();
 
       // Register service worker with auto-reload on update
       // SSR guard required for Rollup tree-shaking during SSR builds
@@ -135,6 +132,14 @@ export const createApp = ViteSSG(
         getSSRProps() {
           return {};
         },
+      });
+    }
+
+    // A stored non-English locale is fetched before mount, so the first
+    // client render is already in the reader's language.
+    if (isClient) {
+      await loadLocaleMessages(globalLocale.value).catch(() => {
+        // Chunk unavailable (offline, first visit): English fallback.
       });
     }
 

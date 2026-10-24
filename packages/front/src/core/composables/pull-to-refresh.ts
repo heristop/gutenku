@@ -57,7 +57,6 @@ export function usePullToRefresh(
 
   const { vibrate, isSupported: vibrationSupported } = useVibrate({
     pattern: [20],
-    interval: 0,
   });
 
   const progress = computed(() =>

@@ -1,148 +1,20 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import { useRoute, RouterLink } from 'vue-router';
-import {
-  Leaf,
-  Lightbulb,
-  Sun,
-  Moon,
-  Monitor,
-  ALargeSmall,
-  Feather,
-} from '@lucide/vue';
-import ToriiIcon from '@/core/components/icons/ToriiIcon.vue';
-import { withViewTransition } from '@/core/composables/view-transition';
 import { useI18n } from 'vue-i18n';
-import { GAME_ENABLED } from '@/features/game';
-import { useLocale } from '@/core/composables/locale';
-import { useTheme } from '@/core/composables/theme';
-import { useAccessibility } from '@/core/composables/accessibility';
+import BrandMark from '@/core/components/ink/BrandMark.vue';
+import InkPrefs from '@/core/components/ui/InkPrefs.vue';
+import { useSitePages } from '@/core/composables/site-pages';
 
 const route = useRoute();
 const { t } = useI18n();
-const { currentLocale, availableLocales, setLocale, getLocaleLabel } =
-  useLocale();
-const {
-  isDarkMode,
-  systemPreferenceEnabled,
-  saveSystemPreferenceEnabled,
-  setTheme,
-} = useTheme();
-const { dyslexiaEnabled, toggleDyslexia } = useAccessibility();
-
-// Theme cycling (mobile): light → dark → system
-type ThemeState = 'light' | 'dark' | 'system';
-const currentThemeState = computed<ThemeState>(() => {
-  if (systemPreferenceEnabled.value) {
-    return 'system';
-  }
-
-  return isDarkMode.value ? 'dark' : 'light';
-});
-
-function cycleTheme() {
-  switch (currentThemeState.value) {
-    case 'light':
-      saveSystemPreferenceEnabled(false);
-      setTheme('dark');
-      break;
-    case 'dark':
-      saveSystemPreferenceEnabled(true);
-      setTheme('auto');
-      break;
-    case 'system':
-      saveSystemPreferenceEnabled(false);
-      setTheme('light');
-      break;
-  }
-}
-
-const themeTooltip = computed(() => {
-  switch (currentThemeState.value) {
-    case 'light':
-      return t('theme.switchToDark');
-    case 'dark':
-      return t('theme.enableSystem');
-    case 'system':
-      return t('theme.switchToLight');
-    default:
-      return '';
-  }
-});
-
-const dyslexiaTooltip = computed(() =>
-  dyslexiaEnabled.value
-    ? t('footer.accessibility.dyslexiaOn')
-    : t('footer.accessibility.dyslexiaOff'),
-);
-
-function handleLocaleChange(event: Event) {
-  const target = event.target as HTMLSelectElement;
-  setLocale(target.value as typeof currentLocale.value);
-}
-
-const navItems = computed(() => [
-  {
-    labelKey: 'nav.homeLabel',
-    to: '/',
-    icon: ToriiIcon,
-    transitionName: 'nav-icon-home',
-    ariaLabel: 'nav.home',
-  },
-  ...(GAME_ENABLED
-    ? [
-        {
-          labelKey: 'nav.gameLabel',
-          to: '/game',
-          icon: Lightbulb,
-          transitionName: 'nav-icon-game',
-          ariaLabel: 'nav.game',
-        },
-      ]
-    : []),
-  {
-    labelKey: 'nav.haikuLabel',
-    to: '/haiku',
-    icon: Leaf,
-    transitionName: 'nav-icon-haiku',
-    ariaLabel: 'nav.haiku',
-  },
-  {
-    labelKey: 'nav.blogLabel',
-    to: '/blog',
-    icon: Feather,
-    transitionName: 'nav-icon-blog',
-    ariaLabel: 'nav.blog',
-  },
-]);
-
-const isActive = (path: string) => {
-  if (path === '/') {
-    return route.path === '/';
-  }
-
-  return route.path === path || route.path.startsWith(path + '/');
-};
+const { pages, isActive } = useSitePages();
 
 // Pages that have their own h1: /blog, /blog/:slug, /game
 // Pages without h1 (logo becomes h1): /, /haiku
 const pageHasOwnH1 = computed(
   () => route.path.startsWith('/blog') || route.path.startsWith('/game'),
 );
-
-// Track hover state
-const hoveredItem = ref<string | null>(null);
-
-// Track click state for feedback
-const clickedItem = ref<string | null>(null);
-
-function handleMouseEnter(to: string) {
-  hoveredItem.value = to;
-}
-
-function handleMouseLeave() {
-  hoveredItem.value = null;
-}
 
 function handleClick(event: MouseEvent, to: string, navigate: () => void) {
   // Leave modified clicks to the browser so "open in new tab" keeps working.
@@ -159,357 +31,159 @@ function handleClick(event: MouseEvent, to: string, navigate: () => void) {
 
   event.preventDefault();
 
-  // If already on this page, don't navigate
   if (isActive(to)) {
     return;
   }
 
-  // Visual click feedback
-  clickedItem.value = to;
-
-  // Navigate with view transition. `navigate` comes from RouterLink's custom
-  // slot: the link no longer routes on its own, so this is the only navigation
-  // and the route resolves once per click.
-  withViewTransition(() => {
-    navigate();
-  });
-
-  setTimeout(() => {
-    clickedItem.value = null;
-  }, 150);
+  // `navigate` comes from RouterLink's custom slot: the link no longer routes
+  // on its own, so this is the only navigation. The layout's router guard
+  // wraps it in the page transition (core/layouts/default/View.vue).
+  navigate();
 }
 </script>
 
 <template>
   <nav class="ink-nav" :aria-label="t('nav.mainNavigation')">
     <RouterLink to="/" class="ink-nav__logo" aria-label="GutenKu Home">
+      <BrandMark :size="32" class="ink-nav__seal" />
       <component :is="pageHasOwnH1 ? 'span' : 'h1'" class="ink-nav__logo-text">
         <span class="ink-nav__logo-prefix">Guten</span
-        ><span class="ink-nav__logo-suffix">Verse</span>
+        ><i class="ink-nav__logo-suffix">Ku</i>
       </component>
     </RouterLink>
+
     <ul class="ink-nav__container">
-      <li v-for="item in navItems" :key="item.to" class="ink-nav__list-item">
-        <RouterLink v-slot="{ href, navigate }" :to="item.to" custom>
+      <li v-for="page in pages" :key="page.to" class="ink-nav__list-item">
+        <RouterLink v-slot="{ href, navigate }" :to="page.to" custom>
           <a
             :href="href"
             class="ink-nav__item"
-            :class="{
-              'ink-nav__item--active': isActive(item.to),
-              'ink-nav__item--hovered': hoveredItem === item.to,
-              'ink-nav__item--clicked': clickedItem === item.to,
-            }"
-            :aria-current="isActive(item.to) ? 'page' : undefined"
-            :aria-label="t(item.ariaLabel)"
-            @mouseenter="handleMouseEnter(item.to)"
-            @mouseleave="handleMouseLeave"
-            @click="handleClick($event, item.to, navigate)"
+            :class="{ 'ink-nav__item--active': isActive(page.to) }"
+            :aria-current="isActive(page.to) ? 'page' : undefined"
+            :aria-label="t(page.ariaLabelKey)"
+            @click="handleClick($event, page.to, navigate)"
           >
+            <sup class="ink-nav__numeral" aria-hidden="true">{{
+              page.numeral
+            }}</sup>
+            <span class="ink-nav__label">{{ t(page.labelKey) }}</span>
             <span
-              class="ink-nav__icon-wrapper"
-              :style="{ viewTransitionName: item.transitionName }"
+              v-if="isActive(page.to)"
+              class="ink-nav__mark"
               aria-hidden="true"
-            >
-              <svg
-                v-if="isActive(item.to)"
-                class="ink-nav__enso"
-                viewBox="0 0 50 50"
-                aria-hidden="true"
-              >
-                <circle cx="25" cy="25" r="22" />
-              </svg>
-              <component :is="item.icon" :size="20" class="ink-nav__icon" />
-            </span>
-            <span class="ink-nav__label">{{ t(item.labelKey) }}</span>
+            />
           </a>
         </RouterLink>
       </li>
     </ul>
-    <!-- Mobile toggles row: Theme, Locale, A11y -->
-    <div class="ink-nav__toggles">
-      <!-- Theme toggle -->
-      <button
-        type="button"
-        class="ink-nav__toggle-btn"
-        :aria-label="themeTooltip"
-        @click="cycleTheme"
-      >
-        <Transition name="theme-icon" mode="out-in">
-          <Sun
-            v-if="currentThemeState === 'light'"
-            key="sun"
-            :size="18"
-            :stroke-width="1.5"
-          />
-          <Moon
-            v-else-if="currentThemeState === 'dark'"
-            key="moon"
-            :size="18"
-            :stroke-width="1.5"
-          />
-          <Monitor v-else key="monitor" :size="18" :stroke-width="1.5" />
-        </Transition>
-      </button>
 
-      <!-- Locale toggle -->
-      <div class="ink-nav__locale-wrapper">
-        <span class="ink-nav__locale-code" aria-hidden="true">
-          {{ currentLocale.toUpperCase() }}
-        </span>
-        <select
-          :value="currentLocale"
-          class="ink-nav__locale-select"
-          :aria-label="t('locale.switch')"
-          @change="handleLocaleChange"
-        >
-          <option
-            v-for="locale in availableLocales"
-            :key="locale"
-            :value="locale"
-          >
-            {{ getLocaleLabel(locale) }}
-          </option>
-        </select>
-      </div>
-
-      <!-- Accessibility toggle -->
-      <button
-        type="button"
-        class="ink-nav__toggle-btn"
-        :class="{ 'ink-nav__toggle-btn--active': dyslexiaEnabled }"
-        :aria-label="dyslexiaTooltip"
-        :aria-pressed="dyslexiaEnabled"
-        @click="toggleDyslexia"
-      >
-        <ALargeSmall :size="18" :stroke-width="1.5" />
-      </button>
-    </div>
+    <InkPrefs class="ink-nav__toggles" />
   </nav>
 </template>
 
 <style lang="scss" scoped>
 /* stylelint-disable scss/operator-no-newline-after */
+// Ex Libris: the nav is a typed table of contents. Roman numerals, plain ink
+// links, and one stroke of vermilion under the page you are on.
 .ink-nav {
   position: relative;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'logo prefs'
+    'links links';
   align-items: center;
-  gap: 1.25rem;
-  padding: 1rem 0.5rem 1.25rem;
-  // Use native safe area when available (iOS Capacitor), fallback to env(), then 0
+  gap: 0.5rem 1rem;
+  padding: 0.75rem 1rem 0.25rem;
   padding-top: calc(
     var(
         --native-safe-area-top,
         var(--safe-area-inset-top, env(safe-area-inset-top, 0px))
       ) +
-      1rem
+      0.75rem
   );
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
+  border-bottom: var(--gk-rule-faint);
+  font-family: var(--gk-font);
 
-  // Small mobile (< 375px)
-  @media (min-width: 375px) {
-    gap: 1.5rem;
-    padding: 1.25rem 1rem 1.5rem;
+  @media (min-width: 768px) {
+    display: flex;
+    gap: 1.75rem;
+    padding: 1rem 1.75rem;
     padding-top: calc(
       var(
           --native-safe-area-top,
           var(--safe-area-inset-top, env(safe-area-inset-top, 0px))
         ) +
-        1.25rem
+        1rem
     );
-    margin-bottom: 0.75rem;
-  }
-
-  // Desktop - back to single row (960px+)
-  @media (min-width: 960px) {
-    display: block;
-    padding: 1.5rem 1rem 1.75rem;
-    padding-top: calc(
-      var(
-          --native-safe-area-top,
-          var(--safe-area-inset-top, env(safe-area-inset-top, 0px))
-        ) +
-        1.5rem
-    );
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  // Capacitor native apps - no margin top needed
-  [data-platform='ios'] &,
-  [data-platform='android'] & {
-    margin-top: 0;
   }
 
   // Landscape orientation - no safe area padding
   @media (orientation: landscape) {
-    padding-top: 1rem;
+    padding-top: 0.75rem;
 
-    @media (min-width: 375px) {
-      padding-top: 1.25rem;
-    }
-
-    @media (min-width: 960px) {
-      padding-top: 1.5rem;
+    @media (min-width: 768px) {
+      padding-top: 1rem;
     }
   }
 
   &__logo {
-    position: relative;
-    display: flex;
+    grid-area: logo;
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    z-index: 10;
+    gap: 0.625rem;
+    min-height: 2.75rem;
+    width: fit-content;
+    color: var(--gk-ink);
     text-decoration: none;
-    margin-bottom: 0.5rem;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 
-    &:hover {
-      transform: scale(1.05);
+    @media (min-width: 768px) {
+      margin-right: auto;
     }
 
     &:focus-visible {
-      outline: 2px solid var(--gutenku-focus-ring);
+      outline: 2px solid var(--gk-indigo);
       outline-offset: 4px;
-      border-radius: var(--gutenku-radius-sm);
-    }
-
-    // Desktop - absolute position to left
-    @media (min-width: 960px) {
-      position: absolute;
-      left: 1.5rem;
-      top: 0.5rem;
-      margin-bottom: 0;
+      border-radius: var(--gk-radius-control);
     }
   }
 
   &__logo-text {
-    // Reset h1 defaults
     margin: 0;
     padding: 0;
-    font-size: 1.15rem;
-    font-weight: normal;
-    letter-spacing: 0.04em;
+    font-size: 1.25rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
     line-height: 1;
-    position: relative;
-    display: inline-flex;
     white-space: nowrap;
 
-    // Subtle ink wash underline
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 100%;
-      height: 1.5px;
-      background: linear-gradient(
-        90deg,
-        transparent 0%,
-        var(--gutenku-zen-primary) 15%,
-        var(--gutenku-zen-accent) 85%,
-        transparent 100%
-      );
-      opacity: 0.4;
-      transform: scaleX(0.7);
-      transform-origin: left;
-      transition:
-        transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-        opacity 0.3s ease;
+    @media (min-width: 768px) {
+      font-size: 1.375rem;
     }
-
-    // Small mobile (320px+)
-    @media (min-width: 320px) {
-      font-size: 1.2rem;
-    }
-
-    // Medium mobile (375px+)
-    @media (min-width: 375px) {
-      font-size: 1.25rem;
-
-      &::after {
-        height: 2px;
-      }
-    }
-
-    // Large mobile (425px+)
-    @media (min-width: 425px) {
-      font-size: 1.3rem;
-    }
-
-    // Desktop (960px+)
-    @media (min-width: 960px) {
-      font-size: 1.35rem;
-    }
-  }
-
-  &__logo-prefix {
-    font-weight: 400;
-    color: var(--gutenku-zen-primary);
-    text-shadow: 0 1px 2px oklch(0 0 0 / 0.1);
-    transition:
-      color 0.3s ease,
-      text-shadow 0.3s ease;
   }
 
   &__logo-suffix {
-    font-weight: 300;
     font-style: italic;
-    color: var(--gutenku-zen-secondary);
-    text-shadow: 0 1px 2px oklch(0 0 0 / 0.08);
-    transition:
-      color 0.3s ease,
-      text-shadow 0.3s ease;
-  }
-
-  &__logo:hover &__logo-text {
-    &::after {
-      transform: scaleX(1);
-      opacity: 0.7;
-    }
-  }
-
-  &__logo:hover &__logo-prefix {
-    text-shadow:
-      0 1px 2px oklch(0 0 0 / 0.1),
-      0 0 10px oklch(0.45 0.1 195 / 0.25);
-  }
-
-  &__logo:hover &__logo-suffix {
-    text-shadow:
-      0 1px 2px oklch(0 0 0 / 0.08),
-      0 0 12px oklch(0.6 0.08 175 / 0.3);
+    color: var(--gk-ink-soft);
   }
 
   &__container {
+    grid-area: links;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.25rem 1rem;
     margin: 0;
     padding: 0;
     list-style: none;
-    width: 100%;
 
-    // Small mobile (320px+)
-    @media (min-width: 320px) {
-      gap: 0.75rem;
-    }
-
-    // Medium mobile (375px+)
-    @media (min-width: 375px) {
-      gap: 1.25rem;
-    }
-
-    // Large mobile (425px+)
     @media (min-width: 425px) {
-      gap: 2rem;
+      justify-content: center;
+      gap: 0.25rem 1.5rem;
     }
 
-    // Desktop and up
-    @media (min-width: 960px) {
-      gap: 4rem;
+    @media (min-width: 768px) {
+      gap: 1.625rem;
     }
   }
 
@@ -519,743 +193,104 @@ function handleClick(event: MouseEvent, to: string, navigate: () => void) {
 
   &__item {
     position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem;
-    min-width: 3.5rem;
+    display: inline-flex;
+    align-items: baseline;
+    min-height: 2.75rem;
+    padding: 0.75rem 0;
+    font-size: 0.8125rem;
+    line-height: 1.2;
+    color: var(--gk-ink-soft);
     text-decoration: none;
-    border-radius: var(--gutenku-radius-lg);
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-
-    // Small mobile (320px+)
-    @media (min-width: 320px) {
-      min-width: 3.75rem;
-    }
-
-    // Medium mobile (375px+)
-    @media (min-width: 375px) {
-      gap: 0.625rem;
-      padding: 0.375rem;
-      min-width: 4.25rem;
-    }
-
-    // Large mobile (425px+)
-    @media (min-width: 425px) {
-      gap: 0.75rem;
-      padding: 0.5rem;
-      min-width: 5rem;
-    }
-
-    &::before {
-      content: '';
-      position: absolute;
-      inset: -4px;
-      min-width: 44px;
-      min-height: 44px;
-    }
-
-    &:hover {
-      transform: translateY(-2px);
-    }
-
-    &:focus-visible {
-      outline: 3px solid var(--gutenku-zen-accent);
-      outline-offset: 4px;
-    }
-  }
-
-  &__item--clicked {
-    transform: scale(0.95) !important;
-    transition: transform 0.1s ease-out !important;
-  }
-
-  &__icon-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: var(--gutenku-radius-full);
-    background:
-      radial-gradient(
-        circle at 30% 30%,
-        oklch(1 0 0 / 0.12) 0%,
-        transparent 50%
-      ),
-      var(--gutenku-zen-water);
-    border: 1.5px solid oklch(0.45 0.1 195 / 0.2);
-    box-shadow:
-      0 2px 8px oklch(0.45 0.08 195 / 0.12),
-      inset 0 1px 0 oklch(1 0 0 / 0.15);
-    transition:
-      background-color 0.3s ease,
-      border-color 0.3s ease,
-      transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-      box-shadow 0.3s ease;
-
-    // Medium mobile (375px+)
-    @media (min-width: 375px) {
-      width: 2.5rem;
-      height: 2.5rem;
-    }
-
-    // Large mobile (425px+)
-    @media (min-width: 425px) {
-      width: 2.75rem;
-      height: 2.75rem;
-    }
-
-    // Desktop and up
-    @media (min-width: 960px) {
-      width: 3rem;
-      height: 3rem;
-    }
-  }
-
-  &__item:hover &__icon-wrapper {
-    background:
-      radial-gradient(
-        circle at 30% 30%,
-        oklch(1 0 0 / 0.2) 0%,
-        transparent 50%
-      ),
-      var(--gutenku-zen-primary);
-    border-color: var(--gutenku-zen-primary);
-    transform: scale(1.05);
-    box-shadow:
-      0 6px 20px oklch(0.45 0.1 195 / 0.28),
-      0 0 0 3px oklch(0.45 0.1 195 / 0.1),
-      inset 0 1px 0 oklch(1 0 0 / 0.2);
-  }
-
-  &__item--active &__icon-wrapper {
-    background:
-      radial-gradient(
-        circle at 30% 30%,
-        oklch(1 0 0 / 0.15) 0%,
-        transparent 50%
-      ),
-      var(--gutenku-zen-primary);
-    border-color: oklch(0.35 0.1 195);
-    transform: scale(1.05);
-    box-shadow:
-      0 4px 16px oklch(0.45 0.1 195 / 0.35),
-      0 0 0 4px oklch(0.45 0.1 195 / 0.12),
-      inset 0 1px 0 oklch(1 0 0 / 0.2);
-  }
-
-  &__enso {
-    position: absolute;
-    inset: -5px;
-    fill: none;
-    stroke: var(--gutenku-zen-accent);
-    stroke-width: 1.5;
-    stroke-linecap: round;
-    stroke-dasharray: 140;
-    stroke-dashoffset: 140;
-    opacity: 0.5;
-    animation: enso-draw 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    pointer-events: none;
-  }
-
-  &__icon {
-    position: relative;
-    z-index: 2;
-    color: var(--gutenku-zen-primary);
-    transition: color 0.3s ease;
-  }
-
-  &__item:hover &__icon,
-  &__item--active &__icon {
-    color: white;
-  }
-
-  &__label {
-    font-size: 0.5rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--gutenku-text-primary);
-    transition:
-      color 0.3s ease 0.05s,
-      text-shadow 0.3s ease;
     white-space: nowrap;
+    transition: color var(--gk-dur-fast) var(--gk-ease-out);
 
-    // Small mobile (320px+)
-    @media (min-width: 320px) {
-      font-size: 0.55rem;
-      letter-spacing: 0.06em;
-    }
-
-    // Medium mobile (375px+)
     @media (min-width: 375px) {
-      font-size: 0.625rem;
-      letter-spacing: 0.08em;
+      font-size: 0.875rem;
     }
 
-    // Large mobile (425px+)
-    @media (min-width: 425px) {
-      font-size: 0.7rem;
-    }
-
-    // Desktop and up
-    @media (min-width: 960px) {
-      font-size: 0.75rem;
-    }
-  }
-
-  &__item:hover &__label {
-    color: var(--gutenku-zen-primary);
-  }
-
-  &__item--active &__label {
-    color: var(--gutenku-zen-primary);
-    font-weight: 700;
-    text-shadow: 0 0 20px oklch(0.45 0.1 195 / 0.3);
-  }
-
-  // Mobile toggles row
-  &__toggles {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem;
-
-    // Hide on desktop (toggles are in ThemeToggle component)
-    @media (min-width: 960px) {
-      display: none;
-    }
-  }
-
-  &__toggle-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    padding: 0;
-    border: 1.5px solid oklch(0.45 0.1 195 / 0.2);
-    border-radius: var(--gutenku-radius-full);
-    background:
-      radial-gradient(
-        circle at 30% 30%,
-        oklch(1 0 0 / 0.1) 0%,
-        transparent 50%
-      ),
-      var(--gutenku-zen-water);
-    color: var(--gutenku-zen-primary);
-    cursor: pointer;
-    transition:
-      background-color 0.2s ease,
-      border-color 0.2s ease,
-      transform 0.2s ease,
-      color 0.2s ease;
-
-    &:hover {
-      background:
-        radial-gradient(
-          circle at 30% 30%,
-          oklch(1 0 0 / 0.15) 0%,
-          transparent 50%
-        ),
-        var(--gutenku-zen-primary);
-      border-color: var(--gutenku-zen-primary);
-      transform: scale(1.05);
-      color: white;
+    @media (hover: hover) {
+      &:hover {
+        color: var(--gk-ink);
+      }
     }
 
     &:focus-visible {
-      outline: 3px solid var(--gutenku-zen-accent);
+      outline: 2px solid var(--gk-indigo);
       outline-offset: 2px;
-    }
-
-    &:active {
-      transform: scale(0.95);
+      border-radius: var(--gk-radius-control);
     }
 
     &--active {
-      background:
-        radial-gradient(
-          circle at 30% 30%,
-          oklch(1 0 0 / 0.15) 0%,
-          transparent 50%
-        ),
-        var(--gutenku-zen-primary);
-      border-color: var(--gutenku-zen-primary);
-      color: white;
+      color: var(--gk-ink);
     }
   }
 
-  &__locale-wrapper {
-    position: relative;
-    width: 2.25rem;
-    height: 2.25rem;
-
-    &:hover .ink-nav__locale-code,
-    &:focus-within .ink-nav__locale-code {
-      color: white;
-    }
-  }
-
-  &__locale-code {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    color: var(--gutenku-zen-primary);
-    z-index: 1;
-    transition: color 0.2s ease;
-  }
-
-  &__locale-select {
-    appearance: none;
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    border: 1.5px solid oklch(0.45 0.1 195 / 0.2);
-    border-radius: var(--gutenku-radius-full);
-    background:
-      radial-gradient(
-        circle at 30% 30%,
-        oklch(1 0 0 / 0.1) 0%,
-        transparent 50%
-      ),
-      var(--gutenku-zen-water);
-    color: transparent;
-    font-size: 0;
-    cursor: pointer;
-    transition:
-      background-color 0.2s ease,
-      border-color 0.2s ease,
-      transform 0.2s ease;
-
-    &:hover {
-      background:
-        radial-gradient(
-          circle at 30% 30%,
-          oklch(1 0 0 / 0.15) 0%,
-          transparent 50%
-        ),
-        var(--gutenku-zen-primary);
-      border-color: var(--gutenku-zen-primary);
-      transform: scale(1.05);
-    }
-
-    &:focus-visible {
-      outline: 3px solid var(--gutenku-zen-accent);
-      outline-offset: 2px;
-    }
-
-    &:active {
-      transform: scale(0.95);
-    }
-
-    option {
-      background: var(--gutenku-paper-bg);
-      color: var(--gutenku-text-primary);
-      padding: 0.5rem;
-    }
-  }
-}
-
-@keyframes enso-draw {
-  to {
-    stroke-dashoffset: 8;
-  }
-}
-
-[data-theme='dark'] .ink-nav {
-  &__logo-text {
-    &::after {
-      background: linear-gradient(
-        90deg,
-        transparent 0%,
-        var(--gutenku-zen-accent) 15%,
-        oklch(0.75 0.1 195) 85%,
-        transparent 100%
-      );
-    }
-  }
-
-  &__logo-prefix {
-    color: var(--gutenku-zen-accent);
-    text-shadow: 0 1px 3px oklch(0 0 0 / 0.3);
-  }
-
-  &__logo-suffix {
-    color: var(--gutenku-zen-secondary);
-    text-shadow: 0 1px 3px oklch(0 0 0 / 0.25);
-  }
-
-  &__logo:hover &__logo-prefix {
-    text-shadow:
-      0 1px 3px oklch(0 0 0 / 0.3),
-      0 0 12px oklch(0.7 0.1 195 / 0.4);
-  }
-
-  &__logo:hover &__logo-suffix {
-    text-shadow:
-      0 1px 3px oklch(0 0 0 / 0.25),
-      0 0 12px oklch(0.65 0.06 180 / 0.4);
-  }
-
-  &__item {
-    &:focus-visible {
-      outline-color: oklch(0.8 0.12 195);
-    }
-  }
-
-  &__icon-wrapper {
-    background: transparent;
-    border-color: oklch(0.5 0.08 195 / 0.5);
-    box-shadow: none;
-  }
-
-  &__item:hover &__icon-wrapper {
-    background: oklch(0.3 0.04 195 / 0.4);
-    border-color: var(--gutenku-zen-accent);
-    box-shadow: none;
-  }
-
-  &__item--active &__icon-wrapper {
-    background: transparent;
-    border-color: var(--gutenku-zen-accent);
-    box-shadow: none;
-  }
-
-  &__enso {
-    stroke: oklch(0.85 0.1 195);
-    opacity: 0.5;
-  }
-
-  &__icon {
-    color: var(--gutenku-zen-accent);
-  }
-
-  &__item:hover &__icon,
-  &__item--active &__icon {
-    color: oklch(0.12 0.02 195);
+  &__numeral {
+    margin-right: 0.25rem;
+    font-size: 0.625rem;
   }
 
   &__label {
-    color: var(--gutenku-text-primary);
+    position: relative;
+    z-index: 1;
   }
 
-  &__item:hover &__label,
-  &__item--active &__label {
-    color: var(--gutenku-zen-accent);
+  // The vermilion brush stroke under the current page. A real element (not a
+  // pseudo) so it can carry a view-transition-name and slide between links
+  // (timing in assets/css/main.scss, with the other view-transition rules).
+  &__mark {
+    position: absolute;
+    left: -4px;
+    right: -6px;
+    bottom: 0.5rem;
+    height: 7px;
+    background: var(--gk-stamp);
+    opacity: 0.85;
+    clip-path: polygon(
+      0 55%,
+      8% 30%,
+      40% 20%,
+      75% 28%,
+      100% 10%,
+      98% 70%,
+      60% 85%,
+      20% 80%,
+      2% 95%
+    );
+    view-transition-name: ink-nav-mark;
+    pointer-events: none;
   }
 
-  &__item--active &__label {
-    text-shadow: 0 0 20px oklch(0.6 0.1 195 / 0.5);
-  }
-
-  &__toggle-btn {
-    background:
-      radial-gradient(
-        circle at 30% 30%,
-        oklch(1 0 0 / 0.06) 0%,
-        transparent 50%
-      ),
-      oklch(0.25 0.04 195 / 0.6);
-    border: 2px solid oklch(0.85 0.1 195 / 0.8);
-    color: var(--gutenku-zen-accent);
-
-    &:hover {
-      background:
-        radial-gradient(
-          circle at 30% 30%,
-          oklch(1 0 0 / 0.1) 0%,
-          transparent 50%
-        ),
-        var(--gutenku-zen-accent);
-      border-color: var(--gutenku-zen-accent);
-      color: oklch(0.12 0.02 195);
-    }
-
-    &:focus-visible {
-      outline-color: oklch(0.8 0.12 195);
-    }
-
-    &--active {
-      background:
-        radial-gradient(
-          circle at 30% 30%,
-          oklch(1 0 0 / 0.1) 0%,
-          transparent 50%
-        ),
-        var(--gutenku-zen-accent);
-      border-color: var(--gutenku-zen-accent);
-      color: oklch(0.12 0.02 195);
-    }
-  }
-
-  &__locale-wrapper {
-    &:hover .ink-nav__locale-code,
-    &:focus-within .ink-nav__locale-code {
-      color: oklch(0.12 0.02 195);
-    }
-  }
-
-  &__locale-code {
-    color: var(--gutenku-zen-accent);
-  }
-
-  &__locale-select {
-    background:
-      radial-gradient(
-        circle at 30% 30%,
-        oklch(1 0 0 / 0.06) 0%,
-        transparent 50%
-      ),
-      oklch(0.25 0.04 195 / 0.6);
-    border: 2px solid oklch(0.85 0.1 195 / 0.8);
-    color: transparent;
-    font-size: 0;
-
-    &:hover {
-      background:
-        radial-gradient(
-          circle at 30% 30%,
-          oklch(1 0 0 / 0.1) 0%,
-          transparent 50%
-        ),
-        var(--gutenku-zen-accent);
-      border-color: var(--gutenku-zen-accent);
-    }
-
-    &:focus-visible {
-      outline-color: oklch(0.8 0.12 195);
-    }
-
-    option {
-      background: oklch(0.2 0.03 195);
-      color: var(--gutenku-text-primary);
-    }
+  &__toggles {
+    grid-area: prefs;
   }
 }
 
-::view-transition-old(nav-icon-home),
-::view-transition-old(nav-icon-haiku),
-::view-transition-old(nav-icon-game),
-::view-transition-old(nav-icon-blog) {
-  animation: nav-morph-out 250ms ease-out both;
-}
+[data-dyslexia='true'] .ink-nav__item {
+  font-size: 0.75rem;
 
-::view-transition-new(nav-icon-home),
-::view-transition-new(nav-icon-haiku),
-::view-transition-new(nav-icon-game),
-::view-transition-new(nav-icon-blog) {
-  animation: nav-morph-in 250ms ease-in both;
-}
-
-@keyframes nav-morph-out {
-  to {
-    opacity: 0;
-    transform: scale(0.9);
+  @media (min-width: 768px) {
+    font-size: 0.8125rem;
   }
-}
-
-@keyframes nav-morph-in {
-  from {
-    opacity: 0;
-    transform: scale(1.1);
-  }
-}
-
-// Theme icon transition for mobile toggles
-.theme-icon-enter-active,
-.theme-icon-leave-active {
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.theme-icon-enter-from {
-  opacity: 0;
-  transform: scale(0.6) rotate(-45deg);
-}
-
-.theme-icon-leave-to {
-  opacity: 0;
-  transform: scale(0.6) rotate(45deg);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ink-nav {
-    &__item {
-      transition: none;
-
-      &:hover {
-        transform: none;
-      }
-    }
-
-    &__icon-wrapper,
-    &__icon,
-    &__label {
-      transition: none;
-    }
-
-    &__item--clicked {
-      transform: none !important;
-    }
-
-    &__enso {
-      animation: none;
-      stroke-dashoffset: 5;
-    }
-
-    &__item:hover &__icon-wrapper,
-    &__item--active &__icon-wrapper {
-      transform: none;
-    }
-
-    &__toggle-btn {
-      transition: none;
-
-      &:hover,
-      &:active {
-        transform: none;
-      }
-    }
-
-    &__locale-code {
-      transition: none;
-    }
-
-    &__locale-select {
-      transition: none;
-
-      &:hover,
-      &:active {
-        transform: none;
-      }
-    }
-
-    &__logo {
-      transition: none;
-
-      &:hover {
-        transform: none;
-      }
-    }
-
-    &__logo-text {
-      &::after {
-        transition: none;
-      }
-    }
-
-    &__logo-prefix,
-    &__logo-suffix {
-      transition: none;
-    }
-  }
-
-  .theme-icon-enter-active,
-  .theme-icon-leave-active {
-    transition: opacity 0.15s ease;
-  }
-
-  .theme-icon-enter-from,
-  .theme-icon-leave-to {
-    transform: none;
-  }
-
-  ::view-transition-old(nav-icon-home),
-  ::view-transition-old(nav-icon-haiku),
-  ::view-transition-old(nav-icon-game),
-  ::view-transition-old(nav-icon-blog),
-  ::view-transition-new(nav-icon-home),
-  ::view-transition-new(nav-icon-haiku),
-  ::view-transition-new(nav-icon-game),
-  ::view-transition-new(nav-icon-blog) {
-    animation: none;
-  }
-}
-
-// Dyslexia font adjustments - reduce label size on mobile to prevent overlap
-[data-dyslexia='true'] .ink-nav__label {
-  font-size: 0.4rem;
-  letter-spacing: 0.02em;
-
-  @media (min-width: 320px) {
-    font-size: 0.45rem;
-    letter-spacing: 0.03em;
-  }
-
-  @media (min-width: 375px) {
-    font-size: 0.5rem;
-    letter-spacing: 0.04em;
-  }
-
-  @media (min-width: 425px) {
-    font-size: 0.55rem;
-    letter-spacing: 0.05em;
-  }
-
-  @media (min-width: 960px) {
-    font-size: 0.65rem;
-    letter-spacing: 0.06em;
+  .ink-nav__item {
+    transition: none;
   }
 }
 
 @media (forced-colors: active) {
-  .ink-nav {
-    &__item:focus-visible {
-      outline: 3px solid CanvasText;
-    }
+  .ink-nav__item:focus-visible {
+    outline: 3px solid CanvasText;
+  }
 
-    &__icon-wrapper {
-      border: 2px solid CanvasText;
-      forced-color-adjust: none;
-    }
+  .ink-nav__item--active {
+    text-decoration: underline;
+  }
 
-    &__item--active &__icon-wrapper {
-      background: Highlight;
-      border-color: Highlight;
-    }
-
-    &__icon {
-      color: CanvasText;
-    }
-
-    &__item--active &__icon {
-      color: HighlightText;
-    }
-
-    &__label {
-      color: CanvasText;
-    }
-
-    &__enso {
-      stroke: Highlight;
-    }
-
-    &__toggle-btn {
-      border: 2px solid CanvasText;
-      forced-color-adjust: none;
-    }
-
-    &__locale-code {
-      color: CanvasText;
-    }
-
-    &__locale-select {
-      border: 2px solid CanvasText;
-      color: transparent;
-      font-size: 0;
-      forced-color-adjust: none;
-    }
+  .ink-nav__mark {
+    background: Highlight;
   }
 }
 </style>

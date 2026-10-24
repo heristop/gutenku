@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ArrowRight } from '@lucide/vue';
+import { ArrowRight } from '@/core/components/icons/ink';
 import { useMouseParallax } from '@/core/composables/parallax';
 
 defineProps<{
@@ -62,41 +62,47 @@ const { translateX, translateY, handleMouseMove, handleMouseLeave } =
       <p class="preview-card__description">{{ description }}</p>
       <span class="preview-card__cta">
         <span class="link-highlight">{{ ctaText }}</span>
-        <ArrowRight :size="14" />
+        <ArrowRight :size="14" aria-hidden="true" />
       </span>
     </div>
   </RouterLink>
 </template>
 
 <style lang="scss" scoped>
+// Ex Libris: a paper sheet with a plate on top, separated by an ink rule.
 .preview-card {
   display: block;
   text-decoration: none;
-  background: var(--gutenku-paper-bg);
-  border: 1px solid var(--gutenku-paper-border);
-  border-radius: var(--gutenku-radius-lg);
-  overflow: hidden;
-  transition: var(--gutenku-transition-zen);
-  box-shadow: var(--gutenku-shadow-zen);
+  color: var(--gk-ink);
+  background: var(--gk-paper-raised);
+  border-radius: var(--gk-radius-paper);
+  overflow: clip;
+  box-shadow: var(--gk-lift);
   container-type: inline-size;
   container-name: preview-card;
+  transition: transform var(--gk-dur-fast) var(--gk-ease-out);
 
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--gutenku-shadow-elevated);
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(-2px);
 
-    .preview-card__cta svg {
-      transform: translateX(4px) translateY(-2px);
+      .preview-card__cta svg {
+        transform: translateX(3px);
+      }
+
+      .preview-card__cta .link-highlight {
+        text-decoration-thickness: 2px;
+      }
     }
   }
 
   &:active {
-    transform: translateY(-2px);
+    transform: scale(0.99);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--gutenku-zen-primary);
-    outline-offset: 2px;
+    outline: 2px solid var(--gk-indigo);
+    outline-offset: 3px;
   }
 }
 
@@ -104,67 +110,40 @@ const { translateX, translateY, handleMouseMove, handleMouseLeave } =
   position: relative;
   height: 140px;
   overflow: hidden;
+  border-bottom: var(--gk-rule);
+  background: var(--gk-paper-deep);
 }
 
 .preview-card__illustration {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(20%);
+  filter: grayscale(40%) sepia(10%);
+  mix-blend-mode: multiply;
   transition: transform 0.15s ease-out;
   opacity: 0;
-  animation: illustration-appear 0.8s ease-out 0.3s forwards;
+  animation: illustration-appear 400ms var(--gk-ease-out) 120ms forwards;
   will-change: transform;
 
   [data-theme='dark'] & {
-    filter: grayscale(30%) brightness(0.85);
+    filter: grayscale(40%) brightness(0.8);
+    mix-blend-mode: normal;
   }
 }
 
 @keyframes illustration-appear {
   to {
-    opacity: 0.7;
-  }
-}
-
-[data-theme='dark'] .preview-card__illustration {
-  animation: illustration-appear-dark 0.8s ease-out 0.3s forwards;
-}
-
-@keyframes illustration-appear-dark {
-  to {
-    opacity: 0.5;
+    opacity: 0.75;
   }
 }
 
 .preview-card__overlay {
   position: absolute;
-  inset: 0;
+  inset: auto 0 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 1rem;
-  background: linear-gradient(
-    to top,
-    oklch(0.97 0.01 85) 0%,
-    oklch(0.97 0.01 85 / 0) 100%
-  );
-  opacity: 0;
-  animation: overlay-appear 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.4s forwards;
-
-  [data-theme='dark'] & {
-    background: linear-gradient(
-      to top,
-      oklch(0.18 0.01 85) 0%,
-      oklch(0.18 0.01 85 / 0) 100%
-    );
-  }
-}
-
-@keyframes overlay-appear {
-  to {
-    opacity: 1;
-  }
+  padding: 0.75rem;
 }
 
 .preview-card__title-row {
@@ -172,14 +151,20 @@ const { translateX, translateY, handleMouseMove, handleMouseLeave } =
   align-items: flex-end;
   justify-content: space-between;
   gap: 0.75rem;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.375rem 0.625rem;
+  background: var(--gk-paper-raised);
+  border-radius: var(--gk-radius-control);
 }
 
 .preview-card__title {
-  font-size: 1.5rem;
+  font-size: 1.375rem;
   font-weight: 700;
-  color: var(--gutenku-text-primary);
+  color: var(--gk-ink);
   margin: 0;
-  letter-spacing: 0.05em;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
 }
 
 .preview-card__body {
@@ -191,23 +176,22 @@ const { translateX, translateY, handleMouseMove, handleMouseLeave } =
 
 .preview-card__description {
   margin: 0;
-  font-size: 0.9rem;
-  color: var(--gutenku-text-primary);
-  line-height: 1.5;
-  opacity: 0.85;
+  font-size: 0.9375rem;
+  color: var(--gk-ink-soft);
+  line-height: 1.6;
 }
 
 .preview-card__cta {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.375rem;
   width: fit-content;
   font-size: 0.875rem;
-  transition: var(--gutenku-transition-fast);
+  font-weight: 700;
+  color: var(--gk-indigo);
 
   svg {
-    color: var(--gutenku-zen-secondary);
-    transition: transform 0.2s ease;
+    transition: transform var(--gk-dur-fast) var(--gk-ease-out);
   }
 }
 
@@ -221,7 +205,7 @@ const { translateX, translateY, handleMouseMove, handleMouseLeave } =
   }
 
   .preview-card__title {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
   }
 
   .preview-card__body {
@@ -231,20 +215,19 @@ const { translateX, translateY, handleMouseMove, handleMouseLeave } =
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .preview-card {
+    transition: none;
+
+    &:hover,
+    &:active {
+      transform: none;
+    }
+  }
+
   .preview-card__illustration {
     animation: none;
-    opacity: 0.7;
+    opacity: 0.75;
     transform: scale(1.15) !important;
-  }
-
-  [data-theme='dark'] .preview-card__illustration {
-    animation: none;
-    opacity: 0.5;
-  }
-
-  .preview-card__overlay {
-    animation: none;
-    opacity: 1;
   }
 }
 </style>

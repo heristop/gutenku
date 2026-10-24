@@ -40,170 +40,60 @@ const classes = computed(() => [
 </template>
 
 <style lang="scss" scoped>
+// Ex Libris: never a pill. A small typed label inside a ruled box.
 .zen-chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: inherit;
-  font-weight: 600;
-  border-radius: var(--gutenku-radius-md);
-  transition: all 0.2s ease;
-  line-height: 1.5;
-  overflow: visible;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  word-spacing: inherit;
-  letter-spacing: inherit;
+  font-family: var(--gk-font);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
   white-space: nowrap;
-  box-shadow:
-    0 1px 2px oklch(0 0 0 / 0.05),
-    inset 0 1px 0 oklch(1 0 0 / 0.1);
+  border-radius: var(--gk-radius-control);
+  background: transparent;
+  color: var(--gk-ink);
+  box-shadow: inset 0 0 0 1.5px var(--gk-ink-faint);
 }
 
-// Size variants
 .zen-chip--sm {
-  padding: 0.125rem 0.5rem;
+  padding: 0.125rem 0.4375rem;
   font-size: 0.75rem;
-  min-height: 1.5rem; // 24px
-  min-width: 1.5rem; // 24px
+  min-height: 1.5rem;
+  min-width: 1.5rem;
 }
 
 .zen-chip--md {
-  padding: 0.25rem 0.75rem;
+  padding: 0.25rem 0.625rem;
   font-size: 0.8125rem;
-  min-height: 1.75rem; // 28px
-  min-width: 1.75rem; // 28px
+  min-height: 1.75rem;
+  min-width: 1.75rem;
 }
 
-// Default variant
-.zen-chip--default {
-  background: oklch(0.5 0.02 85 / 0.15);
-  border: 1px solid oklch(0.5 0.02 85 / 0.25);
-  color: oklch(0.3 0.02 85);
-}
-
-// Accent variant
 .zen-chip--accent {
-  background: linear-gradient(
-    135deg,
-    oklch(0.5 0.06 192 / 0.15) 0%,
-    oklch(0.45 0.05 198 / 0.1) 100%
-  );
-  border: 1px solid oklch(0.5 0.06 192 / 0.35);
-  color: oklch(0.35 0.06 192);
-  box-shadow:
-    0 1px 3px oklch(0.5 0.06 192 / 0.08),
-    inset 0 1px 0 oklch(1 0 0 / 0.15);
+  box-shadow: inset 0 0 0 1.5px var(--gk-ink);
 }
 
-// Muted variant
 .zen-chip--muted {
-  background: oklch(0.5 0.01 85 / 0.1);
-  border: 1px solid oklch(0.5 0.01 85 / 0.2);
-  color: oklch(0.35 0.02 85);
-}
-
-// Dark mode
-[data-theme='dark'] .zen-chip--default {
-  background: oklch(0.8 0.02 85 / 0.12);
-  border-color: oklch(0.8 0.02 85 / 0.2);
-  color: oklch(0.92 0.01 85);
-  box-shadow:
-    0 1px 2px oklch(0 0 0 / 0.2),
-    inset 0 1px 0 oklch(1 0 0 / 0.05);
-}
-
-[data-theme='dark'] .zen-chip--accent {
-  background: linear-gradient(
-    135deg,
-    oklch(0.5 0.06 192 / 0.25) 0%,
-    oklch(0.45 0.05 198 / 0.2) 100%
-  );
-  border-color: oklch(0.55 0.06 192 / 0.4);
-  color: oklch(0.85 0.05 192);
-  box-shadow:
-    0 1px 3px oklch(0 0 0 / 0.25),
-    inset 0 1px 0 oklch(1 0 0 / 0.08);
-}
-
-[data-theme='dark'] .zen-chip--muted {
-  background: oklch(0.8 0.01 85 / 0.1);
-  border-color: oklch(0.8 0.01 85 / 0.15);
-  color: oklch(0.88 0.01 85);
+  color: var(--gk-ink-soft);
 }
 
 .zen-chip:focus-visible {
-  outline: 3px solid var(--gutenku-zen-accent, oklch(0.55 0.15 165));
+  outline: 2px solid var(--gk-indigo);
   outline-offset: 3px;
-  box-shadow: 0 0 0 6px oklch(0.55 0.15 165 / 0.2);
 }
 
-// High contrast mode
-@media (prefers-contrast: high) {
+@media (prefers-contrast: more) {
   .zen-chip {
-    border-width: 2px;
-    font-weight: 700;
-  }
-
-  .zen-chip--default,
-  .zen-chip--muted {
-    background: transparent;
-    border-color: currentColor;
-    color: var(--gutenku-text-primary);
-  }
-
-  .zen-chip--accent {
-    background: transparent;
-    border-color: oklch(0.35 0.08 192);
-    color: oklch(0.3 0.08 192);
-  }
-
-  [data-theme='dark'] .zen-chip--accent {
-    border-color: oklch(0.75 0.06 192);
-    color: oklch(0.9 0.05 192);
-  }
-
-  .zen-chip:focus-visible {
-    outline-width: 4px;
-    outline-offset: 4px;
+    box-shadow: inset 0 0 0 2px currentColor;
   }
 }
 
-// Windows High Contrast Mode
 @media (forced-colors: active) {
   .zen-chip {
     border: 2px solid CanvasText;
-    background: Canvas;
-    color: CanvasText;
-    forced-color-adjust: none;
-  }
-
-  .zen-chip--accent {
-    border-color: Highlight;
-    color: CanvasText;
-  }
-
-  .zen-chip:focus-visible {
-    outline: 3px solid Highlight;
-    outline-offset: 3px;
-  }
-}
-
-// Reduced motion
-@media (prefers-reduced-motion: reduce) {
-  .zen-chip {
-    transition: none;
-  }
-
-  .zen-chip:focus-visible {
     box-shadow: none;
-  }
-}
-
-// High-DPI scaling
-@media (min-resolution: 1.5dppx) {
-  .zen-chip {
-    padding-inline: max(0.5rem, 0.5em);
   }
 }
 </style>

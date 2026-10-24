@@ -1,57 +1,86 @@
 <script lang="ts" setup>
-import { ref, watch, onMounted } from 'vue';
+import { computed, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { Download, X, Share, Plus } from '@lucide/vue';
+import { Download, Share, Plus } from '@/core/components/icons/ink';
 import ZenButton from '@/core/components/ui/ZenButton.vue';
 import ZenModal from '@/core/components/ui/ZenModal.vue';
-import { usePwaInstall } from '@/core/composables/pwa-install';
+import {
+  isDailyGameComplete,
+  usePwaInstall,
+  usePwaPromptMoment,
+} from '@/core/composables/pwa-install';
 
 const { t } = useI18n();
-const { isIos, shouldShowBanner, hasNativePrompt, showPrompt, dismiss } =
-  usePwaInstall();
+const route = useRoute();
+const {
+  isIos,
+  canInstall,
+  shouldShowBanner,
+  hasNativePrompt,
+  showPrompt,
+  markShown,
+  dismiss,
+  optOut,
+  trackGameCompleted,
+} = usePwaInstall();
+const { isMoment } = usePwaPromptMoment(
+  shouldShowBanner,
+  computed(() => route.name),
+);
 
 const isVisible = ref(false);
 const showIosModal = ref(false);
 
-onMounted(() => {
-  if (shouldShowBanner.value) {
-    setTimeout(() => {
-      isVisible.value = true;
-    }, 1500);
+watch(isMoment, (moment) => {
+  if (moment && shouldShowBanner.value) {
+    isVisible.value = true;
+    markShown();
   }
 });
 
-watch(shouldShowBanner, (show) => {
-  if (show && !isVisible.value) {
-    setTimeout(() => {
-      isVisible.value = true;
-    }, 1500);
+// Installed from the browser menu meanwhile: the slip has nothing left to offer
+watch(canInstall, (ok) => {
+  if (!ok) {
+    isVisible.value = false;
   }
+});
+
+watch(isDailyGameComplete, (done) => done && trackGameCompleted(), {
+  immediate: true,
 });
 
 async function handleInstallClick() {
+  isVisible.value = false;
+
   if (isIos.value) {
     showIosModal.value = true;
 
     return;
   }
 
-  if (hasNativePrompt.value) {
-    const accepted = await showPrompt();
-
-    if (accepted) {
-      handleClose();
-    }
+  if (hasNativePrompt.value && !(await showPrompt())) {
+    dismiss();
   }
 }
 
-function handleClose() {
+function handleNotNow() {
   isVisible.value = false;
   dismiss();
 }
 
+function handleNeverAsk() {
+  isVisible.value = false;
+  optOut();
+}
+
+// Whether or not the steps were followed, the question has been answered
 function handleIosModalClose() {
+  if (!showIosModal.value) {
+    return;
+  }
   showIosModal.value = false;
+  dismiss();
 }
 </script>
 
@@ -59,36 +88,44 @@ function handleIosModalClose() {
   <Teleport to="body">
     <Transition name="pwa-banner">
       <div
-        v-if="isVisible && shouldShowBanner"
+        v-if="isVisible"
         class="pwa-install-banner"
         role="complementary"
         :aria-label="t('pwa.bannerLabel')"
       >
-        <div class="pwa-install-banner__content">
-          <p class="pwa-install-banner__label">
-            {{ t('pwa.installPrompt') }}
-          </p>
+        <div class="pwa-install-banner__content" @keydown.esc="handleNotNow">
+          <div class="pwa-install-banner__text">
+            <p class="pwa-install-banner__title">
+              {{ t('pwa.installPrompt') }}
+            </p>
+            <p class="pwa-install-banner__pitch">{{ t('pwa.pitch') }}</p>
+          </div>
 
-          <ZenButton
-            variant="ghost"
-            size="sm"
-            :aria-label="t('pwa.installButton')"
-            @click="handleInstallClick"
-          >
-            <template #icon-left>
-              <Download :size="16" />
-            </template>
-            {{ t('pwa.install') }}
-          </ZenButton>
+          <div class="pwa-install-banner__actions">
+            <ZenButton
+              variant="cta"
+              size="sm"
+              :aria-label="t('pwa.installButton')"
+              @click="handleInstallClick"
+            >
+              <template #icon-left>
+                <Download :size="16" aria-hidden="true" />
+              </template>
+              {{ t('pwa.install') }}
+            </ZenButton>
 
-          <button
-            type="button"
-            class="pwa-install-banner__close"
-            :aria-label="t('common.close')"
-            @click="handleClose"
-          >
-            <X :size="16" aria-hidden="true" />
-          </button>
+            <ZenButton variant="ghost" size="sm" @click="handleNotNow">
+              {{ t('pwa.notNow') }}
+            </ZenButton>
+
+            <button
+              type="button"
+              class="pwa-install-banner__never"
+              @click="handleNeverAsk"
+            >
+              {{ t('pwa.neverAsk') }}
+            </button>
+          </div>
         </div>
       </div>
     </Transition>
@@ -106,7 +143,7 @@ function handleIosModalClose() {
         <ol class="pwa-ios-instructions__steps">
           <li class="pwa-ios-instructions__step">
             <div class="pwa-ios-instructions__step-icon">
-              <Share :size="24" />
+              <Share :size="24" aria-hidden="true" />
             </div>
             <div class="pwa-ios-instructions__step-text">
               <strong>{{ t('pwa.iosStep1Title') }}</strong>
@@ -115,7 +152,7 @@ function handleIosModalClose() {
           </li>
           <li class="pwa-ios-instructions__step">
             <div class="pwa-ios-instructions__step-icon">
-              <Plus :size="24" />
+              <Plus :size="24" aria-hidden="true" />
             </div>
             <div class="pwa-ios-instructions__step-text">
               <strong>{{ t('pwa.iosStep2Title') }}</strong>
@@ -135,6 +172,7 @@ function handleIosModalClose() {
 </template>
 
 <style lang="scss" scoped>
+// Ex Libris: the same paper slip as the consent banner, tucked under the page.
 .pwa-install-banner {
   position: fixed;
   bottom: 0;
@@ -145,6 +183,7 @@ function handleIosModalClose() {
   padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0));
   // Only the card itself is interactive; the layer lets clicks pass through.
   pointer-events: none;
+  font-family: var(--gk-font);
 
   @media (min-width: 600px) {
     padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0));
@@ -153,96 +192,91 @@ function handleIosModalClose() {
 
 .pwa-install-banner__content {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.625rem;
-  width: max-content;
-  max-width: min(92vw, 420px);
+  gap: 0.5rem 0.875rem;
+  max-width: min(94vw, 520px);
   margin: 0 auto;
+  padding: 0.75rem 0.875rem;
   pointer-events: auto;
-
-  padding: 0.5rem 0.55rem 0.5rem 1rem;
-
-  background: oklch(0.98 0.01 85 / 0.94);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-
-  border: 1px solid var(--gutenku-paper-border);
-  border-radius: var(--gutenku-radius-lg);
-  box-shadow:
-    0 8px 28px oklch(0 0 0 / 0.1),
-    0 2px 6px oklch(0 0 0 / 0.05);
+  background: var(--gk-paper-raised);
+  color: var(--gk-ink);
+  border: var(--gk-rule);
+  border-radius: var(--gk-radius-paper);
+  box-shadow: var(--gk-lift);
 }
 
-[data-theme='dark'] .pwa-install-banner__content {
-  background: oklch(0.18 0.015 70 / 0.94);
-  border-color: oklch(0.35 0.02 75 / 0.45);
-  box-shadow:
-    0 8px 28px oklch(0 0 0 / 0.35),
-    0 2px 6px oklch(0 0 0 / 0.22);
+.pwa-install-banner__text {
+  flex: 1 1 14rem;
+  min-width: 0;
 }
 
-[data-theme='dark'] .pwa-install-banner__label {
-  color: oklch(0.92 0.02 70);
-}
-
-.pwa-install-banner__label {
+.pwa-install-banner__title {
   margin: 0;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--gutenku-text-primary);
-  line-height: 1.2;
-  white-space: nowrap;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--gk-ink);
 }
 
-.pwa-install-banner__close {
-  flex-shrink: 0;
+.pwa-install-banner__pitch {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--gk-ink-soft);
+}
+
+.pwa-install-banner__actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  padding: 0;
+  gap: 0.25rem 0.5rem;
+}
+
+.pwa-install-banner__actions :deep(.zen-btn) {
+  min-height: 2.75rem;
+}
+
+// The permanent "no" stays small but keeps a full touch target.
+.pwa-install-banner__never {
+  min-height: 2.75rem;
+  padding: 0 0.5rem;
   background: transparent;
   border: none;
-  border-radius: var(--gutenku-radius-md);
-  color: var(--gutenku-text-muted);
+  border-radius: var(--gk-radius-control);
+  color: var(--gk-ink-soft);
+  font: inherit;
+  font-size: 0.75rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
   cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
-
-  &:hover {
-    background: oklch(0 0 0 / 0.06);
-    color: var(--gutenku-text-primary);
-  }
+  transition: color var(--gk-dur-fast) var(--gk-ease-out);
 
   &:focus-visible {
-    outline: 2px solid var(--gutenku-focus-ring);
+    outline: 2px solid var(--gk-indigo);
     outline-offset: 2px;
   }
 }
 
-[data-theme='dark'] .pwa-install-banner__close:hover {
-  background: oklch(1 0 0 / 0.1);
+@media (hover: hover) {
+  .pwa-install-banner__never:hover {
+    color: var(--gk-ink);
+  }
 }
 
 .pwa-banner-enter-active {
   transition:
-    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.4s ease-out;
+    transform var(--gk-dur-reward) var(--gk-ease-out),
+    opacity var(--gk-dur-reward) var(--gk-ease-out);
 }
 
 .pwa-banner-leave-active {
   transition:
-    transform 0.3s cubic-bezier(0.4, 0, 1, 1),
-    opacity 0.25s ease-in;
+    transform var(--gk-dur-fast) var(--gk-ease-out),
+    opacity var(--gk-dur-fast) var(--gk-ease-out);
 }
 
-.pwa-banner-enter-from {
-  transform: translateY(100%);
-  opacity: 0;
-}
-
+.pwa-banner-enter-from,
 .pwa-banner-leave-to {
   transform: translateY(100%);
   opacity: 0;
@@ -265,7 +299,7 @@ function handleIosModalClose() {
   padding: 1rem 0;
 
   &:not(:last-child) {
-    border-bottom: 1px solid var(--gutenku-paper-border);
+    border-bottom: var(--gk-rule-faint);
   }
 }
 
@@ -276,10 +310,10 @@ function handleIosModalClose() {
   justify-content: center;
   width: 48px;
   height: 48px;
-  background: var(--gutenku-zen-water);
-  border: 1px solid var(--gutenku-paper-border);
-  border-radius: var(--gutenku-radius-md);
-  color: var(--gutenku-zen-primary);
+  background: var(--gk-paper-deep);
+  border: 1.5px solid var(--gk-ink-faint);
+  border-radius: var(--gk-radius-control);
+  color: var(--gk-ink);
 }
 
 .pwa-ios-instructions__step-text {
@@ -287,28 +321,32 @@ function handleIosModalClose() {
 
   strong {
     display: block;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--gutenku-text-primary);
     margin-bottom: 0.25rem;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--gk-ink);
   }
 
   span {
-    font-size: 0.8rem;
-    color: var(--gutenku-text-secondary);
-    line-height: 1.4;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: var(--gk-ink-soft);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .pwa-banner-enter-active,
   .pwa-banner-leave-active {
-    transition: opacity 0.15s ease;
+    transition: opacity 150ms linear;
   }
 
   .pwa-banner-enter-from,
   .pwa-banner-leave-to {
     transform: none;
+  }
+
+  .pwa-install-banner__never {
+    transition: none;
   }
 }
 </style>

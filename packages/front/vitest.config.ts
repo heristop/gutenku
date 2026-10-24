@@ -45,7 +45,6 @@ export default defineConfig({
         'src/features/blog/composables/**/*.ts',
         'src/utils/**/*.ts',
         'src/services/**/*.ts',
-        'src/store/**/*.ts',
         'src/locales/config.ts',
       ],
       exclude: [
@@ -57,7 +56,6 @@ export default defineConfig({
         'src/client.ts',
         'src/analytics-setup.ts',
         'src/router/**',
-        'src/core/plugins/**',
         'src/core/types/**',
         'src/locales/index.ts',
         'src/features/game-stub/**',

@@ -1,0 +1,10 @@
+{
+  "extends": "fastify-tsconfig",
+  "compilerOptions": {
+    "checkJs": true,
+    "noEmit": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "types": []
+  }
+}

@@ -87,7 +87,7 @@ describe('Haiku Page', () => {
     });
 
     it('can change theme', () => {
-      cy.selectTheme('colored');
+      cy.selectTheme('greentea');
       cy.get('[data-cy=fetch-btn]:first', { timeout: 30000 }).should(
         'not.be.disabled',
       );
@@ -103,18 +103,18 @@ describe('Haiku Page', () => {
 
     it('displays stats panel', () => {
       cy.get('.stats-panel').scrollIntoView();
-      cy.get('.stats-panel.is-visible', { timeout: 10000 }).should('exist');
+      cy.get('.stats-panel', { timeout: 10000 }).should('exist');
     });
 
     it('shows haikus created metric', () => {
       cy.get('.stats-panel').scrollIntoView();
-      cy.get('.stats-panel.is-visible', { timeout: 10000 }).should('exist');
+      cy.get('.stats-panel', { timeout: 10000 }).should('exist');
       cy.contains('Haikus created').should('exist');
     });
 
     it('shows books used metric', () => {
       cy.get('.stats-panel').scrollIntoView();
-      cy.get('.stats-panel.is-visible', { timeout: 10000 }).should('exist');
+      cy.get('.stats-panel', { timeout: 10000 }).should('exist');
       cy.contains('Books used').should('exist');
     });
   });
