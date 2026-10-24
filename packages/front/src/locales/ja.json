@@ -1,34 +1,26 @@
 {
   "common": {
-    "back": "戻る",
-    "backToHome": "ホームに戻る",
     "by": "著",
     "close": "閉じる",
     "cancel": "キャンセル",
-    "clear": "クリア",
     "collapse": "折りたたむ",
     "expand": "展開",
     "page": "ページ",
-    "refresh": "更新",
     "retry": "再試行",
-    "retryWithReset": "リセットして再試行",
     "loading": "読み込み中...",
     "opensInNewTab": "新しいタブで開く",
     "swipe": "スワイプ",
     "previous": "前のページ",
     "next": "次のページ",
-    "skip": "スキップ",
-    "pageNavigation": "ページナビゲーション",
-    "tapToDismiss": "タップして閉じる"
+    "pageNavigation": "ページナビゲーション"
   },
   "nav": {
     "mainNavigation": "メインナビゲーション",
-    "pageNavigation": "ページナビゲーション",
     "home": "ホームへ",
-    "haiku": "GutenKu俳句生成へ",
+    "haiku": "俳句生成へ",
     "game": "GutenGuessで遊ぶ",
     "homeLabel": "ホーム",
-    "haikuLabel": "GutenKu",
+    "haikuLabel": "俳句",
     "gameLabel": "GutenGuess",
     "blogLabel": "ブログ",
     "blog": "ブログへ"
@@ -36,23 +28,25 @@
   "haiku": {
     "articleLabel": "生成された俳句と原文",
     "controlsLabel": "俳句の操作と設定",
-    "dailyHaiku": "今日の俳句"
+    "dailyHaiku": "今日の俳句",
+    "poem": {
+      "label": "俳句",
+      "signature": "{book}、{chapter}より",
+      "signatureNoChapter": "{book}より",
+      "sources": "出典",
+      "reveal": "本のタイトルを表示",
+      "notFound": "章の文章から言い換えています。"
+    }
   },
   "notFound": {
-    "verse1": "探していた",
-    "verse2": "ページは迷子になり—",
-    "verse3": "最初に戻る",
-    "returnHome": "ホームに戻る"
+    "returnHome": "ホームに戻る",
+    "title": "ページが見つかりません",
+    "spine": "迷子の一葉"
   },
   "theme": {
-    "currentLight": "ライトモード - クリックでシステム設定に",
-    "currentSystem": "システムモード - クリックでダークに",
-    "currentDark": "ダークモード - クリックでライトに",
     "switchToLight": "ライトモードに切替",
     "switchToDark": "ダークモードに切替",
-    "systemPreference": "システムテーマを使用",
-    "enableSystem": "システムテーマを使用",
-    "disableSystem": "システムテーマを無効化"
+    "enableSystem": "システムテーマを使用"
   },
   "pullToRefresh": {
     "pull": "引いて更新",
@@ -63,17 +57,10 @@
     "skipLink": "メインコンテンツへスキップ"
   },
   "footer": {
-    "copyright": "heristop © 2023-{year}",
     "openCredits": "クレジットを開く",
-    "help": "ヘルプと遊び方",
     "ariaLabel": "サイトフッター",
     "navAriaLabel": "フッターナビゲーション",
     "socialAriaLabel": "ソーシャルリンク",
-    "nav": {
-      "home": "ホーム",
-      "gutenku": "GutenKu",
-      "gutenguess": "GutenGuess"
-    },
     "social": {
       "instagram": "Instagram",
       "gutenberg": "Gutenberg",
@@ -87,41 +74,19 @@
       "craftedBy": "制作",
       "inspiredBy": "着想元",
       "years": "2023-{year}",
-      "github": "GitHub",
       "portfolio": "ポートフォリオ",
-      "githubLabel": "heristopのGitHubを見る（新しいタブで開く）",
       "portfolioLabel": "heristopのポートフォリオを見る（新しいタブで開く）",
-      "feedback": "ご質問やアイデアがありますか？SNSでお気軽にどうぞ！"
+      "feedback": "ご質問やアイデアがありますか？SNSでお気軽にどうぞ！",
+      "description": "GutenKuのクレジットとリンク"
     },
     "accessibility": {
-      "dyslexia": "読みやすいフォント",
       "dyslexiaOn": "読みやすいフォントを無効化",
       "dyslexiaOff": "読みやすいフォントを有効化"
     }
   },
   "hero": {
     "ariaLabel": "GutenKuについて",
-    "description": "散文が詩になる。本が謎になる。{gutenverse}は名作を俳句に凝縮。{gutenguess}は読書をゲームに変える。",
-    "welcome": "{brand}へようこそ—Project Gutenberg提供。",
-    "stats": {
-      "haikusCrafted": "作成俳句数"
-    }
-  },
-  "haikuTitle": {
-    "quotes": {
-      "0": "言葉が届かぬところに、詩が語る",
-      "1": "十七音に、無限の世界",
-      "2": "一句ごとに、魂の季節が宿る",
-      "3": "文学は静寂に命を吹き込む",
-      "4": "古典から現代の詩へ"
-    },
-    "theme": {
-      "systemDisableHint": "手動で変更するにはシステムテーマを無効に",
-      "switchToLight": "ライトモードに切替",
-      "switchToDark": "ダークモードに切替",
-      "disableSystem": "システムテーマを無効化",
-      "enableSystem": "システムテーマを有効化"
-    }
+    "description": "散文が詩になる。本が謎になる。{gutenku}は名作を俳句に凝縮。{gutenguess}は読書をゲームに変える。"
   },
   "haikuChapter": {
     "ariaLabel": "俳句の詩句がハイライトされた書籍の章の抜粋",
@@ -134,27 +99,6 @@
     "showCompacted": "コンパクト表示",
     "swipeHint": "スワイプで新しい俳句",
     "readOnGutenberg": "Gutenbergで読む"
-  },
-  "haikuProcess": {
-    "steps": {
-      "literature": {
-        "title": "古典文学",
-        "description": "Project Gutenbergライブラリから"
-      },
-      "haiku": {
-        "title": "AI俳句",
-        "description": "5-7-5音節で抽出"
-      },
-      "visual": {
-        "title": "ビジュアルアート",
-        "description": "俳句のアートワークを作成"
-      }
-    }
-  },
-  "haikuCrafting": {
-    "title": "俳句を作成中",
-    "progress": "作成中...",
-    "pageNumber": "— 作成中 —"
   },
   "haikuCanvas": {
     "loading": "アートワークを作成中...",
@@ -176,30 +120,60 @@
     "converged": "収束",
     "extracting": "抽出中",
     "generateTooltip": "新しい俳句を作成",
-    "subtitle": "本から詩を",
+    "iterationPresets": "反復回数のプリセット",
+    "aiText": "AIテキスト",
+    "aiImage": "AI画像",
     "iterations": "反復回数",
     "stop": "停止",
     "stopTooltip": "生成を停止して最良の俳句を使用",
     "copyTooltip": "俳句をクリップボードにコピー",
-    "copySuccess": "俳句をクリップボードにコピーしました！",
     "copyError": "コピーできませんでした。もう一度お試しください。",
     "copiedLabel": "俳句をクリップボードにコピーしました",
     "shareTooltip": "俳句を共有",
-    "shareSuccess": "俳句を共有しました！",
     "downloadTooltip": "画像としてダウンロード",
-    "downloadSuccess": "画像を保存しました！",
+    "downloadSuccess": "画像を保存しました",
     "downloadError": "画像を保存できませんでした。もう一度お試しください。",
     "previousTooltip": "前の俳句",
     "nextTooltip": "次の俳句",
     "historyLabel": "俳句履歴ナビゲーション",
+    "copy": "コピー",
+    "copied": "コピー済み",
+    "share": "共有",
+    "shared": "共有済み",
+    "save": "保存",
+    "saveUnavailable": "画像付きの俳句を作ると保存できます",
     "historyPosition": "俳句 {current} / {total}"
+  },
+  "aiKey": {
+    "title": "AIオプション",
+    "titleActive": "このブラウザにOpenAIキーが保存されています",
+    "label": "あなたのOpenAIキー",
+    "check": "確認",
+    "checking": "確認中…",
+    "yourKey": "あなたのキー",
+    "forget": "キーを削除",
+    "note": "このブラウザにのみ保存されます。あなたの作成時にだけ送信され、OpenAIの利用料はあなたのアカウントに請求されます。私たちが保存することはありません。",
+    "getKey": "キーを取得",
+    "pricing": "料金",
+    "status": {
+      "malformed": "OpenAIのキーではないようです（sk- で始まります）。",
+      "invalid": "OpenAIがこのキーを受け付けませんでした。",
+      "unavailable": "OpenAIに接続できません。少し待ってから再度お試しください。"
+    },
+    "errors": {
+      "invalid_key": "OpenAIがキーを拒否したため、AIなしで俳句を作成しました。キーを確認するか、置き換えてください。",
+      "no_quota": "OpenAIアカウントのクレジットが残っていないため、AIなしで俳句を作成しました。",
+      "unavailable": "OpenAIから応答がなかったため、AIなしで俳句を作成しました。少し待ってから再度お試しください。"
+    },
+    "show": "キーを表示",
+    "hide": "キーを隠す",
+    "accepted": "キーが承認されました。AIが有効です。"
   },
   "scoring": {
     "title": "品質スコア",
     "subtitle": "俳句分析",
     "viewDetails": "詳細を見る",
     "total": "総合",
-    "executionTime": "生成時間",
     "categories": {
       "language": "言語",
       "flow": "流れ",
@@ -228,76 +202,19 @@
   },
   "stats": {
     "title": "あなたの統計",
-    "subtitle": "生成履歴",
     "ariaLabel": "統計、クリックで展開",
-    "haikusGenerated": "{count}句作成",
-    "you": "あなた",
-    "global": "全体",
     "metrics": {
       "haikuForged": "作成した俳句",
       "booksBrowsed": "使用した本",
       "dailyViews": "日間閲覧",
       "avgTime": "平均時間"
     },
-    "cacheUsage": "キャッシュ使用量",
     "topBooks": "よく使う本",
     "times": "{count}回",
-    "bookRank": "順位 {rank}",
-    "emptyState": "まだ俳句を作成していません",
-    "tableHeaders": {
-      "rank": "順位",
-      "book": "書名",
-      "count": "使用回数"
-    }
-  },
-  "config": {
-    "title": "設定",
-    "subtitle": "俳句作成の設定を調整",
-    "ariaLabel": "設定、クリックで展開",
-    "generateTooltip": "現在の設定で作成",
-    "stopTooltip": "生成を停止して最良の俳句を使用",
-    "resetTooltip": "デフォルトにリセット",
-    "advancedTooltip": "生成フィルターを調整",
-    "showAdvanced": "詳細設定を表示",
-    "hideAdvanced": "詳細設定を非表示",
-    "sliderValue": "{label}: {value}",
-    "generating": "作成中",
-    "filters": {
-      "iterations": "反復回数"
-    }
-  },
-  "social": {
-    "ariaLabel": "GutenKuについて",
-    "linksAriaLabel": "ソーシャルリンク",
-    "description": "<strong>GutenKu</strong>はProject Gutenbergライブラリの本から引用を抽出し、<strong>5</strong>-<strong>7</strong>-<strong>5</strong>の俳句を作成する俳句ジェネレーターです",
-    "links": {
-      "instagram": {
-        "name": "Instagram",
-        "label": "Instagramで公開された俳句を見る"
-      },
-      "gutenberg": {
-        "name": "Gutenberg",
-        "label": "Project Gutenbergのウェブサイトを訪問"
-      },
-      "github": {
-        "name": "GitHub",
-        "label": "GitHubでソースコードを見る"
-      }
-    }
+    "emptyState": "まだ俳句を作成していません"
   },
   "home": {
-    "tagline": "古典文学からの俳句",
-    "haikusCrafted": "{count}句の俳句を作成",
-    "gamesPlayed": "{count}ゲーム",
-    "winRate": "{rate}%正解",
-    "todayHaikusCrafted": "今日{count}句の俳句を作成",
-    "weekHaikusCrafted": "今週{count}句の俳句を作成",
-    "todayWinRate": "今日{rate}%正解",
-    "todayAvgHints": "ヒント {avg}%",
-    "weekWinRate": "{rate}%正解",
-    "weekAvgHints": "ヒント {avg}%",
-    "networkError": "サーバーに接続できません :(",
-    "haikuReady": "俳句の準備完了",
+    "networkError": "図書館はしばらく閉まっています。",
     "readyMessage": "詩を作成する準備ができました",
     "haikuContentLabel": "俳句の内容",
     "loadingMessages": {
@@ -308,73 +225,59 @@
       "4": "美的テーマを選択中...",
       "5": "俳句のアートワークを作成中...",
       "6": "俳句を仕上げ中..."
-    }
-  },
-  "loadingMessages": {
-    "default": {
-      "0": "古典文学を検索中...",
-      "1": "本の一節をスキャン中...",
-      "2": "テキストの感情を分析中...",
-      "3": "十七音を構成中...",
-      "4": "美的テーマを選択中...",
-      "5": "俳句のアートワークを作成中...",
-      "6": "俳句を仕上げ中...",
-      "7": "季節のイメージを処理中...",
-      "8": "音節をカウント中: 5-7-5...",
-      "9": "テキストソースを読み込み中...",
-      "10": "Gutenbergライブラリから取得中...",
-      "11": "章の内容を解析中...",
-      "12": "詩句の構造を組み立て中...",
-      "13": "単語候補をフィルタリング中...",
-      "14": "音節数を検証中...",
-      "15": "改行を調整中...",
-      "16": "俳句の制約をチェック中...",
-      "17": "出力をフォーマット中...",
-      "18": "詩句のシーケンスを構築中...",
-      "19": "単語パターンを分析中...",
-      "20": "切れ字の配置を適用中...",
-      "21": "ブラウザでレンダリング中...",
-      "22": "間隔を計算中...",
-      "23": "オーディオアセットを読み込み中...",
-      "24": "テキストの文法を処理中...",
-      "25": "パブリックドメインのテキストにアクセス中...",
-      "26": "イメージを選択中...",
-      "27": "ソース資料をインデックス中...",
-      "28": "言語パターンを処理中...",
-      "29": "句読点を調整中...",
-      "30": "スタンザを構造化中...",
-      "31": "テキストを詩句に変換中...",
-      "32": "語彙を選択中...",
-      "33": "比喩を正規化中...",
-      "34": "テキストの断片をキャプチャ中..."
     },
-    "craft": {
-      "0": "俳句を作成中...",
-      "1": "音節を組み立て中...",
-      "2": "イメージを処理中...",
-      "3": "ソーステキストを分析中...",
-      "4": "詩句のリズムを構築中...",
-      "5": "行をフォーマット中...",
-      "6": "要素を配置中...",
-      "7": "改行を追加中...",
-      "8": "詩句を構造化中...",
-      "9": "単語の休止を配置中...",
-      "10": "スタンザをフォーマット中...",
-      "11": "音節をカウント中...",
-      "12": "単語の重みを調整中...",
-      "13": "俳句のルールを参照中...",
-      "14": "句読点を適用中...",
-      "15": "構造を仕上げ中..."
+    "hero": {
+      "colophonCount": "2023年からProject Gutenbergより{count}句を切り出しました。",
+      "colophon": "2023年からProject Gutenbergより句を切り出しています。",
+      "headline": "古い本から、{br}新しい{haiku}。",
+      "headlineHaiku": "俳句",
+      "write": "俳句を作る",
+      "play": "GutenGuessで遊ぶ",
+      "playNumber": "第{number}号で遊ぶ"
+    },
+    "daily": {
+      "label": "今日の俳句",
+      "loading": "今日のページを開いています…",
+      "empty": "今日の俳句はまだ準備中です。その間に自分の俳句を作りましょう。",
+      "readMore": "鑑賞をすべて読む",
+      "readLess": "閉じる",
+      "trace": "出典をたどる",
+      "lifted": "どの句もパブリックドメインの本から切り取られています。",
+      "bookmoji": "ブックモジのヒント",
+      "source": "今日の句の出典：{book}（{author}）",
+      "nextInHours": "次の俳句まであと{hours}時間",
+      "nextInMinutes": "次の俳句まであと{minutes}分",
+      "nextSoon": "新しい俳句がまもなく届きます",
+      "nextDaily": "毎日新しい俳句を",
+      "labelPast": "{date}の俳句",
+      "labelDay": "この日の俳句",
+      "sourcePast": "この句の出典：{book}（{author}）",
+      "backToToday": "今日に戻る",
+      "failed": "この俳句を読み込めませんでした。",
+      "retry": "再試行",
+      "missing": "この日の俳句は記録されていません。",
+      "nav": {
+        "label": "過去の俳句をめくる",
+        "previous": "前の俳句、{date}",
+        "previousNone": "これより前の俳句はありません",
+        "next": "次の俳句、{date}",
+        "nextNone": "これより後の俳句はありません"
+      }
+    },
+    "gameEntry": {
+      "description": "手がかりから今日の名作を当てましょう。",
+      "numberLabel": "パズル 第{number}号"
     }
   },
   "pwa": {
     "bannerLabel": "アプリインストールのお知らせ",
-    "installPrompt": "GutenVerse をインストール",
-    "addToHomeScreen": "GutenVerseをホーム画面に追加",
-    "installSubtitle": "俳句とゲームに素早くアクセス",
+    "installPrompt": "GutenKu をインストール",
+    "pitch": "毎日の俳句とGutenGuessを、ホーム画面からワンタップで。",
     "install": "インストール",
-    "installButton": "GutenVerseアプリをインストール",
-    "iosModalTitle": "GutenVerseをインストール",
+    "notNow": "今はしない",
+    "neverAsk": "今後表示しない",
+    "installButton": "GutenKuアプリをインストール",
+    "iosModalTitle": "GutenKuをインストール",
     "iosModalDescription": "最高の体験のためにホーム画面に追加してください",
     "iosStep1Title": "共有ボタンをタップ",
     "iosStep1Desc": "下部のSafariツールバーにあります",
@@ -407,10 +310,23 @@
     "minRead": "{min}分で読める",
     "newerArticle": "新しい記事",
     "olderArticle": "古い記事",
-    "readArticle": "記事を読む",
     "notFound": "記事が見つかりません",
     "notFoundDescription": "お探しの記事は存在しません。",
     "rss": "購読",
-    "keyboardNavHint": "← → で移動"
+    "keyboardNavHint": "{prev} {next} で移動",
+    "keyPrev": "左矢印キー",
+    "keyNext": "右矢印キー",
+    "issue": "第{number}号",
+    "empty": "まだ記事はありません。最初の記事は執筆中です。",
+    "articleNav": "ほかの記事",
+    "backToTop": "ページの先頭へ",
+    "shareLabel": "この記事を共有",
+    "shareOn": "{network}で共有",
+    "copyLink": "リンクをコピー",
+    "linkCopied": "リンクをコピーしました",
+    "copyFailed": "リンクをコピーできませんでした。アドレスバーからコピーしてください。",
+    "tocTitle": "目次",
+    "tocLabel": "目次",
+    "tocCount": "全{count}節"
   }
 }

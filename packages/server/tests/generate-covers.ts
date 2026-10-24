@@ -138,16 +138,16 @@ describe('Cover File Path Generation', () => {
 });
 
 describe('OpenAI Image Generation Parameters', () => {
-  // gpt-image-1.5 API parameters (no response_format - always returns b64_json)
+  // gpt-image-2.5-sunburst API parameters (no response_format - always returns b64_json)
   const expectedParams = {
-    model: 'gpt-image-1.5',
+    model: 'gpt-image-2.5-sunburst',
     size: '1024x1024',
     quality: 'high', // Valid values: 'low', 'medium', 'high'
     n: 1,
   };
 
   it('should use correct model', () => {
-    expect(expectedParams.model).toBe('gpt-image-1.5');
+    expect(expectedParams.model).toBe('gpt-image-2.5-sunburst');
   });
 
   it('should use square format', () => {
@@ -158,7 +158,7 @@ describe('OpenAI Image Generation Parameters', () => {
 
   it('should use high quality', () => {
     expect(expectedParams.quality).toBe('high');
-    // Valid quality values for gpt-image-1.5
+    // Valid quality values for gpt-image-2.5-sunburst
     expect(['low', 'medium', 'high']).toContain(expectedParams.quality);
   });
 

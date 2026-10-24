@@ -1,5 +1,7 @@
 import { inject, injectable } from 'tsyringe';
+import { currentOpenAIKey } from '~/infrastructure/external/openai-scope';
 import type { HaikuValue } from '~/shared/types';
+import type { ImagePreviewHandler } from '~/domain/services/ICanvasService';
 import HaikuGeneratorService from '~/domain/services/HaikuGeneratorService';
 import OpenAIGeneratorService from '~/infrastructure/services/OpenAIGeneratorService';
 import {
@@ -30,6 +32,10 @@ export interface HaikuProgress {
   bestHaiku: HaikuValue | null;
   isComplete: boolean;
   stopReason?: string;
+  /** Small JPEG (base64) of the card while its AI background is painted */
+  imagePreview?: string;
+  /** Why AI fell short, on the final event: invalid_key, no_quota, unavailable */
+  aiError?: string;
 }
 
 export interface IterativeHaikuArgs {
@@ -37,6 +43,8 @@ export interface IterativeHaikuArgs {
   theme?: string;
   filter?: string;
   useAI?: boolean;
+  /** Lets the random theme draw among the AI-painted ones */
+  useImageAI?: boolean;
 }
 
 /** Default TTL for crafted haikus: 72 hours */
@@ -56,7 +64,9 @@ export class GenerateHaikuIterativeHandler {
   ) {}
 
   async *generate(args: IterativeHaikuArgs): AsyncGenerator<HaikuProgress> {
-    const { iterations, theme, filter, useAI = false } = args;
+    const { iterations, theme, filter } = args;
+    const useAI = Boolean(args.useAI);
+    const useImageAI = Boolean(args.useImageAI);
 
     log.info(
       { iterations, theme, filter, useAI },
@@ -126,7 +136,11 @@ export class GenerateHaikuIterativeHandler {
       });
     }
 
-    const bestHaiku = await this.finalizeHaiku(bestOverallHaiku, useAI);
+    const bestHaiku = yield* this.finalizeWithDrafts(
+      bestOverallHaiku,
+      { useAI, useImageAI },
+      { iterations, bestScore: bestOverallScore },
+    );
 
     this.trackAndCacheHaiku(bestHaiku);
 
@@ -136,6 +150,65 @@ export class GenerateHaikuIterativeHandler {
       { bestScore: bestHaiku?.quality?.totalScore, iterations },
       'GA-based iterative generation complete',
     );
+  }
+
+  // While the card is painted, each draft goes out as it lands; only the
+  // latest one matters if several queue up between two sends. Returns the
+  // finished haiku.
+  private async *finalizeWithDrafts(
+    haiku: HaikuValue | null,
+    options: { useAI: boolean; useImageAI: boolean },
+    progress: { iterations: number; bestScore: number },
+  ): AsyncGenerator<HaikuProgress, HaikuValue | null> {
+    const state = {
+      drafts: [] as string[],
+      finalized: false,
+      wake: null as (() => void) | null,
+    };
+    const finalizing = this.finalizeHaiku(haiku, options, (draft) => {
+      state.drafts.push(draft);
+      state.wake?.();
+    }).finally(() => {
+      state.finalized = true;
+      state.wake?.();
+    });
+
+    while (!state.finalized || state.drafts.length > 0) {
+      if (state.drafts.length === 0) {
+        await new Promise<void>((resolve) => {
+          state.wake = resolve;
+        });
+        state.wake = null;
+        continue;
+      }
+
+      yield {
+        currentIteration: progress.iterations,
+        totalIterations: progress.iterations,
+        bestScore: progress.bestScore,
+        bestHaiku: null,
+        isComplete: false,
+        imagePreview: state.drafts.splice(0).at(-1),
+      };
+    }
+
+    return finalizing;
+  }
+
+  private async enrich(haiku: HaikuValue): Promise<void> {
+    // The request's key (a visitor's own) or the server's
+    const apiKey = currentOpenAIKey();
+
+    if (!apiKey) {
+      return;
+    }
+
+    this.openAIGenerator.configure({
+      apiKey,
+      selectionCount: 1,
+      temperature: { description: 0.7 },
+    });
+    await this.openAIGenerator.enrichHaikuWithMetadata(haiku);
   }
 
   private trackAndCacheHaiku(haiku: HaikuValue | null): void {
@@ -242,25 +315,27 @@ export class GenerateHaikuIterativeHandler {
 
   private async finalizeHaiku(
     haiku: HaikuValue | null,
-    useAI: boolean = false,
+    {
+      useAI = false,
+      useImageAI = false,
+    }: { useAI?: boolean; useImageAI?: boolean },
+    onPreview?: ImagePreviewHandler,
   ): Promise<HaikuValue | null> {
     if (!haiku) {
       return null;
     }
 
     try {
-      const withImage = await this.haikuGenerator.appendImg(haiku, false);
+      // The card and the AI text don't depend on each other: the text fills
+      // in the haiku (title, description, translations) while the card is
+      // painted from its verses
+      const [withImage] = await Promise.all([
+        this.haikuGenerator.appendImg(haiku, useImageAI, onPreview),
+        useAI ? this.enrich(haiku) : undefined,
+      ]);
 
-      if (useAI && process.env.OPENAI_API_KEY) {
-        this.openAIGenerator.configure({
-          apiKey: process.env.OPENAI_API_KEY,
-          selectionCount: 1,
-          temperature: { description: 0.7 },
-        });
-        await this.openAIGenerator.enrichHaikuWithMetadata(withImage);
-      }
-
-      return withImage;
+      // The text landed on the haiku itself; the card result keeps the rest
+      return { ...withImage, ...haiku, image: withImage.image };
     } catch (error) {
       log.error({ error }, 'Failed to generate image or enrich metadata');
 
