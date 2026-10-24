@@ -60,7 +60,6 @@ function handleClick(event: MouseEvent, to: string, navigate: () => void) {
             class="ink-nav__item"
             :class="{ 'ink-nav__item--active': isActive(page.to) }"
             :aria-current="isActive(page.to) ? 'page' : undefined"
-            :aria-label="t(page.ariaLabelKey)"
             @click="handleClick($event, page.to, navigate)"
           >
             <sup class="ink-nav__numeral" aria-hidden="true">{{

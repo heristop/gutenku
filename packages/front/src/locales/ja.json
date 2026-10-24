@@ -16,14 +16,10 @@
   },
   "nav": {
     "mainNavigation": "メインナビゲーション",
-    "home": "ホームへ",
-    "haiku": "俳句生成へ",
-    "game": "GutenGuessで遊ぶ",
     "homeLabel": "ホーム",
     "haikuLabel": "俳句",
     "gameLabel": "GutenGuess",
-    "blogLabel": "ブログ",
-    "blog": "ブログへ"
+    "blogLabel": "ブログ"
   },
   "haiku": {
     "articleLabel": "生成された俳句と原文",

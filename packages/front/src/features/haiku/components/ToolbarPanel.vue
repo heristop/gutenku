@@ -260,9 +260,6 @@ useKeyboardShortcuts({
           <ZenButton
             :disabled="loading && !isGenerating"
             :aria-busy="loading || undefined"
-            :aria-label="
-              isGenerating ? t('toolbar.stopTooltip') : generateTooltip
-            "
             class="toolbar-panel__button toolbar-panel__button--generate"
             :class="{
               'toolbar-panel__button--busy': loading && !isGenerating,
@@ -426,7 +423,7 @@ useKeyboardShortcuts({
         :class="{ 'toolbar-panel__action--done': copied }"
         data-cy="copy-btn"
         :disabled="!haiku?.verses?.length"
-        :aria-label="copied ? t('toolbar.copiedLabel') : copyTooltip"
+        :title="copyTooltip"
         @click="copyHaiku"
       >
         <template #icon-left>
@@ -445,7 +442,7 @@ useKeyboardShortcuts({
         :class="{ 'toolbar-panel__action--done': shared }"
         data-cy="share-btn"
         :disabled="!haiku?.verses?.length"
-        :aria-label="shareTooltip"
+        :title="shareTooltip"
         @click="shareHaiku"
       >
         <template #icon-left>
@@ -469,7 +466,6 @@ useKeyboardShortcuts({
           data-cy="download-btn"
           :loading="downloadInProgress"
           :disabled="!haiku?.image || loading"
-          :aria-label="downloadTooltip"
           @click="downloadImage"
         >
           <template #icon-left>

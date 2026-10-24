@@ -52,7 +52,10 @@ const selectedIndex = computed(() =>
 );
 
 const triggerLabel = computed(
-  () => `${t('locale.switch')}: ${getLocaleLabel(currentLocale.value)}`,
+  // Starts with the code shown on the key (EN), so a voice command naming
+  // what is seen reaches it
+  () =>
+    `${currentLocale.value.toUpperCase()} · ${t('locale.switch')}: ${getLocaleLabel(currentLocale.value)}`,
 );
 
 const leafStyle = computed<CSSProperties>(() => ({

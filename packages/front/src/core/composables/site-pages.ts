@@ -5,7 +5,6 @@ import { GAME_ENABLED } from '@/features/game/config';
 export interface SitePage {
   to: string;
   labelKey: string;
-  ariaLabelKey: string;
   numeral: string;
   pageNumber: string;
 }
@@ -13,12 +12,10 @@ export interface SitePage {
 const NUMERALS = ['i', 'ii', 'iii', 'iv', 'v', 'vi'];
 
 const PAGES: Array<Omit<SitePage, 'numeral' | 'pageNumber'>> = [
-  { to: '/', labelKey: 'nav.homeLabel', ariaLabelKey: 'nav.home' },
-  ...(GAME_ENABLED
-    ? [{ to: '/game', labelKey: 'nav.gameLabel', ariaLabelKey: 'nav.game' }]
-    : []),
-  { to: '/haiku', labelKey: 'nav.haikuLabel', ariaLabelKey: 'nav.haiku' },
-  { to: '/blog', labelKey: 'nav.blogLabel', ariaLabelKey: 'nav.blog' },
+  { to: '/', labelKey: 'nav.homeLabel' },
+  ...(GAME_ENABLED ? [{ to: '/game', labelKey: 'nav.gameLabel' }] : []),
+  { to: '/haiku', labelKey: 'nav.haikuLabel' },
+  { to: '/blog', labelKey: 'nav.blogLabel' },
 ];
 
 // The site read as a book: each top-level page gets a roman numeral in the

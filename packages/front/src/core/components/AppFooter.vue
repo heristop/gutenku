@@ -62,7 +62,7 @@ const socialLinks = [
       <button
         type="button"
         class="footer-copyright"
-        :aria-label="t('footer.openCredits')"
+        :aria-label="`heristop © 2023–${currentYear} · ${t('footer.openCredits')}`"
         :title="t('footer.openCredits')"
         @click="showCredits = true"
       >

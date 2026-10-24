@@ -16,14 +16,10 @@
   },
   "nav": {
     "mainNavigation": "Navigation principale",
-    "home": "Aller à l'accueil",
-    "haiku": "Aller au générateur de haïku",
-    "game": "Jouer à GutenGuess",
     "homeLabel": "Accueil",
     "haikuLabel": "Haïku",
     "gameLabel": "GutenGuess",
-    "blogLabel": "Blog",
-    "blog": "Aller au blog"
+    "blogLabel": "Blog"
   },
   "haiku": {
     "articleLabel": "Haïku généré et texte source",
