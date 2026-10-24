@@ -229,7 +229,7 @@
     "hero": {
       "colophonCount": "{count} haiku cut from Project Gutenberg since 2023.",
       "colophon": "Haiku cut from Project Gutenberg since 2023.",
-      "headline": "Old books,{br}new {haiku}.",
+      "headline": "Classic books,{br}new {haiku}.",
       "headlineHaiku": "haiku",
       "write": "Write a haiku",
       "play": "Play GutenGuess",

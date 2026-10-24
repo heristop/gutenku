@@ -229,7 +229,7 @@
     "hero": {
       "colophonCount": "{count} haïkus taillés dans Project Gutenberg depuis 2023.",
       "colophon": "Des haïkus taillés dans Project Gutenberg depuis 2023.",
-      "headline": "Vieux livres,{br}nouveaux {haiku}.",
+      "headline": "Livres classiques,{br}nouveaux {haiku}.",
       "headlineHaiku": "haïkus",
       "write": "Écrire un haïku",
       "play": "Jouer à GutenGuess",

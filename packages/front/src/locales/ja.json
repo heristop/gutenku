@@ -229,7 +229,7 @@
     "hero": {
       "colophonCount": "2023年からProject Gutenbergより{count}句を切り出しました。",
       "colophon": "2023年からProject Gutenbergより句を切り出しています。",
-      "headline": "古い本から、{br}新しい{haiku}。",
+      "headline": "古典の名作から、{br}新しい{haiku}。",
       "headlineHaiku": "俳句",
       "write": "俳句を作る",
       "play": "GutenGuessで遊ぶ",
