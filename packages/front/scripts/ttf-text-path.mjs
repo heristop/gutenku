@@ -5,6 +5,9 @@
 
 import { readFileSync } from 'node:fs';
 
+// Glyph ids wrap at 16 bits
+const UINT16_MASK = 65_535;
+
 function readTables(b) {
   const tables = {};
   const numTables = b.readUInt16BE(4);
@@ -59,12 +62,12 @@ function glyphIndexer(b, cmap4) {
       const ro = b.readUInt16BE(ranges + i * 2);
 
       if (ro === 0) {
-        return (code + delta) & 0xff_ff;
+        return (code + delta) & UINT16_MASK;
       }
 
       const g = b.readUInt16BE(ranges + i * 2 + ro + (code - start) * 2);
 
-      return g === 0 ? 0 : (g + delta) & 0xff_ff;
+      return g === 0 ? 0 : (g + delta) & UINT16_MASK;
     }
 
     return 0;

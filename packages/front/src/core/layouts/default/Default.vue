@@ -157,10 +157,8 @@ useHead({
 
   // Reserve the left margin for the spine so it never covers content
   @media (min-width: 1024px) {
-    padding-left: calc(
-      var(--safe-area-inset-left, env(safe-area-inset-left, 0px)) +
-        var(--gk-spine-width)
-    );
+    padding-left: calc(var(--gk-safe-left) + var(--gk-spine-width));
+    --gk-safe-left: var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
   }
 }
 
