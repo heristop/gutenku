@@ -28,6 +28,20 @@ const log = createLogger('haiku-iterative-handler');
 /** Number of internal GA generations per iteration */
 const GA_GENERATIONS_PER_ITERATION = 50;
 
+/**
+ * Most iterations one request may run: the crafting panel's own maximum.
+ * The API is public, so the count is bounded here, not only in the UI.
+ */
+export const MAX_ITERATIONS = 50;
+
+export function clampIterations(requested: number): number {
+  const whole = Math.floor(requested);
+
+  return Number.isFinite(whole)
+    ? Math.min(Math.max(whole, 1), MAX_ITERATIONS)
+    : 1;
+}
+
 export interface HaikuProgress {
   currentIteration: number;
   totalIterations: number;
@@ -67,7 +81,8 @@ export class GenerateHaikuIterativeHandler {
   ) {}
 
   async *generate(args: IterativeHaikuArgs): AsyncGenerator<HaikuProgress> {
-    const { iterations, theme, filter } = args;
+    const { theme, filter } = args;
+    const iterations = clampIterations(args.iterations);
     const useAI = Boolean(args.useAI);
     const useImageAI = Boolean(args.useImageAI);
 
