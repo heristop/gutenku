@@ -31,7 +31,8 @@
       "signatureNoChapter": "{book}より",
       "sources": "出典",
       "reveal": "本のタイトルを表示",
-      "notFound": "章の文章から言い換えています。"
+      "notFound": "章の文章から言い換えています。",
+      "sourcesToggle": "出典 · {count}"
     }
   },
   "notFound": {

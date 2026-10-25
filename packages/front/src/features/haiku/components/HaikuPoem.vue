@@ -1,11 +1,13 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, ref, useId } from 'vue';
+import { useMediaQuery } from '@vueuse/core';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import InkStamp from '@/core/components/ink/InkStamp.vue';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
 import { useBookRedaction } from '@/features/haiku/composables/book-redaction';
 import { getVerseContext } from '@/features/haiku/composables/verse-sources';
+import { longestVerseLength } from '@/features/haiku/composables/verse-fit';
 
 const ROMAN = ['i', 'ii', 'iii', 'iv', 'v'];
 
@@ -18,6 +20,16 @@ const label = computed(() =>
 );
 
 const chapterTitle = computed(() => haiku.value?.chapter?.title?.trim() ?? '');
+
+// The type is sized to the longest verse, so the poem keeps its three lines
+const verseCh = computed(
+  () => longestVerseLength(haiku.value?.verses ?? []) || 20,
+);
+
+// Phones fold the sources behind one key so Craft Haiku stays in view
+const isPhone = useMediaQuery('(max-width: 600px)');
+const sourcesOpen = ref(false);
+const sourcesId = useId();
 
 // Each verse cites where it was cut from: the words around it in the chapter
 const sources = computed(() => {
@@ -63,7 +75,11 @@ const redactedWidth = computed(
     <div class="haiku-poem__stage">
       <h1 class="sr-only">{{ label }}</h1>
 
-      <p class="haiku-poem__verses" data-cy="haiku-verses">
+      <p
+        class="haiku-poem__verses"
+        data-cy="haiku-verses"
+        :style="{ '--verse-ch': verseCh }"
+      >
         <span
           v-for="(verse, index) in haiku.verses"
           :key="`${index}-${verse}`"
@@ -121,8 +137,24 @@ const redactedWidth = computed(
       class="haiku-poem__sources"
       :aria-label="t('haiku.poem.sources')"
     >
-      <h2 class="haiku-poem__sources-title">{{ t('haiku.poem.sources') }}</h2>
-      <ol class="haiku-poem__source-list">
+      <button
+        v-if="isPhone"
+        type="button"
+        class="haiku-poem__sources-toggle"
+        :aria-expanded="sourcesOpen"
+        :aria-controls="sourcesId"
+        @click="sourcesOpen = !sourcesOpen"
+      >
+        {{ t('haiku.poem.sourcesToggle', { count: sources.length }) }}
+      </button>
+      <h2 v-else class="haiku-poem__sources-title">
+        {{ t('haiku.poem.sources') }}
+      </h2>
+      <ol
+        v-show="!isPhone || sourcesOpen"
+        :id="sourcesId"
+        class="haiku-poem__source-list"
+      >
         <li
           v-for="source in sources"
           :key="source.numeral"
@@ -197,7 +229,11 @@ const redactedWidth = computed(
     margin: 0;
     // Sized by the leaf, not the window: the stage narrows beside the sources
     // column, and a verse should not fold there
-    font-size: clamp(1.375rem, 6.2cqi, 2.25rem);
+    font-size: clamp(
+      1.125rem,
+      calc(100cqi / (var(--verse-ch, 20) * 0.6 + 2.4)),
+      2.25rem
+    );
     line-height: 1.45;
     letter-spacing: -0.025em;
     overflow-wrap: anywhere;
@@ -221,11 +257,11 @@ const redactedWidth = computed(
 
     @media (max-width: 600px) {
       &:nth-child(2) {
-        padding-left: 1.4em;
+        padding-left: 1ch;
       }
 
       &:nth-child(3) {
-        padding-left: 0.7em;
+        padding-left: 0.5ch;
       }
     }
   }
@@ -331,6 +367,27 @@ const redactedWidth = computed(
     @media (min-width: 900px) {
       border-top: 0;
       border-left: var(--gk-rule-faint);
+    }
+  }
+
+  // The same small-caps line as the title, as a key on phones
+  &__sources-toggle {
+    justify-self: start;
+    min-height: 2.75rem;
+    padding: 0;
+    font-family: inherit;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gk-indigo);
+    background: none;
+    border: 0;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid var(--gk-indigo);
+      outline-offset: 2px;
     }
   }
 

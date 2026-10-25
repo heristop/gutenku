@@ -31,7 +31,8 @@
       "signatureNoChapter": "cut from {book}",
       "sources": "Sources",
       "reveal": "Reveal the book title",
-      "notFound": "Reworded from the chapter."
+      "notFound": "Reworded from the chapter.",
+      "sourcesToggle": "Sources · {count}"
     }
   },
   "notFound": {

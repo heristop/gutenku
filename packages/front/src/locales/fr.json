@@ -31,7 +31,8 @@
       "signatureNoChapter": "tiré de {book}",
       "sources": "Sources",
       "reveal": "Révéler le titre du livre",
-      "notFound": "Reformulé à partir du chapitre."
+      "notFound": "Reformulé à partir du chapitre.",
+      "sourcesToggle": "Sources · {count}"
     }
   },
   "notFound": {
