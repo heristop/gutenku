@@ -90,4 +90,41 @@ describe.runIf(gameEnabled)('sound key', () => {
 
     expect(wrapper.find('[aria-pressed]').exists()).toBeFalsy();
   });
+
+  it('counts down to the next classic once the game is over', async () => {
+    const { useGameStore } = await import('@/features/game/store/game');
+    const store = useGameStore();
+    store.puzzle = {
+      date: '2026-10-25',
+      puzzleNumber: 298,
+      hints: [],
+      haikus: [],
+      emoticonCount: 5,
+      visibleIndices: [],
+      nextPuzzleAvailableAt: new Date(
+        Date.now() + (5 * 60 + 57) * 60_000 + 30_000,
+      ).toISOString(),
+    } as never;
+    const GameHeader = (
+      await import('@/features/game/components/GameHeader.vue')
+    ).default;
+
+    const playing = mount(GameHeader, { global: { stubs } });
+    expect(playing.find('.stat-group--next').exists()).toBeFalsy();
+    playing.unmount();
+
+    store.currentGame = {
+      date: '2026-10-25',
+      puzzleNumber: 298,
+      guesses: [],
+      isComplete: true,
+      isWon: false,
+    } as never;
+    const finished = mount(GameHeader, { global: { stubs } });
+    const next = finished.get('.stat-group--next');
+
+    expect(next.text()).toContain('game.result.nextIn');
+    expect(next.text()).toMatch(/05:57:\d\d/);
+    finished.unmount();
+  });
 });
