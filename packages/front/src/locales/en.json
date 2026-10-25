@@ -321,6 +321,7 @@
     "keyPrev": "Left arrow",
     "keyNext": "Right arrow",
     "issue": "Issue {number}",
+    "colophon": "No. {number} · set in JMH Typewriter · {date}",
     "empty": "No articles yet. The first entry is still being typed.",
     "articleNav": "More articles",
     "backToTop": "Back to top",

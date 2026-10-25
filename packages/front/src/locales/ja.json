@@ -317,6 +317,7 @@
     "keyPrev": "左矢印キー",
     "keyNext": "右矢印キー",
     "issue": "第{number}号",
+    "colophon": "第{number}号 · JMH Typewriter で組版 · {date}",
     "empty": "まだ記事はありません。最初の記事は執筆中です。",
     "articleNav": "ほかの記事",
     "backToTop": "ページの先頭へ",

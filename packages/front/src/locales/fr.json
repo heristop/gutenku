@@ -321,6 +321,7 @@
     "keyPrev": "Flèche gauche",
     "keyNext": "Flèche droite",
     "issue": "Numéro {number}",
+    "colophon": "N° {number} · composé en JMH Typewriter · {date}",
     "empty": "Aucun article pour l'instant. Le premier est encore sous la machine à écrire.",
     "articleNav": "Autres articles",
     "backToTop": "Retour en haut",

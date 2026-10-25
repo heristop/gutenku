@@ -5,6 +5,7 @@ import { ArrowUp, ArrowLeft, ArrowRight } from '@/core/components/icons/ink';
 import { useSeoMeta, useHead } from '@unhead/vue';
 import { useI18n } from 'vue-i18n';
 import BlogShareButtons from '../components/BlogShareButtons.vue';
+import ArticleColophon from '../components/ArticleColophon.vue';
 import ArticleToc from '../components/ArticleToc.vue';
 import BrushRule from '@/core/components/ink/BrushRule.vue';
 import InkStamp from '@/core/components/ink/InkStamp.vue';
@@ -305,6 +306,12 @@ useHead({
             v-html="outline.html"
           />
           <BlogShareButtons :title="article?.title ?? ''" />
+
+          <ArticleColophon
+            v-if="article && issueNumber"
+            :issue="issueNumber"
+            :date="article.date"
+          />
 
           <nav class="blog-article__nav" :aria-label="t('blog.articleNav')">
             <RouterLink
