@@ -845,15 +845,20 @@ $toc-desktop: 1280px;
         center / 100% 100% no-repeat;
     }
 
-    // Asides sit in the text, where they belong: a quiet ruled passage,
-    // never pushed out into a margin column
+    // Asides read like a play's stage directions (didascalies): set in from
+    // the text on the left, in a quieter italic voice, with no rule or box
     :deep(blockquote) {
-      margin: 1.75rem 0;
-      padding: 0.125rem 0 0.125rem 1.25rem;
-      border-left: var(--gk-rule);
+      margin: 1.75rem 0 1.75rem 2.5rem;
+      padding: 0;
       font-size: 0.9375rem;
+      font-style: italic;
       line-height: 1.65;
+      letter-spacing: 0.01em;
       color: var(--gk-ink-soft);
+
+      @media (max-width: 600px) {
+        margin-left: 1.5rem;
+      }
 
       p {
         margin: 0;
