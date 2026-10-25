@@ -126,7 +126,7 @@ const { translateX, translateY, handleMouseMove, handleMouseLeave } =
   will-change: transform;
 
   [data-theme='dark'] & {
-    filter: grayscale(40%) brightness(0.8);
+    filter: grayscale(40%) var(--gk-cover-filter);
     mix-blend-mode: normal;
   }
 }

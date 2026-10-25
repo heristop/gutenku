@@ -236,16 +236,18 @@ if (import.meta.env.DEV) {
 
 // Primary: indigo fill with a 2px darker bottom edge
 .zen-btn--cta {
+  --zen-btn-edge: color-mix(in oklch, var(--gk-indigo-fill), black 35%);
+
   padding: 0.75rem 1.375rem;
-  background: var(--gk-indigo);
+  background: var(--gk-indigo-fill);
   border-radius: var(--gk-radius-control);
-  color: var(--gk-on-indigo);
+  color: var(--gk-on-indigo-fill);
   font-size: 0.9375rem;
   box-shadow: 0 2px 0 var(--zen-btn-edge);
 
   @media (hover: hover) {
     &:hover:not(:disabled):not([aria-disabled='true']) {
-      background: color-mix(in oklch, var(--gk-indigo), black 8%);
+      background: color-mix(in oklch, var(--gk-indigo-fill), black 8%);
     }
   }
 

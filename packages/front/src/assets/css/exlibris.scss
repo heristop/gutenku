@@ -27,6 +27,12 @@
   // Tipped-in plates and photographs stay light printed leaves in both themes
   --gk-plate-leaf: #f6f0e4;
   --gk-plate-filter: none;
+  // The primary key's own fill: the indigo itself by day, a deeper one at
+  // night so the key never outshines the page (links keep --gk-indigo)
+  --gk-indigo-fill: var(--gk-indigo);
+  --gk-on-indigo-fill: var(--gk-on-indigo);
+  // One dimming for every book cover and preview plate
+  --gk-cover-filter: none;
   --gk-spine-width: 64px;
   // The one gap between cards, site-wide; the first block of every page
   // starts the same distance below the header's rule
@@ -117,6 +123,9 @@
   --gk-scrim: oklch(0.1 0.01 70 / 0.65);
   // One dimming for every image on night paper: below the ink, never a glare
   --gk-plate-filter: brightness(0.85);
+  --gk-indigo-fill: oklch(0.42 0.05 205);
+  --gk-on-indigo-fill: oklch(0.95 0.01 85);
+  --gk-cover-filter: brightness(0.72) sepia(0.18);
   --gk-paper-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cdefs%3E%3Cfilter id='f' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.02 0.6' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.92 0 0 0 0 0.9 0 0 0 0 0.85 0 0 0 0.035 0'/%3E%3C/filter%3E%3Cpattern id='l' width='240' height='3' patternUnits='userSpaceOnUse'%3E%3Cpath d='M0 .5H240' stroke='rgb(236,230,218)' stroke-opacity='0.03'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='240' height='240' filter='url(%23f)'/%3E%3Crect width='240' height='240' fill='url(%23l)'/%3E%3Cpath d='M60 0V240M180 0V240' stroke='rgb(236,230,218)' stroke-opacity='0.022'/%3E%3C/svg%3E");
   --gk-lift: 0 1px 0 var(--gk-paper-edge), 0 18px 34px -20px oklch(0 0 0 / 0.7);
   // At night a higher sheet is lighter: the toast sits clearly above a dialog
