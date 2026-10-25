@@ -1,15 +1,5 @@
 <script lang="ts" setup>
-import {
-  onMounted,
-  ref,
-  computed,
-  watch,
-  onUnmounted,
-  nextTick,
-  shallowRef,
-  useId,
-} from 'vue';
-import { useDebounceFn } from '@vueuse/core';
+import { onMounted, ref, computed, watch, shallowRef, useId } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import {
@@ -31,7 +21,6 @@ import PretextChapter from '@/features/haiku/components/PretextChapter.vue';
 import ZenTooltip from '@/core/components/ui/ZenTooltip.vue';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
 import ZenButton from '@/core/components/ui/ZenButton.vue';
-import ZenHaiku from '@/core/components/ui/ZenHaiku.vue';
 
 const { t } = useI18n();
 
@@ -47,7 +36,6 @@ const { haiku, loading, craftingMessages } = storeToRefs(haikuStore);
 const { redacted: blackMarker, toggle } = useBookRedaction();
 const isCompacted = ref(true);
 const markerReady = ref(false);
-const chapterRef = ref<{ $el: HTMLElement } | null>(null);
 const bookContentRef = ref<HTMLElement | null>(null);
 
 // Spotlight: cursor position relative to .book-content for hover-to-reveal
@@ -72,51 +60,6 @@ function onSpotlightLeave() {
   cancelAnimationFrame(spotlightRaf);
   spotlight.value = null;
 }
-
-const cardPosition = shallowRef({ top: 0, left: 0, width: 0 });
-const chapterEl = computed(() => chapterRef.value?.$el as HTMLElement | null);
-
-const updateCardRect = useDebounceFn(() => {
-  if (chapterEl.value) {
-    const rect = chapterEl.value.getBoundingClientRect();
-    cardPosition.value = {
-      top: rect.top,
-      left: rect.left,
-      width: rect.width,
-    };
-  }
-}, 16);
-
-const craftingStyle = computed(() => {
-  if (!cardPosition.value.width) {
-    return {};
-  }
-
-  return {
-    '--crafting-top': `${cardPosition.value.top + 16}px`,
-    '--crafting-left': `${cardPosition.value.left + cardPosition.value.width / 2}px`,
-    '--crafting-width': `${Math.min(cardPosition.value.width - 64, 400)}px`,
-  };
-});
-
-watch(loading, (isLoading) => {
-  if (isLoading) {
-    nextTick(updateCardRect);
-  }
-});
-
-watch(
-  craftingMessages,
-  (messages) => {
-    if (messages.length > 0 && !cardPosition.value.width) {
-      nextTick(updateCardRect);
-    }
-  },
-  { immediate: true },
-);
-
-let resizeObserver: ResizeObserver | null = null;
-let scrollListener: (() => void) | null = null;
 
 const { applyToAllHighlights } = useHaikuHighlighter();
 
@@ -214,18 +157,6 @@ onMounted(async () => {
     await document.fonts.ready;
     markerReady.value = true;
   }
-
-  if (chapterEl.value) {
-    resizeObserver = new ResizeObserver(updateCardRect);
-    resizeObserver.observe(chapterEl.value);
-  }
-
-  scrollListener = () => {
-    if (loading.value) {
-      updateCardRect();
-    }
-  };
-  window.addEventListener('scroll', scrollListener, { passive: true });
 });
 
 watch(
@@ -241,21 +172,12 @@ watch(loading, (isLoading) => {
     haikuStore.craftingMessages = [];
   }
 });
-
-onUnmounted(() => {
-  resizeObserver?.disconnect();
-
-  if (scrollListener) {
-    window.removeEventListener('scroll', scrollListener);
-  }
-});
 </script>
 
 <template>
   <ZenCard
     v-if="haiku"
     id="book-page"
-    ref="chapterRef"
     variant="book"
     :loading="loading"
     :aria-label="t('haikuChapter.ariaLabel')"
@@ -266,43 +188,6 @@ onUnmounted(() => {
     <div class="sr-only" aria-live="polite" aria-atomic="true">
       {{ disclosureTextComputed }}
     </div>
-
-    <Teleport to="body">
-      <Transition name="crafting-fade">
-        <div
-          v-if="craftingMessages.length > 0 && cardPosition.width"
-          class="crafting-messages-teleported"
-          :style="craftingStyle"
-          role="log"
-          aria-live="polite"
-        >
-          <TransitionGroup name="message-slide" tag="div" class="messages-list">
-            <div
-              v-for="(msg, index) in craftingMessages.slice(0, 3)"
-              :key="msg.id || `msg-${msg.timestamp}-${index}`"
-              class="crafting-message"
-              :class="{ latest: index === 0, 'has-verses': msg.verses?.length }"
-            >
-              <span class="message-icon" aria-hidden="true">
-                <component :is="msg.icon" :size="16" />
-              </span>
-
-              <!-- Verse messages: use ZenHaiku -->
-              <ZenHaiku
-                v-if="msg.verses?.length"
-                :lines="msg.verses"
-                size="sm"
-                :animated="index === 0"
-                class="message-haiku"
-              />
-
-              <!-- Regular text messages -->
-              <span v-else class="message-text">{{ msg.text }}</span>
-            </div>
-          </TransitionGroup>
-        </div>
-      </Transition>
-    </Teleport>
 
     <div class="book-header">
       <div v-if="!hasRevealed" class="disclosure-text" aria-hidden="true">
@@ -445,7 +330,14 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 .book-page {
-  --haiku-redaction-ink: var(--gk-ink);
+  // The bars sit a step under the ink, so the poem above stays the darkest
+  // thing. Mixed with the paper, not made translucent: the marker strokes lie
+  // over the words and must still hide them
+  --haiku-redaction-ink: color-mix(
+    in oklch,
+    var(--gk-ink) 78%,
+    var(--gk-paper-raised)
+  );
 
   position: relative;
   cursor: pointer;
@@ -887,137 +779,12 @@ onUnmounted(() => {
   }
 }
 
-.crafting-messages-teleported {
-  position: fixed;
-  top: var(--crafting-top);
-  left: var(--crafting-left);
-  transform: translateX(-50%);
-  width: var(--crafting-width);
-  z-index: 1000;
-  will-change: top, left;
-  padding: 0.75rem 1rem;
-  background: var(--gk-paper-raised);
-  border-radius: var(--gk-radius-paper);
-  box-shadow: var(--gk-lift);
-  pointer-events: none;
-
-  .messages-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .crafting-message {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    background: transparent;
-    border-bottom: 0;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    opacity: 0.6;
-    transition: opacity var(--gk-dur-base) var(--gk-ease-out);
-
-    &.latest {
-      opacity: 1;
-    }
-  }
-
-  .message-icon {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    color: var(--gk-ink-soft);
-  }
-
-  .message-text {
-    flex: 1;
-    color: var(--gk-ink);
-    word-break: break-word;
-  }
-
-  .message-haiku {
-    flex: 1;
-
-    :deep(.zen-haiku) {
-      padding: 0.25rem 0;
-      background: transparent;
-      min-height: auto;
-    }
-
-    :deep(.haiku-line) {
-      font-size: 0.875rem;
-      line-height: 1.5;
-    }
-  }
-
-  .crafting-message.has-verses {
-    padding-top: 0.375rem;
-    padding-bottom: 0.375rem;
-  }
-}
-
-.crafting-fade-enter-active {
-  transition:
-    opacity var(--gk-dur-base) var(--gk-ease-out),
-    transform var(--gk-dur-base) var(--gk-ease-out);
-}
-
-.crafting-fade-leave-active {
-  transition:
-    opacity var(--gk-dur-exit) var(--gk-ease-out),
-    transform var(--gk-dur-exit) var(--gk-ease-out);
-}
-
-.crafting-fade-enter-from,
-.crafting-fade-leave-to {
-  opacity: 0;
-  transform: translateX(-50%) translateY(-4px) !important;
-}
-
-.message-slide-enter-active {
-  transition:
-    opacity var(--gk-dur-base) var(--gk-ease-out),
-    transform var(--gk-dur-base) var(--gk-ease-out);
-}
-
-.message-slide-leave-active {
-  transition:
-    opacity var(--gk-dur-fast) var(--gk-ease-out),
-    transform var(--gk-dur-fast) var(--gk-ease-out);
-}
-
-.message-slide-enter-from {
-  opacity: 0;
-  transform: translateY(-4px);
-}
-
-.message-slide-leave-to {
-  opacity: 0;
-}
-
-.message-slide-move {
-  transition: transform var(--gk-dur-base) var(--gk-ease-out);
-}
-
 // Night paper: the marker stays sumi-dark instead of turning into a light block
 [data-theme='dark'] .book-page {
   --haiku-redaction-ink: color-mix(in oklch, var(--gk-paper-deep), black 55%);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .crafting-fade-enter-from,
-  .crafting-fade-leave-to {
-    transform: translateX(-50%) !important;
-  }
-
-  .message-slide-enter-from,
-  .message-slide-leave-to {
-    transform: none;
-  }
-
-  .message-slide-move,
   .book-header .toggle-btn.zen-btn {
     transition: none !important;
   }

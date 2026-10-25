@@ -12,7 +12,8 @@ import { longestVerseLength } from '@/features/haiku/composables/verse-fit';
 const ROMAN = ['i', 'ii', 'iii', 'iv', 'v'];
 
 const { t } = useI18n();
-const { haiku, loading, isDailyHaiku } = storeToRefs(useHaikuStore());
+const { haiku, loading, isDailyHaiku, isGenerating, craftingMessages } =
+  storeToRefs(useHaikuStore());
 const { redacted, reveal } = useBookRedaction();
 
 const label = computed(() =>
@@ -21,10 +22,19 @@ const label = computed(() =>
 
 const chapterTitle = computed(() => haiku.value?.chapter?.title?.trim() ?? '');
 
-// The type is sized to the longest verse, so the poem keeps its three lines
-const verseCh = computed(
-  () => longestVerseLength(haiku.value?.verses ?? []) || 20,
+// While crafting, the best candidate so far is set on the leaf in pale ink
+const latestCandidate = computed(() =>
+  isGenerating.value ? craftingMessages.value[0] : undefined,
 );
+const draftVerses = computed(() =>
+  latestCandidate.value?.verses?.length ? latestCandidate.value.verses : null,
+);
+const shownVerses = computed(
+  () => draftVerses.value ?? haiku.value?.verses ?? [],
+);
+
+// The type is sized to the longest verse, so the poem keeps its three lines
+const verseCh = computed(() => longestVerseLength(shownVerses.value) || 20);
 
 // Phones fold the sources behind one key so Craft Haiku stays in view
 const isPhone = useMediaQuery('(max-width: 600px)');
@@ -67,21 +77,25 @@ const redactedWidth = computed(
     v-if="haiku?.verses?.length"
     class="haiku-poem"
     :class="{
-      'haiku-poem--busy': loading,
+      'haiku-poem--busy': loading && !draftVerses,
       'haiku-poem--with-sources': hasSources,
     }"
     :aria-busy="loading"
   >
     <div class="haiku-poem__stage">
       <h1 class="sr-only">{{ label }}</h1>
+      <p class="sr-only" role="log" aria-live="polite">
+        {{ latestCandidate?.text }}
+      </p>
 
       <p
         class="haiku-poem__verses"
+        :class="{ 'haiku-poem__verses--draft': draftVerses }"
         data-cy="haiku-verses"
         :style="{ '--verse-ch': verseCh }"
       >
         <span
-          v-for="(verse, index) in haiku.verses"
+          v-for="(verse, index) in shownVerses"
           :key="`${index}-${verse}`"
           class="haiku-poem__verse"
           :style="{ '--verse-index': index }"
@@ -237,6 +251,16 @@ const redactedWidth = computed(
     line-height: 1.45;
     letter-spacing: -0.025em;
     overflow-wrap: anywhere;
+  }
+
+  // A candidate, not yet the haiku: pale ink, each new one fading in over
+  // the last
+  &__verses--draft {
+    opacity: 0.55;
+  }
+
+  &__verses--draft &__verse {
+    animation: haiku-draft-in 120ms var(--gk-ease-out);
   }
 
   // Arrival: each line is typed onto the leaf in turn, 60ms apart
@@ -447,6 +471,12 @@ const redactedWidth = computed(
   from {
     opacity: 0;
     transform: translateY(4px);
+  }
+}
+
+@keyframes haiku-draft-in {
+  from {
+    opacity: 0;
   }
 }
 
