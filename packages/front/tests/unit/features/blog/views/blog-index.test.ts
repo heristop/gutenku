@@ -65,10 +65,15 @@ describe('BlogIndex', () => {
     const fresh = mount(BlogIndex, { global: { stubs } });
 
     expect(fresh.get('.blog-index__list').classes()).not.toContain('is-quiet');
+    // Each issue is sealed as its entry lands
+    expect(fresh.findAll('.blog-index__issue .ink-stamp--press')).toHaveLength(
+      2,
+    );
 
     navigated.value = true;
     const returning = mount(BlogIndex, { global: { stubs } });
 
     expect(returning.get('.blog-index__list').classes()).toContain('is-quiet');
+    expect(returning.find('.ink-stamp--press').exists()).toBeFalsy();
   });
 });

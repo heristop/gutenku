@@ -72,6 +72,7 @@ useSeoMeta({
               tone="ink"
               :size="34"
               :tilt="3"
+              :stamp="!quiet"
             />
           </div>
 
@@ -125,6 +126,14 @@ useSeoMeta({
   box-shadow: var(--gk-lift);
   color: var(--gk-ink);
   font-family: var(--gk-font);
+
+  // Phones: the sheet keeps the page gutter every other card has, and a
+  // little more paper inside, so nothing runs to the glass
+  @media (max-width: 599px) {
+    width: auto;
+    margin-inline: var(--gk-gutter);
+    padding: 1.5rem 1.25rem 1rem;
+  }
 
   @media (min-width: 600px) {
     padding: 2.5rem 2.5rem 1.5rem;
@@ -365,6 +374,11 @@ useSeoMeta({
 .blog-index__list:not(.is-quiet) .blog-index__card {
   animation: blog-entry-in 260ms var(--gk-ease-out) both;
   animation-delay: calc(80ms + var(--entry-index, 0) * 50ms);
+}
+
+// …and each issue is sealed as its entry lands (InkStamp's own press)
+.blog-index__list:not(.is-quiet) .blog-index__issue :deep(.ink-stamp--press) {
+  animation-delay: calc(200ms + var(--entry-index, 0) * 50ms);
 }
 
 @keyframes blog-entry-in {
