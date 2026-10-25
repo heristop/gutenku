@@ -37,6 +37,7 @@
   },
   "notFound": {
     "returnHome": "Return Home",
+    "elsewhere": "Elsewhere on GutenKu",
     "title": "Page not found",
     "spine": "Lost leaf",
     "haiku": [
@@ -96,9 +97,14 @@
       "hidden": "Click on text to reveal",
       "visible": "Click on text to hide"
     },
-    "discloseHide": "Disclose / Hide",
-    "showFull": "Show Full Chapter",
-    "showCompacted": "Show Compacted View",
+    "reveal": "Reveal the page",
+    "hide": "Hide the page",
+    "revealShort": "Reveal",
+    "hideShort": "Hide",
+    "showFull": "Show the whole chapter",
+    "showCompacted": "Show the excerpt only",
+    "fullShort": "Whole chapter",
+    "excerptShort": "Excerpt",
     "swipeHint": "Swipe for new haiku",
     "readOnGutenberg": "Read on Gutenberg"
   },
@@ -243,7 +249,7 @@
       "label": "Today's haiku",
       "loading": "Opening today's page…",
       "empty": "Today's haiku is still being cut. Write your own meanwhile.",
-      "readMore": "Read the whole reading",
+      "readMore": "Read the commentary",
       "readLess": "Show less",
       "trace": "Trace the source",
       "lifted": "Each line is lifted from a public-domain book.",

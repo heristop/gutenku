@@ -37,6 +37,7 @@
   },
   "notFound": {
     "returnHome": "ホームに戻る",
+    "elsewhere": "GutenKu の他のページ",
     "title": "ページが見つかりません",
     "spine": "迷子の一葉",
     "haiku": ["やさしくそうした", "彼の目に涙が", "きっとだいじょうぶ"]
@@ -92,9 +93,14 @@
       "hidden": "クリックして表示",
       "visible": "クリックして非表示"
     },
-    "discloseHide": "表示/非表示",
-    "showFull": "全文を表示",
-    "showCompacted": "コンパクト表示",
+    "reveal": "ページを表示",
+    "hide": "ページを隠す",
+    "revealShort": "表示",
+    "hideShort": "隠す",
+    "showFull": "章全体を表示",
+    "showCompacted": "抜粋のみを表示",
+    "fullShort": "章全体",
+    "excerptShort": "抜粋",
     "swipeHint": "スワイプで新しい俳句",
     "readOnGutenberg": "Gutenbergで読む"
   },

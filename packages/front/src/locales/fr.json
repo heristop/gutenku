@@ -37,6 +37,7 @@
   },
   "notFound": {
     "returnHome": "Retour à l'accueil",
+    "elsewhere": "Ailleurs sur GutenKu",
     "title": "Page introuvable",
     "spine": "Feuillet égaré",
     "haiku": [
@@ -96,9 +97,14 @@
       "hidden": "Clique sur le texte pour révéler",
       "visible": "Clique sur le texte pour masquer"
     },
-    "discloseHide": "Afficher / Masquer",
-    "showFull": "Voir le chapitre complet",
-    "showCompacted": "Voir la vue compacte",
+    "reveal": "Révéler la page",
+    "hide": "Masquer la page",
+    "revealShort": "Révéler",
+    "hideShort": "Masquer",
+    "showFull": "Voir le chapitre entier",
+    "showCompacted": "Voir l'extrait seulement",
+    "fullShort": "Chapitre entier",
+    "excerptShort": "Extrait",
     "swipeHint": "Glisse pour un nouveau haïku",
     "readOnGutenberg": "Lire sur Gutenberg"
   },
@@ -243,7 +249,7 @@
       "label": "Le haïku du jour",
       "loading": "Ouverture de la page du jour…",
       "empty": "Le haïku du jour n'est pas encore découpé. Écris le tien en attendant.",
-      "readMore": "Lire toute la lecture",
+      "readMore": "Lire le commentaire",
       "readLess": "Replier",
       "trace": "Remonter à la source",
       "lifted": "Chaque vers est tiré d'un livre du domaine public.",

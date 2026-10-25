@@ -63,10 +63,25 @@ function onSpotlightLeave() {
 
 const { applyToAllHighlights } = useHaikuHighlighter();
 
+// Each control is named by what it will do; on touch screens, where no
+// tooltip ever shows, a short word sits beside its icon (inside its name)
 const compactedTooltip = computed(() =>
   isCompacted.value
     ? t('haikuChapter.showFull')
     : t('haikuChapter.showCompacted'),
+);
+const compactedWord = computed(() =>
+  isCompacted.value
+    ? t('haikuChapter.fullShort')
+    : t('haikuChapter.excerptShort'),
+);
+const markerLabel = computed(() =>
+  blackMarker.value ? t('haikuChapter.reveal') : t('haikuChapter.hide'),
+);
+const markerWord = computed(() =>
+  blackMarker.value
+    ? t('haikuChapter.revealShort')
+    : t('haikuChapter.hideShort'),
 );
 const { compactText } = useTextCompacting();
 
@@ -194,16 +209,12 @@ watch(loading, (isLoading) => {
         {{ disclosureTextComputed }}
       </div>
       <div class="header-controls">
-        <ZenTooltip
-          :text="t('haikuChapter.discloseHide')"
-          position="bottom"
-          :disabled="!blackMarker"
-        >
+        <ZenTooltip :text="markerLabel" position="bottom">
           <ZenButton
             variant="text"
             size="sm"
             class="toggle-btn stabilo-toggle"
-            :aria-label="t('haikuChapter.discloseHide')"
+            :aria-label="markerLabel"
             data-cy="light-toggle-btn"
             @click.stop="toggle()"
             @touchend.stop
@@ -212,6 +223,7 @@ watch(loading, (isLoading) => {
               <Lightbulb v-if="blackMarker" :size="20" />
               <LightbulbOff v-else :size="20" />
             </template>
+            <span class="toggle-btn__word">{{ markerWord }}</span>
           </ZenButton>
         </ZenTooltip>
 
@@ -227,6 +239,7 @@ watch(loading, (isLoading) => {
               <ChevronsUpDown v-if="isCompacted" :size="20" />
               <ChevronsDownUp v-else :size="20" />
             </template>
+            <span class="toggle-btn__word">{{ compactedWord }}</span>
           </ZenButton>
         </ZenTooltip>
       </div>
@@ -397,6 +410,24 @@ watch(loading, (isLoading) => {
 
     :deep(svg) {
       color: currentColor !important;
+    }
+
+    // Icon-only for a pointer, which gets the tooltip
+    .toggle-btn__word {
+      display: none;
+    }
+
+    // Touch: no tooltip ever shows, so the key says its word
+    @media (hover: none) {
+      width: auto !important;
+      gap: 0.375rem;
+      padding: 0 0.75rem !important;
+
+      .toggle-btn__word {
+        display: inline;
+        font-size: 0.8125rem;
+        letter-spacing: 0.02em;
+      }
     }
 
     @media (hover: hover) {

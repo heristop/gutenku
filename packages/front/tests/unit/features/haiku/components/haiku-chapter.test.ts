@@ -75,4 +75,38 @@ describe('HaikuChapter', () => {
     );
     wrapper.unmount();
   });
+
+  it('names its controls by what they will do, with a word to read', async () => {
+    const wrapper = mount(HaikuChapter, {
+      global: {
+        mocks: { $t: (key: string) => key },
+        stubs: {
+          ZenCard: { template: '<div><slot /></div>' },
+          PretextChapter: true,
+          HighLightText: true,
+          MarkerOverlay: true,
+          ZenTooltip: { template: '<div><slot /></div>' },
+          teleport: true,
+        },
+      },
+    });
+    const marker = () => wrapper.get('[data-cy=light-toggle-btn]');
+    const extent = () => wrapper.get('.expand-toggle');
+
+    expect(marker().attributes('aria-label')).toBe('haikuChapter.reveal');
+    expect(marker().text()).toBe('haikuChapter.revealShort');
+    expect(extent().attributes('aria-label')).toBe('haikuChapter.showFull');
+    expect(extent().text()).toBe('haikuChapter.fullShort');
+
+    await marker().trigger('click');
+    await extent().trigger('click');
+
+    expect(marker().attributes('aria-label')).toBe('haikuChapter.hide');
+    expect(marker().text()).toBe('haikuChapter.hideShort');
+    expect(extent().attributes('aria-label')).toBe(
+      'haikuChapter.showCompacted',
+    );
+    expect(extent().text()).toBe('haikuChapter.excerptShort');
+    wrapper.unmount();
+  });
 });
