@@ -16,6 +16,14 @@ import { useDailyHaiku } from '@/features/haiku/composables/daily-haiku';
 
 type Step = 'prev' | 'next';
 
+const props = withDefaults(
+  defineProps<{
+    // Home keeps the poem first: the reading waits behind its toggle
+    foldReading?: boolean;
+  }>(),
+  { foldReading: false },
+);
+
 const { t, locale } = useI18n();
 const route = useRoute();
 const router = useRouter();
@@ -330,6 +338,13 @@ onUnmounted(() => {
       <div class="daily-slip__leaf-frame">
         <Transition name="slip-leaf" mode="out-in">
           <div v-if="haiku" :key="haiku.date" class="daily-slip__leaf">
+            <!-- The slip names itself first, then its title, then the poem -->
+            <div class="daily-slip__head">
+              <span class="daily-slip__label" aria-hidden="true">{{
+                visibleLabel
+              }}</span>
+            </div>
+
             <h3 v-if="haiku.title" class="daily-slip__title">
               {{ haiku.title }}
             </h3>
@@ -350,7 +365,11 @@ onUnmounted(() => {
                 class="daily-slip__clamp"
                 :class="{
                   'is-open': readingOpen,
-                  'is-clamped': readingOverflows !== false && !readingOpen,
+                  'is-clamped':
+                    !props.foldReading &&
+                    readingOverflows !== false &&
+                    !readingOpen,
+                  'is-folded': props.foldReading && !readingOpen,
                   'is-animated': readingToggled,
                 }"
                 :style="
@@ -359,12 +378,16 @@ onUnmounted(() => {
                     : undefined
                 "
               >
-                <p ref="readingInner" class="daily-slip__reading-text">
+                <p
+                  v-if="!props.foldReading || readingOpen"
+                  ref="readingInner"
+                  class="daily-slip__reading-text"
+                >
                   {{ haiku.reading }}
                 </p>
               </div>
               <button
-                v-if="readingOverflows"
+                v-if="readingOverflows || props.foldReading"
                 type="button"
                 class="daily-slip__toggle"
                 :aria-expanded="readingOpen"
@@ -469,9 +492,6 @@ onUnmounted(() => {
 
       <div class="daily-slip__footer">
         <div class="daily-slip__meta">
-          <span class="daily-slip__label" aria-hidden="true">{{
-            visibleLabel
-          }}</span>
           <nav
             v-if="day"
             class="daily-slip__pager"
@@ -578,44 +598,58 @@ onUnmounted(() => {
     margin-bottom: 1.25rem;
   }
 
-  &__title {
+  &__head {
     margin: 0 0 0.75rem;
-    font-size: 1.125rem;
-    font-weight: 700;
-    line-height: 1.3;
+  }
+
+  // The title is a quiet line: the poem carries the slip
+  &__title {
+    margin: 0 0 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--gk-ink-soft);
     text-wrap: balance;
   }
 
   &__lines {
     display: grid;
     margin: 0 0 1.25rem;
-    font-size: 1.125rem;
-    line-height: 1.9;
-    letter-spacing: -0.01em;
+    font-size: clamp(1.375rem, 2.2vw, 1.75rem);
+    line-height: 1.55;
+    letter-spacing: -0.025em;
     overflow-wrap: anywhere;
+
+    @media (max-width: 600px) {
+      font-size: clamp(1rem, 4.4vw, 1.125rem);
+    }
   }
 
+  // A verse that must wrap hangs: its continuation sits further in, so the
+  // poem still reads as three lines
   &__line {
+    --indent: 0em;
+
     display: block;
-    // A verse that must wrap on a phone breaks into even halves, never
-    // leaving one word alone on its line
+    padding-left: calc(var(--indent) + 1.25em);
+    text-indent: -1.25em;
     text-wrap: balance;
 
     &:nth-child(2) {
-      padding-left: 2.2em;
+      --indent: 2.2em;
     }
 
     &:nth-child(3) {
-      padding-left: 1em;
+      --indent: 1em;
     }
 
     @media (max-width: 600px) {
       &:nth-child(2) {
-        padding-left: 1.4em;
+        --indent: 0.9em;
       }
 
       &:nth-child(3) {
-        padding-left: 0.7em;
+        --indent: 0.45em;
       }
     }
   }
@@ -635,6 +669,11 @@ onUnmounted(() => {
 
     &.is-animated {
       transition: grid-template-rows var(--gk-dur-reward) var(--gk-ease-out);
+    }
+
+    // Folded: nothing reserved, the toggle alone stands for the reading
+    &.is-folded {
+      grid-template-rows: minmax(0, 0fr);
     }
 
     &.is-clamped {

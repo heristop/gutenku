@@ -174,7 +174,7 @@ if (!import.meta.env.SSR) {
     </section>
 
     <div class="home__entries">
-      <DailyHaikuSlip />
+      <DailyHaikuSlip fold-reading />
 
       <RouterLink
         v-if="GAME_ENABLED"

@@ -65,9 +65,10 @@ const archive: Record<string, ReturnType<typeof entry>> = {
 
 let wrapper: VueWrapper;
 
-async function render(day?: string) {
+async function render(day?: string, props: Record<string, unknown> = {}) {
   route.query = day ? { day } : {};
   wrapper = mount(DailyHaikuSlip, {
+    props,
     attachTo: document.body,
     global: {
       stubs: {
@@ -102,6 +103,32 @@ describe('DailyHaikuSlip', () => {
   afterEach(() => {
     wrapper?.unmount();
     vi.useRealTimers();
+  });
+
+  it('names itself before the title', async () => {
+    await render();
+
+    const head = wrapper.get('.daily-slip__head').element;
+    const title = wrapper.get('.daily-slip__title').element;
+
+    expect(
+      head.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it('folds the reading when asked', async () => {
+    archive[TODAY] = { ...archive[TODAY], reading: 'A long reading.' };
+
+    try {
+      await render(undefined, { foldReading: true });
+
+      expect(wrapper.find('.daily-slip__reading-text').exists()).toBeFalsy();
+      expect(
+        wrapper.find('[data-cy=daily-reading-toggle]').exists(),
+      ).toBeTruthy();
+    } finally {
+      archive[TODAY] = { ...archive[TODAY], reading: null };
+    }
   });
 
   it("shows today's countdown and no way forward", async () => {
