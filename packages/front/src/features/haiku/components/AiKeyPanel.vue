@@ -3,7 +3,6 @@ import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import {
-  ChevronDown,
   Eye,
   EyeOff,
   Image as ImageIcon,
@@ -29,7 +28,6 @@ const { t } = useI18n();
 const { optionUseAI, optionImageAI } = storeToRefs(useHaikuStore());
 const { hasKey, maskedKey, save, forget } = useOpenAIKey();
 
-const expanded = ref(false);
 const draft = ref('');
 const revealed = ref(false);
 const checking = ref(false);
@@ -129,158 +127,128 @@ function forgetKey(): void {
 
 <template>
   <div class="ai-key">
-    <button
-      class="ai-key__header"
-      type="button"
-      :aria-expanded="expanded"
-      aria-controls="ai-key-content"
-      @click="expanded = !expanded"
-    >
-      <Sparkles :size="14" class="ai-key__lead" aria-hidden="true" />
-      <span>{{ t('aiKey.title') }}</span>
-      <!-- A small vermilion seal: this browser carries a key -->
-      <span
-        v-if="hasKey"
-        class="ai-key__seal"
-        role="img"
-        :aria-label="t('aiKey.titleActive')"
-      />
-      <ChevronDown
-        :size="14"
-        class="ai-key__chevron"
-        :class="{ 'ai-key__chevron--open': expanded }"
-        aria-hidden="true"
-      />
-    </button>
-
-    <ZenExpandTransition>
-      <div v-if="expanded" id="ai-key-content" class="ai-key__content">
-        <div class="ai-key__row ai-key__switch">
-          <Sparkles :size="14" class="ai-key__icon" aria-hidden="true" />
-          <ZenSwitch
-            v-model="optionUseAI"
-            :label="t('toolbar.aiText')"
-            size="sm"
-            label-first
-          />
-        </div>
-        <div class="ai-key__row ai-key__switch">
-          <ImageIcon :size="14" class="ai-key__icon" aria-hidden="true" />
-          <ZenSwitch
-            v-model="optionImageAI"
-            :label="t('toolbar.aiImage')"
-            size="sm"
-            label-first
-          />
-        </div>
-
-        <!-- The key, asked for only once AI is on -->
-        <ZenExpandTransition>
-          <form
-            v-if="asksForKey"
-            class="ai-key__form"
-            @submit.prevent="checkKey"
-          >
-            <label class="ai-key__label" for="ai-key-input">
-              {{ t('aiKey.label') }}
-            </label>
-            <div
-              class="ai-key__field"
-              :class="{
-                'ai-key__field--invalid': status !== null,
-                'ai-key__field--checking': checking,
-              }"
-            >
-              <input
-                id="ai-key-input"
-                ref="inputRef"
-                v-model="draft"
-                class="ai-key__input"
-                :type="revealed ? 'text' : 'password'"
-                name="openai-key"
-                autocomplete="off"
-                autocapitalize="off"
-                spellcheck="false"
-                placeholder="sk-…"
-                :readonly="checking"
-                :aria-invalid="status !== null || undefined"
-                aria-describedby="ai-key-status ai-key-note"
-                @input="status = null"
-                @paste="onPaste"
-              />
-              <button
-                type="button"
-                class="ai-key__reveal"
-                :aria-label="revealed ? t('aiKey.hide') : t('aiKey.show')"
-                :aria-pressed="revealed"
-                @click="revealed = !revealed"
-              >
-                <EyeOff v-if="revealed" :size="16" aria-hidden="true" />
-                <Eye v-else :size="16" aria-hidden="true" />
-              </button>
-              <button
-                type="submit"
-                class="ai-key__check"
-                :disabled="checking || draft.trim() === ''"
-                :aria-busy="checking || undefined"
-              >
-                <!-- Both words set one over the other: the key keeps the
-                     longer one's width, only the current one shows -->
-                <span
-                  class="ai-key__check-label"
-                  :class="{ 'ai-key__check-label--current': !checking }"
-                  >{{ t('aiKey.check') }}</span
-                >
-                <span
-                  class="ai-key__check-label"
-                  :class="{ 'ai-key__check-label--current': checking }"
-                  >{{ t('aiKey.checking') }}</span
-                >
-              </button>
-            </div>
-            <p
-              id="ai-key-status"
-              class="ai-key__status"
-              role="status"
-              aria-live="polite"
-            >
-              {{ statusMessage }}
-            </p>
-            <p id="ai-key-note" class="ai-key__note">
-              {{ t('aiKey.note') }}
-              <a
-                href="https://platform.openai.com/api-keys"
-                target="_blank"
-                rel="noopener noreferrer"
-                >{{ t('aiKey.getKey') }}</a
-              >
-              ·
-              <a
-                href="https://openai.com/api/pricing/"
-                target="_blank"
-                rel="noopener noreferrer"
-                >{{ t('aiKey.pricing') }}</a
-              >
-            </p>
-          </form>
-        </ZenExpandTransition>
-
-        <!-- The key in use: recognisable, never readable -->
-        <div v-if="hasKey" class="ai-key__row ai-key__current">
-          <span class="ai-key__label">{{ t('aiKey.yourKey') }}</span>
-          <code class="ai-key__masked">{{ maskedKey }}</code>
-          <button type="button" class="ai-key__link" @click="forgetKey">
-            {{ t('aiKey.forget') }}
-          </button>
-        </div>
-
-        <p class="ai-key__accepted" role="status" aria-live="polite">
-          <Transition name="ai-key-notice">
-            <span v-if="accepted">{{ t('aiKey.accepted') }}</span>
-          </Transition>
-        </p>
+    <div class="ai-key__content">
+      <div class="ai-key__row ai-key__switch">
+        <Sparkles :size="14" class="ai-key__icon" aria-hidden="true" />
+        <ZenSwitch
+          v-model="optionUseAI"
+          :label="t('toolbar.aiText')"
+          size="sm"
+          label-first
+        />
       </div>
-    </ZenExpandTransition>
+      <div class="ai-key__row ai-key__switch">
+        <ImageIcon :size="14" class="ai-key__icon" aria-hidden="true" />
+        <ZenSwitch
+          v-model="optionImageAI"
+          :label="t('toolbar.aiImage')"
+          size="sm"
+          label-first
+        />
+      </div>
+
+      <!-- The key, asked for only once AI is on -->
+      <ZenExpandTransition>
+        <form v-if="asksForKey" class="ai-key__form" @submit.prevent="checkKey">
+          <label class="ai-key__label" for="ai-key-input">
+            {{ t('aiKey.label') }}
+          </label>
+          <div
+            class="ai-key__field"
+            :class="{
+              'ai-key__field--invalid': status !== null,
+              'ai-key__field--checking': checking,
+            }"
+          >
+            <input
+              id="ai-key-input"
+              ref="inputRef"
+              v-model="draft"
+              class="ai-key__input"
+              :type="revealed ? 'text' : 'password'"
+              name="openai-key"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              placeholder="sk-…"
+              :readonly="checking"
+              :aria-invalid="status !== null || undefined"
+              aria-describedby="ai-key-status ai-key-note"
+              @input="status = null"
+              @paste="onPaste"
+            />
+            <button
+              type="button"
+              class="ai-key__reveal"
+              :aria-label="revealed ? t('aiKey.hide') : t('aiKey.show')"
+              :aria-pressed="revealed"
+              @click="revealed = !revealed"
+            >
+              <EyeOff v-if="revealed" :size="16" aria-hidden="true" />
+              <Eye v-else :size="16" aria-hidden="true" />
+            </button>
+            <button
+              type="submit"
+              class="ai-key__check"
+              :disabled="checking || draft.trim() === ''"
+              :aria-busy="checking || undefined"
+            >
+              <!-- Both words set one over the other: the key keeps the
+                     longer one's width, only the current one shows -->
+              <span
+                class="ai-key__check-label"
+                :class="{ 'ai-key__check-label--current': !checking }"
+                >{{ t('aiKey.check') }}</span
+              >
+              <span
+                class="ai-key__check-label"
+                :class="{ 'ai-key__check-label--current': checking }"
+                >{{ t('aiKey.checking') }}</span
+              >
+            </button>
+          </div>
+          <p
+            id="ai-key-status"
+            class="ai-key__status"
+            role="status"
+            aria-live="polite"
+          >
+            {{ statusMessage }}
+          </p>
+          <p id="ai-key-note" class="ai-key__note">
+            {{ t('aiKey.note') }}
+            <a
+              href="https://platform.openai.com/api-keys"
+              target="_blank"
+              rel="noopener noreferrer"
+              >{{ t('aiKey.getKey') }}</a
+            >
+            ·
+            <a
+              href="https://openai.com/api/pricing/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >{{ t('aiKey.pricing') }}</a
+            >
+          </p>
+        </form>
+      </ZenExpandTransition>
+
+      <!-- The key in use: recognisable, never readable -->
+      <div v-if="hasKey" class="ai-key__row ai-key__current">
+        <span class="ai-key__label">{{ t('aiKey.yourKey') }}</span>
+        <code class="ai-key__masked">{{ maskedKey }}</code>
+        <button type="button" class="ai-key__link" @click="forgetKey">
+          {{ t('aiKey.forget') }}
+        </button>
+      </div>
+
+      <p class="ai-key__accepted" role="status" aria-live="polite">
+        <Transition name="ai-key-notice">
+          <span v-if="accepted">{{ t('aiKey.accepted') }}</span>
+        </Transition>
+      </p>
+    </div>
   </div>
 </template>
 
@@ -290,62 +258,11 @@ function forgetKey(): void {
   flex-direction: column;
   overflow: hidden;
 
-  // The same quiet inline disclosure as the developer options
-  &__header {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    min-height: 2.75rem;
-    margin: 0 auto;
-    padding: 0.5rem 0.75rem;
-    font-family: inherit;
-    font-size: 0.8125rem;
-    color: var(--gk-ink-soft);
-    background: transparent;
-    border: none;
-    border-radius: var(--gk-radius-control);
-    cursor: pointer;
-    transition: color var(--gk-dur-fast) var(--gk-ease-out);
-
-    @media (hover: hover) and (pointer: fine) {
-      &:hover {
-        color: var(--gk-ink);
-      }
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--gk-indigo);
-      outline-offset: 2px;
-    }
-  }
-
-  &__lead {
-    opacity: 0.8;
-  }
-
-  &__seal {
-    width: 0.4375rem;
-    height: 0.4375rem;
-    border-radius: 1px;
-    background: var(--gk-stamp-ink);
-    rotate: 8deg;
-  }
-
-  &__chevron {
-    transition: transform var(--gk-dur-fast) var(--gk-ease-out);
-
-    &--open {
-      transform: rotate(180deg);
-    }
-  }
-
+  // Set inside the crafting panel's Options, which draws the rule above
   &__content {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    margin-top: 0.25rem;
-    padding: 0.875rem 0 0.25rem;
-    border-top: var(--gk-rule-faint);
   }
 
   &__row {

@@ -15,9 +15,9 @@ import {
   Repeat,
   Sparkles,
   Square,
-  Ruler,
 } from '@/core/components/icons/ink';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
+import { useOpenAIKey } from '@/core/composables/openai-key';
 import { useClipboard } from '@/core/composables/clipboard';
 import { useShare } from '@/core/composables/share';
 import { useImageDownload } from '@/core/composables/image-download';
@@ -40,7 +40,9 @@ import ZenExpandTransition from '@/core/components/ui/ZenExpandTransition.vue';
 import ZenProgress from '@/core/components/ui/ZenProgress.vue';
 
 const isDev = import.meta.env.DEV;
-const devOptionsExpanded = ref(false);
+// One key for every option; it stays as the reader left it across crafts
+const optionsExpanded = ref(false);
+const { hasKey } = useOpenAIKey();
 
 const { t } = useI18n();
 const { success, error } = useToast();
@@ -335,38 +337,47 @@ useKeyboardShortcuts({
           v-show="!isGenerating"
           class="toolbar-panel__config"
         >
-          <div v-if="isDev" class="toolbar-panel__dev-section">
-            <!-- Collapsible Header -->
-            <button
-              class="toolbar-panel__dev-header"
-              type="button"
-              :aria-expanded="devOptionsExpanded"
-              aria-controls="dev-options-content"
-              @click="devOptionsExpanded = !devOptionsExpanded"
-            >
-              <Ruler
-                :size="14"
-                class="toolbar-panel__dev-lead"
-                aria-hidden="true"
-              />
-              <span class="toolbar-panel__dev-title">Developer options</span>
-              <ChevronDown
-                :size="14"
-                class="toolbar-panel__dev-chevron"
-                :class="{
-                  'toolbar-panel__dev-chevron--open': devOptionsExpanded,
-                }"
-              />
-            </button>
+          <!-- Every option behind one key: AI for everyone, iterations only in
+               development (production always crafts with the default) -->
+          <button
+            class="toolbar-panel__options-header"
+            type="button"
+            :aria-expanded="optionsExpanded"
+            aria-controls="toolbar-options"
+            @click="optionsExpanded = !optionsExpanded"
+          >
+            <span>{{ t('toolbar.options') }}</span>
+            <!-- A small vermilion seal: this browser carries an OpenAI key -->
+            <span
+              v-if="hasKey"
+              class="toolbar-panel__options-seal"
+              role="img"
+              :aria-label="t('aiKey.titleActive')"
+            />
+            <ChevronDown
+              :size="14"
+              class="toolbar-panel__options-chevron"
+              :class="{
+                'toolbar-panel__options-chevron--open': optionsExpanded,
+              }"
+              aria-hidden="true"
+            />
+          </button>
 
-            <!-- Collapsible Content -->
-            <ZenExpandTransition>
-              <div
-                v-if="devOptionsExpanded"
-                id="dev-options-content"
+          <ZenExpandTransition>
+            <div
+              v-if="optionsExpanded"
+              id="toolbar-options"
+              class="toolbar-panel__options"
+            >
+              <!-- AI, on the visitor's own OpenAI key (the server's in dev) -->
+              <AiKeyPanel />
+
+              <section
+                v-if="isDev"
                 class="toolbar-panel__dev-content"
+                :aria-label="t('toolbar.iterations')"
               >
-                <!-- Iterations/Raffinement slider -->
                 <div
                   class="toolbar-panel__dev-option toolbar-panel__dev-iterations"
                 >
@@ -378,10 +389,16 @@ useKeyboardShortcuts({
                   <span class="toolbar-panel__dev-iterations-label">{{
                     t('toolbar.iterations')
                   }}</span>
+                  <span class="toolbar-panel__dev-tag">{{
+                    t('toolbar.devOnly')
+                  }}</span>
                   <span class="toolbar-panel__config-value">{{
                     optionIterations
                   }}</span>
                 </div>
+                <p class="toolbar-panel__dev-hint">
+                  {{ t('toolbar.iterationsHint') }}
+                </p>
                 <ZenSlider
                   v-model="optionIterations"
                   :min="1"
@@ -410,12 +427,9 @@ useKeyboardShortcuts({
                     {{ preset }}
                   </button>
                 </div>
-              </div>
-            </ZenExpandTransition>
-          </div>
-
-          <!-- AI, on the visitor's own OpenAI key (the server's in dev) -->
-          <AiKeyPanel />
+              </section>
+            </div>
+          </ZenExpandTransition>
         </div>
       </Transition>
 
@@ -745,6 +759,8 @@ useKeyboardShortcuts({
   }
 
   &__config {
+    display: flex;
+    flex-direction: column;
     width: 100%;
     padding: 0.5rem 0 1rem;
   }
@@ -871,16 +887,11 @@ useKeyboardShortcuts({
     }
   }
 
-  &__dev-section {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  // A quiet inline disclosure: icon, words, chevron, nothing stretched
-  &__dev-header {
+  // A quiet inline disclosure: words, chevron, nothing stretched
+  &__options-header {
     display: inline-flex;
     align-items: center;
+    align-self: center;
     gap: 0.375rem;
     min-height: 2.75rem;
     margin: 0 auto;
@@ -906,15 +917,15 @@ useKeyboardShortcuts({
     }
   }
 
-  &__dev-lead {
-    opacity: 0.8;
+  &__options-seal {
+    width: 0.4375rem;
+    height: 0.4375rem;
+    border-radius: 1px;
+    background: var(--gk-stamp-ink);
+    rotate: 8deg;
   }
 
-  &__dev-title {
-    font-weight: 400;
-  }
-
-  &__dev-chevron {
+  &__options-chevron {
     color: currentColor;
     transition: transform var(--gk-dur-fast) var(--gk-ease-out);
 
@@ -923,14 +934,41 @@ useKeyboardShortcuts({
     }
   }
 
+  // Under one faint rule: AI first (what everyone has), then development's
+  &__options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.25rem;
+    padding: 0.875rem 0 0.25rem;
+    border-top: var(--gk-rule-faint);
+  }
+
+  // Development only: set off by its own faint rule and a small tag
+  &__dev-tag {
+    padding: 0.0625rem 0.375rem;
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    color: var(--gk-ink-soft);
+    border: 1px dashed var(--gk-ink-faint);
+    border-radius: var(--gk-radius-control);
+    white-space: nowrap;
+  }
+
+  &__dev-hint {
+    margin: -0.125rem 0 0.25rem;
+    font-size: 0.75rem;
+    line-height: 1.55;
+    color: var(--gk-ink-soft);
+    text-wrap: pretty;
+  }
+
   &__dev-content {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    // Printed on the card itself: no tinted leaf, one faint rule above
-    margin-top: 0.25rem;
-    padding: 0.875rem 0 0.25rem;
-    border-top: var(--gk-rule-faint);
+    padding-top: 0.875rem;
+    border-top: 1px dashed var(--gk-ink-faint);
   }
 
   &__dev-option {
@@ -1006,8 +1044,8 @@ useKeyboardShortcuts({
   .toolbar-panel {
     &__icon-btn.zen-btn,
     &__preset,
-    &__dev-header,
-    &__dev-chevron {
+    &__options-header,
+    &__options-chevron {
       transition: none;
     }
 

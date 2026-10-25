@@ -19,7 +19,7 @@ describe('ToolbarPanel', () => {
     setActivePinia(createPinia());
     const store = useHaikuStore();
     store.firstLoaded = true;
-    mount(ToolbarPanel, {
+    const wrapper = mount(ToolbarPanel, {
       global: {
         stubs: {
           ZenCard: { template: '<div><slot /></div>' },
@@ -32,6 +32,7 @@ describe('ToolbarPanel', () => {
       },
     });
 
+    await wrapper.get('.toolbar-panel__options-header').trigger('click');
     expect(mounts).toHaveBeenCalledTimes(1);
 
     store.isGenerating = true;
@@ -87,5 +88,37 @@ describe('ToolbarPanel', () => {
       expect(key.attributes('aria-label')).toBeTruthy();
       expect(key.text()).toBe('');
     }
+  });
+
+  it('folds every option behind one key, iterations marked development-only', async () => {
+    setActivePinia(createPinia());
+    useHaikuStore().firstLoaded = true;
+    const wrapper = mount(ToolbarPanel, {
+      global: {
+        stubs: {
+          ZenCard: { template: '<div><slot /></div>' },
+          ZenTooltip: { template: '<div><slot /></div>' },
+          AiKeyPanel: { template: '<div class="ai-key-stub" />' },
+        },
+      },
+    });
+    const disclosures = wrapper.findAll(
+      '.toolbar-panel__config button[aria-expanded]',
+    );
+
+    expect(disclosures).toHaveLength(1);
+    expect(disclosures[0].text()).toBe('toolbar.options');
+
+    await disclosures[0].trigger('click');
+
+    const options = wrapper.get('.toolbar-panel__options');
+    expect(options.find('.ai-key-stub').exists()).toBeTruthy();
+    // Vitest runs as development: the iterations block shows, tagged
+    expect(options.get('.toolbar-panel__dev-tag').text()).toBe(
+      'toolbar.devOnly',
+    );
+    expect(options.get('.toolbar-panel__dev-hint').text()).toBe(
+      'toolbar.iterationsHint',
+    );
   });
 });

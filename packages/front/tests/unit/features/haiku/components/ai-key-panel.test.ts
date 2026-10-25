@@ -26,7 +26,8 @@ describe('AiKeyPanel', () => {
       global: { stubs: { transition: false } },
     });
 
-    await wrapper.get('.ai-key__header').trigger('click');
+    // No header of its own: the crafting panel's Options key opens it
+    expect(wrapper.find('.ai-key__header').exists()).toBeFalsy();
     const input = wrapper.get('#ai-key-input');
     await input.setValue(`sk-test-${'x'.repeat(30)}`);
     await wrapper.get('form').trigger('submit');
