@@ -1,7 +1,0 @@
-//#region src/tsc/vue.d.ts
-interface VueLanguageOptions {
-  /** @ts-ignore - optional dep */
-  vueCompilerOptions?: Partial<import("@vue/language-core").VueCompilerOptions>;
-}
-//#endregion
-export { VueLanguageOptions as t };

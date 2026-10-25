@@ -1,9 +1,0 @@
-{
-  "$schema": "https://tstyche.org/schemas/config.json",
-  "checkDeclarationFiles": false,
-  "checkSuppressedErrors": false,
-  "testFileMatch": [
-    "test/types/*.test.*",
-    "test/types/**/*.test.*"
-  ]
-}
