@@ -163,9 +163,10 @@
 }
 
 // Browser surfaces carry the identity too
+// A red tint under the ink, not a red block: the text keeps its colour
 ::selection {
-  background: var(--gk-stamp);
-  color: var(--gk-on-stamp);
+  background: color-mix(in oklch, var(--gk-stamp) 22%, transparent);
+  color: inherit;
 }
 
 :focus-visible {

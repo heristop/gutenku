@@ -472,12 +472,6 @@ $toc-desktop: 1280px;
     }
   }
 
-  // Selection follows the Ex Libris token (main.scss still sets an older one)
-  :deep(::selection) {
-    background: var(--gk-stamp);
-    color: var(--gk-on-stamp);
-  }
-
   &__not-found {
     display: flex;
     justify-content: center;
