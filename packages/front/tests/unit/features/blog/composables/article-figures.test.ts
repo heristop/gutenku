@@ -49,7 +49,7 @@ describe('markLeadParagraph', () => {
     const html = `<p><em>Anatomy of a fraud</em></p><p>${long}</p><p>${long}</p>`;
 
     expect(markLeadParagraph(html)).toBe(
-      `<p><em>Anatomy of a fraud</em></p><p class="article-lead">${long}</p><p>${long}</p>`,
+      `<p><em>Anatomy of a fraud</em></p><p class="article-lead gk-drop-cap">${long}</p><p>${long}</p>`,
     );
   });
 
@@ -57,7 +57,7 @@ describe('markLeadParagraph', () => {
     const html = `<blockquote>\n<p>${long}</p>\n</blockquote><p>${long}</p>`;
 
     expect(markLeadParagraph(html)).toBe(
-      `<blockquote>\n<p>${long}</p>\n</blockquote><p class="article-lead">${long}</p>`,
+      `<blockquote>\n<p>${long}</p>\n</blockquote><p class="article-lead gk-drop-cap">${long}</p>`,
     );
   });
 

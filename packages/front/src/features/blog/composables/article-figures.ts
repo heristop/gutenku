@@ -51,7 +51,7 @@ export function markLeadParagraph(html: string): string {
 
       marked = true;
 
-      return `<p class="article-lead">${inner}</p>`;
+      return `<p class="article-lead gk-drop-cap">${inner}</p>`;
     },
   );
 }

@@ -747,13 +747,9 @@ $toc-desktop: 1280px;
     color: var(--gk-ink);
     overflow-wrap: break-word;
 
-    :deep(p.article-lead::first-letter) {
-      float: left;
-      padding: 0.35rem 0.6rem 0 0;
-      font-size: 4.25em;
-      font-weight: 700;
-      line-height: 0.8;
-      color: var(--gk-ink);
+    // The opening capital is the site's (gk-drop-cap), set larger here
+    :deep(p.article-lead) {
+      --drop-cap-size: 4.25em;
     }
 
     :deep(h1) {

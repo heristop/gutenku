@@ -289,4 +289,21 @@ describe('DailyHaikuSlip', () => {
       expect(wrapper.find('.daily-blackout').exists()).toBeFalsy();
     });
   });
+
+  it('opens the commentary with a capital, like a page of a book', async () => {
+    archive[TODAY] = {
+      ...archive[TODAY],
+      reading: 'A long reading of the day.',
+    };
+
+    try {
+      await render();
+
+      expect(wrapper.get('.daily-slip__reading-text').classes()).toContain(
+        'gk-drop-cap',
+      );
+    } finally {
+      archive[TODAY] = { ...archive[TODAY], reading: null };
+    }
+  });
 });

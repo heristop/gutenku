@@ -600,3 +600,15 @@ body {
     margin: 1.5cm;
   }
 }
+
+// A book's opening capital: the first letter of a page of prose, set large
+// in ink across the first lines (articles, the daily commentary, the book of
+// the day). Sized from the text it opens; --drop-cap-size tunes it per page.
+.gk-drop-cap::first-letter {
+  float: left;
+  padding: 0.08em 0.14em 0 0;
+  font-size: var(--drop-cap-size, 3.6em);
+  font-weight: 700;
+  line-height: 0.8;
+  color: var(--gk-ink);
+}

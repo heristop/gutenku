@@ -487,7 +487,7 @@ onUnmounted(() => {
                 <p
                   v-if="!props.foldReading || readingOpen"
                   ref="readingInner"
-                  class="daily-slip__reading-text"
+                  class="daily-slip__reading-text gk-drop-cap"
                 >
                   {{ haiku.reading }}
                 </p>
