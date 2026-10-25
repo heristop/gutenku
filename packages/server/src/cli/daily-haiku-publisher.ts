@@ -13,6 +13,7 @@ import type {
 import { getCurrentPublicationDate } from '~/domain/services/DailyHaikuSchedule';
 import DailyHaikuRepository from '~/infrastructure/repositories/DailyHaikuRepository';
 import MongoConnection from '~/infrastructure/services/MongoConnection';
+import { chapterIds } from '~/application/services/DailyHaikuRecorder';
 
 export type PublishableHaiku = Pick<
   HaikuValue,
@@ -21,6 +22,8 @@ export type PublishableHaiku = Pick<
   book: Pick<HaikuValue['book'], 'title' | 'author'> &
     Partial<Pick<HaikuValue['book'], 'reference' | 'emoticons'>>;
   chapter?: Partial<HaikuValue['chapter']> | null;
+  // The verses as found in the chapter, before tidying (the excerpt finds them)
+  rawVerses?: string[];
 };
 
 export interface PublishDailyHaikuInput {
@@ -86,6 +89,10 @@ export function buildDailyHaikuEntity({
       emoticons: haiku.book.emoticons,
     }),
     chapter: chapterTitle ? { title: chapterTitle } : undefined,
+    // Where the verses were cut from: the home page blacks out that chapter
+    // around them
+    rawVerses: haiku.rawVerses?.length ? [...haiku.rawVerses] : undefined,
+    ...chapterIds(haiku),
     card: { contentType: 'image/jpeg', data: card },
     socialCaption,
     source,

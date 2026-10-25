@@ -7,7 +7,10 @@ interface ExcerptSource {
   verses: readonly string[];
   rawVerses?: readonly string[];
   chapterId?: string;
+  book?: { reference?: string };
 }
+
+type ChapterText = { content: string };
 
 /**
  * The day's verses in a few words of their chapter. Decoration for the home
@@ -15,21 +18,35 @@ interface ExcerptSource {
  */
 export async function loadDailyExcerpt(
   record: ExcerptSource,
-  getChapter: (id: string) => Promise<{ content: string } | null>,
+  getChapter: (id: string) => Promise<ChapterText | null>,
+  getBookChapters?: (reference: string) => Promise<readonly ChapterText[]>,
 ): Promise<VerseExcerpt | null> {
-  if (!record.chapterId) {
-    return null;
-  }
+  const verses = record.rawVerses?.length ? record.rawVerses : record.verses;
 
   try {
-    const chapter = await getChapter(record.chapterId);
+    if (record.chapterId) {
+      const chapter = await getChapter(record.chapterId);
 
-    return chapter
-      ? buildVerseExcerpt(
-          chapter.content,
-          record.rawVerses?.length ? record.rawVerses : record.verses,
-        )
-      : null;
+      return chapter ? buildVerseExcerpt(chapter.content, verses) : null;
+    }
+
+    // Days published without their chapter id: the book's chapter that holds
+    // every verse
+    const reference = record.book?.reference;
+
+    if (!reference || !getBookChapters) {
+      return null;
+    }
+
+    for (const chapter of await getBookChapters(reference)) {
+      const excerpt = buildVerseExcerpt(chapter.content, verses);
+
+      if (excerpt) {
+        return excerpt;
+      }
+    }
+
+    return null;
   } catch {
     return null;
   }

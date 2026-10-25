@@ -1,6 +1,10 @@
 import { container } from 'tsyringe';
 import { loadDailyExcerpt } from '~/presentation/graphql/daily-excerpt';
 import type { VerseExcerpt } from '~/domain/services/verse-excerpt';
+import {
+  type IChapterRepository,
+  IChapterRepositoryToken,
+} from '~/domain/repositories/IChapterRepository';
 
 // GraphQL calls a field given as a function: the excerpt is only cut when asked
 type LazyDailyHaiku = Omit<DailyHaiku, 'excerpt'> & {
@@ -286,8 +290,13 @@ const resolvers = {
         ),
         // Resolved only when asked for: the chapter is read for the home slip
         excerpt: () =>
-          loadDailyExcerpt(record, (id) =>
-            queryBus.execute(new GetChapterByIdQuery(id)),
+          loadDailyExcerpt(
+            record,
+            (id) => queryBus.execute(new GetChapterByIdQuery(id)),
+            (reference) =>
+              container
+                .resolve<IChapterRepository>(IChapterRepositoryToken)
+                .getChaptersByBookReference(reference),
           ),
       };
     },

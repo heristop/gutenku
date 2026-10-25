@@ -43,7 +43,8 @@ function toId(value: unknown): string | undefined {
   return OBJECT_ID.test(id) ? id : undefined;
 }
 
-function chapterIds(haiku: HaikuValue): {
+/** Where a haiku was cut from, as stored ids (the CLI publisher shares it) */
+export function chapterIds(haiku: { chapter?: unknown; book?: unknown }): {
   chapterId?: string;
   bookId?: string;
 } {

@@ -46,6 +46,26 @@ describe('buildDailyHaikuEntity', () => {
     });
   });
 
+  it('keeps where the verses were cut from, for the home blackout', () => {
+    const entity = buildDailyHaikuEntity({
+      haiku: {
+        verses: ['The night', 'b', 'c'],
+        rawVerses: ['the night', 'b', 'c'],
+        book: { title: 'W', author: 'T' },
+        chapter: {
+          _id: '68c701011a684efaf0205a60',
+          title: 'One',
+          content: 'x',
+        },
+      } as never,
+      card,
+      now: new Date('2026-10-24T12:00:00.000Z'),
+    });
+
+    expect(entity.chapterId).toBe('68c701011a684efaf0205a60');
+    expect(entity.rawVerses).toEqual(['the night', 'b', 'c']);
+  });
+
   it('belongs to the previous day before the rollover', () => {
     const entity = buildDailyHaikuEntity({
       haiku: { verses: ['a', 'b', 'c'], book: { title: 'W', author: 'T' } },

@@ -45,4 +45,25 @@ describe('loadDailyExcerpt', () => {
       }),
     ).resolves.toBe(null);
   });
+
+  it('finds the chapter by its book when the day kept no chapter', async () => {
+    const getChapter = vi.fn();
+    const getBookChapters = vi.fn(async () => [
+      { content: 'Nothing here.' },
+      { content: 'And the golden marvel shone.' },
+    ]);
+
+    const excerpt = await loadDailyExcerpt(
+      {
+        verses: ['the golden marvel'],
+        book: { reference: '1998' },
+      },
+      getChapter,
+      getBookChapters,
+    );
+
+    expect(getChapter).not.toHaveBeenCalled();
+    expect(getBookChapters).toHaveBeenCalledWith('1998');
+    expect(excerpt?.verses).toEqual(['the golden marvel']);
+  });
 });
