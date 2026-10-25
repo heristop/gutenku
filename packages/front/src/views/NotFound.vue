@@ -5,6 +5,7 @@ import ZenCard from '@/core/components/ui/ZenCard.vue';
 import ZenButton from '@/core/components/ui/ZenButton.vue';
 import ZenHaiku from '@/core/components/ui/ZenHaiku.vue';
 import BrushRule from '@/core/components/ink/BrushRule.vue';
+import { GAME_ENABLED } from '@/features/game/config';
 
 import { computed } from 'vue';
 
@@ -54,13 +55,22 @@ const haikuLines = computed(() =>
         </template>
         {{ t('notFound.returnHome') }}
       </ZenButton>
+
+      <!-- The other two ways in, as quiet text: home stays the one key -->
+      <nav class="not-found__elsewhere" :aria-label="t('notFound.elsewhere')">
+        <RouterLink to="/haiku">{{ t('home.hero.write') }}</RouterLink>
+        <template v-if="GAME_ENABLED">
+          <span aria-hidden="true">·</span>
+          <RouterLink to="/game">{{ t('home.hero.play') }}</RouterLink>
+        </template>
+      </nav>
     </ZenCard>
   </div>
 </template>
 
 <style lang="scss" scoped>
 // Ex Libris: a leaf missing from the shelf. Oversized typed numerals, the
-// meta under them, a short poem, then the one way back.
+// meta under them, a short poem, then the way back (and two quiet others).
 .not-found {
   display: flex;
   flex: 1;
@@ -69,6 +79,32 @@ const haikuLines = computed(() =>
   min-height: 100%;
   padding: 2rem 1rem 1.5rem;
   font-family: var(--gk-font);
+
+  &__elsewhere {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.25rem 0.625rem;
+    margin-top: 1.25rem;
+    font-size: 0.875rem;
+    color: var(--gk-ink-soft);
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 2.75rem;
+      color: var(--gk-indigo);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.25em;
+
+      &:focus-visible {
+        outline: 2px solid var(--gk-indigo);
+        outline-offset: 2px;
+      }
+    }
+  }
 
   &__card {
     width: 100%;
