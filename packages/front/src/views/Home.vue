@@ -4,6 +4,7 @@ import {
   defineAsyncComponent,
   onBeforeUnmount,
   onMounted,
+  ref,
 } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useHead, useSeoMeta } from '@unhead/vue';
@@ -14,6 +15,11 @@ import ZenButton from '@/core/components/ui/ZenButton.vue';
 import InkStamp from '@/core/components/ink/InkStamp.vue';
 import InkPlate from '@/core/components/ink/InkPlate.vue';
 import PlateShelf from '@/core/components/ink/plates/PlateShelf.vue';
+import {
+  formatTeaser,
+  playLabelKey,
+  todaysFreeEmoji,
+} from '@/core/composables/game-teaser';
 import { GAME_ENABLED } from '@/features/game/config';
 import { useGameStore } from '@/features/game/store/game';
 import { SITE_URL } from '@/locales/config';
@@ -35,7 +41,10 @@ useSeoMeta({
 
 // The game module is optional (private submodule); its store exposes today's
 // puzzle number, computed from the date even before the puzzle is fetched.
-type PuzzleNumberSource = { puzzleNumber?: number | null };
+type PuzzleNumberSource = {
+  puzzleNumber?: number | null;
+  puzzle?: Parameters<typeof todaysFreeEmoji>[0];
+};
 const gameStoreFactory = useGameStore as unknown as
   | (() => PuzzleNumberSource)
   | null;
@@ -50,15 +59,33 @@ const puzzleNumber = computed(() => {
   return typeof value === 'number' && value > 0 ? value : null;
 });
 
+// The two emoji every player gets free, once a stored puzzle is today's.
+// Read after mount: the stored game lives in this browser, not the prerender.
+const FREE_EMOJI = 2;
+const hasMounted = ref(false);
+const teaser = computed(() =>
+  hasMounted.value
+    ? formatTeaser(
+        todaysFreeEmoji(
+          gameStore?.puzzle,
+          new Date().toISOString().split('T')[0],
+        ),
+        FREE_EMOJI,
+      )
+    : '',
+);
+
 const playLabel = computed(() =>
-  puzzleNumber.value
-    ? t('home.hero.playNumber', { number: puzzleNumber.value })
-    : t('home.hero.play'),
+  t(playLabelKey(puzzleNumber.value, teaser.value), {
+    number: puzzleNumber.value,
+    teaser: teaser.value,
+  }),
 );
 
 const haikusCrafted = computed(() => globalStats.value.totalHaikusGenerated);
 
 onMounted(() => {
+  hasMounted.value = true;
   fetchGlobalStats();
 });
 

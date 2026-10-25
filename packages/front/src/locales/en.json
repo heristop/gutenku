@@ -236,7 +236,8 @@
       "headlineHaiku": "haiku",
       "write": "Write a haiku",
       "play": "Play GutenGuess",
-      "playNumber": "Play No. {number}"
+      "playNumber": "Play No. {number}",
+      "playNumberTeaser": "Play No. {number} · today: {teaser}"
     },
     "daily": {
       "label": "Today's haiku",

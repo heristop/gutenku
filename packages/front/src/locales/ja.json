@@ -232,7 +232,8 @@
       "headlineHaiku": "俳句",
       "write": "俳句を作る",
       "play": "GutenGuessで遊ぶ",
-      "playNumber": "第{number}号で遊ぶ"
+      "playNumber": "第{number}号で遊ぶ",
+      "playNumberTeaser": "第{number}号で遊ぶ · 今日: {teaser}"
     },
     "daily": {
       "label": "今日の俳句",
