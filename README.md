@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1792836034" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1792922448" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests the quiet power of a serene presence hidden in darkness. The phrase "in whose look serene" evokes a calm, gentle gaze, while "though hid in gloomiest shade" creates a contrast between inner peace and outer gloom. The final line, "thus the silence broke," implies that this calm presence has the ability to interrupt stillness, perhaps bringing comfort, hope, or emotional release. Overall, the poem captures the beauty of serenity shining through darkness and the moment when silence is transformed by subtle but meaningful presence."_
+> _"This haiku evokes a quiet, reflective moment filled with memory and tenderness. The phrase "bright" suggests light, warmth, or hope, while "lies in a bed to his left" creates a still, intimate scene that may hint at illness, rest, or even death. The final line, "winsome smile of yore," brings in nostalgia, recalling a charming smile from the past. Together, the poem feels gentle yet bittersweet, as if the speaker is looking at someone dear and remembering a happier time. Its emotional power comes from the contrast between present stillness and the lingering beauty of memory."_
 
-— **BotenKu** 📅 _Oct 24, 2026_
+— **BotenKu** 📅 _Oct 25, 2026_
 
 </td>
 </tr>
