@@ -65,6 +65,29 @@ const DAILY_HAIKU_QUERY = gql`
       nextRolloverAt
       previousDate
       nextDate
+    }
+  }
+`;
+
+// The same day with its verses in a few words of their chapter: asked once,
+// for the home entrance. A separate document, so a server that predates the
+// field fails only this request, never the plain one.
+const DAILY_HAIKU_EXCERPT_QUERY = gql`
+  query DailyHaikuSlipExcerpt($date: String) {
+    dailyHaiku(date: $date) {
+      date
+      title
+      verses
+      reading
+      book {
+        title
+        author
+        emoticons
+      }
+      cardUrl
+      nextRolloverAt
+      previousDate
+      nextDate
       excerpt {
         text
         verses
@@ -174,37 +197,70 @@ function fromLegacy(haiku: LegacyDailyHaiku, date: string): DailyHaikuEntry {
   };
 }
 
-async function fetchPublished(
-  date: string | null,
-): Promise<DailyHaikuEntry | null> {
-  const result = await urqlClient
-    .query<{ dailyHaiku: DailyHaiku | null }>(DAILY_HAIKU_QUERY, { date })
+function queryDay(date: string | null, withExcerpt: boolean) {
+  return urqlClient
+    .query<{ dailyHaiku: DailyHaiku | null }>(
+      withExcerpt ? DAILY_HAIKU_EXCERPT_QUERY : DAILY_HAIKU_QUERY,
+      { date },
+    )
     .toPromise();
+}
 
-  if (result.error && !result.data?.dailyHaiku) {
-    const futureDate = result.error.graphQLErrors?.some(
+type DayResult = Awaited<ReturnType<typeof queryDay>>;
+
+function isFutureDate(result: DayResult): boolean {
+  return Boolean(
+    result.error?.graphQLErrors?.some(
       (error) => error.message === 'future_date',
-    );
+    ),
+  );
+}
 
-    // A day that cannot exist yet is simply not recorded; anything else is a failure
-    if (date && futureDate) {
-      return null;
-    }
-
-    // A failed request is not "nothing published": never stand in another haiku
-    throw result.error;
-  }
-
+// A recorded day, nothing recorded, or a failure that must not pass for one
+function readDay(
+  result: DayResult,
+  date: string | null,
+): DailyHaikuEntry | null {
   const daily = result.data?.dailyHaiku;
 
-  return daily?.verses?.length ? fromPublished(daily) : null;
+  if (daily) {
+    return daily.verses?.length ? fromPublished(daily) : null;
+  }
+
+  // A day that cannot exist yet is simply not recorded; anything else is a failure
+  if (!result.error || (date && isFutureDate(result))) {
+    return null;
+  }
+
+  // A failed request is not "nothing published": never stand in another haiku
+  throw result.error;
+}
+
+async function fetchPublished(
+  date: string | null,
+  withExcerpt = false,
+): Promise<DailyHaikuEntry | null> {
+  const result = await queryDay(date, withExcerpt);
+
+  // The excerpt is decoration: whatever went wrong, ask for the day alone
+  if (withExcerpt && result.error && !result.data?.dailyHaiku) {
+    return fetchPublished(date);
+  }
+
+  return readDay(result, date);
 }
 
 /**
  * The daily haiku for `day` (YYYY-MM-DD), or today's when `day` is null.
  * Past days come from the archive; only today falls back to the legacy daily.
  */
-export function useDailyHaiku(day: Ref<string | null>) {
+export function useDailyHaiku(
+  day: Ref<string | null>,
+  options: { withExcerpt?: boolean } = {},
+) {
+  // Only the first day shown can play the blackout: later pages and the
+  // prefetched neighbours never read a chapter
+  let wantExcerpt = options.withExcerpt ?? false;
   const haikuStore = useHaikuStore();
   const entry = ref<DailyHaikuEntry | null>(null);
   const missing = ref(false);
@@ -240,7 +296,10 @@ export function useDailyHaiku(day: Ref<string | null>) {
   }
 
   /** Fetch one day, sharing a request already on its way. */
-  function fetchDay(date: string | null): Promise<CachedDay> {
+  function fetchDay(
+    date: string | null,
+    withExcerpt = false,
+  ): Promise<CachedDay> {
     const key = date ?? getCurrentPublicationDate(new Date());
     const pending = inflight.get(key);
 
@@ -250,7 +309,7 @@ export function useDailyHaiku(day: Ref<string | null>) {
 
     const request = (async (): Promise<CachedDay> => {
       if (date) {
-        const published = await fetchPublished(date);
+        const published = await fetchPublished(date, withExcerpt);
         dayCache.set(key, published);
 
         return published;
@@ -259,7 +318,7 @@ export function useDailyHaiku(day: Ref<string | null>) {
       // Today: the published page; only when none is recorded yet, the legacy
       // daily lines (never cached under the archive so a late publication
       // still shows on the next visit). A failed request throws instead.
-      const published = await fetchPublished(null);
+      const published = await fetchPublished(null, withExcerpt);
 
       if (published) {
         // Cached under its own date: a late page never poses as today
@@ -331,12 +390,14 @@ export function useDailyHaiku(day: Ref<string | null>) {
 
     // Keep the current page on screen (dimmed) while the next one arrives
     loading.value = true;
+    const withExcerpt = wantExcerpt;
+    wantExcerpt = false;
 
     // A brief failure (a dropped connection, a rate limit) is retried twice
     // quietly before the slip admits it
     for (let attempt = 0; ; attempt++) {
       try {
-        const result = await fetchDay(requested);
+        const result = await fetchDay(requested, withExcerpt);
 
         if (id === requestId) {
           settle(result);

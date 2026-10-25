@@ -55,12 +55,15 @@ function dailyCalls(date?: string | null) {
   );
 }
 
-function host(day: Ref<string | null>) {
+function host(
+  day: Ref<string | null>,
+  options?: Parameters<typeof useDailyHaiku>[1],
+) {
   let api!: ReturnType<typeof useDailyHaiku>;
   const wrapper = mount(
     defineComponent({
       setup() {
-        api = useDailyHaiku(day);
+        api = useDailyHaiku(day, options);
 
         return () => h('div');
       },
@@ -298,5 +301,63 @@ describe('useDailyHaiku', () => {
     await flushPromises();
 
     expect(dailyCalls().length).toBe(before);
+  });
+
+  describe('the excerpt', () => {
+    const asksExcerpt = (call: unknown[]) =>
+      String(
+        (call[0] as { loc?: { source: { body: string } } }).loc?.source.body,
+      ).includes('excerpt');
+
+    it('is only asked for when the entrance wants it, once', async () => {
+      const { api } = host(ref(null), { withExcerpt: true });
+      await flushPromises();
+      // Past the idle prefetch of the day before
+      vi.advanceTimersByTime(2500);
+      await flushPromises();
+
+      expect(api.haiku.value?.date).toBe(TODAY);
+      const calls = dailyCalls();
+      expect(calls.length).toBeGreaterThan(1);
+      expect(asksExcerpt(calls[0])).toBeTruthy();
+      // The prefetched day before never reads a chapter
+      expect(calls.slice(1).some(asksExcerpt)).toBeFalsy();
+    });
+
+    it('is never asked for by default', async () => {
+      host(ref(null));
+      await flushPromises();
+
+      expect(dailyCalls().some(asksExcerpt)).toBeFalsy();
+    });
+
+    it("doesn't cost the day on a server that doesn't know it", async () => {
+      const answer = query.getMockImplementation()!;
+      query.mockImplementation((doc, vars) =>
+        String(doc.loc?.source.body).includes('excerpt')
+          ? {
+              toPromise: () =>
+                Promise.resolve({
+                  data: undefined,
+                  error: {
+                    graphQLErrors: [
+                      {
+                        message:
+                          'Cannot query field "excerpt" on type "DailyHaiku".',
+                      },
+                    ],
+                  },
+                }),
+            }
+          : answer(doc, vars),
+      );
+
+      const { api } = host(ref(null), { withExcerpt: true });
+      await flushPromises();
+
+      expect(api.failed.value).toBeFalsy();
+      expect(api.haiku.value?.verses).toEqual(['one', 'two', 'three']);
+      expect(api.haiku.value?.excerpt).toBe(null);
+    });
   });
 });

@@ -26,7 +26,12 @@ import { prefersReducedMotion } from '@/core/composables/view-transition';
 
 const loadBlackout = () =>
   import('@/features/haiku/components/DailyHaikuBlackout.vue');
-const DailyHaikuBlackout = defineAsyncComponent(loadBlackout);
+// A chunk that fails (a stale page after a deploy) simply renders nothing: the
+// slip's own guard below gives the verses back
+const DailyHaikuBlackout = defineAsyncComponent({
+  loader: loadBlackout,
+  onError: (_error, _retry, fail) => fail(),
+});
 
 type Step = 'prev' | 'next';
 
@@ -86,17 +91,32 @@ watch(
   { immediate: true },
 );
 
-const { haiku, missing, failed, loading, countdown, reload } =
-  useDailyHaiku(requestedDay);
+const { haiku, missing, failed, loading, countdown, reload } = useDailyHaiku(
+  requestedDay,
+  { withExcerpt: props.entrance },
+);
 
 // Once, for the first day shown; paging away ends it at once
 const blackout = ref(false);
 // The GK seal presses as the blacked-out page lifts, closing the sequence
 const sealPresses = ref(0);
+// The page must be laid out almost at once, or the verses simply arrive. The
+// guard lives here, not in the lazily loaded blackout: if that chunk is slow
+// or fails, nothing there would ever end it.
+const BLACKOUT_READY_MS = 300;
+let blackoutGuard: ReturnType<typeof setTimeout> | undefined;
 
-function onBlackoutDone(): void {
+function endBlackout(played: boolean): void {
+  clearTimeout(blackoutGuard);
   blackout.value = false;
-  sealPresses.value += 1;
+
+  if (played) {
+    sealPresses.value += 1;
+  }
+}
+
+function onBlackoutReady(): void {
+  clearTimeout(blackoutGuard);
 }
 
 let blackoutDecided = false;
@@ -105,6 +125,11 @@ watch(
   haiku,
   (value, previous) => {
     if (!value) {
+      // A missing day ends it too, so it can't replay on the next one
+      if (blackout.value) {
+        endBlackout(false);
+      }
+
       return;
     }
 
@@ -113,11 +138,15 @@ watch(
       blackout.value =
         props.entrance && Boolean(value.excerpt) && !prefersReducedMotion();
 
+      if (blackout.value) {
+        blackoutGuard = setTimeout(() => endBlackout(false), BLACKOUT_READY_MS);
+      }
+
       return;
     }
 
-    if (previous && value.date !== previous.date) {
-      blackout.value = false;
+    if (previous && value.date !== previous.date && blackout.value) {
+      endBlackout(false);
     }
   },
   { immediate: true },
@@ -381,6 +410,7 @@ watch(
 
 onUnmounted(() => {
   readingObserver?.disconnect();
+  clearTimeout(blackoutGuard);
 });
 </script>
 
@@ -429,7 +459,8 @@ onUnmounted(() => {
                 <DailyHaikuBlackout
                   v-if="blackout && haiku.excerpt"
                   :excerpt="haiku.excerpt"
-                  @done="onBlackoutDone"
+                  @ready="onBlackoutReady"
+                  @done="endBlackout(true)"
                 />
               </Transition>
             </div>

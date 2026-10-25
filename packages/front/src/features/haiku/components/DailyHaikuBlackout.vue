@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onUnmounted, ref } from 'vue';
 import type { DailyHaikuExcerpt } from '@gutenku/shared';
 import PretextChapter from '@/features/haiku/components/PretextChapter.vue';
 import { MARKER_STROKE_MS } from '@/features/haiku/composables/marker-timing';
@@ -8,10 +8,8 @@ import { MARKER_STROKE_MS } from '@/features/haiku/composables/marker-timing';
 // out by the marker until only the poem stands. Played once, on the session's
 // first home visit; the slip's own verses wait underneath.
 defineProps<{ excerpt: DailyHaikuExcerpt }>();
-const emit = defineEmits<{ done: [] }>();
-
-// Pretext must lay the page out almost at once, or the verses simply arrive
-const READY_WINDOW_MS = 300;
+// `ready` once laid out (the slip stops its fallback), `done` once played
+const emit = defineEmits<{ ready: []; done: [] }>();
 // The prose is read for a beat before the first stroke
 const STROKE_DELAY_MS = 250;
 // Every marker sequence ends inside 600ms (marker-timing)
@@ -22,17 +20,13 @@ const HOLD_MS = 550;
 const ready = ref(false);
 let timer: ReturnType<typeof setTimeout> | undefined;
 
-onMounted(() => {
-  timer = setTimeout(() => emit('done'), READY_WINDOW_MS);
-});
-
 function onReady(): void {
   if (ready.value) {
     return;
   }
 
-  clearTimeout(timer);
   ready.value = true;
+  emit('ready');
   timer = setTimeout(() => emit('done'), SEQUENCE_MS + HOLD_MS);
 }
 
@@ -64,6 +58,8 @@ onUnmounted(() => clearTimeout(timer));
   position: absolute;
   inset: 0 0 auto;
   z-index: 1;
+  // Seen, never in the way: taps reach what lies under it
+  pointer-events: none;
   padding-bottom: 0.5rem;
   background: var(--gk-paper-raised);
   color: var(--gk-ink-soft);
