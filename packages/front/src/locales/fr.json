@@ -165,9 +165,9 @@
     "getKey": "Obtenir une clé",
     "pricing": "Tarifs",
     "status": {
-      "malformed": "Cela ne ressemble pas à une clé OpenAI (elle commence par sk-).",
+      "malformed": "Les clés OpenAI commencent par sk-.",
       "invalid": "OpenAI n'a pas accepté cette clé.",
-      "unavailable": "Impossible de joindre OpenAI. Réessayez dans un instant."
+      "unavailable": "OpenAI injoignable. Réessayez."
     },
     "errors": {
       "invalid_key": "OpenAI a refusé votre clé : le haïku a été créé sans IA. Vérifiez ou remplacez votre clé.",

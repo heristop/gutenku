@@ -161,9 +161,9 @@
     "getKey": "キーを取得",
     "pricing": "料金",
     "status": {
-      "malformed": "OpenAIのキーではないようです（sk- で始まります）。",
-      "invalid": "OpenAIがこのキーを受け付けませんでした。",
-      "unavailable": "OpenAIに接続できません。少し待ってから再度お試しください。"
+      "malformed": "OpenAIのキーは sk- で始まります。",
+      "invalid": "OpenAIがこのキーを拒否しました。",
+      "unavailable": "OpenAIに接続できません。後でお試しください。"
     },
     "errors": {
       "invalid_key": "OpenAIがキーを拒否したため、AIなしで俳句を作成しました。キーを確認するか、置き換えてください。",

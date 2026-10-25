@@ -224,7 +224,18 @@ function forgetKey(): void {
                 :disabled="checking || draft.trim() === ''"
                 :aria-busy="checking || undefined"
               >
-                {{ checking ? t('aiKey.checking') : t('aiKey.check') }}
+                <!-- Both words set one over the other: the key keeps the
+                     longer one's width, only the current one shows -->
+                <span
+                  class="ai-key__check-label"
+                  :class="{ 'ai-key__check-label--current': !checking }"
+                  >{{ t('aiKey.check') }}</span
+                >
+                <span
+                  class="ai-key__check-label"
+                  :class="{ 'ai-key__check-label--current': checking }"
+                  >{{ t('aiKey.checking') }}</span
+                >
               </button>
             </div>
             <p
@@ -432,6 +443,8 @@ function forgetKey(): void {
   // Quiet keys on the line: the eye, then the action that checks
   &__reveal,
   &__check {
+    display: inline-grid;
+    place-items: center;
     flex-shrink: 0;
     min-width: 2.75rem;
     min-height: 2.75rem;
@@ -491,15 +504,24 @@ function forgetKey(): void {
     }
   }
 
+  &__check-label {
+    grid-area: 1 / 1;
+    visibility: hidden;
+
+    &--current {
+      visibility: visible;
+    }
+  }
+
+  // A line kept for the verdict, empty or not: the form never jumps as it
+  // appears, clears while checking, or changes. Messages fit one phone line.
   &__status {
+    min-height: calc(0.75rem * 1.5 + 0.25rem);
     margin: 0;
+    padding-top: 0.25rem;
     font-size: 0.75rem;
     line-height: 1.5;
     color: var(--gk-stamp-ink);
-
-    &:not(:empty) {
-      padding-top: 0.25rem;
-    }
   }
 
   &__note {

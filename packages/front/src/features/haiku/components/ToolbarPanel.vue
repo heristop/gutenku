@@ -322,8 +322,13 @@ useKeyboardShortcuts({
       class="toolbar-panel__slot"
       :style="slotHold ? { minHeight: `${slotHold}px` } : undefined"
     >
+      <!-- Hidden, not removed, while crafting: what the reader opened stays open -->
       <Transition name="slot-turn">
-        <div v-if="firstLoaded && !isGenerating" class="toolbar-panel__config">
+        <div
+          v-if="firstLoaded"
+          v-show="!isGenerating"
+          class="toolbar-panel__config"
+        >
           <div v-if="isDev" class="toolbar-panel__dev-section">
             <!-- Collapsible Header -->
             <button
@@ -730,9 +735,13 @@ useKeyboardShortcuts({
   // in place on top of it
   &__slot {
     display: grid;
+    // The panel's width, never its content's: an open form must not push the
+    // column past the card's edge
+    grid-template-columns: minmax(0, 1fr);
 
     > * {
       grid-area: 1 / 1;
+      min-width: 0;
     }
   }
 

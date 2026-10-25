@@ -165,9 +165,9 @@
     "getKey": "Get a key",
     "pricing": "Pricing",
     "status": {
-      "malformed": "That doesn't look like an OpenAI key (it starts with sk-).",
+      "malformed": "OpenAI keys start with sk-.",
       "invalid": "OpenAI didn't accept this key.",
-      "unavailable": "Couldn't reach OpenAI. Try again in a moment."
+      "unavailable": "Couldn't reach OpenAI. Try again."
     },
     "errors": {
       "invalid_key": "OpenAI rejected your key: the haiku was crafted without AI. Check or replace your key.",
