@@ -10,12 +10,12 @@ vi.mock('vue-i18n', () => ({
 
 // marked renders markdown -> wrap content so math/mermaid markers survive
 vi.mock('marked', () => {
-  const marked = Object.assign(
-    vi.fn(async (md: string) => `<rendered>${md}</rendered>`),
-    { use: vi.fn() },
-  );
-  
-return { marked };
+  // article.ts renders synchronously (marked.parse with async: false) so the
+  // body can be prerendered; marked() and marked.parse share one mock.
+  const render = vi.fn((md: string) => `<rendered>${md}</rendered>`);
+  const marked = Object.assign(render, { use: vi.fn(), parse: render });
+
+  return { marked };
 });
 
 const katexRender = vi.fn(() => '<span class="katex">x</span>');
@@ -34,8 +34,8 @@ const SLUG = 'gutenku-technical-deep-dive';
 
 async function loadUseArticle() {
   const mod = await import('@/features/blog/composables/article');
-  
-return mod;
+
+  return mod;
 }
 
 function buildBody({ math = false, mermaid = false } = {}) {

@@ -10,15 +10,21 @@ import {
 import { useI18n } from 'vue-i18n';
 import { useSeoMeta } from '@unhead/vue';
 import { storeToRefs } from 'pinia';
-import { Feather } from '@lucide/vue';
+import BrushRule from '@/core/components/ink/BrushRule.vue';
+import InkPlate from '@/core/components/ink/InkPlate.vue';
+import PlateQuill from '@/core/components/ink/plates/PlateQuill.vue';
 import ZenSkeleton from '@/core/components/ZenSkeleton.vue';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
 import { useToast } from '@/core/composables/toast';
 import { usePwaInstall } from '@/core/composables/pwa-install';
 import { usePullToRefresh } from '@/core/composables/pull-to-refresh';
 import { closeWSClient } from '@/client';
-import AppLoading from '@/core/components/AppLoading.vue';
-import SumieCat from '@/core/components/decorative/SumieCat.vue';
+import ZenButton from '@/core/components/ui/ZenButton.vue';
+import { CloudOff } from '@/core/components/icons/ink';
+import {
+  useInkLoading,
+  useInkLoadingQuiet,
+} from '@/core/composables/ink-loading';
 import { SITE_URL } from '@/locales/config';
 
 const HaikuCanvas = defineAsyncComponent({
@@ -55,11 +61,9 @@ const PullToRefresh = defineAsyncComponent(
   () => import('@/core/components/PullToRefresh.vue'),
 );
 
-const HaikuTitle = defineAsyncComponent({
-  loader: () => import('@/features/haiku/components/HaikuTitle.vue'),
-  loadingComponent: ZenSkeleton,
-  delay: 200,
-});
+const HaikuPoem = defineAsyncComponent(
+  () => import('@/features/haiku/components/HaikuPoem.vue'),
+);
 
 const isDev = import.meta.env.DEV;
 
@@ -76,8 +80,21 @@ useSeoMeta({
 
 const haikuStore = useHaikuStore();
 const { fetchNewHaiku } = haikuStore;
-const { haiku, error, firstLoaded, networkError, loading, optionUseAI } =
-  storeToRefs(haikuStore);
+const {
+  haiku,
+  error,
+  firstLoaded,
+  networkError,
+  loading,
+  optionUseAI,
+  isGenerating,
+  aiError,
+} = storeToRefs(haikuStore);
+
+// The site-wide quill shows while the page's haiku is fetched. While one is
+// crafted, the toolbar progress beside the pressed key is the one loading voice.
+useInkLoading(loading);
+useInkLoadingQuiet(isGenerating);
 const { trackHaikuView } = usePwaInstall();
 
 watch(haiku, (newHaiku) => {
@@ -94,6 +111,13 @@ watch(error, (newError) => {
   if (newError && newError !== 'network-error') {
     showError(newError);
     haikuStore.error = '';
+  }
+});
+
+// A craft whose AI fell short (a rejected key, no credit) says why, once
+watch(aiError, (code) => {
+  if (code) {
+    showError(t(`aiKey.errors.${code}`));
   }
 });
 
@@ -117,7 +141,6 @@ const loadingLabel = computed(() => {
 });
 
 function handleRetry() {
-  haikuStore.resetConfigToDefaults();
   fetchNewHaiku();
 }
 
@@ -136,41 +159,52 @@ onUnmounted(closeWSClient);
       :progress="progress"
     />
 
-    <div v-if="networkError" class="haiku-page__error" role="alert">
-      <AppLoading
-        :splash="true"
-        error
-        :text="t('home.networkError')"
-        :on-retry="handleRetry"
-        :retry-label="t('common.retryWithReset')"
-      />
-    </div>
-
-    <main
+    <section
       id="main-content"
       class="haiku-page__content"
       :aria-busy="loading"
       :aria-label="t('home.haikuContentLabel')"
     >
-      <HaikuTitle class="haiku-section__title" />
+      <HaikuPoem v-if="haiku" class="haiku-section__poem haiku-enter" />
+      <BrushRule
+        v-else
+        as="h1"
+        :label="t('haiku.poem.label')"
+        class="haiku-section__heading"
+      />
       <div class="haiku-grid">
         <!-- Mobile-only toolbar placement (before chapter) -->
         <div class="haiku-grid__toolbar-mobile">
-          <SumieCat v-if="loading || !haiku" />
           <ToolbarPanel />
         </div>
 
-        <article class="haiku-grid__main" :aria-label="t('haiku.articleLabel')">
+        <article
+          class="haiku-grid__main haiku-enter"
+          style="--enter-index: 1"
+          :aria-label="t('haiku.articleLabel')"
+        >
+          <div v-if="networkError" class="haiku-page__error" role="alert">
+            <CloudOff
+              :size="32"
+              class="haiku-page__error-icon"
+              aria-hidden="true"
+            />
+            <p class="haiku-page__error-text">{{ t('home.networkError') }}</p>
+            <ZenButton @click="handleRetry">
+              {{ t('common.retry') }}
+            </ZenButton>
+          </div>
+
           <HaikuChapter v-if="haiku" class="haiku-section__chapter" />
 
-          <div v-if="!haiku" class="haiku-section__chapter book-skeleton">
-            <div class="book-skeleton__spine" aria-hidden="true" />
-            <div class="book-skeleton__texture" aria-hidden="true" />
-
+          <div
+            v-else-if="!networkError"
+            class="haiku-section__chapter book-skeleton"
+          >
             <header class="book-skeleton__header">
-              <span class="book-skeleton__icon" aria-hidden="true">
-                <Feather :size="20" />
-              </span>
+              <InkPlate class="book-skeleton__plate">
+                <PlateQuill />
+              </InkPlate>
               <h2 class="book-skeleton__title">{{ t('skeleton.title') }}</h2>
               <p class="book-skeleton__subtitle">
                 {{ t('skeleton.subtitle') }}
@@ -194,13 +228,13 @@ onUnmounted(closeWSClient);
           </div>
         </article>
 
-        <aside
-          class="haiku-grid__sidebar haiku-page__sidebar"
+        <div
+          role="group"
+          class="haiku-grid__sidebar haiku-page__sidebar haiku-enter"
+          style="--enter-index: 2"
           :aria-label="t('haiku.controlsLabel')"
         >
-          <!-- Cat wrapper for desktop - shows above toolbar -->
-          <div class="toolbar-wrapper haiku-cat-wrapper--desktop">
-            <SumieCat v-if="loading || !haiku" />
+          <div class="haiku-grid__toolbar-desktop">
             <ToolbarPanel class="haiku-section__toolbar" />
           </div>
 
@@ -219,466 +253,220 @@ onUnmounted(closeWSClient);
           />
 
           <StatsPanel class="haiku-section__stats" />
-        </aside>
+        </div>
       </div>
-    </main>
+    </section>
   </div>
 </template>
 
 <style lang="scss" scoped>
+// One gutter for the whole spread: cards sit 1.5rem apart on desktop and
+// 1rem apart on phones, in both directions, so the page reads as one sheet set
 .haiku-page {
-  min-height: 100vh;
-  view-transition-name: haiku-page;
+  --haiku-gutter: var(--gk-gutter);
+
   width: 100%;
   margin-inline: auto;
   padding: 0.5rem 0.5rem 2rem;
+  font-family: var(--gk-font);
 
   @media (min-width: 600px) {
     max-width: 900px;
-    padding: 1rem 1rem 2rem;
+    padding: 1rem 1rem 2.5rem;
+  }
+
+  @media (min-width: 1100px) {
+    max-width: 1120px;
   }
 }
 
-.haiku-section__chapter {
-  background: var(--gutenku-paper-bg) !important;
-}
-
-.haiku-page__loading,
+// A closed library is said once, in place of the chapter: no overlay, no frame
 .haiku-page__error {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 60vh;
+  gap: 1rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
 }
 
-.haiku-page__content {
-  animation: fade-in 0.4s ease-out;
+.haiku-page__error-icon {
+  color: var(--gk-ink-soft);
+}
+
+.haiku-page__error-text {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--gk-ink);
+  text-wrap: balance;
+}
+
+.haiku-section__poem {
+  margin-bottom: var(--haiku-gutter);
+}
+
+.haiku-section__heading {
+  max-width: 320px;
+  margin: 0 auto 0.75rem;
+  padding: 0.5rem 0 0;
 }
 
 .haiku-grid {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--haiku-gutter);
 
   @media (min-width: 960px) {
     flex-direction: row;
+    align-items: flex-start;
   }
 }
 
 .haiku-grid__main {
   flex: 1 1 100%;
   order: 1;
+  min-width: 0;
 
   @media (min-width: 960px) {
-    flex: 0 0 calc(66.67% - 0.75rem);
+    flex: 0 0 calc(66.67% - var(--haiku-gutter) / 2);
   }
 }
 
 .haiku-grid__sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--haiku-gutter);
   flex: 1 1 100%;
   order: 2;
+  min-width: 0;
 
   @media (min-width: 960px) {
-    flex: 0 0 calc(33.33% - 0.75rem);
+    flex: 0 0 calc(33.33% - var(--haiku-gutter) / 2);
   }
 }
 
+// Below 960px the crafter moves above the chapter, so the action comes first
 .haiku-grid__toolbar-mobile {
   display: none;
-  flex: 1 1 100%;
   order: 0;
-  position: relative;
 
-  @media (max-width: 960px) {
+  @media (max-width: 959px) {
     display: block;
-
-    :deep(.toolbar-panel) {
-      margin-bottom: var(--gutenku-space-6);
-    }
   }
 }
 
-.haiku-page__sidebar {
-  position: sticky;
-  top: 1rem;
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (max-width: 960px) {
-  .haiku-grid {
-    gap: 0;
-  }
-
-  .haiku-grid__main {
-    margin-bottom: 0;
-  }
-
-  .haiku-page__sidebar {
-    position: static;
-  }
-
-  .haiku-section__chapter {
-    margin-bottom: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .haiku-page__content {
-    animation: none;
-  }
-}
-
-.haiku-section__canvas {
-  margin-top: var(--gutenku-space-4);
-}
-
-.haiku-section__scoring {
-  margin-top: var(--gutenku-space-4);
-}
-
-.haiku-section__stats {
-  margin-top: var(--gutenku-space-6);
-}
-
-.haiku-section__toolbar {
-  @media (max-width: 960px) {
+.haiku-grid__toolbar-desktop {
+  @media (max-width: 959px) {
     display: none;
   }
 }
 
-.haiku-section__title {
-  margin-bottom: var(--gutenku-space-6);
+// First load: each column settles once, a short fade-up, three sheets at most.
+// `backwards` fill keeps the resting state untransformed and fully visible.
+.haiku-enter {
+  animation: haiku-sheet-in var(--gk-dur-base) var(--gk-ease-out) backwards;
+  animation-delay: calc(var(--enter-index, 0) * 60ms);
+}
 
-  @media (max-width: 600px) {
-    margin-bottom: var(--gutenku-space-4);
+@keyframes haiku-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
   }
 }
 
-.haiku-section__preview {
-  margin-top: var(--gutenku-space-4);
-}
-
-// Book skeleton - mimics HaikuChapter book page style
+// Book skeleton: a blank leaf with ruled lines where the haiku will be typed
 .book-skeleton {
-  position: relative;
-  background: var(--gutenku-paper-bg);
-  border-radius: var(--gutenku-radius-sm);
-  padding: 2rem 1.5rem 2rem 2rem;
-  min-height: 400px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  box-shadow:
-    0 2px 4px -1px oklch(0 0 0 / 0.15),
-    0 4px 5px 0 oklch(0 0 0 / 0.1),
-    0 1px 10px 0 oklch(0 0 0 / 0.08);
-
-  // Entrance animation
-  animation: skeleton-emerge 0.6s ease-out;
-
-  @media (max-width: 960px) {
-    margin-bottom: var(--gutenku-space-6);
-  }
-
-  // Book spine effect
-  &__spine {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 3px;
-    height: 100%;
-    background: linear-gradient(
-      to bottom,
-      oklch(0 0 0 / 0.12) 0%,
-      oklch(0 0 0 / 0.06) 50%,
-      oklch(0 0 0 / 0.12) 100%
-    );
-    z-index: 1;
-  }
-
-  // Paper texture overlay
-  &__texture {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background:
-      radial-gradient(
-        circle at 20% 50%,
-        oklch(0.5 0.02 60 / 0.03) 0%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle at 80% 20%,
-        oklch(0.6 0.02 45 / 0.02) 0%,
-        transparent 40%
-      );
-    z-index: 0;
-  }
+  min-height: 320px;
+  padding: 1.75rem 1.5rem;
+  background: var(--gk-paper-raised);
+  border-radius: var(--gk-radius-paper);
+  box-shadow: var(--gk-lift);
 
   &__header {
-    position: relative;
-    z-index: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
     gap: 0.5rem;
-    padding-bottom: 1.5rem;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid oklch(0 0 0 / 0.08);
-
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 20%;
-      right: 20%;
-      height: 1px;
-      background: linear-gradient(
-        90deg,
-        transparent 0%,
-        var(--gutenku-zen-accent) 50%,
-        transparent 100%
-      );
-      opacity: 0.4;
-    }
+    padding-bottom: 1.25rem;
+    border-bottom: var(--gk-rule-faint);
+    text-align: center;
   }
 
-  &__icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--gutenku-zen-primary);
-    opacity: 0.7;
-    animation: icon-float 3s ease-in-out infinite;
+  &__plate {
+    width: clamp(7.5rem, 30vw, 11rem);
+    margin-bottom: 0.75rem;
+    rotate: -1.5deg;
   }
 
   &__title {
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--gutenku-text-primary);
-    letter-spacing: 0.05em;
     margin: 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--gk-ink);
   }
 
   &__subtitle {
-    font-size: 0.85rem;
-    color: var(--gutenku-text-muted);
-    font-style: italic;
     margin: 0;
+    font-size: 0.875rem;
+    color: var(--gk-ink-soft);
   }
 
-  // Haiku skeleton lines (5-7-5 structure)
+  // Haiku skeleton lines (5-7-5), indented like the poem
   &__haiku {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    margin: 2rem 0;
-    padding: 1.5rem 0;
+    display: grid;
+    gap: 1.25rem;
+    padding: 2rem 0 1.5rem;
   }
 
   &__line {
+    display: block;
     height: 1.25rem;
-    border-radius: var(--gutenku-radius-xs);
-    background: linear-gradient(
-      90deg,
-      var(--gutenku-zen-mist) 0%,
-      var(--gutenku-zen-water) 50%,
-      var(--gutenku-zen-mist) 100%
-    );
-    background-size: 200% 100%;
-    transform-origin: center;
-
-    // Wow: Ink bloom + float + shimmer
-    animation:
-      ink-bloom 0.8s ease-out forwards,
-      haiku-float 3s ease-in-out infinite 0.8s,
-      zen-shimmer 2s ease-in-out infinite 0.8s;
+    border-bottom: 1.5px solid var(--gk-ink-faint);
 
     &--short {
-      width: 35%;
+      width: 40%;
     }
 
     &--long {
-      width: 50%;
-    }
-
-    // Staggered delays for each line
-    &:nth-child(1) {
-      animation-delay: 0.1s, 0.9s, 0.9s;
-    }
-
-    &:nth-child(2) {
-      animation-delay: 0.25s, 1.05s, 1.05s;
+      width: 58%;
+      margin-left: 2.4em;
     }
 
     &:nth-child(3) {
-      animation-delay: 0.4s, 1.2s, 1.2s;
+      margin-left: 1.2em;
     }
   }
 
   &__prose {
-    position: relative;
-    z-index: 1;
     margin-top: auto;
-    padding-top: 1rem;
     opacity: 0.6;
   }
 }
 
-// Dark mode adjustments
-[data-theme='dark'] .book-skeleton {
-  box-shadow:
-    0 4px 12px oklch(0 0 0 / 0.4),
-    0 2px 4px oklch(0 0 0 / 0.3);
-
-  &__spine {
-    background: linear-gradient(
-      to bottom,
-      oklch(1 0 0 / 0.08) 0%,
-      oklch(1 0 0 / 0.03) 50%,
-      oklch(1 0 0 / 0.08) 100%
-    );
-  }
-
-  &__icon {
-    color: var(--gutenku-zen-accent);
-  }
-
-  &__header {
-    border-bottom-color: oklch(1 0 0 / 0.1);
-  }
-}
-
-// Keyframe animations
-@keyframes skeleton-emerge {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes ink-bloom {
-  from {
-    transform: scaleX(0);
-    opacity: 0;
-  }
-  to {
-    transform: scaleX(1);
-    opacity: 1;
-  }
-}
-
-@keyframes haiku-float {
-  0%,
-  100% {
-    transform: translateY(0);
-    opacity: 0.7;
-  }
-  50% {
-    transform: translateY(-4px);
-    opacity: 1;
-  }
-}
-
-@keyframes zen-shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-@keyframes icon-float {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-    opacity: 0.7;
-  }
-  50% {
-    transform: translateY(-2px) rotate(3deg);
-    opacity: 1;
-  }
-}
-
-// Reduced motion
 @media (prefers-reduced-motion: reduce) {
-  .book-skeleton {
-    animation: none;
+  .haiku-enter {
+    animation-name: haiku-sheet-fade;
+  }
 
-    &__line {
-      animation: none;
-      opacity: 0.7;
-      transform: scaleX(1);
-    }
-
-    &__icon {
-      animation: none;
+  @keyframes haiku-sheet-fade {
+    from {
+      opacity: 0;
     }
   }
 }
 
-// Wrapper for ToolbarPanel to position cat above
-.toolbar-wrapper {
-  position: relative;
-  overflow: visible;
+// Every page starts the same distance below the header's rule
+.haiku-page {
+  padding-top: var(--gk-page-top);
 }
 
-// Cat wrappers - show appropriate one based on screen size
-.haiku-cat-wrapper {
-  position: relative;
-  height: 48px;
-  overflow: visible;
-
-  @media (max-width: 768px) {
-    height: 32px;
-  }
-}
-
-.haiku-cat-wrapper--mobile {
-  display: block;
-  order: -1; // Show at top on mobile
-  margin-bottom: 0.25rem;
-
-  &.haiku-cat-wrapper--collapsed {
-    height: 0;
-    margin-bottom: 0;
-  }
-
-  @media (max-width: 768px) {
-    :deep(.sumi-cat-container) {
-      top: 8px;
-    }
-  }
-
-  @media (min-width: 961px) {
-    display: none;
-  }
-}
-
-.haiku-cat-wrapper--desktop {
-  @media (max-width: 960px) {
-    :deep(.sumi-cat-container) {
-      display: none;
-    }
-  }
+// The first section label starts on the rhythm, not 8px under it
+.haiku-page__content > .brush-rule:first-child {
+  padding-top: 0;
 }
 </style>

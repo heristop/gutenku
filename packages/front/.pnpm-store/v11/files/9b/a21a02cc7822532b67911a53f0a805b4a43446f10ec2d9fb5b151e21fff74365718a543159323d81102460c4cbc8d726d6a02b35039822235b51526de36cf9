@@ -1,0 +1,174 @@
+declare global {
+	const __VLS_directiveBindingRestFields: { instance: null; oldValue: null; value: null; modifiers: any; dir: any };
+
+	type __VLS_Elements = __VLS_SpreadMerge<SVGElementTagNameMap, HTMLElementTagNameMap>;
+	type __VLS_IsAny<T> = 0 extends 1 & T ? true : false;
+	type __VLS_PickNotAny<A, B> = __VLS_IsAny<A> extends true ? B : A;
+	type __VLS_SpreadMerge<A, B> = Omit<A, keyof B> & B;
+	type __VLS_WithComponent<
+		N0 extends string,
+		LocalComponents,
+		GlobalComponents,
+		Self,
+		N1 extends string,
+		N2 extends string = N1,
+		N3 extends string = N1,
+	> = N1 extends keyof LocalComponents ? { [K in N0]: LocalComponents[N1] }
+		: N2 extends keyof LocalComponents ? { [K in N0]: LocalComponents[N2] }
+		: N3 extends keyof LocalComponents ? { [K in N0]: LocalComponents[N3] }
+		: Self extends object ? { [K in N0]: Self }
+		: N1 extends keyof GlobalComponents ? { [K in N0]: GlobalComponents[N1] }
+		: N2 extends keyof GlobalComponents ? { [K in N0]: GlobalComponents[N2] }
+		: N3 extends keyof GlobalComponents ? { [K in N0]: GlobalComponents[N3] }
+		: {};
+	type __VLS_ExtractComponentContext<T, K> = __VLS_PickNotAny<
+		'__ctx' extends keyof __VLS_PickNotAny<K, {}> ? K extends { __ctx?: infer Ctx } ? NonNullable<Ctx> : never : any,
+		T extends (props: any, ctx: infer Ctx) => any ? (unknown extends Ctx ? any : Ctx) : any
+	>;
+	type __VLS_ExtractComponentProps<T, K> = '__ctx' extends keyof __VLS_PickNotAny<K, {}>
+		? K extends { __ctx?: { props?: infer P } } ? NonNullable<P> : never
+		: T extends (props: infer P, ...args: any) => any ? P
+		: {};
+	type __VLS_FunctionalComponent<T, P = {}> = (
+		props: (T extends { $props: infer Props } ? Props : {}) & P,
+		ctx?: any,
+	) => {
+		__ctx?: {
+			attrs?: any;
+			slots?: T extends { $slots: infer Slots } ? Slots : Record<string, any>;
+			emit?: T extends { $emit: infer Emit } ? Emit : {};
+			props?: typeof props;
+			expose?: (exposed: T) => void;
+		};
+	};
+	type __VLS_IsFunction<T, K> = K extends keyof T ? unknown extends T[K] ? false
+		: true
+		: false;
+	type __VLS_ResolveEvent<
+		Props,
+		Emits,
+		onEvent extends string,
+		Event extends string,
+		CamelizedEvent extends string,
+	> = __VLS_IsFunction<Props, onEvent> extends true ? { [K in onEvent]?: Props[K & keyof Props] }
+		: __VLS_IsFunction<Emits, Event> extends true ? { [K in onEvent]?: Emits[Event & keyof Emits] }
+		: __VLS_IsFunction<Emits, CamelizedEvent> extends true ? { [K in onEvent]?: Emits[CamelizedEvent & keyof Emits] }
+		: Props;
+	// fix https://github.com/vuejs/language-tools/issues/926
+	type __VLS_UnionToIntersection<U> = (U extends unknown ? (arg: U) => unknown : never) extends
+		((arg: infer P) => unknown) ? P : never;
+	type __VLS_OverloadUnionInner<T, U = unknown> = U & T extends (...args: infer A) => infer R ? U extends T ? never
+		: __VLS_OverloadUnionInner<T, Pick<T, keyof T> & U & ((...args: A) => R)> | ((...args: A) => R)
+		: never;
+	type __VLS_OverloadUnion<T> = Exclude<
+		__VLS_OverloadUnionInner<(() => never) & T>,
+		T extends () => never ? never : () => never
+	>;
+	type __VLS_ConstructorOverloads<T> = __VLS_OverloadUnion<T> extends infer F
+		? F extends (event: infer E, ...args: infer A) => any ? { [K in E & string]: (...args: A) => void }
+		: never
+		: never;
+	type __VLS_NormalizeEmits<T> = __VLS_PrettifyGlobal<
+		__VLS_UnionToIntersection<
+			& __VLS_ConstructorOverloads<T>
+			& {
+				[K in keyof T]: T[K] extends any[] ? { (...args: T[K]): void } : never;
+			}
+		>
+	>;
+	type __VLS_EmitsToProps<T> = __VLS_PrettifyGlobal<
+		{
+			[K in string & keyof T as `on${Capitalize<K>}`]?: (
+				...args: T[K] extends (...args: infer P) => any ? P : T[K] extends null ? any[] : never
+			) => any;
+		}
+	>;
+	type __VLS_ShortEmits<E extends Record<string, any[]>> = __VLS_UnionToIntersection<
+		{ [K in keyof E]: (event: K, ...args: E[K]) => void }[keyof E]
+	>;
+	type __VLS_ShortEmitsToObject<E> = E extends Record<string, any[]> ? { [K in keyof E]: (...args: E[K]) => any }
+		: E;
+	type __VLS_ResolveEmits<
+		Comp,
+		Emits,
+		TypeEmits = Comp extends { __typeEmits?: infer T } ? unknown extends T ? {} : __VLS_ShortEmitsToObject<T> : {},
+		NormalizedEmits = __VLS_NormalizeEmits<Emits> extends infer E ? string extends keyof E ? {} : E : never,
+	> = __VLS_SpreadMerge<NormalizedEmits, TypeEmits>;
+	type __VLS_ResolveDirectives<T> = {
+		[K in keyof T & string as `v${Capitalize<K>}`]: T[K];
+	};
+	type __VLS_PrettifyGlobal<T> = (T extends any ? { [K in keyof T]: T[K] } : { [K in keyof T as K]: T[K] }) & {};
+
+	// Vue invokes hooks with all four args regardless of the declared arity
+	// make the generated 4-arg call legal for short hooks while their declared params stay checked.
+	type __VLS_IsRebuildable<A, B> = (<G>() => G extends A ? 1 : 2) extends (<G>() => G extends B ? 1 : 2) ? true : false;
+	type __VLS_PadDirectiveHook<F> = F extends (...args: infer A) => infer R
+		// full arity: nothing to pad
+		? A extends [any, any, any, any, ...any[]] ? F
+			// losslessly rebuildable: pad with a trailing `any` rest
+		: __VLS_IsRebuildable<F, (...args: A) => R> extends true ? (...args: [...A, ...any[]]) => R
+			// not rebuildable (generic/overloaded): add a permissive overload for the call
+		: F & ((...args: any[]) => R)
+		: F;
+
+	function __VLS_vFor<const T>(source: T): T extends number ? [number, number][]
+		: T extends string ? [string, number][]
+		: T extends readonly any[] ? (T extends readonly (infer U)[] ? [U, number] : never)[]
+		: T extends Iterable<any> ? (T extends Iterable<infer V> ? [V, number] : never)[]
+		: [T[keyof T], keyof T extends string ? keyof T : `${keyof T & (string | number)}`, number][];
+	function __VLS_vSlot<S, D extends S>(slot: S, decl?: D): D extends (...args: infer P) => any ? P : any[];
+	function __VLS_nonNull<T>(value: T): NonNullable<T>;
+	function __VLS_asFunctionalDirective<T, ObjectDirective>(
+		dir: T,
+		od: ObjectDirective,
+	): __VLS_PadDirectiveHook<
+		T extends ObjectDirective ? NonNullable<
+				T[
+					keyof T & ('created' | 'beforeMount' | 'mounted' | 'beforeUpdate' | 'updated' | 'beforeUnmount' | 'unmounted')
+				]
+			>
+			: T extends (...args: any) => any ? T
+			: (arg1: unknown, arg2: unknown, arg3: unknown, arg4: unknown) => void
+	>;
+	function __VLS_asFunctionalComponent0<T, K>(
+		t: T,
+		instance: K,
+	): T extends new(...args: any) => any ? __VLS_FunctionalComponent<K>
+		: T extends () => any ? (props: {}, ctx?: any) => ReturnType<T>
+		: T extends (...args: any) => any ? T
+		: __VLS_FunctionalComponent<{}>;
+	function __VLS_asFunctionalComponent1<T, K>(
+		t: T,
+		instance: K,
+	): T extends new(...args: any) => any ? __VLS_FunctionalComponent<K, Record<string, unknown>>
+		: T extends () => any ? (props: {}, ctx?: any) => ReturnType<T>
+		: T extends (...args: any) => any ? T
+		: __VLS_FunctionalComponent<{}, Record<string, unknown>>;
+	type __VLS_PadArgs<A extends any[]> = A extends [any, ...infer Rest] ? [any, ...__VLS_PadArgs<Rest>] : [];
+	function __VLS_functionalComponentArgsRest<T extends (...args: any) => any>(
+		t: T,
+	): __VLS_PadArgs<Parameters<T> extends [any, ...infer Rest] ? Rest : []>;
+	function __VLS_asFunctionalElement0<T>(tag: T, endTag?: T): (attrs: T) => void;
+	function __VLS_asFunctionalElement1<T>(tag: T, endTag?: T): (attrs: T & Record<string, unknown>) => void;
+	function __VLS_asFunctionalSlot<S>(
+		slot: S,
+	): S extends (...args: any) => any ? (S extends () => infer R ? (props: {}) => R : S)
+		: (S extends null | undefined ? never : (props: S) => any);
+	function __VLS_omit<T, K>(target: T, props: K): Omit<T, keyof K>;
+	function __VLS_tryAsConstant<const T>(t: T): T;
+	// Rewrites the binding so codegen's appended `.value` resolves with the
+	// unwrapped type: a wholly-ref type stays as-is; anything else gains a
+	// `Ref` conjunct (passed by the caller — this file cannot import vue) that
+	// doubles as the idempotency marker for re-assertion. The tuple form keeps
+	// every branch assignable to `T` (TS2677); distributing the intersection
+	// would turn nullish union members into `never`.
+	function __VLS_withDotValue<T, Ref>(
+		t: T,
+		ref: Ref,
+	): asserts t is [T] extends [Ref] ? T
+		: NonNullable<T> & Ref & { value: T extends Ref & { value: infer V } ? V : T };
+	function __VLS_unwrap<T, Ref>(t: T, ref: Ref): T extends Ref & { value: infer V } ? V
+		: T;
+}
+
+export {};

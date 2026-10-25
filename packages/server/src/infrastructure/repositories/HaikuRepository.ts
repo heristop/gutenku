@@ -121,11 +121,18 @@ export default class HaikuRepository implements IHaikuRepository {
       const yesterdayMidnight = new Date(todayMidnight);
       yesterdayMidnight.setDate(yesterdayMidnight.getDate() - 1);
 
+      // createCacheWithTTL stores createdAt as an ISO string; BSON compares
+      // strings and dates in separate type brackets, so match both forms.
       const dateFilter = {
-        createdAt: {
-          $gte: yesterdayMidnight,
-          $lt: todayMidnight,
-        },
+        $or: [
+          {
+            createdAt: {
+              $gte: yesterdayMidnight.toISOString(),
+              $lt: todayMidnight.toISOString(),
+            },
+          },
+          { createdAt: { $gte: yesterdayMidnight, $lt: todayMidnight } },
+        ],
       };
 
       const countResult = await haikusCollection

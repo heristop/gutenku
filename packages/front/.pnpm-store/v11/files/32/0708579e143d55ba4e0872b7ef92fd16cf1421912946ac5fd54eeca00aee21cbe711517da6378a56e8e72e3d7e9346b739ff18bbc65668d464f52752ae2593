@@ -1,0 +1,328 @@
+{
+  "api": {
+    "name": "SafeAreaPlugin",
+    "slug": "safeareaplugin",
+    "docs": "",
+    "tags": [],
+    "methods": [
+      {
+        "name": "setSystemBarsStyle",
+        "signature": "(options: SystemBarsStyleOptions) => Promise<void>",
+        "parameters": [
+          {
+            "name": "options",
+            "docs": "",
+            "type": "SystemBarsStyleOptions"
+          }
+        ],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [
+          "SystemBarsStyleOptions"
+        ],
+        "slug": "setsystembarsstyle"
+      },
+      {
+        "name": "showSystemBars",
+        "signature": "(options: SystemBarsVisibilityOptions) => Promise<void>",
+        "parameters": [
+          {
+            "name": "options",
+            "docs": "",
+            "type": "SystemBarsVisibilityOptions"
+          }
+        ],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [
+          "SystemBarsVisibilityOptions"
+        ],
+        "slug": "showsystembars"
+      },
+      {
+        "name": "hideSystemBars",
+        "signature": "(options: SystemBarsVisibilityOptions) => Promise<void>",
+        "parameters": [
+          {
+            "name": "options",
+            "docs": "",
+            "type": "SystemBarsVisibilityOptions"
+          }
+        ],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [
+          "SystemBarsVisibilityOptions"
+        ],
+        "slug": "hidesystembars"
+      }
+    ],
+    "properties": []
+  },
+  "interfaces": [
+    {
+      "name": "SystemBarsStyleOptions",
+      "slug": "systembarsstyleoptions",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "style",
+          "tags": [
+            {
+              "text": "8.0.0",
+              "name": "since"
+            },
+            {
+              "text": "'DEFAULT'",
+              "name": "default"
+            },
+            {
+              "text": "\"DARK\"",
+              "name": "example"
+            }
+          ],
+          "docs": "Style of the text and icons of the system bars.",
+          "complexTypes": [
+            "SystemBarsStyle"
+          ],
+          "type": "SystemBarsStyle"
+        },
+        {
+          "name": "bar",
+          "tags": [
+            {
+              "text": "8.0.0",
+              "name": "since"
+            },
+            {
+              "text": "null",
+              "name": "default"
+            },
+            {
+              "text": "SystemBarType.StatusBar",
+              "name": "example"
+            }
+          ],
+          "docs": "The system bar to which to apply the style.",
+          "complexTypes": [
+            "SystemBarType"
+          ],
+          "type": "SystemBarType"
+        }
+      ]
+    },
+    {
+      "name": "SystemBarsVisibilityOptions",
+      "slug": "systembarsvisibilityoptions",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "bar",
+          "tags": [
+            {
+              "text": "8.0.0",
+              "name": "since"
+            },
+            {
+              "text": "null",
+              "name": "default"
+            },
+            {
+              "text": "SystemBarType.StatusBar",
+              "name": "example"
+            }
+          ],
+          "docs": "The system bar to hide or show.",
+          "complexTypes": [
+            "SystemBarType"
+          ],
+          "type": "SystemBarType"
+        },
+        {
+          "name": "animation",
+          "tags": [
+            {
+              "text": "'FADE'",
+              "name": "default"
+            },
+            {
+              "text": "8.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The type of status bar animation used when showing or hiding.\n\nThis option is only supported on iOS.",
+          "complexTypes": [
+            "SystemBarsAnimation"
+          ],
+          "type": "SystemBarsAnimation"
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "name": "SystemBarsStyle",
+      "slug": "systembarsstyle",
+      "members": [
+        {
+          "name": "Dark",
+          "value": "\"DARK\"",
+          "tags": [
+            {
+              "text": "8.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "Light system bar content on a dark background."
+        },
+        {
+          "name": "Light",
+          "value": "\"LIGHT\"",
+          "tags": [
+            {
+              "text": "8.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "For dark system bar content on a light background."
+        },
+        {
+          "name": "Default",
+          "value": "\"DEFAULT\"",
+          "tags": [
+            {
+              "text": "8.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The style is based on the device appearance or the underlying content.\nIf the device is using Dark mode, the system bars content will be light.\nIf the device is using Light mode, the system bars content will be dark."
+        }
+      ]
+    },
+    {
+      "name": "SystemBarType",
+      "slug": "systembartype",
+      "members": [
+        {
+          "name": "StatusBar",
+          "value": "\"StatusBar\"",
+          "tags": [
+            {
+              "text": "8.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The top status bar on both Android and iOS."
+        },
+        {
+          "name": "NavigationBar",
+          "value": "\"NavigationBar\"",
+          "tags": [
+            {
+              "text": "8.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The navigation bar (or gesture bar on iOS) on both Android and iOS."
+        }
+      ]
+    }
+  ],
+  "typeAliases": [
+    {
+      "name": "SystemBarsAnimation",
+      "slug": "systembarsanimation",
+      "docs": "Available status bar animations.  iOS only.",
+      "types": [
+        {
+          "text": "'FADE'",
+          "complexTypes": []
+        },
+        {
+          "text": "'NONE'",
+          "complexTypes": []
+        }
+      ]
+    }
+  ],
+  "pluginConfigs": [
+    {
+      "name": "SafeArea",
+      "slug": "safearea",
+      "properties": [
+        {
+          "name": "statusBarStyle",
+          "tags": [
+            {
+              "text": "null",
+              "name": "default"
+            }
+          ],
+          "docs": "Indicates which style to apply to the status bar initially.",
+          "complexTypes": [
+            "SystemBarsStyle"
+          ],
+          "type": "SystemBarsStyle"
+        },
+        {
+          "name": "navigationBarStyle",
+          "tags": [
+            {
+              "text": "null",
+              "name": "default"
+            }
+          ],
+          "docs": "Indicates which style to apply to the navigation bar initially.\n\nOn iOS the home indicator cannot be styled. It will always automatically be applied a color by iOS out of the box.",
+          "complexTypes": [
+            "SystemBarsStyle"
+          ],
+          "type": "SystemBarsStyle"
+        },
+        {
+          "name": "detectViewportFitCoverChanges",
+          "tags": [
+            {
+              "text": "true",
+              "name": "default"
+            }
+          ],
+          "docs": "This plugin detects changes to the `viewport-fit=cover` meta tag.\nThis comes in handy when you do not know for sure if the content loaded into the webview will have `viewport-fit` set to `cover`.\nFor most use cases you do not need to touch this config variable.\nHowever if you know for sure you want to always keep the `initialViewportFitCover` value unchanged,\nyou could disable this feature by setting it to `false`.\nBe aware that this might result in a visually broken UI if the content loaded into the webview does not correctly handle safe area insets.\n\nThis option is only supported on Android.",
+          "complexTypes": [],
+          "type": "boolean | undefined"
+        },
+        {
+          "name": "initialViewportFitCover",
+          "tags": [
+            {
+              "text": "true",
+              "name": "default"
+            }
+          ],
+          "docs": "Set an initial value for the to be detected `viewport-fit=cover`.\nFor most apps this value will eventually be `true`.\nTherefore this value is set to `true` by default to help prevent layout jumps and glitches.\nIf you know (or want) the value to be `false` initially, you can set it here.\nThe value will always end up correctly, no matter what you set here,\nas long as `detectViewportFitCoverChanges` is set to `true`.\nIt only exists to help prevent layout jumps and glitches.\n\nThis option is only supported on Android.",
+          "complexTypes": [],
+          "type": "boolean | undefined"
+        },
+        {
+          "name": "offsetForKeyboardInsetBug",
+          "tags": [
+            {
+              "text": "Setting this value is not necessary anymore, as it now works out of the box.",
+              "name": "deprecated"
+            }
+          ],
+          "docs": "",
+          "complexTypes": [],
+          "type": "boolean | undefined"
+        }
+      ],
+      "docs": ""
+    }
+  ]
+}

@@ -15,8 +15,8 @@ vi.mock('node:fs', () => {
       if (event === 'finish') {
         setTimeout(callback, 0);
       }
-      
-return mockWriteStream;
+
+      return mockWriteStream;
     }),
   };
 
@@ -39,7 +39,15 @@ return mockWriteStream;
 });
 
 // Mock theme modules
-vi.mock('~/shared/themes/colored', () => ({
+vi.mock('~/shared/themes/catalogue', () => ({
+  default: {
+    create: vi.fn(async () => ({
+      createJPEGStream: vi.fn(() => ({ pipe: vi.fn() })),
+    })),
+  },
+}));
+
+vi.mock('~/shared/themes/frontispiece', () => ({
   default: {
     create: vi.fn(async () => ({
       createJPEGStream: vi.fn(() => ({ pipe: vi.fn() })),
@@ -111,6 +119,14 @@ vi.mock('~/shared/themes/bookzen', () => ({
   },
 }));
 
+vi.mock('~/shared/themes/exlibris', () => ({
+  default: {
+    create: vi.fn(async () => ({
+      createJPEGStream: vi.fn(() => ({ pipe: vi.fn() })),
+    })),
+  },
+}));
+
 import CanvasService from '../src/infrastructure/services/CanvasService';
 
 describe('CanvasService', () => {
@@ -126,9 +142,9 @@ describe('CanvasService', () => {
   });
 
   it('useTheme sets the theme', () => {
-    canvasService.useTheme('colored');
+    canvasService.useTheme('frontispiece');
     // @ts-expect-error - accessing private property
-    expect(canvasService.theme).toBe('colored');
+    expect(canvasService.theme).toBe('frontispiece');
   });
 
   it('useTheme accepts different themes', () => {
@@ -182,8 +198,15 @@ describe('CanvasService - create', () => {
     );
   });
 
-  it('creates image with colored theme', async () => {
-    canvasService.useTheme('colored');
+  it('creates image with catalogue theme', async () => {
+    canvasService.useTheme('catalogue');
+    // @ts-expect-error - test with partial haiku
+    const result = await canvasService.create(mockHaiku);
+    expect(typeof result).toBe('string');
+  });
+
+  it('creates image with frontispiece theme', async () => {
+    canvasService.useTheme('frontispiece');
     // @ts-expect-error - test with partial haiku
     const result = await canvasService.create(mockHaiku);
     expect(typeof result).toBe('string');
@@ -212,7 +235,7 @@ describe('CanvasService - create', () => {
 
   it('handles random theme selection', async () => {
     canvasService.useTheme('random');
-    vi.spyOn(Math, 'random').mockReturnValue(0); // Will select 'colored'
+    vi.spyOn(Math, 'random').mockReturnValue(0); // Will select 'catalogue'
 
     // @ts-expect-error - test with partial haiku
     const result = await canvasService.create(mockHaiku);
@@ -252,6 +275,20 @@ describe('CanvasService - create', () => {
     // @ts-expect-error - test with partial haiku
     const result = await canvasService.create(mockHaiku);
     expect(typeof result).toBe('string');
+  });
+
+  it('creates image with exlibris theme', async () => {
+    canvasService.useTheme('exlibris');
+    // @ts-expect-error - test with partial haiku
+    const result = await canvasService.create(mockHaiku);
+    expect(typeof result).toBe('string');
+  });
+
+  it('includes exlibris in the static random pool', () => {
+    // @ts-expect-error - accessing private static property
+    expect(CanvasService.STATIC_THEMES).toContain('exlibris');
+    // @ts-expect-error - accessing private static property
+    expect(CanvasService.THEME_CREATORS.exlibris).toBeTypeOf('function');
   });
 
   it('handles random theme selection with AI themes', async () => {

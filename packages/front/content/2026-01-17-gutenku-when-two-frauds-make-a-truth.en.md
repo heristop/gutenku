@@ -2,7 +2,7 @@
 
 _Anatomy of a Poetic Fraud_
 
-![Theater mask merging with circuit patterns - the duality of analog and digital fraud](/article/article-header.webp)
+![Stanzas of Rimbaud’s “Le Bateau ivre” lettered across an old stone wall, in sepia](/article/article-header.webp)
 
 ## The Skeptical Discovery
 

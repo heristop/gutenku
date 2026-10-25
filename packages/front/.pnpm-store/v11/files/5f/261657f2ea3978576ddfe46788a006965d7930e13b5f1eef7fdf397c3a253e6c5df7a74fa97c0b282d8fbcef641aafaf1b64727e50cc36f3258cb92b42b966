@@ -1,0 +1,46 @@
+{
+  "name": "yuku-parser",
+  "version": "0.19.0",
+  "description": "A fast, spec-compliant JavaScript and TypeScript parser, producing an ESTree / TypeScript-ESTree AST",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yuku-toolchain/yuku"
+  },
+  "type": "module",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "engines": {
+    "node": ">=14.18.0"
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "decode.js"
+  ],
+  "dependencies": {
+    "@yuku-toolchain/types": "^0.19.0",
+    "yuku-core": "0.19.0"
+  },
+  "keywords": [
+    "acorn",
+    "ast",
+    "babel",
+    "compiler",
+    "ecmascript",
+    "espree",
+    "fast",
+    "javascript",
+    "js",
+    "jsx",
+    "lexer",
+    "oxc",
+    "parser",
+    "rust",
+    "swc",
+    "tokenizer",
+    "ts",
+    "tsx",
+    "typescript"
+  ]
+}

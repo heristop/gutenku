@@ -1,0 +1,281 @@
+import e from "node:fs";
+import t from "node:path";
+import { GREATEST_LOWER_BOUND as n, LEAST_UPPER_BOUND as r, TraceMap as i, allGeneratedPositionsFor as a, originalPositionFor as o, sourceContentFor as s } from "@jridgewell/trace-mapping";
+import { createDebug as c } from "obug";
+import * as l from "@vitest/istanbul-lib-coverage";
+import { classes as u } from "@vitest/istanbul-lib-coverage";
+t.isAbsolute;
+function asAbsolute(e, n) {
+	return t.isAbsolute(e) ? e : t.resolve(n || process.cwd(), e);
+}
+function relativeTo(e, n) {
+	return t.isAbsolute(e) ? e : t.resolve(t.dirname(n), e);
+}
+//#endregion
+//#region src/get-mapping.ts
+function originalEndPositionFor(e, t) {
+	let n = originalPositionTryBoth(e, t.line, t.column - 1);
+	if (n.source === null) {
+		for (let r = t.line; r > 0 && n.source === null; r--) n = originalPositionTryBoth(e, r, Infinity);
+		if (n.source === null) return null;
+	}
+	let i = a(e, {
+		source: n.source,
+		line: n.line,
+		column: n.column + 1,
+		bias: r
+	});
+	for (let t = 0; t < i.length; t++) {
+		let r = i[t];
+		if (r.line === null) continue;
+		let a = o(e, r);
+		if (a.line === n.line) return a;
+	}
+	return {
+		source: n.source,
+		line: n.line,
+		column: Infinity
+	};
+}
+function originalPositionTryBoth(e, t, i) {
+	let a = o(e, {
+		line: t,
+		column: i,
+		bias: n
+	});
+	return a.source === null ? o(e, {
+		line: t,
+		column: i,
+		bias: r
+	}) : a;
+}
+function isInvalidPosition(e) {
+	return !e || typeof e.line != "number" || typeof e.column != "number" || e.line < 0 || e.column < 0;
+}
+function getMapping(e, t, n) {
+	if (!t || isInvalidPosition(t.start) || isInvalidPosition(t.end)) return null;
+	let i = originalPositionTryBoth(e, t.start.line, t.start.column), a = originalEndPositionFor(e, t.end);
+	return !(i && a) || !(i.source && a.source) || i.source !== a.source || i.line === null || i.column === null || a.line === null || a.column === null ? null : (i.line === a.line && i.column === a.column && (a = o(e, {
+		line: t.end.line,
+		column: t.end.column,
+		bias: r
+	}), --a.column), {
+		source: relativeTo(i.source, n),
+		loc: {
+			start: {
+				line: i.line,
+				column: i.column
+			},
+			end: {
+				line: a.line,
+				column: a.column
+			}
+		}
+	});
+}
+//#endregion
+//#region src/mapped.ts
+const { FileCoverage: d } = u;
+function locString(e) {
+	return [
+		e.start.line,
+		e.start.column,
+		e.end.line,
+		e.end.column
+	].join(":");
+}
+var MappedCoverage = class extends d {
+	meta;
+	constructor(e) {
+		super(e), this.meta = {
+			last: {
+				s: 0,
+				f: 0,
+				b: 0
+			},
+			seen: {}
+		};
+	}
+	addStatement(e, t) {
+		let n = "s:" + locString(e), { meta: r } = this, i = r.seen[n];
+		return i === void 0 && (i = r.last.s, r.last.s += 1, r.seen[n] = i, this.statementMap[i] = this.cloneLocation(e)), this.s[i] = this.s[i] || 0, this.s[i] += t, i;
+	}
+	addFunction(e, t, n, r) {
+		let i = "f:" + locString(t), { meta: a } = this, o = a.seen[i];
+		return o === void 0 && (o = a.last.f, a.last.f += 1, a.seen[i] = o, e ||= `(unknown_${o})`, this.fnMap[o] = {
+			name: e,
+			decl: this.cloneLocation(t),
+			loc: this.cloneLocation(n)
+		}), this.f[o] = this.f[o] || 0, this.f[o] += r, o;
+	}
+	addBranch(e, t, n, r) {
+		let i = ["b", ...n.map((e) => locString(e))].join(":"), { meta: a } = this, o = a.seen[i];
+		return o === void 0 && (o = a.last.b, a.last.b += 1, a.seen[i] = o, this.branchMap[o] = {
+			loc: t,
+			type: e,
+			locations: n.map((e) => this.cloneLocation(e))
+		}), this.b[o] || (this.b[o] = n.map(() => 0)), r.forEach((e, t) => {
+			this.b[o][t] += e;
+		}), o;
+	}
+	cloneLocation(e) {
+		return {
+			start: {
+				line: e.start.line,
+				column: e.start.column
+			},
+			end: {
+				line: e.end.line,
+				column: e.end.column
+			}
+		};
+	}
+};
+//#endregion
+//#region src/transform-utils.ts
+function getUniqueKey(e) {
+	return e.replace(/[\\/]/g, "_");
+}
+function getOutput(e) {
+	return Object.values(e).reduce((e, { file: t, mappedCoverage: n }) => ({
+		...e,
+		[t]: n
+	}), {});
+}
+//#endregion
+//#region src/transformer.ts
+const f = c("istanbuljs");
+var SourceMapTransformer = class {
+	finder;
+	baseDir;
+	resolveMapping;
+	constructor(e, t = {}) {
+		this.finder = e, this.baseDir = t.baseDir || process.cwd(), this.resolveMapping = t.getMapping || getMapping;
+	}
+	processFile(e, t, n) {
+		let r = 0;
+		return Object.entries(e.statementMap).forEach(([i, a]) => {
+			let o = e.s[i], s = this.resolveMapping(t, a, e.path);
+			s && (r += 1, n(s.source).addStatement(s.loc, o));
+		}), Object.entries(e.fnMap).forEach(([i, a]) => {
+			let o = e.f[i], s = this.resolveMapping(t, a.decl, e.path), c = this.resolveMapping(t, a.loc, e.path);
+			s && c && s.source === c.source && (r += 1, n(s.source).addFunction(a.name, s.loc, c.loc, o));
+		}), Object.entries(e.branchMap).forEach(([i, a]) => {
+			let o = e.b[i], s = [], c = [], l, u;
+			a.locations.forEach((n, r) => {
+				let i = this.resolveMapping(t, n, e.path);
+				i ? (l ||= i.source, i.source !== l && (u = !0), s.push(i.loc), c.push(o[r])) : l && a.type === "if" && r > 0 && n.start.line === void 0 && n.start.end === void 0 && n.end.line === void 0 && n.end.end === void 0 && (s.push(n), c.push(o[r]));
+			});
+			let d = a.loc ? this.resolveMapping(t, a.loc, e.path) : null;
+			!u && s.length > 0 && (r += 1, n(l).addBranch(a.type, d ? d.loc : s[0], s, c));
+		}), r > 0;
+	}
+	async transform(e) {
+		let t = {}, getMappedCoverage = (e) => {
+			let n = getUniqueKey(e);
+			return t[n] || (t[n] = {
+				file: e,
+				mappedCoverage: new MappedCoverage(e)
+			}), t[n].mappedCoverage;
+		};
+		for (let n of e.files()) {
+			let r = e.fileCoverageFor(n), i = await this.finder(n, r);
+			i ? this.processFile(r, i, getMappedCoverage) || f(`File [${n}] ignored, nothing could be mapped`) : t[getUniqueKey(n)] = {
+				file: n,
+				mappedCoverage: new MappedCoverage(r)
+			};
+		}
+		return l.createCoverageMap(getOutput(t));
+	}
+};
+//#endregion
+//#region src/map-store.ts
+const p = c("istanbuljs");
+var MapStore = class {
+	baseDir;
+	verbose;
+	sourceStore;
+	data;
+	constructor(e) {
+		let t = {
+			baseDir: null,
+			verbose: !1,
+			SourceStore: Map,
+			sourceStoreOpts: [],
+			...e
+		};
+		this.baseDir = t.baseDir, this.verbose = t.verbose, this.sourceStore = new t.SourceStore(...t.sourceStoreOpts), this.data = Object.create(null), this.sourceFinder = this.sourceFinder.bind(this);
+	}
+	registerURL(e, n) {
+		if (n.length > 5 && n.substring(0, 5) === "data:") {
+			let t = n.indexOf("base64,");
+			t > 0 ? this.data[e] = {
+				type: "encoded",
+				data: n.substring(t + 7)
+			} : p(`Unable to interpret source map URL: ${n}`);
+			return;
+		}
+		let r = t.dirname(t.resolve(e)), i = t.resolve(r, n);
+		this.data[e] = {
+			type: "file",
+			data: i
+		};
+	}
+	registerMap(e, t) {
+		t && t.version ? this.data[e] = {
+			type: "object",
+			data: t
+		} : p("Invalid source map object: " + JSON.stringify(t, null, 2));
+	}
+	getSourceMapSync(t) {
+		try {
+			if (!this.data[t]) return;
+			let n = this.data[t];
+			return n.type === "file" ? JSON.parse(e.readFileSync(n.data, "utf8")) : n.type === "encoded" ? JSON.parse(Buffer.from(n.data, "base64").toString()) : { ...n.data };
+		} catch (e) {
+			p("Error returning source map for " + t), p(e.stack);
+			return;
+		}
+	}
+	addInputSourceMapsSync(e) {
+		Object.entries(e).forEach(([e, t]) => {
+			if (t.inputSourceMap) return;
+			let n = this.getSourceMapSync(e);
+			n && (t.inputSourceMap = n, delete t.inputSourceMap.sourcesContent);
+		});
+	}
+	sourceFinder(n) {
+		let r = this.sourceStore.get(n);
+		return r === void 0 ? t.isAbsolute(n) ? e.readFileSync(n, "utf8") : e.readFileSync(asAbsolute(n, this.baseDir), "utf8") : r;
+	}
+	async transformCoverage(e) {
+		return !e.files().some((t) => e.fileCoverageFor(t).data.inputSourceMap) && Object.keys(this.data).length === 0 ? e : await new SourceMapTransformer(async (e, t) => {
+			try {
+				let n = t.data.inputSourceMap || this.getSourceMapSync(e);
+				if (!n) return null;
+				let r = new i(n);
+				return r.sources.forEach((t) => {
+					if (t) {
+						let n = s(r, t);
+						if (n) {
+							let r = relativeTo(t, e);
+							this.sourceStore.set(r, n);
+						}
+					}
+				}), r;
+			} catch (t) {
+				return p("Error returning source map for " + e), p(t.stack), null;
+			}
+		}).transform(e);
+	}
+	dispose() {
+		this.sourceStore.clear();
+	}
+};
+//#endregion
+//#region src/index.ts
+function createSourceMapStore(e) {
+	return new MapStore(e);
+}
+//#endregion
+export { createSourceMapStore };

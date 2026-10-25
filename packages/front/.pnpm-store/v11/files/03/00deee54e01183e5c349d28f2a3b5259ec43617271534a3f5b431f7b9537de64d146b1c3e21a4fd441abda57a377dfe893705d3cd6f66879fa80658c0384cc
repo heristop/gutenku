@@ -1,0 +1,29 @@
+import * as libCoverage from '@vitest/istanbul-lib-coverage';
+import { CoverageMap } from '@vitest/istanbul-lib-coverage';
+import { Instrumenter } from '@vitest/istanbul-lib-instrument';
+import { ProxifiedModule } from 'magicast';
+import { BaseCoverageProvider, CoverageProvider, Vitest, Vite, ReportContext } from 'vitest/node';
+
+declare class IstanbulCoverageProvider extends BaseCoverageProvider implements CoverageProvider {
+	name: "istanbul";
+	version: string;
+	instrumenter: Instrumenter;
+	private transformedModuleIds;
+	private uncoveredFileCoverages;
+	initialize(ctx: Vitest): void;
+	requiresTransform(id: string): boolean;
+	clean(clean?: boolean): Promise<void>;
+	onFileTransform(sourceCode: string, id: string, pluginCtx: Vite.Rollup.TransformPluginContext): {
+		code: string;
+		map: any;
+	} | undefined;
+	createCoverageMap(): libCoverage.CoverageMap;
+	generateCoverage({ allTestsRun }: ReportContext): Promise<CoverageMap>;
+	generateReports(coverageMap: CoverageMap, allTestsRun: boolean | undefined): Promise<void>;
+	parseConfigModule(configFilePath: string): Promise<ProxifiedModule<any>>;
+	private getCoverageMapForUncoveredFiles;
+	onEnabled(): void;
+	private invalidateTree;
+}
+
+export { IstanbulCoverageProvider };

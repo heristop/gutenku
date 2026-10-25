@@ -4,6 +4,7 @@ import {
   ref,
   computed,
   onMounted,
+  onUnmounted,
   nextTick,
   watch,
   toValue,
@@ -20,7 +21,18 @@ import {
   getLocaleFromPath,
   getSlugFromFilename,
 } from './article-metadata';
-import { renderMathFormulas, renderMermaidDiagrams } from './article-rendering';
+import {
+  renderMathFormulas,
+  renderMermaidDiagrams,
+  watchThemeForDiagrams,
+} from './article-rendering';
+import {
+  lazyLoadImages,
+  sizeImages,
+  markLeadParagraph,
+  wrapFigures,
+} from './article-figures';
+import { hasPageNavigated } from '@/core/composables/view-transition';
 
 // Configure marked to add target="_blank" for external links
 const renderer: Partial<Renderer> = {
@@ -55,6 +67,14 @@ const articlesRaw = import.meta.glob('@content/*.md', {
   import: 'default',
   eager: true,
 }) as Record<string, string>;
+
+function renderArticleHtml(markdown: string): string {
+  return lazyLoadImages(
+    sizeImages(
+      markLeadParagraph(wrapFigures(marked.parse(markdown, { async: false }))),
+    ),
+  );
+}
 
 function getReadingTime(content: string): number {
   const wordCount = content.split(/\s+/).length;
@@ -196,9 +216,22 @@ export function useArticle(slugRef: MaybeRef<string>) {
     return getArticleBySlugAndLocale(currentSlug, currentLocale);
   });
 
-  const content = ref('');
-  const loading = ref(true);
-  const showContent = ref(false);
+  // The body is rendered during setup for the prerender, and kept by the
+  // hydration of that page: the text is in the first paint instead of
+  // arriving after the scripts (LCP, layout shift, crawlers). The client can
+  // only keep it when it would print the same article, i.e. the English one
+  // the page was generated with. In-app visits keep the fade-in below.
+  const currentSlug = toValue(slugRef);
+  const prerendered =
+    (import.meta.env.SSR || !hasPageNavigated()) &&
+    article.value !== null &&
+    article.value === getArticleBySlugAndLocale(currentSlug, DEFAULT_LOCALE)
+      ? renderArticleHtml(article.value.content)
+      : '';
+
+  const content = ref(prerendered);
+  const loading = ref(!prerendered);
+  const showContent = ref(Boolean(prerendered));
   const notFound = computed(() => article.value === null);
 
   // Get sorted articles for current locale
@@ -281,29 +314,49 @@ export function useArticle(slugRef: MaybeRef<string>) {
 
     loading.value = true;
     showContent.value = false;
-    content.value = await marked(article.value.content);
+    content.value = renderArticleHtml(article.value.content);
     loading.value = false;
 
     setTimeout(async () => {
       showContent.value = true;
       await nextTick();
-
-      const hasMermaid = article.value?.content.includes('```mermaid');
-
-      if (hasMermaid) {
-        await renderMermaidDiagrams();
-      }
-
-      const hasMath = article.value?.content.includes('$$');
-
-      if (hasMath) {
-        await renderMathFormulas();
-      }
+      await renderEnhancements();
     }, 50);
   }
 
+  async function renderEnhancements() {
+    const hasMermaid = article.value?.content.includes('```mermaid');
+
+    if (hasMermaid) {
+      await renderMermaidDiagrams();
+    }
+
+    const hasMath = article.value?.content.includes('$$');
+
+    if (hasMath) {
+      await renderMathFormulas();
+    }
+  }
+
+  let stopThemeWatch: (() => void) | null = null;
+
   onMounted(() => {
-    loadArticle();
+    stopThemeWatch = watchThemeForDiagrams();
+
+    if (!prerendered) {
+      loadArticle();
+
+      return;
+    }
+
+    // Same delay as an in-app visit: the diagrams draw just after mount
+    setTimeout(() => {
+      renderEnhancements().catch(() => {});
+    }, 50);
+  });
+
+  onUnmounted(() => {
+    stopThemeWatch?.();
   });
 
   // Watch for slug or locale changes

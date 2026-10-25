@@ -8,8 +8,8 @@ describe('Theme selection', () => {
       .should('exist')
       .and('not.be.disabled');
 
-    // Change theme to "colored"
-    cy.selectTheme('colored');
+    // Change theme to "greentea"
+    cy.selectTheme('greentea');
 
     // Wait for the fetch button to be enabled again (page reloaded with new haiku)
     cy.get('[data-cy=fetch-btn]', { timeout: 30000 }).should('not.be.disabled');

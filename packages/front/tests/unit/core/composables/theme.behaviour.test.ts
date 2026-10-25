@@ -9,12 +9,17 @@ let colorModeState: {
   system: { value: string };
 };
 
+let capturedInitialValue: string | undefined;
+
 vi.mock('@vueuse/core', () => ({
-  useColorMode: vi.fn((opts: { onChanged?: typeof capturedOnChanged }) => {
-    capturedOnChanged = opts.onChanged;
-    
-return colorModeState;
-  }),
+  useColorMode: vi.fn(
+    (opts: { onChanged?: typeof capturedOnChanged; initialValue?: string }) => {
+      capturedOnChanged = opts.onChanged;
+      capturedInitialValue = opts.initialValue;
+
+      return colorModeState;
+    },
+  ),
 }));
 
 describe('useTheme (color mode behaviour)', () => {
@@ -99,13 +104,57 @@ describe('useTheme (color mode behaviour)', () => {
     useTheme();
 
     const defaultHandler = vi.fn();
-    // first change initializes
+    // the initial apply runs without a transition
     capturedOnChanged?.('dark', defaultHandler);
-    // second change should route through the view transition
+    expect(start).not.toHaveBeenCalled();
+    // once the startup tick has passed, changes route through the transition
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0);
+    });
     capturedOnChanged?.('light', defaultHandler);
 
     expect(start).toHaveBeenCalled();
     expect(defaultHandler).toHaveBeenCalledWith('light');
+
+    delete (document as unknown as Record<string, unknown>).startViewTransition;
+  });
+
+  it('follows the system preference on a first visit', async () => {
+    const { useTheme } = await import('@/core/composables/theme');
+    useTheme();
+
+    expect(capturedInitialValue).toBe('auto');
+  });
+
+  it('fades the theme under reduced motion, without the ink spread', async () => {
+    const start = vi.fn((cb: () => void) => {
+      cb();
+
+      return {
+        ready: Promise.resolve(),
+        finished: Promise.resolve(),
+        updateCallbackDone: Promise.resolve(),
+        skipTransition: () => {},
+      };
+    });
+    (document as unknown as Record<string, unknown>).startViewTransition =
+      start;
+    vi.spyOn(globalThis, 'matchMedia').mockReturnValue({
+      matches: true,
+    } as MediaQueryList);
+
+    const { useTheme, setThemeOrigin } =
+      await import('@/core/composables/theme');
+    useTheme();
+    capturedOnChanged?.('dark', vi.fn());
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0);
+    });
+    setThemeOrigin(10, 10);
+    capturedOnChanged?.('light', vi.fn());
+
+    expect(start).toHaveBeenCalled();
+    expect(document.documentElement.dataset.gkVtSpread).toBeUndefined();
 
     delete (document as unknown as Record<string, unknown>).startViewTransition;
   });
@@ -128,20 +177,15 @@ describe('useTheme (color mode behaviour)', () => {
     vi.unstubAllEnvs();
   });
 
-  it('onChanged applies a CSS transition when view transitions are unsupported', async () => {
-    const setProperty = vi.spyOn(document.documentElement.style, 'setProperty');
-
+  it('onChanged applies the theme at once when view transitions are unsupported', async () => {
     const { useTheme } = await import('@/core/composables/theme');
     useTheme();
 
     const defaultHandler = vi.fn();
     capturedOnChanged?.('dark', defaultHandler); // initial
-    capturedOnChanged?.('light', defaultHandler); // applies CSS transition
+    capturedOnChanged?.('light', defaultHandler); // no transition available
 
-    expect(defaultHandler).toHaveBeenCalledWith('light');
-    expect(setProperty).toHaveBeenCalledWith(
-      '--theme-transition',
-      expect.stringContaining('cubic-bezier'),
-    );
+    expect(defaultHandler).toHaveBeenLastCalledWith('light');
+    expect(document.documentElement.dataset.gkVt).toBeUndefined();
   });
 });

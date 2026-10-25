@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
+
 defineProps<{
   lines?: number;
   variant?: 'text' | 'title' | 'image';
@@ -10,19 +14,20 @@ defineProps<{
     class="zen-skeleton"
     :class="[`zen-skeleton--${variant || 'text'}`]"
     aria-busy="true"
-    aria-label="Loading content"
+    :aria-label="t('common.loading')"
   >
     <span
       v-for="n in lines || 3"
       :key="n"
       class="zen-skeleton__stroke"
-      :style="{ '--delay': `${n * 0.15}s` }"
       aria-hidden="true"
     />
   </output>
 </template>
 
 <style scoped lang="scss">
+// Ex Libris: faint typed lines waiting for ink. Static paper-deep blocks
+// with one short fade-in; the site-wide quill carries the loading signal.
 .zen-skeleton {
   display: flex;
   flex-direction: column;
@@ -55,12 +60,13 @@ defineProps<{
   }
 
   &--image {
+    position: relative;
     aspect-ratio: 1/1;
+    border-radius: var(--gk-radius-paper);
 
     .zen-skeleton__stroke {
       position: absolute;
       height: 3px;
-      border-radius: var(--gutenku-radius-xs);
 
       &:nth-child(1) {
         width: 60%;
@@ -85,34 +91,22 @@ defineProps<{
   }
 
   &__stroke {
-    background: linear-gradient(
-      90deg,
-      var(--gutenku-zen-mist) 0%,
-      var(--gutenku-zen-water) 50%,
-      var(--gutenku-zen-mist) 100%
-    );
-    background-size: 200% 100%;
-    border-radius: var(--gutenku-radius-xs);
-    animation: zen-shimmer 2s ease-in-out infinite;
-    animation-delay: var(--delay);
+    display: block;
+    background: var(--gk-paper-deep);
+    border-radius: 1px;
+    animation: zen-skeleton-in var(--gk-dur-reward) var(--gk-ease-out) both;
   }
 }
 
-@keyframes zen-shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-
-  100% {
-    background-position: -200% 0;
+@keyframes zen-skeleton-in {
+  from {
+    opacity: 0;
   }
 }
 
-// Respect reduced motion
 @media (prefers-reduced-motion: reduce) {
   .zen-skeleton__stroke {
     animation: none;
-    background-position: 0 0;
   }
 }
 </style>

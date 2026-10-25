@@ -1,0 +1,13 @@
+import type * as ts from 'typescript';
+import type { Code, IRBlock, IRScript, IRScriptSetup, VueCodeInformation, VueCompilerOptions } from '../../types';
+export declare const newLine = "\n";
+export declare const endOfLine = ";\n";
+export declare const identifierRE: RegExp;
+export declare function isTsLang(lang: string): boolean;
+export declare function asType(type: string, lang: string): string;
+export declare function generateTypedVar(kind: 'let' | 'var', name: string, lang: string, type: () => Generator<Code>): Generator<Code>;
+export declare function generateTypeAlias(name: string, lang: string, type: () => Generator<Code>): Generator<Code>;
+export declare function getRefBrandArgument(vueCompilerOptions: VueCompilerOptions, lang: string): string;
+export declare function getTypeScriptAST(ts: typeof import('typescript'), block: IRBlock, text: string): ts.SourceFile;
+export declare function generateSfcBlockSection(block: IRScript | IRScriptSetup, start: number, end: number, features: VueCodeInformation): Generator<Code>;
+export declare function forEachNode(ts: typeof import('typescript'), node: ts.Node): Generator<ts.Node>;

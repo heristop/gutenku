@@ -1,0 +1,1 @@
+{"version":3,"file":"websocket-binding.js","sourceRoot":"","sources":["../../../src/resources/realtime/translations/websocket-binding.ts"],"names":[],"mappings":";AAAA,qFAAqF;;AAOrF,wCAOC;AAPD,SAAgB,cAAc,CAAC,UAAmC;IAIhE,MAAM,EAAE,GAAG,KAAK,EAAE,GAAG,UAAU,CAAC;IAChC,MAAM,QAAQ,GAAG,wBAAwB,CAAC;IAC1C,OAAO,EAAE,IAAI,EAAE,QAAQ,EAAE,KAAK,EAAE,CAAC;AACnC,CAAC"}

@@ -6,7 +6,7 @@ description: Une exploration technique approfondie de l'algorithme génétique d
 
 _L'Algorithme Derrière la Machine à Poésie_
 
-![Réseau de nœuds connectés avec calligraphie japonaise fluide](/article/article-algorithmic.webp)
+![Un homme devant un ordinateur portable, au milieu d’un labyrinthe](/article/article-algorithmic.webp)
 
 ## Contexte
 
@@ -21,15 +21,15 @@ Imaginez un hachoir à viande, mais pour la littérature. Vous y introduisez un 
 ```mermaid
 flowchart TD
     A["Livre Classique"] --> B["Découper en phrases"]
-    B --> C{"5 ou 7 syllabes ?"}
+    B --> C{{"5 ou 7 syllabes ?"}}
     C -->|Non| X["Écarter"]
     C -->|Oui| D["Réservoirs de Vers"]
     D --> E["150 haïkus aléatoires"]
     E --> F["Noter chacun"]
-    F --> G{"Assez bon ?"}
+    F --> G{{"Assez bon ?"}}
     G -->|Non| H["Garder les meilleurs → Mélanger → Muter"]
     H --> F
-    G -->|Oui| I["Gagnant !"]
+    G -->|Oui| I["Gagnant !"]:::verdict
 ```
 
 **Premièrement**, nous découpons un livre de [Project Gutenberg](https://www.gutenberg.org/) en phrases individuelles et ne gardons que celles ayant exactement 5 ou 7 syllabes. Cela nous donne deux « réservoirs » de matière première - un pour les vers courts, un pour les longs.

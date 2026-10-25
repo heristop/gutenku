@@ -1,0 +1,51 @@
+{
+  "name": "@vitest/istanbul-lib-instrument",
+  "version": "1.0.2",
+  "description": "Core istanbul API for JS code coverage",
+  "keywords": [
+    "coverage",
+    "instrumentation",
+    "istanbul",
+    "js",
+    "vitest"
+  ],
+  "homepage": "https://vitest.dev/",
+  "bugs": {
+    "url": "https://github.com/vitest-dev/vitest/issues"
+  },
+  "license": "MIT",
+  "author": "Vitest Team",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitest-dev/istanbuljs.git",
+    "directory": "packages/istanbul-lib-instrument"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "types": "./dist/index.d.mts",
+  "exports": "./dist/index.mjs",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@babel/core": "^8.0.1",
+    "@babel/parser": "^8.0.4",
+    "@istanbuljs/schema": "^0.1.3",
+    "@jridgewell/trace-mapping": "^0.3.23",
+    "@vitest/istanbul-lib-coverage": "1.0.2"
+  },
+  "devDependencies": {
+    "tsdown": "^0.22.14",
+    "yaml": "^2.9.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "test": "pnpm --filter @vitest/istanbuljs-monorepo run test --project @vitest/istanbul-lib-instrument"
+  }
+}

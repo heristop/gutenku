@@ -34,10 +34,12 @@ describe('WCAG 2.2 Accessibility Tests', () => {
     });
 
     it('has no accessibility violations after content loads', () => {
-      // Wait for page content to stabilize (WebSocket-based data)
-      cy.get('[data-cy=fetch-btn]', { timeout: 30000 })
-        .should('exist')
-        .and('not.be.disabled');
+      // Wait for page content to stabilize (WebSocket-based data), and for
+      // the key to finish fading in from its disabled state: axe would
+      // otherwise measure its colours mid-fade
+      cy.get('[data-cy=fetch-btn]:visible', { timeout: 30000 })
+        .should('not.be.disabled')
+        .and('have.css', 'opacity', '1');
       cy.checkA11y(null, a11yOptions);
     });
   });

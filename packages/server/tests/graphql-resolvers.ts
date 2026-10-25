@@ -253,14 +253,190 @@ describe('GraphQL Resolvers', () => {
       });
 
       const results: unknown[] = [];
-      
-for await (const result of generator) {
+
+      for await (const result of generator) {
         results.push(result);
       }
 
       expect(results).toHaveLength(2);
       expect(results[0]).toEqual({ haikuGeneration: mockProgress[0] });
       expect(results[1]).toEqual({ haikuGeneration: mockProgress[1] });
+    });
+  });
+
+  describe('Query.dailyHaiku', () => {
+    const record = {
+      date: '2026-10-23',
+      publishedAt: new Date('2026-10-23T10:02:00.000Z'),
+      verses: ['a', 'b', 'c'],
+      title: 'Title',
+      description: 'Reading',
+      book: { title: 'Walden', author: 'Thoreau', reference: '205' },
+      source: 'cli',
+      hasCard: true,
+    };
+
+    it('maps the record to the public shape with an absolute card URL', async () => {
+      mockQueryBus.execute.mockResolvedValue(record);
+
+      const result = await resolvers.Query.dailyHaiku(
+        null,
+        { date: '2026-10-23' },
+        { publicBaseUrl: 'https://api.gutenku.xyz' },
+      );
+
+      expect(mockQueryBus.execute).toHaveBeenCalledWith(
+        expect.objectContaining({ date: '2026-10-23', withCard: false }),
+      );
+      expect(result).toMatchObject({
+        date: '2026-10-23',
+        publishedAt: '2026-10-23T10:02:00.000Z',
+        reading: 'Reading',
+        book: { title: 'Walden', author: 'Thoreau', emoticons: null },
+        cardUrl: `https://api.gutenku.xyz/api/daily-haiku/card.jpg?d=2026-10-23&v=${new Date('2026-10-23T10:02:00.000Z').getTime()}`,
+      });
+      expect(result?.book).not.toHaveProperty('reference');
+    });
+
+    it('returns null when nothing is published', async () => {
+      mockQueryBus.execute.mockResolvedValue(null);
+
+      expect(await resolvers.Query.dailyHaiku(null, {})).toBeNull();
+    });
+
+    it('rejects malformed dates', async () => {
+      await expect(
+        resolvers.Query.dailyHaiku(null, { date: '23/10/2026' }),
+      ).rejects.toThrow(/YYYY-MM-DD/);
+      expect(mockQueryBus.execute).not.toHaveBeenCalled();
+    });
+
+    it('rejects future dates with BAD_USER_INPUT future_date', async () => {
+      const error = await resolvers.Query.dailyHaiku(null, {
+        date: '2999-01-01',
+      }).catch((err: unknown) => err);
+
+      expect(error).toMatchObject({
+        message: 'future_date',
+        extensions: { code: 'BAD_USER_INPUT', reason: 'future_date' },
+      });
+      expect(mockQueryBus.execute).not.toHaveBeenCalled();
+    });
+
+    it('returns a null cardUrl for a day without card', async () => {
+      mockQueryBus.execute.mockResolvedValue({ ...record, hasCard: false });
+
+      const result = await resolvers.Query.dailyHaiku(null, {});
+
+      expect(result?.cardUrl).toBeNull();
+    });
+  });
+
+  describe('Query.dailyHaikus', () => {
+    const page = {
+      records: [
+        {
+          date: '2026-10-23',
+          publishedAt: new Date('2026-10-23T10:00:00.000Z'),
+          verses: ['a', 'b', 'c'],
+          book: { title: 'Walden', author: 'Thoreau' },
+          source: 'auto',
+          hasCard: false,
+          previousDate: '2026-10-21',
+          nextDate: null,
+        },
+      ],
+      nextBefore: '2026-10-23',
+      hasMore: true,
+    };
+
+    it('returns a public page with neighbour dates', async () => {
+      mockQueryBus.execute.mockResolvedValue(page);
+
+      const result = await resolvers.Query.dailyHaikus(
+        null,
+        { before: '2026-10-24', limit: 1 },
+        { publicBaseUrl: 'https://api.gutenku.xyz' },
+      );
+
+      expect(mockQueryBus.execute).toHaveBeenCalledWith(
+        expect.objectContaining({ before: '2026-10-24', limit: 1 }),
+      );
+      expect(result).toMatchObject({
+        nextBefore: '2026-10-23',
+        hasMore: true,
+        items: [
+          {
+            date: '2026-10-23',
+            cardUrl: null,
+            previousDate: '2026-10-21',
+            nextDate: null,
+          },
+        ],
+      });
+      expect(result.items[0]).not.toHaveProperty('source');
+    });
+
+    it('defaults to 14 and clamps the limit to 30', async () => {
+      mockQueryBus.execute.mockResolvedValue(page);
+
+      await resolvers.Query.dailyHaikus(null, {});
+      await resolvers.Query.dailyHaikus(null, { limit: 100 });
+
+      expect(mockQueryBus.execute).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ before: undefined, limit: 14 }),
+      );
+      expect(mockQueryBus.execute).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({ limit: 30 }),
+      );
+    });
+
+    it('rejects an invalid cursor or limit with BAD_USER_INPUT', async () => {
+      await expect(
+        resolvers.Query.dailyHaikus(null, { before: 'yesterday' }),
+      ).rejects.toMatchObject({ extensions: { code: 'BAD_USER_INPUT' } });
+      await expect(
+        resolvers.Query.dailyHaikus(null, { limit: 0 }),
+      ).rejects.toMatchObject({ extensions: { code: 'BAD_USER_INPUT' } });
+      expect(mockQueryBus.execute).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('DailyHaiku neighbour fields', () => {
+    const base = {
+      date: '2026-10-21',
+      publishedAt: '2026-10-21T10:00:00.000Z',
+      verses: [],
+      book: { title: 'W', author: 'T' },
+      cardUrl: null,
+      nextRolloverAt: '2026-10-24T10:00:00.000Z',
+    };
+
+    it('uses already resolved values without querying', async () => {
+      const parent = { ...base, previousDate: null, nextDate: '2026-10-23' };
+
+      expect(await resolvers.DailyHaiku.previousDate(parent)).toBeNull();
+      expect(await resolvers.DailyHaiku.nextDate(parent)).toBe('2026-10-23');
+      expect(mockQueryBus.execute).not.toHaveBeenCalled();
+    });
+
+    it('looks the neighbours up once per parent', async () => {
+      mockQueryBus.execute.mockResolvedValue({
+        previousDate: '2026-10-19',
+        nextDate: '2026-10-23',
+      });
+      const parent = { ...base };
+
+      expect(await resolvers.DailyHaiku.previousDate(parent)).toBe(
+        '2026-10-19',
+      );
+      expect(await resolvers.DailyHaiku.nextDate(parent)).toBe('2026-10-23');
+      expect(mockQueryBus.execute).toHaveBeenCalledTimes(1);
+      expect(mockQueryBus.execute).toHaveBeenCalledWith(
+        expect.objectContaining({ date: '2026-10-21' }),
+      );
     });
   });
 });

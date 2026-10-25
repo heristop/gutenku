@@ -34,11 +34,9 @@ describe('RevealEmoticonQuery', () => {
 });
 
 describe('RevealHaikuHandler', () => {
-  it('delegates to PuzzleService.getHaiku with date and index', async () => {
+  it('reads the puzzle haiku list (GetDailyPuzzleHandler.getHaiku)', async () => {
     const getHaiku = vi.fn().mockResolvedValue('a haiku line');
-    const puzzleService = { getHaiku } as unknown as PuzzleService;
-
-    const handler = new RevealHaikuHandler(puzzleService);
+    const handler = new RevealHaikuHandler({ getHaiku });
     const query = new RevealHaikuQuery('2026-03-10', 2);
     const result = await handler.execute(query);
 
@@ -48,9 +46,7 @@ describe('RevealHaikuHandler', () => {
 
   it('returns null when service yields no haiku', async () => {
     const getHaiku = vi.fn().mockResolvedValue(null);
-    const puzzleService = { getHaiku } as unknown as PuzzleService;
-
-    const handler = new RevealHaikuHandler(puzzleService);
+    const handler = new RevealHaikuHandler({ getHaiku });
     const result = await handler.execute(new RevealHaikuQuery('2026-03-10', 9));
 
     expect(result).toBeNull();

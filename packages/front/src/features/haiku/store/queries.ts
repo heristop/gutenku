@@ -16,7 +16,16 @@ export const DAILY_HAIKU_QUERY = gql`
     $date: String
     $theme: String
   ) {
-    haiku(useCache: $useCache, useDaily: $useDaily, date: $date, theme: $theme) {
+    # useAI: false is stated so the server's AI rate limit (5 a minute) and
+    # key gate, which count a haiku query without it as an AI call, leave the
+    # daily read alone: reloading /haiku is not a priced operation.
+    haiku(
+      useAI: false
+      useCache: $useCache
+      useDaily: $useDaily
+      date: $date
+      theme: $theme
+    ) {
       book {
         reference
         title
@@ -67,18 +76,22 @@ export const ITERATIVE_HAIKU_SUBSCRIPTION = gql`
     $theme: String
     $filter: String
     $useAI: Boolean
+    $useImageAI: Boolean
   ) {
     haikuGeneration(
       iterations: $iterations
       theme: $theme
       filter: $filter
       useAI: $useAI
+      useImageAI: $useImageAI
     ) {
       currentIteration
       totalIterations
       bestScore
       isComplete
       stopReason
+      imagePreview
+      aiError
       bestHaiku {
         book {
           reference
@@ -122,5 +135,11 @@ export const ITERATIVE_HAIKU_SUBSCRIPTION = gql`
         }
       }
     }
+  }
+`;
+
+export const CHECK_OPENAI_KEY_MUTATION = gql`
+  mutation CheckOpenAIKey($key: String!) {
+    checkOpenAIKey(key: $key)
   }
 `;

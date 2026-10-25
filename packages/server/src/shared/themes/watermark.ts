@@ -2,6 +2,12 @@ import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import Canvas from 'canvas';
 import type { HaikuValue } from '~/shared/types';
+import {
+  GK,
+  drawTornCorners,
+  dyePaper,
+  signWithSeal,
+} from '~/shared/themes/gutenku-palette';
 import { extractContextVerses } from '~/shared/helpers/HaikuHelper';
 import {
   CANVAS_WIDTH,
@@ -28,6 +34,8 @@ export default {
     const background = new Canvas.Image();
     background.src = imagePath;
     drawImageCover(ctx, background, canvas.width, canvas.height);
+    // The grey sheet, dyed to the site's cream paper
+    dyePaper(ctx, GK.paper, canvas.width, canvas.height);
 
     ctx.font = '96px Typewriter';
     ctx.globalAlpha = 0.2;
@@ -40,7 +48,7 @@ export default {
       context = extractContextVerses(rawVerses, chapter.content);
     }
 
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+    ctx.fillStyle = 'rgba(39, 34, 31, 0.4)';
 
     context.forEach((contextItem, i) => {
       if (!contextItem) {
@@ -70,7 +78,7 @@ export default {
         y,
       );
 
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+      ctx.fillStyle = 'rgba(39, 34, 31, 0.4)';
       ctx.fillText(
         afterVerse,
         ctx.measureText(beforeVerse).width * -1 +
@@ -97,7 +105,7 @@ export default {
       }
     });
 
-    ctx.fillStyle = '#2F5D62';
+    ctx.fillStyle = GK.indigo;
     ctx.globalAlpha = 0.84;
     let verseY = baseY;
 
@@ -109,11 +117,15 @@ export default {
     const decor = new Canvas.Image();
     decor.src = './src/shared/assets/themes/greentea/decoration/torn_paper.png';
     ctx.globalAlpha = 1;
-    drawImageCover(ctx, decor, canvas.width, canvas.height);
+    drawTornCorners(ctx, decor, canvas.width, canvas.height);
 
     ctx.font = '94px Typewriter';
-    ctx.globalAlpha = 0.7;
-    ctx.fillText('- GutenKu', canvas.width - 780, canvas.height - 240);
+    ctx.globalAlpha = 1;
+    signWithSeal(ctx, haiku, {
+      right: canvas.width - 220,
+      baseline: canvas.height - 240,
+      size: 140,
+    });
 
     return canvas;
   },

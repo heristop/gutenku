@@ -1,14 +1,6 @@
-import { inject, injectable } from 'tsyringe';
-import { syllable } from 'syllable';
+import { injectable } from 'tsyringe';
 import { getGutenGuessBooks, type GutenGuessBook } from '~~/data';
 import { getPuzzleNumber } from '@gutenku/shared';
-import {
-  type IChapterRepository,
-  IChapterRepositoryToken,
-} from '~/domain/repositories/IChapterRepository';
-import NaturalLanguageService from '~/domain/services/NaturalLanguageService';
-import { cleanVerses } from '~/shared/helpers/HaikuHelper';
-import { isValidPuzzleSentence } from '~/shared/constants/validation';
 
 /**
  * Mulberry32 seeded PRNG for deterministic random selection
@@ -80,16 +72,6 @@ export function selectDailyBook(dateStr: string): GutenGuessBook {
   return shuffledBooks[positionInCycle];
 }
 
-function countSyllables(sentence: string): number {
-  const words = sentence.toLowerCase().match(/[a-z]+/g);
-
-  if (!words) {
-    return 0;
-  }
-
-  return words.reduce((sum, word) => sum + syllable(word), 0);
-}
-
 /**
  * Create a shuffled array of indices 0 to total-1
  */
@@ -157,13 +139,6 @@ export function getEmoticonsByDate(
 
 @injectable()
 export class PuzzleService {
-  constructor(
-    @inject(IChapterRepositoryToken)
-    private readonly chapterRepository: IChapterRepository,
-    @inject(NaturalLanguageService)
-    private readonly naturalLanguage: NaturalLanguageService,
-  ) {}
-
   /**
    * Get emoticons for a date with specific visible count and scratched positions
    */
@@ -173,112 +148,5 @@ export class PuzzleService {
     scratchedPositions: number[] = [],
   ): { emoticons: string; emoticonCount: number; visibleIndices: number[] } {
     return getEmoticonsByDate(date, baseCount, scratchedPositions);
-  }
-
-  /**
-   * Get a specific haiku by index for a date
-   */
-  async getHaiku(date: string, index: number): Promise<string | null> {
-    const book = selectDailyBook(date);
-    const seed = dateToSeed(date);
-    const random = seededRandom(seed);
-
-    const haikus = await this.generateHaikus(book, index + 1, random);
-
-    return haikus[index] ?? null;
-  }
-
-  /**
-   * Check if a sentence is valid for puzzle haiku hints.
-   */
-  private isValidSentence(sentence: string): boolean {
-    return isValidPuzzleSentence(sentence, 50);
-  }
-
-  private categorizeSentences(chapters: { content: string }[]): {
-    fiveSyllable: string[];
-    sevenSyllable: string[];
-  } {
-    const fiveSyllable: string[] = [];
-    const sevenSyllable: string[] = [];
-
-    for (const chapter of chapters) {
-      const sentences = this.naturalLanguage.extractSentencesByPunctuation(
-        chapter.content,
-      );
-
-      for (const sentence of sentences) {
-        if (!this.isValidSentence(sentence)) {
-          continue;
-        }
-
-        const syllableCount = countSyllables(sentence);
-
-        if (syllableCount === 5) {
-          fiveSyllable.push(sentence);
-        }
-
-        if (syllableCount === 7) {
-          sevenSyllable.push(sentence);
-        }
-      }
-    }
-
-    return { fiveSyllable, sevenSyllable };
-  }
-
-  private async generateHaikus(
-    book: GutenGuessBook,
-    count: number,
-    random: () => number,
-  ): Promise<string[]> {
-    try {
-      const chapters = await this.chapterRepository.getChaptersByBookReference(
-        book.id.toString(),
-      );
-
-      if (chapters.length === 0) {
-        return [];
-      }
-
-      const { fiveSyllable, sevenSyllable } =
-        this.categorizeSentences(chapters);
-
-      if (fiveSyllable.length < 2 || sevenSyllable.length < 1) {
-        return [];
-      }
-
-      const haikus: string[] = [];
-      const usedFive = new Set<string>();
-      const usedSeven = new Set<string>();
-      const pick = (arr: string[]) => arr[Math.floor(random() * arr.length)];
-
-      for (let i = 0; i < count; i++) {
-        const availableFive = fiveSyllable.filter((s) => !usedFive.has(s));
-        const availableSeven = sevenSyllable.filter((s) => !usedSeven.has(s));
-
-        if (availableFive.length < 2 || availableSeven.length < 1) {
-          break;
-        }
-
-        const v1 = pick(availableFive);
-        usedFive.add(v1);
-
-        const v2 = pick(availableSeven);
-        usedSeven.add(v2);
-
-        const remainingFive = availableFive.filter((s) => s !== v1);
-        const v3 =
-          remainingFive.length > 0 ? pick(remainingFive) : pick(availableFive);
-        usedFive.add(v3);
-
-        const cleaned = cleanVerses([v1, v2, v3]);
-        haikus.push(cleaned.join('\n'));
-      }
-
-      return haikus;
-    } catch {
-      return [];
-    }
   }
 }

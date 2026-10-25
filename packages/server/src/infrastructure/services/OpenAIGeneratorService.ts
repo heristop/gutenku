@@ -2,6 +2,7 @@ import { inject, singleton } from 'tsyringe';
 import { createLogger } from '~/infrastructure/services/Logger';
 
 const log = createLogger('openai');
+import { classifyOpenAIError } from '~/infrastructure/external/openai-scope';
 import type { HaikuValue, OpenAIOptions } from '~/shared/types';
 import HaikuGeneratorService from '~/domain/services/HaikuGeneratorService';
 import type { IGenerator } from '~/domain/interfaces/IGenerator';
@@ -163,7 +164,8 @@ export default class OpenAIGeneratorService implements IGenerator {
 
       return haiku;
     } catch (error) {
-      log.error({ err: error }, 'OpenAI API error');
+      // Never the raw error: OpenAI's message can quote part of the key
+      log.error({ failure: classifyOpenAIError(error) }, 'OpenAI API error');
       this.haikuSelection = [];
       throw error;
     }

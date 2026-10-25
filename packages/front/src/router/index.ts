@@ -1,5 +1,7 @@
-import type { RouteRecordRaw } from 'vue-router';
-import { GAME_ENABLED } from '@/features/game';
+import type { RouteRecordRaw, RouterScrollBehavior } from 'vue-router';
+// The config subpath keeps the game barrel (and its view) out of the entry
+// chunk; the route below still loads the barrel lazily.
+import { GAME_ENABLED } from '@/features/game/config';
 
 export const routes: RouteRecordRaw[] = [
   {
@@ -86,3 +88,21 @@ export const routes: RouteRecordRaw[] = [
     ],
   },
 ];
+
+// Back/forward returns to where the reader was; a new page opens at its top;
+// a query or hash change on the same page leaves the scroll alone.
+export const scrollBehavior: RouterScrollBehavior = (to, from, saved) => {
+  if (saved) {
+    return saved;
+  }
+
+  if (to.hash) {
+    return { el: to.hash, top: 32 };
+  }
+
+  if (to.path === from.path) {
+    return false;
+  }
+
+  return { top: 0, left: 0 };
+};

@@ -1,10 +1,11 @@
 <script lang="ts" setup>
-import { ExternalLink } from '@lucide/vue';
+import { ExternalLink } from '@/core/components/icons/ink';
 import {
-  Instagram,
+  Bluesky,
   Github,
+  Instagram,
   Linkedin,
-  Twitter,
+  XLogo,
 } from '@/core/components/ui/icons/BrandIcons';
 import { useI18n } from 'vue-i18n';
 import ZenModal from '@/core/components/ui/ZenModal.vue';
@@ -21,6 +22,30 @@ const haikuLines = [
   'heristop crafts each pixel',
   'Haiku born from books',
 ];
+
+const socialLinks = [
+  {
+    url: 'https://instagram.com/heristop',
+    label: 'footer.social.instagram',
+    icon: Instagram,
+  },
+  {
+    url: 'https://github.com/heristop',
+    label: 'footer.social.github',
+    icon: Github,
+  },
+  {
+    url: 'https://www.linkedin.com/in/heristop',
+    label: 'footer.social.linkedin',
+    icon: Linkedin,
+  },
+  { url: 'https://x.com/heristop', label: 'footer.social.x', icon: XLogo },
+  {
+    url: 'https://bsky.app/profile/heristop.bsky.social',
+    label: 'footer.social.bluesky',
+    icon: Bluesky,
+  },
+];
 </script>
 
 <template>
@@ -30,43 +55,44 @@ const haikuLines = [
     variant="scroll"
     content-class="zen-credits-modal"
     :title="t('footer.credits.ariaLabel')"
-    description="Credits and information about GutenKu"
+    :description="t('footer.credits.description')"
   >
-    <!-- Haiku content -->
     <ZenHaiku :lines="haikuLines" class="zen-credits-modal__haiku" />
 
-    <!-- Credits info card -->
-    <div class="zen-credits-modal__info">
-      <!-- Author -->
-      <p class="zen-credits-modal__author">
-        {{ t('footer.credits.craftedBy') }} <strong>heristop</strong>
-      </p>
+    <div class="zen-credits-modal__body">
+      <dl class="zen-credits-modal__colophon">
+        <div class="zen-credits-modal__row">
+          <dt>{{ t('footer.credits.craftedBy') }}</dt>
+          <dd><strong>heristop</strong></dd>
+        </div>
+        <div class="zen-credits-modal__row">
+          <dt>©</dt>
+          <dd class="zen-credits-modal__year">
+            {{ t('footer.credits.years', { year: currentYear }) }}
+          </dd>
+        </div>
+        <div class="zen-credits-modal__row">
+          <dt>{{ t('footer.credits.inspiredBy') }}</dt>
+          <dd>
+            <a
+              href="https://www.instagram.com/haiku_mariniere/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="zen-credits-modal__inline-link"
+            >
+              Haiku Marinière<span class="sr-only">
+                ({{ t('common.opensInNewTab') }})</span
+              >
+            </a>
+          </dd>
+        </div>
+      </dl>
 
-      <!-- Year -->
-      <p class="zen-credits-modal__year">
-        ～ {{ t('footer.credits.years', { year: currentYear }) }} ～
-      </p>
-
-      <!-- Inspiration -->
-      <p class="zen-credits-modal__inspiration">
-        {{ t('footer.credits.inspiredBy') }}
-        <a
-          href="https://www.instagram.com/haiku_mariniere/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="zen-credits-modal__inspiration-link"
-        >
-          Haiku Marinière
-        </a>
-      </p>
-    </div>
-
-    <!-- Portfolio Link -->
-    <div class="zen-credits-modal__links">
       <ZenButton
         href="https://heristop.vercel.app"
         target="_blank"
-        class="zen-credits-modal__link"
+        class="zen-credits-modal__portfolio"
+        data-autofocus
         :aria-label="t('footer.credits.portfolioLabel')"
       >
         <template #icon-left>
@@ -74,287 +100,182 @@ const haikuLines = [
         </template>
         {{ t('footer.credits.portfolio') }}
       </ZenButton>
-    </div>
 
-    <!-- Social Links -->
-    <div class="zen-credits-modal__social">
-      <a
-        href="https://instagram.com/heristop"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="zen-credits-modal__social-link"
-        :aria-label="t('footer.social.instagram')"
-      >
-        <Instagram :size="18" aria-hidden="true" />
-      </a>
-      <a
-        href="https://github.com/heristop"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="zen-credits-modal__social-link"
-        :aria-label="t('footer.social.github')"
-      >
-        <Github :size="18" aria-hidden="true" />
-      </a>
-      <a
-        href="https://www.linkedin.com/in/heristop"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="zen-credits-modal__social-link"
-        :aria-label="t('footer.social.linkedin')"
-      >
-        <Linkedin :size="18" aria-hidden="true" />
-      </a>
-      <a
-        href="https://x.com/heristop"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="zen-credits-modal__social-link"
-        :aria-label="t('footer.social.x')"
-      >
-        <Twitter :size="18" aria-hidden="true" />
-      </a>
-      <a
-        href="https://bsky.app/profile/heristop.bsky.social"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="zen-credits-modal__social-link"
-        :aria-label="t('footer.social.bluesky')"
-      >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479.815 2.736 3.713 3.66 6.383 3.364.136-.02.275-.039.415-.056-.138.022-.276.04-.415.056-3.912.58-7.387 2.005-2.83 7.078 5.013 5.19 6.87-1.113 7.823-4.308.953 3.195 2.05 9.271 7.733 4.308 4.267-4.882 1.172-6.498-2.74-7.078a8.741 8.741 0 0 1-.415-.056c.14.017.279.036.415.056 2.67.297 5.568-.628 6.383-3.364.246-.828.624-5.79.624-6.478 0-.69-.139-1.861-.902-2.206-.659-.298-1.664-.62-4.3 1.24C16.046 4.748 13.087 8.687 12 10.8Z"
-          />
-        </svg>
-      </a>
-    </div>
+      <ul class="zen-credits-modal__social">
+        <li v-for="link in socialLinks" :key="link.url">
+          <a
+            :href="link.url"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="zen-credits-modal__social-link"
+            :aria-label="t(link.label)"
+            :title="t(link.label)"
+          >
+            <component :is="link.icon" :size="20" aria-hidden="true" />
+          </a>
+        </li>
+      </ul>
 
-    <!-- Feedback Text -->
-    <p class="zen-credits-modal__feedback">
-      {{ t('footer.credits.feedback') }}
-    </p>
+      <p class="zen-credits-modal__feedback">
+        {{ t('footer.credits.feedback') }}
+      </p>
+    </div>
   </ZenModal>
 </template>
 
 <style scoped lang="scss">
+// Ex Libris: the credits leaf. A short poem, a ruled colophon, then the
+// press-able links. One quiet fade, no staggered cascade.
 :deep(.zen-credits-modal) {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  overflow: hidden;
+  font-family: var(--gk-font);
 }
 
 .zen-credits-modal {
   &__haiku {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
   }
 
-  &__info {
+  &__body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 1rem 1.5rem;
-    margin-bottom: 1rem;
-    background: var(--gutenku-paper-bg-aged);
-    border-radius: var(--gutenku-radius-md);
-    border: 1px solid var(--gutenku-paper-border);
+    width: 100%;
+    animation: credits-fade var(--gk-dur-reward) var(--gk-ease-out) 200ms both;
   }
 
-  &__author {
-    position: relative;
-    font-size: 0.95rem;
-    color: var(--gutenku-text-primary);
-    margin: 0;
-    opacity: 0;
-    animation: fade-in 0.3s ease forwards;
-    animation-delay: 1.4s;
-    z-index: 1;
+  &__colophon {
+    width: 100%;
+    margin: 0 0 1.25rem;
+    border-top: var(--gk-rule);
+    border-bottom: var(--gk-rule);
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.25rem 0;
+    text-align: left;
+    font-size: 0.875rem;
+
+    & + & {
+      border-top: var(--gk-rule-faint);
+    }
+
+    dt {
+      color: var(--gk-ink-soft);
+    }
+
+    dd {
+      margin: 0;
+      color: var(--gk-ink);
+    }
 
     strong {
-      font-weight: 600;
-      color: var(--gutenku-zen-primary);
+      font-weight: 700;
     }
   }
 
   &__year {
-    font-size: 0.85rem;
-    color: var(--gutenku-text-muted);
-    margin: 0.25rem 0 0;
-    opacity: 0;
-    animation: fade-in 0.3s ease forwards;
-    animation-delay: 1.8s;
-    z-index: 1;
-    position: relative;
+    font-variant-numeric: tabular-nums;
   }
 
-  &__inspiration {
-    position: relative;
-    font-size: 0.8rem;
-    color: var(--gutenku-text-muted);
-    margin: 0.75rem 0 0;
-    padding-top: 0.75rem;
-    border-top: 1px solid var(--gutenku-paper-border);
-    opacity: 0;
-    animation: fade-in 0.3s ease forwards;
-    animation-delay: 2s;
-    z-index: 1;
-    width: 100%;
-    text-align: center;
-  }
+  &__inline-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    color: var(--gk-indigo);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    transition: text-decoration-thickness var(--gk-dur-fast) var(--gk-ease-out);
 
-  &__inspiration-link {
-    color: var(--gutenku-zen-primary);
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s ease;
-
-    &:hover {
-      color: var(--gutenku-zen-secondary);
-      text-decoration: underline;
+    &:focus-visible {
+      outline: 2px solid var(--gk-indigo);
+      outline-offset: 2px;
+      border-radius: var(--gk-radius-control);
     }
   }
 
-  &__links {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    opacity: 0;
-    animation: fade-in 0.3s ease forwards;
-    animation-delay: 2.2s;
-    z-index: 1;
-  }
-
-  &__link {
-    padding: 0.875rem 2rem !important;
-    font-size: 1rem !important;
-  }
-
   &__social {
-    position: relative;
     display: flex;
     justify-content: center;
-    gap: 1rem;
-    margin-top: 1rem;
-    opacity: 0;
-    animation: fade-in 0.3s ease forwards;
-    animation-delay: 2.4s;
-    z-index: 1;
+    gap: 0.5rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
   }
 
   &__social-link {
     display: grid;
     place-items: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    color: var(--gutenku-text-muted);
+    width: 2.75rem;
+    height: 2.75rem;
+    color: var(--gk-ink);
     background: transparent;
-    border: 1px solid oklch(0 0 0 / 0.1);
-    border-radius: 50%;
+    border: 1.5px solid var(--gk-ink-faint);
+    border-radius: var(--gk-radius-control);
     text-decoration: none;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition:
+      border-color var(--gk-dur-fast) var(--gk-ease-out),
+      color var(--gk-dur-fast) var(--gk-ease-out),
+      transform var(--gk-dur-press) var(--gk-ease-out);
 
-    &:hover {
-      color: var(--gutenku-zen-primary);
-      background: oklch(0 0 0 / 0.04);
-      border-color: var(--gutenku-zen-primary);
-      transform: translateY(-2px);
+    &:active {
+      transform: scale(0.96);
     }
 
     &:focus-visible {
-      outline: 2px solid var(--gutenku-zen-primary);
+      outline: 2px solid var(--gk-indigo);
       outline-offset: 2px;
     }
   }
 
   &__feedback {
-    position: relative;
-    font-size: 0.8rem;
-    color: var(--gutenku-text-muted);
     margin: 1rem 0 0;
-    opacity: 0;
-    animation: fade-in 0.3s ease forwards;
-    animation-delay: 2.6s;
-    z-index: 1;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--gk-ink-soft);
     text-align: center;
-    width: 100%;
+    text-wrap: balance;
   }
 }
 
-// Animations
-@keyframes fade-in {
+@media (hover: hover) {
+  .zen-credits-modal__inline-link:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  .zen-credits-modal__social-link:hover {
+    color: var(--gk-indigo);
+    border-color: var(--gk-indigo);
+  }
+}
+
+@keyframes credits-fade {
   from {
     opacity: 0;
   }
-  to {
-    opacity: 1;
-  }
 }
 
-// Dark theme
-[data-theme='dark'] .zen-credits-modal {
-  &__info {
-    background: var(--gutenku-paper-bg);
-    border-color: oklch(1 0 0 / 0.1);
-  }
-
-  &__inspiration {
-    border-color: oklch(1 0 0 / 0.1);
-  }
-
-  &__inspiration-link {
-    color: var(--gutenku-zen-accent);
-
-    &:hover {
-      color: var(--gutenku-zen-primary);
-    }
-  }
-
-  &__social-link {
-    border-color: oklch(1 0 0 / 0.15);
-
-    &:hover {
-      color: var(--gutenku-zen-accent);
-      background: oklch(1 0 0 / 0.08);
-      border-color: var(--gutenku-zen-accent);
-    }
-  }
-}
-
-// Reduced motion
 @media (prefers-reduced-motion: reduce) {
-  .zen-credits-modal {
-    &__author,
-    &__inspiration,
-    &__year,
-    &__links,
-    &__social,
-    &__feedback {
-      animation: none;
-      opacity: 1;
-      transform: none;
-    }
-
-    &__social-link,
-    &__inspiration-link {
-      transition: none;
-    }
+  .zen-credits-modal__body {
+    animation: none;
   }
-}
 
-// Mobile
-@media (max-width: 480px) {
-  .zen-credits-modal {
-    &__author {
-      font-size: 0.875rem;
-    }
+  .zen-credits-modal__social-link,
+  .zen-credits-modal__inline-link {
+    transition: none;
+  }
+
+  .zen-credits-modal__social-link:active {
+    transform: none;
   }
 }
 </style>

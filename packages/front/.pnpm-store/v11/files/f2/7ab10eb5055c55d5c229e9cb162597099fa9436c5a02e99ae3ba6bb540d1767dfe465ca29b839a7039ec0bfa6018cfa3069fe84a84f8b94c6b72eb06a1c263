@@ -1,0 +1,77 @@
+{
+  "name": "js-beautify",
+  "version": "2.0.3",
+  "description": "beautifier.io for node",
+  "main": "js/index.js",
+  "bin": {
+    "css-beautify": "./js/bin/css-beautify.js",
+    "html-beautify": "./js/bin/html-beautify.js",
+    "js-beautify": "./js/bin/js-beautify.js"
+  },
+  "directories": {
+    "lib": "js/lib",
+    "test": "js/test"
+  },
+  "files": [
+    "js/bin/",
+    "js/lib/*.js",
+    "js/lib/unpackers/",
+    "js/index.js",
+    "js/src/"
+  ],
+  "scripts": {},
+  "bugs": "https://github.com/beautifier/js-beautify/issues",
+  "homepage": "https://beautifier.io/",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/beautifier/js-beautify.git"
+  },
+  "keywords": [
+    "beautify",
+    "beautifier",
+    "code-quality"
+  ],
+  "author": "Einar Lielmanis <einar@beautifier.io>",
+  "contributors": [
+    "Vital Batmanov <vital76@gmail.com>",
+    "Chris J. Shull <chrisjshull@gmail.com>",
+    "Gian Marco Gherardi <gianmarco.gherardi@gmail.com>",
+    "Stan <stasson@orc.ru>",
+    "Vittorio Gambaletta <VittGam@vittgam.net>",
+    "Daniel Stockman <daniel.stockman@gmail.com>",
+    "Harutyun Amirjanyan <amirjanyan@gmail.com>",
+    "Nochum Sossonko <nsossonko@hotmail.com>",
+    "Liam Newman <bitwiseman@beautifier.io>"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=14"
+  },
+  "browserslist": "ie 11",
+  "dependencies": {
+    "config-chain": "^1.1.13",
+    "editorconfig": "^3.0.2",
+    "glob": "^13.0.6",
+    "js-cookie": "^3.0.8",
+    "nopt": "^10.0.1"
+  },
+  "overrides": {
+    "diff": "^8.0.4",
+    "serialize-javascript": "^7.0.6"
+  },
+  "devDependencies": {
+    "ansi-regex": "^6.2.2",
+    "benchmark": "^2.1.4",
+    "codemirror": "^5.65.21",
+    "jquery": "^3.7.1",
+    "jshint": "^2.13.6",
+    "minimist": "^1.2.8",
+    "mocha": "^11.7.6",
+    "mustache": "^4.2.0",
+    "requirejs": "^2.3.8",
+    "serve": "^14.2.6",
+    "strip-ansi": "^7.2.0",
+    "webpack": "^5.107.2",
+    "webpack-cli": "^7.0.3"
+  }
+}

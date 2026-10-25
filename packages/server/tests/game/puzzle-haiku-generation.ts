@@ -12,13 +12,13 @@ const SEVEN = 'the river flows down to sea'; // 7 syllables
 
 const buildContent = () => {
   const sentences: string[] = [];
-  
-for (let i = 0; i < 8; i++) {
+
+  for (let i = 0; i < 8; i++) {
     sentences.push(FIVE);
     sentences.push(SEVEN);
   }
-  
-return sentences.join('. ') + '.';
+
+  return sentences.join('. ') + '.';
 };
 
 const makeNL = (): NaturalLanguageService =>
@@ -107,5 +107,45 @@ describe('GetDailyPuzzleHandler full haiku generation', () => {
       new GetDailyPuzzleQuery('2026-01-15', [], 2, 3),
     );
     expect(result.puzzle.haikus).toEqual([]);
+  });
+});
+
+describe('GetDailyPuzzleHandler.getHaiku (the "another haiku" reveal)', () => {
+  const varied = () => {
+    const five = [
+      'silent autumn breeze',
+      'winter moon above',
+      'cherry petals fall',
+      'morning frost is here',
+      'quiet mountain path',
+      'old pond in the rain',
+      'gentle evening light',
+    ];
+    const seven = [
+      'the river flows down to sea',
+      'a lantern sways in the dark night',
+      'the crow sits on a bare branch',
+      'snow covers the sleeping town',
+    ];
+
+    return [...five, ...seven].join('. ') + '.';
+  };
+
+  it('returns the same text the puzzle serves at that index', async () => {
+    const handler = new GetDailyPuzzleHandler(
+      makeChapterRepo([{ content: varied() }]),
+      makeNL(),
+      makeMarkov(),
+    );
+    const { puzzle } = await handler.execute(
+      new GetDailyPuzzleQuery('2026-01-15', [], 2, 3),
+    );
+
+    expect(puzzle.haikus).toHaveLength(3);
+
+    for (const [i, haiku] of puzzle.haikus.entries()) {
+      expect(await handler.getHaiku('2026-01-15', i)).toBe(haiku);
+    }
+    expect(await handler.getHaiku('2026-01-15', 9)).toBeNull();
   });
 });

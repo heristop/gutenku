@@ -48,63 +48,30 @@ const lineIndent = (index: number): string => {
 </template>
 
 <style lang="scss" scoped>
+// Ex Libris: three typed lines on the page, closed by a short ink stroke.
 .zen-haiku {
   position: relative;
   padding: 1.25rem 1rem;
-  z-index: 1;
-
-  // Ink wash background - organic sumi-e feel
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      ellipse 120% 100% at 50% 50%,
-      oklch(0.45 0.05 55 / 0.06) 0%,
-      oklch(0.45 0.05 55 / 0.02) 60%,
-      transparent 100%
-    );
-    border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
-    transform: rotate(-2deg);
-    z-index: -1;
-  }
-
-  [data-theme='dark'] &::before {
-    background: radial-gradient(
-      ellipse 120% 100% at 50% 50%,
-      oklch(0.75 0.04 55 / 0.08) 0%,
-      oklch(0.75 0.04 55 / 0.03) 60%,
-      transparent 100%
-    );
-  }
+  font-family: var(--gk-font);
 }
 
-// Brush stroke accent
 .zen-haiku--brush-stroke::after {
   content: '';
   position: absolute;
-  bottom: -0.5rem;
+  bottom: -0.25rem;
   left: 50%;
+  width: 2.5rem;
+  height: 1.5px;
+  background: var(--gk-ink);
+  opacity: 0.4;
   transform: translateX(-50%);
-  width: 2rem;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    var(--gutenku-zen-primary) 30%,
-    var(--gutenku-zen-primary) 70%,
-    transparent 100%
-  );
-  opacity: 0.3;
-  border-radius: 1px;
 }
 
-// Size variants
 .zen-haiku--sm {
-  padding: 0.75rem 0.75rem;
+  padding: 0.75rem;
 
   .zen-haiku__line {
-    font-size: 0.95rem;
+    font-size: 0.9375rem;
     line-height: 1.6;
   }
 }
@@ -113,47 +80,34 @@ const lineIndent = (index: number): string => {
   padding: 1.25rem 1rem;
 
   .zen-haiku__line {
-    font-size: 1.05rem;
+    font-size: 1.0625rem;
     line-height: 1.8;
   }
 }
 
-// Line styles
 .zen-haiku__line {
-  color: var(--gutenku-text-primary);
   margin: 0;
-  letter-spacing: 0.02em;
-  text-align: center;
   padding-left: var(--line-indent);
+  color: var(--gk-ink);
+  text-align: center;
 }
 
-// Animated variant
+// Each line is typed in turn
 .zen-haiku--animated .zen-haiku__line {
-  opacity: 0;
-  animation: typewriter-reveal 0.25s ease forwards;
-  animation-delay: calc(var(--line-index) * 0.15s + 0.1s);
+  animation: typewriter-reveal var(--gk-dur-base) var(--gk-ease-out) both;
+  animation-delay: calc(var(--line-index) * 140ms + 80ms);
 }
 
 @keyframes typewriter-reveal {
-  0% {
+  from {
     opacity: 0;
-    transform: translateY(8px);
-    filter: blur(4px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
+    transform: translateY(4px);
   }
 }
 
-// Reduced motion
 @media (prefers-reduced-motion: reduce) {
   .zen-haiku--animated .zen-haiku__line {
     animation: none;
-    opacity: 1;
-    transform: none;
-    filter: none;
   }
 }
 </style>

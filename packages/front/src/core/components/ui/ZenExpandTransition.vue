@@ -1,90 +1,151 @@
 <script lang="ts" setup>
-withDefaults(defineProps<{
-  duration?: number;
-}>(), {
-  duration: 300,
-});
+// A fold that opens like a drawer: the space grows from nothing (height,
+// padding and margin together, so nothing jumps at either end), then the
+// content inks in once there is room. Closing is quicker and starts from
+// wherever the fold is, so a second tap mid-way simply turns it round.
+import { prefersReducedMotion } from '@/core/composables/view-transition';
 
-function onEnter(el: Element, done: () => void) {
-  const element = el as HTMLElement;
-  element.style.overflow = 'hidden';
-  element.style.height = '0';
+const OPEN_MS = 300;
+const CLOSE_MS = 200;
+// The drawer curve: fast out of the gate, a long soft settle
+const SPACE_EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
+const INK_EASE = 'cubic-bezier(0.23, 1, 0.32, 1)';
+// The content waits a beat for its room on the way in
+const INK_DELAY_MS = 60;
 
-  const _ = element.offsetHeight; // trigger reflow
+type Fold = HTMLElement & { zenExpand?: Animation[] };
+type Box = Record<'height' | SpaceSide, string>;
+type SpaceSide = 'paddingTop' | 'paddingBottom' | 'marginTop' | 'marginBottom';
 
-  element.style.height = `${element.scrollHeight}px`;
+const SIDES: SpaceSide[] = [
+  'paddingTop',
+  'paddingBottom',
+  'marginTop',
+  'marginBottom',
+];
 
-  const onEnd = () => {
-    element.style.height = '';
-    element.style.overflow = '';
-    element.removeEventListener('transitionend', onEnd);
-    done();
-  };
-  element.addEventListener('transitionend', onEnd);
+function box(el: HTMLElement): Box {
+  const style = getComputedStyle(el);
+  const sides = Object.fromEntries(
+    SIDES.map((side) => [side, style[side]]),
+  ) as Record<SpaceSide, string>;
+
+  return { height: `${el.getBoundingClientRect().height}px`, ...sides };
 }
 
-function onLeave(el: Element, done: () => void) {
-  const element = el as HTMLElement;
-  element.style.overflow = 'hidden';
-  element.style.height = `${element.scrollHeight}px`;
+const CLOSED: Box = {
+  height: '0px',
+  paddingTop: '0px',
+  paddingBottom: '0px',
+  marginTop: '0px',
+  marginBottom: '0px',
+};
 
-  const _ = element.offsetHeight; // trigger reflow
+// Whatever is running is stopped where it stands (its current values read
+// first by the caller), so the next motion starts from there
+function stop(el: Fold): void {
+  el.zenExpand?.forEach((animation) => animation.cancel());
+  el.zenExpand = undefined;
+}
 
-  element.style.height = '0';
+function canAnimate(el: HTMLElement): boolean {
+  return typeof el.animate === 'function';
+}
 
-  const onEnd = () => {
-    element.removeEventListener('transitionend', onEnd);
+function onEnter(el: Element, done: () => void): void {
+  const fold = el as Fold;
+
+  if (!canAnimate(fold)) {
+    done();
+
+    return;
+  }
+
+  // Interrupting a close: open from the height it had reached
+  const from = fold.zenExpand ? box(fold) : CLOSED;
+  stop(fold);
+  const to = box(fold);
+
+  if (prefersReducedMotion()) {
+    const fade = fold.animate([{ opacity: 0 }, { opacity: 1 }], {
+      duration: 150,
+      easing: 'linear',
+    });
+    fold.zenExpand = [fade];
+    fade.onfinish = () => done();
+
+    return;
+  }
+
+  fold.style.overflow = 'hidden';
+  const space = fold.animate([from, to], {
+    duration: OPEN_MS,
+    easing: SPACE_EASE,
+  });
+  const ink = fold.animate(
+    [
+      { opacity: 0, transform: 'translateY(-4px)' },
+      { opacity: 1, transform: 'translateY(0)' },
+    ],
+    {
+      duration: OPEN_MS - INK_DELAY_MS,
+      delay: INK_DELAY_MS,
+      easing: INK_EASE,
+      fill: 'backwards',
+    },
+  );
+  fold.zenExpand = [space, ink];
+  space.onfinish = () => {
+    fold.style.overflow = '';
+    fold.zenExpand = undefined;
     done();
   };
-  element.addEventListener('transitionend', onEnd);
+}
+
+function onLeave(el: Element, done: () => void): void {
+  const fold = el as Fold;
+
+  if (!canAnimate(fold)) {
+    done();
+
+    return;
+  }
+
+  const from = box(fold);
+  const opacity = getComputedStyle(fold).opacity;
+  stop(fold);
+
+  if (prefersReducedMotion()) {
+    const fade = fold.animate([{ opacity }, { opacity: 0 }], {
+      duration: 150,
+      easing: 'linear',
+    });
+    fold.zenExpand = [fade];
+    fade.onfinish = () => done();
+
+    return;
+  }
+
+  fold.style.overflow = 'hidden';
+  const space = fold.animate([from, CLOSED], {
+    duration: CLOSE_MS,
+    easing: SPACE_EASE,
+  });
+  const ink = fold.animate([{ opacity }, { opacity: 0 }], {
+    duration: CLOSE_MS * 0.6,
+    easing: INK_EASE,
+    fill: 'forwards',
+  });
+  fold.zenExpand = [space, ink];
+  space.onfinish = () => {
+    fold.zenExpand = undefined;
+    done();
+  };
 }
 </script>
 
 <template>
-  <Transition name="zen-expand" @enter="onEnter" @leave="onLeave">
+  <Transition :css="false" @enter="onEnter" @leave="onLeave">
     <slot />
   </Transition>
 </template>
-
-<style lang="scss">
-$ink-easing: cubic-bezier(0.22, 1, 0.36, 1);
-$spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
-
-.zen-expand-enter-active,
-.zen-expand-leave-active {
-  transition:
-    height 0.3s $ink-easing,
-    opacity 0.3s $ink-easing,
-    filter 0.27s $ink-easing,
-    transform 0.3s $spring-easing;
-  will-change: height, opacity, filter, transform;
-}
-
-.zen-expand-enter-from {
-  opacity: 0;
-  filter: blur(6px);
-  transform: translateY(-12px) scale(0.98);
-}
-
-.zen-expand-enter-to,
-.zen-expand-leave-from {
-  opacity: 1;
-  filter: blur(0);
-  transform: translateY(0) scale(1);
-}
-
-.zen-expand-leave-to {
-  opacity: 0;
-  filter: blur(6px);
-  transform: translateY(-8px) scale(0.98);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .zen-expand-enter-active,
-  .zen-expand-leave-active {
-    transition: opacity 0.15s ease;
-    filter: none !important;
-    transform: none !important;
-  }
-}
-</style>

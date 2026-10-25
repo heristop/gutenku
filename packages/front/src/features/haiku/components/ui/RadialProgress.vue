@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { computed, ref, watch, onMounted } from 'vue';
+import { useCountUp } from '@/features/haiku/composables/count-up';
 
 const props = withDefaults(
   defineProps<{
@@ -41,66 +42,41 @@ const normalizedValue = computed(() =>
   Math.min(Math.max(props.value / props.max, 0), 1),
 );
 
-// Animation state
-const displayedValue = ref(0);
-const hasAnimated = ref(false);
+// The dial shows its value at rest. With `animated`, it sweeps up from empty
+// once on mount; later value changes glide in 400ms or less.
+const shownValue = ref(props.animated ? 0 : normalizedValue.value);
+const { value: shownPercent } = useCountUp(
+  () => Math.round(shownValue.value * 100),
+  { duration: 360 },
+);
 
-// Calculate stroke offset for SVG
-const strokeOffset = computed(() => {
-  const targetOffset = circumference.value * (1 - displayedValue.value);
+const strokeOffset = computed(
+  () => circumference.value * (1 - shownValue.value),
+);
 
-  return targetOffset;
-});
-
-// Animate value on mount or when value changes
-function animateValue() {
-  if (!props.animated || typeof document === 'undefined') {
-    displayedValue.value = normalizedValue.value;
+function sweep() {
+  if (typeof document === 'undefined') {
+    shownValue.value = normalizedValue.value;
 
     return;
   }
-
-  const duration = 800;
-  const startTime = performance.now();
-  const startValue = displayedValue.value;
-  const targetValue = normalizedValue.value;
-
-  function update(currentTime: number) {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    // Ease out cubic
-    const eased = 1 - Math.pow(1 - progress, 3);
-    displayedValue.value = startValue + (targetValue - startValue) * eased;
-
-    if (progress < 1) {
-      requestAnimationFrame(update);
-
-      return;
-    }
-
-    hasAnimated.value = true;
-  }
-
-  setTimeout(() => {
-    requestAnimationFrame(update);
-  }, props.delay);
+  shownValue.value = 0;
+  requestAnimationFrame(() => {
+    shownValue.value = normalizedValue.value;
+  });
 }
 
-watch(
-  () => props.value,
-  () => {
-    if (hasAnimated.value) {
-      animateValue();
-    }
-  },
-);
-
-onMounted(() => {
-  animateValue();
+watch(normalizedValue, (next) => {
+  shownValue.value = next;
 });
 
-// Display percentage
-const displayPercent = computed(() => Math.round(displayedValue.value * 100));
+onMounted(() => {
+  if (props.animated) {
+    sweep();
+  }
+});
+
+const displayPercent = computed(() => shownPercent.value);
 
 // Color class
 const colorClass = computed(() => `radial-progress--${props.color}`);
@@ -152,12 +128,10 @@ const accessibleLabel = computed(
         fill="none"
         :stroke-width="sizeConfig.strokeWidth"
         :stroke-dasharray="circumference"
-        :stroke-dashoffset="strokeOffset"
         stroke-linecap="round"
         :style="{
-          '--circumference': circumference,
-          '--fill-offset': strokeOffset,
-          '--animation-delay': `${delay}ms`,
+          strokeDashoffset: strokeOffset,
+          transitionDelay: `${delay}ms`,
         }"
       />
     </svg>
@@ -170,8 +144,7 @@ const accessibleLabel = computed(
 </template>
 
 <style lang="scss" scoped>
-$ink-easing: cubic-bezier(0.22, 1, 0.36, 1);
-
+// Score dial: sumi stroke on a faint ink track, theme-tuned by the tokens
 .radial-progress {
   position: relative;
   display: inline-flex;
@@ -196,78 +169,44 @@ $ink-easing: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   &__track {
-    stroke: oklch(0.9 0.01 85 / 0.5);
-    transition: stroke 0.3s ease;
+    stroke: var(--gk-ink-faint);
   }
 
   &__fill {
-    stroke: var(--gutenku-zen-primary);
+    stroke: var(--gk-ink);
     transform-origin: center;
-    transition:
-      stroke-dashoffset 0.8s $ink-easing,
-      stroke 0.3s ease;
+    transition: stroke-dashoffset 360ms var(--gk-ease-out);
   }
 
   &__value {
     position: absolute;
-    font-weight: 500;
-    color: var(--gutenku-text-primary);
+    font-weight: 400;
+    color: var(--gk-ink);
     letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
   }
 
-  // Sizes
-  &--sm {
-    .radial-progress__value {
-      font-size: 0.625rem;
-    }
+  &--sm .radial-progress__value {
+    font-size: 0.6875rem;
   }
 
-  &--md {
-    .radial-progress__value {
-      font-size: 0.75rem;
-    }
+  &--md .radial-progress__value {
+    font-size: 0.75rem;
   }
 
-  &--lg {
-    .radial-progress__value {
-      font-size: 1rem;
-    }
+  &--lg .radial-progress__value {
+    font-size: 1rem;
   }
 
-  // Colors
-  &--primary {
-    .radial-progress__fill {
-      stroke: var(--gutenku-zen-primary);
-    }
+  &--accent .radial-progress__fill {
+    stroke: var(--gk-ink);
   }
 
-  &--accent {
-    .radial-progress__fill {
-      stroke: var(--gutenku-zen-accent);
-    }
-  }
-
-  &--muted {
-    .radial-progress__fill {
-      stroke: var(--gutenku-text-muted);
-    }
+  &--muted .radial-progress__fill {
+    stroke: var(--gk-ink-soft);
   }
 }
 
-// Dark theme
-[data-theme='dark'] {
-  .radial-progress {
-    &__track {
-      stroke: oklch(0.45 0.02 85 / 0.7);
-    }
-
-    &--primary .radial-progress__fill {
-      stroke: var(--gutenku-zen-accent);
-    }
-  }
-}
-
-// Reduced motion
 @media (prefers-reduced-motion: reduce) {
   .radial-progress__fill {
     transition: none;

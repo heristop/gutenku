@@ -3,8 +3,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 // Mock Vue lifecycle hooks at top level
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue');
-  
-return {
+
+  return {
     ...actual,
     onMounted: vi.fn((cb) => cb()),
     onUnmounted: vi.fn(),
@@ -31,7 +31,7 @@ describe('useLoadingMessages', () => {
   });
 
   it('should accept custom messages', async () => {
-    const { Sparkles } = await import('@lucide/vue');
+    const { Sparkles } = await import('@/core/components/icons/ink');
     const { useLoadingMessages } =
       await import('@/core/composables/loading-messages');
 

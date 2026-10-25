@@ -1,16 +1,24 @@
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter, RouterLink } from 'vue-router';
-import { Loader2, ArrowUp, ArrowLeft, ArrowRight } from '@lucide/vue';
-import SumieCat from '@/core/components/decorative/SumieCat.vue';
+import { ArrowUp, ArrowLeft, ArrowRight } from '@/core/components/icons/ink';
 import { useSeoMeta, useHead } from '@unhead/vue';
 import { useI18n } from 'vue-i18n';
-import ZenCard from '@/core/components/ui/ZenCard.vue';
 import BlogShareButtons from '../components/BlogShareButtons.vue';
+import ArticleColophon from '../components/ArticleColophon.vue';
+import ArticleToc from '../components/ArticleToc.vue';
+import BrushRule from '@/core/components/ink/BrushRule.vue';
+import InkStamp from '@/core/components/ink/InkStamp.vue';
+import { useInkLoading } from '@/core/composables/ink-loading';
 import {
   useArticle,
+  useArticles,
   useReadingProgress,
+  useTableOfContents,
   getAvailableLocalesForSlug,
+  toRomanNumeral,
+  addHeadingIds,
+  TOC_MIN_HEADINGS,
 } from '../composables';
 import {
   SITE_URL,
@@ -35,7 +43,33 @@ const {
   prevArticle,
 } = useArticle(slug);
 
-const { readingProgress, showBackToTop, scrollToTop } = useReadingProgress();
+const { showBackToTop, scrollToTop } = useReadingProgress();
+
+// The site-wide quill reports the article render; no local loader
+useInkLoading(loading);
+
+// Contents: every h2/h3 gets a stable id; the list shows from 3 sections
+const outline = computed(() => addHeadingIds(content.value));
+const tocHeadings = computed(() =>
+  outline.value.headings.length >= TOC_MIN_HEADINGS
+    ? outline.value.headings
+    : [],
+);
+const hasToc = computed(() => tocHeadings.value.length > 0);
+const bodyEl = ref<HTMLElement | null>(null);
+const {
+  activeId: tocActiveId,
+  progress: tocProgress,
+  scrollToHeading,
+} = useTableOfContents(tocHeadings, bodyEl);
+
+// Issue number: position of the article counted from the first one published
+const { articles } = useArticles();
+const issueNumber = computed(() => {
+  const index = articles.value.findIndex((a) => a.slug === slug.value);
+
+  return index === -1 ? 0 : articles.value.length - index;
+});
 
 // Arrow key nav
 function handleKeydown(e: KeyboardEvent) {
@@ -108,7 +142,7 @@ useSeoMeta({
   ogType: 'article',
   ogLocale,
   articlePublishedTime: isoDate,
-  articleAuthor: ['Alexandre Mederic Mogère (@heristop)'],
+  articleAuthor: ['Alexandre Mogère (@heristop)'],
   twitterCard: 'summary_large_image',
   twitterTitle: () => article.value?.title || 'Article Not Found',
   twitterDescription: () => article.value?.description || 'Article not found',
@@ -162,7 +196,7 @@ useHead({
                   ?.htmlLang || 'en',
               author: {
                 '@type': 'Person',
-                name: 'Alexandre Mederic Mogère (@heristop)',
+                name: 'Alexandre Mogère (@heristop)',
                 url: 'https://www.instagram.com/heristop/',
               },
               publisher: {
@@ -186,79 +220,98 @@ useHead({
 </script>
 
 <template>
-  <div class="blog-article">
-    <div
-      class="blog-article__progress"
-      :style="{ width: `${readingProgress}%` }"
-    />
-
+  <div class="blog-article" :class="{ 'blog-article--toc': hasToc }">
     <div v-if="notFound && !loading" class="blog-article__not-found">
-      <ZenCard class="blog-article__not-found-card">
+      <div class="blog-article__not-found-card">
         <h1>{{ t('blog.notFound') }}</h1>
         <p>{{ t('blog.notFoundDescription') }}</p>
         <RouterLink :to="{ name: 'Blog' }" class="blog-article__back-link">
-          <ArrowLeft :size="18" />
+          <ArrowLeft :size="18" aria-hidden="true" />
           <span>{{ t('blog.backToBlog') }}</span>
         </RouterLink>
-      </ZenCard>
+      </div>
     </div>
 
-    <template v-else>
+    <div v-else class="blog-article__layout">
       <header class="blog-article__header">
-        <RouterLink
-          :to="{ name: 'Blog' }"
-          class="blog-article__back-to-blog link-highlight"
-        >
-          <ArrowLeft :size="14" />
+        <RouterLink :to="{ name: 'Blog' }" class="blog-article__back-to-blog">
+          <ArrowLeft :size="14" aria-hidden="true" />
           <span>{{ t('blog.allArticles') }}</span>
         </RouterLink>
-        <p class="blog-article__date">{{ formattedDate }}</p>
         <h1
           class="blog-article__title"
           :style="{ viewTransitionName: `blog-title-${slug}` }"
         >
           {{ article?.title }}
         </h1>
-        <p class="blog-article__author">
-          Alexandre Mederic Mogère (<a
-            href="https://www.instagram.com/heristop/"
-            class="link-highlight"
-            target="_blank"
-            >@heristop</a
-          >)
-        </p>
-        <p class="blog-article__reading-time">
-          {{ t('blog.minRead', { min: readingTime }) }}
-        </p>
+        <div class="blog-article__meta">
+          <InkStamp
+            v-if="issueNumber"
+            :label="toRomanNumeral(issueNumber)"
+            tone="ink"
+            :size="38"
+            :tilt="3"
+          />
+          <span v-if="issueNumber" class="sr-only">
+            {{ t('blog.issue', { number: issueNumber }) }}
+          </span>
+          <div class="blog-article__meta-text">
+            <p class="blog-article__date">
+              <time :datetime="isoDate">{{ formattedDate }}</time>
+              <span aria-hidden="true"> · </span>
+              <span class="blog-article__reading-time">{{
+                t('blog.minRead', { min: readingTime })
+              }}</span>
+            </p>
+            <p class="blog-article__author">
+              Alexandre Mogère (<a
+                href="https://www.instagram.com/heristop/"
+                target="_blank"
+                rel="noopener"
+                >@heristop</a
+              >)
+            </p>
+          </div>
+        </div>
+        <ArticleToc
+          v-if="hasToc"
+          class="blog-article__toc-disclosure"
+          variant="disclosure"
+          :headings="tocHeadings"
+          :active-id="tocActiveId"
+          @navigate="scrollToHeading"
+        />
       </header>
 
-      <div class="blog-article__divider" aria-hidden="true" />
-
-      <div v-if="loading" class="blog-article__loading">
-        <Loader2 :size="32" class="blog-article__spinner" />
-      </div>
-
-      <div class="blog-article__cat-wrapper">
-        <SumieCat />
-      </div>
+      <BrushRule class="blog-article__divider" aria-hidden="true" />
 
       <Transition name="fade-up">
-        <ZenCard v-if="!loading && showContent" class="blog-article__content">
-          <article class="blog-article__body prose" v-html="content" />
+        <div v-if="!loading && showContent" class="blog-article__content">
+          <article
+            ref="bodyEl"
+            class="blog-article__body prose"
+            v-html="outline.html"
+          />
           <BlogShareButtons :title="article?.title ?? ''" />
 
-          <nav class="blog-article__nav" aria-label="Article navigation">
+          <ArticleColophon
+            v-if="article && issueNumber"
+            :issue="issueNumber"
+            :date="article.date"
+          />
+
+          <nav class="blog-article__nav" :aria-label="t('blog.articleNav')">
             <RouterLink
               v-if="prevArticle"
               :to="{ name: 'BlogArticle', params: { slug: prevArticle.slug } }"
               class="blog-article__nav-link blog-article__nav-link--prev"
             >
-              <ArrowLeft :size="14" />
+              <ArrowLeft :size="14" aria-hidden="true" />
               <div class="blog-article__nav-content">
                 <span class="blog-article__nav-label">{{
                   t('blog.newerArticle')
                 }}</span>
-                <span class="blog-article__nav-title link-highlight">{{
+                <span class="blog-article__nav-title">{{
                   prevArticle.title
                 }}</span>
               </div>
@@ -274,18 +327,47 @@ useHead({
                 <span class="blog-article__nav-label">{{
                   t('blog.olderArticle')
                 }}</span>
-                <span class="blog-article__nav-title link-highlight">{{
+                <span class="blog-article__nav-title">{{
                   nextArticle.title
                 }}</span>
               </div>
-              <ArrowRight :size="14" />
+              <ArrowRight :size="14" aria-hidden="true" />
             </RouterLink>
             <div v-else class="blog-article__nav-spacer" />
           </nav>
-          <p class="blog-article__keyboard-hint">
-            {{ t('blog.keyboardNavHint') }}
-          </p>
-        </ZenCard>
+          <i18n-t
+            v-if="prevArticle || nextArticle"
+            keypath="blog.keyboardNavHint"
+            tag="p"
+            scope="global"
+            class="blog-article__keyboard-hint"
+          >
+            <template #prev>
+              <kbd class="blog-article__key">
+                <ArrowLeft :size="14" aria-hidden="true" />
+                <span class="sr-only">{{ t('blog.keyPrev') }}</span>
+              </kbd>
+            </template>
+            <template #next>
+              <kbd class="blog-article__key">
+                <ArrowRight :size="14" aria-hidden="true" />
+                <span class="sr-only">{{ t('blog.keyNext') }}</span>
+              </kbd>
+            </template>
+          </i18n-t>
+        </div>
+      </Transition>
+
+      <Transition name="fade-scale">
+        <ArticleToc
+          v-if="hasToc && !loading && showContent"
+          class="blog-article__toc-rail"
+          variant="rail"
+          :headings="tocHeadings"
+          :active-id="tocActiveId"
+          :progress="tocProgress"
+          @navigate="scrollToHeading"
+        />
       </Transition>
 
       <Transition name="fade-scale">
@@ -293,44 +375,86 @@ useHead({
           v-if="showBackToTop"
           type="button"
           class="blog-article__back-to-top"
-          aria-label="Back to top"
+          :aria-label="t('blog.backToTop')"
+          :title="t('blog.backToTop')"
           @click="scrollToTop"
         >
-          <ArrowUp :size="20" />
+          <ArrowUp :size="20" aria-hidden="true" />
         </button>
       </Transition>
-    </template>
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
+// Contents rail: needs the sheet plus this much on the right, which first
+// fits at 1280px
+$toc-width: 13rem;
+$toc-gap: 2.5rem;
+$toc-desktop: 1280px;
+
 .blog-article {
   width: 100%;
-  max-width: 800px;
+  max-width: 1040px;
   margin: 0 auto;
-  padding: 0.5rem;
+  // Phones keep the page gutter the article list and the other cards keep
+  padding: 1rem var(--gk-gutter) 1.5rem;
   position: relative;
-
-  @media (min-width: 375px) {
-    padding: 0.5rem;
-  }
+  color: var(--gk-ink);
+  font-family: var(--gk-font);
 
   @media (min-width: 600px) {
-    padding: 1.5rem;
+    padding: 1.5rem 1.5rem 2.5rem;
   }
 
-  &__progress {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 3px;
-    background: linear-gradient(
-      90deg,
-      var(--gutenku-zen-accent),
-      var(--gutenku-zen-primary)
-    );
-    z-index: 1000;
-    transition: width 0.1s ease-out;
+  // With a contents rail the page becomes three columns: the sheet stays
+  // centred while the margins allow it, and slides left only as far as the
+  // rail needs.
+  @media (min-width: $toc-desktop) {
+    &--toc {
+      max-width: none;
+    }
+
+    &--toc &__layout {
+      display: grid;
+      grid-template-columns:
+        minmax(0, 1fr)
+        auto
+        minmax(#{$toc-width + $toc-gap}, 1fr);
+    }
+
+    &--toc &__header,
+    &--toc &__divider,
+    &--toc &__content {
+      grid-column: 2;
+    }
+
+    &--toc &__content {
+      grid-row: 3;
+    }
+  }
+
+  &__toc-rail {
+    display: none;
+
+    @media (min-width: $toc-desktop) {
+      display: block;
+      grid-column: 3;
+      grid-row: 3;
+      align-self: start;
+      position: sticky;
+      top: 1.5rem;
+      box-sizing: border-box;
+      width: calc(#{$toc-width} + 0.75rem);
+      // Top of the rail lines up with the first line of the body
+      margin: 2.25rem 0 0 calc(#{$toc-gap} - 0.5rem);
+    }
+  }
+
+  &__toc-disclosure {
+    @media (min-width: $toc-desktop) {
+      display: none;
+    }
   }
 
   &__not-found {
@@ -341,239 +465,215 @@ useHead({
   }
 
   &__not-found-card {
-    text-align: center;
+    max-width: 36rem;
     padding: 2rem;
+    text-align: center;
+    background: var(--gk-paper-raised);
+    border-radius: var(--gk-radius-paper);
+    box-shadow: var(--gk-lift);
 
     h1 {
-      font-size: 1.5rem;
-      color: var(--gutenku-text-primary);
-      margin-bottom: 0.5rem;
+      margin: 0 0 0.5rem;
+      font-size: 2rem;
+      font-weight: 400;
+      letter-spacing: -0.03em;
     }
 
     p {
-      color: var(--gutenku-text-muted);
-      margin-bottom: 1.5rem;
+      margin: 0 0 1.5rem;
+      color: var(--gk-ink-soft);
     }
   }
 
-  &__back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--gutenku-zen-primary);
-    text-decoration: none;
-    font-weight: 600;
-
-    &:hover {
-      color: var(--gutenku-zen-accent);
-    }
-  }
-
-  &__header {
-    text-align: center;
-    margin-bottom: 1rem;
-    position: relative;
-    padding: 0 1rem;
-
-    @media (min-width: 375px) {
-      margin-bottom: 1.25rem;
-      padding: 0 1.25rem;
-    }
-
-    @media (min-width: 600px) {
-      margin-bottom: 1.5rem;
-      padding: 0;
-    }
-  }
-
+  &__back-link,
   &__back-to-blog {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.375rem;
+    min-height: 2.75rem;
     font-size: 0.875rem;
-    text-decoration: none;
-    margin-bottom: 1rem;
+    font-weight: 700;
+    color: var(--gk-indigo);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.25em;
 
-    svg {
-      color: var(--gutenku-zen-secondary);
-      transition: transform 0.2s ease;
-    }
-
-    &:hover svg {
-      transform: translateX(-4px) translateY(-2px);
+    &:focus-visible {
+      outline: 2px solid var(--gk-indigo);
+      outline-offset: 2px;
     }
   }
 
-  &__date {
-    font-size: 0.75rem;
-    color: var(--gutenku-text-muted);
-    text-transform: capitalize;
-    letter-spacing: 0.02em;
-    margin: 0 0 0.375rem;
-
-    @media (min-width: 375px) {
-      font-size: 0.8rem;
-      margin: 0 0 0.5rem;
-    }
+  // Header aligns with the reading column
+  &__header {
+    max-width: calc(62ch + 5rem);
+    margin: 0 auto;
+    padding: 0 0.5rem;
 
     @media (min-width: 600px) {
-      font-size: 0.875rem;
+      padding: 0 2.5rem;
     }
   }
 
   &__title {
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: var(--gutenku-zen-primary);
-    margin: 0 0 0.5rem;
+    max-width: 20ch;
+    margin: 0.75rem 0 1.25rem;
+    font-size: clamp(2rem, 5.5vw, 3rem);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
     overflow-wrap: break-word;
-    word-break: break-word;
-    max-width: 100%;
-
-    @media (min-width: 375px) {
-      font-size: 1.5rem;
-      margin: 0 0 0.625rem;
-    }
-
-    @media (min-width: 600px) {
-      font-size: 1.75rem;
-    }
   }
 
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+  }
+
+  &__meta-text {
+    display: grid;
+    gap: 0.125rem;
+  }
+
+  &__date,
   &__author {
-    font-size: 0.8rem;
-    color: var(--gutenku-text-muted);
-    margin: 0 0 0.25rem;
-    font-style: italic;
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--gk-ink-soft);
+  }
 
-    @media (min-width: 375px) {
-      font-size: 0.85rem;
-    }
-
-    @media (min-width: 600px) {
-      font-size: 0.9rem;
-    }
+  &__date {
+    text-transform: capitalize;
   }
 
   &__reading-time {
-    font-size: 0.7rem;
-    color: var(--gutenku-text-muted);
-    margin: 0;
-    opacity: 0.8;
-
-    @media (min-width: 375px) {
-      font-size: 0.75rem;
-    }
-
-    @media (min-width: 600px) {
-      font-size: 0.8rem;
-    }
+    text-transform: none;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
   }
 
+  &__author a {
+    color: var(--gk-indigo);
+    text-underline-offset: 0.2em;
+  }
+
+  // One brush stroke under the header: without a label the primitive's
+  // second stroke would leave an empty gap in the middle
   &__divider {
-    height: 2px;
-    margin: 1rem auto 1.5rem;
-    max-width: 150px;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      var(--gutenku-zen-ink, oklch(0.35 0.02 260 / 0.3)) 20%,
-      var(--gutenku-zen-ink, oklch(0.35 0.02 260 / 0.5)) 50%,
-      var(--gutenku-zen-ink, oklch(0.35 0.02 260 / 0.3)) 80%,
-      transparent 100%
-    );
-    border-radius: 1px;
-    animation: divider-draw 1.2s ease-out forwards;
-    transform-origin: center;
-
-    @media (min-width: 375px) {
-      margin: 1.25rem auto 1.75rem;
-      max-width: 175px;
-    }
+    max-width: calc(62ch + 5rem);
+    margin: 1.25rem auto 0;
+    padding: 0.5rem 0.5rem 0;
 
     @media (min-width: 600px) {
-      margin: 1.5rem auto 2rem;
-      max-width: 200px;
+      padding: 0.5rem 2.5rem 0;
+    }
+
+    :deep(.brush-rule__stroke--end) {
+      display: none;
     }
   }
 
-  &__loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 50vh;
-  }
-
-  &__spinner {
-    animation: spin 1s linear infinite;
-    color: var(--gutenku-zen-primary);
-  }
-
+  // The sheet sizes to its composition: the 62ch measure plus padding
   &__content {
-    padding: 1rem;
-    margin-bottom: 2rem;
+    --sheet-pad: 1.125rem;
 
-    @media (min-width: 375px) {
-      padding: 1.25rem;
-      margin-bottom: 2.5rem;
-    }
+    box-sizing: border-box;
+    max-width: calc(62ch + 2 * var(--sheet-pad));
+    margin: 0 auto;
+    padding: 1.5rem var(--sheet-pad) 1.75rem;
+    font-size: 1rem;
+    background: var(--gk-paper-raised);
+    border-radius: var(--gk-radius-paper);
+    box-shadow: var(--gk-lift);
+    counter-reset: figure;
 
     @media (min-width: 600px) {
-      padding: 2rem;
-      margin-bottom: 3rem;
+      --sheet-pad: 2.5rem;
+
+      padding-block: 2.5rem 2rem;
+    }
+
+    > * {
+      margin-inline: auto;
     }
   }
 
   &__nav {
     display: flex;
+    flex-direction: column;
     align-items: stretch;
     justify-content: space-between;
-    gap: 1rem;
+    gap: 0.5rem;
+    max-width: 62ch;
     margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--gutenku-paper-border);
+    margin-inline: auto;
+    padding-top: 1.25rem;
+    border-top: var(--gk-rule);
+
+    @media (min-width: 600px) {
+      flex-direction: row;
+      gap: 2rem;
+    }
   }
 
   &__nav-spacer {
+    display: none;
     flex: 1;
+
+    @media (min-width: 600px) {
+      display: block;
+    }
   }
 
   &__nav-link {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.75rem;
-    border-radius: var(--gutenku-radius-md);
-    text-decoration: none;
-    color: var(--gutenku-text-primary);
-    transition: all 0.2s ease;
     flex: 1;
-    max-width: 45%;
-
-    svg {
-      color: var(--gutenku-zen-secondary);
-      transition: transform 0.2s ease;
-    }
-
-    &:hover {
-      background: var(--gutenku-paper-bg-aged);
-    }
+    min-width: 0;
+    min-height: 2.75rem;
+    padding: 0.5rem 0;
+    color: var(--gk-indigo);
+    text-decoration: none;
 
     &--prev {
       justify-content: flex-start;
-
-      &:hover svg {
-        transform: translateX(-4px) translateY(-2px);
-      }
     }
 
     &--next {
       justify-content: flex-end;
       text-align: right;
 
-      &:hover svg {
-        transform: translateX(4px) translateY(-2px);
+      .blog-article__nav-content {
+        align-items: flex-end;
       }
+    }
+
+    svg {
+      flex-shrink: 0;
+      transition: transform var(--gk-dur-fast) var(--gk-ease-out);
+    }
+
+    @media (hover: hover) {
+      &--prev:hover svg {
+        transform: translateX(-3px);
+      }
+
+      &--next:hover svg {
+        transform: translateX(3px);
+      }
+
+      &:hover .blog-article__nav-title {
+        text-decoration-thickness: 1.5px;
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--gk-indigo);
+      outline-offset: 2px;
     }
   }
 
@@ -581,899 +681,523 @@ useHead({
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    overflow: hidden;
+    min-width: 0;
   }
 
   &__nav-label {
-    font-size: 0.75rem;
-    color: var(--gutenku-text-muted);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    color: var(--gk-ink-soft);
   }
 
   &__nav-title {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--gutenku-zen-primary);
-    white-space: nowrap;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    line-height: 1.4;
+    text-wrap: balance;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     overflow: hidden;
-    text-overflow: ellipsis;
-
-    @media (min-width: 600px) {
-      font-size: 1rem;
-    }
   }
 
   &__keyboard-hint {
-    text-align: center;
-    font-size: 0.75rem;
-    color: var(--gutenku-text-muted);
-    margin-top: 1rem;
-    margin-bottom: 0;
-    opacity: 0.6;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    // 62ch of the 1rem column, not of this smaller type
+    max-width: calc(62ch * 16 / 14);
+    margin: 1rem auto 0;
+    font-size: 0.875rem;
+    color: var(--gk-ink-soft);
 
-    // Only show on devices with hover (desktop)
     @media (hover: none) {
       display: none;
     }
   }
 
+  // Typewriter key caps for the arrow keys
+  &__key {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.625rem;
+    height: 1.625rem;
+    padding: 0 0.25rem;
+    font-family: inherit;
+    color: var(--gk-ink);
+    background: var(--gk-paper);
+    border-radius: var(--gk-radius-control);
+    box-shadow:
+      inset 0 0 0 1px var(--gk-ink-faint),
+      0 1px 0 var(--gk-ink-faint);
+  }
+
+  // Reading column: 62 characters, typewritten, ink drop cap
   &__body {
-    line-height: 1.7;
-    color: var(--gutenku-text-primary);
-    font-size: 0.9rem;
+    max-width: 62ch;
+    margin-inline: auto;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--gk-ink);
+    overflow-wrap: break-word;
 
-    @media (min-width: 375px) {
-      font-size: 0.95rem;
-      line-height: 1.75;
-    }
-
-    @media (min-width: 600px) {
-      font-size: 1rem;
-      line-height: 1.8;
-    }
-
-    :deep(p:first-of-type::first-letter) {
-      float: left;
-      font-size: 2.75rem;
-      line-height: 0.8;
-      font-weight: 700;
-      color: var(--gutenku-zen-primary);
-      margin-right: 0.375rem;
-      margin-top: 0.1rem;
-
-      @media (min-width: 375px) {
-        font-size: 3rem;
-        margin-right: 0.4rem;
-      }
-
-      @media (min-width: 600px) {
-        font-size: 3.5rem;
-        margin-right: 0.5rem;
-      }
+    // The opening capital is the site's (gk-drop-cap), set larger here
+    :deep(p.article-lead) {
+      --drop-cap-size: 4.25em;
     }
 
     :deep(h1) {
-      font-size: 1.4rem;
-      font-weight: 700;
-      margin-bottom: 0.75rem;
-      color: var(--gutenku-text-primary);
-
-      @media (min-width: 375px) {
-        font-size: 1.5rem;
-        margin-bottom: 0.875rem;
-      }
-
-      @media (min-width: 600px) {
-        font-size: 1.75rem;
-        margin-bottom: 1rem;
-      }
+      margin: 0 0 1rem;
+      font-size: 1.75rem;
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
     }
 
     :deep(h2) {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-top: 1.5rem;
-      margin-bottom: 0.5rem;
-      color: var(--gutenku-text-primary);
-
-      @media (min-width: 375px) {
-        font-size: 1.15rem;
-        margin-top: 1.75rem;
-        margin-bottom: 0.625rem;
-      }
-
-      @media (min-width: 600px) {
-        font-size: 1.25rem;
-        margin-top: 2rem;
-        margin-bottom: 0.75rem;
-      }
+      margin: 2.5rem 0 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 400;
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+      text-wrap: balance;
     }
 
     :deep(h3) {
+      margin: 1.75rem 0 0.5rem;
       font-size: 1rem;
-      font-weight: 600;
-      margin-top: 1.25rem;
-      margin-bottom: 0.375rem;
-      color: var(--gutenku-text-primary);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
 
-      @media (min-width: 375px) {
-        font-size: 1.05rem;
-        margin-top: 1.375rem;
-        margin-bottom: 0.4rem;
-      }
-
-      @media (min-width: 600px) {
-        font-size: 1.1rem;
-        margin-top: 1.5rem;
-        margin-bottom: 0.5rem;
-      }
+    :deep(p),
+    :deep(li) {
+      line-height: 1.8;
     }
 
     :deep(p) {
-      margin-bottom: 0.875rem;
-
-      @media (min-width: 600px) {
-        margin-bottom: 1rem;
-      }
+      margin: 0 0 1.25rem;
     }
 
-    :deep(em) {
-      font-style: italic;
-      color: var(--gutenku-text-muted);
+    // No sticky header to clear: sections land just under the top edge
+    :deep(:is(h2, h3)) {
+      scroll-margin-top: 2rem;
+    }
+
+    // Focused by the contents list for screen readers, not a control
+    :deep(:is(h2, h3)[tabindex='-1']:focus) {
+      outline: none;
     }
 
     :deep(strong) {
-      font-weight: 600;
-      color: var(--gutenku-zen-primary);
+      font-weight: 700;
     }
 
-    :deep(blockquote) {
-      border-left: 2px solid var(--gutenku-zen-primary);
-      padding-left: 0.75rem;
-      margin: 1rem 0;
-      font-style: italic;
-      color: var(--gutenku-text-muted);
+    // Links: indigo with a typed underline. Overrides the global
+    // .link-highlight stabilo (gradient) that main.scss extends onto them.
+    :deep(a) {
+      font-weight: inherit;
+      color: var(--gk-indigo);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.22em;
+      border-radius: 0;
+      transition: text-decoration-thickness var(--gk-dur-fast)
+        var(--gk-ease-out);
 
-      @media (min-width: 375px) {
-        border-left-width: 3px;
-        padding-left: 0.875rem;
-        margin: 1.25rem 0;
+      &::after {
+        content: none;
       }
 
-      @media (min-width: 600px) {
-        padding-left: 1rem;
-        margin: 1.5rem 0;
-      }
-    }
-
-    :deep(code) {
-      background: var(--gutenku-paper-bg-aged);
-      padding: 0.15rem 0.3rem;
-      border-radius: var(--gutenku-radius-xs);
-      font-size: 0.85em;
-      font-family: monospace;
-      word-break: break-word;
-
-      @media (min-width: 375px) {
-        padding: 0.2rem 0.35rem;
-        font-size: 0.875em;
-      }
-
-      @media (min-width: 600px) {
-        padding: 0.2rem 0.4rem;
-        font-size: 0.9em;
-      }
-    }
-
-    :deep(pre) {
-      background: var(--gutenku-paper-bg-aged);
-      padding: 0.75rem;
-      border-radius: var(--gutenku-radius-sm);
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      margin: 0.875rem 0;
-      font-size: 0.8rem;
-      max-width: 100%;
-      box-sizing: border-box;
-
-      @media (max-width: 599px) {
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-      }
-
-      @media (min-width: 375px) {
-        padding: 0.875rem;
-        margin: 1rem 0;
-        font-size: 0.85rem;
-      }
-
-      @media (min-width: 600px) {
-        padding: 1rem;
-        font-size: 0.9rem;
-        white-space: pre;
-      }
-
-      code {
-        background: none;
-        padding: 0;
-        word-break: normal;
-
-        @media (max-width: 599px) {
-          word-break: break-word;
+      @media (hover: hover) {
+        &:hover {
+          text-decoration-thickness: 2px;
         }
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--gk-indigo);
+        outline-offset: 2px;
+        border-radius: var(--gk-radius-control);
+      }
+    }
+
+    :deep(strong a),
+    :deep(a strong) {
+      font-weight: 700;
+    }
+
+    // Brush-rule section break
+    :deep(hr) {
+      height: 8px;
+      margin: 2.5rem auto;
+      max-width: 14rem;
+      border: 0;
+      background: var(--gk-ink);
+      opacity: 0.5;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8' preserveAspectRatio='none'%3E%3Cpath d='M0 4.6 C 40 3.2, 120 2.6, 200 3.6 L 200 4.4 C 120 5.6, 40 5.4, 0 4.9 Z'/%3E%3C/svg%3E")
+        center / 100% 100% no-repeat;
+    }
+
+    // Asides read like a play's stage directions (didascalies): set in from
+    // the text on the left, in a quieter italic voice, with no rule or box
+    :deep(blockquote) {
+      margin: 1.75rem 0 1.75rem 2.5rem;
+      padding: 0;
+      font-size: 0.9375rem;
+      font-style: italic;
+      line-height: 1.65;
+      letter-spacing: 0.01em;
+      color: var(--gk-ink-soft);
+
+      @media (max-width: 600px) {
+        margin-left: 1.5rem;
+      }
+
+      p {
+        margin: 0;
+        line-height: inherit;
+      }
+
+      p + p {
+        margin-top: 0.5rem;
+      }
+
+      em {
+        font-style: italic;
       }
     }
 
     :deep(ul),
     :deep(ol) {
-      margin: 0.875rem 0;
-      padding-left: 1.25rem;
-
-      @media (min-width: 375px) {
-        padding-left: 1.375rem;
-      }
-
-      @media (min-width: 600px) {
-        margin: 1rem 0;
-        padding-left: 1.5rem;
-      }
+      margin: 0 0 1.25rem;
+      padding-left: 1.5rem;
     }
 
     :deep(li) {
       margin-bottom: 0.375rem;
+      padding-left: 0.25rem;
+    }
 
-      @media (min-width: 600px) {
-        margin-bottom: 0.5rem;
+    :deep(li::marker) {
+      color: var(--gk-ink-soft);
+    }
+
+    :deep(ol > li::marker) {
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    :deep(code) {
+      padding: 0.1rem 0.3rem;
+      font-family: var(--gk-font);
+      font-size: 0.9em;
+      background: var(--gk-paper-deep);
+      border-radius: var(--gk-radius-control);
+    }
+
+    :deep(pre) {
+      max-width: 100%;
+      margin: 1.25rem 0;
+      padding: 1rem;
+      overflow-x: auto;
+      font-size: 0.875rem;
+      background: var(--gk-paper-deep);
+      border-radius: var(--gk-radius-control);
+      box-shadow: inset 0 0 0 1px var(--gk-ink-faint);
+
+      code {
+        padding: 0;
+        background: none;
       }
     }
 
-    :deep(hr) {
-      border: none;
-      height: 2px;
-      margin: 1.5rem auto;
-      max-width: 150px;
-      background: linear-gradient(
-        90deg,
-        transparent 0%,
-        var(--gutenku-zen-ink, oklch(0.35 0.02 260 / 0.3)) 20%,
-        var(--gutenku-zen-ink, oklch(0.35 0.02 260 / 0.5)) 50%,
-        var(--gutenku-zen-ink, oklch(0.35 0.02 260 / 0.3)) 80%,
-        transparent 100%
-      );
-      border-radius: 1px;
-
-      @media (min-width: 375px) {
-        margin: 1.75rem auto;
-        max-width: 175px;
-      }
-
-      @media (min-width: 600px) {
-        margin: 2rem auto;
-        max-width: 200px;
-      }
+    // Figures: plates mounted on the page, captions typewritten small
+    :deep(figure) {
+      counter-increment: figure;
+      margin: 2rem 0;
     }
 
+    // A plate is set in the middle of the measure, never the full width:
+    // 80% of it and 240px tall on phones, 75% and 280px from 600px
     :deep(img) {
       display: block;
       max-width: 80%;
       max-height: 240px;
+      height: auto;
+      margin: 0 auto;
+      // A plate forced into another box (an article's own inline size) is
+      // cropped to it, never squashed
       object-fit: cover;
       object-position: center;
-      margin: 1rem auto;
-      border-radius: var(--gutenku-radius-md);
-      box-shadow: 0 4px 16px oklch(0 0 0 / 0.08);
+      border-radius: var(--gk-radius-control);
+      box-shadow: 0 0 0 1.5px var(--gk-ink);
 
       @media (min-width: 600px) {
         max-width: 75%;
         max-height: 280px;
-        margin: 1.5rem auto;
-        border-radius: var(--gutenku-radius-lg);
       }
     }
 
-    :deep(img.article-img) {
+    // Known proportions (see sizeImages): the same plate, its width worked
+    // out before it loads, so its space is held and it is never cropped
+    :deep(img[style*='--img-ratio']) {
+      width: min(80%, calc(240px * var(--img-ratio)));
+
+      @media (min-width: 600px) {
+        width: min(75%, calc(280px * var(--img-ratio)));
+      }
+    }
+
+    // Charts keep the full measure: their figures must stay legible
+    :deep(img.article-img),
+    :deep(img.article-img--tall) {
+      width: 100%;
       max-width: 100%;
       max-height: none;
-      min-height: 400px;
+      min-height: 0;
       object-fit: contain;
-      border-radius: var(--gutenku-radius-lg);
-
-      @media (max-width: 768px) {
-        min-height: auto;
-      }
     }
 
-    :deep(img.article-img--tall) {
-      min-height: 500px;
+    :deep(figcaption) {
+      max-width: 34rem;
+      margin-inline: auto;
+      text-align: center;
+      text-wrap: balance;
+      margin-top: 0.625rem;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      letter-spacing: 0.04em;
+      color: var(--gk-ink-soft);
 
-      @media (max-width: 768px) {
-        min-height: auto;
+      &::before {
+        content: counter(figure, lower-roman) '. ';
+        font-weight: 700;
+        color: var(--gk-ink);
       }
     }
 
     :deep(.katex-display) {
-      display: block;
-      text-align: center;
       margin: 1rem 0;
-      overflow-x: auto;
-      overflow-y: hidden;
-
-      .katex {
-        font-size: 1.1em;
-      }
+      overflow: auto hidden;
     }
 
+    // A diagram is a plate tipped into the page: set on the deeper paper,
+    // so its lighter nodes stand clear of the sheet; the inks come from the
+    // theme (see article-rendering.ts)
     :deep(.mermaid-diagram) {
       display: block;
-      margin: 1.5rem auto;
-      text-align: center;
+      max-width: 36rem;
+      margin: 2.25rem auto;
+      padding: 1.75rem 1.25rem;
       overflow-x: auto;
+      background: var(--gk-paper-deep);
+      border-radius: var(--gk-radius-control);
+      box-shadow: inset 0 0 0 1px var(--gk-ink-faint);
+      text-align: center;
       contain: layout style;
-      max-width: 380px;
-      padding: 1.5rem 1rem;
-      background: linear-gradient(
-        135deg,
-        oklch(0.97 0.01 90 / 0.8) 0%,
-        oklch(0.95 0.015 80 / 0.6) 100%
-      );
-      border-radius: var(--gutenku-radius-lg);
-      box-shadow: 0 2px 12px oklch(0 0 0 / 0.06);
-      border: 1px solid oklch(0.85 0.02 90 / 0.5);
-
-      @media (min-width: 600px) {
-        max-width: 450px;
-        padding: 2rem 1.5rem;
-      }
 
       svg {
+        display: block;
         max-width: 100%;
         height: auto;
-        display: block;
         margin: 0 auto;
-      }
-
-      foreignObject {
-        div,
-        span,
-        p {
-          float: none !important;
-          font-size: 13px !important;
-          line-height: 1.4 !important;
-        }
-
-        p::first-letter,
-        div::first-letter,
-        span::first-letter {
-          float: none !important;
-          font-size: inherit !important;
-          font-weight: normal !important;
-          margin: 0 !important;
-          color: inherit !important;
-        }
-      }
-
-      @media (min-width: 600px) {
-        margin: 2rem auto;
       }
     }
 
     :deep(.promo-band) {
-      background: linear-gradient(
-        145deg,
-        oklch(0.96 0.015 90 / 0.6) 0%,
-        oklch(0.93 0.02 100 / 0.4) 50%,
-        oklch(0.96 0.015 90 / 0.6) 100%
-      );
+      margin: 1.5rem 0;
       padding: 1.5rem;
-      margin: 0.5rem 0;
       text-align: center;
-      border-radius: var(--gutenku-radius-lg);
-
-      @media (min-width: 600px) {
-        padding: 2rem;
-        margin: 1rem 0;
-      }
+      background: var(--gk-paper-deep);
+      border-radius: var(--gk-radius-control);
+      box-shadow: inset 0 0 0 1.5px var(--gk-ink);
 
       p:first-child {
-        font-size: 1.15rem;
-        font-weight: 700;
-        color: var(--gutenku-zen-primary);
         margin-bottom: 1rem;
+        font-size: 1.25rem;
+        font-weight: 700;
 
         &::first-letter {
           float: none !important;
           font-size: inherit !important;
           font-weight: inherit !important;
-          margin: 0 !important;
+          padding: 0 !important;
         }
-        letter-spacing: 0.01em;
-
-        @media (min-width: 600px) {
-          font-size: 1.3rem;
-        }
-      }
-
-      p:not(:first-child) {
-        font-size: 0.95rem;
-        color: var(--gutenku-text-primary);
-        line-height: 1.7;
-        max-width: 600px;
-        margin-left: auto;
-        margin-right: auto;
       }
 
       img {
-        max-width: 100% !important;
-        max-height: none !important;
-        margin: 1.5rem auto 0 !important;
-        border-radius: var(--gutenku-radius-lg);
-        box-shadow:
-          0 4px 6px oklch(0 0 0 / 0.05),
-          0 10px 30px oklch(0 0 0 / 0.1);
+        margin-top: 1.5rem;
       }
     }
 
+    // Ledger-style tables: dashed rules, ink rule top and bottom
     :deep(table) {
-      width: auto;
-      max-width: 100%;
+      width: 100%;
+      margin: 1.5rem 0;
       border-collapse: collapse;
-      margin: 1.5rem auto;
-      font-size: 0.9rem;
-      background: linear-gradient(
-        135deg,
-        oklch(0.97 0.01 90 / 0.6) 0%,
-        oklch(0.95 0.015 80 / 0.4) 100%
-      );
-      border-radius: var(--gutenku-radius-md);
-      box-shadow: 0 2px 8px oklch(0 0 0 / 0.06);
+      border-block: var(--gk-rule);
+      font-size: 0.875rem;
+      font-variant-numeric: tabular-nums;
 
-      @media (min-width: 600px) {
-        margin: 2rem auto;
-        font-size: 1rem;
+      td,
+      th {
+        padding: 0.625rem 0.75rem 0.625rem 0;
+        text-align: left;
+        vertical-align: top;
+        border-bottom: 1px dashed var(--gk-ink-faint);
+
+        &:first-child {
+          font-weight: 700;
+        }
+      }
+
+      // Column heads as typewritten labels
+      th {
+        padding-block: 0.5rem;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--gk-ink-soft);
+        border-bottom: 1px solid var(--gk-ink-faint);
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      code {
+        padding: 0;
+        background: none;
+        font-weight: 700;
+        white-space: nowrap;
       }
 
       @media (max-width: 599px) {
-        display: block;
-        width: 100%;
-        background: none;
-        box-shadow: none;
-
+        // Stacked rows on phones; the header row stays for screen readers
         thead {
-          display: none;
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          overflow: hidden;
+          clip-path: inset(50%);
         }
 
-        tbody {
+        tr,
+        td {
           display: block;
         }
 
         tr {
-          display: block;
-          margin-bottom: 0.375rem;
-          padding: 0.5rem 0.625rem;
-          border-radius: var(--gutenku-radius-sm);
-          background: linear-gradient(
-            135deg,
-            oklch(0.97 0.01 90 / 0.6) 0%,
-            oklch(0.95 0.015 80 / 0.4) 100%
-          );
-          box-shadow: 0 2px 8px oklch(0 0 0 / 0.06);
+          padding: 0.5rem 0;
+          border-bottom: 1px dashed var(--gk-ink-faint);
         }
 
         td {
-          display: block;
           padding: 0.125rem 0;
-          border: none !important;
-
-          &:first-child {
-            font-weight: 600;
-            color: var(--gutenku-zen-primary);
-            border-bottom: 1px solid oklch(0.7 0.02 90 / 0.3);
-            padding-bottom: 0.25rem;
-            margin-bottom: 0.25rem;
-            white-space: normal;
-          }
-
-          &:last-child {
-            font-style: italic;
-          }
+          border: 0;
         }
-      }
-
-      @media (min-width: 600px) {
-        th,
-        td {
-          border: none;
-          border-bottom: 1px solid oklch(0.7 0.02 90 / 0.3);
-          padding: 1rem 1.5rem;
-          text-align: left;
-          vertical-align: middle;
-
-          &:first-child {
-            font-weight: 500;
-            color: var(--gutenku-zen-primary);
-            white-space: nowrap;
-          }
-
-          &:last-child {
-            font-style: italic;
-          }
-        }
-
-        tr:last-child td {
-          border-bottom: none;
-        }
-
-        thead {
-          display: none;
-        }
-      }
-
-      code {
-        background: var(--gutenku-zen-primary);
-        color: white;
-        padding: 0.25rem 0.6rem;
-        border-radius: 2rem;
-        font-size: 0.9em;
-        font-family: inherit;
-        font-weight: 500;
-        white-space: nowrap;
-      }
-    }
-  }
-
-  &__cat-wrapper {
-    position: relative;
-    width: 100%;
-    height: 50px;
-    margin-bottom: -25px;
-    z-index: 10;
-    overflow: visible;
-
-    :deep(.sumi-cat-container) {
-      top: -14px;
-    }
-
-    @media (max-width: 767px) {
-      height: 40px;
-      margin-bottom: -20px;
-
-      :deep(.sumi-cat-container) {
-        top: -14px;
       }
     }
   }
 
   &__back-to-top {
     position: fixed;
-    bottom: 1rem;
-    right: 1rem;
+    bottom: 1.25rem;
+    right: 1.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2.75rem;
+    height: 2.75rem;
     padding: 0;
     border: none;
-    border-radius: var(--gutenku-radius-full);
-    background: var(--gutenku-zen-primary);
-    color: white;
+    border-radius: var(--gk-radius-control);
+    background: var(--gk-indigo);
+    color: var(--gk-on-indigo);
     cursor: pointer;
-    box-shadow: 0 4px 12px oklch(0 0 0 / 0.2);
-    transition: all 0.2s ease;
+    box-shadow: 0 2px 0 var(--gk-indigo-edge);
+    transition: transform var(--gk-dur-press) var(--gk-ease-out);
     z-index: 100;
 
-    @media (min-width: 375px) {
-      bottom: 1.25rem;
-      right: 1.25rem;
-      width: 2.75rem;
-      height: 2.75rem;
+    @media (max-width: 600px) {
+      bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+      right: 1rem;
     }
 
     @media (min-width: 600px) {
       bottom: 2rem;
       right: 2rem;
-      width: 3rem;
-      height: 3rem;
     }
 
-    &:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px oklch(0 0 0 / 0.25);
+    &:active {
+      transform: translateY(1px) scale(0.98);
     }
 
     &:focus-visible {
-      outline: 2px solid var(--gutenku-focus-ring);
-      outline-offset: 2px;
+      outline: 2px solid var(--gk-indigo);
+      outline-offset: 3px;
     }
   }
 }
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+// A plate set straight in the text gets room on both sides
+.prose > :deep(img),
+.prose > :deep(p > img) {
+  margin-block: 2rem;
 }
 
-@keyframes divider-draw {
-  0% {
-    transform: scaleX(0);
-    opacity: 0;
-  }
-  100% {
-    transform: scaleX(1);
-    opacity: 1;
-  }
+.blog-article__body :deep(img) {
+  filter: var(--gk-plate-filter);
 }
 
 .fade-up-enter-active {
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    opacity var(--gk-dur-base) var(--gk-ease-out),
+    transform var(--gk-dur-base) var(--gk-ease-out);
 }
 
 .fade-up-enter-from {
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(8px);
 }
 
 .fade-scale-enter-active,
 .fade-scale-leave-active {
-  transition: all 0.2s ease;
+  transition: opacity var(--gk-dur-fast) var(--gk-ease-out);
 }
 
 .fade-scale-enter-from,
 .fade-scale-leave-to {
   opacity: 0;
-  transform: scale(0.8);
-}
-
-[data-theme='dark'] .blog-article {
-  &__header {
-    position: relative;
-    padding: 1rem 1.25rem;
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
-    background: oklch(0.12 0.02 60 / 0.5);
-    backdrop-filter: blur(12px);
-    border-radius: 1rem;
-    border: 1px solid var(--gutenku-paper-border);
-    box-shadow: var(--gutenku-shadow-glass);
-
-    @media (min-width: 375px) {
-      padding: 1.25rem 1.5rem;
-    }
-
-    @media (min-width: 600px) {
-      margin-left: 0;
-      margin-right: 0;
-      padding: 1.5rem 2rem;
-    }
-  }
-
-  &__date {
-    color: var(--gutenku-text-muted);
-  }
-
-  &__title {
-    color: var(--gutenku-text-primary);
-    text-shadow: 0 2px 8px oklch(0 0 0 / 0.3);
-  }
-
-  &__author {
-    color: var(--gutenku-text-accent);
-  }
-
-  &__reading-time {
-    color: var(--gutenku-text-secondary);
-    opacity: 1;
-  }
-
-  &__divider {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      var(--gutenku-zen-secondary) 20%,
-      var(--gutenku-zen-accent) 50%,
-      var(--gutenku-zen-secondary) 80%,
-      transparent 100%
-    );
-    opacity: 0.6;
-  }
-
-  &__body :deep(hr) {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      oklch(0.6 0.03 195 / 0.25) 20%,
-      oklch(0.6 0.03 195 / 0.4) 50%,
-      oklch(0.6 0.03 195 / 0.25) 80%,
-      transparent 100%
-    );
-  }
-
-  &__back-to-top {
-    background: var(--gutenku-zen-accent);
-    color: oklch(0.12 0.02 195);
-  }
-
-  &__body :deep(img) {
-    filter: brightness(0.85);
-    box-shadow: 0 4px 20px oklch(0 0 0 / 0.3);
-  }
-
-  &__body :deep(code) {
-    background: oklch(0.25 0.02 50 / 0.6);
-    color: oklch(0.9 0.03 70);
-  }
-
-  &__body :deep(pre) {
-    background: oklch(0.18 0.02 50 / 0.7);
-    border: 1px solid oklch(0.3 0.03 50 / 0.4);
-
-    code {
-      color: oklch(0.88 0.02 70);
-    }
-  }
-
-  &__body :deep(blockquote) {
-    border-left-color: oklch(0.6 0.08 50);
-    background: oklch(0.18 0.02 50 / 0.3);
-    padding: 0.75rem 1rem;
-    border-radius: 0 var(--gutenku-radius-sm) var(--gutenku-radius-sm) 0;
-    color: oklch(0.8 0.02 60);
-  }
-
-  &__body :deep(a) {
-    color: oklch(0.75 0.12 195);
-
-    &:hover {
-      color: oklch(0.82 0.14 195);
-    }
-  }
-
-  &__body :deep(.mermaid-diagram) {
-    background: linear-gradient(
-      135deg,
-      oklch(0.18 0.02 195 / 0.7) 0%,
-      oklch(0.15 0.025 200 / 0.6) 100%
-    );
-    border: 1px solid oklch(0.4 0.05 195 / 0.4);
-    box-shadow: 0 4px 16px oklch(0 0 0 / 0.25);
-
-    svg {
-      filter: brightness(1.05);
-    }
-  }
-
-  &__body :deep(.promo-band) {
-    background: linear-gradient(
-      145deg,
-      oklch(0.25 0.02 195 / 0.8) 0%,
-      oklch(0.22 0.025 200 / 0.7) 50%,
-      oklch(0.25 0.02 195 / 0.8) 100%
-    );
-    border: 1px solid oklch(0.5 0.08 195 / 0.3);
-
-    p:first-child {
-      color: var(--gutenku-zen-accent);
-    }
-
-    p:not(:first-child) {
-      color: oklch(0.8 0.02 195);
-    }
-
-    img {
-      box-shadow:
-        0 4px 6px oklch(0 0 0 / 0.2),
-        0 10px 30px oklch(0 0 0 / 0.3);
-    }
-  }
-
-  &__nav-title {
-    color: var(--gutenku-zen-accent);
-  }
-
-  &__body :deep(table) {
-    background: linear-gradient(
-      135deg,
-      oklch(0.22 0.025 55 / 0.8) 0%,
-      oklch(0.18 0.03 45 / 0.7) 100%
-    );
-    border: 1px solid oklch(0.35 0.04 50 / 0.4);
-    box-shadow: 0 2px 12px oklch(0 0 0 / 0.25);
-
-    @media (max-width: 599px) {
-      background: none;
-      border: none;
-      box-shadow: none;
-
-      tr {
-        background: linear-gradient(
-          135deg,
-          oklch(0.22 0.025 55 / 0.8) 0%,
-          oklch(0.18 0.03 45 / 0.7) 100%
-        );
-        border: 1px solid oklch(0.35 0.04 50 / 0.4);
-        box-shadow: 0 2px 12px oklch(0 0 0 / 0.25);
-      }
-
-      td {
-        color: oklch(0.88 0.02 70);
-
-        &:first-child {
-          color: oklch(0.75 0.12 195);
-          border-bottom-color: oklch(0.4 0.04 50 / 0.5);
-        }
-
-        &:last-child {
-          color: oklch(0.78 0.02 60);
-        }
-      }
-    }
-
-    @media (min-width: 600px) {
-      th,
-      td {
-        border-bottom-color: oklch(0.4 0.04 50 / 0.5);
-        color: oklch(0.88 0.02 70);
-
-        &:first-child {
-          color: oklch(0.75 0.12 195);
-        }
-
-        &:last-child {
-          color: oklch(0.78 0.02 60);
-        }
-      }
-    }
-
-    code {
-      background: var(--gutenku-zen-accent);
-      color: oklch(0.12 0.02 195);
-    }
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .blog-article {
-    &__progress {
-      transition: none;
-    }
-
-    &__divider {
-      animation: none;
-      opacity: 1;
-      transform: scaleX(1);
-    }
-
-    &__back-to-top {
-      transition: none;
-
-      &:hover {
-        transform: none;
-      }
-    }
-  }
-
-  .fade-up-enter-active {
-    transition: opacity 0.3s ease;
+  .blog-article__body :deep(a),
+  .blog-article__nav-link svg,
+  .blog-article__back-to-top {
+    transition: none;
   }
 
   .fade-up-enter-from {
     transform: none;
   }
+}
 
-  .fade-scale-enter-active,
-  .fade-scale-leave-active {
-    transition: opacity 0.15s ease;
-  }
+// Every page starts the same distance below the header's rule
+.blog-article {
+  padding-top: var(--gk-page-top);
+}
 
-  .fade-scale-enter-from,
-  .fade-scale-leave-to {
-    transform: none;
-  }
+// The back link keeps its 44px target; its words align with the rhythm
+.blog-article__back-to-blog {
+  margin-top: -0.75rem;
 }
 </style>

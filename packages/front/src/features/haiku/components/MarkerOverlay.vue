@@ -5,6 +5,11 @@ import {
   generateMarkerStroke,
   type MarkerStroke,
 } from '@/features/haiku/composables/marker-svg';
+import {
+  MARKER_STROKE_MS,
+  markerSequenceMs,
+  markerStagger,
+} from '@/features/haiku/composables/marker-timing';
 
 const props = withDefaults(
   defineProps<{
@@ -203,12 +208,6 @@ const strokes = computed<MarkerStroke[]>(() =>
 const hasDrawn = ref(false);
 const isRevealing = ref(false);
 
-// Stagger timing
-const DRAW_STAGGER = 55;
-const DRAW_DURATION = 280;
-const REVEAL_STAGGER = 35;
-const REVEAL_DURATION = 250;
-
 // Shared noise filters (performance)
 const NOISE_FILTER_COUNT = 4;
 const noiseSeeds = computed(() => {
@@ -249,11 +248,12 @@ watch(
   (newHidden, oldHidden) => {
     if (oldHidden && !newHidden) {
       isRevealing.value = true;
-      const totalRevealTime =
-        REVEAL_DURATION + totalLines.value * REVEAL_STAGGER;
-      setTimeout(() => {
-        isRevealing.value = false;
-      }, totalRevealTime + 100);
+      setTimeout(
+        () => {
+          isRevealing.value = false;
+        },
+        markerSequenceMs(totalLines.value) + 50,
+      );
     }
 
     if (!oldHidden && newHidden) {
@@ -274,10 +274,9 @@ watch(ready, (isReady) => {
 
 function getLineStyle(line: TextLineBox, stroke: MarkerStroke, index: number) {
   return {
-    '--draw-delay': `${props.delay + index * DRAW_STAGGER}ms`,
-    '--draw-duration': `${DRAW_DURATION}ms`,
-    '--reveal-delay': `${(totalLines.value - 1 - index) * REVEAL_STAGGER}ms`,
-    '--reveal-duration': `${REVEAL_DURATION}ms`,
+    '--draw-delay': `${props.delay + index * markerStagger(totalLines.value, props.delay)}ms`,
+    '--reveal-delay': `${index * markerStagger(totalLines.value)}ms`,
+    '--marker-duration': `${MARKER_STROKE_MS}ms`,
     transform: `translate(${line.x - TEXT_BLEED + stroke.xOffset}px, ${line.y - (line.height * (BOX_SCALE - 1)) / 2 + stroke.yOffset}px) rotate(${stroke.rotation}deg)`,
   };
 }
@@ -363,7 +362,7 @@ function getLineStyle(line: TextLineBox, stroke: MarkerStroke, index: number) {
         >
           <path
             :d="strokes[i].path"
-            :fill="`oklch(0.08 0 0 / ${strokes[i].opacity})`"
+            :fill-opacity="strokes[i].opacity"
             :filter="`url(#marker-noise-${i % NOISE_FILTER_COUNT})`"
           />
         </g>
@@ -388,19 +387,24 @@ function getLineStyle(line: TextLineBox, stroke: MarkerStroke, index: number) {
   overflow: visible;
 }
 
-.marker-stroke {
-  will-change: clip-path, opacity, transform;
+// Sumi marker ink; HaikuChapter tunes it for the night theme
+.marker-stroke path {
+  fill: var(--haiku-redaction-ink, var(--gk-ink));
+}
 
+.marker-stroke {
+  // Drawn on left to right, like a pen pass
   &.drawing {
     clip-path: inset(0 100% 0 0);
-    animation: draw-marker var(--draw-duration, 280ms)
-      cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation: draw-marker var(--marker-duration, 240ms) var(--gk-ease-out)
+      forwards;
     animation-delay: var(--draw-delay, 0ms);
   }
 
+  // Ink lift: the bar peels off in reading order, top line first
   &.revealing {
-    animation: reveal-marker var(--reveal-duration, 250ms)
-      cubic-bezier(0.55, 0.06, 0.68, 0.19) forwards;
+    animation: lift-marker var(--marker-duration, 240ms) var(--gk-ease-out)
+      forwards;
     animation-delay: var(--reveal-delay, 0ms);
   }
 }
@@ -414,18 +418,14 @@ function getLineStyle(line: TextLineBox, stroke: MarkerStroke, index: number) {
   }
 }
 
-@keyframes reveal-marker {
-  0% {
+@keyframes lift-marker {
+  from {
     opacity: 1;
     clip-path: inset(0 -5% 0 0);
   }
-  60% {
-    opacity: 0.6;
-    clip-path: inset(0 -5% 0 0);
-  }
-  100% {
+  to {
     opacity: 0;
-    clip-path: inset(0 0 0 100%);
+    clip-path: inset(0 -5% 0 100%);
   }
 }
 
@@ -437,13 +437,14 @@ function getLineStyle(line: TextLineBox, stroke: MarkerStroke, index: number) {
     }
 
     &.revealing {
-      animation: none;
-      opacity: 0;
+      animation: lift-marker-fade var(--gk-dur-fast) linear forwards;
     }
   }
 }
 
-[data-theme='dark'] .marker-stroke path {
-  fill: oklch(0.92 0 0 / 0.82);
+@keyframes lift-marker-fade {
+  to {
+    opacity: 0;
+  }
 }
 </style>

@@ -1,0 +1,112 @@
+{
+  "name": "html5parser",
+  "description": "A super fast & tiny HTML5 parser",
+  "version": "2.0.2",
+  "author": "acrazing <joking.young@gmail.com>",
+  "keywords": [
+    "html5",
+    "parser",
+    "ast",
+    "attributes"
+  ],
+  "license": "MIT",
+  "main": "dist/html5parser.cjs.js",
+  "module": "dist/html5parser.es.js",
+  "umd": "dist/html5parser.umd.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/",
+    "src/"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist temp .cache",
+    "bundle": "rollup -c rollup.config.js",
+    "build": "run-s clean bundle",
+    "prepublishOnly": "run-s test build",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/acrazing/html5parser.git"
+  },
+  "bugs": {
+    "url": "https://github.com/acrazing/html5parser/issues"
+  },
+  "homepage": "https://github.com/acrazing/html5parser#readme",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "@types/fs-extra": "^9.0.11",
+    "@types/jest": "^26.0.23",
+    "@types/node": "^15.0.2",
+    "@types/node-fetch": "^2.5.10",
+    "fs-extra": "^10.0.0",
+    "husky": "^4.3.0",
+    "jest": "^26.6.3",
+    "lint-staged": "^11.0.0",
+    "node-fetch": "^2.6.1",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.3.0",
+    "rollup": "^2.47.0",
+    "rollup-plugin-sourcemaps": "^0.6.3",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-typescript2": "^0.30.0",
+    "ts-jest": "^26.5.6",
+    "typescript": "^4.2.4"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node",
+      "mjs"
+    ],
+    "cacheDirectory": ".cache/jest",
+    "collectCoverage": false,
+    "collectCoverageFrom": [
+      "<rootDir>/src/**/*.{ts,tsx}",
+      "!**/*.d.ts"
+    ],
+    "coverageDirectory": "temp/coverage",
+    "globals": {
+      "__DEV__": true,
+      "ENV": {}
+    },
+    "testMatch": [
+      "<rootDir>/src/**/*.spec.{ts,tsx}"
+    ],
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    }
+  },
+  "cliVersion": "8.8.4",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,css,less,scss,md}": [
+      "prettier --write"
+    ]
+  },
+  "prettier": {
+    "printWidth": 100,
+    "tabWidth": 2,
+    "useTabs": false,
+    "semi": true,
+    "singleQuote": true,
+    "jsxSingleQuote": false,
+    "trailingComma": "all",
+    "bracketSpacing": true,
+    "jsxBracketSameLine": false,
+    "arrowParens": "always",
+    "endOfLine": "lf"
+  },
+  "dependencies": {
+    "tslib": "^2.2.0"
+  }
+}

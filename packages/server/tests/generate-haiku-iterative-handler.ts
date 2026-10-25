@@ -14,8 +14,8 @@ import type { VersePools } from '../src/domain/services/genetic/types';
 // Use vi.hoisted to create mock that's available at mock definition time
 const { mockEvolveWithProgress } = vi.hoisted(() => {
   const mockEvolveWithProgress = vi.fn();
-  
-return { mockEvolveWithProgress };
+
+  return { mockEvolveWithProgress };
 });
 
 // Mock fs to prevent actual file system access in MarkovChainService
@@ -188,12 +188,12 @@ describe('GenerateHaikuIterativeHandler', () => {
     generator: AsyncGenerator<HaikuProgress>,
   ): Promise<HaikuProgress[]> {
     const results: HaikuProgress[] = [];
-    
-for await (const progress of generator) {
+
+    for await (const progress of generator) {
       results.push(progress);
     }
-    
-return results;
+
+    return results;
   }
 
   it('yields progress for every iteration with best score tracked', async () => {
@@ -294,6 +294,40 @@ return results;
     expect(results.length).toBe(3);
     expect(mockHaikuGenerator.appendImg).toHaveBeenCalledTimes(1);
     expect(results.at(-1)?.bestHaiku?.imgPath).toBe('/tmp/test.png');
+  });
+
+  it('streams card drafts before the final haiku', async () => {
+    mockHaikuGenerator.buildFromDb.mockResolvedValue(createMockHaiku(0.5));
+    mockEvolveWithProgress.mockImplementation(function* () {
+      yield createGAProgress(GA_GENS, GA_GENS, 0.6, true);
+    });
+    mockHaikuGenerator.appendImg.mockImplementationOnce(
+      async (
+        haiku: HaikuValue,
+        _useImageAI: boolean,
+        onPreview?: (draft: string) => void,
+      ) => {
+        onPreview?.('draft-1');
+        await Promise.resolve();
+        onPreview?.('draft-2');
+        await Promise.resolve();
+
+        return { ...haiku, image: 'final' };
+      },
+    );
+
+    const results = await collectAllProgress(
+      handler.generate({ iterations: 1 }),
+    );
+    const drafts = results
+      .map((progress) => progress.imagePreview)
+      .filter(Boolean);
+
+    expect(drafts.length).toBeGreaterThan(0);
+    expect(drafts.at(-1)).toBe('draft-2');
+    expect(results.at(-1)?.isComplete).toBeTruthy();
+    expect(results.at(-1)?.imagePreview).toBeUndefined();
+    expect(results.at(-1)?.bestHaiku?.image).toBe('final');
   });
 
   it('handles no seed haiku gracefully', async () => {

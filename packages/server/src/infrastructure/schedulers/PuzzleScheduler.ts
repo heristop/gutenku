@@ -1,7 +1,7 @@
 import { container } from 'tsyringe';
 import { PubSubService } from '../services/PubSubService';
 import { getPuzzleNumber } from '@gutenku/shared';
-import { getGutenGuessBooks } from '~~/data';
+import { puzzleVersionFor } from '~/application/queries/puzzle/GetPuzzleVersionHandler';
 
 function scheduleNextPuzzle(): void {
   const now = new Date();
@@ -15,12 +15,11 @@ function scheduleNextPuzzle(): void {
     const pubSub = container.resolve(PubSubService);
     const today = new Date().toISOString().split('T')[0];
     const puzzleNumber = getPuzzleNumber(today);
-    const bookCount = getGutenGuessBooks().length;
 
     pubSub.publish('PUZZLE_AVAILABLE', {
       puzzleAvailable: {
         puzzleNumber,
-        version: `${puzzleNumber}-${bookCount}`,
+        version: puzzleVersionFor(puzzleNumber),
       },
     });
 

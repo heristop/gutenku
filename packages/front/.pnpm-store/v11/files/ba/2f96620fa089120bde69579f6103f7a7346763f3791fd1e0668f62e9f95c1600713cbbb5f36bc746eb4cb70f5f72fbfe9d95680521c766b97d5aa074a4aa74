@@ -1,0 +1,69 @@
+{
+	"name": "log-update",
+	"version": "8.0.0",
+	"description": "Log by overwriting the previous output in the terminal. Useful for rendering progress bars, animations, etc.",
+	"license": "MIT",
+	"repository": "sindresorhus/log-update",
+	"funding": "https://github.com/sponsors/sindresorhus",
+	"author": {
+		"name": "Sindre Sorhus",
+		"email": "sindresorhus@gmail.com",
+		"url": "https://sindresorhus.com"
+	},
+	"type": "module",
+	"exports": {
+		"types": "./index.d.ts",
+		"default": "./index.js"
+	},
+	"sideEffects": false,
+	"engines": {
+		"node": ">=22"
+	},
+	"scripts": {
+		"test": "xo && node --test && tsd"
+	},
+	"files": [
+		"index.js",
+		"index.d.ts"
+	],
+	"keywords": [
+		"log",
+		"logger",
+		"logging",
+		"cli",
+		"terminal",
+		"term",
+		"console",
+		"shell",
+		"update",
+		"refresh",
+		"overwrite",
+		"output",
+		"stdout",
+		"progress",
+		"bar",
+		"animation"
+	],
+	"dependencies": {
+		"ansi-escapes": "^7.3.0",
+		"cli-cursor": "^5.0.0",
+		"slice-ansi": "^9.0.0",
+		"string-width": "^8.2.0",
+		"strip-ansi": "^7.2.0",
+		"wrap-ansi": "^10.0.0"
+	},
+	"devDependencies": {
+		"@types/node": "^25.5.2",
+		"terminal.js": "^1.0.11",
+		"tsd": "^0.33.0",
+		"wcwidth": "^1.0.1",
+		"xo": "^2.0.2"
+	},
+	"xo": {
+		"rules": {
+			"@typescript-eslint/no-unsafe-argument": "off",
+			"import-x/no-extraneous-dependencies": "off",
+			"n/no-extraneous-import": "off"
+		}
+	}
+}

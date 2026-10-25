@@ -8,7 +8,7 @@ import {
   useSlots,
   nextTick,
 } from 'vue';
-import { ChevronDown, Check, Sparkles } from '@lucide/vue';
+import { ChevronDown, Check, Sparkles } from '@/core/components/icons/ink';
 
 interface OptionGroup {
   group: string;
@@ -372,15 +372,8 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
 </template>
 
 <style lang="scss" scoped>
+// Ex Libris: a typed value sitting on a ruled line, like a form field on a slip.
 .zen-select {
-  --zen-select-text: var(--gutenku-text-zen, oklch(0.35 0.03 85));
-  --zen-select-text-muted: var(--gutenku-text-muted, oklch(0.5 0.02 85));
-  --zen-select-border: var(--gutenku-zen-primary, oklch(0.42 0.06 192));
-  --zen-select-bg: var(--gutenku-paper-bg, oklch(0.97 0.01 85));
-  --zen-select-hover: oklch(0.42 0.06 192 / 0.08);
-  --zen-select-shadow:
-    0 4px 12px oklch(0 0 0 / 0.1), 0 2px 4px oklch(0 0 0 / 0.05);
-
   position: relative;
   display: inline-flex;
   min-width: 10rem;
@@ -392,55 +385,28 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
   align-items: center;
   gap: 0.5rem;
   width: 100%;
-  padding: 0.5rem 0;
+  min-height: 2.75rem;
+  padding: 0.375rem 0;
   background: transparent;
   border: none;
+  border-bottom: 1.5px solid var(--gk-ink-faint);
   cursor: pointer;
-  font-family: inherit;
+  font-family: var(--gk-font);
   font-size: 0.875rem;
-  color: var(--zen-select-text);
+  color: var(--gk-ink);
   text-align: left;
+  transition: border-color var(--gk-dur-fast) var(--gk-ease-out);
 
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      var(--zen-select-border) 20%,
-      var(--zen-select-border) 80%,
-      transparent 100%
-    );
-    opacity: 0.25;
-    transform: scaleY(1);
-    transform-origin: bottom;
-    transition:
-      opacity 0.25s ease-out,
-      transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  &:hover:not(:disabled)::after {
-    opacity: 0.5;
-    transform: scaleY(2);
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      border-bottom-color: var(--gk-ink);
+    }
   }
 
   &:focus-visible {
-    outline: none;
-
-    &::after {
-      opacity: 1;
-      background: linear-gradient(
-        90deg,
-        transparent 0%,
-        var(--gutenku-zen-accent) 20%,
-        var(--gutenku-zen-accent) 80%,
-        transparent 100%
-      );
-    }
+    outline: 2px solid var(--gk-indigo);
+    outline-offset: 3px;
+    border-bottom-color: var(--gk-ink);
   }
 
   &:disabled {
@@ -449,10 +415,14 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
   }
 }
 
+.zen-select--open .zen-select__trigger {
+  border-bottom-color: var(--gk-ink);
+}
+
 .zen-select__icon {
   display: flex;
   align-items: center;
-  color: var(--zen-select-border);
+  color: var(--gk-ink-soft);
   flex-shrink: 0;
 }
 
@@ -464,10 +434,10 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
 }
 
 .zen-select__label {
-  font-size: 0.7rem;
-  color: var(--zen-select-text-muted);
+  font-size: 0.6875rem;
+  color: var(--gk-ink-soft);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.14em;
   margin-bottom: 0.125rem;
 }
 
@@ -476,7 +446,7 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
   align-items: center;
   gap: 0.375rem;
   font-size: 0.875rem;
-  color: var(--zen-select-text);
+  color: var(--gk-ink);
   text-transform: capitalize;
   white-space: nowrap;
   overflow: hidden;
@@ -484,167 +454,67 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
 }
 
 .zen-select__ai-badge {
-  color: var(--gutenku-zen-accent, oklch(0.65 0.12 45));
+  color: var(--gk-ink-soft);
   flex-shrink: 0;
-  animation: sparkle-pulse 2s ease-in-out infinite;
-}
-
-@keyframes sparkle-pulse {
-  0%,
-  100% {
-    opacity: 0.7;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.1);
-  }
 }
 
 .zen-select__chevron {
   flex-shrink: 0;
-  color: var(--zen-select-text-muted);
-  transition: transform 0.2s ease;
+  color: var(--gk-ink-soft);
+  transition: transform var(--gk-dur-fast) var(--gk-ease-out);
 
   .zen-select--open & {
     transform: rotate(180deg);
   }
 }
 
-// Loading state
 .zen-select--loading {
   .zen-select__trigger {
     cursor: wait;
   }
 
   .zen-select__value {
-    animation: zen-pulse 1.5s ease-in-out infinite;
+    opacity: 0.55;
   }
 }
 
-@keyframes zen-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-// Dark mode for trigger
-[data-theme='dark'] .zen-select {
-  --zen-select-text: var(--gutenku-text-primary);
-  --zen-select-text-muted: var(--gutenku-text-muted);
-  --zen-select-border: var(--gutenku-zen-primary);
-}
-
-// Reduced motion
 @media (prefers-reduced-motion: reduce) {
-  .zen-select__chevron {
+  .zen-select__chevron,
+  .zen-select__trigger {
     transition: none;
-  }
-
-  .zen-select__option {
-    transition: none;
-  }
-
-  .zen-dropdown-enter-active,
-  .zen-dropdown-leave-active {
-    transition: none;
-  }
-
-  .zen-select--loading .zen-select__value {
-    animation: none;
   }
 }
 </style>
 
 <style lang="scss">
-// Global styles for teleported dropdown
+// Teleported dropdown: an index card of options, ruled between groups
 .zen-select__dropdown {
-  --zen-select-text: var(--gutenku-text-zen, oklch(0.35 0.03 85));
-  --zen-select-text-muted: var(--gutenku-text-muted, oklch(0.5 0.02 85));
-  --zen-select-border: var(--gutenku-zen-primary, oklch(0.42 0.06 192));
-  --zen-select-bg: var(--gutenku-paper-bg, oklch(0.97 0.01 85));
-  --zen-select-hover: oklch(0.42 0.06 192 / 0.08);
-  --zen-select-shadow:
-    0 4px 12px oklch(0 0 0 / 0.1), 0 2px 4px oklch(0 0 0 / 0.05);
-
   margin: 0;
   padding: 0.25rem;
   list-style: none;
-  background: var(--zen-select-bg);
-  border: 1px solid oklch(0 0 0 / 0.1);
-  border-radius: var(--gutenku-radius-md, 0.5rem);
-  box-shadow: var(--zen-select-shadow);
+  background: var(--gk-paper-raised);
+  border-radius: var(--gk-radius-paper);
+  box-shadow:
+    inset 0 0 0 1.5px var(--gk-ink),
+    var(--gk-lift);
   max-height: 12rem;
   overflow-y: auto;
-
-  // Paper texture
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: radial-gradient(
-      circle at 30% 40%,
-      oklch(0.5 0.02 85 / 0.05) 0%,
-      transparent 50%
-    );
-    border-radius: inherit;
-    pointer-events: none;
-  }
+  font-family: var(--gk-font);
+  scrollbar-width: thin;
+  scrollbar-color: var(--gk-ink-faint) transparent;
 }
 
 .zen-select__group-header {
-  position: relative;
-  padding: 0.375rem 0.75rem 0.25rem;
-  font-size: 0.65rem;
-  font-weight: 500;
+  padding: 0.5rem 0.75rem 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--zen-select-text-muted, oklch(0.5 0.02 85));
-  background: oklch(0 0 0 / 0.015);
-  border-radius: var(--gutenku-radius-sm, 0.25rem);
-  margin-bottom: 0.25rem;
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      var(--zen-select-text-muted) 10%,
-      var(--zen-select-text-muted) 90%,
-      transparent 100%
-    );
-    opacity: 0.4;
-  }
+  letter-spacing: 0.14em;
+  color: var(--gk-ink-soft);
 
   &:not(:first-child) {
-    margin-top: 0.5rem;
-    padding-top: 0.5rem;
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(
-        90deg,
-        transparent 0%,
-        var(--zen-select-text-muted) 10%,
-        var(--zen-select-text-muted) 90%,
-        transparent 100%
-      );
-      opacity: 0.4;
-    }
+    margin-top: 0.25rem;
+    border-top: 1px dashed var(--gk-ink-faint);
   }
 }
 
@@ -652,28 +522,33 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: var(--gutenku-radius-sm, 0.25rem);
+  min-height: 2.75rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--gk-radius-control);
   cursor: pointer;
   font-size: 0.875rem;
-  color: var(--zen-select-text);
+  color: var(--gk-ink);
   text-transform: capitalize;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--gk-dur-fast) var(--gk-ease-out);
 
-  &:hover,
   &--highlighted {
-    background: var(--zen-select-hover);
+    background: var(--gk-ink-faint);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background: var(--gk-ink-faint);
+    }
   }
 
   &--selected {
-    color: var(--zen-select-border);
-    font-weight: 500;
+    font-weight: 700;
   }
 }
 
 .zen-select__check {
   flex-shrink: 0;
-  color: var(--zen-select-border);
+  color: var(--gk-indigo);
 }
 
 .zen-select__option-text {
@@ -684,84 +559,21 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
 }
 
 .zen-select__option .zen-select__ai-badge {
-  color: var(--gutenku-zen-accent, oklch(0.65 0.12 45));
+  color: var(--gk-ink-soft);
   flex-shrink: 0;
-  animation: sparkle-pulse 2s ease-in-out infinite;
 }
 
-@keyframes sparkle-pulse {
-  0%,
-  100% {
-    opacity: 0.7;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.1);
-  }
-}
-
-// Dark mode for teleported dropdown
-[data-theme='dark'] .zen-select__dropdown {
-  --zen-select-text: var(--gutenku-text-primary);
-  --zen-select-text-muted: var(--gutenku-text-muted);
-  --zen-select-border: var(--gutenku-zen-primary);
-  --zen-select-bg: var(--gutenku-paper-bg);
-  --zen-select-hover: var(--gutenku-zen-water);
-  --zen-select-shadow: var(--gutenku-shadow-zen);
-
-  border-color: var(--gutenku-border-visible);
-
-  &::before {
-    background-image: radial-gradient(
-      circle at 30% 40%,
-      oklch(1 0 0 / 0.05) 0%,
-      transparent 50%
-    );
-  }
-
-  .zen-select__group-header {
-    color: var(--gutenku-text-muted);
-    background: oklch(1 0 0 / 0.03);
-  }
-
-  .zen-select__option {
-    color: var(--gutenku-text-primary);
-
-    &:hover,
-    &--highlighted {
-      background: var(--gutenku-zen-primary);
-      color: var(--gutenku-paper-bg);
-    }
-
-    &--selected {
-      color: var(--gutenku-zen-accent);
-      font-weight: 600;
-    }
-  }
-
-  .zen-select__check {
-    color: var(--gutenku-zen-accent);
-  }
-}
-
-// Dropdown transitions (global)
-.zen-dropdown-enter-active {
-  transition:
-    opacity 0.15s ease,
-    transform 0.15s ease;
-}
-
+.zen-dropdown-enter-active,
 .zen-dropdown-leave-active {
   transition:
-    opacity 0.1s ease,
-    transform 0.1s ease;
+    opacity var(--gk-dur-fast) var(--gk-ease-out),
+    transform var(--gk-dur-fast) var(--gk-ease-out);
 }
 
 .zen-dropdown-enter-from,
 .zen-dropdown-leave-to {
   opacity: 0;
-  transform: translateY(-0.5rem);
+  transform: translateY(-4px);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -769,9 +581,15 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
     transition: none;
   }
 
-  .zen-dropdown-enter-active,
-  .zen-dropdown-leave-active {
-    transition: none;
+  .zen-dropdown-enter-from,
+  .zen-dropdown-leave-to {
+    transform: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .zen-select__dropdown {
+    border: 2px solid CanvasText;
   }
 }
 </style>

@@ -1,0 +1,25 @@
+{
+    "name": "@types/webfontloader",
+    "version": "1.6.38",
+    "description": "TypeScript definitions for webfontloader",
+    "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/webfontloader",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "SECT",
+            "githubUsername": "sectsect",
+            "url": "https://github.com/sectsect"
+        }
+    ],
+    "main": "",
+    "types": "index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/webfontloader"
+    },
+    "scripts": {},
+    "dependencies": {},
+    "typesPublisherContentHash": "8f54a153559dccab53103af1584c3dd54b62aa91e97045b05477369fc122e77f",
+    "typeScriptVersion": "4.5"
+}

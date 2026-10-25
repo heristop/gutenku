@@ -1,0 +1,110 @@
+import { n as requireTSApi, t as require } from "./require-DhuJTv_G.mjs";
+import { createDebug } from "obug";
+//#region src/custom-language.ts
+var LanguageContext = class {
+	languages;
+	patterns;
+	/** @internal */
+	contentMapperExtensions = [];
+	constructor(languages) {
+		this.languages = languages;
+		this.patterns = languages.flatMap((language) => language.extensionPatterns);
+	}
+	isCustomLanguageFile(id) {
+		return this.patterns.some((pattern) => pattern.test(id));
+	}
+	isUsingVolar() {
+		return this.languages.some((language) => language.volarTypeScript || language.createVolarPlugins);
+	}
+	getExtraFileExtensions() {
+		if (!this.languages.length) return;
+		return this.languages.flatMap((language) => language.tsFileExtensionInfos || []);
+	}
+	/** @internal */
+	getCreateProgram(ts) {
+		if (!this.languages.length) return ts.createProgram;
+		const volarTypeScript = this.languages.find((language) => language.volarTypeScript)?.volarTypeScript;
+		if (!volarTypeScript) return ts.createProgram;
+		const { proxyCreateProgram } = volarTypeScript;
+		return proxyCreateProgram(ts, ts.createProgram, (ts, options) => {
+			const setups = [];
+			const plugins = [];
+			for (const language of this.languages) {
+				if (!language.createVolarPlugins) continue;
+				const result = language.createVolarPlugins(ts, options);
+				if (Array.isArray(result)) plugins.push(...result);
+				else {
+					if (result.setup) setups.push(result.setup);
+					plugins.push(...result.languagePlugins);
+				}
+			}
+			return {
+				setup: setups.length ? (language) => {
+					for (const setup of setups) setup(language);
+				} : void 0,
+				languagePlugins: plugins
+			};
+		});
+	}
+	/** @internal */
+	isContentMappedFile(id) {
+		return this.contentMapperExtensions.some((extension) => id.endsWith(extension));
+	}
+	toTsFilename(id) {
+		if (this.isContentMappedFile(id)) return `${id}.ts`;
+		for (const language of this.languages) if (language.toTsFilename && language.extensionPatterns.some((pattern) => pattern.test(id))) return language.toTsFilename(id);
+		return id;
+	}
+};
+//#endregion
+//#region src/tsc/vue.ts
+const debug = createDebug("rolldown-plugin-dts:vue");
+const RE_VUE = /\.vue$/;
+function createVueLanguageMetadata() {
+	return {
+		extensionPatterns: [RE_VUE],
+		tsFileExtensionInfos: [{
+			extension: "vue",
+			isMixedContent: true,
+			scriptKind: 7
+		}],
+		toTsFilename(id) {
+			return id.replace(RE_VUE, ".vue.ts");
+		}
+	};
+}
+function createVueLanguage(userOptions = {}) {
+	requireTSApi("Vue");
+	const [volarTypeScript, vue] = loadVueLanguageTools();
+	const getLanguagePlugin = (ts, options) => {
+		const $rootDir = options.options.$rootDir;
+		const $configRaw = options.options.$configRaw;
+		const resolver = new vue.CompilerOptionsResolver(ts, ts.sys.readFile);
+		const rawOptions = {
+			...$configRaw?.vueCompilerOptions,
+			...userOptions?.vueCompilerOptions
+		};
+		resolver.addConfig(rawOptions, $rootDir);
+		const vueOptions = resolver.build();
+		return vue.createVueLanguagePlugin(ts, options.options, vueOptions, (id) => id);
+	};
+	return {
+		...createVueLanguageMetadata(),
+		volarTypeScript,
+		createVolarPlugins(ts, options) {
+			return [getLanguagePlugin(ts, options)];
+		}
+	};
+}
+function loadVueLanguageTools() {
+	debug("loading vue language tools");
+	try {
+		const vueTscPath = require.resolve("vue-tsc");
+		return [require(require.resolve("@volar/typescript", { paths: [vueTscPath] })), require(require.resolve("@vue/language-core", { paths: [vueTscPath] }))];
+	} catch (cause) {
+		debug("vue language tools not found", cause);
+		throw new Error("Failed to load Vue language tools. Please install `vue-tsc` manually.", { cause });
+	}
+}
+//#endregion
+export { createVueLanguageMetadata as n, LanguageContext as r, createVueLanguage as t };

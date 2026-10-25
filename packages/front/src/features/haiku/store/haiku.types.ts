@@ -1,5 +1,5 @@
-import type { HaikuValue } from '@gutenku/shared';
-import type { LucideIcon } from '@lucide/vue';
+import { getCurrentPublicationDate, type HaikuValue } from '@gutenku/shared';
+import type { LucideIcon } from '@/core/components/icons/ink';
 import type { PersistenceOptions } from 'pinia-plugin-persistedstate';
 
 export interface CachedDailyHaiku {
@@ -37,7 +37,13 @@ export interface OptionGroup {
   options: string[];
 }
 
-export const CLASSIC_THEMES = ['colored', 'greentea', 'watermark'];
+export const CLASSIC_THEMES = [
+  'catalogue',
+  'greentea',
+  'watermark',
+  'exlibris',
+  'frontispiece',
+];
 export const IMAGE_AI_THEMES = [
   'nihonga',
   'sumie',
@@ -48,8 +54,9 @@ export const IMAGE_AI_THEMES = [
 ];
 export const MAX_HISTORY_SIZE = 10;
 
-export function getTodayUTC(): string {
-  return new Date().toISOString().split('T')[0];
+/** The daily haiku's day: the publication date, which turns at 10:00 UTC. */
+export function getDailyHaikuDate(): string {
+  return getCurrentPublicationDate();
 }
 
 export const getPersistConfig = (): PersistenceOptions | false => {
@@ -69,9 +76,17 @@ export const getPersistConfig = (): PersistenceOptions | false => {
     afterHydrate: (ctx) => {
       const store = ctx.store;
 
+      // A theme saved before it was retired falls back to the random draw
+      if (
+        store.optionTheme !== 'random' &&
+        ![...CLASSIC_THEMES, ...IMAGE_AI_THEMES].includes(store.optionTheme)
+      ) {
+        store.optionTheme = 'random';
+      }
+
       // Check if cached daily haiku is from today, clear if stale
       if (store.cachedDailyHaiku && store.cachedVersion) {
-        const today = getTodayUTC();
+        const today = getDailyHaikuDate();
 
         if (store.cachedDailyHaiku.date !== today) {
           store.cachedDailyHaiku = null;

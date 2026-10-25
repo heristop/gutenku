@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { computed, useSlots } from 'vue';
+import { computed, toRef, useSlots } from 'vue';
+import { useInkLoading } from '@/core/composables/ink-loading';
 
 export type ZenCardVariant = 'default' | 'book' | 'panel' | 'footer';
 
@@ -18,6 +19,9 @@ const props = withDefaults(
 
 const slots = useSlots();
 
+// Cards report busy to the single site-wide quill; no per-card loader
+useInkLoading(toRef(props, 'loading'));
+
 const hasHeader = computed(() => !!slots.header);
 const hasActions = computed(() => !!slots.actions);
 
@@ -30,9 +34,8 @@ const computedRole = computed(() => {
     case 'book':
       return 'article';
     case 'panel':
-      return 'complementary';
     case 'footer':
-      return 'contentinfo';
+      return 'group';
     default:
       return 'region';
   }
@@ -55,31 +58,8 @@ const cardClasses = computed(() => [
     :role="computedRole"
     :aria-label="ariaLabel"
     :aria-busy="loading"
-    :aria-live="loading ? 'polite' : undefined"
     :tabindex="ariaLabel ? 0 : undefined"
   >
-    <div
-      v-if="loading"
-      class="sr-only"
-      role="status"
-      aria-live="polite"
-      aria-atomic="true"
-    >
-      Loading content, please wait...
-    </div>
-
-    <Transition name="zen-progress">
-      <div
-        v-if="loading"
-        class="zen-card__progress"
-        role="progressbar"
-        aria-valuemin="0"
-        aria-valuemax="100"
-        aria-label="Loading"
-        aria-hidden="true"
-      />
-    </Transition>
-
     <div class="zen-card__paper" aria-hidden="true" />
 
     <header v-if="hasHeader" class="zen-card__header">
@@ -90,48 +70,26 @@ const cardClasses = computed(() => [
       <slot />
     </div>
 
-    <footer v-if="hasActions" class="zen-card__actions">
+    <div v-if="hasActions" class="zen-card__actions">
       <slot name="actions" />
-    </footer>
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
+// Ex Libris: a sheet of paper resting on the page. No glass, no halo.
 .zen-card {
   position: relative;
-  border-radius: var(--gutenku-radius-lg);
-  overflow: hidden;
-  transform: translateZ(0);
-  backface-visibility: hidden;
+  border-radius: var(--gk-radius-paper);
+  overflow: clip;
   container-type: inline-size;
   container-name: zen-card;
-
-  background: oklch(0.98 0.01 85 / 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid oklch(1 0 0 / 0.3);
-  box-shadow:
-    0 4px 16px oklch(0 0 0 / 0.08),
-    0 8px 32px oklch(0 0 0 / 0.06),
-    inset 0 1px 0 oklch(1 0 0 / 0.5);
+  background: var(--gk-paper-raised);
+  box-shadow: var(--gk-lift);
+  color: var(--gk-ink);
 
   &__paper {
-    position: absolute;
-    inset: 0;
-    background-image:
-      radial-gradient(
-        circle at 20% 30%,
-        oklch(0.42 0.09 55 / 0.05) 0%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle at 80% 70%,
-        oklch(0.42 0.09 55 / 0.05) 0%,
-        transparent 50%
-      );
-    border-radius: inherit;
-    pointer-events: none;
-    z-index: 0;
+    display: none;
   }
 
   &__header,
@@ -143,9 +101,7 @@ const cardClasses = computed(() => [
 
   &__content {
     padding: 0;
-    transition:
-      opacity 0.3s ease,
-      filter 0.3s ease;
+    transition: opacity var(--gk-dur-base) var(--gk-ease-out);
     min-width: 200px;
   }
 
@@ -156,118 +112,22 @@ const cardClasses = computed(() => [
     padding: 0 0.75rem 0.5rem;
   }
 
-  &__progress {
-    position: absolute;
-    top: 0;
-    left: var(--gutenku-radius-lg);
-    right: var(--gutenku-radius-lg);
-    height: 2px;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      oklch(0.45 0.06 170 / 0.85) 50%,
-      transparent 100%
-    );
-    animation: ink-breathe 2s ease-in-out infinite;
-    z-index: 10;
-    border-radius: 1px;
-    overflow: hidden;
-
-    &::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 6px;
-      background: linear-gradient(
-        90deg,
-        transparent 0%,
-        oklch(0.45 0.06 170 / 0.4) 50%,
-        transparent 100%
-      );
-      filter: blur(3px);
-      pointer-events: none;
-    }
-
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(
-        90deg,
-        transparent 0%,
-        oklch(1 0 0 / 0.5) 50%,
-        transparent 100%
-      );
-      animation: ink-shimmer 2s ease-in-out infinite;
-    }
-  }
-
   &:focus-visible {
-    outline: 2px solid var(--gutenku-zen-primary);
-    outline-offset: 2px;
+    outline: 2px solid var(--gk-indigo);
+    outline-offset: 3px;
   }
 
-  &--default {
-  }
-
+  // Busy cards stay readable: the site-wide quill carries the loading signal
   &--book.zen-card--loading {
     .zen-card__content {
-      opacity: 0.5;
-      filter: blur(1px);
-      transition: all 0.3s ease;
+      opacity: 0.72;
+      transition: opacity var(--gk-dur-base) var(--gk-ease-out);
     }
   }
 
   &--book {
-    padding: 3rem 0.5rem 2rem 1rem;
-    min-height: 31.25rem;
+    padding: 2rem 0.5rem 1.5rem 1rem;
     overflow: visible;
-    box-shadow:
-      0 2px 4px -1px oklch(0 0 0 / 0.2),
-      0 4px 5px 0 oklch(0 0 0 / 0.14),
-      0 1px 10px 0 oklch(0 0 0 / 0.12);
-
-    &::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 2px;
-      height: 100%;
-      background: linear-gradient(
-        to bottom,
-        oklch(0 0 0 / 0.1) 0%,
-        oklch(0 0 0 / 0.05) 50%,
-        oklch(0 0 0 / 0.1) 100%
-      );
-      z-index: 1;
-    }
-
-    .zen-card__content {
-      padding: 0;
-    }
-
-    .zen-card__paper {
-      background-image:
-        radial-gradient(
-          circle at 20% 50%,
-          oklch(0.51 0.02 85 / 0.3) 0%,
-          transparent 50%
-        ),
-        radial-gradient(
-          circle at 80% 20%,
-          oklch(0.51 0.02 85 / 0.3) 0%,
-          transparent 50%
-        ),
-        radial-gradient(
-          circle at 40% 80%,
-          oklch(0.51 0.02 85 / 0.3) 0%,
-          transparent 50%
-        );
-      opacity: 0.1;
-    }
   }
 
   &--panel {
@@ -292,121 +152,9 @@ const cardClasses = computed(() => [
   }
 }
 
-[data-theme='dark'] .zen-card {
-  background: oklch(0.26 0.025 55 / 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid oklch(1 0 0 / 0.08);
-  box-shadow:
-    0 4px 16px oklch(0 0 0 / 0.25),
-    0 8px 32px oklch(0 0 0 / 0.2),
-    inset 0 1px 0 oklch(1 0 0 / 0.05);
-
-  &__paper {
-    opacity: 0.03;
-  }
-
-  &__progress {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      oklch(0.7 0.08 170 / 0.8) 50%,
-      transparent 100%
-    );
-
-    &::after {
-      background: linear-gradient(
-        90deg,
-        transparent 0%,
-        oklch(0.7 0.08 170 / 0.5) 50%,
-        transparent 100%
-      );
-    }
-  }
-
-  &--book {
-    box-shadow:
-      0 4px 12px oklch(0 0 0 / 0.4),
-      0 2px 4px oklch(0 0 0 / 0.3);
-
-    &::after {
-      background: linear-gradient(
-        to bottom,
-        oklch(1 0 0 / 0.05) 0%,
-        oklch(1 0 0 / 0.02) 50%,
-        oklch(1 0 0 / 0.05) 100%
-      );
-    }
-  }
-}
-
-@keyframes ink-breathe {
-  0%,
-  100% {
-    opacity: 0.4;
-    transform: scaleX(0.5);
-  }
-  50% {
-    opacity: 1;
-    transform: scaleX(1);
-  }
-}
-
-@keyframes ink-shimmer {
-  0%,
-  100% {
-    opacity: 0;
-    transform: translateX(-100%);
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-.zen-progress-enter-active {
-  transition:
-    opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.zen-progress-leave-active {
-  transition:
-    opacity 0.5s cubic-bezier(0.4, 0, 1, 1),
-    transform 0.6s cubic-bezier(0.4, 0, 1, 1);
-}
-
-.zen-progress-enter-from {
-  opacity: 0;
-  transform: scaleX(0.3);
-}
-
-.zen-progress-leave-to {
-  opacity: 0;
-  transform: scaleX(0.5);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .zen-card__progress {
-    animation: none;
-    opacity: 0.7;
-    transform: scaleX(1);
-
-    &::before {
-      animation: none;
-      opacity: 0;
-    }
-
-    &::after {
-      opacity: 0.5;
-    }
-  }
-
-  .zen-progress-enter-active,
-  .zen-progress-leave-active {
-    transition: none;
+@media (forced-colors: active) {
+  .zen-card {
+    border: 1px solid CanvasText;
   }
 }
 </style>

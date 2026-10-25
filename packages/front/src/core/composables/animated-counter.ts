@@ -1,4 +1,5 @@
 import { ref, watch, onUnmounted, type Ref } from 'vue';
+import { prefersReducedMotion } from '@/core/composables/view-transition';
 
 const isClient = typeof document !== 'undefined';
 
@@ -19,7 +20,8 @@ export function useAnimatedCounter(
   options: AnimatedCounterOptions = {},
 ) {
   const {
-    duration = 2000,
+    // Motion tokens cap any animation at 600ms
+    duration = 600,
     easing = easeOutQuart,
     startValue = 0,
     initialDelay = 100,
@@ -31,9 +33,25 @@ export function useAnimatedCounter(
   let delayTimeout: ReturnType<typeof setTimeout> | null = null;
   let isFirstAnimation = true;
 
+  function cancelFrame() {
+    if (animationFrame !== null) {
+      cancelAnimationFrame(animationFrame);
+      animationFrame = null;
+    }
+  }
+
   function animate() {
-    if (!isClient || target.value === 0) {
+    // A new target retargets from wherever the count is now: never two loops
+    cancelFrame();
+
+    if (delayTimeout) {
+      clearTimeout(delayTimeout);
+      delayTimeout = null;
+    }
+
+    if (!isClient || target.value === 0 || prefersReducedMotion()) {
       count.value = target.value;
+      isAnimating.value = false;
 
       return;
     }
@@ -69,9 +87,8 @@ export function useAnimatedCounter(
       delayTimeout = null;
     }
 
-    if (animationFrame) {
-      cancelAnimationFrame(animationFrame);
-      animationFrame = null;
+    if (animationFrame !== null) {
+      cancelFrame();
       isAnimating.value = false;
     }
   }

@@ -1,0 +1,7 @@
+export { Audio, type AudioModel, type AudioResponseFormat } from "./audio.js";
+export { Speech, type SpeechModel, type SpeechCreateParams } from "./speech.js";
+export { Transcriptions, type Transcription, type TranscriptionDiarized, type TranscriptionDiarizedSegment, type TranscriptionInclude, type TranscriptionLanguage, type TranscriptionSegment, type TranscriptionStreamEvent, type TranscriptionTextDeltaEvent, type TranscriptionTextDoneEvent, type TranscriptionTextSegmentEvent, type TranscriptionVerbose, type TranscriptionWord, type TranscriptionCreateResponse, type TranscriptionCreateParams, type TranscriptionCreateParamsNonStreaming, type TranscriptionCreateParamsStreaming, } from "./transcriptions.js";
+export { Translations, type Translation, type TranslationVerbose, type TranslationCreateResponse, type TranslationCreateParams, } from "./translations.js";
+export { VoiceConsents, type VoiceConsent, type VoiceConsentDeleted, type VoiceConsentCreateParams, type VoiceConsentUpdateParams, type VoiceConsentListParams, type VoiceConsentsPage, } from "./voice-consents.js";
+export { Voices, type Voice, type VoiceDeleted, type VoiceCreateParams } from "./voices.js";
+//# sourceMappingURL=index.d.ts.map

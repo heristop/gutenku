@@ -1,0 +1,67 @@
+{
+  "name": "@urql/vue",
+  "version": "2.1.1",
+  "description": "A highly customizable and versatile GraphQL client for vue",
+  "sideEffects": false,
+  "homepage": "https://formidable.com/open-source/urql/docs/",
+  "bugs": "https://github.com/urql-graphql/urql/issues",
+  "license": "MIT",
+  "author": "urql GraphQL Contributors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/urql-graphql/urql.git",
+    "directory": "packages/vue-urql"
+  },
+  "keywords": [
+    "graphql client",
+    "state management",
+    "cache",
+    "graphql",
+    "exchanges",
+    "vue"
+  ],
+  "main": "dist/urql-vue",
+  "module": "dist/urql-vue.mjs",
+  "types": "dist/urql-vue.d.ts",
+  "source": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/urql-vue.d.ts",
+      "import": "./dist/urql-vue.mjs",
+      "require": "./dist/urql-vue.js",
+      "source": "./src/index.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "LICENSE",
+    "CHANGELOG.md",
+    "README.md",
+    "dist/"
+  ],
+  "devDependencies": {
+    "@vue/test-utils": "^2.3.0",
+    "graphql": "^16.0.0",
+    "vue": "^3.2.47",
+    "@urql/core": "6.0.2"
+  },
+  "peerDependencies": {
+    "@urql/core": "^6.0.0",
+    "vue": "^3.2.0"
+  },
+  "dependencies": {
+    "@urql/core": "^6.0.2",
+    "wonka": "^6.3.2"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "test": "vitest",
+    "clean": "rimraf dist",
+    "check": "tsc --noEmit",
+    "lint": "eslint --ext=js,jsx,ts,tsx .",
+    "build": "rollup -c ../../scripts/rollup/config.mjs"
+  }
+}

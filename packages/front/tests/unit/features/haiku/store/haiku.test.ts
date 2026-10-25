@@ -16,8 +16,8 @@ vi.mock('@/client', () => ({
   },
 }));
 
-// Mock @lucide/vue
-vi.mock('@lucide/vue', () => ({
+// Mock the ink icon set
+vi.mock('@/core/components/icons/ink', () => ({
   Leaf: {},
 }));
 

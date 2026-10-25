@@ -1,48 +1,54 @@
 {
-  "name": "GutenVerse",
-  "short_name": "GutenVerse",
+  "name": "GutenKu",
+  "short_name": "GutenKu",
   "description": "AI-powered haiku generator from classic literature and daily book guessing game",
   "start_url": "/",
   "icons": [
     {
-      "src": "/android-chrome-144x144.png",
+      "src": "../icons/icon-48.webp",
       "type": "image/png",
-      "sizes": "144x144",
-      "purpose": "any"
+      "sizes": "48x48",
+      "purpose": "any maskable"
     },
     {
-      "src": "/android-chrome-192x192.png",
+      "src": "../icons/icon-72.webp",
+      "type": "image/png",
+      "sizes": "72x72",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../icons/icon-96.webp",
+      "type": "image/png",
+      "sizes": "96x96",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../icons/icon-128.webp",
+      "type": "image/png",
+      "sizes": "128x128",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../icons/icon-192.webp",
       "type": "image/png",
       "sizes": "192x192",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "/android-chrome-192x192-maskable.png",
-      "type": "image/png",
-      "sizes": "192x192",
-      "purpose": "maskable"
-    },
-    {
-      "src": "/android-chrome-256x256.png",
+      "src": "../icons/icon-256.webp",
       "type": "image/png",
       "sizes": "256x256",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "/android-chrome-512x512.png",
+      "src": "../icons/icon-512.webp",
       "type": "image/png",
       "sizes": "512x512",
-      "purpose": "any"
-    },
-    {
-      "src": "/android-chrome-512x512-maskable.png",
-      "type": "image/png",
-      "sizes": "512x512",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ],
-  "theme_color": "#fbf3ea",
-  "background_color": "#fbf3ea",
+  "theme_color": "#f5efe3",
+  "background_color": "#f5efe3",
   "display": "standalone",
   "orientation": "portrait"
 }

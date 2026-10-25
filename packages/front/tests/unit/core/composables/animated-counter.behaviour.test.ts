@@ -12,8 +12,8 @@ describe('useAnimatedCounter (animation behaviour)', () => {
     now = 0;
     vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((cb) => {
       rafCallbacks.push(cb);
-      
-return rafCallbacks.length;
+
+      return rafCallbacks.length;
     });
     vi.spyOn(globalThis, 'cancelAnimationFrame').mockImplementation(() => {});
     vi.spyOn(performance, 'now').mockImplementation(() => now);
@@ -29,8 +29,8 @@ return rafCallbacks.length;
       now += stepMs;
       const cbs = rafCallbacks;
       rafCallbacks = [];
-      
-for (const cb of cbs) {
+
+      for (const cb of cbs) {
         cb(now);
       }
     }
@@ -105,5 +105,29 @@ for (const cb of cbs) {
 
     stop();
     expect(isAnimating.value).toBeFalsy();
+  });
+
+  it('cancels the running frame when animate is called again', () => {
+    const target = ref(100);
+    const { animate } = useAnimatedCounter(target, { initialDelay: 0 });
+
+    animate();
+    animate();
+
+    expect(globalThis.cancelAnimationFrame).toHaveBeenCalled();
+  });
+
+  it('jumps straight to the target under reduced motion', () => {
+    vi.spyOn(globalThis, 'matchMedia').mockReturnValue({
+      matches: true,
+    } as MediaQueryList);
+    const target = ref(42);
+    const { count, animate, isAnimating } = useAnimatedCounter(target);
+
+    animate();
+
+    expect(count.value).toBe(42);
+    expect(isAnimating.value).toBeFalsy();
+    expect(globalThis.requestAnimationFrame).not.toHaveBeenCalled();
   });
 });

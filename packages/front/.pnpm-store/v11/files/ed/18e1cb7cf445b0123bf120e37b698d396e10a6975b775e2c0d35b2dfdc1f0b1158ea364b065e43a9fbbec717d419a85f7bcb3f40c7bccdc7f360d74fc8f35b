@@ -1,0 +1,1 @@
+import{stripBOM as e}from"./_chunks/_format.mjs";import{require_ini as t}from"./_chunks/libs/ini.mjs";var n=t();function r(t,r){return(0,n.parse)(e(t),r)}function i(e,t){return(0,n.stringify)(e,{whitespace:!0,...t})}export{r as parseINI,i as stringifyINI};

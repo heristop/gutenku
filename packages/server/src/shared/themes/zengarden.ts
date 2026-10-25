@@ -1,6 +1,10 @@
-import OpenAI from 'openai';
 import Canvas from 'canvas';
 import type { HaikuValue } from '~/shared/types';
+import {
+  generateThemeBackground,
+  type PartialImageHandler,
+  type ThemeCreateOptions,
+} from '~/shared/themes/ai-image';
 import {
   CANVAS_WIDTH,
   CANVAS_HEIGHT,
@@ -8,68 +12,77 @@ import {
 } from '~/shared/constants/canvas';
 
 export default {
-  async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
-    const verses = haiku.verses;
-    Canvas.registerFont('./src/shared/assets/fonts/IndieFlower-Regular.ttf', {
-      family: 'IndieFlower',
-    });
+  async create(
+    haiku: HaikuValue,
+    { onPreview }: ThemeCreateOptions = {},
+  ): Promise<Canvas.Canvas> {
+    const backgroundImageData = await generateZenGardenBackground(
+      haiku,
+      onPreview && (async (draft) => onPreview(await draw(haiku, draft))),
+    );
 
-    const canvas = Canvas.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-    const ctx = canvas.getContext('2d');
-
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = '#f0ead6';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    const backgroundImageData = await generateZenGardenBackground(haiku);
-
-    if (backgroundImageData) {
-      const background = await Canvas.loadImage(backgroundImageData);
-      ctx.globalAlpha = 0.88;
-      drawImageCover(ctx, background, canvas.width, canvas.height);
-    }
-
-    ctx.globalAlpha = 0.75;
-    ctx.fillStyle = '#f0ead6';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.font = 'bold 128px IndieFlower';
-    ctx.globalAlpha = 1;
-
-    const x = 250;
-    let y = canvas.height / 4;
-
-    verses.map((verse) => {
-      ctx.strokeStyle = 'rgba(240, 234, 214, 0.9)';
-      ctx.lineWidth = 10;
-      ctx.lineJoin = 'round';
-      ctx.strokeText(verse, x, y);
-      ctx.fillStyle = '#0a0a14';
-      ctx.fillText(verse, x, y);
-      y += 420;
-    });
-
-    ctx.font = 'bold 118px IndieFlower';
-    ctx.strokeStyle = 'rgba(240, 234, 214, 0.85)';
-    ctx.lineWidth = 8;
-    ctx.lineJoin = 'round';
-    ctx.strokeText('- GutenKu', canvas.width - 780, canvas.height - 240);
-    ctx.fillStyle = '#2d4a2d';
-    ctx.fillText('- GutenKu', canvas.width - 780, canvas.height - 240);
-
-    return canvas;
+    return draw(haiku, backgroundImageData);
   },
 };
 
+async function draw(
+  haiku: HaikuValue,
+  backgroundImageData: Buffer | null,
+): Promise<Canvas.Canvas> {
+  const verses = haiku.verses;
+  Canvas.registerFont('./src/shared/assets/fonts/IndieFlower-Regular.ttf', {
+    family: 'IndieFlower',
+  });
+
+  const canvas = Canvas.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+  const ctx = canvas.getContext('2d');
+
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = '#f0ead6';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  if (backgroundImageData) {
+    const background = await Canvas.loadImage(backgroundImageData);
+    ctx.globalAlpha = 0.88;
+    drawImageCover(ctx, background, canvas.width, canvas.height);
+  }
+
+  ctx.globalAlpha = 0.75;
+  ctx.fillStyle = '#f0ead6';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.font = 'bold 128px IndieFlower';
+  ctx.globalAlpha = 1;
+
+  const x = 250;
+  let y = canvas.height / 4;
+
+  verses.map((verse) => {
+    ctx.strokeStyle = 'rgba(240, 234, 214, 0.9)';
+    ctx.lineWidth = 10;
+    ctx.lineJoin = 'round';
+    ctx.strokeText(verse, x, y);
+    ctx.fillStyle = '#0a0a14';
+    ctx.fillText(verse, x, y);
+    y += 420;
+  });
+
+  ctx.font = 'bold 118px IndieFlower';
+  ctx.strokeStyle = 'rgba(240, 234, 214, 0.85)';
+  ctx.lineWidth = 8;
+  ctx.lineJoin = 'round';
+  ctx.strokeText('- GutenKu', canvas.width - 780, canvas.height - 240);
+  ctx.fillStyle = '#2d4a2d';
+  ctx.fillText('- GutenKu', canvas.width - 780, canvas.height - 240);
+
+  return canvas;
+}
+
 async function generateZenGardenBackground(
   haiku: HaikuValue,
+  onPartial?: PartialImageHandler,
 ): Promise<Buffer | null> {
-  try {
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-
-    const prompt = `THE HAIKU IS YOUR PRIMARY INSPIRATION. Study these verses deeply and express their meaning through a zen garden:
+  const prompt = `THE HAIKU IS YOUR PRIMARY INSPIRATION. Study these verses deeply and express their meaning through a zen garden:
 
 "${haiku.verses[0]}"
 "${haiku.verses[1]}"
@@ -93,32 +106,5 @@ Composition: Bird's eye or elevated view. Asymmetrical balance. Generous negativ
 
 CRITICAL: Absolutely NO text, letters, characters, kanji, hiragana, katakana, or any written symbols in the image. Pure visual art only.`;
 
-    const response = await openai.images.generate({
-      model: process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1.5',
-      n: 1,
-      output_format: 'png',
-      prompt,
-      quality: (process.env.OPENAI_IMAGE_QUALITY || 'high') as
-        | 'high'
-        | 'low'
-        | 'medium'
-        | 'auto',
-      size: '1024x1536',
-      user: 'gutenku-zengarden-theme',
-    });
-
-    const imageBase64 = response.data?.[0]?.b64_json;
-
-    if (!imageBase64) {
-      console.error('No image data returned from OpenAI GPT-Image API');
-
-      return null;
-    }
-
-    return Buffer.from(imageBase64, 'base64');
-  } catch (error) {
-    console.error('OpenAI image generation failed for zengarden theme:', error);
-
-    return null;
-  }
+  return generateThemeBackground('zengarden', prompt, onPartial);
 }

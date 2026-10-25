@@ -36,10 +36,9 @@ describe('Navigation', () => {
 
     it('highlights active link', () => {
       cy.visit('/haiku');
-      cy.get('.ink-nav__item[href="/haiku"]').should(
-        'have.class',
-        'router-link-active',
-      );
+      cy.get('.ink-nav__item[href="/haiku"]')
+        .should('have.class', 'ink-nav__item--active')
+        .and('have.attr', 'aria-current', 'page');
     });
   });
 

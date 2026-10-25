@@ -14,8 +14,8 @@ interface Article {
 
 function extractFrontmatter(content: string): { description?: string } {
   const match = content.match(/^---\n([\s\S]*?)\n---/);
-  
-if (!match) {
+
+  if (!match) {
     return {};
   }
 
@@ -24,8 +24,8 @@ if (!match) {
 
   for (const line of lines) {
     const descMatch = line.match(/^description:\s*(.+)$/);
-    
-if (descMatch) {
+
+    if (descMatch) {
       frontmatter.description = descMatch[1].trim();
     }
   }
@@ -35,16 +35,16 @@ if (descMatch) {
 
 function extractTitle(content: string): string | null {
   const match = content.match(/^#\s+(.+)$/m);
-  
-return match ? match[1].trim() : null;
+
+  return match ? match[1].trim() : null;
 }
 
 function extractFirstParagraph(content: string): string | null {
   const withoutFrontmatter = content.replace(/^---\n[\s\S]*?\n---\n*/, '');
   const withoutTitle = withoutFrontmatter.replace(/^#\s+.+\n*/, '');
   const paragraphMatch = withoutTitle.match(/^([A-Za-z].+?)(?:\n\n|\n#|$)/m);
-  
-return paragraphMatch
+
+  return paragraphMatch
     ? paragraphMatch[1].replaceAll(/[_*]/g, '').trim()
     : null;
 }
@@ -56,8 +56,8 @@ function getBlogArticles(): Article[] {
   return files
     .map((file) => {
       const match = file.match(/^(\d{4}-\d{2}-\d{2})-(.+)\.en\.md$/);
-      
-if (!match) {
+
+      if (!match) {
         return null;
       }
 
@@ -89,7 +89,7 @@ function escapeXml(text: string): string {
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
-    .replaceAll('\'', '&apos;');
+    .replaceAll("'", '&apos;');
 }
 
 function generateAtomFeed(): string {
@@ -124,7 +124,7 @@ function generateAtomFeed(): string {
   <id>${BASE_URL}/blog</id>
   <updated>${latestDate}T00:00:00Z</updated>
   <author>
-    <name>Alexandre Mederic Mogère</name>
+    <name>Alexandre Mogère</name>
     <uri>https://www.instagram.com/heristop/</uri>
   </author>
 

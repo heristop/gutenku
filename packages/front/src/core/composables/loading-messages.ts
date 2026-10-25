@@ -37,7 +37,7 @@ import {
   Gem,
   Brush,
   type LucideIcon,
-} from '@lucide/vue';
+} from '@/core/components/icons/ink';
 
 export interface LoadingMessage {
   icon: LucideIcon;

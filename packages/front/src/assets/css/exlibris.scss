@@ -1,0 +1,181 @@
+// Ex Libris identity: paper, ink, indigo for actions, one vermilion stamp for verdicts.
+// Pigments follow traditional Japanese values (sumi-iro, ai-iro, ginshu).
+// Loaded after main.scss: every token remapped in :root is remapped again for dark,
+// so the later declaration never leaks light values into the dark theme.
+
+:root {
+  // Native controls and the page scrollbar follow the chosen theme, not the OS
+  color-scheme: light;
+
+  --gk-paper: #f5efe3;
+  --gk-paper-raised: #f9f5ec;
+  --gk-paper-deep: #ece4d6;
+  --gk-paper-edge: #d9cdb9;
+  --gk-ink: #27221f;
+  --gk-ink-soft: #5d544c;
+  --gk-ink-faint: rgb(39 34 31 / 0.16);
+  --gk-indigo: #264348;
+  --gk-on-indigo: #f8f4ec;
+  --gk-stamp: #bc2d29;
+  --gk-on-stamp: #f8f4ec;
+  --gk-stamp-wash: rgb(188 45 41 / 0.09);
+  // The same vermilion set as small type (costs, labels): a deeper pressing
+  // that reads at 7:1 on every paper. --gk-stamp stays for fills and marks.
+  --gk-stamp-ink: #8a201d;
+  --gk-indigo-edge: color-mix(in oklch, var(--gk-indigo), black 35%);
+  --gk-scrim: rgb(39 34 31 / 0.45);
+  // Tipped-in plates and photographs stay light printed leaves in both themes
+  --gk-plate-leaf: #f6f0e4;
+  --gk-plate-filter: none;
+  // The primary key's own fill: the indigo itself by day, a deeper one at
+  // night so the key never outshines the page (links keep --gk-indigo)
+  --gk-indigo-fill: var(--gk-indigo);
+  --gk-on-indigo-fill: var(--gk-on-indigo);
+  // One dimming for every book cover and preview plate
+  --gk-cover-filter: none;
+  --gk-spine-width: 64px;
+  // The one gap between cards, site-wide; the first block of every page
+  // starts the same distance below the header's rule
+  --gk-gutter: 1.5rem;
+  --gk-page-top: var(--gk-gutter);
+  // Laid paper: faint laid lines, two chain lines and fibres, tiled at 240px
+  --gk-paper-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cdefs%3E%3Cfilter id='f' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.02 0.6' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.15 0 0 0 0 0.13 0 0 0 0 0.11 0 0 0 0.06 0'/%3E%3C/filter%3E%3Cpattern id='l' width='240' height='3' patternUnits='userSpaceOnUse'%3E%3Cpath d='M0 .5H240' stroke='rgb(39,34,31)' stroke-opacity='0.035'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='240' height='240' filter='url(%23f)'/%3E%3Crect width='240' height='240' fill='url(%23l)'/%3E%3Cpath d='M60 0V240M180 0V240' stroke='rgb(39,34,31)' stroke-opacity='0.028'/%3E%3C/svg%3E");
+
+  --gk-rule: 1.5px solid var(--gk-ink);
+  --gk-rule-faint: 1px dashed var(--gk-ink-faint);
+  --gk-lift:
+    0 1px 0 var(--gk-paper-edge), 0 18px 34px -22px oklch(0.3 0.03 60 / 0.45);
+  // The topmost layer (toasts, which may sit over a dialog): one sheet higher,
+  // a paler leaf and a deeper, closer shadow, so it never merges with the page
+  // or the dialog under it
+  --gk-paper-float: #fdfbf6;
+  --gk-lift-float:
+    0 0 0 1px var(--gk-paper-edge), 0 2px 4px oklch(0.3 0.03 60 / 0.12),
+    0 22px 40px -18px oklch(0.3 0.03 60 / 0.5);
+  --gk-radius-paper: 4px;
+  --gk-radius-control: 3px;
+  --gk-font: 'JMH Typewriter', monospace;
+
+  --gk-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --gk-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --gk-ease-pop: cubic-bezier(0.34, 1.3, 0.64, 1);
+  --gk-dur-press: 120ms;
+  --gk-dur-fast: 180ms;
+  --gk-dur-base: 240ms;
+  --gk-dur-reward: 400ms;
+  // Leaving is quicker than arriving: modals, toasts, popovers
+  --gk-dur-exit: 160ms;
+
+  // Existing semantic tokens now resolve to Ex Libris, so every page follows
+  --gutenku-paper-bg: var(--gk-paper-raised);
+  --gutenku-paper-bg-warm: var(--gk-paper);
+  --gutenku-paper-bg-aged: var(--gk-paper-deep);
+  --gutenku-paper-border: var(--gk-ink-faint);
+  --gutenku-paper-border-hover: rgb(39 34 31 / 0.4);
+  --gutenku-text-primary: var(--gk-ink);
+  --gutenku-text-secondary: var(--gk-ink-soft);
+  --gutenku-text-muted: var(--gk-ink-soft);
+  --gutenku-text-accent: var(--gk-ink);
+  --gutenku-text-zen: var(--gk-indigo);
+  --gutenku-zen-primary: var(--gk-indigo);
+  --gutenku-focus-ring: var(--gk-indigo);
+  --gutenku-theme-primary-oklch: var(--gk-indigo);
+  --gutenku-app-bg: var(--gk-paper);
+  --gutenku-app-bg-image: var(--gk-paper-texture);
+  --gutenku-shadow-zen: var(--gk-lift);
+
+  // Legacy jade-teal accents resolve to ink: Ex Libris has no second accent
+  --gutenku-zen-secondary: var(--gk-ink-soft);
+  --gutenku-zen-accent: var(--gk-ink-soft);
+  --gutenku-zen-mist: rgb(39 34 31 / 0.05);
+  --gutenku-zen-water: rgb(39 34 31 / 0.04);
+  --gutenku-theme-secondary-oklch: var(--gk-ink-soft);
+  --gutenku-theme-accent-oklch: var(--gk-ink-soft);
+  --gutenku-btn-success: var(--gk-indigo);
+  --gutenku-btn-success-bg: rgb(38 67 72 / 0.1);
+  --gutenku-btn-success-text: var(--gk-indigo);
+
+  // Legacy radii collapse onto paper (4px) and control (3px) corners
+  --gutenku-radius-xs: 2px;
+  --gutenku-radius-sm: var(--gk-radius-control);
+  --gutenku-radius-md: var(--gk-radius-paper);
+  --gutenku-radius-lg: var(--gk-radius-paper);
+  --gutenku-radius-xl: var(--gk-radius-paper);
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --gk-paper: oklch(0.215 0.01 70);
+  --gk-paper-raised: oklch(0.245 0.011 70);
+  --gk-paper-deep: oklch(0.175 0.01 70);
+  --gk-paper-edge: oklch(0.32 0.012 70);
+  --gk-ink: oklch(0.92 0.012 85);
+  --gk-ink-soft: oklch(0.76 0.015 80);
+  --gk-ink-faint: oklch(0.92 0.012 85 / 0.16);
+  --gk-indigo: oklch(0.76 0.045 205);
+  --gk-on-indigo: oklch(0.2 0.01 70);
+  --gk-stamp: oklch(0.66 0.16 28);
+  --gk-on-stamp: oklch(0.18 0.01 60);
+  --gk-stamp-wash: oklch(0.66 0.16 28 / 0.14);
+  --gk-stamp-ink: oklch(0.81 0.1 28);
+  --gk-indigo-edge: color-mix(in oklch, var(--gk-indigo), black 45%);
+  --gk-scrim: oklch(0.1 0.01 70 / 0.65);
+  // One dimming for every image on night paper: below the ink, never a glare
+  --gk-plate-filter: brightness(0.85);
+  --gk-indigo-fill: oklch(0.42 0.05 205);
+  --gk-on-indigo-fill: oklch(0.95 0.01 85);
+  --gk-cover-filter: brightness(0.72) sepia(0.18);
+  --gk-paper-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cdefs%3E%3Cfilter id='f' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.02 0.6' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.92 0 0 0 0 0.9 0 0 0 0 0.85 0 0 0 0.035 0'/%3E%3C/filter%3E%3Cpattern id='l' width='240' height='3' patternUnits='userSpaceOnUse'%3E%3Cpath d='M0 .5H240' stroke='rgb(236,230,218)' stroke-opacity='0.03'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='240' height='240' filter='url(%23f)'/%3E%3Crect width='240' height='240' fill='url(%23l)'/%3E%3Cpath d='M60 0V240M180 0V240' stroke='rgb(236,230,218)' stroke-opacity='0.022'/%3E%3C/svg%3E");
+  --gk-lift: 0 1px 0 var(--gk-paper-edge), 0 18px 34px -20px oklch(0 0 0 / 0.7);
+  // At night a higher sheet is lighter: the toast sits clearly above a dialog
+  --gk-paper-float: oklch(0.3 0.012 70);
+  --gk-lift-float:
+    0 0 0 1px oklch(0.4 0.012 70), 0 2px 6px oklch(0 0 0 / 0.35),
+    0 24px 44px -16px oklch(0 0 0 / 0.8);
+
+  --gutenku-paper-bg: var(--gk-paper-raised);
+  --gutenku-paper-bg-warm: var(--gk-paper);
+  --gutenku-paper-bg-aged: var(--gk-paper-deep);
+  --gutenku-paper-border: var(--gk-ink-faint);
+  --gutenku-paper-border-hover: oklch(0.92 0.012 85 / 0.4);
+  --gutenku-text-primary: var(--gk-ink);
+  --gutenku-text-secondary: var(--gk-ink-soft);
+  --gutenku-text-muted: var(--gk-ink-soft);
+  --gutenku-text-accent: var(--gk-ink);
+  --gutenku-text-zen: var(--gk-indigo);
+  --gutenku-zen-primary: var(--gk-indigo);
+  --gutenku-focus-ring: var(--gk-indigo);
+  --gutenku-theme-primary-oklch: var(--gk-indigo);
+  --gutenku-app-bg: var(--gk-paper-deep);
+  --gutenku-app-bg-image: var(--gk-paper-texture);
+  --gutenku-shadow-zen: var(--gk-lift);
+
+  --gutenku-zen-secondary: var(--gk-ink-soft);
+  --gutenku-zen-accent: var(--gk-ink-soft);
+  --gutenku-zen-mist: oklch(0.92 0.012 85 / 0.05);
+  --gutenku-zen-water: oklch(0.92 0.012 85 / 0.04);
+  --gutenku-theme-secondary-oklch: var(--gk-ink-soft);
+  --gutenku-theme-accent-oklch: var(--gk-ink-soft);
+  --gutenku-btn-success: var(--gk-indigo);
+  --gutenku-btn-success-bg: oklch(0.76 0.045 205 / 0.14);
+  --gutenku-btn-success-text: var(--gk-indigo);
+}
+
+// Browser surfaces carry the identity too
+// A red tint under the ink, not a red block: the text keeps its colour
+::selection {
+  background: color-mix(in oklch, var(--gk-stamp) 22%, transparent);
+  color: inherit;
+}
+
+:focus-visible {
+  outline-color: var(--gk-indigo);
+}
+
+// Below 960px the gutter tightens to 1rem (the page top follows it)
+@media (max-width: 959px) {
+  :root {
+    --gk-gutter: 1rem;
+  }
+}

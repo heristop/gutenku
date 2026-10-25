@@ -20,6 +20,9 @@ import { ReduceBooksHandler } from '~/application/queries/puzzle/ReduceBooksHand
 import { GetPuzzleVersionHandler } from '~/application/queries/puzzle/GetPuzzleVersionHandler';
 import { RevealEmoticonHandler } from '~/application/queries/puzzle/RevealEmoticonHandler';
 import { RevealHaikuHandler } from '~/application/queries/puzzle/RevealHaikuHandler';
+import { GetDailyHaikuHandler } from '~/application/queries/daily-haiku/GetDailyHaikuHandler';
+import { GetDailyHaikuPageHandler } from '~/application/queries/daily-haiku/GetDailyHaikuPageHandler';
+import { GetDailyHaikuNeighboursHandler } from '~/application/queries/daily-haiku/GetDailyHaikuNeighboursHandler';
 import { GetGlobalStatsHandler } from '~/application/queries/stats/GetGlobalStatsHandler';
 import { CacheHaikuHandler } from '~/application/commands/haiku/CacheHaikuHandler';
 import { FetchBookHandler } from '~/application/commands/book/FetchBookHandler';
@@ -69,6 +72,15 @@ container.register(createQueryHandlerToken('RevealEmoticonQuery'), {
 });
 container.register(createQueryHandlerToken('RevealHaikuQuery'), {
   useClass: RevealHaikuHandler,
+});
+container.register(createQueryHandlerToken('GetDailyHaikuQuery'), {
+  useClass: GetDailyHaikuHandler,
+});
+container.register(createQueryHandlerToken('GetDailyHaikuPageQuery'), {
+  useClass: GetDailyHaikuPageHandler,
+});
+container.register(createQueryHandlerToken('GetDailyHaikuNeighboursQuery'), {
+  useClass: GetDailyHaikuNeighboursHandler,
 });
 container.register(createQueryHandlerToken('GetGlobalStatsQuery'), {
   useClass: GetGlobalStatsHandler,

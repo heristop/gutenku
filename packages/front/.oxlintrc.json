@@ -52,6 +52,12 @@
         "@typescript-eslint/no-namespace": "off",
         "max-lines": "off"
       }
+    },
+    {
+      "files": ["src/core/components/icons/ink/paths.ts"],
+      "rules": {
+        "max-lines": "off"
+      }
     }
   ],
   "ignorePatterns": ["node_modules", "dist", "cypress"]

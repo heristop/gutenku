@@ -1,4 +1,26 @@
 import { container } from 'tsyringe';
+import { loadDailyExcerpt } from '~/presentation/graphql/daily-excerpt';
+import type { VerseExcerpt } from '~/domain/services/verse-excerpt';
+import {
+  type IChapterRepository,
+  IChapterRepositoryToken,
+} from '~/domain/repositories/IChapterRepository';
+
+// GraphQL calls a field given as a function: the excerpt is only cut when asked
+type LazyDailyHaiku = Omit<DailyHaiku, 'excerpt'> & {
+  excerpt: () => Promise<VerseExcerpt | null>;
+};
+import {
+  type AIAccess,
+  openAIScopeFor,
+  withoutDisallowedAI,
+} from '~/presentation/graphql/ai-access';
+import {
+  type OpenAIScope,
+  runWithOpenAIScope,
+  scopedGenerator,
+} from '~/infrastructure/external/openai-scope';
+import { checkOpenAIKey } from '~/infrastructure/external/openai-key-check';
 import type { HaikuValue, HaikuVariables } from '~/shared/types';
 import { type IQueryBus, IQueryBusToken } from '~/application/cqrs';
 import {
@@ -26,10 +48,77 @@ import {
   RevealEmoticonQuery,
   RevealHaikuQuery,
 } from '~/application/queries/puzzle';
-import type { PuzzleVersion, HaikuVersion } from '@gutenku/shared';
+import {
+  GetDailyHaikuNeighboursQuery,
+  GetDailyHaikuPageQuery,
+  GetDailyHaikuQuery,
+} from '~/application/queries/daily-haiku';
+import {
+  DAILY_HAIKU_PAGE_DEFAULT,
+  DAILY_HAIKU_PAGE_MAX,
+  type DailyHaiku,
+  type DailyHaikuPage,
+  type PuzzleVersion,
+  type HaikuVersion,
+} from '@gutenku/shared';
+import { GraphQLError } from 'graphql';
+import type { DailyHaikuNeighbours } from '~/domain/repositories/IDailyHaikuRepository';
+import {
+  getCurrentPublicationDate,
+  isValidDailyHaikuDate,
+} from '~/domain/services/DailyHaikuSchedule';
+import {
+  resolvePublicBaseUrl,
+  toPublicDailyHaiku,
+  toPublicDailyHaikuPage,
+} from '~/presentation/rest/daily-haiku-presenter';
 import { GetGlobalStatsQuery } from '~/application/queries/stats';
 
+function badUserInput(message: string, reason: string): GraphQLError {
+  return new GraphQLError(message, {
+    extensions: { code: 'BAD_USER_INPUT', reason },
+  });
+}
+
+function assertDailyHaikuDate(name: string, value: string): void {
+  if (!isValidDailyHaikuDate(value)) {
+    throw badUserInput(`${name} must be YYYY-MM-DD`, 'invalid_date');
+  }
+}
+
+// Both neighbour fields share one lookup per parent object.
+const neighbourLookups = new WeakMap<
+  DailyHaiku,
+  Promise<DailyHaikuNeighbours>
+>();
+
+function resolveNeighbour(
+  parent: DailyHaiku,
+  field: 'previousDate' | 'nextDate',
+): Promise<string | null> | string | null {
+  const known = parent[field];
+
+  if (known !== undefined) {
+    return known;
+  }
+
+  let lookup = neighbourLookups.get(parent);
+
+  if (!lookup) {
+    const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
+    lookup = queryBus.execute(new GetDailyHaikuNeighboursQuery(parent.date));
+    neighbourLookups.set(parent, lookup);
+  }
+
+  return lookup.then((neighbours) => neighbours[field]);
+}
+
 const resolvers = {
+  DailyHaiku: {
+    previousDate: (parent: DailyHaiku) =>
+      resolveNeighbour(parent, 'previousDate'),
+    nextDate: (parent: DailyHaiku) => resolveNeighbour(parent, 'nextDate'),
+  },
   Query: {
     book: async (_: unknown, { id }: { id: string }) => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
@@ -51,10 +140,18 @@ const resolvers = {
 
       return queryBus.execute(new GetAllChaptersQuery(filter));
     },
-    haiku: async (_: unknown, args: HaikuVariables): Promise<HaikuValue> => {
+    haiku: async (
+      _: unknown,
+      args: HaikuVariables,
+      context?: { ai?: AIAccess },
+    ): Promise<HaikuValue> => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
 
-      return queryBus.execute(new GenerateHaikuQuery(args));
+      return runWithOpenAIScope(openAIScopeFor(context?.ai), () =>
+        queryBus.execute(
+          new GenerateHaikuQuery(withoutDisallowedAI(args, context?.ai)),
+        ),
+      );
     },
     globalStats: async () => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
@@ -125,11 +222,28 @@ const resolvers = {
     },
     reduceBooks: async (
       _: unknown,
-      { date, locale }: { date: string; locale?: string },
+      {
+        date,
+        locale,
+        guessedBookIds,
+        currentRound,
+      }: {
+        date: string;
+        locale?: string;
+        guessedBookIds?: string[];
+        currentRound?: number;
+      },
     ) => {
       const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
 
-      return queryBus.execute(new ReduceBooksQuery(date, locale || 'en'));
+      return queryBus.execute(
+        new ReduceBooksQuery(
+          date,
+          locale || 'en',
+          guessedBookIds ?? [],
+          currentRound ?? 1,
+        ),
+      );
     },
     puzzleVersion: async (
       _: unknown,
@@ -147,8 +261,75 @@ const resolvers = {
 
       return queryBus.execute(new GetHaikuVersionQuery(date));
     },
+    dailyHaiku: async (
+      _: unknown,
+      { date }: { date?: string | null },
+      context?: { publicBaseUrl?: string },
+    ): Promise<LazyDailyHaiku | null> => {
+      if (date) {
+        assertDailyHaikuDate('date', date);
+
+        if (date > getCurrentPublicationDate()) {
+          throw badUserInput('future_date', 'future_date');
+        }
+      }
+
+      const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
+      const record = await queryBus.execute(
+        new GetDailyHaikuQuery(date ?? undefined),
+      );
+
+      if (!record) {
+        return null;
+      }
+
+      return {
+        ...toPublicDailyHaiku(
+          record,
+          context?.publicBaseUrl ?? resolvePublicBaseUrl(),
+        ),
+        // Resolved only when asked for: the chapter is read for the home slip
+        excerpt: () =>
+          loadDailyExcerpt(
+            record,
+            (id) => queryBus.execute(new GetChapterByIdQuery(id)),
+            (reference) =>
+              container
+                .resolve<IChapterRepository>(IChapterRepositoryToken)
+                .getChaptersByBookReference(reference),
+          ),
+      };
+    },
+    dailyHaikus: async (
+      _: unknown,
+      { before, limit }: { before?: string | null; limit?: number | null },
+      context?: { publicBaseUrl?: string },
+    ): Promise<DailyHaikuPage> => {
+      if (before) {
+        assertDailyHaikuDate('before', before);
+      }
+
+      if (limit !== undefined && limit !== null && limit < 1) {
+        throw badUserInput('limit must be a positive integer', 'invalid_limit');
+      }
+
+      const queryBus = container.resolve<IQueryBus>(IQueryBusToken);
+      const page = await queryBus.execute(
+        new GetDailyHaikuPageQuery(
+          before ?? undefined,
+          Math.min(limit ?? DAILY_HAIKU_PAGE_DEFAULT, DAILY_HAIKU_PAGE_MAX),
+        ),
+      );
+
+      return toPublicDailyHaikuPage(
+        page,
+        context?.publicBaseUrl ?? resolvePublicBaseUrl(),
+      );
+    },
   },
   Mutation: {
+    checkOpenAIKey: (_: unknown, { key }: { key: string }) =>
+      checkOpenAIKey(key),
     revealEmoticon: async (
       _: unknown,
       {
@@ -204,11 +385,23 @@ const resolvers = {
       async *subscribe(
         _: unknown,
         args: IterativeHaikuArgs,
+        context?: { ai?: AIAccess },
       ): AsyncGenerator<{ haikuGeneration: HaikuProgress }> {
         const handler = container.resolve(GenerateHaikuIterativeHandler);
-        
-for await (const progress of handler.generate(args)) {
-          yield { haikuGeneration: progress };
+        const allowed = withoutDisallowedAI(args, context?.ai);
+        const scope: OpenAIScope = openAIScopeFor(context?.ai);
+
+        for await (const progress of scopedGenerator(
+          scope,
+          handler.generate(allowed),
+        )) {
+          // The last event says if AI fell short (a rejected key, no credit)
+          yield {
+            haikuGeneration:
+              progress.isComplete && scope.failure
+                ? { ...progress, aiError: scope.failure }
+                : progress,
+          };
         }
       },
     },

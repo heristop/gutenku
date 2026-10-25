@@ -2,25 +2,25 @@
 import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
-import { Palette, ChevronLeft, ChevronRight } from '@lucide/vue';
+import {
+  Palette,
+  ChevronLeft,
+  ChevronRight,
+} from '@/core/components/icons/ink';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
-import { useInView } from '@/features/haiku/composables/in-view';
 import { useDebouncedCallback } from '@/core/composables/debounce';
 import { useTouchGestures } from '@/core/composables/touch-gestures';
-import HankoStamp from '@/features/haiku/components/HankoStamp.vue';
-import InkDropLoader from '@/core/components/InkDropLoader.vue';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
 import ZenSelect from '@/core/components/ui/ZenSelect.vue';
 import ZenImage from '@/core/components/ui/ZenImage.vue';
+import InkPlate from '@/core/components/ink/InkPlate.vue';
+import PlateQuill from '@/core/components/ink/plates/PlateQuill.vue';
 
 const { t } = useI18n();
 
 const themeChangeAnnouncement = ref('');
 
-const cardRef = useTemplateRef<HTMLElement>('cardRef');
-const canvasRef = useTemplateRef<HTMLElement>('canvasRef');
 const swipeRef = useTemplateRef<HTMLElement>('swipeRef');
-const { isInView } = useInView(cardRef, { delay: 100 });
 
 const { fetchNewHaiku } = useHaikuStore();
 
@@ -50,11 +50,12 @@ const {
   themeOptions,
   imageAIThemes,
   generationProgress,
+  imagePreviews,
 } = storeToRefs(useHaikuStore());
 
 // Dynamic loading label: "Drawing" when GA finished (stopReason set), otherwise "Crafting"
 const loadingLabel = computed(() => {
-  if (generationProgress.value.stopReason) {
+  if (generationProgress.value.stopReason || imagePreviews.value.length > 0) {
     return t('haikuCanvas.drawing');
   }
 
@@ -76,52 +77,12 @@ const { debouncedFn: debouncedFetchHaiku, isPending: isThemeChangePending } =
   useDebouncedCallback(fetchNewHaiku, 500);
 
 const imageLoaded = ref(false);
-const showHanko = ref(false);
-const isRevealing = ref(false);
-
-const ripples = ref<Array<{ id: number; x: number; y: number }>>([]);
-let rippleId = 0;
-watch(imageLoaded, (loaded) => {
-  if (loaded) {
-    isRevealing.value = true;
-    setTimeout(() => {
-      isRevealing.value = false;
-      showHanko.value = true;
-    }, 1600); // Match ink wash animation duration
-  }
-});
 
 watch(loading, (isLoading) => {
   if (isLoading) {
-    showHanko.value = false;
     imageLoaded.value = false;
-    isRevealing.value = false;
   }
 });
-
-const createRipple = (event?: MouseEvent | KeyboardEvent) => {
-  if (!canvasRef.value) {
-    return;
-  }
-
-  const rect = canvasRef.value.getBoundingClientRect();
-
-  // Default: center ripple for keyboard activation
-  let x = rect.width / 2;
-  let y = rect.height / 2;
-
-  if (event && 'clientX' in event) {
-    x = event.clientX - rect.left;
-    y = event.clientY - rect.top;
-  }
-
-  const id = ++rippleId;
-  ripples.value.push({ id, x, y });
-
-  setTimeout(() => {
-    ripples.value = ripples.value.filter((r) => r.id !== id);
-  }, 1000);
-};
 
 const haikuImage = computed(() => {
   if (!haiku.value?.image) {
@@ -137,11 +98,7 @@ const onImageLoad = () => {
 </script>
 
 <template>
-  <div
-    ref="cardRef"
-    class="animate-in haiku-canvas-wrapper"
-    :class="{ 'is-visible': isInView }"
-  >
+  <div class="haiku-canvas-wrapper">
     <ZenCard
       v-if="haiku"
       variant="default"
@@ -158,130 +115,72 @@ const onImageLoad = () => {
         class="paper-frame"
         :class="{ 'is-swiping': isSwiping }"
       >
-        <div
-          v-if="loading"
-          v-motion
-          :initial="{ opacity: 0, scale: 0.95 }"
-          :enter="{
-            opacity: 1,
-            scale: 1,
-            transition: { duration: 400, ease: [0.25, 0.8, 0.25, 1] },
-          }"
-          :leave="{
-            opacity: 0,
-            scale: 0.98,
-            transition: { duration: 200, ease: [0.4, 0, 1, 1] },
-          }"
-          class="zen-loading-skeleton"
-        >
-          <InkDropLoader :size="100" />
-          <div class="loading-text">
-            {{ loadingLabel }}
-          </div>
-        </div>
-
-        <div
-          v-else
-          v-motion
-          :initial="{ opacity: 0, scale: 0.95, rotateY: 5 }"
-          :enter="{
-            opacity: 1,
-            scale: 1,
-            rotateY: 0,
-            transition: { duration: 600, ease: [0.4, 0, 0.2, 1] },
-          }"
-          :leave="{
-            opacity: 0,
-            scale: 0.98,
-            transition: { duration: 200, ease: [0.4, 0, 1, 1] },
-          }"
-          class="canvas-container"
-        >
+        <Transition name="canvas-swap" mode="out-in">
           <div
-            ref="canvasRef"
-            class="canvas water-ripple-container"
-            role="img"
-            :aria-label="
-              t('haikuCanvas.imageLabel', { verses: haiku.verses.join(', ') })
-            "
-            tabindex="0"
-            @click="createRipple"
-            @keydown.enter="createRipple"
-            @keydown.space.prevent="createRipple"
+            v-if="loading"
+            key="loading"
+            class="zen-loading-skeleton"
+            :class="{ 'is-developing': imagePreviews.length > 0 }"
           >
-            <ZenImage
-              :src="haikuImage"
-              :alt="haiku.verses.join(', ')"
-              aspect-ratio="3/4"
-              fit="cover"
-              :lazy="false"
-              placeholder="none"
-              :reveal="false"
-              :prevent-context-menu="true"
-              class="haiku-image"
-              :class="{ 'haiku-image--reveal': imageLoaded }"
-              @load="onImageLoad"
+            <!-- Drafts of the AI background, each washing in over the last,
+                 sharper every time, until the finished card replaces them -->
+            <img
+              v-for="(src, index) in imagePreviews"
+              :key="index"
+              :src="src"
+              alt=""
+              class="draft"
+              :class="`draft--${Math.min(index, 2)}`"
+              decoding="async"
             />
-
-            <div
-              v-for="ripple in ripples"
-              :key="ripple.id"
-              class="water-ripple water-ripple--active"
-              :style="{
-                left: `${ripple.x}px`,
-                top: `${ripple.y}px`,
-                width: '100px',
-                height: '100px',
-                marginLeft: '-50px',
-                marginTop: '-50px',
-              }"
-            />
-
-            <HankoStamp :show="showHanko" :size="42" />
-
-            <!-- Ink ripple effect during reveal -->
-            <Transition name="ink-ripple-fade">
-              <div v-if="isRevealing" class="ink-ripple-overlay">
-                <div class="ink-reveal-ripple ink-reveal-ripple-1" />
-                <div class="ink-reveal-ripple ink-reveal-ripple-2" />
-                <div class="ink-reveal-ripple ink-reveal-ripple-3" />
-              </div>
-            </Transition>
-
-            <div class="canvas-focus-overlay" />
-
-            <div class="paper-overlay" />
-
-            <div class="aged-edges">
-              <div class="edge edge-top" />
-              <div class="edge edge-right" />
-              <div class="edge edge-bottom" />
-              <div class="edge edge-left" />
-            </div>
-
-            <!-- Swipe hint for touch devices -->
-            <Transition name="swipe-hint-fade">
-              <div
-                v-if="isTouchDevice && showSwipeHint && !loading"
-                class="swipe-hint-overlay"
-              >
-                <div class="swipe-hint">
-                  <ChevronLeft
-                    :size="16"
-                    class="swipe-arrow swipe-arrow--left"
-                  />
-                  <span class="swipe-text">{{
-                    t('haikuChapter.swipeHint')
-                  }}</span>
-                  <ChevronRight
-                    :size="16"
-                    class="swipe-arrow swipe-arrow--right"
-                  />
-                </div>
-              </div>
-            </Transition>
+            <InkPlate v-if="imagePreviews.length === 0" class="loading-plate">
+              <PlateQuill />
+            </InkPlate>
+            <p class="loading-text">
+              {{ loadingLabel }}
+            </p>
           </div>
-        </div>
+
+          <div v-else key="canvas" class="canvas-container">
+            <div
+              class="canvas"
+              role="img"
+              :aria-label="
+                t('haikuCanvas.imageLabel', { verses: haiku.verses.join(', ') })
+              "
+            >
+              <ZenImage
+                :src="haikuImage"
+                :alt="haiku.verses.join(', ')"
+                aspect-ratio="3/4"
+                fit="cover"
+                :lazy="false"
+                placeholder="none"
+                :reveal="false"
+                :prevent-context-menu="true"
+                class="haiku-image"
+                :class="{ 'haiku-image--reveal': imageLoaded }"
+                @load="onImageLoad"
+              />
+
+              <!-- Swipe hint for touch devices -->
+              <Transition name="swipe-hint-fade">
+                <div
+                  v-if="isTouchDevice && showSwipeHint && !loading"
+                  class="swipe-hint-overlay"
+                >
+                  <div class="swipe-hint">
+                    <ChevronLeft :size="16" aria-hidden="true" />
+                    <span class="swipe-text">{{
+                      t('haikuChapter.swipeHint')
+                    }}</span>
+                    <ChevronRight :size="16" aria-hidden="true" />
+                  </div>
+                </div>
+              </Transition>
+            </div>
+          </div>
+        </Transition>
       </div>
 
       <template #actions>
@@ -305,369 +204,159 @@ const onImageLoad = () => {
 
 <style lang="scss" scoped>
 .haiku-canvas-card {
-  padding: var(--gutenku-space-2) var(--gutenku-space-4) var(--gutenku-space-4);
-  margin-bottom: var(--gutenku-space-2);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(
-    135deg,
-    var(--gutenku-paper-bg) 0%,
-    var(--gutenku-paper-bg-warm) 100%
-  );
-  transition: var(--gutenku-transition-zen);
+  padding: 1rem 1rem 0.75rem;
+
+  // The card centres its content, which would shrink it to fit: the loading
+  // frame and the drafts must take the same box as the finished print
+  :deep(.zen-card__content) {
+    width: 100%;
+  }
+
+  :deep(.zen-card__actions) {
+    width: 100%;
+    padding: 0.75rem 0.5rem 0;
+  }
 }
 
 .paper-frame {
   width: 100%;
   max-width: 25rem;
-  margin: 0.75rem auto 0;
+  margin: 0 auto;
   position: relative;
   aspect-ratio: 3/4;
-}
-
-.zen-loading-skeleton {
-  aspect-ratio: 3/4;
-  background: var(--gutenku-paper-bg);
-  border-radius: var(--gutenku-radius-sm);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  color: var(--gutenku-zen-primary);
-
-  .loading-text {
-    font-size: 0.9rem;
-    color: var(--gutenku-text-zen);
-    z-index: 3;
-    text-align: center;
-  }
-}
-
-.brush-stroke {
-  position: absolute;
-  background: linear-gradient(
-    45deg,
-    var(--gutenku-zen-primary),
-    var(--gutenku-zen-accent)
-  );
-  border-radius: var(--gutenku-radius-xs);
-  opacity: 0.3;
-}
-
-.brush-stroke-1 {
-  width: 60%;
-  height: 3px;
-  top: 30%;
-  left: 10%;
-  animation: brush-draw 2s ease-in-out infinite;
-  animation-delay: 0s;
-}
-
-.brush-stroke-2 {
-  width: 40%;
-  height: 2px;
-  top: 50%;
-  right: 15%;
-  animation: brush-draw 2s ease-in-out infinite;
-  animation-delay: 0.7s;
-}
-
-.brush-stroke-3 {
-  width: 50%;
-  height: 2px;
-  bottom: 35%;
-  left: 20%;
-  animation: brush-draw 2s ease-in-out infinite;
-  animation-delay: 1.4s;
-}
-
-.canvas-container {
-  padding: var(--gutenku-space-2);
-  background: transparent;
-}
-
-.canvas {
-  position: relative;
-  border-radius: var(--gutenku-radius-sm);
-  overflow: hidden;
-  box-shadow:
-    0 4px 12px oklch(0 0 0 / 0.15),
-    inset 0 1px 0 oklch(1 0 0 / 0.2);
-
-  &:focus-visible {
-    outline: 2px solid var(--gutenku-zen-primary);
-    outline-offset: 2px;
-  }
-
-  &:hover {
-    transition: var(--gutenku-transition-zen);
-
-    .paper-overlay {
-      opacity: 0.7;
-    }
-
-    .haiku-image {
-      filter: contrast(1.02) brightness(1.01);
-    }
-  }
-}
-
-// Ink wash reveal
-.haiku-image {
-  border-radius: var(--gutenku-radius-sm);
-  opacity: 0;
-  filter: blur(20px) saturate(0.3);
-  transform: scale(1.08);
-  mask-image: radial-gradient(circle, black 0%, transparent 0%);
-  -webkit-mask-image: radial-gradient(circle, black 0%, transparent 0%);
-
-  &--reveal {
-    animation:
-      ink-wash-opacity 1.2s ease-out forwards,
-      ink-wash-blur 1.4s ease-out forwards,
-      ink-wash-mask 1.6s cubic-bezier(0.4, 0, 0.2, 1) forwards,
-      ink-wash-scale 1.4s ease-out forwards;
-  }
-}
-
-@keyframes ink-wash-opacity {
-  0% {
-    opacity: 0;
-  }
-  30% {
-    opacity: 0.6;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes ink-wash-blur {
-  0% {
-    filter: blur(20px) saturate(0.3);
-  }
-  50% {
-    filter: blur(8px) saturate(0.7);
-  }
-  100% {
-    filter: blur(0) saturate(1);
-  }
-}
-
-@keyframes ink-wash-mask {
-  0% {
-    mask-image: radial-gradient(circle, black 0%, transparent 0%);
-    -webkit-mask-image: radial-gradient(circle, black 0%, transparent 0%);
-  }
-  100% {
-    mask-image: radial-gradient(circle, black 100%, transparent 100%);
-    -webkit-mask-image: radial-gradient(circle, black 100%, transparent 100%);
-  }
-}
-
-@keyframes ink-wash-scale {
-  0% {
-    transform: scale(1.08);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-// Reduced motion support
-@media (prefers-reduced-motion: reduce) {
-  .haiku-image {
-    opacity: 1;
-    filter: none;
-    transform: none;
-    mask-image: none;
-    -webkit-mask-image: none;
-
-    &--reveal {
-      animation: simple-fade-in 0.3s ease-out forwards;
-    }
-  }
-}
-
-@keyframes simple-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.canvas-focus-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--gutenku-canvas-overlay);
-  pointer-events: none;
-  border-radius: var(--gutenku-radius-sm);
-  opacity: 0.8;
-  transition: var(--gutenku-transition-zen);
-  z-index: 1;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 60%;
-    height: 60%;
-    background: radial-gradient(
-      circle,
-      var(--gutenku-backdrop-overlay) 0%,
-      transparent 70%
-    );
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    animation: zen-breathe 4s ease-in-out infinite;
-  }
-}
-
-@keyframes zen-breathe {
-  0%,
-  100% {
-    opacity: 0.3;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  50% {
-    opacity: 0.6;
-    transform: translate(-50%, -50%) scale(1.1);
-  }
-}
-
-.paper-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image:
-    radial-gradient(
-      circle at 25% 25%,
-      var(--gutenku-zen-mist) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 75% 75%,
-      var(--gutenku-zen-water) 0%,
-      transparent 50%
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 1px,
-      var(--gutenku-zen-water) 1px,
-      var(--gutenku-zen-water) 2px
-    );
-  pointer-events: none;
-  opacity: 0.6;
-  transition: var(--gutenku-transition-zen);
-  border-radius: var(--gutenku-radius-sm);
-}
-
-.aged-edges {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  border-radius: var(--gutenku-radius-sm);
-}
-
-.edge {
-  position: absolute;
-  background: linear-gradient(
-    to right,
-    var(--gutenku-paper-border),
-    transparent
-  );
-
-  &.edge-top {
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(
-      to bottom,
-      var(--gutenku-paper-border),
-      transparent
-    );
-  }
-
-  &.edge-right {
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 2px;
-    background: linear-gradient(
-      to left,
-      var(--gutenku-paper-border),
-      transparent
-    );
-  }
-
-  &.edge-bottom {
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(
-      to top,
-      var(--gutenku-paper-border),
-      transparent
-    );
-  }
-
-  &.edge-left {
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 2px;
-    background: linear-gradient(
-      to right,
-      var(--gutenku-paper-border),
-      transparent
-    );
-  }
-}
-
-.theme-selector {
-  max-width: 12.5rem;
-}
-
-@keyframes brush-draw {
-  0% {
-    transform: scaleX(0);
-    opacity: 0;
-  }
-  50% {
-    transform: scaleX(1);
-    opacity: 0.6;
-  }
-  100% {
-    transform: scaleX(0);
-    opacity: 0;
-  }
-}
-
-// Swipe feedback
-.paper-frame {
-  transition: transform 0.2s ease-out;
+  transition: transform var(--gk-dur-fast) var(--gk-ease-out);
 
   &.is-swiping {
     transform: scale(0.98);
   }
+}
+
+.zen-loading-skeleton {
+  aspect-ratio: 3/4;
+  background: var(--gk-paper-deep);
+  border-radius: var(--gk-radius-control);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  overflow: hidden;
+  color: var(--gk-ink);
+
+  .loading-plate {
+    width: min(9rem, 50%);
+    rotate: -1.5deg;
+  }
+
+  .loading-text {
+    margin: 0;
+    font-family: var(--gk-font);
+    font-size: 0.875rem;
+    color: var(--gk-ink-soft);
+    text-align: center;
+  }
+
+  &.is-developing {
+    position: relative;
+    justify-content: flex-end;
+    padding-bottom: 1rem;
+
+    .loading-text {
+      position: relative;
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--gk-radius-control);
+      background: color-mix(in srgb, var(--gk-paper) 82%, transparent);
+    }
+  }
+
+  // A draft settles like ink into wet paper: it arrives soft and finds its
+  // edges; later drafts start closer to the finished print
+  .draft {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: draft-wash 900ms var(--gk-ease-out) both;
+
+    &--0 {
+      --draft-blur: 6px;
+    }
+
+    &--1 {
+      --draft-blur: 2px;
+    }
+
+    &--2 {
+      --draft-blur: 0px;
+    }
+  }
+}
+
+@keyframes draft-wash {
+  from {
+    opacity: 0;
+    filter: blur(calc(var(--draft-blur) + 8px)) saturate(0.6);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(var(--draft-blur)) saturate(0.85);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zen-loading-skeleton .draft {
+    animation: none;
+    filter: blur(var(--draft-blur)) saturate(0.85);
+  }
+}
+
+// The card sits on the page like a loose leaf: no frame, only the paper lift
+.canvas {
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: var(--gk-lift);
+}
+
+// Plate reveal: the print settles onto its mount, a calm paper fade
+.haiku-image {
+  border-radius: 4px;
+  opacity: 0;
+
+  &--reveal {
+    animation: plate-settle 480ms var(--gk-ease-out) forwards;
+  }
+}
+
+@keyframes plate-settle {
+  from {
+    opacity: 0;
+    transform: scale(1.015);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.canvas-swap-enter-active,
+.canvas-swap-leave-active {
+  transition: opacity var(--gk-dur-base) var(--gk-ease-out);
+}
+
+.canvas-swap-enter-from,
+.canvas-swap-leave-to {
+  opacity: 0;
+}
+
+.theme-selector {
+  max-width: 12.5rem;
 }
 
 // Swipe hint overlay
@@ -688,67 +377,20 @@ const onImageLoad = () => {
   align-items: center;
   gap: 0.5rem;
   padding: 0.4rem 0.75rem;
-  background: oklch(0 0 0 / 0.6);
-  backdrop-filter: blur(4px);
-  border-radius: var(--gutenku-radius-xl);
-  color: oklch(1 0 0 / 0.9);
-  font-size: 0.75rem;
-  animation: swipe-hint-pulse 2s ease-in-out infinite;
+  background: var(--gk-paper);
+  border-radius: var(--gk-radius-control);
+  box-shadow: inset 0 0 0 1.5px var(--gk-ink);
+  color: var(--gk-ink);
+  font-family: var(--gk-font);
+  font-size: 0.875rem;
 }
 
-.swipe-text {
-  font-weight: 500;
-}
-
-.swipe-arrow {
-  opacity: 0.8;
-
-  &--left {
-    animation: swipe-arrow-left 1.5s ease-in-out infinite;
-  }
-
-  &--right {
-    animation: swipe-arrow-right 1.5s ease-in-out infinite;
-  }
-}
-
-@keyframes swipe-hint-pulse {
-  0%,
-  100% {
-    opacity: 0.85;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-@keyframes swipe-arrow-left {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(-3px);
-  }
-}
-
-@keyframes swipe-arrow-right {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(3px);
-  }
-}
-
-// Swipe hint fade transition
 .swipe-hint-fade-enter-active {
-  transition: opacity 0.3s ease-out;
+  transition: opacity var(--gk-dur-base) var(--gk-ease-out);
 }
 
 .swipe-hint-fade-leave-active {
-  transition: opacity 0.2s ease-in;
+  transition: opacity var(--gk-dur-fast) var(--gk-ease-out);
 }
 
 .swipe-hint-fade-enter-from,
@@ -756,72 +398,31 @@ const onImageLoad = () => {
   opacity: 0;
 }
 
-// Ink ripple overlay during reveal
-.ink-ripple-overlay {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 3;
-}
-
-.ink-reveal-ripple {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 10px;
-  height: 10px;
-  background: radial-gradient(
-    circle,
-    var(--gutenku-zen-ink, oklch(0.25 0.02 260 / 0.4)) 0%,
-    transparent 70%
-  );
-  border-radius: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  opacity: 0.5;
-}
-
-.ink-reveal-ripple-1 {
-  animation: ink-reveal-expand 1.6s ease-out forwards;
-}
-
-.ink-reveal-ripple-2 {
-  animation: ink-reveal-expand 1.6s ease-out 0.2s forwards;
-}
-
-.ink-reveal-ripple-3 {
-  animation: ink-reveal-expand 1.6s ease-out 0.4s forwards;
-}
-
-@keyframes ink-reveal-expand {
-  0% {
-    transform: translate(-50%, -50%) scale(0);
-    opacity: 0.5;
+@media (prefers-reduced-motion: reduce) {
+  .haiku-image--reveal {
+    animation: plate-fade var(--gk-dur-fast) var(--gk-ease-out) forwards;
   }
-  100% {
-    transform: translate(-50%, -50%) scale(60);
+
+  .paper-frame {
+    transition: none;
+  }
+
+  .paper-frame.is-swiping {
+    transform: none;
+  }
+}
+
+@keyframes plate-fade {
+  from {
     opacity: 0;
   }
-}
-
-// Ink ripple fade transition
-.ink-ripple-fade-enter-active {
-  transition: opacity 0.2s ease-out;
-}
-
-.ink-ripple-fade-leave-active {
-  transition: opacity 0.4s ease-in;
-}
-
-.ink-ripple-fade-enter-from,
-.ink-ripple-fade-leave-to {
-  opacity: 0;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ink-ripple-overlay {
-    display: none;
+  to {
+    opacity: 1;
   }
+}
+
+.haiku-image {
+  filter: var(--gk-plate-filter);
 }
 
 @media (max-width: 768px) {
@@ -835,12 +436,6 @@ const onImageLoad = () => {
 
   .theme-selector {
     max-width: 100%;
-  }
-
-  .zen-loading-skeleton {
-    .loading-text {
-      font-size: 0.8rem;
-    }
   }
 }
 </style>

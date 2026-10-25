@@ -1,0 +1,142 @@
+// File generated from our OpenAPI spec by Castiron. See CONTRIBUTING.md for details.
+import { APIResource } from "../core/resource.mjs";
+import { CursorPage } from "../core/pagination.mjs";
+import { buildHeaders } from "../internal/headers.mjs";
+import { multipartFormRequestOptions } from "../internal/uploads.mjs";
+import { waitForFileProcessing } from "../lib/file-processing.mjs";
+import { path } from "../internal/utils/path.mjs";
+function resolveResourceRequestOptions(options, buildOptions) {
+    return Promise.resolve(options).then(buildOptions);
+}
+// Recognizable options across SDK runtime versions. Keep this independent of
+// private RequestOptions fields so older handwritten runtimes still compile.
+const normalizeRequestOptionsForQueryKeys = new Set([
+    'method',
+    'path',
+    'query',
+    'body',
+    'headers',
+    'maxRetries',
+    'stream',
+    'timeout',
+    'httpAgent',
+    'fetchOptions',
+    'signal',
+    'idempotencyKey',
+    'defaultBaseURL',
+    '__metadata',
+    '__binaryRequest',
+    '__binaryResponse',
+    '__streamClass',
+    '__security',
+    '__synthesizeEventData',
+]);
+function normalizeRequestOptionsForQuery(value, queryKeys, options) {
+    if (typeof value !== 'object' || value === null)
+        return undefined;
+    // Optional never fields can still be explicitly undefined unless consumers
+    // enable exactOptionalPropertyTypes. Snapshot data without invoking getters.
+    const entries = Object.entries(Object.getOwnPropertyDescriptors(value)).filter(([, descriptor]) => descriptor.enumerable && (!('value' in descriptor) || descriptor.value !== undefined));
+    const keys = entries.map(([key]) => key);
+    const requestOnly = keys.some((key) => normalizeRequestOptionsForQueryKeys.has(key) && !queryKeys.includes(key));
+    if (!requestOnly)
+        return undefined;
+    // Declared query fields, including stream, must use the query argument.
+    // Mixing them with request-only options is ambiguous and could change the return type.
+    if (options !== undefined ||
+        keys.some((key) => !normalizeRequestOptionsForQueryKeys.has(key) || queryKeys.includes(key))) {
+        throw new TypeError('Query parameters and request options must be passed as separate arguments.');
+    }
+    // The query position must not gain authority to change the request destination
+    // or transport. Those overrides require the explicit request options argument.
+    if (keys.some((key) => !['headers', 'maxRetries', 'timeout', 'signal', 'idempotencyKey', 'query'].includes(key))) {
+        throw new TypeError('Pass transport overrides in the explicit request options argument.');
+    }
+    // Copy only the validated fields. Spreading value would reintroduce undefined
+    // transport overrides, and deleting them would mutate the caller's object.
+    return Object.fromEntries(entries.map(([key, descriptor]) => {
+        if ('value' in descriptor)
+            return [key, descriptor.value];
+        return [key, descriptor.get ? Reflect.apply(descriptor.get, value, []) : undefined];
+    }));
+}
+/**
+ * Files are used to upload documents that can be used with features like Assistants and Fine-tuning.
+ */
+export class Files extends APIResource {
+    /**
+     * Upload a file that can be used across various endpoints. Individual files can be
+     * up to 512 MB, and each project can store up to 2.5 TB of files in total. There
+     * is no organization-wide storage limit. Uploads to this endpoint are rate-limited
+     * to 1,000 requests per minute per authenticated user.
+     *
+     * - The Assistants API supports files up to 2 million tokens and of specific file
+     *   types. See the
+     *   [Assistants Tools guide](https://developers.openai.com/api/docs/guides/tools)
+     *   for details.
+     * - The Fine-tuning API only supports `.jsonl` files. The input also has certain
+     *   required formats for fine-tuning
+     *   [chat](https://developers.openai.com/api/docs/guides/supervised-fine-tuning#formatting-your-data)
+     *   or
+     *   [completions](https://developers.openai.com/api/docs/guides/supervised-fine-tuning#formatting-your-data)
+     *   models.
+     * - The Batch API only supports `.jsonl` files up to 200 MB in size. The input
+     *   also has a specific required
+     *   [format](https://developers.openai.com/api/docs/guides/batch#1-prepare-your-batch-file).
+     * - For Retrieval or `file_search` ingestion, upload files here first. If you need
+     *   to attach multiple uploaded files to the same vector store, use
+     *   [`/vector_stores/{vector_store_id}/file_batches`](https://developers.openai.com/api/reference/resources/vector_stores/subresources/file_batches/methods/create)
+     *   instead of attaching them one by one. Vector store attachment has separate
+     *   limits from file upload, including 2,000 attached files per minute per
+     *   organization.
+     *
+     * Please [contact us](https://help.openai.com/) if you need to increase these
+     * storage limits.
+     */
+    create(body, options) {
+        return this._client.post('/files', resolveResourceRequestOptions(options, (options) => multipartFormRequestOptions({ body, ...options, __security: { bearerAuth: true } }, this._client)));
+    }
+    /**
+     * Returns information about a specific file.
+     */
+    retrieve(fileID, options) {
+        return this._client.get(path `/files/${fileID}`, resolveResourceRequestOptions(options, (options) => ({ ...options, __security: { bearerAuth: true } })));
+    }
+    list(query = {}, options) {
+        const normalizeRequestOptionsForQueryOptions = normalizeRequestOptionsForQuery(query, ['after', 'limit', 'order', 'purpose'], options);
+        if (normalizeRequestOptionsForQueryOptions !== undefined) {
+            options = normalizeRequestOptionsForQueryOptions;
+            query = {};
+        }
+        query = query;
+        return this._client.getAPIList('/files', (CursorPage), resolveResourceRequestOptions(options, (options) => ({
+            query,
+            ...options,
+            __security: { bearerAuth: true },
+        })));
+    }
+    /**
+     * Delete a file and remove it from all vector stores.
+     */
+    delete(fileID, options) {
+        return this._client.delete(path `/files/${fileID}`, resolveResourceRequestOptions(options, (options) => ({ ...options, __security: { bearerAuth: true } })));
+    }
+    /**
+     * Returns a response containing the contents of the specified file.
+     */
+    content(fileID, options) {
+        return this._client.get(path `/files/${fileID}/content`, resolveResourceRequestOptions(options, (options) => ({
+            ...options,
+            headers: buildHeaders([{ Accept: 'application/binary' }, options?.headers]),
+            __security: { bearerAuth: true },
+            __binaryResponse: true,
+        })));
+    }
+    /**
+     * Waits for the given file to be processed, default timeout is 30 mins.
+     */
+    async waitForProcessing(id, { pollInterval = 5000, maxWait = 30 * 60 * 1000 } = {}) {
+        return await waitForFileProcessing(this, id, pollInterval, maxWait);
+    }
+}
+//# sourceMappingURL=files.mjs.map

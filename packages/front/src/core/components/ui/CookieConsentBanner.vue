@@ -61,7 +61,6 @@ watch(isBannerVisible, (show) => {
             <ZenButton
               variant="ghost"
               size="sm"
-              spring
               :aria-label="t('consent.declineLabel')"
               @click="decline"
             >
@@ -71,7 +70,6 @@ watch(isBannerVisible, (show) => {
             <ZenButton
               variant="cta"
               size="sm"
-              spring
               :aria-label="t('consent.acceptLabel')"
               @click="accept"
             >
@@ -85,6 +83,8 @@ watch(isBannerVisible, (show) => {
 </template>
 
 <style lang="scss" scoped>
+// Ex Libris: a slip of paper tucked under the foot of the page. Solid paper,
+// one ink rule, the same lift as every other sheet. No glass.
 .cookie-consent {
   position: fixed;
   bottom: 0;
@@ -96,6 +96,7 @@ watch(isBannerVisible, (show) => {
   padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0));
   // Only the card itself is interactive; the layer lets clicks pass through.
   pointer-events: none;
+  font-family: var(--gk-font);
 
   @media (min-width: 600px) {
     padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0));
@@ -108,22 +109,13 @@ watch(isBannerVisible, (show) => {
   gap: 0.875rem;
   max-width: min(94vw, 560px);
   margin: 0 auto;
-  pointer-events: auto;
-
   padding: 0.75rem 0.875rem;
-
-  background: oklch(0.98 0.01 85 / 0.94);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-
-  border: 1px solid var(--gutenku-paper-border);
-  border-radius: var(--gutenku-radius-lg);
-  // The inset top edge is the footer's material treatment: light catching the
-  // lip of the glass, which is what stops it reading as a flat rectangle.
-  box-shadow:
-    0 8px 28px oklch(0 0 0 / 0.1),
-    0 2px 6px oklch(0 0 0 / 0.05),
-    inset 0 1px 0 oklch(1 0 0 / 0.5);
+  pointer-events: auto;
+  background: var(--gk-paper-raised);
+  color: var(--gk-ink);
+  border: var(--gk-rule);
+  border-radius: var(--gk-radius-paper);
+  box-shadow: var(--gk-lift);
 }
 
 .cookie-consent__text {
@@ -133,20 +125,17 @@ watch(isBannerVisible, (show) => {
 
 .cookie-consent__title {
   margin: 0;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--gutenku-text-primary);
+  font-size: 0.9375rem;
+  font-weight: 700;
   line-height: 1.3;
+  color: var(--gk-ink);
 }
 
-// The smallest type on the page also sits over blurred glass, where letterforms
-// lose definition. A touch of positive tracking buys it back.
 .cookie-consent__message {
-  margin: 0.15rem 0 0;
-  font-size: 0.8rem;
-  letter-spacing: 0.01em;
-  color: var(--gutenku-text-secondary);
-  line-height: 1.4;
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--gk-ink-soft);
 }
 
 // Same brushstroke that separates the footer's groups.
@@ -158,7 +147,7 @@ watch(isBannerVisible, (show) => {
 }
 
 .cookie-consent__stroke {
-  stroke: color-mix(in oklch, var(--gutenku-text-primary) 15%, transparent);
+  stroke: var(--gk-ink-faint);
 }
 
 .cookie-consent__actions {
@@ -176,44 +165,17 @@ watch(isBannerVisible, (show) => {
   padding-inline: 1rem;
 }
 
-[data-theme='dark'] .cookie-consent__card {
-  background: oklch(0.18 0.015 70 / 0.94);
-  border-color: oklch(0.35 0.02 75 / 0.45);
-  box-shadow:
-    0 8px 28px oklch(0 0 0 / 0.35),
-    0 2px 6px oklch(0 0 0 / 0.22),
-    inset 0 1px 0 oklch(1 0 0 / 0.05);
-}
-
-[data-theme='dark'] .cookie-consent__title {
-  color: oklch(0.92 0.02 70);
-}
-
-[data-theme='dark'] .cookie-consent__message {
-  color: oklch(0.84 0.015 70);
-}
-
-[data-theme='dark'] .cookie-consent__stroke {
-  stroke: color-mix(in oklch, var(--gutenku-text-primary) 25%, transparent);
-}
-
-// It leaves along the path it arrived by, on the mirrored curve, so dismissing
-// reads as the entrance run backwards rather than a second, unrelated move.
-.cookie-consent-enter-active,
-.cookie-consent-leave-active {
-  will-change: transform, opacity;
-}
-
+// It leaves along the path it arrived by.
 .cookie-consent-enter-active {
   transition:
-    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    transform var(--gk-dur-base) var(--gk-ease-out),
+    opacity var(--gk-dur-base) var(--gk-ease-out);
 }
 
 .cookie-consent-leave-active {
   transition:
-    transform 0.2s cubic-bezier(0.64, 0, 0.78, 0),
-    opacity 0.2s cubic-bezier(0.64, 0, 0.78, 0);
+    transform var(--gk-dur-fast) var(--gk-ease-out),
+    opacity var(--gk-dur-fast) var(--gk-ease-out);
 }
 
 .cookie-consent-enter-from,
@@ -241,7 +203,7 @@ watch(isBannerVisible, (show) => {
 @media (prefers-reduced-motion: reduce) {
   .cookie-consent-enter-active,
   .cookie-consent-leave-active {
-    transition: opacity 0.15s ease;
+    transition: opacity 150ms linear;
   }
 
   .cookie-consent-enter-from,
@@ -250,33 +212,8 @@ watch(isBannerVisible, (show) => {
   }
 }
 
-// Translucency is decoration here; the words are not. Drop the glass and let
-// the card sit on solid paper.
-@media (prefers-reduced-transparency: reduce) {
-  .cookie-consent__card {
-    background: var(--gutenku-paper-bg);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-
-  [data-theme='dark'] .cookie-consent__card {
-    background: var(--gutenku-paper-bg);
-  }
-}
-
 @media (prefers-contrast: more) {
   .cookie-consent__card {
-    background: var(--gutenku-paper-bg);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    border-width: 2px;
-  }
-
-  [data-theme='dark'] .cookie-consent__card {
-    background: var(--gutenku-paper-bg);
-  }
-
-  .cookie-consent__actions :deep(.zen-btn) {
     border-width: 2px;
   }
 }

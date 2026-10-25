@@ -1,0 +1,29 @@
+{
+  "name": "mongo-sanitize",
+  "version": "1.1.0",
+  "description": "Helper to sanitize mongodb queries against query selector injections",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha test.js"
+  },
+  "keywords": [
+    "mongodb",
+    "sanitize",
+    "query",
+    "selector",
+    "injection",
+    "Petko"
+  ],
+  "devDependencies": {
+    "acquit": "1.0.0",
+    "body-parser": "1.6.5",
+    "express": "4.10.4",
+    "mocha": "1.21.4",
+    "superagent": "4.0.0"
+  },
+  "author": "Valeri Karpov",
+  "license": "MIT",
+  "repository": {
+    "url": "https://github.com/vkarpov15/mongo-sanitize"
+  }
+}

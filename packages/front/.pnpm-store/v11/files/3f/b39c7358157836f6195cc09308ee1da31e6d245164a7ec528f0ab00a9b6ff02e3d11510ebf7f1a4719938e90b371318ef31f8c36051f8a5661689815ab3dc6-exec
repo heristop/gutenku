@@ -1,0 +1,92 @@
+#!/usr/bin/env node
+import { t as styleText } from "./style-Cl932eax.mjs";
+import { o as globalLogger } from "./logger-DFimKAVh.mjs";
+import { n as version, t as enableDebug } from "./debug-CWEWL43J.mjs";
+import module from "node:module";
+import process from "node:process";
+import { x } from "tinyexec";
+import { VERSION } from "rolldown";
+import { cac } from "cac";
+// src/cli.ts
+const cli = cac("tsdown");
+cli.help().version(version);
+cli.command("[...files]", "Bundle files", {
+	ignoreOptionDefaultValue: true,
+	allowUnknownOptions: true
+}).option("-c, --config <filename>", "Use a custom config file").option("--config-loader <loader>", "Config loader to use: auto, native, tsx, unrun", { default: "auto" }).option("--no-config", "Disable config file").option("-f, --format <format>", "Bundle format: esm, cjs, iife, umd", { default: "esm" }).option("--clean", "Clean output directory, --no-clean to disable").option("--deps.never-bundle <module>", "Mark dependencies as external").option("--minify", "Minify output").option("--devtools", "Enable devtools integration").option("--debug [feat]", "Show debug logs").option("--target <target>", "Bundle target, e.g \"es2015\", \"esnext\"").option("-l, --logLevel <level>", "Set log level: info, warn, error, silent").option("--fail-on-warn", "Fail on warnings", { default: true }).option("--no-write", "Disable writing files to disk, incompatible with watch mode").option("-d, --out-dir <dir>", "Output directory", { default: "dist" }).option("--treeshake", "Tree-shake bundle", { default: true }).option("--sourcemap", "Generate source map", { default: false }).option("--shims", "Enable cjs and esm shims ", { default: false }).option("--platform <platform>", "Target platform", { default: "node" }).option("--dts", "Generate dts files").option("--publint", "Enable publint", { default: false }).option("--attw", "Enable Are the types wrong integration", { default: false }).option("--unused", "Enable unused dependencies check", { default: false }).option("-w, --watch [path]", "Watch mode").option("--ignore-watch <path>", "Ignore custom paths in watch mode").option("--from-vite [vitest]", "Reuse config from Vite or Vitest").option("--report", "Size report", { default: true }).option("--env.* <value>", "Define compile-time env variables").option("--env-file <file>", "Load environment variables from a file, when used together with --env, variables in --env take precedence").option("--env-prefix <prefix>", "Prefix for env variables to inject into the bundle", { default: "TSDOWN_" }).option("--on-success <command>", "Command to run on success").option("--copy <dir>", "Copy files to output dir").option("--tsconfig <tsconfig>", "Set tsconfig path").option("--unbundle", "Unbundle mode").option("--root <dir>", "Root directory of input files").option("--exe", "Bundle as executable").option("-W, --workspace [dir]", "Enable workspace mode").option("--concurrency <count>", "Maximum number of Rolldown builds to run in parallel").option("-F, --filter <pattern>", "Filter configs (cwd or name), e.g. /pkg-name$/ or pkg-name").option("--exports", "Generate package exports for package.json").action(async (input, flags) => {
+	globalLogger.level = flags.logLevel || "info";
+	globalLogger.info(`${styleText.blue(`tsdown v${version}`)} powered by ${styleText["#ff7e17,yellow"](`rolldown v${VERSION}`)}`);
+	const { build } = await import("./build-B3hcYrTt.mjs").then((n) => n.r);
+	if (input.length > 0) flags.entry = input;
+	await build(flags);
+});
+cli.command("create", "[deprecated] Create a tsdown project. Use \"npx create-tsdown\" instead.", { allowUnknownOptions: true }).action(async () => {
+	globalLogger.warn(`"tsdown create" is deprecated. Please use "npx create-tsdown" instead.`);
+	const { exitCode } = await x("npx", [
+		"-y",
+		"create-tsdown@latest",
+		...process.argv.slice(3)
+	], { nodeOptions: { stdio: "inherit" } });
+	process.exitCode = exitCode;
+});
+cli.command("migrate", "[deprecated] Migrate from tsup to tsdown. Use \"npx tsdown-migrate\" instead.", { allowUnknownOptions: true }).action(async () => {
+	globalLogger.warn(`"tsdown migrate" is deprecated. Please use "npx tsdown-migrate" instead.`);
+	const { exitCode } = await x("npx", [
+		"-y",
+		"tsdown-migrate@latest",
+		...process.argv.slice(3)
+	], { nodeOptions: { stdio: "inherit" } });
+	process.exitCode = exitCode;
+});
+/**
+* Options whose nested keys are user-defined values (environment variable
+* names, module ids, entry names, ...) instead of option names.
+*/
+const VERBATIM_KEYS = /* @__PURE__ */ new Set([
+	"alias",
+	"define",
+	"entry",
+	"env",
+	"loader",
+	"inputOptions.moduleTypes",
+	"outputOptions.globals"
+]);
+/**
+* cac camel-cases only the first segment of a dotted flag, so
+* `--deps.never-bundle` is parsed as `deps['never-bundle']` while the config
+* expects `deps.neverBundle`. Camel-case the remaining segments here, leaving
+* the keys of {@linkcode VERBATIM_KEYS} untouched.
+*/
+function camelizeFlags(flags, path) {
+	for (const key of Object.keys(flags)) {
+		const camelKey = key.replaceAll(/([a-z])-([a-z])/g, (_, prev, next) => prev + next.toUpperCase());
+		const value = flags[key];
+		const childPath = path ? `${path}.${camelKey}` : camelKey;
+		if (value && typeof value === "object" && !Array.isArray(value) && !VERBATIM_KEYS.has(childPath)) camelizeFlags(value, childPath);
+		if (camelKey !== key) {
+			if (!(camelKey in flags)) flags[camelKey] = value;
+			delete flags[key];
+		}
+	}
+}
+function parseCLI(argv) {
+	const parsed = cli.parse(argv, { run: false });
+	camelizeFlags(parsed.options);
+	return parsed;
+}
+async function runCLI() {
+	const { options } = parseCLI(process.argv);
+	enableDebug(options.debug);
+	try {
+		await cli.runMatchedCommand();
+	} catch (error) {
+		globalLogger.error(String(error.stack || error.message));
+		process.exit(1);
+	}
+}
+// src/run.ts
+try {
+	module.enableCompileCache?.();
+} catch {}
+runCLI();
+export {};

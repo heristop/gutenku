@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ref, computed, watch } from 'vue';
+import { Image as ImageIcon } from '@/core/components/icons/ink';
 
 interface Props {
   src: string;
@@ -38,6 +39,7 @@ const emit = defineEmits<{
 
 const isLoaded = ref(false);
 const hasError = ref(false);
+const usingFallback = ref(false);
 
 // Check if image is decorative (empty alt)
 const isDecorative = computed(() => props.alt === '');
@@ -140,7 +142,7 @@ const imageStyle = computed(() => ({
 
 // Current source (switches to fallback on error)
 const currentSrc = computed(() => {
-  if (hasError.value && props.fallback) {
+  if (usingFallback.value && props.fallback) {
     return props.fallback;
   }
 
@@ -154,9 +156,9 @@ function onLoad(event: Event) {
 }
 
 function onError(event: Event) {
-  if (props.fallback && currentSrc.value !== props.fallback) {
-    // Try fallback image
-    hasError.value = false;
+  if (props.fallback && !usingFallback.value) {
+    // Try the fallback image once before showing the error leaf
+    usingFallback.value = true;
     emit('error', event);
 
     return;
@@ -178,6 +180,7 @@ watch(
   () => {
     isLoaded.value = false;
     hasError.value = false;
+    usingFallback.value = false;
   },
 );
 </script>
@@ -199,7 +202,7 @@ watch(
 
     <!-- Actual image -->
     <img
-      v-show="isLoaded || hasError"
+      v-show="isLoaded"
       :src="currentSrc"
       :alt="alt"
       :loading="loadingAttr"
@@ -212,94 +215,43 @@ watch(
       @contextmenu="onContextMenu"
     />
 
-    <!-- Error state (only if no fallback or fallback also failed) -->
-    <figure v-if="hasError && !fallback" class="zen-image__error">
-      <img
-        class="zen-image__error-icon"
-        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5'%3E%3Cpath d='M4 20c2-2 4-6 8-6s6 4 8 6' stroke-linecap='round'/%3E%3Ccircle cx='8' cy='8' r='2'/%3E%3Crect x='2' y='2' width='20' height='20' rx='2'/%3E%3C/svg%3E"
-        alt=""
-        aria-hidden="true"
-      />
+    <!-- Error state: the source and any fallback both failed -->
+    <figure v-if="hasError" class="zen-image__error">
+      <ImageIcon :size="32" class="zen-image__error-icon" aria-hidden="true" />
       <figcaption class="zen-image__error-text">{{ alt }}</figcaption>
     </figure>
   </div>
 </template>
 
 <style lang="scss" scoped>
+// Ex Libris: images sit on paper. While loading, a static paper-deep plate;
+// on failure, the ink Image glyph and the alt text on that same plate.
 .zen-image {
   position: relative;
   display: block;
   overflow: hidden;
-  background-color: var(--gutenku-paper-bg);
+  background-color: var(--gk-paper-deep);
 }
 
-// Placeholder styles
 .zen-image__placeholder {
   position: absolute;
   inset: 0;
   z-index: 1;
+  background: var(--gk-paper-deep);
 }
 
-.zen-image__placeholder--shimmer {
-  background: linear-gradient(
-    110deg,
-    var(--gutenku-paper-bg) 0%,
-    var(--gutenku-zen-water) 50%,
-    var(--gutenku-paper-bg) 100%
-  );
-  background-size: 200% 100%;
-  animation: zen-shimmer 1.5s ease-in-out infinite;
-}
-
-.zen-image__placeholder--blur {
-  background: var(--gutenku-zen-water);
-  filter: blur(20px);
-  opacity: 0.6;
-}
-
-@keyframes zen-shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-// Image styles
 .zen-image__img {
   display: block;
   width: 100%;
   height: 100%;
   opacity: 0;
-  transition:
-    opacity var(--gutenku-duration-gentle) ease,
-    transform var(--gutenku-duration-gentle) ease;
+  transition: opacity var(--gk-dur-reward) var(--gk-ease-out);
 }
 
 .zen-image__img--loaded {
   opacity: 1;
 }
 
-// Reveal animation
-.zen-image--reveal .zen-image__img--loaded {
-  animation: zen-image-reveal var(--gutenku-duration-gentle) ease forwards;
-}
-
-@keyframes zen-image-reveal {
-  0% {
-    opacity: 0;
-    transform: scale(1.02);
-    filter: blur(4px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-    filter: blur(0);
-  }
-}
-
-// Error state
 .zen-image__error {
   position: absolute;
   inset: 0;
@@ -308,61 +260,25 @@ watch(
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  margin: 0;
   padding: 1rem;
-  background: var(--gutenku-paper-bg);
-  color: var(--gutenku-text-muted);
-}
-
-.zen-image__error-icon {
-  width: 2rem;
-  height: 2rem;
-  opacity: 0.5;
+  background: var(--gk-paper-deep);
+  color: var(--gk-ink-soft);
+  font-family: var(--gk-font);
 }
 
 .zen-image__error-text {
-  font-size: 0.75rem;
-  text-align: center;
-  opacity: 0.7;
   max-width: 80%;
   overflow: hidden;
+  font-size: 0.875rem;
+  text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-// Reduced motion
 @media (prefers-reduced-motion: reduce) {
-  .zen-image__placeholder--shimmer {
-    animation: none;
-    background: var(--gutenku-zen-water);
-    opacity: 0.3;
-  }
-
   .zen-image__img {
-    transition: opacity var(--gutenku-duration-swift) ease;
-  }
-
-  .zen-image--reveal .zen-image__img--loaded {
-    animation: none;
-    opacity: 1;
-    transform: none;
-    filter: none;
-  }
-}
-
-// Dark mode
-[data-theme='dark'] {
-  .zen-image__placeholder--shimmer {
-    background: linear-gradient(
-      110deg,
-      var(--gutenku-paper-bg) 0%,
-      oklch(0.35 0.03 55 / 0.5) 50%,
-      var(--gutenku-paper-bg) 100%
-    );
-    background-size: 200% 100%;
-  }
-
-  .zen-image__placeholder--blur {
-    background: oklch(0.3 0.02 55);
+    transition: opacity var(--gk-dur-fast) linear;
   }
 }
 </style>

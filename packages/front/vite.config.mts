@@ -8,10 +8,13 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import { VitePWA } from 'vite-plugin-pwa';
 
 // Utilities
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, loadEnv, type Plugin } from 'vite';
 import { fileURLToPath, URL } from 'node:url';
-import { resolve, dirname } from 'node:path';
+import { resolve, dirname, join } from 'node:path';
 import { existsSync, readdirSync } from 'node:fs';
+import { readFile, writeFile } from 'node:fs/promises';
+import { promisify } from 'node:util';
+import { brotliCompress, constants as zlibConstants } from 'node:zlib';
 
 const env = loadEnv('', process.cwd(), ['GUTENGUESS_', 'VITE_']);
 const siteUrl = env.VITE_APP_URL || 'https://gutenku.xyz';
@@ -38,6 +41,62 @@ function getBlogSlugs(): string[] {
   }
 
   return [...slugs];
+}
+
+const brotli = promisify(brotliCompress);
+
+/**
+ * Writes a .br copy of every JS and CSS asset of the client build, next to the
+ * .gz ones from vite-plugin-compression (a second instance of that plugin
+ * writes nothing). The vhost serves the .br first: ~10% fewer bytes than gzip
+ * on the entry scripts.
+ */
+function brotliPrecompress(): Plugin {
+  let assetsDir = '';
+
+  return {
+    name: 'gutenku:brotli-precompress',
+    apply: 'build',
+    configResolved(config) {
+      assetsDir = resolve(
+        config.root,
+        config.build.outDir,
+        config.build.assetsDir,
+      );
+    },
+    async closeBundle() {
+      if (!existsSync(assetsDir)) {
+        return;
+      }
+
+      const files = readdirSync(assetsDir, {
+        recursive: true,
+        encoding: 'utf8',
+      })
+        .filter((file) => /\.(?:js|css)$/.test(file))
+        .map((file) => join(assetsDir, file));
+
+      await Promise.all(
+        files.map(async (file) => {
+          const source = await readFile(file);
+
+          // Below ~1 KB the encoding overhead outweighs the saving
+          if (source.length < 1024) {
+            return;
+          }
+
+          const compressed = await brotli(source, {
+            params: {
+              [zlibConstants.BROTLI_PARAM_QUALITY]: 11,
+              [zlibConstants.BROTLI_PARAM_SIZE_HINT]: source.length,
+            },
+          });
+
+          await writeFile(`${file}.br`, compressed);
+        }),
+      );
+    },
+  };
 }
 
 function originOf(url: string): string | undefined {
@@ -136,12 +195,60 @@ const gameModulePath = isGameEnabled
       './src/features/game-stub',
     );
 
+/**
+ * Packages only the blog's diagram and math renderers pull in (mermaid and its
+ * dependency tree, KaTeX). Their chunks go to assets/renderers/ so the service
+ * worker can leave them out of the precache: three articles use them, and
+ * every install would otherwise download ~3.5 MB for them.
+ */
+const RENDERER_PACKAGES = new RegExp(
+  String.raw`/node_modules/(?:\.pnpm/[^/]+/node_modules/)?(?:` +
+    [
+      'mermaid',
+      '@mermaid-js/[^/]+',
+      'katex',
+      'cytoscape[^/]*',
+      'elkjs',
+      'dagre-d3-es',
+      'd3(?:-[^/]+)?',
+      'khroma',
+      'lodash-es',
+      'internmap',
+      'dayjs',
+      'uuid',
+      'stylis',
+      'dompurify',
+      'roughjs',
+      'layout-base',
+      'cose-base',
+      'es-toolkit',
+      'ts-dedent',
+      '@braintree/sanitize-url',
+      '@iconify/[^/]+',
+      'langium',
+      'chevrotain[^/]*',
+      '@chevrotain/[^/]+',
+      'vscode-[^/]+',
+    ].join('|') +
+    ')/',
+);
+
+function isRendererChunk(moduleIds: readonly string[]): boolean {
+  // A chunk shared with app code stays in the precache, whatever else it
+  // holds. Virtual modules (the bundler runtime) have no file path to judge.
+  const files = moduleIds.filter((id) => id.startsWith('/'));
+
+  return (
+    files.some((id) => RENDERER_PACKAGES.test(id)) &&
+    files.every((id) => id.includes('/node_modules/'))
+  );
+}
+
 const vendorChunks: Record<string, string[]> = {
   'vue-core': ['vue', 'vue-router', 'pinia'],
   graphql: ['@urql/vue', 'graphql', 'graphql-ws'],
   vueuse: ['@vueuse/core', '@vueuse/motion'],
   i18n: ['vue-i18n'],
-  icons: ['@lucide/vue'],
 };
 
 export default defineConfig(({ isSsrBuild, mode }) => {
@@ -180,22 +287,76 @@ export default defineConfig(({ isSsrBuild, mode }) => {
         strictMessage: false,
       }),
       viteCompression(),
+      !isSsrBuild && brotliPrecompress(),
       viteImagemin(),
       webfontDownload(),
-      visualizer({
-        filename: 'dist/bundle-stats.html',
-        gzipSize: true,
-        brotliSize: true,
-      }),
+      // Client build only: the SSR pass runs second and would overwrite the
+      // report with the server bundle, which ships to no browser.
+      !isSsrBuild &&
+        visualizer({
+          filename: 'dist/bundle-stats.html',
+          gzipSize: true,
+          brotliSize: true,
+        }),
       VitePWA({
         registerType: 'autoUpdate',
         workbox: {
           skipWaiting: true,
           clientsClaim: true,
           globPatterns: ['**/*.{js,css,ico,png,webp,woff2}'],
-          globIgnores: ['**/bundle-stats.html'],
+          // The precache is what every visitor downloads on install, so it
+          // holds the app shell only. Left out, and cached on first use by the
+          // runtime rules below instead:
+          // - book covers (~11 MB) and article illustrations (~2 MB);
+          // - the full-size artwork, only for sharing and the 404 page;
+          // - the blog's diagram and math renderers (incl. mermaid's ELK) and
+          //   the KaTeX and OpenDyslexic fonts, which only some pages load.
+          globIgnores: [
+            '**/bundle-stats.html',
+            'covers/**',
+            'article/**',
+            'gutenmage.png',
+            'gutenmage.webp',
+            'gutenmage-1024.webp',
+            'og-image.png',
+            'assets/renderers/**',
+            'assets/KaTeX_*',
+            'assets/katex-*.css',
+            'assets/OpenDyslexic-*',
+          ],
           navigateFallback: undefined,
           runtimeCaching: [
+            {
+              // Hashed files never change under one URL: serve them from the
+              // cache once fetched (renderers, KaTeX and dyslexia fonts).
+              urlPattern: ({ sameOrigin, url }) =>
+                sameOrigin && url.pathname.startsWith('/assets/'),
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'lazy-assets',
+                expiration: {
+                  maxEntries: 200,
+                  maxAgeSeconds: 60 * 60 * 24 * 365,
+                },
+              },
+            },
+            {
+              // Covers, article illustrations and artwork: same origin, so the
+              // https-only rule below never matched them in development.
+              urlPattern: ({ sameOrigin, url }) =>
+                sameOrigin &&
+                /^\/(?:covers|article)\/|^\/gutenmage[^/]*\.webp$/.test(
+                  url.pathname,
+                ),
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'site-images',
+                expiration: {
+                  maxEntries: 250,
+                  maxAgeSeconds: 60 * 60 * 24 * 30,
+                },
+              },
+            },
             {
               urlPattern: /^https:\/\/.*\.webp$/,
               handler: 'CacheFirst',
@@ -230,6 +391,12 @@ export default defineConfig(({ isSsrBuild, mode }) => {
     build: {
       rollupOptions: {
         output: {
+          chunkFileNames: isSsrBuild
+            ? undefined
+            : (chunk) =>
+                isRendererChunk(chunk.moduleIds)
+                  ? 'assets/renderers/[name]-[hash].js'
+                  : 'assets/[name]-[hash].js',
           manualChunks: isSsrBuild
             ? undefined
             : (id) => {
@@ -263,7 +430,6 @@ export default defineConfig(({ isSsrBuild, mode }) => {
         'graphql',
         '@vueuse/core',
         '@vueuse/motion',
-        '@lucide/vue',
         '@unhead/vue',
       ],
     },
@@ -291,7 +457,17 @@ export default defineConfig(({ isSsrBuild, mode }) => {
         const blogRoutes = blogSlugs.map((slug) => `/blog/${slug}`);
         const ssgRoutes = ['/', '/haiku', '/blog', '/game', ...blogRoutes];
 
-        return [...new Set([...paths, ...ssgRoutes])];
+        // The home route's empty child path comes through as '' and was
+        // rendered a second time, to dist/.html. The catch-all 404 route
+        // (`:pathMatch(.*)*`) is dynamic: left in, it lands as a stray
+        // `dist/:pathMatch(.*)*.html` that nothing serves.
+        return [
+          ...new Set(
+            [...paths, ...ssgRoutes]
+              .filter((path) => !path.includes(':'))
+              .map((path) => path || '/'),
+          ),
+        ];
       },
     },
   };

@@ -56,12 +56,12 @@ function computeScoreInvariant(args: {
   if (args.noNatureWithPenalties) {
     return args.totalScore <= 0;
   }
-  
-if (args.natureWithoutPenalties) {
+
+  if (args.natureWithoutPenalties) {
     return args.totalScore > 0;
   }
-  
-return true;
+
+  return true;
 }
 
 async function graphqlQuery<T>(
@@ -74,14 +74,14 @@ async function graphqlQuery<T>(
     body: JSON.stringify({ query, variables }),
   });
   const json = await response.json();
-  
-if (json.errors) {
+
+  if (json.errors) {
     throw new Error(
       json.errors.map((e: { message: string }) => e.message).join(', '),
     );
   }
-  
-return json.data;
+
+  return json.data;
 }
 
 describe('Haiku GraphQL E2E Tests', () => {
@@ -349,6 +349,7 @@ describe('Haiku GraphQL E2E Tests', () => {
         'weakStarts',
         'blacklistedVerses',
         'properNouns',
+        'verseLengthPenalty',
       ];
       // All other fields should be Float (score-based metrics)
 
@@ -534,8 +535,8 @@ describe('Haiku GraphQL E2E Tests', () => {
         'tfidfMinScore',
         'phoneticsMinScore',
       ];
-      
-for (const paramName of floatParams) {
+
+      for (const paramName of floatParams) {
         const param = haikuField!.args.find((a) => a.name === paramName);
         expect(param?.type.name).toBe('Float');
       }

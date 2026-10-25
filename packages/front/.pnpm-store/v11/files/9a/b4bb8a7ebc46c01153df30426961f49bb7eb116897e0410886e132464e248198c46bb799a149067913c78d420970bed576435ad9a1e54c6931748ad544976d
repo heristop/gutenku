@@ -1,0 +1,304 @@
+import { accessSync, constants } from "node:fs";
+import { isAbsolute } from "node:path";
+import { styleText } from "node:util";
+import {
+	RULES_FILE_NAME_SEARCH_ARRAY,
+	DEFAULT_BASELINE_FILE_NAME,
+	OUTPUT_TO,
+	OUTPUT_TYPE,
+	WEBPACK_CONFIG,
+	TYPESCRIPT_CONFIG,
+	BABEL_CONFIG,
+	OLD_DEFAULT_RULES_FILE_NAME,
+} from "./defaults.mjs";
+import { set } from "#utl/object-util.mjs";
+import loadConfig from "#config-utl/extract-depcruise-config/index.mjs";
+import extractKnownViolations from "#config-utl/extract-known-violations.mjs";
+
+function getOptionValue(pDefault) {
+	return (pValue) => (typeof pValue === "string" ? pValue : pDefault);
+}
+
+async function getCurrentBaseline(pBaselineFileName, pErrorStream) {
+	let lCurrentBaseline = [];
+	try {
+		lCurrentBaseline = await extractKnownViolations(pBaselineFileName);
+	} catch (pKnownViolationsExtractionError) {
+		if (pKnownViolationsExtractionError.code === "ENOENT") {
+			pErrorStream.write(
+				styleText(
+					"yellow",
+					`‼ Known violations file '${pBaselineFileName}' does not exist yet. Will assume an empty current violations set and create a new one instead.\n`,
+				),
+			);
+		} else {
+			throw pKnownViolationsExtractionError;
+		}
+	}
+	return lCurrentBaseline;
+}
+
+// eslint-disable-next-line complexity
+function normalizeConfigFileName(pCliOptions, pConfigWrapperName, pDefault) {
+	const lOptions = structuredClone(pCliOptions);
+
+	if (Object.hasOwn(lOptions, pConfigWrapperName)) {
+		set(
+			lOptions,
+			`ruleSet.options.${pConfigWrapperName}.fileName`,
+			getOptionValue(pDefault)(lOptions[pConfigWrapperName]),
+			/* eslint security/detect-object-injection: 0 */
+		);
+		Reflect.deleteProperty(lOptions, pConfigWrapperName);
+	}
+
+	if (
+		(lOptions?.ruleSet?.options?.[pConfigWrapperName] ?? null) &&
+		!(lOptions?.ruleSet?.options?.[pConfigWrapperName]?.fileName ?? null)
+	) {
+		set(lOptions, `ruleSet.options.${pConfigWrapperName}.fileName`, pDefault);
+	}
+
+	return lOptions;
+}
+
+function fileExists(pFileName) {
+	try {
+		accessSync(pFileName, constants.R_OK);
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+function validateAndGetCustomRulesFileName(pValidate) {
+	/* oxlint-disable-next-line no-useless-assignment */
+	let lReturnValue = "";
+
+	if (fileExists(pValidate)) {
+		lReturnValue = pValidate;
+	} else {
+		throw new Error(
+			`Can't open config file '${pValidate}' for reading. Does it exist?\n` +
+				`         - You can create a config file by running 'npx dependency-cruiser --init'\n` +
+				`         - If you intended to run without a config file use --no-config\n`,
+		);
+	}
+	return lReturnValue;
+}
+
+function validateAndGetDefaultRulesFileName() {
+	const lReturnValue = RULES_FILE_NAME_SEARCH_ARRAY.find(fileExists);
+
+	if (typeof lReturnValue === "undefined") {
+		throw new TypeError(
+			`Can't open a config file (.dependency-cruiser.(c|m)js) at the default location. Does it exist?\n` +
+				`         - You can create one by running 'npx dependency-cruiser --init'\n` +
+				`         - Want to run a without a config file? Use --no-config\n`,
+		);
+	}
+	return lReturnValue;
+}
+
+function validateAndNormalizeRulesFileName(pValidate) {
+	/* oxlint-disable-next-line no-useless-assignment */
+	let lReturnValue = "";
+
+	if (typeof pValidate === "string") {
+		lReturnValue = validateAndGetCustomRulesFileName(pValidate);
+	} else {
+		lReturnValue = validateAndGetDefaultRulesFileName();
+	}
+
+	return lReturnValue;
+}
+
+function validateAndGetKnownViolationsFileName(pKnownViolations) {
+	const lKnownViolationsFileName =
+		typeof pKnownViolations === "string"
+			? pKnownViolations
+			: DEFAULT_BASELINE_FILE_NAME;
+
+	if (fileExists(lKnownViolationsFileName)) {
+		return lKnownViolationsFileName;
+	} else {
+		throw new Error(
+			`Can't open '${lKnownViolationsFileName}' for reading. Does it exist?\n` +
+				`         (You can create a .dependency-cruiser-known-violations.json with --output-type baseline)\n`,
+		);
+	}
+}
+
+function normalizeIgnoreKnown(pCliOptions) {
+	return Object.hasOwn(pCliOptions, "ignoreKnown")
+		? { ignoreKnown: !!pCliOptions.ignoreKnown }
+		: {};
+}
+
+function normalizeKnownViolationsOption(pCliOptions) {
+	if (
+		!Object.hasOwn(pCliOptions, "ignoreKnown") ||
+		pCliOptions.ignoreKnown === false
+	) {
+		return {};
+	}
+	return {
+		knownViolationsFile: validateAndGetKnownViolationsFileName(
+			pCliOptions.ignoreKnown,
+		),
+	};
+}
+
+async function normalizeValidationOption(pCliOptions) {
+	if (!pCliOptions.validate) {
+		return {
+			validate: false,
+		};
+	}
+	const rulesFile = validateAndNormalizeRulesFileName(pCliOptions.validate);
+	return {
+		rulesFile,
+		ruleSet: await loadConfig(
+			isAbsolute(rulesFile) ? rulesFile : `./${rulesFile}`,
+		),
+		validate: true,
+	};
+}
+
+function normalizeProgress(pCliOptions) {
+	if (!Object.hasOwn(pCliOptions, "progress")) {
+		return {};
+	}
+
+	let lProgress = pCliOptions.progress;
+	if (lProgress === true) {
+		lProgress = "cli-feedback";
+	}
+	return { progress: lProgress };
+}
+
+function normalizeCacheStrategy(pCliOptions) {
+	if (!Object.hasOwn(pCliOptions, "cacheStrategy")) {
+		return {};
+	}
+	const lStrategy =
+		pCliOptions.cacheStrategy === "content" ? "content" : "metadata";
+
+	let lReturnValue = {};
+
+	if (pCliOptions.cache && typeof pCliOptions.cache === "object") {
+		lReturnValue.cache = structuredClone(pCliOptions.cache);
+		lReturnValue.cache.strategy = lStrategy;
+	} else {
+		lReturnValue = {
+			cache: {
+				strategy: lStrategy,
+			},
+		};
+	}
+	return lReturnValue;
+}
+
+function normalizeCache(pCliOptions) {
+	if (!Object.hasOwn(pCliOptions, "cache")) {
+		return {};
+	}
+
+	if (pCliOptions.cache === true) {
+		return { cache: {} };
+	}
+
+	if (typeof pCliOptions.cache === "string") {
+		return {
+			cache: {
+				folder: pCliOptions.cache,
+			},
+		};
+	}
+
+	return { cache: false };
+}
+
+/**
+ * returns the pOptionsAsPassedFromCommander, so that the returned value contains a
+ * valid value for each possible option
+ *
+ * @param {object} pOptionsAsPassedFromCommander [description]
+ * @param {any} pKnownCliOptions [description]
+ * @param {typeof process.stderr} pErrorStream
+ * @returns {import("../../types/options.mjs").ICruiseOptions}          [description]
+ */
+export default async function normalizeOptions(
+	pOptionsAsPassedFromCommander,
+	pErrorStream,
+) {
+	let lOptions = {
+		outputTo: OUTPUT_TO,
+		outputType: OUTPUT_TYPE,
+		...pOptionsAsPassedFromCommander,
+	};
+
+	if (Object.hasOwn(lOptions, "moduleSystems")) {
+		lOptions.moduleSystems = lOptions.moduleSystems
+			.split(",")
+			.map((pString) => pString.trim());
+	}
+
+	if (Object.hasOwn(lOptions, "config")) {
+		lOptions.validate = lOptions.config;
+	}
+
+	if (Object.hasOwn(lOptions, "baseline")) {
+		const lBaselineFileName =
+			typeof pOptionsAsPassedFromCommander.baseline === "string"
+				? pOptionsAsPassedFromCommander.baseline
+				: ".dependency-cruiser-known-violations.json";
+
+		// keeping the baseline option (a boolean or a string) as passed from commander
+		// in would overwrite the option as passed in the configuration file (an object,
+		// if any)
+		Reflect.deleteProperty(lOptions, "baseline");
+
+		lOptions.ignoreKnown = false;
+		lOptions.outputTo = lBaselineFileName;
+		lOptions.outputType = "baseline";
+		lOptions.knownViolations = await getCurrentBaseline(
+			lBaselineFileName,
+			pErrorStream,
+		);
+		lOptions.cache = false;
+		Reflect.deleteProperty(lOptions, "cacheStrategy");
+	}
+
+	if (Object.hasOwn(lOptions, "baselineMode")) {
+		lOptions.baseline = {
+			...lOptions.baseline,
+			mode: lOptions.baselineMode,
+		};
+	}
+
+	lOptions = { ...lOptions, ...(await normalizeValidationOption(lOptions)) };
+	lOptions = { ...lOptions, ...normalizeProgress(lOptions) };
+	lOptions = { ...lOptions, ...normalizeCache(lOptions) };
+	lOptions = { ...lOptions, ...normalizeCacheStrategy(lOptions) };
+	lOptions = { ...lOptions, ...normalizeKnownViolationsOption(lOptions) };
+	lOptions = { ...lOptions, ...normalizeIgnoreKnown(lOptions) };
+	lOptions = normalizeConfigFileName(lOptions, "webpackConfig", WEBPACK_CONFIG);
+	lOptions = normalizeConfigFileName(lOptions, "tsConfig", TYPESCRIPT_CONFIG);
+	lOptions = normalizeConfigFileName(lOptions, "babelConfig", BABEL_CONFIG);
+	if (Object.hasOwn(lOptions, "affected") && lOptions.affected !== false) {
+		const { list } = await import("watskeburt");
+		lOptions.reaches = await list({
+			oldRevision: lOptions.affected === true ? "main" : lOptions.affected,
+			outputType: "regex",
+			extensions:
+				"cjs,cjsx,coffee,csx,cts,js,json,jsx,litcoffee,ls,mjs,mts,svelte,ts,tsx,vue,vuex",
+		});
+	}
+
+	return lOptions;
+}
+
+export const determineRulesFileName = getOptionValue(
+	OLD_DEFAULT_RULES_FILE_NAME,
+);

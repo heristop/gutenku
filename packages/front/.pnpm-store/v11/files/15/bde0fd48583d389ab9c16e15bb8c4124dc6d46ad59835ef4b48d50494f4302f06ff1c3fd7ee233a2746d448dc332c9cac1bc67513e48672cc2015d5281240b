@@ -1,0 +1,7 @@
+import { PartialExtendedIconifyIcon } from "./defaults.js";
+/**
+ * Merge icon and alias
+ *
+ * Can also be used to merge default values and icon
+ */
+export declare function mergeIconData<T extends PartialExtendedIconifyIcon>(parent: T, child: PartialExtendedIconifyIcon): T;
