@@ -411,7 +411,8 @@ $toc-desktop: 1280px;
   width: 100%;
   max-width: 1040px;
   margin: 0 auto;
-  padding: 1rem 0.75rem 1.5rem;
+  // Phones keep the page gutter the article list and the other cards keep
+  padding: 1rem var(--gk-gutter) 1.5rem;
   position: relative;
   color: var(--gk-ink);
   font-family: var(--gk-font);
