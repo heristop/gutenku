@@ -89,7 +89,7 @@ describe('sizeImages', () => {
 
   it('gives a known image its size, so the text never jumps when it lands', () => {
     expect(sizeImages('<img src="/article/a.webp" alt="A">', sizes)).toBe(
-      '<img src="/article/a.webp" alt="A" width="1400" height="2032">',
+      '<img src="/article/a.webp" alt="A" width="1400" height="2032" style="--img-ratio: 0.689">',
     );
   });
 
@@ -103,7 +103,18 @@ describe('sizeImages', () => {
 
   it('handles self-closing tags', () => {
     expect(sizeImages('<img src="/article/a.webp" />', sizes)).toBe(
-      '<img src="/article/a.webp" width="1400" height="2032" />',
+      '<img src="/article/a.webp" width="1400" height="2032" style="--img-ratio: 0.689" />',
+    );
+  });
+
+  it('adds its proportions to a style the article already gives it', () => {
+    expect(
+      sizeImages(
+        '<img src="/article/a.webp" style="max-width: 450px;">',
+        sizes,
+      ),
+    ).toBe(
+      '<img src="/article/a.webp" style="--img-ratio: 0.689; max-width: 450px;" width="1400" height="2032">',
     );
   });
 });

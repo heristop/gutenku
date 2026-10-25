@@ -101,6 +101,7 @@ export function toRomanNumeral(value: number): string {
 }
 
 const SRC_ATTR = /\bsrc="([^"]+)"/;
+const STYLE_ATTR = /\bstyle="([^"]*)"/;
 
 /**
  * Gives every known article image its width and height, so the browser
@@ -118,9 +119,22 @@ export function sizeImages(
       return tag;
     }
 
+    // Its proportions, so the page can size the plate as the original did
+    // (a share of the column, capped in height) without waiting for it. An
+    // article's own inline style keeps its say: the ratio joins it.
+    const ratio = Math.round((size[0] / size[1]) * 1000) / 1000;
+    const ratioRule = `--img-ratio: ${ratio};`;
+
+    if (STYLE_ATTR.test(tag)) {
+      const styled = tag.replace(STYLE_ATTR, `style="${ratioRule} $1"`);
+      const open = styled.slice(0, styled.length - close.length - 1);
+
+      return `${open} width="${size[0]}" height="${size[1]}"${close}>`;
+    }
+
     const open = tag.slice(0, tag.length - close.length - 1);
 
-    return `${open} width="${size[0]}" height="${size[1]}"${close}>`;
+    return `${open} width="${size[0]}" height="${size[1]}" style="${ratioRule.slice(0, -1)}"${close}>`;
   });
 }
 
