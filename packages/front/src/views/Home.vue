@@ -257,8 +257,11 @@ if (!import.meta.env.SSR) {
     gap: 2.25rem;
   }
 
+  // Phones: a tighter rhythm, so today's haiku (verses and its reading key)
+  // is on the first screen under the headline and the two keys
   @media (max-width: 600px) {
     padding: 1rem 1.125rem 2.5rem;
+    gap: 1.5rem;
   }
 
   // Two columns: rows are the daily slip, then the GutenGuess entry; the gap
@@ -354,12 +357,14 @@ if (!import.meta.env.SSR) {
     }
 
     // Phones: the column is narrow, so the drawing sits lower, behind the
-    // keys and the colophon, where the lines are shortest
+    // keys and the colophon, where the lines are shortest. Fainter there, and
+    // only to the right of the keys, so they stand on clean paper
     @media (max-width: 600px) {
-      opacity: 0.1;
+      opacity: 0.07;
 
       :deep(.ink-plate__img) {
         object-position: right bottom;
+        mask-image: linear-gradient(to right, transparent 40%, #000 85%);
       }
     }
   }
@@ -376,6 +381,10 @@ if (!import.meta.env.SSR) {
     color: var(--gk-ink);
     text-wrap: balance;
     overflow-wrap: break-word;
+
+    @media (max-width: 600px) {
+      margin-bottom: 1rem;
+    }
   }
 
   &__title-accent {
@@ -401,6 +410,10 @@ if (!import.meta.env.SSR) {
       font-weight: 700;
       color: var(--gk-ink);
     }
+
+    @media (max-width: 600px) {
+      margin-bottom: 1.25rem;
+    }
   }
 
   &__actions {
@@ -425,6 +438,10 @@ if (!import.meta.env.SSR) {
     // One line wherever the column fits it (~55ch); phones wrap naturally
     @media (min-width: 600px) {
       white-space: nowrap;
+    }
+
+    @media (max-width: 600px) {
+      margin-top: 1.125rem;
     }
   }
 
@@ -589,6 +606,10 @@ if (!import.meta.env.SSR) {
 // At night the drawing's ink is lifted to pale lines on the dark paper
 [data-theme='dark'] .home__frontispiece {
   opacity: 0.22;
+
+  @media (max-width: 600px) {
+    opacity: 0.13;
+  }
 }
 
 [data-theme='dark'] .home__frontispiece :deep(.ink-plate__img) {
