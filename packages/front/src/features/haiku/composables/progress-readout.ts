@@ -10,8 +10,3 @@ export function etaLabel(seconds: number | null): string | null {
 export function bestScoreLabel(score: number): number | null {
   return score > 0 ? Math.round(score) : null;
 }
-
-/** Which way the reader turned through this visit's haiku. */
-export function stepDirection(from: number, to: number): 'back' | 'forward' {
-  return to < from ? 'back' : 'forward';
-}

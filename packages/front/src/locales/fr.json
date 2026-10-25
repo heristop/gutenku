@@ -121,6 +121,7 @@
   },
   "toolbar": {
     "title": "Créateur de haïku",
+    "subtitle": "Poésie des livres",
     "ariaLabel": "Actions de la barre d'outils haïku",
     "generate": "Créer Haïku",
     "extract": "Extraire",

@@ -117,6 +117,7 @@
   },
   "toolbar": {
     "title": "俳句クラフター",
+    "subtitle": "本から生まれる詩",
     "ariaLabel": "俳句ツールバーアクション",
     "generate": "俳句作成",
     "extract": "抽出",

@@ -121,6 +121,7 @@
   },
   "toolbar": {
     "title": "Haiku Crafter",
+    "subtitle": "Poetry from books",
     "ariaLabel": "Haiku toolbar actions",
     "generate": "Craft Haiku",
     "extract": "Extract",

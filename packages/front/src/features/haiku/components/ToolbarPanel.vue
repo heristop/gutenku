@@ -13,6 +13,7 @@ import {
   ChevronDown,
   Feather,
   Repeat,
+  Sparkles,
   Square,
   Ruler,
 } from '@/core/components/icons/ink';
@@ -34,7 +35,6 @@ import AiKeyPanel from '@/features/haiku/components/AiKeyPanel.vue';
 import {
   bestScoreLabel,
   etaLabel,
-  stepDirection,
 } from '@/features/haiku/composables/progress-readout';
 import ZenExpandTransition from '@/core/components/ui/ZenExpandTransition.vue';
 import ZenProgress from '@/core/components/ui/ZenProgress.vue';
@@ -61,13 +61,6 @@ const {
 
 const historyLength = computed(() => haikuStore.historyLength);
 const historyPosition = computed(() => haikuStore.historyPosition);
-
-// The count slides the way the reader turned: back from the left, forward
-// (or a new haiku) from the right. Set before the counter re-renders.
-const historyStep = ref<'back' | 'forward'>('forward');
-watch(historyPosition, (to, from) => {
-  historyStep.value = stepDirection(from, to);
-});
 const canGoBack = computed(() => haikuStore.canGoBack);
 const canGoForward = computed(() => haikuStore.canGoForward);
 
@@ -272,7 +265,20 @@ useKeyboardShortcuts({
     :aria-label="t('toolbar.ariaLabel')"
     class="toolbar-panel toolbar-panel--card toolbar-container"
   >
-    <h2 class="sr-only">{{ t('toolbar.title') }}</h2>
+    <!-- Who this card is: the crafter, in two quiet lines -->
+    <div class="toolbar-panel__header">
+      <Feather
+        :size="24"
+        class="toolbar-panel__header-icon"
+        aria-hidden="true"
+      />
+      <span class="toolbar-panel__header-content">
+        <h2 class="toolbar-panel__header-title">{{ t('toolbar.title') }}</h2>
+        <span class="toolbar-panel__header-subtitle">{{
+          t('toolbar.subtitle')
+        }}</span>
+      </span>
+    </div>
 
     <div class="toolbar-panel__primary">
       <ZenTooltip
@@ -300,7 +306,7 @@ useKeyboardShortcuts({
           >
             <template #icon-left>
               <Square v-if="isGenerating" :size="20" />
-              <Feather v-else :size="20" />
+              <Sparkles v-else :size="20" />
             </template>
             {{ isGenerating ? t('toolbar.stop') : buttonLabel }}
           </ZenButton>
@@ -460,112 +466,114 @@ useKeyboardShortcuts({
       </Transition>
     </div>
 
-    <!-- What you can do with this haiku: words, not bare glyphs -->
-    <div class="toolbar-panel__actions">
-      <ZenButton
-        variant="text"
-        size="sm"
-        class="toolbar-panel__action"
-        :class="{ 'toolbar-panel__action--done': copied }"
-        data-cy="copy-btn"
-        :disabled="!haiku?.verses?.length"
-        :title="copyTooltip"
-        @click="copyHaiku"
-      >
-        <template #icon-left>
-          <Transition name="ink-swap" mode="out-in">
-            <Check v-if="copied" key="done" :size="18" />
-            <Copy v-else key="copy" :size="18" />
-          </Transition>
-        </template>
-        {{ copied ? t('toolbar.copied') : t('toolbar.copy') }}
-      </ZenButton>
-
-      <ZenButton
-        variant="text"
-        size="sm"
-        class="toolbar-panel__action"
-        :class="{ 'toolbar-panel__action--done': shared }"
-        data-cy="share-btn"
-        :disabled="!haiku?.verses?.length"
-        :title="shareTooltip"
-        @click="shareHaiku"
-      >
-        <template #icon-left>
-          <Transition name="ink-swap" mode="out-in">
-            <Check v-if="shared" key="done" :size="18" />
-            <Share2 v-else key="share" :size="18" />
-          </Transition>
-        </template>
-        {{ shared ? t('toolbar.shared') : t('toolbar.share') }}
-      </ZenButton>
+    <!-- One row: the history arrows either side of what you can do with the
+         haiku. Icons only, each named; the tooltip says it with a pointer -->
+    <div class="toolbar-panel__secondary">
+      <ZenTooltip :text="previousTooltip" position="bottom">
+        <ZenButton
+          variant="text"
+          size="sm"
+          class="toolbar-panel__icon-btn toolbar-panel__icon-btn--step"
+          :disabled="!canGoBack || loading"
+          :aria-label="previousTooltip"
+          @click="navigateBack"
+        >
+          <template #icon-left>
+            <ChevronLeft :size="20" />
+          </template>
+        </ZenButton>
+      </ZenTooltip>
 
       <ZenTooltip
-        :text="haiku?.image ? downloadTooltip : t('toolbar.saveUnavailable')"
-        position="top"
-        block
+        :text="copied ? t('toolbar.copiedLabel') : copyTooltip"
+        position="bottom"
       >
         <ZenButton
           variant="text"
           size="sm"
-          class="toolbar-panel__action"
+          class="toolbar-panel__icon-btn"
+          :class="{ 'toolbar-panel__icon-btn--done': copied }"
+          data-cy="copy-btn"
+          :disabled="!haiku?.verses?.length"
+          :aria-label="copied ? t('toolbar.copiedLabel') : copyTooltip"
+          @click="copyHaiku"
+        >
+          <template #icon-left>
+            <Transition name="ink-swap" mode="out-in">
+              <Check v-if="copied" key="done" :size="18" />
+              <Copy v-else key="copy" :size="18" />
+            </Transition>
+          </template>
+        </ZenButton>
+      </ZenTooltip>
+
+      <ZenTooltip :text="shareTooltip" position="bottom">
+        <ZenButton
+          variant="text"
+          size="sm"
+          class="toolbar-panel__icon-btn"
+          :class="{ 'toolbar-panel__icon-btn--done': shared }"
+          data-cy="share-btn"
+          :disabled="!haiku?.verses?.length"
+          :aria-label="shareTooltip"
+          @click="shareHaiku"
+        >
+          <template #icon-left>
+            <Transition name="ink-swap" mode="out-in">
+              <Check v-if="shared" key="done" :size="18" />
+              <Share2 v-else key="share" :size="18" />
+            </Transition>
+          </template>
+        </ZenButton>
+      </ZenTooltip>
+
+      <ZenTooltip
+        :text="haiku?.image ? downloadTooltip : t('toolbar.saveUnavailable')"
+        position="bottom"
+      >
+        <ZenButton
+          variant="text"
+          size="sm"
+          class="toolbar-panel__icon-btn"
           data-cy="download-btn"
           :loading="downloadInProgress"
           :disabled="!haiku?.image || loading"
+          :aria-label="
+            haiku?.image ? downloadTooltip : t('toolbar.saveUnavailable')
+          "
           @click="downloadImage"
         >
           <template #icon-left>
             <Download :size="18" />
           </template>
-          {{ t('toolbar.save') }}
+        </ZenButton>
+      </ZenTooltip>
+
+      <ZenTooltip :text="nextTooltip" position="bottom">
+        <ZenButton
+          variant="text"
+          size="sm"
+          class="toolbar-panel__icon-btn toolbar-panel__icon-btn--step"
+          :disabled="!canGoForward || loading"
+          :aria-label="nextTooltip"
+          @click="navigateForward"
+        >
+          <template #icon-left>
+            <ChevronRight :size="20" />
+          </template>
         </ZenButton>
       </ZenTooltip>
     </div>
 
-    <!-- Earlier haiku from this visit: "‹ Haiku 2 of 3 ›" instead of bare dots -->
-    <div
-      v-if="historyLength > 1"
-      class="toolbar-panel__history"
-      role="group"
-      :aria-label="t('toolbar.historyLabel')"
-    >
-      <ZenButton
-        variant="text"
-        size="sm"
-        class="toolbar-panel__step"
-        :disabled="!canGoBack || loading"
-        :aria-label="previousTooltip"
-        @click="navigateBack"
-      >
-        <template #icon-left>
-          <ChevronLeft :size="18" />
-        </template>
-      </ZenButton>
-      <span class="toolbar-panel__history-count" aria-live="polite">
-        <Transition :name="`count-${historyStep}`" mode="out-in">
-          <span :key="historyPosition">
-            {{
-              t('toolbar.historyPosition', {
-                current: historyPosition,
-                total: historyLength,
-              })
-            }}
-          </span>
-        </Transition>
-      </span>
-      <ZenButton
-        variant="text"
-        size="sm"
-        class="toolbar-panel__step"
-        :disabled="!canGoForward || loading"
-        :aria-label="nextTooltip"
-        @click="navigateForward"
-      >
-        <template #icon-left>
-          <ChevronRight :size="18" />
-        </template>
-      </ZenButton>
-    </div>
+    <!-- Where the reader is in this visit's haiku, said, not printed -->
+    <p v-if="historyLength > 1" class="sr-only" aria-live="polite">
+      {{
+        t('toolbar.historyPosition', {
+          current: historyPosition,
+          total: historyLength,
+        })
+      }}
+    </p>
   </ZenCard>
 </template>
 
@@ -613,104 +621,9 @@ useKeyboardShortcuts({
     }
   }
 
-  // Copy · Share · Save: labelled ghost keys on one ruled line
-  &__actions {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.25rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid var(--gk-ink-faint);
-  }
-
-  // Indigo text actions: the label underlines on hover, no grey block,
-  // and the colour never changes between hover, focus and rest
-  &__action.zen-btn {
-    width: 100%;
-    min-height: 2.75rem;
-    padding: 0.5rem 0.25rem !important;
-    font-size: 0.875rem;
-    font-weight: 700;
-    white-space: nowrap;
-    color: var(--gk-indigo);
-    background: transparent !important;
-    border-radius: var(--gk-radius-control);
-    transition:
-      color var(--gk-dur-fast) var(--gk-ease-out),
-      transform var(--gk-dur-press) var(--gk-ease-out);
-
-    :deep(.zen-btn__content) {
-      text-decoration: underline;
-      text-decoration-color: transparent;
-      text-decoration-thickness: 1.5px;
-      text-underline-offset: 0.3em;
-      transition: text-decoration-color var(--gk-dur-fast) var(--gk-ease-out);
-    }
-
-    @media (hover: hover) and (pointer: fine) {
-      &:hover:not(:disabled) {
-        color: var(--gk-indigo);
-
-        :deep(.zen-btn__content) {
-          text-decoration-color: currentColor;
-        }
-      }
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--gk-indigo);
-      outline-offset: 2px;
-    }
-
-    &:active:not(:disabled) {
-      transform: scale(0.98);
-    }
-
-    // Not available yet (no image): readable, clearly inactive
-    &:disabled {
-      color: var(--gk-ink-soft);
-      opacity: 0.55;
-      cursor: not-allowed;
-    }
-  }
-
   // Done reads in ink with its check: the action has happened
-  &__action--done.zen-btn {
+  &__icon-btn--done.zen-btn {
     color: var(--gk-ink);
-  }
-
-  // The Save tooltip wrapper must fill its grid cell like the other actions
-  &__actions > :deep(.zen-tooltip-trigger) {
-    display: block;
-    width: 100%;
-  }
-
-  &__history {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin-top: -0.25rem;
-  }
-
-  &__step.zen-btn {
-    width: 2.75rem !important;
-    min-width: 2.75rem !important;
-    height: 2.75rem !important;
-    padding: 0 !important;
-    color: var(--gk-ink-soft);
-
-    &:disabled {
-      opacity: 0.3;
-    }
-  }
-
-  &__history-count {
-    flex: 1;
-    overflow: hidden;
-    font-size: 0.8125rem;
-    text-align: center;
-    color: var(--gk-ink-soft);
-    font-variant-numeric: tabular-nums;
   }
 
   &__button.zen-btn {
@@ -729,6 +642,92 @@ useKeyboardShortcuts({
       color: var(--gk-ink) !important;
       box-shadow: inset 0 0 0 1.5px var(--gk-ink) !important;
     }
+  }
+
+  // The crafter names itself: a feather, the title, a quiet line under it
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-bottom: 1rem;
+  }
+
+  &__header-icon {
+    flex-shrink: 0;
+    color: var(--gk-indigo);
+  }
+
+  &__header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+  }
+
+  &__header-title {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--gk-ink);
+  }
+
+  &__header-subtitle {
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--gk-ink-soft);
+  }
+
+  // One row of icons, the arrows at either end
+  &__secondary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 0.5rem;
+  }
+
+  &__icon-btn.zen-btn {
+    width: 2.75rem !important;
+    min-width: 2.75rem !important;
+    height: 2.75rem !important;
+    padding: 0 !important;
+    color: var(--gk-indigo);
+    background: transparent !important;
+    border-radius: var(--gk-radius-control);
+    transition:
+      color var(--gk-dur-fast) var(--gk-ease-out),
+      background-color var(--gk-dur-fast) var(--gk-ease-out),
+      transform var(--gk-dur-press) var(--gk-ease-out);
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) {
+        background: color-mix(
+          in oklch,
+          var(--gk-indigo) 8%,
+          transparent
+        ) !important;
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--gk-indigo);
+      outline-offset: 2px;
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.94);
+    }
+
+    &:disabled {
+      color: var(--gk-ink-soft);
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  // The arrows step through history: a shade quieter than the actions
+  &__icon-btn--step.zen-btn {
+    color: var(--gk-ink-soft);
   }
 
   // One cell for both: whichever is shown sits there, the other fades out
@@ -984,28 +983,6 @@ useKeyboardShortcuts({
   opacity: 0;
 }
 
-// History counter turns like a page number, the way the reader turned
-.count-back-enter-active,
-.count-back-leave-active,
-.count-forward-enter-active,
-.count-forward-leave-active {
-  transition:
-    opacity var(--gk-dur-fast) var(--gk-ease-out),
-    transform var(--gk-dur-fast) var(--gk-ease-out);
-}
-
-.count-forward-enter-from,
-.count-back-leave-to {
-  opacity: 0;
-  transform: translateX(6px);
-}
-
-.count-forward-leave-to,
-.count-back-enter-from {
-  opacity: 0;
-  transform: translateX(-6px);
-}
-
 // Options and progress hand over in place: a short crossfade, no height
 .slot-turn-enter-active,
 .slot-turn-leave-active {
@@ -1018,31 +995,23 @@ useKeyboardShortcuts({
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ink-swap-enter-active,
-  .count-back-enter-active,
-  .count-back-leave-active,
-  .count-forward-enter-active,
-  .count-forward-leave-active {
+  .ink-swap-enter-active {
     transition: opacity 120ms ease;
   }
 
-  .ink-swap-enter-from,
-  .count-back-enter-from,
-  .count-back-leave-to,
-  .count-forward-enter-from,
-  .count-forward-leave-to {
+  .ink-swap-enter-from {
     transform: none;
   }
 
   .toolbar-panel {
-    &__action.zen-btn,
+    &__icon-btn.zen-btn,
     &__preset,
     &__dev-header,
     &__dev-chevron {
       transition: none;
     }
 
-    &__action.zen-btn:active:not(:disabled) {
+    &__icon-btn.zen-btn:active:not(:disabled) {
       transform: none;
     }
   }

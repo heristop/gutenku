@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
   bestScoreLabel,
   etaLabel,
-  stepDirection,
 } from '@/features/haiku/composables/progress-readout';
 
 describe('progress readout', () => {
@@ -19,12 +18,5 @@ describe('progress readout', () => {
 
   it('says nothing of a best before any candidate has scored', () => {
     expect(bestScoreLabel(0)).toBe(null);
-  });
-
-  it('reads which way the reader turned through their haiku', () => {
-    expect(stepDirection(3, 2)).toBe('back');
-    expect(stepDirection(2, 3)).toBe('forward');
-    // A new haiku lands at the end, like turning forward
-    expect(stepDirection(3, 4)).toBe('forward');
   });
 });
