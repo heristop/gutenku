@@ -295,6 +295,15 @@ describe('DailyHaikuSlip', () => {
       ...archive[TODAY],
       reading: 'A long reading of the day.',
     };
+    // The commentary is measured to fold it: a constructible observer
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      },
+    );
 
     try {
       await render();
@@ -304,6 +313,7 @@ describe('DailyHaikuSlip', () => {
       );
     } finally {
       archive[TODAY] = { ...archive[TODAY], reading: null };
+      vi.unstubAllGlobals();
     }
   });
 });
