@@ -156,6 +156,11 @@ const typeDefs = `#graphql
         emoticons: String
     }
 
+    type DailyHaikuExcerpt {
+        text: String!
+        verses: [String!]!
+    }
+
     type DailyHaiku {
         date: String!
         publishedAt: String!
@@ -167,6 +172,8 @@ const typeDefs = `#graphql
         nextRolloverAt: String!
         previousDate: String
         nextDate: String
+        "A few words of the chapter around each verse (dailyHaiku only)"
+        excerpt: DailyHaikuExcerpt
     }
 
     type DailyHaikuPage {

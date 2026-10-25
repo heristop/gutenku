@@ -1,4 +1,5 @@
 import { container } from 'tsyringe';
+import { loadDailyExcerpt } from '~/presentation/graphql/daily-excerpt';
 import {
   type AIAccess,
   openAIScopeFor,
@@ -272,10 +273,17 @@ const resolvers = {
         return null;
       }
 
-      return toPublicDailyHaiku(
-        record,
-        context?.publicBaseUrl ?? resolvePublicBaseUrl(),
-      );
+      return {
+        ...toPublicDailyHaiku(
+          record,
+          context?.publicBaseUrl ?? resolvePublicBaseUrl(),
+        ),
+        // Resolved only when asked for: the chapter is read for the home slip
+        excerpt: () =>
+          loadDailyExcerpt(record, (id) =>
+            queryBus.execute(new GetChapterByIdQuery(id)),
+          ),
+      } as DailyHaiku;
     },
     dailyHaikus: async (
       _: unknown,
