@@ -1140,6 +1140,11 @@ $toc-desktop: 1280px;
     transition: transform var(--gk-dur-press) var(--gk-ease-out);
     z-index: 100;
 
+    @media (max-width: 600px) {
+      bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+      right: 1rem;
+    }
+
     @media (min-width: 600px) {
       bottom: 2rem;
       right: 2rem;
@@ -1154,6 +1159,12 @@ $toc-desktop: 1280px;
       outline-offset: 3px;
     }
   }
+}
+
+// A plate set straight in the text gets room on both sides
+.prose > :deep(img),
+.prose > :deep(p > img) {
+  margin-block: 2rem;
 }
 
 .blog-article__body :deep(img) {

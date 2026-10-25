@@ -4,12 +4,23 @@ export function useReadingProgress(scrollThreshold = 400) {
   const readingProgress = ref(0);
   const showBackToTop = ref(false);
 
+  let lastScrollTop = 0;
+
   function handleScroll() {
     const scrollTop = window.scrollY;
     const docHeight =
       document.documentElement.scrollHeight - window.innerHeight;
     readingProgress.value = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-    showBackToTop.value = scrollTop > scrollThreshold;
+
+    // On a phone the key would sit on the text being read: it steps aside
+    // while the reader goes down and comes back on the way up
+    const narrow =
+      globalThis.matchMedia?.('(max-width: 600px)').matches ?? false;
+    const readingDown = scrollTop > lastScrollTop;
+
+    showBackToTop.value =
+      scrollTop > scrollThreshold && !(narrow && readingDown);
+    lastScrollTop = scrollTop;
   }
 
   function scrollToTop() {

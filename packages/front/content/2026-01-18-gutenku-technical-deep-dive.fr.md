@@ -6,7 +6,7 @@ description: Une exploration technique approfondie de l'algorithme génétique d
 
 _L'Algorithme Derrière la Machine à Poésie_
 
-![Réseau de nœuds connectés avec calligraphie japonaise fluide](/article/article-algorithmic.webp)
+![Un homme devant un ordinateur portable, au milieu d’un labyrinthe](/article/article-algorithmic.webp)
 
 ## Contexte
 

@@ -6,7 +6,7 @@ description: A deep technical exploration of GutenKu's genetic algorithm, NLP sc
 
 _The Algorithm Behind the Poetry Machine_
 
-![Network of connected nodes with flowing Japanese calligraphy](/article/article-algorithmic.webp)
+![A man at a laptop inside a maze](/article/article-algorithmic.webp)
 
 ## Context
 

@@ -46,6 +46,38 @@ describe('useReadingProgress', () => {
     unmount();
   });
 
+  it('on phones, steps aside while reading down and returns on the way up', () => {
+    vi.spyOn(globalThis, 'matchMedia').mockReturnValue({
+      matches: true,
+    } as MediaQueryList);
+    const { result, unmount } = withSetup(() => useReadingProgress(400));
+
+    setScroll(600, 4000, 800);
+    globalThis.window.dispatchEvent(new Event('scroll'));
+    setScroll(900, 4000, 800);
+    globalThis.window.dispatchEvent(new Event('scroll'));
+    expect(result.showBackToTop.value).toBeFalsy();
+
+    setScroll(700, 4000, 800);
+    globalThis.window.dispatchEvent(new Event('scroll'));
+    expect(result.showBackToTop.value).toBeTruthy();
+    unmount();
+  });
+
+  it('stays put on wide screens whichever way the reader scrolls', () => {
+    vi.spyOn(globalThis, 'matchMedia').mockReturnValue({
+      matches: false,
+    } as MediaQueryList);
+    const { result, unmount } = withSetup(() => useReadingProgress(400));
+
+    setScroll(600, 4000, 800);
+    globalThis.window.dispatchEvent(new Event('scroll'));
+    setScroll(900, 4000, 800);
+    globalThis.window.dispatchEvent(new Event('scroll'));
+    expect(result.showBackToTop.value).toBeTruthy();
+    unmount();
+  });
+
   it('clamps progress to zero when document is not scrollable', () => {
     const { result, unmount } = withSetup(() => useReadingProgress());
 
