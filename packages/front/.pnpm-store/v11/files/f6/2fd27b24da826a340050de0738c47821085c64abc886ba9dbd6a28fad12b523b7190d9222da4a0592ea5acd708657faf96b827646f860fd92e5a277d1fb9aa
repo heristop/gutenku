@@ -1,5 +1,0 @@
-import { B as NODE_SEA_MIN_VERSION, J as Logger, V as NODE_SEA_MIN_VERSION_PARSED, b as toArray, it as Overwrite, rt as MarkPartial, v as importWithError, y as resolveComma } from "./types-gcfCcqmV.mjs";
-export declare function expandBaselineTarget(targets: string[]): string[];
-export declare function fsExists(path: string): Promise<boolean>;
-export declare function fsRemove(path: string): Promise<void>;
-export { type Logger, type MarkPartial, NODE_SEA_MIN_VERSION, NODE_SEA_MIN_VERSION_PARSED, type Overwrite, importWithError, resolveComma, toArray };

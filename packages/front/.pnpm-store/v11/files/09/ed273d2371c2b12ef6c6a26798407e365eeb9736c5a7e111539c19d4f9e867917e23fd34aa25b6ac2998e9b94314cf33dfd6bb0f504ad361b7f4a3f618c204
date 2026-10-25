@@ -1,1 +1,0 @@
-{"version":3,"file":"responses-ws-credentials.mjs","sourceRoot":"","sources":["../src/internal/responses-ws-credentials.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,oBAAoB,EAAE,6BAAyB;AAExD,+EAA+E;AAC/E,MAAM,OAAO,6BAA8B,SAAQ,oBAAoB;IACrE;QACE,KAAK,CAAC,WAAW,CAAC,CAAC;IACrB,CAAC;CACF"}

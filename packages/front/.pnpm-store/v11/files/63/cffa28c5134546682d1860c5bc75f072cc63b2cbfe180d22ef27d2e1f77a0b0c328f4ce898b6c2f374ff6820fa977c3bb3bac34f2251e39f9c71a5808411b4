@@ -1,9 +1,0 @@
-{
-  "include": [
-    "io_spec/**/*_spec.js",
-    "dist/**/*_spec.js",
-    "lib/natural/**/*.js",
-    "lib/natural/**/*.ts"
-  ],
-  "reporter": "lcov"
-}

@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { afterAll, vi } from 'vitest';
 import { config } from '@vue/test-utils';
 
 // Mock import.meta.env
@@ -12,8 +12,8 @@ vi.stubGlobal('import.meta.env', {
 // Mock localStorage
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
-  
-return {
+
+  return {
     getItem: vi.fn((key: string) => store[key] ?? null),
     setItem: vi.fn((key: string, value: string) => {
       store[key] = value;
@@ -48,11 +48,31 @@ vi.stubGlobal(
   })),
 );
 
-// Mock requestAnimationFrame
+// Mock requestAnimationFrame. Pending frames are dropped when a file ends,
+// so a transition left mid-flight never runs after jsdom is torn down.
+const pendingFrames = new Set<ReturnType<typeof setTimeout>>();
+
 vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
-  return setTimeout(() => cb(performance.now()), 16);
+  const id = setTimeout(() => {
+    pendingFrames.delete(id);
+
+    if ('window' in globalThis) {
+      cb(performance.now());
+    }
+  }, 16);
+  pendingFrames.add(id);
+
+  return id;
 });
-vi.stubGlobal('cancelAnimationFrame', (id: number) => clearTimeout(id));
+vi.stubGlobal('cancelAnimationFrame', (id: ReturnType<typeof setTimeout>) => {
+  pendingFrames.delete(id);
+  clearTimeout(id);
+});
+
+afterAll(() => {
+  pendingFrames.forEach((id) => clearTimeout(id));
+  pendingFrames.clear();
+});
 
 // Mock performance.now
 if (typeof performance === 'undefined') {
