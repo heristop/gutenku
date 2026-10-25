@@ -14,8 +14,6 @@ if (typeof document !== 'undefined') {
   );
 }
 
-export type SwipeDirection = 'up' | 'down' | 'left' | 'right' | 'none';
-
 interface VibrationContext {
   enableVibration: boolean;
   vibrationSupported: { value: boolean };
@@ -65,7 +63,6 @@ export function useTouchGestures(
 
   const { vibrate, isSupported: vibrationSupported } = useVibrate({
     pattern: vibrationPattern,
-    interval: 0,
   });
 
   const triggerVibration = createVibrationTrigger({
@@ -164,12 +161,10 @@ export function useLongPress(
 
   const { vibrate, isSupported: vibrationSupported } = useVibrate({
     pattern: [25],
-    interval: 0,
   });
 
   const { vibrate: vibrateCommit } = useVibrate({
     pattern: [10],
-    interval: 0,
   });
 
   const triggerVibration = createVibrationTrigger({

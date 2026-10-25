@@ -1,0 +1,29 @@
+{
+  "name": "@yuku-toolchain/types",
+  "version": "0.19.0",
+  "description": "The TypeScript types shared by the Yuku packages",
+  "keywords": [
+    "ast",
+    "estree",
+    "javascript",
+    "types",
+    "typescript"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yuku-toolchain/yuku"
+  },
+  "files": [
+    "index.d.ts",
+    "tokens.d.ts"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts"
+    }
+  }
+}

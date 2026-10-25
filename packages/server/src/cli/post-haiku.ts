@@ -16,9 +16,11 @@ import {
   post as socialPost,
   generateSocialCaption,
 } from '~/application/services/SocialService';
+import { publishDailyHaiku } from './daily-haiku-publisher';
 import {
   GRAPHQL_QUERY,
   buildVariables,
+  GUESS_SAFE_AI_THEMES,
   displayCandidates,
   displayQuality,
   displayTranslations,
@@ -43,26 +45,66 @@ program
     '0',
   )
   .option('--live <number>', 'generate N additional live haikus with GA')
-  .option('-t, --theme <type>', 'theme', 'random')
+  .option(
+    '-t, --theme <type>',
+    'card theme: random, greentea, watermark or sumie (none that names the book)',
+    'random',
+  )
   .option('-p, --platform <type>', 'platform (discord or social)', 'discord')
-  .option('--with-image-ai', 'use generated themes for random', false)
+  .option(
+    '--with-image-ai',
+    'let random also draw sumie (painted by the image model)',
+    false,
+  )
   .option('--no-interaction')
   .option('--no-ai-description')
   .option('-C, --no-cache', 'skip MongoDB cache, generate fresh')
-  .option('--no-post');
+  .option('--no-post')
+  .option('--no-publish-db', 'skip storing the daily haiku in MongoDB')
+  .option(
+    '--force',
+    'replace the day already published in MongoDB (default: keep it)',
+    false,
+  );
 
 // Filter out standalone '--' from argv (pnpm passes it through)
 const argv = process.argv.filter((arg) => arg !== '--');
 program.parse(argv);
 
 const options = program.opts();
-const variables = buildVariables(options);
+
+function resolveVariables(): ReturnType<typeof buildVariables> {
+  try {
+    const resolved = buildVariables(options);
+    const server = process.env.SERVER_URI || 'http://localhost:4000/graphql';
+    const isLocal = /\/\/(localhost|127\.0\.0\.1)[:/]/.test(server);
+
+    // Without AI access a production server swaps sumie for a random theme,
+    // which could be one that names the book
+    if (
+      GUESS_SAFE_AI_THEMES.includes(resolved.theme as 'sumie') &&
+      !isLocal &&
+      !process.env.INTERNAL_API_KEY
+    ) {
+      throw new Error(
+        `Theme "${resolved.theme}" needs AI on ${server}: set INTERNAL_API_KEY, or use greentea or watermark.`,
+      );
+    }
+
+    return resolved;
+  } catch (error) {
+    console.error(pc.red(`✖ ${(error as Error).message}`));
+    process.exit(1);
+  }
+}
+
+const variables = resolveVariables();
 const body = { query: GRAPHQL_QUERY, variables };
 
 function printRunHeader(): void {
   console.log(pc.bold('\n📮 Haiku Post\n'));
 
-  console.log(pc.dim(`Theme: ${options.theme}`));
+  console.log(pc.dim(`Theme: ${variables.theme}`));
   console.log(pc.dim(`Platform: ${options.platform}`));
   console.log(
     pc.dim(`AI Description: ${options.aiDescription ? 'yes' : 'no'}`),
@@ -86,18 +128,24 @@ async function fetchHaikuPayload(spinner: ReturnType<typeof ora>) {
       process.env.SERVER_URI || 'http://localhost:4000/graphql',
       {
         body: JSON.stringify(body),
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          // Lets AI through on a production server (see ai-access.ts)
+          ...(process.env.INTERNAL_API_KEY && {
+            'X-Internal-Key': process.env.INTERNAL_API_KEY,
+          }),
+        },
         method: 'POST',
         signal: controller.signal,
       },
     );
     clearTimeout(timeoutId);
-    
-return response;
+
+    return response;
   } catch (error) {
     clearTimeout(timeoutId);
-    
-if (error instanceof Error && error.name === 'AbortError') {
+
+    if (error instanceof Error && error.name === 'AbortError') {
       spinner.fail(pc.red('Request timed out after 3 minutes'));
       process.exit(1);
     }
@@ -105,9 +153,14 @@ if (error instanceof Error && error.name === 'AbortError') {
   }
 }
 
+interface DailyCardArtifacts {
+  card: Buffer;
+  socialCaption: string;
+}
+
 async function processAndSaveImage(
   haiku: HaikuResponseData['haiku'],
-): Promise<void> {
+): Promise<DailyCardArtifacts> {
   const imageSpinner = ora('Processing image...').start();
 
   if (!haiku.image) {
@@ -152,14 +205,56 @@ async function processAndSaveImage(
     // Terminal doesn't support image protocol - show file path instead
     console.log(pc.dim(`  📷 Image saved: ${haiku.imagePath}`));
   }
+
+  return { card: resizedImageBuffer, socialCaption: socialPreviewCaption };
+}
+
+async function publishToDatabase(
+  haiku: HaikuResponseData['haiku'],
+  artifacts: DailyCardArtifacts,
+): Promise<void> {
+  if (options.publishDb === false) {
+    console.log(pc.dim('  Skipping DB publication (--no-publish-db)'));
+
+    return;
+  }
+
+  const dbSpinner = ora('Publishing daily haiku to MongoDB...').start();
+  const published = await publishDailyHaiku(
+    {
+      haiku,
+      card: artifacts.card,
+      socialCaption: artifacts.socialCaption || undefined,
+    },
+    { warn: (message) => dbSpinner.warn(pc.yellow(message)) },
+    { force: options.force === true },
+  );
+
+  if (!published) {
+    return;
+  }
+
+  const { date, result } = published;
+
+  if (result === 'kept') {
+    dbSpinner.warn(
+      pc.yellow(
+        `Daily haiku for ${date} already published, kept it (use --force to replace)`,
+      ),
+    );
+
+    return;
+  }
+
+  dbSpinner.succeed(pc.green(`Daily haiku ${result} in DB (${date})`));
 }
 
 function displayHaikuHeader(haiku: HaikuResponseData['haiku']): void {
   console.log(pc.cyan('  ' + haiku.verses.map(capitalizeVerse).join('\n  ')));
   console.log(pc.dim(`\n  — ${haiku.book.title}`));
   console.log(pc.dim(`    by ${haiku.book.author}`));
-  
-if (haiku.book.emoticons) {
+
+  if (haiku.book.emoticons) {
     console.log(`    ${haiku.book.emoticons}`);
   }
 }
@@ -208,8 +303,8 @@ function reportGenerated(
       ? pc.dim(' (from cache)')
       : pc.yellow(' [fresh]');
     generateSpinner.succeed(pc.green('Haiku generated') + cacheStatus);
-    
-return;
+
+    return;
   }
 
   const { requestedCount, generatedCount, selectedIndex } = haiku.selectionInfo;
@@ -274,7 +369,8 @@ try {
   }
 
   reportGenerated(haiku, generateSpinner);
-  await processAndSaveImage(haiku);
+  const artifacts = await processAndSaveImage(haiku);
+  await publishToDatabase(haiku, artifacts);
 
   displayCandidates(haiku, options.cache);
 

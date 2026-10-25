@@ -1,0 +1,69 @@
+{
+	"name": "vite-plugin-webfont-dl",
+	"version": "3.13.1",
+	"description": "Vite plugin for downloading and injecting webfonts",
+	"keywords": [
+		"vite",
+		"vite-plugin",
+		"web-font",
+		"webfont",
+		"webfont-dl",
+		"webfont-download",
+		"google-fonts",
+		"bunny-fonts",
+		"fontshare",
+		"vue",
+		"react"
+	],
+	"main": "dist/index.js",
+	"module": "dist/index.mjs",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
+			"import": "./dist/index.mjs"
+		}
+	},
+	"files": [
+		"dist/index.js",
+		"dist/index.mjs",
+		"dist/index.d.ts"
+	],
+	"scripts": {
+		"start": "npm run build -- --watch",
+		"build": "tsup src/index.ts",
+		"lint": "tsc --noEmit --downlevelIteration && eslint \"src/**/*.ts\" --no-fix",
+		"lint:fix": "eslint \"src/**/*.ts\" --fix",
+		"test": "vitest"
+	},
+	"author": "feat. agency <hello@feat.agency>",
+	"license": "MIT",
+	"dependencies": {
+		"axios": "^1",
+		"clean-css": "^5",
+		"flat-cache": "^6",
+		"picocolors": "^1"
+	},
+	"peerDependencies": {
+		"vite": "^2 || ^3 || ^4 || ^5 || ^6 || ^7 || ^8"
+	},
+	"devDependencies": {
+		"@types/clean-css": "^4",
+		"@types/node": "^22",
+		"@typescript-eslint/eslint-plugin": "^8",
+		"eslint": "^9",
+		"tsup": "^6 || ^7 || ^8",
+		"typescript": "^5 || ^6",
+		"vite": "^8",
+		"vitest": "^0 || ^1 || ^2 || ^3 || ^4"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/feat-agency/vite-plugin-webfont-dl.git"
+	},
+	"bugs": {
+		"url": "https://github.com/feat-agency/vite-plugin-webfont-dl/issues"
+	},
+	"homepage": "https://webfont-dl.feat.agency"
+}

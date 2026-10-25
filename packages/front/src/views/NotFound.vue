@@ -1,260 +1,199 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { Home } from '@lucide/vue';
+import { Home } from '@/core/components/icons/ink';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
 import ZenButton from '@/core/components/ui/ZenButton.vue';
 import ZenHaiku from '@/core/components/ui/ZenHaiku.vue';
+import BrushRule from '@/core/components/ink/BrushRule.vue';
+import { GAME_ENABLED } from '@/features/game/config';
 
-const { t } = useI18n();
+import { computed } from 'vue';
 
-const isVisible = ref(false);
+const { t, tm, rt } = useI18n();
 
-const haikuLines = [
-  'She did it sweetly',
-  'The tears came into his eyes',
-  'It will be all right',
-];
-
-onMounted(() => {
-  requestAnimationFrame(() => {
-    isVisible.value = true;
-  });
-});
+// A haiku found in a book, translated with the rest of the page
+const haikuLines = computed(() =>
+  (tm('notFound.haiku') as unknown as string[]).map((line) => rt(line)),
+);
 </script>
 
 <template>
   <div class="not-found">
-    <div class="not-found__content">
-      <Transition name="fade-up">
-        <ZenCard
-          v-if="isVisible"
-          variant="default"
-          class="not-found__card"
-          aria-label="Page not found"
-        >
-          <!-- Illustration -->
-          <img
-            src="/gutenmage.webp"
-            alt=""
-            aria-hidden="true"
-            class="not-found__illustration"
-            width="1536"
-            height="1024"
-            loading="lazy"
-          />
+    <ZenCard
+      variant="default"
+      class="not-found__card"
+      :aria-label="t('notFound.title')"
+    >
+      <img
+        src="/gutenmage.webp"
+        alt=""
+        aria-hidden="true"
+        class="not-found__illustration"
+        width="1536"
+        height="1024"
+        decoding="async"
+      />
 
-          <!-- Animated 404 number -->
-          <div class="not-found__number">
-            <span class="digit">4</span>
-            <span class="digit digit--center">0</span>
-            <span class="digit">4</span>
-          </div>
+      <h1 class="not-found__title">
+        <span class="not-found__number" aria-hidden="true">404</span>
+        <span class="not-found__label">{{ t('notFound.title') }}</span>
+      </h1>
 
-          <!-- Haiku -->
-          <ZenHaiku
-            :lines="haikuLines"
-            size="sm"
-            :animated="true"
-            :show-brush-stroke="false"
-            class="not-found__haiku"
-          />
+      <ZenHaiku
+        :lines="haikuLines"
+        size="sm"
+        :animated="true"
+        :show-brush-stroke="false"
+        class="not-found__haiku"
+      />
 
-          <!-- Ink brush divider -->
-          <div class="not-found__divider">
-            <span class="brush-stroke"></span>
-          </div>
+      <BrushRule class="not-found__rule" />
 
-          <ZenButton to="/" :aria-label="t('notFound.returnHome')">
-            <template #icon-left>
-              <Home :size="18" />
-            </template>
-            {{ t('notFound.returnHome') }}
-          </ZenButton>
-        </ZenCard>
-      </Transition>
-    </div>
+      <ZenButton to="/" class="not-found__action">
+        <template #icon-left>
+          <Home :size="18" aria-hidden="true" />
+        </template>
+        {{ t('notFound.returnHome') }}
+      </ZenButton>
+
+      <!-- The other two ways in, as quiet text: home stays the one key -->
+      <nav class="not-found__elsewhere" :aria-label="t('notFound.elsewhere')">
+        <RouterLink to="/haiku">{{ t('home.hero.write') }}</RouterLink>
+        <template v-if="GAME_ENABLED">
+          <span aria-hidden="true">·</span>
+          <RouterLink to="/game">{{ t('home.hero.play') }}</RouterLink>
+        </template>
+      </nav>
+    </ZenCard>
   </div>
 </template>
 
 <style lang="scss" scoped>
-@use '@/assets/css/_mixins' as *;
-
+// Ex Libris: a leaf missing from the shelf. Oversized typed numerals, the
+// meta under them, a short poem, then the way back (and two quiet others).
 .not-found {
   display: flex;
-  flex-direction: column;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
   min-height: 100%;
-  padding: 1rem;
+  padding: 2rem 1rem 1.5rem;
+  font-family: var(--gk-font);
 
-  &__content {
-    flex: 1;
+  &__elsewhere {
     display: flex;
-    align-items: center;
+    flex-wrap: wrap;
     justify-content: center;
+    align-items: center;
+    gap: 0.25rem 0.625rem;
+    margin-top: 1.25rem;
+    font-size: 0.875rem;
+    color: var(--gk-ink-soft);
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 2.75rem;
+      color: var(--gk-indigo);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.25em;
+
+      &:focus-visible {
+        outline: 2px solid var(--gk-indigo);
+        outline-offset: 2px;
+      }
+    }
   }
 
   &__card {
-    max-width: 420px;
     width: 100%;
+    max-width: 26rem;
+    padding: 2rem 1.5rem;
     text-align: center;
-    padding: var(--gutenku-space-8);
+    animation: not-found-in var(--gk-dur-reward) var(--gk-ease-out) both;
 
-    @include sm-up {
-      padding: var(--gutenku-space-12);
-    }
-
-    background: linear-gradient(
-      135deg,
-      var(--gutenku-paper-bg) 0%,
-      var(--gutenku-paper-bg-warm) 100%
-    );
-    border-radius: var(--gutenku-radius-xl);
-    box-shadow: var(--gutenku-shadow-paper, var(--gutenku-shadow-zen));
-    position: relative;
-    z-index: 1;
-
-    [data-theme='dark'] & {
-      background: oklch(0.18 0.02 70 / 0.7);
-      backdrop-filter: blur(16px);
-      border: 1px solid oklch(1 0 0 / 0.05);
+    @media (min-width: 600px) {
+      padding: 2.5rem 2.5rem 2.25rem;
     }
   }
 
   &__illustration {
     display: block;
-    width: 180px;
+    width: 160px;
     height: auto;
-    margin: 0 auto 1.5rem;
-    opacity: 0.95;
-    filter: grayscale(10%) drop-shadow(0 4px 12px oklch(0.45 0.08 195 / 0.2));
-    animation: float 8s ease-in-out infinite;
-    border-radius: var(--gutenku-radius-md);
+    margin: 0 auto 1.25rem;
+    aspect-ratio: 3 / 2;
 
     @media (min-width: 600px) {
-      width: 220px;
+      width: 200px;
     }
 
+    // The drawing is sumi line on transparent paper: on the night page it is
+    // tipped in on a light leaf, like the home plate, never inverted
+    // A little askew, as a plate pasted in by hand, so it never reads as a
+    // grey placeholder
     [data-theme='dark'] & {
-      filter: brightness(0.9) grayscale(15%)
-        drop-shadow(0 4px 12px oklch(0.5 0.1 195 / 0.3));
+      padding: 0.75rem;
+      transform: rotate(-1.5deg);
+      object-fit: contain;
+      background: var(--gk-plate-leaf);
+      border-radius: 2px;
+      box-shadow: var(--gk-lift);
+      filter: var(--gk-plate-filter);
     }
+  }
+
+  &__title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 1.25rem;
+    font-weight: 400;
   }
 
   &__number {
-    font-size: 5rem;
-    font-weight: 200;
-    letter-spacing: 0.15em;
-    color: var(--gutenku-text-primary);
-    line-height: 1;
-    margin-bottom: 1.5rem;
-    display: flex;
-    justify-content: center;
-    gap: 0.1em;
+    font-size: clamp(3.5rem, 12vw, 4.75rem);
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+    color: var(--gk-ink);
+  }
 
-    .digit {
-      display: inline-block;
-      text-shadow: 2px 2px 4px oklch(0 0 0 / 0.08);
-      transition: transform 0.3s ease;
-
-      &--center {
-        animation: breathe 3s ease-in-out infinite;
-      }
-    }
-
-    [data-theme='dark'] & .digit {
-      text-shadow: 2px 2px 12px oklch(0 0 0 / 0.4);
-    }
-
-    @media (max-width: 600px) {
-      font-size: 4rem;
-    }
+  &__label {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--gk-ink-soft);
   }
 
   &__haiku {
-    margin-bottom: 2rem;
+    margin-bottom: 0.5rem;
   }
 
-  &__divider {
-    width: 80px;
-    height: 3px;
-    margin: 0 auto 2rem;
-    position: relative;
-    overflow: hidden;
-
-    .brush-stroke {
-      display: block;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(
-        90deg,
-        transparent 0%,
-        var(--gutenku-zen-secondary) 20%,
-        var(--gutenku-zen-secondary) 80%,
-        transparent 100%
-      );
-      opacity: 0.5;
-      border-radius: var(--gutenku-radius-xs);
-      animation: brush-in 0.8s ease-out 0.5s both;
-    }
+  &__rule {
+    margin: 0 auto 1.5rem;
+    max-width: 8rem;
   }
 }
 
-// Animations
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-2px);
-  }
-}
-
-@keyframes breathe {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.8;
-  }
-}
-
-@keyframes brush-in {
+@keyframes not-found-in {
   from {
-    transform: scaleX(0);
     opacity: 0;
+    transform: translateY(8px);
   }
-  to {
-    transform: scaleX(1);
-    opacity: 0.5;
-  }
-}
-
-// Page transitions
-.fade-up-enter-active {
-  transition:
-    opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.fade-up-enter-from {
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-.fade-up-enter-to {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .not-found__illustration,
-  .not-found__number .digit--center,
-  .not-found__divider .brush-stroke {
+  .not-found__card {
     animation: none;
   }
+}
+
+// Every page starts the same distance below the header's rule: the card
+// hangs from the top like the others instead of floating mid-page
+.not-found {
+  align-items: flex-start;
+  padding-top: var(--gk-page-top);
 }
 </style>

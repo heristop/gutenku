@@ -1,0 +1,156 @@
+import { APIResource } from "../../core/resource.mjs";
+import { APIPromise } from "../../core/api-promise.mjs";
+import { type Uploadable } from "../../core/uploads.mjs";
+import { RequestOptions } from "../../internal/request-options.mjs";
+/**
+ * Turn audio into text or text into audio.
+ */
+export declare class Voices extends APIResource {
+    /**
+     * Creates a voice from a text prompt or from a consent recording and an audio
+     * sample.
+     *
+     * For prompt-based creation, send `type: "prompt"` with a `name` and `prompt` as
+     * JSON or multipart form data. For creation from an audio sample, send
+     * `type: "audio_sample"` with a `name`, `audio_sample`, and `consent` recording ID
+     * as multipart form data. The type defaults to `audio_sample` when omitted.
+     *
+     * Returns the saved voice's metadata. Voices created from text prompts are
+     * supported only in Live, not in Realtime or the speech endpoint. The response
+     * does not include preview audio.
+     *
+     * @example
+     * ```ts
+     * const voice = await client.audio.voices.create({
+     *   audio_sample: fs.createReadStream('path/to/file'),
+     *   consent: 'consent',
+     *   name: 'x',
+     * });
+     * ```
+     */
+    create(body: VoiceCreateParams, options?: RequestOptions): APIPromise<Voice>;
+    /**
+     * Deletes a voice created from a text prompt or an audio sample.
+     *
+     * Requires voice write permission and access to the voice's project. Access to
+     * voices created from recordings is limited to eligible customers. See the
+     * [custom voices guide](https://developers.openai.com/api/docs/guides/custom-voices).
+     *
+     * Deleting a voice does not delete its consent recording. Deleting an already
+     * deleted voice returns a 404 error.
+     *
+     * @example
+     * ```ts
+     * const voiceDeleted = await client.audio.voices.delete(
+     *   'voice_id',
+     * );
+     * ```
+     */
+    delete(voiceID: string, options?: RequestOptions): APIPromise<VoiceDeleted>;
+}
+/**
+ * A custom voice that can be used for audio output. Voices created from text
+ * prompts are supported only in Live.
+ */
+export interface Voice {
+    /**
+     * The voice identifier, which can be referenced in API endpoints.
+     */
+    id: string;
+    /**
+     * The Unix timestamp (in seconds) for when the voice was created.
+     */
+    created_at: number;
+    /**
+     * The name of the voice.
+     */
+    name: string;
+    /**
+     * The object type, which is always `audio.voice`.
+     */
+    object: 'audio.voice';
+    /**
+     * How the voice was created.
+     */
+    type: 'audio_sample' | 'prompt';
+    /**
+     * The original text prompt used to create the voice. Present for prompt-generated
+     * voices with a stored prompt; omitted for audio-sample voices and older voices
+     * without a stored prompt.
+     */
+    prompt?: string;
+}
+export interface VoiceDeleted {
+    /**
+     * The voice identifier.
+     */
+    id: string;
+    /**
+     * Whether the voice was deleted.
+     */
+    deleted: boolean;
+    /**
+     * The object type, which is always `audio.voice.deleted`.
+     */
+    object: 'audio.voice.deleted';
+}
+export type VoiceCreateParams = VoiceCreateParams.Consent | VoiceCreateParams.Prompt;
+export declare namespace VoiceCreateParams {
+    /**
+     * Creates a voice from a consent recording and an audio sample. Requires
+     * multipart/form-data.
+     */
+    interface Consent {
+        /**
+         * The sample audio recording file. Maximum size is 10 MiB.
+         *
+         * Supported MIME types: `audio/mpeg`, `audio/wav`, `audio/x-wav`, `audio/ogg`,
+         * `audio/aac`, `audio/flac`, `audio/webm`, `audio/mp4`.
+         */
+        audio_sample: Uploadable;
+        /**
+         * The consent recording ID (for example, `cons_1234`).
+         */
+        consent: string;
+        /**
+         * The name of the new voice.
+         */
+        name: string;
+        /**
+         * The voice creation method. Defaults to `audio_sample` when omitted.
+         */
+        type?: 'audio_sample';
+    }
+    /**
+     * Creates a synthetic voice from a text description. Supports application/json or
+     * multipart/form-data.
+     */
+    interface Prompt {
+        /**
+         * The name of the new voice.
+         */
+        name: string;
+        /**
+         * A description of the desired voice. Must not contain only whitespace.
+         */
+        prompt: string;
+        /**
+         * Set to `prompt` to create a voice from a text description.
+         */
+        type: 'prompt';
+        /**
+         * The voice creation model to use. Defaults to `auto`.
+         */
+        model?: string | 'auto' | '2026-10-08';
+        /**
+         * Optional text for the voice to speak during creation. If omitted, a script is
+         * generated from the prompt. Must not be blank after trimming whitespace; scripts
+         * that are too short are rejected.
+         */
+        script_hint?: string;
+    }
+}
+export declare namespace Voices {
+    export { type Voice as Voice, type VoiceDeleted as VoiceDeleted, type VoiceCreateParams as VoiceCreateParams, };
+}
+//# sourceMappingURL=voices.d.mts.map

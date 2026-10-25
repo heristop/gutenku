@@ -14,6 +14,7 @@ import { HaikuValidatorService } from '~/domain/services/HaikuValidatorService';
 import {
   type ICanvasService,
   ICanvasServiceToken,
+  type ImagePreviewHandler,
 } from '~/domain/services/ICanvasService';
 import type { IGenerator } from '~/domain/interfaces/IGenerator';
 import type { IHaikuRepository } from '~/domain/repositories/IHaikuRepository';
@@ -179,10 +180,15 @@ export default class HaikuGeneratorService implements IGenerator {
   async appendImg(
     haiku: HaikuValue,
     useImageAI: boolean = false,
+    onPreview?: ImagePreviewHandler,
   ): Promise<HaikuValue> {
     this.canvasService.useTheme(this.theme);
 
-    const imagePath = await this.canvasService.create(haiku, useImageAI);
+    const imagePath = await this.canvasService.create(
+      haiku,
+      useImageAI,
+      onPreview,
+    );
     const image = await this.canvasService.read(imagePath);
 
     await promisify(unlink)(imagePath);

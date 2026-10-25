@@ -44,14 +44,14 @@ describe('Blog Index Page', () => {
       cy.get('.blog-index__reading-time').should('have.length.at.least', 1);
     });
 
-    it('has read more links', () => {
-      cy.get('.blog-index__read-more').should('have.length.at.least', 1);
+    it('links each title to its article', () => {
+      cy.get('.blog-index__title-link').should('have.length.at.least', 1);
     });
   });
 
   describe('Navigation to Article', () => {
-    it('navigates to article when clicking read more', () => {
-      cy.get('.blog-index__read-more').first().click();
+    it('navigates to article when clicking a title', () => {
+      cy.get('.blog-index__title-link').first().click();
       cy.url().should('include', '/blog/');
       cy.get('.blog-article__header').should('exist');
     });
@@ -76,7 +76,7 @@ describe('Blog Article Page', () => {
   beforeEach(() => {
     // Visit an article page (first navigate to index, then click)
     cy.visit('/blog');
-    cy.get('.blog-index__read-more').first().click();
+    cy.get('.blog-index__title-link').first().click();
   });
 
   describe('Page Load', () => {
@@ -138,19 +138,25 @@ describe('Blog Article Page', () => {
     });
   });
 
+  // The reading progress is the rule beside the table of contents, shown
+  // in the rail on wide screens
   describe('Reading Progress', () => {
+    beforeEach(() => {
+      cy.viewport(1440, 900);
+    });
+
     it('displays progress bar', () => {
-      cy.get('.blog-article__progress').should('exist');
+      cy.get('.article-toc__progress', { timeout: 10000 }).should('exist');
     });
 
     it('updates progress on scroll', () => {
-      cy.get('.blog-article__progress')
-        .invoke('css', 'width')
-        .then((initialWidth) => {
+      cy.get('.article-toc__progress', { timeout: 10000 })
+        .invoke('css', 'transform')
+        .then((initial) => {
           cy.scrollTo('bottom');
-          cy.get('.blog-article__progress')
-            .invoke('css', 'width')
-            .should('not.eq', initialWidth);
+          cy.get('.article-toc__progress')
+            .invoke('css', 'transform')
+            .should('not.eq', initial);
         });
     });
   });

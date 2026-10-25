@@ -6,7 +6,7 @@ description: A deep technical exploration of GutenKu's genetic algorithm, NLP sc
 
 _The Algorithm Behind the Poetry Machine_
 
-![Network of connected nodes with flowing Japanese calligraphy](/article/article-algorithmic.webp)
+![A man at a laptop inside a maze](/article/article-algorithmic.webp)
 
 ## Context
 
@@ -21,15 +21,15 @@ Imagine a meat grinder, but for literature. You feed in a classic novel, and out
 ```mermaid
 flowchart TD
     A["Classic Book"] --> B["Break into sentences"]
-    B --> C{"5 or 7 syllables?"}
+    B --> C{{"5 or 7 syllables?"}}
     C -->|No| X["Discard"]
     C -->|Yes| D["Verse Pools"]
     D --> E["150 random haiku"]
     E --> F["Score each one"]
-    F --> G{"Good enough?"}
+    F --> G{{"Good enough?"}}
     G -->|No| H["Keep best → Mix → Mutate"]
     H --> F
-    G -->|Yes| I["Winner!"]
+    G -->|Yes| I["Winner!"]:::verdict
 ```
 
 **First**, we chop up a book from [Project Gutenberg](https://www.gutenberg.org/) into individual phrases and keep only those with exactly 5 or 7 syllables. This gives us two "pools" of raw material - one for short lines, one for long.

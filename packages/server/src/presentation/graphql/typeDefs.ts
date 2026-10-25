@@ -124,6 +124,8 @@ const typeDefs = `#graphql
         emoticonCount: Int!
         visibleIndices: [Int!]!
         nextPuzzleAvailableAt: String!
+        hintTypes: [String!]
+        version: String
     }
 
     type DailyPuzzleResponse {
@@ -146,6 +148,38 @@ const typeDefs = `#graphql
     type HaikuVersion {
         date: String!
         version: String!
+    }
+
+    type DailyHaikuBook {
+        title: String!
+        author: String!
+        emoticons: String
+    }
+
+    type DailyHaikuExcerpt {
+        text: String!
+        verses: [String!]!
+    }
+
+    type DailyHaiku {
+        date: String!
+        publishedAt: String!
+        title: String
+        verses: [String!]!
+        reading: String
+        book: DailyHaikuBook!
+        cardUrl: String
+        nextRolloverAt: String!
+        previousDate: String
+        nextDate: String
+        "A few words of the chapter around each verse (dailyHaiku only)"
+        excerpt: DailyHaikuExcerpt
+    }
+
+    type DailyHaikuPage {
+        items: [DailyHaiku!]!
+        nextBefore: String
+        hasMore: Boolean!
     }
 
     type Query {
@@ -182,9 +216,11 @@ const typeDefs = `#graphql
         ): Haiku
         globalStats: GlobalStats!
         dailyPuzzle(date: String!, revealedRounds: [Int!], visibleEmoticonCount: Int, revealedHaikuCount: Int, locale: String): DailyPuzzleResponse!
-        reduceBooks(date: String!, locale: String): [Book!]!
+        reduceBooks(date: String!, locale: String, guessedBookIds: [ID!], currentRound: Int): [Book!]!
         puzzleVersion(date: String!): PuzzleVersion!
         haikuVersion(date: String!): HaikuVersion!
+        dailyHaiku(date: String): DailyHaiku
+        dailyHaikus(before: String, limit: Int): DailyHaikuPage!
     }
 
     type HaikuProgress {
@@ -194,10 +230,18 @@ const typeDefs = `#graphql
         bestHaiku: Haiku
         isComplete: Boolean!
         stopReason: String
+        imagePreview: String
+        aiError: String
+    }
+
+    enum OpenAIKeyStatus {
+        VALID
+        INVALID
+        UNAVAILABLE
     }
 
     type Subscription {
-        haikuGeneration(iterations: Int!, theme: String, filter: String, useAI: Boolean): HaikuProgress!
+        haikuGeneration(iterations: Int!, theme: String, filter: String, useAI: Boolean, useImageAI: Boolean): HaikuProgress!
     }
 
     type EmoticonRevealResult {
@@ -207,6 +251,7 @@ const typeDefs = `#graphql
     }
 
     type Mutation {
+        checkOpenAIKey(key: String!): OpenAIKeyStatus!
         revealEmoticon(date: String!, scratchedPositions: [Int!]!): EmoticonRevealResult!
         revealHaiku(date: String!, index: Int!): String
         submitGuess(date: String!, guessedBookId: ID!, currentRound: Int!, hints: HintUsageInput, locale: String): GuessResult!

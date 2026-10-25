@@ -30,6 +30,7 @@ export const GRAPHQL_QUERY = `
             theme: $theme
         ) {
             book {
+                reference
                 title
                 author
                 emoticons
@@ -111,6 +112,41 @@ export interface QueryVariables {
   useCache: boolean | undefined;
 }
 
+// The post is a guessing game: its card must not say where the haiku comes
+// from. Ex Libris, Frontispiece and Catalogue print the title and author, so
+// only these may be drawn. Sumie is painted by the image model.
+export const GUESS_SAFE_THEMES = ['greentea', 'watermark'] as const;
+export const GUESS_SAFE_AI_THEMES = ['sumie'] as const;
+
+/**
+ * The card theme for a post: "random" draws among the guess-safe themes
+ * (sumie too when AI images are allowed); a named theme must be one of them.
+ */
+export function resolvePostTheme(
+  theme: string | undefined,
+  withImageAi: boolean | undefined,
+  random: () => number = Math.random,
+): string {
+  const pool: string[] = [
+    ...GUESS_SAFE_THEMES,
+    ...(withImageAi ? GUESS_SAFE_AI_THEMES : []),
+  ];
+
+  if (!theme || theme === 'random') {
+    return pool[Math.floor(random() * pool.length)];
+  }
+
+  const allowed = [...GUESS_SAFE_THEMES, ...GUESS_SAFE_AI_THEMES] as string[];
+
+  if (!allowed.includes(theme)) {
+    throw new Error(
+      `Theme "${theme}" would give the answer away (it prints the book). Use one of: random, ${allowed.join(', ')}.`,
+    );
+  }
+
+  return theme;
+}
+
 export function buildVariables(options: CliOptions): QueryVariables {
   return {
     appendImg: true,
@@ -119,17 +155,14 @@ export function buildVariables(options: CliOptions): QueryVariables {
       : undefined,
     fromDb: options.fromDb ? Number.parseInt(options.fromDb, 10) : undefined,
     liveCount: options.live ? Number.parseInt(options.live, 10) : undefined,
-    theme: options.theme,
+    theme: resolvePostTheme(options.theme, options.withImageAi),
     useAi: options.aiDescription,
     useImageAI: options.withImageAi,
     useCache: options.cache,
   };
 }
 
-export function displayCandidates(
-  haiku: Haiku,
-  cacheEnabled: boolean,
-): void {
+export function displayCandidates(haiku: Haiku, cacheEnabled: boolean): void {
   const shouldShow =
     haiku.candidates &&
     haiku.candidates.length > 0 &&
@@ -195,7 +228,9 @@ export function displayQuality(haiku: Haiku): void {
   console.log(`  ${pc.dim('Nature Words:')}     ${q.natureWords}`);
   console.log(`  ${pc.dim('Repeated Words:')}   ${q.repeatedWords}`);
   console.log(`  ${pc.dim('Weak Starts:')}      ${q.weakStarts}`);
-  console.log(`  ${pc.dim('Blacklisted:')}      ${intOrZero(q.blacklistedVerses)}`);
+  console.log(
+    `  ${pc.dim('Blacklisted:')}      ${intOrZero(q.blacklistedVerses)}`,
+  );
   console.log(`  ${pc.dim('Proper Nouns:')}     ${intOrZero(q.properNouns)}`);
   console.log(pc.dim('  ─────────────────────────────────'));
   console.log(`  ${pc.dim('Sentiment:')}        ${fmt(q.sentiment)}`);

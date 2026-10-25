@@ -3,20 +3,48 @@
   <head>
     <meta charset="UTF-8" />
     <style>
+      /* Pre-paint page colour: --gutenku-app-bg in each theme */
       html {
-        background-color: #fbf3ea;
-        color-scheme: light dark;
+        background-color: #f5efe3;
+        color-scheme: light;
       }
-      html[data-theme='dark'],
-      html:has([data-theme='dark']) {
-        background-color: #272523;
-      }
-      @media (prefers-color-scheme: dark) {
-        html:not([data-theme='light']) {
-          background-color: #272523;
-        }
+      html[data-theme='dark'] {
+        background-color: #13100c;
+        color-scheme: dark;
       }
     </style>
+    <script>
+      // Apply the stored theme before first paint (no light flash on night
+      // paper) and keep the browser chrome colour on the chosen theme.
+      // Mirrors useColorMode in src/core/composables/theme.ts.
+      (function () {
+        var root = document.documentElement;
+        var dark = false;
+        try {
+          // No stored choice yet: follow the system, as useColorMode does
+          var pref = localStorage.getItem('gutenku-theme-preference') || 'auto';
+          dark =
+            pref === 'dark' ||
+            (pref === 'auto' &&
+              matchMedia('(prefers-color-scheme: dark)').matches);
+        } catch (e) {}
+        root.setAttribute('data-theme', dark ? 'dark' : 'light');
+
+        function syncThemeColor() {
+          var colour =
+            root.getAttribute('data-theme') === 'dark' ? '#13100c' : '#f5efe3';
+          var metas = document.querySelectorAll('meta[name="theme-color"]');
+          for (var i = 0; i < metas.length; i++) {
+            metas[i].setAttribute('content', colour);
+          }
+        }
+        document.addEventListener('DOMContentLoaded', syncThemeColor);
+        new MutationObserver(syncThemeColor).observe(root, {
+          attributes: true,
+          attributeFilter: ['data-theme'],
+        });
+      })();
+    </script>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
@@ -175,6 +203,7 @@
       }
     </script>
 
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
@@ -185,7 +214,7 @@
       title="GutenKu Blog"
       href="/feed.xml"
     />
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#2f5d62" />
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#bc2d29" />
     <meta name="apple-mobile-web-app-title" content="GutenKu" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -194,15 +223,15 @@
       content="black-translucent"
     />
     <meta name="application-name" content="GutenKu" />
-    <meta name="msapplication-TileColor" content="#fbf3ea" />
+    <meta name="msapplication-TileColor" content="#f5efe3" />
     <meta
       name="theme-color"
-      content="#fbf3ea"
+      content="#f5efe3"
       media="(prefers-color-scheme: light)"
     />
     <meta
       name="theme-color"
-      content="#272523"
+      content="#13100c"
       media="(prefers-color-scheme: dark)"
     />
     <link

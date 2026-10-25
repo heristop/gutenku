@@ -1,0 +1,42 @@
+{
+  "name": "yuku-codegen",
+  "version": "0.19.0",
+  "description": "A fast code generator for any ESTree / TypeScript-ESTree AST, with type stripping, minification, and source maps",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yuku-toolchain/yuku"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "engines": {
+    "node": ">=14.18.0"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@yuku-toolchain/types": "^0.19.0"
+  },
+  "keywords": [
+    "ast",
+    "codegen",
+    "estree",
+    "printer",
+    "minifier",
+    "sourcemap",
+    "typescript",
+    "javascript",
+    "yuku"
+  ],
+  "module": "./dist/index.js",
+  "sideEffects": false
+}

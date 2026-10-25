@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { RefreshCw } from '@lucide/vue';
+import { RefreshCw } from '@/core/components/icons/ink';
+import InkBook from '@/core/components/decorative/InkBook.vue';
 
 const props = defineProps<{
   pullDistance: number;
@@ -37,12 +38,19 @@ const statusText = computed(() => {
       <div
         class="pull-to-refresh__indicator"
         :class="{ 'pull-to-refresh__indicator--ready': shouldRelease }"
+        role="status"
       >
+        <InkBook
+          v-if="isRefreshing"
+          :size="26"
+          class="pull-to-refresh__quill"
+        />
         <RefreshCw
+          v-else
           :size="20"
           class="pull-to-refresh__icon"
-          :class="{ 'pull-to-refresh__icon--spinning': isRefreshing }"
           :style="{ transform: `rotate(${progress * 3.6}deg)` }"
+          aria-hidden="true"
         />
         <span class="pull-to-refresh__text">{{ statusText }}</span>
       </div>
@@ -51,6 +59,8 @@ const statusText = computed(() => {
 </template>
 
 <style lang="scss" scoped>
+// Ex Libris: a small index slip pulled down from the top edge. While the
+// page refreshes it carries the site's one loading mark, the book.
 .pull-to-refresh {
   position: fixed;
   top: 0;
@@ -60,57 +70,53 @@ const statusText = computed(() => {
   justify-content: center;
   z-index: 1000;
   pointer-events: none;
+  font-family: var(--gk-font);
 
   &__indicator {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: var(--gutenku-paper-bg);
-    border-radius: 2rem;
-    box-shadow: 0 2px 12px oklch(0 0 0 / 0.15);
-    transition: transform 0.2s ease;
-
-    &--ready {
-      transform: scale(1.05);
-    }
+    gap: 0.625rem;
+    min-height: 2.75rem;
+    padding: 0.375rem 1rem;
+    background: var(--gk-paper-raised);
+    color: var(--gk-ink);
+    border: var(--gk-rule);
+    border-radius: var(--gk-radius-paper);
+    box-shadow: var(--gk-lift);
   }
 
   &__icon {
-    color: var(--gutenku-zen-primary);
-    transition: transform 0.1s linear;
+    color: var(--gk-ink-soft);
+    transition: color var(--gk-dur-fast) var(--gk-ease-out);
 
-    &--spinning {
-      animation: spin 1s linear infinite;
+    .pull-to-refresh__indicator--ready & {
+      color: var(--gk-ink);
     }
   }
 
-  &__text {
-    font-size: 0.8rem;
-    color: var(--gutenku-text-muted);
-    font-weight: 500;
+  &__quill {
+    margin: -0.25rem 0;
   }
-}
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
+  &__text {
+    font-size: 0.875rem;
+    color: var(--gk-ink);
   }
 }
 
 .pull-indicator-enter-active,
 .pull-indicator-leave-active {
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
+  transition: opacity var(--gk-dur-fast) var(--gk-ease-out);
 }
 
 .pull-indicator-enter-from,
 .pull-indicator-leave-to {
   opacity: 0;
-  transform: translateY(-20px) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pull-to-refresh__icon {
+    transition: none;
+  }
 }
 </style>

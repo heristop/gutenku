@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref, watch, useTemplateRef } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { HaikuQualityScore } from '@gutenku/shared';
 import {
@@ -10,12 +10,11 @@ import {
   Image,
   AlertTriangle,
   ChevronRight,
-} from '@lucide/vue';
+} from '@/core/components/icons/ink';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
 import ZenModal from '@/core/components/ui/ZenModal.vue';
 import RadialProgress from './ui/RadialProgress.vue';
-import { useAnimatedCounter } from '@/core/composables/animated-counter';
-import { useInView } from '@/features/haiku/composables/in-view';
+import { useCountUp } from '@/features/haiku/composables/count-up';
 
 const props = defineProps<{
   quality: HaikuQualityScore | null;
@@ -24,80 +23,17 @@ const props = defineProps<{
 
 const { t } = useI18n();
 
-// In-view animation
-const cardRef = useTemplateRef<HTMLElement>('cardRef');
-const { isInView } = useInView(cardRef, { delay: 200 });
-
-// Modal state
 const showModal = ref(false);
 
-// Animation states
-const isRevealed = ref(false);
-const isAnimating = ref(false);
-const scoreWow = ref(false);
-const WOW_DURATION = 600;
+// The total reads at rest and counts (≤400ms) only when a new haiku changes it.
+// Opening the sheet counts the hero figure up once, alongside the dial sweep.
+const totalScore = () => props.quality?.totalScore ?? 0;
+const { value: cardScore } = useCountUp(totalScore);
+const { value: modalScore, play: playModalScore } = useCountUp(totalScore);
 
-// Track previous score for wow animation
-let lastScore = 0;
-
-// Animated total score for card display
-const cardScoreTarget = computed(() => props.quality?.totalScore ?? 0);
-const { count: animatedCardScore, animate: animateCardScore } =
-  useAnimatedCounter(cardScoreTarget, {
-    duration: 800,
-    initialDelay: 300,
-  });
-
-// Animated total score for modal
-const { count: animatedModalScore, animate: animateModalScore } =
-  useAnimatedCounter(cardScoreTarget, {
-    duration: 1200,
-    initialDelay: 200,
-  });
-
-// Trigger card animation when becomes visible
-watch(
-  [isInView, () => props.visible],
-  ([inView, visible]) => {
-    if (inView && visible && props.quality) {
-      animateCardScore();
-    }
-  },
-  { immediate: true },
-);
-
-watch(
-  () => props.quality?.totalScore,
-  (newScore) => {
-    if (newScore && newScore !== lastScore && lastScore > 0) {
-      scoreWow.value = true;
-      setTimeout(() => {
-        scoreWow.value = false;
-      }, WOW_DURATION);
-      animateCardScore();
-    }
-    lastScore = newScore ?? 0;
-  },
-);
-
-function triggerChartAnimations() {
-  isAnimating.value = true;
-  isRevealed.value = false;
-
-  setTimeout(() => {
-    isRevealed.value = true;
-    animateModalScore();
-  }, 50);
-
-  setTimeout(() => {
-    isAnimating.value = false;
-  }, 1800);
-}
-
-// Watch modal state to trigger animations
 watch(showModal, (isOpen) => {
   if (isOpen) {
-    triggerChartAnimations();
+    playModalScore(totalScore(), 0);
   }
 });
 
@@ -189,63 +125,40 @@ function getDisplayValue(key: keyof HaikuQualityScore, value: number): string {
   return `${Math.round(value * 100)}%`;
 }
 
-// Calculate animation delay for staggered reveal
+// Staggered reveal inside the sheet: the whole board lands within ~500ms
 function getDelay(categoryIndex: number, metricIndex: number): number {
-  return 200 + categoryIndex * 150 + metricIndex * 60;
+  return 60 + categoryIndex * 30 + metricIndex * 15;
 }
 </script>
 
 <template>
   <ZenCard
-    v-if="quality && visible"
-    ref="cardRef"
+    v-if="quality"
     variant="panel"
-    class="scoring-card animate-in"
-    :class="{ 'is-visible': isInView }"
+    :loading="!visible"
+    class="scoring-card"
+    :class="{ 'scoring-card--busy': !visible }"
     :aria-label="t('scoring.title')"
   >
-    <!-- Header -->
-    <div class="scoring-card__header">
-      <Trophy :size="24" class="scoring-card__header-icon" aria-hidden="true" />
-      <div class="scoring-card__header-content">
-        <h2 class="scoring-card__header-title">{{ t('scoring.title') }}</h2>
-        <span class="scoring-card__header-subtitle">{{
-          t('scoring.subtitle')
-        }}</span>
-      </div>
-    </div>
+    <h2 class="scoring-card__title">{{ t('scoring.title') }}</h2>
 
-    <!-- Score Display -->
-    <div class="scoring-card__score-section">
-      <div
-        class="scoring-card__score-display"
-        :class="{ 'scoring-card__score-display--wow': scoreWow }"
-      >
-        <RadialProgress
-          :value="quality.totalScore"
-          :max="100"
-          size="lg"
-          :animated="isInView"
-          :delay="400"
-          color="primary"
-        />
-        <div class="scoring-card__score-info">
-          <span class="scoring-card__score-value">{{ animatedCardScore }}</span>
-          <span class="scoring-card__score-label">{{
-            t('scoring.total')
-          }}</span>
-        </div>
-      </div>
-    </div>
+    <!-- One integer, said once -->
+    <p class="scoring-card__score">
+      <span class="scoring-card__score-value">{{ cardScore }}</span>
+      <span class="scoring-card__score-max">/100</span>
+    </p>
 
-    <!-- View Details Button -->
     <button
       type="button"
       class="scoring-card__details-btn"
       @click="showModal = true"
     >
       <span>{{ t('scoring.viewDetails') }}</span>
-      <ChevronRight :size="16" class="scoring-card__details-icon" />
+      <ChevronRight
+        :size="16"
+        class="scoring-card__details-icon"
+        aria-hidden="true"
+      />
     </button>
 
     <!-- Scoring Modal -->
@@ -271,13 +184,12 @@ function getDelay(categoryIndex: number, metricIndex: number): number {
           :value="quality.totalScore"
           :max="100"
           size="lg"
-          :animated="isRevealed"
-          :delay="100"
+          :delay="0"
           color="primary"
         />
         <div class="scoring-modal__hero-info">
           <span class="scoring-modal__hero-value">
-            {{ animatedModalScore }}
+            {{ modalScore }}
           </span>
           <span class="scoring-modal__hero-label">
             {{ t('scoring.total') }}
@@ -305,7 +217,6 @@ function getDelay(categoryIndex: number, metricIndex: number): number {
               v-for="(metric, metricIndex) in category.metrics"
               :key="metric"
               class="scoring-modal__metric"
-              :class="{ 'scoring-modal__metric--revealed': isRevealed }"
               :style="{
                 '--stagger-delay': `${getDelay(catIndex, metricIndex)}ms`,
               }"
@@ -316,7 +227,6 @@ function getDelay(categoryIndex: number, metricIndex: number): number {
                 :max="1"
                 size="sm"
                 :show-value="false"
-                :animated="isRevealed"
                 :delay="getDelay(catIndex, metricIndex)"
                 :color="category.isPenalty ? 'muted' : 'primary'"
               />
@@ -332,148 +242,90 @@ function getDelay(categoryIndex: number, metricIndex: number): number {
 </template>
 
 <style lang="scss" scoped>
-$spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
-
 .scoring-card {
-  padding: var(--gutenku-space-5);
+  padding: 1.25rem;
+  transition: opacity var(--gk-dur-base) var(--gk-ease-out);
 
-  &__header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem;
-    margin-bottom: 0.5rem;
-    animation: header-fade-in 0.5s ease-out 0.2s both;
+  // While the next haiku is written the card stays in place, dimmed, so the
+  // sidebar never jumps; the site-wide quill carries the loading signal
+  &--busy {
+    opacity: 0.72;
   }
 
-  &__header-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    color: var(--gutenku-zen-primary);
-  }
-
-  &__header-content {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    min-width: 0;
-  }
-
-  &__header-title {
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--gutenku-text-primary);
-    letter-spacing: 0.025em;
+  &__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--gk-ink);
     margin: 0;
   }
 
-  &__header-subtitle {
-    font-size: 0.875rem;
-    color: var(--gutenku-text-muted);
-    margin-top: 0.125rem;
-  }
-
-  &__score-section {
+  &__score {
     display: flex;
-    justify-content: center;
-    padding: 0.5rem 0;
-  }
-
-  &__score-display {
-    display: flex;
-    width: 100%;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 1.5rem;
-    background: var(--gutenku-paper-bg-aged);
-    border-radius: var(--gutenku-radius-md);
-    border: 1px solid var(--gutenku-paper-border);
-    transition: all 0.3s $spring-easing;
-
-    &--wow {
-      transform: scale(1.05);
-      box-shadow:
-        0 0 20px
-          color-mix(in oklch, var(--gutenku-zen-primary) 30%, transparent),
-        0 4px 12px oklch(0 0 0 / 0.1);
-    }
-  }
-
-  &__score-info {
-    display: flex;
-    flex-direction: column;
+    align-items: baseline;
+    gap: 0.25rem;
+    margin: 1rem 0 0;
   }
 
   &__score-value {
-    font-size: 2rem;
-    font-weight: 600;
-    color: var(--gutenku-zen-primary);
+    font-size: 2.25rem;
+    font-weight: 400;
+    color: var(--gk-ink);
     line-height: 1;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
   }
 
-  &__score-label {
-    font-size: 0.75rem;
-    color: var(--gutenku-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-top: 0.25rem;
+  &__score-max {
+    font-size: 0.9375rem;
+    color: var(--gk-ink-soft);
+    font-variant-numeric: tabular-nums;
   }
 
+  // A text key under the number: no ring, a faint wash on hover
   &__details-btn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
     gap: 0.375rem;
-    width: 100%;
-    padding: 0.625rem 1rem;
-    margin-top: 0.5rem;
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: var(--gutenku-text-secondary);
+    padding: 0.625rem 0.5rem;
+    margin: 0.5rem 0 0 -0.5rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    min-height: 2.75rem;
+    font-family: inherit;
+    color: var(--gk-indigo);
     background: transparent;
-    border: 1px solid var(--gutenku-paper-border);
-    border-radius: var(--gutenku-radius-sm);
+    border: 0;
+    border-radius: var(--gk-radius-control);
     cursor: pointer;
-    transition: all 0.25s $spring-easing;
+    transition:
+      background-color var(--gk-dur-fast) var(--gk-ease-out),
+      transform var(--gk-dur-press) var(--gk-ease-out);
 
-    &:hover {
-      color: var(--gutenku-zen-primary);
-      border-color: var(--gutenku-zen-primary);
-      background: color-mix(
-        in oklch,
-        var(--gutenku-zen-primary) 8%,
-        transparent
-      );
-      transform: translateY(-1px);
+    @media (hover: hover) {
+      &:hover {
+        background: var(--gk-ink-faint);
+      }
+    }
+
+    &:active {
+      transform: scale(0.98);
     }
 
     &:focus-visible {
-      outline: 2px solid var(--gutenku-zen-primary);
-      outline-offset: 2px;
+      outline: 2px solid var(--gk-indigo);
+      outline-offset: 3px;
     }
   }
 
   &__details-icon {
-    transition: transform 0.2s ease;
+    transition: transform var(--gk-dur-fast) var(--gk-ease-out);
   }
 
-  &__details-btn:hover &__details-icon {
-    transform: translateX(2px);
-  }
-}
-
-@keyframes header-fade-in {
-  0% {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
+  @media (hover: hover) {
+    &__details-btn:hover &__details-icon {
+      transform: translateX(2px);
+    }
   }
 }
 
@@ -486,7 +338,7 @@ $spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   &__header-icon {
-    color: var(--gutenku-zen-primary);
+    color: var(--gk-ink);
   }
 
   &__header-text {
@@ -495,15 +347,15 @@ $spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   &__title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--gutenku-text-primary);
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--gk-ink);
     margin: 0;
   }
 
   &__subtitle {
-    font-size: 0.75rem;
-    color: var(--gutenku-text-muted);
+    font-size: 0.875rem;
+    color: var(--gk-ink-soft);
     margin: 0;
   }
 
@@ -511,11 +363,10 @@ $spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 0.75rem;
-    margin-bottom: 1rem;
-    background: var(--gutenku-paper-bg-aged);
-    border-radius: var(--gutenku-radius-sm);
-    border: 1px solid var(--gutenku-paper-border);
+    padding: 0.75rem 0;
+    margin-block: 0 1rem;
+    background: transparent;
+    border: 0;
   }
 
   &__hero-info {
@@ -524,18 +375,20 @@ $spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   &__hero-value {
-    font-size: 1.75rem;
-    font-weight: 600;
-    color: var(--gutenku-zen-primary);
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--gk-ink);
     line-height: 1;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
   }
 
   &__hero-label {
-    font-size: 0.75rem;
-    color: var(--gutenku-text-muted);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: var(--gk-ink-soft);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.14em;
     margin-top: 0.25rem;
   }
 
@@ -550,23 +403,23 @@ $spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
       display: flex;
       align-items: center;
       gap: 0.375rem;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--gutenku-text-secondary);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      color: var(--gk-ink-soft);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.14em;
       margin-bottom: 0.5rem;
       padding-bottom: 0.25rem;
-      border-bottom: 1px solid oklch(0.9 0.01 85 / 0.5);
+      border-bottom: var(--gk-rule-faint);
 
       svg {
-        color: var(--gutenku-zen-primary);
+        color: var(--gk-ink);
       }
     }
 
     &--penalty {
       .scoring-modal__category-header svg {
-        color: var(--gutenku-text-muted);
+        color: var(--gk-ink-soft);
       }
     }
   }
@@ -582,138 +435,46 @@ $spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
     align-items: center;
     gap: 0.375rem;
     padding: 0.25rem 0.5rem 0.25rem 0.25rem;
-    background: oklch(0.98 0.005 85 / 0.6);
-    border-radius: var(--gutenku-radius-sm);
-    transition:
-      background 0.2s ease,
-      transform 0.15s ease;
+    background: transparent;
+    border-bottom: 1px dashed var(--gk-ink-faint);
+    border-radius: 0;
 
-    // Calligraphy stroke reveal - starts hidden
-    opacity: 0;
-    transform: translateY(4px);
-
-    &--revealed {
-      animation: calligraphy-reveal 0.5s $spring-easing forwards;
-      animation-delay: var(--stagger-delay, 0ms);
-    }
-
-    &:hover {
-      background: oklch(0.95 0.01 85 / 0.8);
-      transform: translateY(-1px);
-    }
+    // Settles in as the sheet opens; `backwards` keeps the rest state visible
+    animation: metric-in var(--gk-dur-base) var(--gk-ease-out) backwards;
+    animation-delay: var(--stagger-delay, 0ms);
   }
 
   &__metric-label {
-    font-size: 0.6875rem;
-    color: var(--gutenku-text-secondary);
+    font-size: 0.875rem;
+    color: var(--gk-ink-soft);
     white-space: nowrap;
   }
 }
 
-// Calligraphy stroke reveal animation
-@keyframes calligraphy-reveal {
-  0% {
+@keyframes metric-in {
+  from {
     opacity: 0;
     transform: translateY(4px);
-  }
-  60% {
-    opacity: 0.8;
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-// Dark theme
-[data-theme='dark'] {
-  .scoring-card {
-    &__header-icon,
-    &__score-value {
-      color: var(--gutenku-text-primary);
-    }
-
-    &__score-label {
-      color: var(--gutenku-text-secondary);
-    }
-
-    &__score-display {
-      background: var(--gutenku-paper-bg);
-      border-color: oklch(0.72 0.04 178 / 0.5);
-
-      &--wow {
-        box-shadow:
-          0 0 20px
-            color-mix(in oklch, var(--gutenku-zen-accent) 40%, transparent),
-          0 4px 12px oklch(0 0 0 / 0.2);
-      }
-    }
-
-    &__details-btn:hover {
-      color: var(--gutenku-zen-accent);
-      border-color: var(--gutenku-zen-accent);
-      background: color-mix(
-        in oklch,
-        var(--gutenku-zen-accent) 10%,
-        transparent
-      );
-    }
-  }
-
-  .scoring-modal {
-    &__header-icon,
-    &__hero-value {
-      color: var(--gutenku-zen-accent);
-    }
-
-    &__hero {
-      background: var(--gutenku-paper-bg);
-      border-color: oklch(0.72 0.04 178 / 0.3);
-    }
-
-    &__category-header {
-      border-color: oklch(0.35 0.02 85 / 0.5);
-
-      svg {
-        color: var(--gutenku-zen-accent);
-      }
-    }
-
-    &__metric {
-      background: oklch(0.25 0.01 85 / 0.6);
-
-      &:hover {
-        background: oklch(0.3 0.02 85 / 0.8);
-      }
-    }
   }
 }
 
 // Reduced motion
 @media (prefers-reduced-motion: reduce) {
   .scoring-card {
-    &__header {
-      animation: none;
-      opacity: 1;
-    }
-
-    &__score-display {
-      transition: none;
-
-      &--wow {
-        transform: none;
-      }
-    }
-
-    &__details-btn {
+    &__details-btn,
+    &__details-icon {
       transition: none;
     }
   }
 
   .scoring-modal__metric {
-    animation: none;
-    opacity: 1;
-    transform: none;
+    animation-name: metric-fade;
+  }
+
+  @keyframes metric-fade {
+    from {
+      opacity: 0;
+    }
   }
 }
 

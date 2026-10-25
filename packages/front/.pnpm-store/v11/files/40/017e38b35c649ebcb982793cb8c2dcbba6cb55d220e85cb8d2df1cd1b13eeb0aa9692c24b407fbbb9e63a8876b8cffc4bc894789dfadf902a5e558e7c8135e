@@ -1,0 +1,68 @@
+{
+  "name": "confbox",
+  "version": "0.3.1",
+  "description": "Compact YAML, TOML, JSONC, JSON5 and INI parser and serializer",
+  "keywords": [
+    "config",
+    "ini",
+    "json5",
+    "jsonc",
+    "toml",
+    "unjs",
+    "yaml"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "unjs/confbox"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./ini": "./dist/ini.mjs",
+    "./json": "./dist/json.mjs",
+    "./json5": "./dist/json5.mjs",
+    "./jsonc": "./dist/jsonc.mjs",
+    "./toml": "./dist/toml.mjs",
+    "./yaml": "./dist/yaml.mjs"
+  },
+  "devDependencies": {
+    "@types/ini": "^4.1.1",
+    "@types/node": "^26",
+    "@vitest/coverage-v8": "^4.1.11",
+    "automd": "^0.4.3",
+    "changelogen": "^0.6.2",
+    "detect-indent": "^7.0.2",
+    "ini": "^7.0.0",
+    "jiti": "^2.7.0",
+    "js-toml": "^2.0.1",
+    "js-yaml": "^5.4.1",
+    "json5": "^2.2.3",
+    "jsonc-parser": "^3.3.1",
+    "mitata": "^1.0.34",
+    "obuild": "^0.4.39",
+    "oxfmt": ">=0.66.0",
+    "oxlint": "^1.81.0",
+    "smol-toml": "^1.8.0",
+    "strip-json-comments": "^5.0.1",
+    "toml": "^5.0.0",
+    "typescript": "^7",
+    "vitest": "^4.1.11",
+    "yaml": "^2.9.0"
+  },
+  "scripts": {
+    "build": "obuild",
+    "dev": "vitest dev --coverage",
+    "bench": "pnpm build && node test/bench.mjs",
+    "lint": "oxlint && oxfmt --check src test",
+    "lint:fix": "oxlint --fix && oxfmt src test",
+    "release": "pnpm test && pnpm build && changelogen --release && pnpm publish && git push --follow-tags",
+    "test": "pnpm lint && pnpm test:types && vitest run --coverage",
+    "test:types": "tsc --noEmit --skipLibCheck"
+  }
+}

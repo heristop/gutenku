@@ -28,6 +28,10 @@ export interface DailyPuzzle {
   emoticonCount: number;
   visibleIndices: number[];
   nextPuzzleAvailableAt: string;
+  /** The type of each round's clue, in order (types only, never content) */
+  hintTypes?: string[];
+  /** The server's puzzle version (number, catalogue size, generation) */
+  version?: string;
 }
 
 export interface GameGuess {
@@ -49,6 +53,8 @@ export interface GameState {
   revealedHaikus: string[];
   allEmoticonsRevealed: boolean;
   hasReducedBooks?: boolean;
+  /** The books kept by "Narrow the shelf", so a refetch can deal them again */
+  narrowedShelf?: string[];
   eliminatedBooks?: string[];
 }
 

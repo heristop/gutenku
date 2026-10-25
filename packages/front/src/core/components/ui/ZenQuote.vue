@@ -15,80 +15,48 @@ withDefaults(defineProps<Props>(), {
 </template>
 
 <style lang="scss" scoped>
+// Ex Libris: a typed quotation, the marks in soft ink.
 .zen-quote {
   display: inline-flex;
   align-items: baseline;
+  font-family: var(--gk-font);
   font-style: italic;
-  color: var(--gutenku-text-primary);
-  opacity: 0.75;
+  color: var(--gk-ink-soft);
 
-  // Decorative quotes
   &::before,
   &::after {
-    font-family: Georgia, serif;
-    color: var(--gutenku-zen-primary);
-    opacity: 0.4;
+    color: var(--gk-ink-soft);
     line-height: 1;
   }
 
   &::before {
-    content: '"';
+    content: '\201C';
     margin-right: 0.25rem;
   }
 
   &::after {
-    content: '"';
+    content: '\201D';
     margin-left: 0.25rem;
   }
 
-  // Size variants
   &--sm {
-    font-size: 0.85rem;
-
-    &::before,
-    &::after {
-      font-size: 1.2rem;
-    }
+    font-size: 0.875rem;
   }
 
   &--md {
-    font-size: 0.8rem;
-
-    &::before,
-    &::after {
-      font-size: 1.25rem;
-    }
+    font-size: 0.875rem;
 
     @media (min-width: 600px) {
       font-size: 1rem;
-
-      &::before,
-      &::after {
-        font-size: 1.5rem;
-      }
     }
   }
 
   &--lg {
-    font-size: 1.1rem;
-
-    &::before,
-    &::after {
-      font-size: 1.75rem;
-    }
+    font-size: 1.125rem;
 
     @media (min-width: 600px) {
-      font-size: 1.2rem;
+      font-size: 1.25rem;
     }
-  }
-}
-
-[data-theme='dark'] .zen-quote {
-  color: var(--gutenku-text-primary);
-
-  &::before,
-  &::after {
-    color: var(--gutenku-zen-accent);
   }
 }
 </style>

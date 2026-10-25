@@ -89,7 +89,8 @@ describe('404 Not Found Page', () => {
     });
 
     it('return button has accessible label', () => {
-      cy.get('.zen-btn').should('have.attr', 'aria-label');
+      // Its visible words are its name: no aria-label to drift from them
+      cy.get('.not-found__action').invoke('text').should('match', /\S/);
     });
   });
 });

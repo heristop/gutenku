@@ -13,7 +13,7 @@ import {
   IGlobalStatsRepositoryToken,
 } from '~/domain/repositories/IGlobalStatsRepository';
 import { submitGuessSchema } from '~/infrastructure/validation/schemas';
-import { HINT_POOL, type HintLocale } from './hint-pool';
+import { generateHints, type HintLocale } from './hint-pool';
 
 /**
  * Mulberry32 seeded PRNG for deterministic random selection
@@ -74,63 +74,14 @@ function shuffleWithSeed<T>(array: T[], random: () => number): T[] {
 }
 
 /**
- * Generate 6 hints for the book: emoticons (round 1) + 5 randomly selected hints from pool.
- * Excludes era/publication_century pairs. Sorts by difficulty. Uses seeded PRNG.
+ * All six clues for the day (same seed and order as GetDailyPuzzleHandler)
  */
 function generateAllHints(
   book: GutenGuessBook,
   dateStr: string,
   locale: HintLocale = 'en',
 ): PuzzleHint[] {
-  const seed = dateToSeed(dateStr);
-  const random = seededRandom(seed);
-
-  // Round 1: Always emoticons
-  const hints: PuzzleHint[] = [
-    {
-      round: 1,
-      type: 'emoticons',
-      content: book.emoticons,
-    },
-  ];
-
-  // Shuffle the hint pool and select 5
-  const shuffledPool = shuffleWithSeed([...HINT_POOL], random);
-  const selectedHints = shuffledPool.slice(0, 5);
-
-  // Exclusion rule: era and publication_century cannot both appear
-  const hasEra = selectedHints.some((h) => h.type === 'era');
-  const hasCentury = selectedHints.some(
-    (h) => h.type === 'publication_century',
-  );
-
-  if (hasEra && hasCentury) {
-    // Remove era and find a replacement from remaining pool
-    const eraIndex = selectedHints.findIndex((h) => h.type === 'era');
-    const remaining = shuffledPool.slice(5);
-    const replacement = remaining.find(
-      (h) => h.type !== 'era' && h.type !== 'publication_century',
-    );
-
-    if (replacement) {
-      selectedHints[eraIndex] = replacement;
-    }
-  }
-
-  // Sort by difficulty (ascending = harder hints first, easier hints later)
-  selectedHints.sort((a, b) => a.difficulty - b.difficulty);
-
-  // Generate content for each selected hint and assign rounds 2-6
-  for (let i = 0; i < selectedHints.length; i++) {
-    const hintDef = selectedHints[i];
-    hints.push({
-      round: i + 2,
-      type: hintDef.type,
-      content: hintDef.generator(book, random, locale),
-    });
-  }
-
-  return hints;
+  return generateHints(book, seededRandom(dateToSeed(dateStr)), locale);
 }
 
 /**

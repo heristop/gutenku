@@ -1,6 +1,10 @@
-import OpenAI from 'openai';
 import Canvas from 'canvas';
 import type { HaikuValue } from '~/shared/types';
+import {
+  generateThemeBackground,
+  type PartialImageHandler,
+  type ThemeCreateOptions,
+} from '~/shared/themes/ai-image';
 import {
   CANVAS_WIDTH,
   CANVAS_HEIGHT,
@@ -8,69 +12,78 @@ import {
 } from '~/shared/constants/canvas';
 
 export default {
-  async create(haiku: HaikuValue): Promise<Canvas.Canvas> {
-    const verses = haiku.verses;
-    Canvas.registerFont(
-      './src/shared/assets/fonts/NanumBrushScript-Regular.ttf',
-      { family: 'NanumBrushScript' },
+  async create(
+    haiku: HaikuValue,
+    { onPreview }: ThemeCreateOptions = {},
+  ): Promise<Canvas.Canvas> {
+    const backgroundImageData = await generateSumieBackground(
+      haiku,
+      onPreview && (async (draft) => onPreview(await draw(haiku, draft))),
     );
 
-    const canvas = Canvas.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-    const ctx = canvas.getContext('2d');
-
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = '#f5f5dc';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    const backgroundImageData = await generateSumieBackground(haiku);
-
-    if (backgroundImageData) {
-      const background = await Canvas.loadImage(backgroundImageData);
-      ctx.globalAlpha = 0.85;
-      drawImageCover(ctx, background, canvas.width, canvas.height);
-    }
-
-    ctx.globalAlpha = 0.55;
-    ctx.fillStyle = '#f5f5dc';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.font = 'bold 150px NanumBrushScript';
-    ctx.globalAlpha = 1;
-
-    const x = 250;
-    let y = canvas.height / 4;
-    verses.map((verse) => {
-      ctx.strokeStyle = 'rgba(245, 245, 220, 0.9)';
-      ctx.lineWidth = 10;
-      ctx.lineJoin = 'round';
-      ctx.strokeText(verse, x, y);
-      ctx.fillStyle = '#0a0a0a';
-      ctx.fillText(verse, x, y);
-      y += 420;
-    });
-
-    ctx.font = 'bold 130px NanumBrushScript';
-    ctx.globalAlpha = 1;
-    ctx.strokeStyle = 'rgba(245, 245, 220, 0.85)';
-    ctx.lineWidth = 8;
-    ctx.lineJoin = 'round';
-    ctx.strokeText('- GutenKu', canvas.width - 780, canvas.height - 240);
-    ctx.fillStyle = '#1a1a1a';
-    ctx.fillText('- GutenKu', canvas.width - 780, canvas.height - 240);
-
-    return canvas;
+    return draw(haiku, backgroundImageData);
   },
 };
 
+async function draw(
+  haiku: HaikuValue,
+  backgroundImageData: Buffer | null,
+): Promise<Canvas.Canvas> {
+  const verses = haiku.verses;
+  Canvas.registerFont(
+    './src/shared/assets/fonts/NanumBrushScript-Regular.ttf',
+    { family: 'NanumBrushScript' },
+  );
+
+  const canvas = Canvas.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+  const ctx = canvas.getContext('2d');
+
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = '#f5f5dc';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  if (backgroundImageData) {
+    const background = await Canvas.loadImage(backgroundImageData);
+    ctx.globalAlpha = 0.85;
+    drawImageCover(ctx, background, canvas.width, canvas.height);
+  }
+
+  ctx.globalAlpha = 0.55;
+  ctx.fillStyle = '#f5f5dc';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.font = 'bold 150px NanumBrushScript';
+  ctx.globalAlpha = 1;
+
+  const x = 250;
+  let y = canvas.height / 4;
+  verses.map((verse) => {
+    ctx.strokeStyle = 'rgba(245, 245, 220, 0.9)';
+    ctx.lineWidth = 10;
+    ctx.lineJoin = 'round';
+    ctx.strokeText(verse, x, y);
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillText(verse, x, y);
+    y += 420;
+  });
+
+  ctx.font = 'bold 130px NanumBrushScript';
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = 'rgba(245, 245, 220, 0.85)';
+  ctx.lineWidth = 8;
+  ctx.lineJoin = 'round';
+  ctx.strokeText('- GutenKu', canvas.width - 780, canvas.height - 240);
+  ctx.fillStyle = '#1a1a1a';
+  ctx.fillText('- GutenKu', canvas.width - 780, canvas.height - 240);
+
+  return canvas;
+}
+
 async function generateSumieBackground(
   haiku: HaikuValue,
+  onPartial?: PartialImageHandler,
 ): Promise<Buffer | null> {
-  try {
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-
-    const prompt = `THE HAIKU IS YOUR PRIMARY INSPIRATION. Study these verses deeply and translate their essence into ink:
+  const prompt = `THE HAIKU IS YOUR PRIMARY INSPIRATION. Study these verses deeply and translate their essence into ink:
 
 "${haiku.verses[0]}"
 "${haiku.verses[1]}"
@@ -90,32 +103,5 @@ Technique: Wet-on-wet ink effects, spontaneous brush movements, fading gradients
 
 CRITICAL: Absolutely NO text, letters, characters, kanji, hiragana, katakana, or any written symbols in the image. Pure visual art only.`;
 
-    const response = await openai.images.generate({
-      model: process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1.5',
-      n: 1,
-      output_format: 'png',
-      prompt,
-      quality: (process.env.OPENAI_IMAGE_QUALITY || 'high') as
-        | 'high'
-        | 'low'
-        | 'medium'
-        | 'auto',
-      size: '1024x1536',
-      user: 'gutenku-sumie-theme',
-    });
-
-    const imageBase64 = response.data?.[0]?.b64_json;
-
-    if (!imageBase64) {
-      console.error('No image data returned from OpenAI GPT-Image API');
-
-      return null;
-    }
-
-    return Buffer.from(imageBase64, 'base64');
-  } catch (error) {
-    console.error('OpenAI image generation failed for sumie theme:', error);
-
-    return null;
-  }
+  return generateThemeBackground('sumie', prompt, onPartial);
 }

@@ -1,0 +1,1 @@
+import{getFormat as e,storeFormat as t,stripBOM as n}from"./_chunks/_format.mjs";function r(e,r){let i=JSON.parse(n(e),r?.reviver);return t(e,i,r),i}function i(t,n){let r=e(t,n),i=JSON.stringify(t,n?.replacer,r.indent);return r.whitespace.start+i+r.whitespace.end}export{r as parseJSON,i as stringifyJSON};
