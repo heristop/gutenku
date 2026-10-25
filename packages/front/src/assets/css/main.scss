@@ -140,10 +140,31 @@ html[data-gk-vt='theme'][data-gk-vt-spread] {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-group(*),
-  ::view-transition-old(*),
-  ::view-transition-new(*) {
+  html[data-gk-vt='page']::view-transition-group(*),
+  html[data-gk-vt='page']::view-transition-old(*),
+  html[data-gk-vt='page']::view-transition-new(*) {
     animation: none !important;
+  }
+
+  // The theme still changes gently: a short crossfade, no movement
+  html[data-gk-vt='theme']::view-transition-old(root) {
+    animation: gk-vt-theme-out 200ms ease both !important;
+  }
+
+  html[data-gk-vt='theme']::view-transition-new(root) {
+    animation: gk-vt-theme-in 200ms ease both !important;
+  }
+}
+
+@keyframes gk-vt-theme-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes gk-vt-theme-in {
+  from {
+    opacity: 0;
   }
 }
 

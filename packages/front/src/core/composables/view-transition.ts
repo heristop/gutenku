@@ -26,15 +26,20 @@ export const prefersReducedMotion = (): boolean =>
   typeof globalThis.matchMedia === 'function' &&
   globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// The API exists and the reader has not asked for less motion
-export const supportsViewTransition = (): boolean => {
+// The API exists, and the reader has not asked for less motion. A theme
+// change still crossfades under reduced motion: a brightness cut is the
+// harsher change (it becomes a plain fade in CSS)
+export const supportsViewTransition = (
+  kind: ViewTransitionKind = 'page',
+): boolean => {
   if (import.meta.env.SSR || typeof document === 'undefined') {
     return false;
   }
 
   return (
     typeof (document as DocumentWithViewTransition).startViewTransition ===
-      'function' && !prefersReducedMotion()
+      'function' &&
+    (kind === 'theme' || !prefersReducedMotion())
   );
 };
 
@@ -63,7 +68,7 @@ export function runViewTransition(
   options: ViewTransitionOptions = {},
 ): Promise<void> {
   if (
-    !supportsViewTransition() ||
+    !supportsViewTransition(kind) ||
     document.visibilityState === 'hidden' ||
     active
   ) {

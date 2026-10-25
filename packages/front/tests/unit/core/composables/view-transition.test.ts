@@ -27,6 +27,17 @@ describe('view-transition', () => {
       expect(supportsViewTransition()).toBeFalsy();
     });
 
+    it('keeps the theme fade under reduced motion, never page motion', () => {
+      (document as unknown as Record<string, unknown>).startViewTransition =
+        vi.fn();
+      vi.spyOn(globalThis, 'matchMedia').mockReturnValue({
+        matches: true,
+      } as MediaQueryList);
+
+      expect(supportsViewTransition('theme')).toBeTruthy();
+      expect(supportsViewTransition('page')).toBeFalsy();
+    });
+
     it('returns true when supported and motion is allowed', () => {
       (document as unknown as Record<string, unknown>).startViewTransition =
         vi.fn();

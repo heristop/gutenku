@@ -21,7 +21,8 @@
         var root = document.documentElement;
         var dark = false;
         try {
-          var pref = localStorage.getItem('gutenku-theme-preference');
+          // No stored choice yet: follow the system, as useColorMode does
+          var pref = localStorage.getItem('gutenku-theme-preference') || 'auto';
           dark =
             pref === 'dark' ||
             (pref === 'auto' &&

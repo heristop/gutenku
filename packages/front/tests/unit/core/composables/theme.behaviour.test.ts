@@ -9,12 +9,17 @@ let colorModeState: {
   system: { value: string };
 };
 
-vi.mock('@vueuse/core', () => ({
-  useColorMode: vi.fn((opts: { onChanged?: typeof capturedOnChanged }) => {
-    capturedOnChanged = opts.onChanged;
+let capturedInitialValue: string | undefined;
 
-    return colorModeState;
-  }),
+vi.mock('@vueuse/core', () => ({
+  useColorMode: vi.fn(
+    (opts: { onChanged?: typeof capturedOnChanged; initialValue?: string }) => {
+      capturedOnChanged = opts.onChanged;
+      capturedInitialValue = opts.initialValue;
+
+      return colorModeState;
+    },
+  ),
 }));
 
 describe('useTheme (color mode behaviour)', () => {
@@ -110,6 +115,46 @@ describe('useTheme (color mode behaviour)', () => {
 
     expect(start).toHaveBeenCalled();
     expect(defaultHandler).toHaveBeenCalledWith('light');
+
+    delete (document as unknown as Record<string, unknown>).startViewTransition;
+  });
+
+  it('follows the system preference on a first visit', async () => {
+    const { useTheme } = await import('@/core/composables/theme');
+    useTheme();
+
+    expect(capturedInitialValue).toBe('auto');
+  });
+
+  it('fades the theme under reduced motion, without the ink spread', async () => {
+    const start = vi.fn((cb: () => void) => {
+      cb();
+
+      return {
+        ready: Promise.resolve(),
+        finished: Promise.resolve(),
+        updateCallbackDone: Promise.resolve(),
+        skipTransition: () => {},
+      };
+    });
+    (document as unknown as Record<string, unknown>).startViewTransition =
+      start;
+    vi.spyOn(globalThis, 'matchMedia').mockReturnValue({
+      matches: true,
+    } as MediaQueryList);
+
+    const { useTheme, setThemeOrigin } =
+      await import('@/core/composables/theme');
+    useTheme();
+    capturedOnChanged?.('dark', vi.fn());
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0);
+    });
+    setThemeOrigin(10, 10);
+    capturedOnChanged?.('light', vi.fn());
+
+    expect(start).toHaveBeenCalled();
+    expect(document.documentElement.dataset.gkVtSpread).toBeUndefined();
 
     delete (document as unknown as Record<string, unknown>).startViewTransition;
   });

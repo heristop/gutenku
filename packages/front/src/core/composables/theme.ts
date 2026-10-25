@@ -1,6 +1,9 @@
 import { computed, effectScope } from 'vue';
 import { useColorMode } from '@vueuse/core';
-import { runViewTransition } from '@/core/composables/view-transition';
+import {
+  prefersReducedMotion,
+  runViewTransition,
+} from '@/core/composables/view-transition';
 
 export type ThemePreference = 'light' | 'dark' | 'auto';
 
@@ -73,7 +76,8 @@ function getColorMode() {
         attribute: 'data-theme',
         selector: 'html',
         storageKey: 'gutenku-theme-preference',
-        initialValue: 'light',
+        // A first visit follows the reader's system
+        initialValue: 'auto',
         // Element-level colour transitions would trail the switch; the view
         // transition below crossfades the whole page in one piece instead.
         disableTransition: true,
@@ -88,8 +92,9 @@ function getColorMode() {
 
           // From the toggle: the new theme spreads from the press point.
           // Otherwise a quiet crossfade. Instant under reduced motion or while
-          // a page transition is still running.
-          const origin = pendingOrigin;
+          // a page transition is still running. Under reduced motion the
+          // change is a plain fade: no spread.
+          const origin = prefersReducedMotion() ? null : pendingOrigin;
           pendingOrigin = null;
           const root = document.documentElement;
 
