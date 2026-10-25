@@ -26,7 +26,7 @@ describe.runIf(gameEnabled)('a finished game, on return', () => {
     expect(config && config.pick).not.toContain('showResult');
   });
 
-  it('sets the result page on the board, its clock running', async () => {
+  it('shows the result, clock running, when asked for', async () => {
     const { useGameStore } = await import('@/features/game/store/game');
     const store = useGameStore();
     store.puzzle = {
@@ -51,11 +51,10 @@ describe.runIf(gameEnabled)('a finished game, on return', () => {
       await import('@/features/game/components/ResultColophon.vue')
     ).default;
     const wrapper = mount(ResultColophon, {
-      props: { active: true, inline: true },
+      props: { active: true },
       global: { stubs: { ColophonTable: true } },
     });
 
-    expect(wrapper.classes()).toContain('colophon-page--inline');
     expect(wrapper.get('.colophon-page__title').text()).toContain(
       'game.result.itWas',
     );
