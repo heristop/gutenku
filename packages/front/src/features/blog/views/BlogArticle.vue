@@ -491,7 +491,7 @@ $toc-desktop: 1280px;
     max-width: 36rem;
     padding: 2rem;
     text-align: center;
-    background: var(--gk-paper);
+    background: var(--gk-paper-raised);
     border-radius: var(--gk-radius-paper);
     box-shadow: var(--gk-lift);
 
@@ -609,7 +609,7 @@ $toc-desktop: 1280px;
     margin: 0 auto;
     padding: 1.5rem var(--sheet-pad) 1.75rem;
     font-size: 1rem;
-    background: var(--gk-paper);
+    background: var(--gk-paper-raised);
     border-radius: var(--gk-radius-paper);
     box-shadow: var(--gk-lift);
     counter-reset: note figure;
@@ -762,7 +762,7 @@ $toc-desktop: 1280px;
     padding: 0 0.25rem;
     font-family: inherit;
     color: var(--gk-ink);
-    background: var(--gk-paper-raised);
+    background: var(--gk-paper);
     border-radius: var(--gk-radius-control);
     box-shadow:
       inset 0 0 0 1px var(--gk-ink-faint),

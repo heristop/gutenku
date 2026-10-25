@@ -121,7 +121,7 @@ useSeoMeta({
   max-width: 820px;
   margin: 0.5rem auto 3rem;
   padding: 1.5rem 1.125rem 1rem;
-  background: var(--gk-paper);
+  background: var(--gk-paper-raised);
   border-radius: var(--gk-radius-paper);
   box-shadow: var(--gk-lift);
   color: var(--gk-ink);
