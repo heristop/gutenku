@@ -343,14 +343,9 @@ watch(loading, (isLoading) => {
 
 <style lang="scss" scoped>
 .book-page {
-  // The bars sit a step under the ink, so the poem above stays the darkest
-  // thing. Mixed with the paper, not made translucent: the marker strokes lie
-  // over the words and must still hide them
-  --haiku-redaction-ink: color-mix(
-    in oklch,
-    var(--gk-ink) 78%,
-    var(--gk-paper-raised)
-  );
+  // Full sumi ink: the hidden words lie under the marker, and any lighter
+  // bar lets the dark letters read through it
+  --haiku-redaction-ink: var(--gk-ink);
 
   position: relative;
   cursor: pointer;

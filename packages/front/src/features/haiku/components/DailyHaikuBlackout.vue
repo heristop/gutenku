@@ -49,11 +49,8 @@ onUnmounted(() => clearTimeout(timer));
 // Laid over the verses on the slip's own paper, so whatever it overhangs
 // below is covered too while it plays
 .daily-blackout {
-  --haiku-redaction-ink: color-mix(
-    in oklch,
-    var(--gk-ink) 78%,
-    var(--gk-paper-raised)
-  );
+  // Full sumi ink, as on the haiku page
+  --haiku-redaction-ink: var(--gk-ink);
 
   position: absolute;
   inset: 0 0 auto;
