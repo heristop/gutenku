@@ -2,7 +2,7 @@
 
 _Anatomie d'une imposture poétique_
 
-![Masque de théâtre fusionnant avec des motifs de circuits - la dualité de l'imposture analogique et numérique](/article/article-header.webp)
+![Strophes du « Bateau ivre » de Rimbaud peintes sur un vieux mur de pierre, en sépia](/article/article-header.webp)
 
 ## La Découverte Sceptique
 
