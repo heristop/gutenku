@@ -13,5 +13,10 @@ export function useBookRedaction() {
     redacted.value = !redacted.value;
   }
 
-  return { redacted, reveal, toggle };
+  // Each new haiku keeps its book to itself until the reader asks again
+  function hideAgain(): void {
+    redacted.value = true;
+  }
+
+  return { redacted, reveal, toggle, hideAgain };
 }

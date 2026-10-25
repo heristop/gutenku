@@ -3,6 +3,7 @@ import type { HaikuValue, HaikuVersion } from '@gutenku/shared';
 import type { CombinedError } from '@urql/vue';
 import { Leaf } from '@/core/components/icons/ink';
 import { urqlClient } from '@/client';
+import { useBookRedaction } from '@/features/haiku/composables/book-redaction';
 import {
   HAIKU_VERSION_QUERY,
   DAILY_HAIKU_QUERY,
@@ -183,6 +184,8 @@ export function createHaikuActions(state: HaikuStoreState) {
     today: string,
   ): void {
     state.haiku.value = newHaiku ?? (null as unknown as HaikuValue);
+    // A new haiku keeps its book hidden until the reader reveals it again
+    useBookRedaction().hideAgain();
 
     if (newHaiku) {
       state.isDailyHaiku.value = fetchingDaily;

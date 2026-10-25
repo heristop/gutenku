@@ -139,7 +139,8 @@
     "shared": "共有済み",
     "save": "保存",
     "saveUnavailable": "画像付きの俳句を作ると保存できます",
-    "historyPosition": "俳句 {current} / {total}"
+    "historyPosition": "俳句 {current} / {total}",
+    "bestScore": "最高 {score}"
   },
   "aiKey": {
     "title": "AIオプション",

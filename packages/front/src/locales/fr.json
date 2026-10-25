@@ -139,7 +139,8 @@
     "shared": "Partagé",
     "save": "Enregistrer",
     "saveUnavailable": "Crée un haïku avec image pour l’enregistrer",
-    "historyPosition": "Haïku {current} sur {total}"
+    "historyPosition": "Haïku {current} sur {total}",
+    "bestScore": "meilleur {score}"
   },
   "aiKey": {
     "title": "Options IA",

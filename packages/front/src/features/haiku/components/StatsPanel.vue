@@ -5,13 +5,20 @@ import { storeToRefs } from 'pinia';
 import { BookOpenText } from '@/core/components/icons/ink';
 import { useHaikuStore } from '@/features/haiku/store/haiku';
 import { useCountUp } from '@/features/haiku/composables/count-up';
+import { useBookRedaction } from '@/features/haiku/composables/book-redaction';
 import ZenCard from '@/core/components/ui/ZenCard.vue';
 import ZenAccordion from '@/core/components/ui/ZenAccordion.vue';
 
 const { t } = useI18n();
 
 const store = useHaikuStore();
-const { stats, loading } = storeToRefs(store);
+const { stats, loading, haiku } = storeToRefs(store);
+const { redacted } = useBookRedaction();
+
+// The book of the haiku on the page stays hidden here too until revealed
+function displayName(name: string): string {
+  return redacted.value && name === haiku.value?.book?.title ? '▬▬▬' : name;
+}
 
 const topBooks = computed(() => {
   const entries = Object.entries(stats.value.bookCounts || {}) as [
@@ -96,9 +103,11 @@ const RANKS = ['i', 'ii', 'iii'];
               <span class="stats-panel__book-rank" aria-hidden="true">{{
                 RANKS[idx]
               }}</span>
-              <span class="stats-panel__book-title" :title="name">{{
-                name
-              }}</span>
+              <span
+                class="stats-panel__book-title"
+                :title="displayName(name)"
+                >{{ displayName(name) }}</span
+              >
               <span class="stats-panel__book-count">
                 {{ t('stats.times', { count }, count) }}
               </span>

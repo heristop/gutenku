@@ -139,7 +139,8 @@
     "shared": "Shared",
     "save": "Save",
     "saveUnavailable": "Craft a haiku with an image to save it",
-    "historyPosition": "Haiku {current} of {total}"
+    "historyPosition": "Haiku {current} of {total}",
+    "bestScore": "best {score}"
   },
   "aiKey": {
     "title": "AI options",

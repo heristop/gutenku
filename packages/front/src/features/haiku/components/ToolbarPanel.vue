@@ -31,6 +31,10 @@ import ZenCard from '@/core/components/ui/ZenCard.vue';
 import ZenButton from '@/core/components/ui/ZenButton.vue';
 import ZenSlider from '@/core/components/ui/ZenSlider.vue';
 import AiKeyPanel from '@/features/haiku/components/AiKeyPanel.vue';
+import {
+  bestScoreLabel,
+  etaLabel,
+} from '@/features/haiku/composables/progress-readout';
 import ZenExpandTransition from '@/core/components/ui/ZenExpandTransition.vue';
 import ZenProgress from '@/core/components/ui/ZenProgress.vue';
 
@@ -395,15 +399,19 @@ useKeyboardShortcuts({
             </span>
             <span
               v-if="
-                estimatedTimeLeft !== null && !generationProgress.stopReason
+                etaLabel(estimatedTimeLeft) && !generationProgress.stopReason
               "
               class="toolbar-panel__progress-eta"
             >
-              ~{{ estimatedTimeLeft }}s
+              {{ etaLabel(estimatedTimeLeft) }}
             </span>
           </div>
           <div class="toolbar-panel__progress-score">
-            {{ generationProgress.bestScore.toFixed(1) }}
+            {{
+              t('toolbar.bestScore', {
+                score: bestScoreLabel(generationProgress.bestScore),
+              })
+            }}
           </div>
         </div>
         <ZenProgress
@@ -742,12 +750,13 @@ useKeyboardShortcuts({
     white-space: nowrap;
   }
 
+  // A labelled readout on the Quality Score's scale, not a bare decimal
   &__progress-score {
-    font-size: 1.5rem;
+    font-size: 0.875rem;
     line-height: 1;
-    letter-spacing: -0.04em;
-    color: var(--gk-ink);
+    color: var(--gk-ink-soft);
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
 
   // Presets: typewritten ruled tabs, like the haiku tabs; the chosen one is
