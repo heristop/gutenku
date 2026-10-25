@@ -13,6 +13,7 @@ import {
 } from '@/core/components/icons/ink';
 import InkStamp from '@/core/components/ink/InkStamp.vue';
 import { useDailyHaiku } from '@/features/haiku/composables/daily-haiku';
+import { longestVerseLength } from '@/features/haiku/composables/verse-fit';
 
 type Step = 'prev' | 'next';
 
@@ -25,6 +26,12 @@ const props = withDefaults(
 );
 
 const { t, locale } = useI18n();
+
+// The verses are sized to their longest line and the slip's own width, so a
+// haiku keeps its three lines in the narrow home column and on a phone
+const verseCh = computed(
+  () => longestVerseLength(haiku.value?.verses ?? []) || 22,
+);
 const route = useRoute();
 const router = useRouter();
 
@@ -349,7 +356,7 @@ onUnmounted(() => {
               {{ haiku.title }}
             </h3>
 
-            <p class="daily-slip__lines">
+            <p class="daily-slip__lines" :style="{ '--verse-ch': verseCh }">
               <span
                 v-for="(verse, i) in haiku.verses"
                 :key="i"
@@ -587,6 +594,7 @@ onUnmounted(() => {
 
   // The page itself: dims while the next one is fetched, the footer stays put
   &__leaf-frame {
+    container-type: inline-size;
     transition: opacity var(--gk-dur-fast) var(--gk-ease-out);
   }
 
@@ -615,14 +623,14 @@ onUnmounted(() => {
   &__lines {
     display: grid;
     margin: 0 0 1.25rem;
-    font-size: clamp(1.375rem, 2.2vw, 1.75rem);
+    font-size: clamp(
+      1rem,
+      calc(100cqi / (var(--verse-ch, 22) * 0.6 + 3.4)),
+      1.75rem
+    );
     line-height: 1.55;
     letter-spacing: -0.025em;
     overflow-wrap: anywhere;
-
-    @media (max-width: 600px) {
-      font-size: clamp(1rem, 4.4vw, 1.125rem);
-    }
   }
 
   // A verse that must wrap hangs: its continuation sits further in, so the
