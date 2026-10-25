@@ -48,9 +48,6 @@ const { showBackToTop, scrollToTop } = useReadingProgress();
 // The site-wide quill reports the article render; no local loader
 useInkLoading(loading);
 
-// Asides (blockquotes) move into a margin column only when the article has any
-const hasNotes = computed(() => content.value.includes('<blockquote'));
-
 // Contents: every h2/h3 gets a stable id; the list shows from 3 sections
 const outline = computed(() => addHeadingIds(content.value));
 const tocHeadings = computed(() =>
@@ -223,13 +220,7 @@ useHead({
 </script>
 
 <template>
-  <div
-    class="blog-article"
-    :class="{
-      'blog-article--notes': hasNotes,
-      'blog-article--toc': hasToc,
-    }"
-  >
+  <div class="blog-article" :class="{ 'blog-article--toc': hasToc }">
     <div v-if="notFound && !loading" class="blog-article__not-found">
       <div class="blog-article__not-found-card">
         <h1>{{ t('blog.notFound') }}</h1>
@@ -295,11 +286,7 @@ useHead({
       <BrushRule class="blog-article__divider" aria-hidden="true" />
 
       <Transition name="fade-up">
-        <div
-          v-if="!loading && showContent"
-          class="blog-article__content"
-          :class="{ 'blog-article__content--notes': hasNotes }"
-        >
+        <div v-if="!loading && showContent" class="blog-article__content">
           <article
             ref="bodyEl"
             class="blog-article__body prose"
@@ -400,9 +387,8 @@ useHead({
 </template>
 
 <style lang="scss" scoped>
-$note-width: 12.5rem;
-// Contents rail: needs the sheet (with its notes column) plus this much
-// on the right, which first fits at 1280px for articles with notes
+// Contents rail: needs the sheet plus this much on the right, which first
+// fits at 1280px
 $toc-width: 13rem;
 $toc-gap: 2.5rem;
 $toc-desktop: 1280px;
@@ -421,18 +407,9 @@ $toc-desktop: 1280px;
     padding: 1.5rem 1.5rem 2.5rem;
   }
 
-  // With side notes, header and divider line up with the shifted reading column
-  @media (min-width: 1100px) {
-    &--notes &__header,
-    &--notes &__divider {
-      max-width: calc(62ch + #{$note-width} + 8.5rem);
-      padding-right: calc(2.5rem + #{$note-width} + 3.5rem);
-    }
-  }
-
   // With a contents rail the page becomes three columns: the sheet stays
   // centred while the margins allow it, and slides left only as far as the
-  // rail needs. The rail sits beside the notes column, never over it.
+  // rail needs.
   @media (min-width: $toc-desktop) {
     &--toc {
       max-width: none;
@@ -599,8 +576,7 @@ $toc-desktop: 1280px;
     }
   }
 
-  // The sheet sizes to its composition: the 62ch measure plus padding, and a
-  // notes column only when the article has asides
+  // The sheet sizes to its composition: the 62ch measure plus padding
   &__content {
     --sheet-pad: 1.125rem;
 
@@ -612,7 +588,7 @@ $toc-desktop: 1280px;
     background: var(--gk-paper-raised);
     border-radius: var(--gk-radius-paper);
     box-shadow: var(--gk-lift);
-    counter-reset: note figure;
+    counter-reset: figure;
 
     @media (min-width: 600px) {
       --sheet-pad: 2.5rem;
@@ -622,13 +598,6 @@ $toc-desktop: 1280px;
 
     > * {
       margin-inline: auto;
-    }
-
-    @media (min-width: 1100px) {
-      &--notes {
-        max-width: calc(62ch + #{$note-width} + 3.5rem + 2 * var(--sheet-pad));
-        padding-right: calc(var(--sheet-pad) + #{$note-width} + 3.5rem);
-      }
     }
   }
 
@@ -880,47 +849,27 @@ $toc-desktop: 1280px;
         center / 100% 100% no-repeat;
     }
 
-    // Asides: numbered in vermilion, moved into the margin on wide screens
+    // Asides sit in the text, where they belong: a quiet ruled passage,
+    // never pushed out into a margin column
     :deep(blockquote) {
-      counter-increment: note;
-      position: relative;
-      margin: 1.5rem 0;
-      padding: 0 0 0 1.25rem;
+      margin: 1.75rem 0;
+      padding: 0.125rem 0 0.125rem 1.25rem;
       border-left: var(--gk-rule);
-      font-size: 0.875rem;
+      font-size: 0.9375rem;
       line-height: 1.65;
       color: var(--gk-ink-soft);
 
-      &::before {
-        content: counter(note);
-        margin-right: 0.375rem;
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: var(--gk-stamp-ink);
-      }
-
       p {
-        display: inline;
         margin: 0;
         line-height: inherit;
       }
 
       p + p {
-        display: block;
         margin-top: 0.5rem;
       }
 
       em {
         font-style: italic;
-      }
-
-      @media (min-width: 1100px) {
-        float: right;
-        clear: right;
-        width: $note-width;
-        margin: 0.25rem calc(-#{$note-width} - 3.5rem) 1rem 0;
-        padding: 0;
-        border-left: 0;
       }
     }
 
@@ -974,22 +923,52 @@ $toc-desktop: 1280px;
       margin: 2rem 0;
     }
 
+    // A plate is set in the middle of the measure, never the full width:
+    // 80% of it and 240px tall on phones, 75% and 280px from 600px
     :deep(img) {
       display: block;
-      max-width: 100%;
+      max-width: 80%;
+      max-height: 240px;
       height: auto;
       margin: 0 auto;
+      // A plate forced into another box (an article's own inline size) is
+      // cropped to it, never squashed
+      object-fit: cover;
+      object-position: center;
       border-radius: var(--gk-radius-control);
       box-shadow: 0 0 0 1.5px var(--gk-ink);
+
+      @media (min-width: 600px) {
+        max-width: 75%;
+        max-height: 280px;
+      }
     }
 
+    // Known proportions (see sizeImages): the same plate, its width worked
+    // out before it loads, so its space is held and it is never cropped
+    :deep(img[style*='--img-ratio']) {
+      width: min(80%, calc(240px * var(--img-ratio)));
+
+      @media (min-width: 600px) {
+        width: min(75%, calc(280px * var(--img-ratio)));
+      }
+    }
+
+    // Charts keep the full measure: their figures must stay legible
     :deep(img.article-img),
     :deep(img.article-img--tall) {
+      width: 100%;
+      max-width: 100%;
+      max-height: none;
       min-height: 0;
       object-fit: contain;
     }
 
     :deep(figcaption) {
+      max-width: 34rem;
+      margin-inline: auto;
+      text-align: center;
+      text-wrap: balance;
       margin-top: 0.625rem;
       font-size: 0.875rem;
       line-height: 1.5;
