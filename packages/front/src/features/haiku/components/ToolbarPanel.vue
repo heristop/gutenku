@@ -34,6 +34,7 @@ import AiKeyPanel from '@/features/haiku/components/AiKeyPanel.vue';
 import {
   bestScoreLabel,
   etaLabel,
+  stepDirection,
 } from '@/features/haiku/composables/progress-readout';
 import ZenExpandTransition from '@/core/components/ui/ZenExpandTransition.vue';
 import ZenProgress from '@/core/components/ui/ZenProgress.vue';
@@ -60,6 +61,13 @@ const {
 
 const historyLength = computed(() => haikuStore.historyLength);
 const historyPosition = computed(() => haikuStore.historyPosition);
+
+// The count slides the way the reader turned: back from the left, forward
+// (or a new haiku) from the right. Set before the counter re-renders.
+const historyStep = ref<'back' | 'forward'>('forward');
+watch(historyPosition, (to, from) => {
+  historyStep.value = stepDirection(from, to);
+});
 const canGoBack = computed(() => haikuStore.canGoBack);
 const canGoForward = computed(() => haikuStore.canGoForward);
 
@@ -88,11 +96,28 @@ watch(
   },
 );
 
+// Options and progress take turns in one slot. Crafting holds the slot at the
+// height it had, so the panel (and everything under it) never jumps while the
+// reader watches the poem; it lets go once the options are back.
+const SLOT_RELEASE_MS = 400;
+const slotRef = useTemplateRef<HTMLElement>('slotRef');
+const slotHold = ref<number | null>(null);
+let slotRelease: ReturnType<typeof setTimeout> | undefined;
+
 watch(isGenerating, (generating) => {
+  clearTimeout(slotRelease);
+
   if (generating) {
     iterationTimes.value = [];
     lastIterationTime.value = Date.now();
+    slotHold.value = slotRef.value?.offsetHeight || null;
+
+    return;
   }
+
+  slotRelease = setTimeout(() => {
+    slotHold.value = null;
+  }, SLOT_RELEASE_MS);
 });
 
 const estimatedTimeLeft = computed(() => {
@@ -291,136 +316,144 @@ useKeyboardShortcuts({
       </ZenTooltip>
     </div>
 
-    <!-- Options (shown after first load, hidden during generation) -->
-    <ZenExpandTransition>
-      <div v-if="firstLoaded && !isGenerating" class="toolbar-panel__config">
-        <div v-if="isDev" class="toolbar-panel__dev-section">
-          <!-- Collapsible Header -->
-          <button
-            class="toolbar-panel__dev-header"
-            type="button"
-            :aria-expanded="devOptionsExpanded"
-            aria-controls="dev-options-content"
-            @click="devOptionsExpanded = !devOptionsExpanded"
-          >
-            <Ruler
-              :size="14"
-              class="toolbar-panel__dev-lead"
-              aria-hidden="true"
-            />
-            <span class="toolbar-panel__dev-title">Developer options</span>
-            <ChevronDown
-              :size="14"
-              class="toolbar-panel__dev-chevron"
-              :class="{
-                'toolbar-panel__dev-chevron--open': devOptionsExpanded,
-              }"
-            />
-          </button>
-
-          <!-- Collapsible Content -->
-          <ZenExpandTransition>
-            <div
-              v-if="devOptionsExpanded"
-              id="dev-options-content"
-              class="toolbar-panel__dev-content"
+    <!-- Options and progress take turns in one slot (see slotHold) -->
+    <div
+      ref="slotRef"
+      class="toolbar-panel__slot"
+      :style="slotHold ? { minHeight: `${slotHold}px` } : undefined"
+    >
+      <Transition name="slot-turn">
+        <div v-if="firstLoaded && !isGenerating" class="toolbar-panel__config">
+          <div v-if="isDev" class="toolbar-panel__dev-section">
+            <!-- Collapsible Header -->
+            <button
+              class="toolbar-panel__dev-header"
+              type="button"
+              :aria-expanded="devOptionsExpanded"
+              aria-controls="dev-options-content"
+              @click="devOptionsExpanded = !devOptionsExpanded"
             >
-              <!-- Iterations/Raffinement slider -->
-              <div
-                class="toolbar-panel__dev-option toolbar-panel__dev-iterations"
-              >
-                <Repeat
-                  :size="14"
-                  class="toolbar-panel__dev-icon"
-                  aria-hidden="true"
-                />
-                <span class="toolbar-panel__dev-iterations-label">{{
-                  t('toolbar.iterations')
-                }}</span>
-                <span class="toolbar-panel__config-value">{{
-                  optionIterations
-                }}</span>
-              </div>
-              <ZenSlider
-                v-model="optionIterations"
-                :min="1"
-                :max="50"
-                :step="1"
-                size="sm"
-                :aria-label="t('toolbar.iterations')"
+              <Ruler
+                :size="14"
+                class="toolbar-panel__dev-lead"
+                aria-hidden="true"
               />
+              <span class="toolbar-panel__dev-title">Developer options</span>
+              <ChevronDown
+                :size="14"
+                class="toolbar-panel__dev-chevron"
+                :class="{
+                  'toolbar-panel__dev-chevron--open': devOptionsExpanded,
+                }"
+              />
+            </button>
+
+            <!-- Collapsible Content -->
+            <ZenExpandTransition>
               <div
-                class="toolbar-panel__presets"
-                role="group"
-                :aria-label="t('toolbar.iterationPresets')"
+                v-if="devOptionsExpanded"
+                id="dev-options-content"
+                class="toolbar-panel__dev-content"
               >
-                <button
-                  type="button"
-                  v-for="preset in iterationPresets"
-                  :key="preset"
-                  class="toolbar-panel__preset"
-                  :class="{
-                    'toolbar-panel__preset--active':
-                      optionIterations === preset,
-                  }"
-                  :aria-pressed="optionIterations === preset"
-                  @click="optionIterations = preset"
+                <!-- Iterations/Raffinement slider -->
+                <div
+                  class="toolbar-panel__dev-option toolbar-panel__dev-iterations"
                 >
-                  {{ preset }}
-                </button>
+                  <Repeat
+                    :size="14"
+                    class="toolbar-panel__dev-icon"
+                    aria-hidden="true"
+                  />
+                  <span class="toolbar-panel__dev-iterations-label">{{
+                    t('toolbar.iterations')
+                  }}</span>
+                  <span class="toolbar-panel__config-value">{{
+                    optionIterations
+                  }}</span>
+                </div>
+                <ZenSlider
+                  v-model="optionIterations"
+                  :min="1"
+                  :max="50"
+                  :step="1"
+                  size="sm"
+                  :aria-label="t('toolbar.iterations')"
+                />
+                <div
+                  class="toolbar-panel__presets"
+                  role="group"
+                  :aria-label="t('toolbar.iterationPresets')"
+                >
+                  <button
+                    type="button"
+                    v-for="preset in iterationPresets"
+                    :key="preset"
+                    class="toolbar-panel__preset"
+                    :class="{
+                      'toolbar-panel__preset--active':
+                        optionIterations === preset,
+                    }"
+                    :aria-pressed="optionIterations === preset"
+                    @click="optionIterations = preset"
+                  >
+                    {{ preset }}
+                  </button>
+                </div>
               </div>
+            </ZenExpandTransition>
+          </div>
+
+          <!-- AI, on the visitor's own OpenAI key (the server's in dev) -->
+          <AiKeyPanel />
+        </div>
+      </Transition>
+
+      <!-- Progress display (visible during generation) -->
+      <Transition name="slot-turn">
+        <div v-if="isGenerating" class="toolbar-panel__progress">
+          <div class="toolbar-panel__progress-header">
+            <div class="toolbar-panel__progress-info">
+              <span class="toolbar-panel__progress-label">
+                {{
+                  generationProgress.stopReason
+                    ? t('toolbar.converged')
+                    : t('toolbar.generating')
+                }}
+              </span>
+              <span
+                v-if="!generationProgress.stopReason"
+                class="toolbar-panel__progress-count"
+              >
+                {{ generationProgress.current }}/{{ generationProgress.total }}
+              </span>
+              <span
+                v-if="
+                  etaLabel(estimatedTimeLeft) && !generationProgress.stopReason
+                "
+                class="toolbar-panel__progress-eta"
+              >
+                {{ etaLabel(estimatedTimeLeft) }}
+              </span>
             </div>
-          </ZenExpandTransition>
-        </div>
-
-        <!-- AI, on the visitor's own OpenAI key (the server's in dev) -->
-        <AiKeyPanel />
-      </div>
-    </ZenExpandTransition>
-
-    <!-- Progress display (visible during generation) -->
-    <ZenExpandTransition>
-      <div v-if="isGenerating" class="toolbar-panel__progress">
-        <div class="toolbar-panel__ink-separator" aria-hidden="true" />
-        <div class="toolbar-panel__progress-header">
-          <div class="toolbar-panel__progress-info">
-            <span class="toolbar-panel__progress-label">
+            <div
+              v-if="bestScoreLabel(generationProgress.bestScore) !== null"
+              class="toolbar-panel__progress-score"
+            >
               {{
-                generationProgress.stopReason
-                  ? t('toolbar.converged')
-                  : t('toolbar.generating')
+                t('toolbar.bestScore', {
+                  score: bestScoreLabel(generationProgress.bestScore),
+                })
               }}
-            </span>
-            <span
-              v-if="!generationProgress.stopReason"
-              class="toolbar-panel__progress-count"
-            >
-              {{ generationProgress.current }}/{{ generationProgress.total }}
-            </span>
-            <span
-              v-if="
-                etaLabel(estimatedTimeLeft) && !generationProgress.stopReason
-              "
-              class="toolbar-panel__progress-eta"
-            >
-              {{ etaLabel(estimatedTimeLeft) }}
-            </span>
+            </div>
           </div>
-          <div class="toolbar-panel__progress-score">
-            {{
-              t('toolbar.bestScore', {
-                score: bestScoreLabel(generationProgress.bestScore),
-              })
-            }}
-          </div>
+          <ZenProgress
+            :model-value="progressPercent"
+            :height="4"
+            :aria-label="t('toolbar.generating')"
+          />
         </div>
-        <ZenProgress
-          :model-value="progressPercent"
-          :height="4"
-          :aria-label="t('toolbar.generating')"
-        />
-      </div>
-    </ZenExpandTransition>
+      </Transition>
+    </div>
 
     <!-- What you can do with this haiku: words, not bare glyphs -->
     <div class="toolbar-panel__actions">
@@ -504,7 +537,7 @@ useKeyboardShortcuts({
         </template>
       </ZenButton>
       <span class="toolbar-panel__history-count" aria-live="polite">
-        <Transition name="count" mode="out-in">
+        <Transition :name="`count-${historyStep}`" mode="out-in">
           <span :key="historyPosition">
             {{
               t('toolbar.historyPosition', {
@@ -693,6 +726,16 @@ useKeyboardShortcuts({
     }
   }
 
+  // One cell for both: whichever is shown sits there, the other fades out
+  // in place on top of it
+  &__slot {
+    display: grid;
+
+    > * {
+      grid-area: 1 / 1;
+    }
+  }
+
   &__config {
     width: 100%;
     padding: 0.5rem 0 1rem;
@@ -765,11 +808,6 @@ useKeyboardShortcuts({
     display: flex;
     justify-content: space-between;
     margin: -0.25rem -0.5rem 0;
-  }
-
-  &__ink-separator {
-    margin: 0.75rem 0;
-    border-top: var(--gk-rule-faint);
   }
 
   &__preset {
@@ -937,34 +975,53 @@ useKeyboardShortcuts({
   opacity: 0;
 }
 
-// History counter turns like a page number
-.count-enter-active,
-.count-leave-active {
+// History counter turns like a page number, the way the reader turned
+.count-back-enter-active,
+.count-back-leave-active,
+.count-forward-enter-active,
+.count-forward-leave-active {
   transition:
     opacity var(--gk-dur-fast) var(--gk-ease-out),
     transform var(--gk-dur-fast) var(--gk-ease-out);
 }
 
-.count-enter-from {
+.count-forward-enter-from,
+.count-back-leave-to {
   opacity: 0;
-  transform: translateY(4px);
+  transform: translateX(6px);
 }
 
-.count-leave-to {
+.count-forward-leave-to,
+.count-back-enter-from {
   opacity: 0;
-  transform: translateY(-4px);
+  transform: translateX(-6px);
+}
+
+// Options and progress hand over in place: a short crossfade, no height
+.slot-turn-enter-active,
+.slot-turn-leave-active {
+  transition: opacity var(--gk-dur-fast) var(--gk-ease-out);
+}
+
+.slot-turn-enter-from,
+.slot-turn-leave-to {
+  opacity: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .ink-swap-enter-active,
-  .count-enter-active,
-  .count-leave-active {
+  .count-back-enter-active,
+  .count-back-leave-active,
+  .count-forward-enter-active,
+  .count-forward-leave-active {
     transition: opacity 120ms ease;
   }
 
   .ink-swap-enter-from,
-  .count-enter-from,
-  .count-leave-to {
+  .count-back-enter-from,
+  .count-back-leave-to,
+  .count-forward-enter-from,
+  .count-forward-leave-to {
     transform: none;
   }
 
