@@ -21,3 +21,6 @@ ecosystem.config.mjs
 
 # Covers symlink (created by setup script if gutenguess submodule exists)
 packages/front/public/covers
+
+# Local pnpm package stores (never committed)
+.pnpm-store/
