@@ -56,4 +56,15 @@ describe('HaikuPoem', () => {
     expect(verses.classes()).not.toContain('haiku-poem__verses--draft');
     expect(verses.text()).toContain('old two');
   });
+
+  it('presses the seal on a crafted haiku only', () => {
+    const crafted = mount(HaikuPoem, { global: { stubs } });
+
+    expect(crafted.find('.haiku-poem__stamp').attributes('stamp')).toBe('true');
+
+    useHaikuStore().isDailyHaiku = true;
+    const daily = mount(HaikuPoem, { global: { stubs } });
+
+    expect(daily.find('.haiku-poem__stamp').attributes('stamp')).toBe('false');
+  });
 });

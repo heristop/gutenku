@@ -62,7 +62,8 @@ const hasSources = computed(() =>
   sources.value.some((source) => source.context !== null),
 );
 
-// Re-keys the arrival choreography so every new haiku is typed and stamped anew
+// Re-keys the arrival choreography so every new haiku is typed anew; the seal
+// presses only on a haiku the reader crafted, the daily one is already sealed
 const arrivalKey = computed(() => haiku.value?.verses?.join('|') ?? '');
 
 // Redaction bar keeps roughly the title's length without revealing it
@@ -139,7 +140,7 @@ const redactedWidth = computed(
           label="GK"
           :size="42"
           :tilt="-3"
-          stamp
+          :stamp="!isDailyHaiku"
           class="haiku-poem__stamp"
         />
       </p>
