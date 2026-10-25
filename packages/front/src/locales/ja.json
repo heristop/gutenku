@@ -38,7 +38,8 @@
   "notFound": {
     "returnHome": "ホームに戻る",
     "title": "ページが見つかりません",
-    "spine": "迷子の一葉"
+    "spine": "迷子の一葉",
+    "haiku": ["やさしくそうした", "彼の目に涙が", "きっとだいじょうぶ"]
   },
   "theme": {
     "switchToLight": "ライトモードに切替",

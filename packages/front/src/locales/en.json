@@ -38,7 +38,12 @@
   "notFound": {
     "returnHome": "Return Home",
     "title": "Page not found",
-    "spine": "Lost leaf"
+    "spine": "Lost leaf",
+    "haiku": [
+      "She did it sweetly",
+      "The tears came into his eyes",
+      "It will be all right"
+    ]
   },
   "theme": {
     "switchToLight": "Switch to light mode",

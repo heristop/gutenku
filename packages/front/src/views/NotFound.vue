@@ -6,13 +6,14 @@ import ZenButton from '@/core/components/ui/ZenButton.vue';
 import ZenHaiku from '@/core/components/ui/ZenHaiku.vue';
 import BrushRule from '@/core/components/ink/BrushRule.vue';
 
-const { t } = useI18n();
+import { computed } from 'vue';
 
-const haikuLines = [
-  'She did it sweetly',
-  'The tears came into his eyes',
-  'It will be all right',
-];
+const { t, tm, rt } = useI18n();
+
+// A haiku found in a book, translated with the rest of the page
+const haikuLines = computed(() =>
+  (tm('notFound.haiku') as unknown as string[]).map((line) => rt(line)),
+);
 </script>
 
 <template>
@@ -94,8 +95,11 @@ const haikuLines = [
 
     // The drawing is sumi line on transparent paper: on the night page it is
     // tipped in on a light leaf, like the home plate, never inverted
+    // A little askew, as a plate pasted in by hand, so it never reads as a
+    // grey placeholder
     [data-theme='dark'] & {
-      padding: 0.5rem;
+      padding: 0.75rem;
+      transform: rotate(-1.5deg);
       object-fit: contain;
       background: var(--gk-plate-leaf);
       border-radius: 2px;

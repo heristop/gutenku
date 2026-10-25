@@ -38,7 +38,12 @@
   "notFound": {
     "returnHome": "Retour à l'accueil",
     "title": "Page introuvable",
-    "spine": "Feuillet égaré"
+    "spine": "Feuillet égaré",
+    "haiku": [
+      "Elle le fit doucement",
+      "Les larmes lui vinrent aux yeux",
+      "Tout ira bien"
+    ]
   },
   "theme": {
     "switchToLight": "Passer au mode clair",
