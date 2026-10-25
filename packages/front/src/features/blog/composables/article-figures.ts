@@ -1,3 +1,5 @@
+import ARTICLE_IMAGE_SIZES from './article-image-sizes.json';
+
 const IMG_TAG = /<img\b[^>]*>/;
 const ALT_ATTR = /\balt="([^"]*)"/;
 
@@ -96,6 +98,30 @@ export function toRomanNumeral(value: number): string {
   }
 
   return out;
+}
+
+const SRC_ATTR = /\bsrc="([^"]+)"/;
+
+/**
+ * Gives every known article image its width and height, so the browser
+ * reserves the plate before it loads and the text never jumps under the
+ * reader. Sizes come from article-image-sizes.json (pnpm generate:image-sizes).
+ */
+export function sizeImages(
+  html: string,
+  sizes: Record<string, readonly number[]> = ARTICLE_IMAGE_SIZES,
+): string {
+  return html.replaceAll(/<img\b[^>]*?(\s*\/?)>/g, (tag, close: string) => {
+    const size = sizes[SRC_ATTR.exec(tag)?.[1] ?? ''];
+
+    if (!size || /\bwidth=/.test(tag)) {
+      return tag;
+    }
+
+    const open = tag.slice(0, tag.length - close.length - 1);
+
+    return `${open} width="${size[0]}" height="${size[1]}"${close}>`;
+  });
 }
 
 /**

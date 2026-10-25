@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   lazyLoadImages,
   markLeadParagraph,
+  sizeImages,
   toRomanNumeral,
   wrapFigures,
 } from '@/features/blog/composables/article-figures';
@@ -80,5 +81,29 @@ describe('lazyLoadImages', () => {
     const html = '<img src="a.webp"><img loading="eager" src="b.png">';
 
     expect(lazyLoadImages(html)).toBe(html);
+  });
+});
+
+describe('sizeImages', () => {
+  const sizes = { '/article/a.webp': [1400, 2032] as [number, number] };
+
+  it('gives a known image its size, so the text never jumps when it lands', () => {
+    expect(sizeImages('<img src="/article/a.webp" alt="A">', sizes)).toBe(
+      '<img src="/article/a.webp" alt="A" width="1400" height="2032">',
+    );
+  });
+
+  it('leaves unknown and already sized images alone', () => {
+    const unknown = '<img src="/elsewhere.png">';
+    const sized = '<img src="/article/a.webp" width="10" height="10">';
+
+    expect(sizeImages(unknown, sizes)).toBe(unknown);
+    expect(sizeImages(sized, sizes)).toBe(sized);
+  });
+
+  it('handles self-closing tags', () => {
+    expect(sizeImages('<img src="/article/a.webp" />', sizes)).toBe(
+      '<img src="/article/a.webp" width="1400" height="2032" />',
+    );
   });
 });

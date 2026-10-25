@@ -28,6 +28,7 @@ import {
 } from './article-rendering';
 import {
   lazyLoadImages,
+  sizeImages,
   markLeadParagraph,
   wrapFigures,
 } from './article-figures';
@@ -69,7 +70,9 @@ const articlesRaw = import.meta.glob('@content/*.md', {
 
 function renderArticleHtml(markdown: string): string {
   return lazyLoadImages(
-    markLeadParagraph(wrapFigures(marked.parse(markdown, { async: false }))),
+    sizeImages(
+      markLeadParagraph(wrapFigures(marked.parse(markdown, { async: false }))),
+    ),
   );
 }
 

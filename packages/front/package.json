@@ -25,7 +25,8 @@
     "cap:sync": "npx cap sync",
     "generate:assets": "node scripts/build-app-icons.mjs",
     "cap:assets": "pnpm generate:assets && npx capacitor-assets generate",
-    "generate:rss": "tsx scripts/generate-rss.ts"
+    "generate:rss": "tsx scripts/generate-rss.ts",
+    "generate:image-sizes": "tsx scripts/article-image-sizes.ts"
   },
   "dependencies": {
     "@capacitor-community/safe-area": "^8.0.1",
