@@ -31,6 +31,16 @@ describe.runIf(gameEnabled)('BookCard miss', () => {
     expect(stamp.attributes('data-tilt')).toBe('-8');
   });
 
+  it('keeps the stamp out of the dimmed, clipped cover', async () => {
+    const wrapper = await card('wrong');
+    const stamp = wrapper.get('.book-card__miss-stamp').element;
+
+    // The cover is greyed and clipped on a miss: a red stamp inside it would
+    // turn grey and lose its press
+    expect(stamp.closest('.book-card__cover')).toBe(null);
+    expect(stamp.closest('.book-card__plate')).not.toBe(null);
+  });
+
   it('leaves other books unstamped', async () => {
     expect(
       (await card('normal')).find('.book-card__miss-stamp').exists(),

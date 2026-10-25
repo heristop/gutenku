@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
-import { ref } from 'vue';
+import { createSSRApp, nextTick, ref } from 'vue';
+import { renderToString } from 'vue/server-renderer';
 import { gameEnabled } from './game-enabled';
 
 const isMuted = ref(true);
@@ -51,6 +52,29 @@ describe.runIf(gameEnabled)('sound key', () => {
     expect(key.attributes('aria-pressed')).toBe('false');
     await key.trigger('click');
     expect(toggleMute).toHaveBeenCalledOnce();
+    expect(
+      wrapper.get('[aria-label="game.sound"]').attributes('aria-pressed'),
+    ).toBe('true');
+  });
+
+  it('renders the prerendered state first, then the stored choice', async () => {
+    isMuted.value = false;
+    const GameHeader = (
+      await import('@/features/game/components/GameHeader.vue')
+    ).default;
+
+    // The prerender can't read the stored choice: until mount the key must
+    // match it, or hydration keeps a stale "not pressed"
+    const app = createSSRApp(GameHeader);
+    app.use(createPinia());
+    app.config.globalProperties.$t = (key: string) => key;
+    const html = await renderToString(app);
+
+    expect(html).toContain('aria-pressed="false"');
+
+    const wrapper = mount(GameHeader, { global: { stubs } });
+    await nextTick();
+
     expect(
       wrapper.get('[aria-label="game.sound"]').attributes('aria-pressed'),
     ).toBe('true');
