@@ -1008,13 +1008,18 @@ $toc-desktop: 1280px;
       overflow: auto hidden;
     }
 
-    // A diagram is printed on the page like a plate: no box, no tint;
-    // the inks come from the theme (see article-rendering.ts)
+    // A diagram is a plate tipped into the page: set on the deeper paper,
+    // so its lighter nodes stand clear of the sheet; the inks come from the
+    // theme (see article-rendering.ts)
     :deep(.mermaid-diagram) {
       display: block;
-      max-width: 34rem;
+      max-width: 36rem;
       margin: 2.25rem auto;
+      padding: 1.75rem 1.25rem;
       overflow-x: auto;
+      background: var(--gk-paper-deep);
+      border-radius: var(--gk-radius-control);
+      box-shadow: inset 0 0 0 1px var(--gk-ink-faint);
       text-align: center;
       contain: layout style;
 

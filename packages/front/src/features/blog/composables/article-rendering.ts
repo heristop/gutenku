@@ -146,7 +146,7 @@ function diagramCss(): string {
     .edgeLabel rect, .labelBkg { fill: transparent !important; background: transparent !important; }
     .edgeLabel text, .edgeLabel tspan {
       fill: var(--gk-ink-soft) !important; font-size: 12px; letter-spacing: 0.04em;
-      paint-order: stroke; stroke: var(--gk-paper); stroke-width: 6px; stroke-linejoin: round;
+      paint-order: stroke; stroke: var(--gk-paper-deep); stroke-width: 6px; stroke-linejoin: round;
     }
     .cluster rect {
       fill: transparent !important;
