@@ -85,7 +85,8 @@
   },
   "hero": {
     "ariaLabel": "GutenKuについて",
-    "description": "散文が詩になる。本が謎になる。{gutenku}は名作を俳句に凝縮。{gutenguess}は読書をゲームに変える。"
+    "ledeKu": "{gutenku}は、古典の一節から俳句を切り出します。",
+    "ledeGuess": "{gutenguess}は、古典を毎日の謎解きに変えます。"
   },
   "haikuChapter": {
     "ariaLabel": "俳句の詩句がハイライトされた書籍の章の抜粋",

@@ -162,9 +162,22 @@ if (!import.meta.env.SSR) {
         </i18n-t>
       </h1>
 
+      <!-- One line for each of the two things GutenKu does -->
       <p class="home__lede">
-        <i18n-t keypath="hero.description" tag="span" scope="global">
+        <i18n-t
+          keypath="hero.ledeKu"
+          tag="span"
+          scope="global"
+          class="home__lede-line"
+        >
           <template #gutenku><strong>GutenKu</strong></template>
+        </i18n-t>
+        <i18n-t
+          keypath="hero.ledeGuess"
+          tag="span"
+          scope="global"
+          class="home__lede-line"
+        >
           <template #gutenguess><strong>GutenGuess</strong></template>
         </i18n-t>
       </p>
@@ -393,18 +406,21 @@ if (!import.meta.env.SSR) {
     color: var(--gk-stamp);
   }
 
+  // Two parallel lines, one per thing GutenKu does, each led by its name
   &__lede {
-    max-width: 40ch;
-    margin: 0 0 1.75rem;
+    display: grid;
+    gap: 0.5rem;
+    max-width: 52ch;
+    margin: 0 0 2rem;
     // 16px on phones: body text never drops under the legible floor there
     font-size: 1rem;
+    line-height: 1.55;
+    color: var(--gk-ink-soft);
+    text-wrap: pretty;
 
     @media (min-width: 601px) {
-      font-size: 0.9375rem;
+      font-size: 1.0625rem;
     }
-
-    line-height: 1.7;
-    color: var(--gk-ink-soft);
 
     strong {
       font-weight: 700;
@@ -412,8 +428,13 @@ if (!import.meta.env.SSR) {
     }
 
     @media (max-width: 600px) {
+      gap: 0.375rem;
       margin-bottom: 1.25rem;
     }
+  }
+
+  &__lede-line {
+    display: block;
   }
 
   &__actions {

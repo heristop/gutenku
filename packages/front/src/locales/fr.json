@@ -89,7 +89,8 @@
   },
   "hero": {
     "ariaLabel": "À propos de GutenKu",
-    "description": "La prose devient poésie. Les livres deviennent énigmes. {gutenku} distille les classiques en haïkus. {gutenguess} transforme vos lectures en jeu."
+    "ledeKu": "{gutenku} taille un haïku dans un classique.",
+    "ledeGuess": "{gutenguess} fait d'un classique une énigme du jour."
   },
   "haikuChapter": {
     "ariaLabel": "Extrait de chapitre avec vers de haïku surlignés",
@@ -246,8 +247,8 @@
       "headlineHaiku": "haïkus",
       "write": "Écrire un haïku",
       "play": "Jouer à GutenGuess",
-      "playNumber": "Jouer au n° {number}",
-      "playNumberTeaser": "Jouer au n° {number} · aujourd'hui : {teaser}"
+      "playNumber": "Jouer au nº {number}",
+      "playNumberTeaser": "Jouer au nº {number} · {teaser}"
     },
     "daily": {
       "label": "Le haïku du jour",
@@ -280,7 +281,7 @@
     },
     "gameEntry": {
       "description": "Devinez le classique du jour grâce à ses indices.",
-      "numberLabel": "Énigme n° {number}"
+      "numberLabel": "Énigme nº {number}"
     }
   },
   "pwa": {

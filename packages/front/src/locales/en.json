@@ -89,7 +89,8 @@
   },
   "hero": {
     "ariaLabel": "About GutenKu",
-    "description": "Prose becomes poetry. Books become riddles. {gutenku} distills classics into haikus. {gutenguess} turns your reading into a game."
+    "ledeKu": "{gutenku} cuts a haiku from a classic's own lines.",
+    "ledeGuess": "{gutenguess} turns a classic into a daily riddle."
   },
   "haikuChapter": {
     "ariaLabel": "Book chapter excerpt with highlighted haiku verses",
