@@ -12,6 +12,7 @@ import {
   getCurrentPublicationDate,
   getNextRolloverAt,
   type DailyHaiku,
+  type DailyHaikuExcerpt,
   type HaikuValue,
 } from '@gutenku/shared';
 import { urqlClient } from '@/client';
@@ -34,6 +35,8 @@ export interface DailyHaikuEntry {
   previousDate: string | null;
   /** Nearest later recorded day, null on the latest one. */
   nextDate: string | null;
+  /** The verses in a few words of their chapter, null when unknown. */
+  excerpt: DailyHaikuExcerpt | null;
 }
 
 /** What the home slip shows: the entry plus whether it is today's page. */
@@ -62,6 +65,10 @@ const DAILY_HAIKU_QUERY = gql`
       nextRolloverAt
       previousDate
       nextDate
+      excerpt {
+        text
+        verses
+      }
     }
   }
 `;
@@ -124,6 +131,11 @@ export function clearDailyHaikuCache(): void {
   inflight.clear();
 }
 
+// Only an excerpt with verses to leave standing is any use
+function excerptOf(daily: DailyHaiku): DailyHaikuExcerpt | null {
+  return daily.excerpt?.verses?.length ? daily.excerpt : null;
+}
+
 function fromPublished(daily: DailyHaiku): DailyHaikuEntry {
   return {
     date: daily.date,
@@ -139,6 +151,7 @@ function fromPublished(daily: DailyHaiku): DailyHaikuEntry {
     nextRolloverAt: daily.nextRolloverAt,
     previousDate: daily.previousDate ?? null,
     nextDate: daily.nextDate ?? null,
+    excerpt: excerptOf(daily),
   };
 }
 
@@ -157,6 +170,7 @@ function fromLegacy(haiku: LegacyDailyHaiku, date: string): DailyHaikuEntry {
     nextRolloverAt: getNextRolloverAt(new Date()).toISOString(),
     previousDate: null,
     nextDate: null,
+    excerpt: null,
   };
 }
 

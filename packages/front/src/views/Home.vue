@@ -110,6 +110,9 @@ function markEntered(): void {
   document.documentElement.dataset.gkEntered = '';
 }
 
+// Whether this visit plays it (always false in the prerender)
+let playEntrance = false;
+
 if (!import.meta.env.SSR) {
   let seen = false;
 
@@ -120,11 +123,10 @@ if (!import.meta.env.SSR) {
     seen = true;
   }
 
+  playEntrance = !seen && !hasPageNavigated();
+
   // Let it finish, then switch it off for later in-app visits
-  const timer =
-    seen || hasPageNavigated()
-      ? undefined
-      : setTimeout(markEntered, ENTRANCE_MS);
+  const timer = playEntrance ? setTimeout(markEntered, ENTRANCE_MS) : undefined;
 
   if (!timer) {
     markEntered();
@@ -201,7 +203,7 @@ if (!import.meta.env.SSR) {
     </section>
 
     <div class="home__entries">
-      <DailyHaikuSlip fold-reading />
+      <DailyHaikuSlip fold-reading :entrance="playEntrance" />
 
       <RouterLink
         v-if="GAME_ENABLED"
@@ -377,6 +379,7 @@ if (!import.meta.env.SSR) {
   }
 
   &__title-accent {
+    display: inline-block;
     font-style: italic;
     color: var(--gk-stamp);
   }
@@ -542,8 +545,10 @@ if (!import.meta.env.SSR) {
 // First-load entrance, one authored sequence (~840ms end to end):
 //   120ms  the GutenMage watermark comes up through the paper (900ms fade)
 //   80ms   the headline block settles: 6px rise, fade (300ms)
+//   380ms  the red word is stamped on (scale, tilt and blur settle, 220ms)
 //   240ms  the daily slip and the GutenGuess row fade up together (240ms)
 //   420ms  the puzzle-number stamp presses in last (InkStamp, 420ms)
+// The daily slip then plays its own blackout once its day has loaded.
 // <html data-gk-entered> (set by the script) turns all of it off.
 .home__frontispiece {
   animation: home-tip-in 900ms var(--gk-ease-out) 120ms both;
@@ -560,6 +565,11 @@ if (!import.meta.env.SSR) {
   animation: home-settle var(--gk-dur-base) var(--gk-ease-out) 240ms both;
 }
 
+// The red word is pressed onto the line once the headline has settled
+.home__title-accent {
+  animation: home-stamp-word 220ms cubic-bezier(0.2, 0.9, 0.3, 1.15) 380ms both;
+}
+
 // Outranks InkStamp's own shorthand for the delay alone
 .home__entry .home__entry-stamp {
   animation-delay: 420ms;
@@ -567,6 +577,7 @@ if (!import.meta.env.SSR) {
 
 :root[data-gk-entered] .home__frontispiece,
 :root[data-gk-entered] .home__title,
+:root[data-gk-entered] .home__title-accent,
 :root[data-gk-entered] .home__lede,
 :root[data-gk-entered] .home__actions,
 :root[data-gk-entered] .home__colophon,
@@ -592,6 +603,14 @@ if (!import.meta.env.SSR) {
   }
 }
 
+@keyframes home-stamp-word {
+  from {
+    opacity: 0;
+    transform: scale(1.08) rotate(-2deg);
+    filter: blur(1.5px);
+  }
+}
+
 @keyframes home-settle {
   from {
     opacity: 0;
@@ -612,6 +631,7 @@ if (!import.meta.env.SSR) {
 
   .home__frontispiece,
   .home__title,
+  .home__title-accent,
   .home__lede,
   .home__actions,
   .home__colophon,

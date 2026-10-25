@@ -26,6 +26,15 @@ export interface DailyHaiku {
   previousDate?: string | null;
   /** Nearest later recorded day (never in the future), null for the latest. */
   nextDate?: string | null;
+  /** A few words of the chapter around each verse (single-day query only). */
+  excerpt?: DailyHaikuExcerpt | null;
+}
+
+export interface DailyHaikuExcerpt {
+  /** One fragment per verse, in poem order, joined by " … " */
+  text: string;
+  /** Each verse as it reads in `text` */
+  verses: string[];
 }
 
 /** One page of the archive, newest first. `nextBefore` is an exclusive cursor. */

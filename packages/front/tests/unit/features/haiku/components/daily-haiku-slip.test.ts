@@ -30,6 +30,17 @@ vi.mock('vue-i18n', () => ({
   }),
 }));
 
+// Lays out at once and says so, like pretext once its fonts are in
+vi.mock('@/features/haiku/components/PretextChapter.vue', () => ({
+  default: {
+    emits: ['ready'],
+    mounted() {
+      this.$emit('ready');
+    },
+    template: '<span class="pretext-stub" />',
+  },
+}));
+
 const { clearDailyHaikuCache } =
   await import('@/features/haiku/composables/daily-haiku');
 const DailyHaikuSlip = (
@@ -49,6 +60,7 @@ function entry(
     title: `Title ${date}`,
     verses: ['one', 'two', 'three'],
     reading: null,
+    excerpt: null as { text: string; verses: string[] } | null,
     book: { title: 'Book', author: 'Author', emoticons: null },
     cardUrl: null,
     nextRolloverAt: '2026-10-25T10:00:00.000Z',
@@ -219,5 +231,62 @@ describe('DailyHaikuSlip', () => {
       'home.daily.missing',
     );
     expect(wrapper.find('[data-cy=daily-today]').exists()).toBeTruthy();
+  });
+
+  describe('the first-visit blackout', () => {
+    const excerpt = {
+      text: 'and one more … two here … three',
+      verses: ['one', 'two', 'three'],
+    };
+
+    async function withExcerpt(run: () => Promise<void>) {
+      archive[TODAY] = { ...archive[TODAY], excerpt };
+
+      try {
+        await run();
+      } finally {
+        archive[TODAY] = { ...archive[TODAY], excerpt: null };
+      }
+    }
+
+    const lines = () => wrapper.get('.daily-slip__lines');
+
+    it('blacks out a page of the chapter over the verses, then gives them back', async () => {
+      vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] });
+      vi.setSystemTime(new Date('2026-10-24T12:00:00Z'));
+
+      await withExcerpt(async () => {
+        await render(undefined, { entrance: true });
+        await vi.dynamicImportSettled();
+        await flushPromises();
+
+        expect(wrapper.find('.daily-blackout.is-ready').exists()).toBeTruthy();
+        expect(lines().classes()).toContain('is-under-blackout');
+
+        vi.advanceTimersByTime(2000);
+        await flushPromises();
+
+        expect(wrapper.find('.daily-blackout').exists()).toBeFalsy();
+        expect(lines().classes()).not.toContain('is-under-blackout');
+        // The seal presses once the verses stand alone
+        expect(wrapper.find('.ink-stamp--press').exists()).toBeTruthy();
+      });
+    });
+
+    it('stays out of a later visit', async () => {
+      await withExcerpt(async () => {
+        await render();
+
+        expect(wrapper.find('.daily-blackout').exists()).toBeFalsy();
+        expect(lines().classes()).not.toContain('is-under-blackout');
+        expect(wrapper.find('.ink-stamp--press').exists()).toBeFalsy();
+      });
+    });
+
+    it('needs an excerpt', async () => {
+      await render(undefined, { entrance: true });
+
+      expect(wrapper.find('.daily-blackout').exists()).toBeFalsy();
+    });
   });
 });

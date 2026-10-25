@@ -1,5 +1,11 @@
 import { container } from 'tsyringe';
 import { loadDailyExcerpt } from '~/presentation/graphql/daily-excerpt';
+import type { VerseExcerpt } from '~/domain/services/verse-excerpt';
+
+// GraphQL calls a field given as a function: the excerpt is only cut when asked
+type LazyDailyHaiku = Omit<DailyHaiku, 'excerpt'> & {
+  excerpt: () => Promise<VerseExcerpt | null>;
+};
 import {
   type AIAccess,
   openAIScopeFor,
@@ -255,7 +261,7 @@ const resolvers = {
       _: unknown,
       { date }: { date?: string | null },
       context?: { publicBaseUrl?: string },
-    ): Promise<DailyHaiku | null> => {
+    ): Promise<LazyDailyHaiku | null> => {
       if (date) {
         assertDailyHaikuDate('date', date);
 
@@ -283,7 +289,7 @@ const resolvers = {
           loadDailyExcerpt(record, (id) =>
             queryBus.execute(new GetChapterByIdQuery(id)),
           ),
-      } as DailyHaiku;
+      };
     },
     dailyHaikus: async (
       _: unknown,

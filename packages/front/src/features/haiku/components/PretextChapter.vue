@@ -28,6 +28,9 @@ const props = withDefaults(
   { delay: 0, spotlight: null },
 );
 
+// Laid out and drawing: the home blackout times itself from here
+const emit = defineEmits<{ ready: [] }>();
+
 const { t } = useI18n();
 
 const containerRef = ref<HTMLElement | null>(null);
@@ -201,6 +204,10 @@ watch(
 watch(ready, (isReady) => {
   if (isReady && props.hidden) {
     hasDrawn.value = true;
+  }
+
+  if (isReady) {
+    emit('ready');
   }
 });
 

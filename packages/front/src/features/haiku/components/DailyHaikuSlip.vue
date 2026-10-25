@@ -1,5 +1,13 @@
 <script lang="ts" setup>
-import { computed, nextTick, onUnmounted, ref, useId, watch } from 'vue';
+import {
+  computed,
+  defineAsyncComponent,
+  nextTick,
+  onUnmounted,
+  ref,
+  useId,
+  watch,
+} from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter, type LocationQuery } from 'vue-router';
 import {
@@ -14,6 +22,11 @@ import {
 import InkStamp from '@/core/components/ink/InkStamp.vue';
 import { useDailyHaiku } from '@/features/haiku/composables/daily-haiku';
 import { longestVerseLength } from '@/features/haiku/composables/verse-fit';
+import { prefersReducedMotion } from '@/core/composables/view-transition';
+
+const loadBlackout = () =>
+  import('@/features/haiku/components/DailyHaikuBlackout.vue');
+const DailyHaikuBlackout = defineAsyncComponent(loadBlackout);
 
 type Step = 'prev' | 'next';
 
@@ -21,9 +34,17 @@ const props = withDefaults(
   defineProps<{
     // Home keeps the poem first: the reading waits behind its toggle
     foldReading?: boolean;
+    // The session's first home visit: today's verses are found in a blacked
+    // out page of their chapter before the slip settles
+    entrance?: boolean;
   }>(),
-  { foldReading: false },
+  { foldReading: false, entrance: false },
 );
+
+// Fetched alongside the day, so the page is ready when the verses land
+if (props.entrance && !import.meta.env.SSR) {
+  loadBlackout().catch(() => {});
+}
 
 const { t, locale } = useI18n();
 
@@ -67,6 +88,40 @@ watch(
 
 const { haiku, missing, failed, loading, countdown, reload } =
   useDailyHaiku(requestedDay);
+
+// Once, for the first day shown; paging away ends it at once
+const blackout = ref(false);
+// The GK seal presses as the blacked-out page lifts, closing the sequence
+const sealPresses = ref(0);
+
+function onBlackoutDone(): void {
+  blackout.value = false;
+  sealPresses.value += 1;
+}
+
+let blackoutDecided = false;
+
+watch(
+  haiku,
+  (value, previous) => {
+    if (!value) {
+      return;
+    }
+
+    if (!blackoutDecided) {
+      blackoutDecided = true;
+      blackout.value =
+        props.entrance && Boolean(value.excerpt) && !prefersReducedMotion();
+
+      return;
+    }
+
+    if (previous && value.date !== previous.date) {
+      blackout.value = false;
+    }
+  },
+  { immediate: true },
+);
 
 const readingId = `daily-reading-${useId()}`;
 const sourceId = `daily-source-${useId()}`;
@@ -356,15 +411,28 @@ onUnmounted(() => {
               {{ haiku.title }}
             </h3>
 
-            <p class="daily-slip__lines" :style="{ '--verse-ch': verseCh }">
-              <span
-                v-for="(verse, i) in haiku.verses"
-                :key="i"
-                class="daily-slip__line"
+            <div class="daily-slip__verses">
+              <p
+                class="daily-slip__lines"
+                :class="{ 'is-under-blackout': blackout }"
+                :style="{ '--verse-ch': verseCh }"
               >
-                {{ verse }}
-              </span>
-            </p>
+                <span
+                  v-for="(verse, i) in haiku.verses"
+                  :key="i"
+                  class="daily-slip__line"
+                >
+                  {{ verse }}
+                </span>
+              </p>
+              <Transition name="slip-blackout">
+                <DailyHaikuBlackout
+                  v-if="blackout && haiku.excerpt"
+                  :excerpt="haiku.excerpt"
+                  @done="onBlackoutDone"
+                />
+              </Transition>
+            </div>
 
             <div v-if="haiku.reading" class="daily-slip__reading">
               <div
@@ -557,7 +625,15 @@ onUnmounted(() => {
             </button>
           </span>
         </div>
-        <InkStamp v-if="haiku" label="GK" tone="ink" :size="34" :tilt="6" />
+        <InkStamp
+          v-if="haiku"
+          :key="sealPresses"
+          label="GK"
+          tone="ink"
+          :size="34"
+          :tilt="6"
+          :stamp="sealPresses > 0"
+        />
       </div>
     </template>
 
@@ -620,6 +696,10 @@ onUnmounted(() => {
     text-wrap: balance;
   }
 
+  &__verses {
+    position: relative;
+  }
+
   &__lines {
     display: grid;
     margin: 0 0 1.25rem;
@@ -631,6 +711,13 @@ onUnmounted(() => {
     line-height: 1.55;
     letter-spacing: -0.025em;
     overflow-wrap: anywhere;
+    transition: opacity 320ms var(--gk-ease-out);
+
+    // Under the blacked-out page; they come up as it lifts
+    &.is-under-blackout {
+      opacity: 0;
+      transition: none;
+    }
   }
 
   // A verse that must wrap hangs: its continuation sits further in, so the
@@ -992,6 +1079,18 @@ onUnmounted(() => {
 
 // Turning a leaf: the old page slips out the way the reader turns, the next
 // one settles in from the other side (120ms out, 180ms in)
+// The blacked-out page lifts like a breath on the paper
+.slip-blackout-leave-active {
+  transition:
+    opacity 320ms var(--gk-ease-out),
+    filter 320ms var(--gk-ease-out);
+}
+
+.slip-blackout-leave-to {
+  opacity: 0;
+  filter: blur(2px);
+}
+
 .slip-leaf-leave-active {
   transition:
     opacity var(--gk-dur-press) var(--gk-ease-out),
