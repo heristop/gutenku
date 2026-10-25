@@ -145,7 +145,7 @@ useSeoMeta({
   ogType: 'article',
   ogLocale,
   articlePublishedTime: isoDate,
-  articleAuthor: ['Alexandre Mederic Mogère (@heristop)'],
+  articleAuthor: ['Alexandre Mogère (@heristop)'],
   twitterCard: 'summary_large_image',
   twitterTitle: () => article.value?.title || 'Article Not Found',
   twitterDescription: () => article.value?.description || 'Article not found',
@@ -199,7 +199,7 @@ useHead({
                   ?.htmlLang || 'en',
               author: {
                 '@type': 'Person',
-                name: 'Alexandre Mederic Mogère (@heristop)',
+                name: 'Alexandre Mogère (@heristop)',
                 url: 'https://www.instagram.com/heristop/',
               },
               publisher: {
@@ -273,7 +273,7 @@ useHead({
               }}</span>
             </p>
             <p class="blog-article__author">
-              Alexandre Mederic Mogère (<a
+              Alexandre Mogère (<a
                 href="https://www.instagram.com/heristop/"
                 target="_blank"
                 rel="noopener"
