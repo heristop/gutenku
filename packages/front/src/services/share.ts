@@ -4,7 +4,7 @@ import { isNative } from '@/utils/capacitor';
 export interface ShareData {
   title: string;
   text: string;
-  url: string;
+  url?: string;
 }
 
 export async function shareContent(data: ShareData): Promise<boolean> {
@@ -37,7 +37,9 @@ export async function shareContent(data: ShareData): Promise<boolean> {
 
   // Clipboard fallback
   if (typeof navigator !== 'undefined' && navigator.clipboard) {
-    await navigator.clipboard.writeText(`${data.text}\n${data.url}`);
+    await navigator.clipboard.writeText(
+      data.url ? `${data.text}\n${data.url}` : data.text,
+    );
 
     return true;
   }
