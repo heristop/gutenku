@@ -105,3 +105,33 @@ describe('shareContent', () => {
     vi.unstubAllGlobals();
   });
 });
+
+describe('cacheShareImage', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    vi.clearAllMocks();
+  });
+
+  it('writes the image to the app cache and returns its uri', async () => {
+    const writeFile = vi
+      .fn()
+      .mockResolvedValue({ uri: 'file:///cache/card.png' });
+    vi.doMock('@capacitor/filesystem', () => ({
+      Directory: { Cache: 'CACHE' },
+      Filesystem: { writeFile },
+    }));
+
+    const { cacheShareImage } = await import('@/services/share');
+    const uri = await cacheShareImage(
+      new Blob(['png'], { type: 'image/png' }),
+      'card.png',
+    );
+
+    expect(uri).toBe('file:///cache/card.png');
+    expect(writeFile).toHaveBeenCalledWith({
+      path: 'card.png',
+      data: btoa('png'),
+      directory: 'CACHE',
+    });
+  });
+});

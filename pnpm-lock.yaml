@@ -59,6 +59,9 @@ importers:
       '@capacitor/core':
         specifier: ^8.5.3
         version: 8.5.3
+      '@capacitor/filesystem':
+        specifier: ^8.1.5
+        version: 8.1.5(@capacitor/core@8.5.3)
       '@capacitor/ios':
         specifier: ^8.5.3
         version: 8.5.3(@capacitor/core@8.5.3)
@@ -1309,6 +1312,11 @@ packages:
   '@capacitor/core@8.5.3':
     resolution: {integrity: sha512-oBE1oGuYE4ZzYYrulC75OuHdSsD6zLUy7d5o1tFwDLG4govGoubY15cxpiI5l0+q87Lm5p0bhbehMdzJg4aFag==}
 
+  '@capacitor/filesystem@8.1.5':
+    resolution: {integrity: sha512-m1RkI8L83NJeppEKyRWioK3MDp2vjlA+QfUQcF8/xRlcXNC2HYxqoyYJ+K4M0EcVovy+g+4F24S05+bhK4Vgdg==}
+    peerDependencies:
+      '@capacitor/core': '>=8.0.0'
+
   '@capacitor/ios@8.5.3':
     resolution: {integrity: sha512-HnnV92Jl8+3x0JUloXUMjFcUsQI8wHFVsKwkLn72DfRZXYGZW11tQbmNOWOnRTljaU18FdI1b9ipT09SzzPDNw==}
     peerDependencies:
@@ -1328,6 +1336,9 @@ packages:
     resolution: {integrity: sha512-ZMzBUyHBzwDUxcHadEhvOvmoPmMQGMZgaMRJu8ohELeI6IaxoVH9ZhdF/OHnY3/yykv3Glev8Tnbh4aZY/0B0w==}
     peerDependencies:
       '@capacitor/core': '>=8.0.0'
+
+  '@capacitor/synapse@1.0.4':
+    resolution: {integrity: sha512-/C1FUo8/OkKuAT4nCIu/34ny9siNHr9qtFezu4kxm6GY1wNFxrCFWjfYx5C1tUhVGz3fxBABegupkpjXvjCHrw==}
 
   '@chenglou/pretext@1.0.0':
     resolution: {integrity: sha512-BxKiDMxWJhyzL8asvcgg3T9YnUU7OUFsKO8oRaR2SYAPX4Sh2wM9gqTBjrBaZ4fnl84cEQ8czC0Q1M83z3chsA==}
@@ -6424,8 +6435,8 @@ packages:
   layout-base@2.0.1:
     resolution: {integrity: sha512-dp3s92+uNI1hWIpPGH3jK2kxE2lMjdXdr+DH8ynZHpd6PUlH6x6cbuXnoMmiNumznqaNO31xu9e79F0uuZ0JFg==}
 
-  legacy-javascript@0.0.3:
-    resolution: {integrity: sha512-1r6MT4dVaJyXt4G07Cm2cQ0AUaLJdefiEp4SmIAylA++gnEQ82YvmzE58RkM5EP0fk5hROLCslUPGnwIYdZQVA==}
+  legacy-javascript@0.0.4:
+    resolution: {integrity: sha512-UTmeKBVxnfJcpmpOvzzNnLsQT99BXHpPlc/ZKddIRmWmrR0fw6335I3lq4+sJoP60UTbBNaYsGYVPc65YB1x3A==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -10648,6 +10659,11 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
+  '@capacitor/filesystem@8.1.5(@capacitor/core@8.5.3)':
+    dependencies:
+      '@capacitor/core': 8.5.3
+      '@capacitor/synapse': 1.0.4
+
   '@capacitor/ios@8.5.3(@capacitor/core@8.5.3)':
     dependencies:
       '@capacitor/core': 8.5.3
@@ -10663,6 +10679,8 @@ snapshots:
   '@capacitor/status-bar@8.0.4(@capacitor/core@8.5.3)':
     dependencies:
       '@capacitor/core': 8.5.3
+
+  '@capacitor/synapse@1.0.4': {}
 
   '@chenglou/pretext@1.0.0': {}
 
@@ -11842,7 +11860,7 @@ snapshots:
 
   '@paulirish/trace_engine@0.0.53':
     dependencies:
-      legacy-javascript: 0.0.3
+      legacy-javascript: 0.0.4
       third-party-web: 0.30.0
 
   '@pinojs/redact@0.4.0': {}
@@ -16060,7 +16078,7 @@ snapshots:
 
   layout-base@2.0.1: {}
 
-  legacy-javascript@0.0.3: {}
+  legacy-javascript@0.0.4: {}
 
   leven@3.1.0: {}
 
