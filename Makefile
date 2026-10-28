@@ -49,10 +49,10 @@ logs:
 
 # Development commands
 server:
-	pnpm --filter @gutenku/api dev
+	pnpm --filter @gutenku/server dev
 
 front:
-	pnpm --filter @gutenku/vue dev
+	pnpm --filter @gutenku/front dev
 
 # Start both server and frontend (without Docker)
 start:
