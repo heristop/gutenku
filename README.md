@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1793095230" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1793181627" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
 > _"This haiku evokes a quiet, reflective moment filled with memory and tenderness. The phrase "bright" suggests light, warmth, or hope, while "lies in a bed to his left" creates a still, intimate scene that may hint at illness, rest, or even death. The final line, "winsome smile of yore," brings in nostalgia, recalling a charming smile from the past. Together, the poem feels gentle yet bittersweet, as if the speaker is looking at someone dear and remembering a happier time. Its emotional power comes from the contrast between present stillness and the lingering beauty of memory."_
 
-— **BotenKu** 📅 _Oct 27, 2026_
+— **BotenKu** 📅 _Oct 28, 2026_
 
 </td>
 </tr>
