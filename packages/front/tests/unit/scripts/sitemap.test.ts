@@ -12,7 +12,7 @@ describe('sitemap', () => {
     );
     expect(urls).not.toContain('https://example.com/game');
     expect(urls).toContain('https://example.com/blog');
-    expect(urls).toHaveLength(6);
+    expect(urls).toHaveLength(7);
   });
 
   it('lists each canonical article once without translation filename suffixes', () => {

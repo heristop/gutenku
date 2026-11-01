@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="/__sitemap__/style.xsl"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
   <url>
     <loc>https://gutenku.xyz/</loc>
     <changefreq>daily</changefreq>
@@ -19,9 +20,32 @@
     </image:image>
   </url>
   <url>
+    <loc>https://gutenku.xyz/how-to-play</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://gutenku.xyz/media/gutenguess-promo.jpg</image:loc>
+    </image:image>
+    <video:video>
+      <video:thumbnail_loc>https://gutenku.xyz/media/gutenguess-promo.jpg</video:thumbnail_loc>
+      <video:title>How to play GutenGuess in 32 seconds</video:title>
+      <video:description>How to play GutenGuess, the daily book guessing game: a 32-second video from the first clue to the stamped result.</video:description>
+      <video:content_loc>https://gutenku.xyz/media/gutenguess-promo.mp4</video:content_loc>
+      <video:duration>32</video:duration>
+    </video:video>
+  </url>
+  <url>
     <loc>https://gutenku.xyz/haiku</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://gutenku.xyz/og-image.png</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://gutenku.xyz/about</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
     <image:image>
       <image:loc>https://gutenku.xyz/og-image.png</image:loc>
     </image:image>

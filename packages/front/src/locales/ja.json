@@ -56,7 +56,6 @@
     "skipLink": "メインコンテンツへスキップ"
   },
   "footer": {
-    "openCredits": "クレジットを開く",
     "ariaLabel": "サイトフッター",
     "navAriaLabel": "フッターナビゲーション",
     "socialAriaLabel": "ソーシャルリンク",
@@ -81,7 +80,10 @@
     "accessibility": {
       "dyslexiaOn": "読みやすいフォントを無効化",
       "dyslexiaOff": "読みやすいフォントを有効化"
-    }
+    },
+    "howToPlay": "遊び方",
+    "backToTop": "ページの先頭へ",
+    "about": "GutenKuについて"
   },
   "hero": {
     "ariaLabel": "GutenKuについて",
@@ -340,5 +342,75 @@
     "tocTitle": "目次",
     "tocLabel": "目次",
     "tocCount": "全{count}節"
+  },
+  "film": {
+    "metaTitle": "GutenGuessの遊び方：毎日の本当てゲーム（32秒の動画） | GutenKu",
+    "metaDescription": "GutenGuessの遊び方。絵文字と俳句を開き、50冊の古典の棚から探して、6回以内に本を当てます。32秒の動画でご覧ください。",
+    "title": "32秒でわかるGutenGuess。",
+    "lede": "GutenGuessの遊び方です。毎日ひとつ、新しい古典が隠されます。ヒントは二つ、棚には五十冊、チャンスは六回。ゲームを最初から最後まで、ご覧ください。",
+    "alt": "GutenGuess：絵文字の列と俳句、その下に本の表紙が並ぶ棚。",
+    "play": "動画を再生",
+    "caption": "32秒でわかるGutenGuess · 音声あり",
+    "shotsTitle": "場面ごとに",
+    "shots": [
+      {
+        "time": "0:00",
+        "title": "今日の本を当てよう。",
+        "text": "毎日、Project Gutenbergの古典が一冊隠されています。その名前を当ててください。"
+      },
+      {
+        "time": "0:04",
+        "title": "二つのヒント。",
+        "text": "絵文字の列と、本から切り取られた俳句。絵文字を開くごとに2点を失います。"
+      },
+      {
+        "time": "0:14",
+        "title": "棚から探す。",
+        "text": "50冊から探すか、10点で30冊に絞り込みます。チャンスは六回、インクの一滴ずつ。"
+      },
+      {
+        "time": "0:22",
+        "title": "押印。",
+        "text": "本を見つけると、結果に印が押されます。共有して連続記録を守りましょう。"
+      },
+      {
+        "time": "0:28",
+        "title": "毎日、新しい古典を。",
+        "text": "本そのものから切り取った俳句も。gutenku.xyzで遊べます。"
+      }
+    ],
+    "cta": "今日のパズルで遊ぶ",
+    "haikuLink": "または俳句を作る"
+  },
+  "about": {
+    "metaTitle": "GutenKuについて：古典から切り出す俳句と、毎日の本当てゲーム",
+    "metaDescription": "GutenKuはProject Gutenbergの古典から、自然言語処理、マルコフ連鎖、OpenAIを使って俳句を切り出し、毎日の本当てゲームGutenGuessを運営しています。制作はheristop。",
+    "title": "GutenKuについて。",
+    "lede": "古典から切り出す俳句と、それを当てる毎日のゲーム。",
+    "whatTitle": "GutenKuとは",
+    "what1": "GutenKuはProject Gutenbergの古典文学を俳句に変えます。どの句も、パブリックドメインの本にある実際の一文を見つけ、切り出し、十七音に整えたものです。",
+    "what2": "毎日新しい俳句を公開し、その句がなぜ響くのかを短い鑑賞で添えます。",
+    "howTitle": "俳句ができるまで",
+    "steps": [
+      {
+        "title": "本を選ぶ",
+        "text": "Project Gutenbergのパブリックドメインの古典が、蔵書のすべてです。"
+      },
+      {
+        "title": "句を切り出す",
+        "text": "自然言語処理とマルコフ連鎖で、五・七・五の候補句を組み立てます。"
+      },
+      {
+        "title": "最良の句を残す",
+        "text": "OpenAIが選定を磨き、短い鑑賞を書きます。ニューラルネットワークは、どの句が残す価値を持つかを少しずつ学びます。"
+      }
+    ],
+    "game": "同じ本を、ゲームに。毎日一冊の古典が絵文字と俳句の陰に隠れています。棚から探して、六回以内に当ててください。",
+    "gameLink": "今日のパズルで遊ぶ",
+    "whoTitle": "つくっている人",
+    "openSource": "オープンソース",
+    "demoCaption": "『ドラキュラ』（ブラム・ストーカー）第1章より · Project Gutenberg",
+    "demoShow": "ページを元に戻す",
+    "demoCut": "俳句を切り出す"
   }
 }

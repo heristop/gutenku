@@ -10,7 +10,17 @@ interface Route {
   priority: string;
   changefreq: string;
   image?: string;
+  video?: {
+    thumbnail: string;
+    title: string;
+    description: string;
+    content: string;
+    duration: number;
+  };
 }
+
+// Routes that only exist when the game module is installed
+const GAME_ROUTES = new Set(['/game', '/how-to-play']);
 
 const staticRoutes: Route[] = [
   { path: '/', priority: '1.0', changefreq: 'daily', image: '/og-image.png' },
@@ -21,9 +31,29 @@ const staticRoutes: Route[] = [
     image: '/og-image.png',
   },
   {
+    path: '/how-to-play',
+    priority: '0.7',
+    changefreq: 'monthly',
+    image: '/media/gutenguess-promo.jpg',
+    video: {
+      thumbnail: '/media/gutenguess-promo.jpg',
+      title: 'How to play GutenGuess in 32 seconds',
+      description:
+        'How to play GutenGuess, the daily book guessing game: a 32-second video from the first clue to the stamped result.',
+      content: '/media/gutenguess-promo.mp4',
+      duration: 32,
+    },
+  },
+  {
     path: '/haiku',
     priority: '0.9',
     changefreq: 'weekly',
+    image: '/og-image.png',
+  },
+  {
+    path: '/about',
+    priority: '0.6',
+    changefreq: 'monthly',
     image: '/og-image.png',
   },
   {
@@ -79,7 +109,9 @@ export function generateSitemap({
       .replaceAll("'", '&apos;');
   const blogArticles = getBlogArticles();
   const allRoutes = [
-    ...staticRoutes.filter((route) => gameEnabled || route.path !== '/game'),
+    ...staticRoutes.filter(
+      (route) => gameEnabled || !GAME_ROUTES.has(route.path),
+    ),
     ...blogArticles,
   ];
 
@@ -92,10 +124,21 @@ export function generateSitemap({
     </image:image>`
         : '';
 
+      const videoTag = route.video
+        ? `
+    <video:video>
+      <video:thumbnail_loc>${escapeXml(`${origin}${route.video.thumbnail}`)}</video:thumbnail_loc>
+      <video:title>${escapeXml(route.video.title)}</video:title>
+      <video:description>${escapeXml(route.video.description)}</video:description>
+      <video:content_loc>${escapeXml(`${origin}${route.video.content}`)}</video:content_loc>
+      <video:duration>${route.video.duration}</video:duration>
+    </video:video>`
+        : '';
+
       return `  <url>
     <loc>${escapeXml(`${origin}${route.path}`)}</loc>
     <changefreq>${route.changefreq}</changefreq>
-    <priority>${route.priority}</priority>${imageTag}
+    <priority>${route.priority}</priority>${imageTag}${videoTag}
   </url>`;
     })
     .join('\n');
@@ -103,7 +146,8 @@ export function generateSitemap({
   return `<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="/__sitemap__/style.xsl"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
 ${urls}
 </urlset>`;
 }

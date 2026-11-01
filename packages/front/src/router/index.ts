@@ -22,6 +22,19 @@ export const routes: RouteRecordRaw[] = [
       ...(GAME_ENABLED
         ? [
             {
+              path: 'how-to-play',
+              name: 'HowToPlay',
+              component: () =>
+                import(
+                  /* webpackChunkName: "how-to-play" */ '@/views/HowToPlay.vue'
+                ),
+              meta: {
+                title: 'How to Play GutenGuess - GutenKu',
+                description:
+                  'How to play GutenGuess, the daily book guessing game: a 32-second video from the first clue to the stamped result.',
+              },
+            },
+            {
               path: 'game',
               name: 'Game',
               component: () =>
@@ -36,6 +49,17 @@ export const routes: RouteRecordRaw[] = [
             },
           ]
         : []),
+      {
+        path: 'about',
+        name: 'About',
+        component: () =>
+          import(/* webpackChunkName: "about" */ '@/views/About.vue'),
+        meta: {
+          title: 'About GutenKu - Haiku from Classic Books',
+          description:
+            'GutenKu cuts haiku from the classic books of Project Gutenberg and runs GutenGuess, a daily book guessing game. Made by heristop.',
+        },
+      },
       {
         path: 'haiku',
         name: 'Haiku',

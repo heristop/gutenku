@@ -472,8 +472,9 @@ export default defineConfig(({ isSsrBuild, mode }) => {
         const ssgRoutes = [
           '/',
           '/haiku',
+          '/about',
           '/blog',
-          ...(isGameEnabled ? ['/game'] : []),
+          ...(isGameEnabled ? ['/game', '/how-to-play'] : []),
           ...blogRoutes,
         ];
 

@@ -60,7 +60,6 @@
     "skipLink": "Skip to main content"
   },
   "footer": {
-    "openCredits": "Open credits",
     "ariaLabel": "Site footer",
     "navAriaLabel": "Footer navigation",
     "socialAriaLabel": "Social links",
@@ -85,7 +84,10 @@
     "accessibility": {
       "dyslexiaOn": "Disable dyslexia mode",
       "dyslexiaOff": "Enable dyslexia mode"
-    }
+    },
+    "howToPlay": "How to play",
+    "backToTop": "Back to top",
+    "about": "About"
   },
   "hero": {
     "ariaLabel": "About GutenKu",
@@ -344,5 +346,75 @@
     "tocTitle": "Contents",
     "tocLabel": "Table of contents",
     "tocCount": "{count} sections"
+  },
+  "film": {
+    "metaTitle": "How to play GutenGuess: the daily book guessing game (32 s video) | GutenKu",
+    "metaDescription": "How to play GutenGuess, the daily book guessing game: reveal emoji and a haiku, search a shelf of 50 classic books and name the book in six tries. Watch it in 32 seconds.",
+    "title": "GutenGuess, in 32 seconds.",
+    "lede": "Here is how to play GutenGuess. A new classic is hidden every day: two clues, a shelf of fifty books, six tries. Watch a whole game, start to finish.",
+    "alt": "GutenGuess: an emoji row and a haiku above a shelf of book covers.",
+    "play": "Play the film",
+    "caption": "GutenGuess in 32 seconds · with sound",
+    "shotsTitle": "Shot by shot",
+    "shots": [
+      {
+        "time": "0:00",
+        "title": "Name today's book.",
+        "text": "Every day one classic from Project Gutenberg is hidden. Your job is to name it."
+      },
+      {
+        "time": "0:04",
+        "title": "Two clues.",
+        "text": "An emoji row and a haiku cut from the book. Each emoji you reveal costs 2 points."
+      },
+      {
+        "time": "0:14",
+        "title": "Search the shelf.",
+        "text": "Search among 50 books, or narrow the shelf to 30 for 10 points. Six tries, one ink drop each."
+      },
+      {
+        "time": "0:22",
+        "title": "Stamped.",
+        "text": "Find the book and your result is stamped. Share it and keep your streak."
+      },
+      {
+        "time": "0:28",
+        "title": "A new classic every day.",
+        "text": "Plus haiku, cut from the books themselves. Play at gutenku.xyz."
+      }
+    ],
+    "cta": "Play today's puzzle",
+    "haikuLink": "Or write a haiku"
+  },
+  "about": {
+    "metaTitle": "About GutenKu: haiku cut from classic books, and a daily guessing game",
+    "metaDescription": "GutenKu cuts haiku from the classic books of Project Gutenberg with NLP, Markov chains and OpenAI, and runs GutenGuess, a daily book guessing game. Made by heristop.",
+    "title": "About GutenKu.",
+    "lede": "Haiku cut from classic books, and a daily game of guessing them.",
+    "whatTitle": "What it is",
+    "what1": "GutenKu turns classic literature from Project Gutenberg into haiku. Every verse is a real sentence from a public-domain book, found, cut and set in seventeen syllables.",
+    "what2": "A new haiku is published every day, with a short reading that explains why it works.",
+    "howTitle": "How a haiku is made",
+    "steps": [
+      {
+        "title": "A book is chosen",
+        "text": "The library is the public-domain classics of Project Gutenberg."
+      },
+      {
+        "title": "Verses are cut",
+        "text": "Natural language processing and Markov chains assemble candidate verses of five, seven and five syllables."
+      },
+      {
+        "title": "The best is kept",
+        "text": "OpenAI refines the selection and writes a short reading. A neural network learns, over time, which haiku are worth keeping."
+      }
+    ],
+    "game": "The same books, as a game. Each day one classic is hidden behind emoji and a haiku; you search a shelf and name it in six tries.",
+    "gameLink": "Play today's puzzle",
+    "whoTitle": "Who makes it",
+    "openSource": "Open source",
+    "demoCaption": "Cut from Dracula, Bram Stoker · chapter I · Project Gutenberg",
+    "demoShow": "Put the page back",
+    "demoCut": "Cut the haiku"
   }
 }

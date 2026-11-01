@@ -11,7 +11,9 @@
 ## Main Pages
 - /: Homepage with haiku generator and game preview
 - /haiku: Generate haikus from classic literature themes
+- /about: About GutenKu: what it is, how a haiku is made, who makes it
 - /game: GutenGuess daily book guessing game
+- /how-to-play: How to play GutenGuess, shown start to finish in a 32-second video
 
 ## Sitemap
 https://gutenku.xyz/sitemap.xml
