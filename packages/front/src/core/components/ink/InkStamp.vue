@@ -165,6 +165,28 @@ const fontSize = computed(() => {
   // Impact is at 60% (~250ms): sync sounds to that moment.
   &--press {
     animation: ink-stamp-press 420ms var(--gk-ease-out) both;
+
+    // The impact: a thin ring leaves the seal as it lands and is gone in 450ms
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 1.5px solid var(--stamp-color);
+      border-radius: 17%;
+      pointer-events: none;
+      animation: ink-stamp-ring 450ms var(--gk-ease-out) 250ms both;
+    }
+  }
+}
+
+@keyframes ink-stamp-ring {
+  from {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.9);
   }
 }
 
@@ -186,6 +208,10 @@ const fontSize = computed(() => {
 @media (prefers-reduced-motion: reduce) {
   .ink-stamp--press {
     animation: ink-stamp-fade 200ms ease both;
+
+    &::after {
+      display: none;
+    }
   }
 
   @keyframes ink-stamp-fade {
