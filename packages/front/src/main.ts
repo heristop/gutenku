@@ -1,5 +1,6 @@
 import '@/assets/css/main.scss';
 import '@/assets/css/exlibris.scss';
+import '@/assets/css/scroll-reveal.scss';
 import App from './App.vue';
 import { ViteSSG } from 'vite-ssg';
 import urql from '@urql/vue';

@@ -1,0 +1,103 @@
+// Scroll choreography for any page that calls useScrollReveal (core/composables/
+// scroll-reveal.ts) on its root and marks elements `data-reveal="kind"`.
+// Both ways. Armed only once the page is mounted, so the
+// prerendered text is never hidden. Each kind of element has its own entrance;
+// all of them end at rest and run backwards when scrolled away: not yet reached
+// ("below") or already read ("above"). `--i` staggers siblings by 70ms.
+//   (default)  prose and keys: a soft rise
+//   title      settles out of a blur, like ink taking
+//   page       the figure is laid down from its top edge, like a leaf
+//   rule       the brush rule extends from its label outwards
+//   slide      steps and rows come in from the left margin
+//   pop        the icons, one after another, with a small overshoot
+[data-reveal-armed] [data-reveal] {
+  --delay: calc(var(--i, 0) * 70ms);
+
+  transition:
+    opacity 560ms var(--gk-ease-out) var(--delay),
+    translate 560ms var(--gk-ease-out) var(--delay),
+    scale 560ms var(--gk-ease-out) var(--delay),
+    filter 560ms var(--gk-ease-out) var(--delay),
+    clip-path 720ms var(--gk-ease-out) var(--delay);
+
+  &[data-reveal-state='below'] {
+    opacity: 0;
+    translate: 0 14px;
+  }
+
+  &[data-reveal-state='above'] {
+    opacity: 0.35;
+    translate: 0 -8px;
+  }
+
+  &[data-reveal='title'] {
+    transition-duration: 760ms;
+
+    &[data-reveal-state='below'] {
+      filter: blur(8px);
+      translate: 0 10px;
+    }
+
+    &[data-reveal-state='above'] {
+      filter: blur(3px);
+    }
+  }
+
+  // The clip is spelled out at rest too (never `none`): CSS cannot animate
+  // between `none` and an inset. The slack keeps shadows (a plate's falls 50px below it) and strokes whole.
+  &[data-reveal='page'] {
+    clip-path: inset(-24px -24px -72px -24px);
+    transition-duration: 760ms;
+
+    &[data-reveal-state='below'] {
+      opacity: 1;
+      translate: 0 0;
+      clip-path: inset(-24px -24px 100% -24px);
+    }
+
+    &[data-reveal-state='above'] {
+      opacity: 0.5;
+      translate: 0;
+    }
+  }
+
+  &[data-reveal='rule'] {
+    clip-path: inset(-12px 0 -12px 0);
+
+    &[data-reveal-state='below'] {
+      opacity: 1;
+      translate: 0 0;
+      clip-path: inset(-12px 50% -12px 50%);
+    }
+
+    &[data-reveal-state='above'] {
+      opacity: 0.5;
+      translate: 0;
+    }
+  }
+
+  &[data-reveal='slide'] {
+    &[data-reveal-state='below'] {
+      translate: -14px 0;
+    }
+
+    &[data-reveal-state='above'] {
+      translate: 0 -8px;
+    }
+  }
+
+  &[data-reveal='pop'] {
+    transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    &[data-reveal-state='below'] {
+      translate: 0 6px;
+      scale: 0.82;
+    }
+
+    &[data-reveal-state='above'] {
+      opacity: 0.5;
+      translate: 0;
+      scale: 0.94;
+    }
+  }
+}

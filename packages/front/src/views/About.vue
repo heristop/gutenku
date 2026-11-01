@@ -12,6 +12,7 @@ import {
 } from '@/core/components/ui/icons/BrandIcons';
 import BrushRule from '@/core/components/ink/BrushRule.vue';
 import InkStamp from '@/core/components/ink/InkStamp.vue';
+import ReadRibbon from '@/core/components/ink/ReadRibbon.vue';
 import { useScrollReveal } from '@/core/composables/scroll-reveal';
 import BlackoutFigure from '@/features/haiku/components/BlackoutFigure.vue';
 import ZenButton from '@/core/components/ui/ZenButton.vue';
@@ -125,7 +126,7 @@ useHead({
 <template>
   <article ref="page" class="about">
     <!-- A ribbon down the margin: the page as far as it has been read -->
-    <span class="about__ribbon" aria-hidden="true" />
+    <ReadRibbon />
     <InkStamp label="GK" :size="52" :tilt="-8" stamp class="about__stamp" />
 
     <header class="about__header">
@@ -377,26 +378,6 @@ useHead({
     }
   }
 
-  // A vermilion ribbon on the sheet's left edge, drawn down as the page is read
-  &__ribbon {
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 3px;
-    overflow: hidden;
-    border-radius: var(--gk-radius-paper) 0 0 var(--gk-radius-paper);
-    background: var(--gk-ink-faint);
-    pointer-events: none;
-
-    &::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: var(--gk-stamp);
-      transform: scaleY(var(--read, 0));
-      transform-origin: 50% 0;
-    }
-  }
-
   &__section {
     display: grid;
     gap: 0.75rem;
@@ -589,108 +570,6 @@ useHead({
   }
 }
 
-// Scroll choreography, both ways. Armed only once the page is mounted, so the
-// prerendered text is never hidden. Each kind of element has its own entrance;
-// all of them end at rest and run backwards when scrolled away: not yet reached
-// ("below") or already read ("above"). `--i` staggers siblings by 70ms.
-//   (default)  prose and keys: a soft rise
-//   title      settles out of a blur, like ink taking
-//   page       the figure is laid down from its top edge, like a leaf
-//   rule       the brush rule extends from its label outwards
-//   slide      steps and rows come in from the left margin
-//   pop        the icons, one after another, with a small overshoot
-.about[data-reveal-armed] [data-reveal] {
-  --delay: calc(var(--i, 0) * 70ms);
-
-  transition:
-    opacity 560ms var(--gk-ease-out) var(--delay),
-    translate 560ms var(--gk-ease-out) var(--delay),
-    scale 560ms var(--gk-ease-out) var(--delay),
-    filter 560ms var(--gk-ease-out) var(--delay),
-    clip-path 720ms var(--gk-ease-out) var(--delay);
-
-  &[data-reveal-state='below'] {
-    opacity: 0;
-    translate: 0 14px;
-  }
-
-  &[data-reveal-state='above'] {
-    opacity: 0.35;
-    translate: 0 -8px;
-  }
-
-  &[data-reveal='title'] {
-    transition-duration: 760ms;
-
-    &[data-reveal-state='below'] {
-      filter: blur(8px);
-      translate: 0 10px;
-    }
-
-    &[data-reveal-state='above'] {
-      filter: blur(3px);
-    }
-  }
-
-  // The clip is spelled out at rest too (never `none`): CSS cannot animate
-  // between `none` and an inset. The 12px of slack keeps shadows and strokes whole.
-  &[data-reveal='page'] {
-    clip-path: inset(-12px -12px -12px -12px);
-    transition-duration: 760ms;
-
-    &[data-reveal-state='below'] {
-      opacity: 1;
-      translate: 0 0;
-      clip-path: inset(-12px -12px 100% -12px);
-    }
-
-    &[data-reveal-state='above'] {
-      opacity: 0.5;
-      translate: 0;
-    }
-  }
-
-  &[data-reveal='rule'] {
-    clip-path: inset(-12px 0 -12px 0);
-
-    &[data-reveal-state='below'] {
-      opacity: 1;
-      translate: 0 0;
-      clip-path: inset(-12px 50% -12px 50%);
-    }
-
-    &[data-reveal-state='above'] {
-      opacity: 0.5;
-      translate: 0;
-    }
-  }
-
-  &[data-reveal='slide'] {
-    &[data-reveal-state='below'] {
-      translate: -14px 0;
-    }
-
-    &[data-reveal-state='above'] {
-      translate: 0 -8px;
-    }
-  }
-
-  &[data-reveal='pop'] {
-    transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
-
-    &[data-reveal-state='below'] {
-      translate: 0 6px;
-      scale: 0.82;
-    }
-
-    &[data-reveal-state='above'] {
-      opacity: 0.5;
-      translate: 0;
-      scale: 0.94;
-    }
-  }
-}
-
 @media (hover: hover) {
   .about__link:hover {
     text-decoration-thickness: 2px;
@@ -720,7 +599,6 @@ useHead({
     transition: none;
   }
 
-  .about__ribbon::after,
   .about__step-ix {
     transition: none;
   }

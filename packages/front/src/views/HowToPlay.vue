@@ -1,9 +1,11 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, useTemplateRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useHead, useSeoMeta } from '@unhead/vue';
 import BrushRule from '@/core/components/ink/BrushRule.vue';
 import FilmPlate from '@/core/components/ink/FilmPlate.vue';
+import ReadRibbon from '@/core/components/ink/ReadRibbon.vue';
+import { useScrollReveal } from '@/core/composables/scroll-reveal';
 import ZenButton from '@/core/components/ui/ZenButton.vue';
 import { SITE_URL } from '@/locales/config';
 
@@ -14,6 +16,11 @@ import { SITE_URL } from '@/locales/config';
 type Shot = { time: string; title: string; text: string };
 
 const { t, tm, rt } = useI18n();
+
+// The page comes in as it is scrolled to, in both directions (scroll-reveal.scss)
+const page = useTemplateRef<HTMLElement>('page');
+
+useScrollReveal(page);
 
 const shots = computed<Shot[]>(() =>
   (tm('film.shots') as unknown as Record<string, string>[]).map((shot) => ({
@@ -73,14 +80,17 @@ useHead({
 </script>
 
 <template>
-  <article class="film">
+  <article ref="page" class="film">
+    <ReadRibbon />
     <header class="film__header">
-      <h1 class="film__title">{{ t('film.title') }}</h1>
-      <p class="film__lede">{{ t('film.lede') }}</p>
+      <h1 class="film__title" data-reveal="title">{{ t('film.title') }}</h1>
+      <p class="film__lede" data-reveal style="--i: 1">{{ t('film.lede') }}</p>
     </header>
 
     <FilmPlate
       class="film__player"
+      data-reveal="page"
+      style="--i: 2"
       src="/media/gutenguess-promo.mp4"
       poster="/media/gutenguess-promo.webp"
       :alt="t('film.alt')"
@@ -90,10 +100,22 @@ useHead({
     />
 
     <section class="film__shots" aria-labelledby="film-shots">
-      <BrushRule as="h2" id="film-shots" :label="t('film.shotsTitle')" />
+      <BrushRule
+        as="h2"
+        id="film-shots"
+        class="film__rule"
+        data-reveal="rule"
+        :label="t('film.shotsTitle')"
+      />
 
       <ol class="film__list">
-        <li v-for="shot in shots" :key="shot.time" class="film__shot">
+        <li
+          v-for="(shot, index) in shots"
+          :key="shot.time"
+          class="film__shot"
+          data-reveal="slide"
+          :style="{ '--i': index }"
+        >
           <time class="film__time">{{ shot.time }}</time>
           <div class="film__shot-text">
             <h3 class="film__shot-title">{{ shot.title }}</h3>
@@ -103,7 +125,7 @@ useHead({
       </ol>
     </section>
 
-    <footer class="film__actions">
+    <footer class="film__actions" data-reveal>
       <ZenButton to="/game" size="lg" data-cy="how-to-play-play">
         {{ t('film.cta') }}
       </ZenButton>
@@ -120,6 +142,7 @@ useHead({
   gap: 2rem;
   // A fixed measure: the sheet never takes its width from its content (the
   // blackout and the reveals change what is inside while the page scrolls)
+  position: relative;
   box-sizing: border-box;
   width: min(100%, 820px);
   max-width: 820px;
@@ -164,6 +187,11 @@ useHead({
     line-height: 1.65;
     color: var(--gk-ink-soft);
     text-wrap: pretty;
+  }
+
+  // The rule runs edge to edge of the text, as on the about page
+  &__rule {
+    padding-inline: 0;
   }
 
   &__shots {
