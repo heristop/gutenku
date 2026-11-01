@@ -1,5 +1,6 @@
 // Plugins
 import vue from '@vitejs/plugin-vue';
+import { generateSitemap } from './scripts/generate-sitemap';
 import viteCompression from 'vite-plugin-compression';
 import viteImagemin from 'vite-plugin-imagemin';
 import webfontDownload from 'vite-plugin-webfont-dl';
@@ -257,6 +258,19 @@ export default defineConfig(({ isSsrBuild, mode }) => {
   return {
     plugins: [
       {
+        name: 'gutenku:sitemap',
+        apply: 'build',
+        async buildStart() {
+          await writeFile(
+            resolve(
+              dirname(fileURLToPath(import.meta.url)),
+              'public/sitemap.xml',
+            ),
+            generateSitemap({ baseUrl: siteUrl, gameEnabled: isGameEnabled }),
+          );
+        },
+      },
+      {
         name: 'html-url-transform',
         transformIndexHtml(html) {
           return html.replaceAll('https://gutenku.xyz', siteUrl);
@@ -455,7 +469,13 @@ export default defineConfig(({ isSsrBuild, mode }) => {
       includedRoutes(paths) {
         const blogSlugs = getBlogSlugs();
         const blogRoutes = blogSlugs.map((slug) => `/blog/${slug}`);
-        const ssgRoutes = ['/', '/haiku', '/blog', '/game', ...blogRoutes];
+        const ssgRoutes = [
+          '/',
+          '/haiku',
+          '/blog',
+          ...(isGameEnabled ? ['/game'] : []),
+          ...blogRoutes,
+        ];
 
         // The home route's empty child path comes through as '' and was
         // rendered a second time, to dist/.html. The catch-all 404 route

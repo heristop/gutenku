@@ -15,7 +15,6 @@ import {
   useArticles,
   useReadingProgress,
   useTableOfContents,
-  getAvailableLocalesForSlug,
   toRomanNumeral,
   addHeadingIds,
   TOC_MIN_HEADINGS,
@@ -136,6 +135,7 @@ useSeoMeta({
       ? `${article.value.title} | GutenKu Blog`
       : 'Article Not Found | GutenKu Blog',
   description: () => article.value?.description || 'Article not found',
+  robots: () => (notFound.value ? 'noindex, follow' : 'index, follow'),
   ogTitle: () => article.value?.title || 'Article Not Found',
   ogDescription: () => article.value?.description || 'Article not found',
   ogImage,
@@ -156,29 +156,6 @@ useHead({
         LOCALE_CONFIG[articleLocale.value as SupportedLocale]?.htmlLang || 'en',
     ),
   },
-  link: computed(() => {
-    if (!article.value) {
-      return [];
-    }
-    const links: { rel: string; hreflang: string; href: string }[] = [];
-    const availableLocales = getAvailableLocalesForSlug(slug.value);
-
-    for (const loc of availableLocales) {
-      const localeConfig = LOCALE_CONFIG[loc];
-      links.push({
-        rel: 'alternate',
-        hreflang: localeConfig.htmlLang,
-        href: `${SITE_URL}/blog/${slug.value}`,
-      });
-    }
-    links.push({
-      rel: 'alternate',
-      hreflang: 'x-default',
-      href: `${SITE_URL}/blog/${slug.value}`,
-    });
-
-    return links;
-  }),
   script: computed(() =>
     article.value
       ? [

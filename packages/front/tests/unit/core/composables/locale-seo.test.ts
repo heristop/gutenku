@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ref, reactive } from 'vue';
-import { SITE_URL } from '@/locales/config';
 
 const localeRef = ref('en');
 // Single reactive route object so `route.path` reads stay reactive in computeds
@@ -20,18 +19,12 @@ describe('useLocaleSeo', () => {
     route.path = '/blog';
   });
 
-  it('builds hreflang links for all locales plus x-default', async () => {
+  it('does not advertise language variants without distinct crawlable URLs', async () => {
     const { useLocaleSeo } = await import('@/core/composables/locale-seo');
     const { hreflangLinks } = useLocaleSeo();
-
-    // 3 locales + x-default
-    expect(hreflangLinks.value).toHaveLength(4);
-    const langs = hreflangLinks.value.map((l) => l.hreflang);
-    expect(langs).toContain('en');
-    expect(langs).toContain('fr');
-    expect(langs).toContain('ja');
-    expect(langs).toContain('x-default');
-    expect(hreflangLinks.value[0].href).toBe(`${SITE_URL}/blog`);
+    expect(hreflangLinks.value).toEqual([]);
+    localeRef.value = 'fr';
+    expect(hreflangLinks.value).toEqual([]);
   });
 
   it('exposes the og locale for the current locale', async () => {
@@ -56,6 +49,6 @@ describe('useLocaleSeo', () => {
     const { hreflangLinks } = useLocaleSeo();
 
     route.path = '/about';
-    expect(hreflangLinks.value[0].href).toBe(`${SITE_URL}/about`);
+    expect(hreflangLinks.value).toEqual([]);
   });
 });

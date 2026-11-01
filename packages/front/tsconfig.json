@@ -29,6 +29,7 @@
     "src/**/*.tsx",
     "src/**/*.vue",
     "vite.config.mts",
+    "scripts/generate-sitemap.ts",
     "cypress.config.*"
   ]
 }

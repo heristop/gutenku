@@ -1,6 +1,6 @@
 import { writeFileSync, readdirSync, readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { pathToFileURL, fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const BASE_URL = process.env.VITE_APP_URL || 'https://gutenku.xyz';
@@ -9,7 +9,6 @@ interface Route {
   path: string;
   priority: string;
   changefreq: string;
-  lastmod?: string;
   image?: string;
 }
 
@@ -37,15 +36,20 @@ const staticRoutes: Route[] = [
 
 function getBlogArticles(): Route[] {
   const contentDir = resolve(__dirname, '../content');
-  const files = readdirSync(contentDir).filter((f) => f.endsWith('.md'));
+  // Only the default-language documents have independently indexable URLs.
+  const files = readdirSync(contentDir)
+    .filter((f) => f.endsWith('.en.md'))
+    .sort();
 
   return files
     .map((file) => {
-      const match = file.match(/^(\d{4}-\d{2}-\d{2})-(.+)\.md$/);
-      
-if (!match) {return null;}
+      const match = file.match(/^(\d{4}-\d{2}-\d{2})-(.+)\.en\.md$/);
 
-      const [, date, slugPart] = match;
+      if (!match) {
+        return null;
+      }
+
+      const [, , slugPart] = match;
       const content = readFileSync(resolve(contentDir, file), 'utf-8');
 
       const imageMatch = content.match(/!\[.*?\]\((\/[^)]+)\)/);
@@ -55,31 +59,41 @@ if (!match) {return null;}
         path: `/blog/${slugPart}`,
         priority: '0.7',
         changefreq: 'monthly',
-        lastmod: date,
         image,
       };
     })
     .filter(Boolean) as Route[];
 }
 
-function generateSitemap(): string {
-  const today = new Date().toISOString().split('T')[0];
+export function generateSitemap({
+  baseUrl = BASE_URL,
+  gameEnabled = true,
+}: { baseUrl?: string; gameEnabled?: boolean } = {}): string {
+  const origin = baseUrl.replace(/\/+$/, '');
+  const escapeXml = (value: string) =>
+    value
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&apos;');
   const blogArticles = getBlogArticles();
-  const allRoutes = [...staticRoutes, ...blogArticles];
+  const allRoutes = [
+    ...staticRoutes.filter((route) => gameEnabled || route.path !== '/game'),
+    ...blogArticles,
+  ];
 
   const urls = allRoutes
     .map((route) => {
-      const lastmod = route.lastmod || today;
       const imageTag = route.image
         ? `
     <image:image>
-      <image:loc>${BASE_URL}${route.image}</image:loc>
+      <image:loc>${escapeXml(`${origin}${route.image}`)}</image:loc>
     </image:image>`
         : '';
 
       return `  <url>
-    <loc>${BASE_URL}${route.path}</loc>
-    <lastmod>${lastmod}</lastmod>
+    <loc>${escapeXml(`${origin}${route.path}`)}</loc>
     <changefreq>${route.changefreq}</changefreq>
     <priority>${route.priority}</priority>${imageTag}
   </url>`;
@@ -87,14 +101,20 @@ function generateSitemap(): string {
     .join('\n');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/__sitemap__/style.xsl"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${urls}
 </urlset>`;
 }
 
-const sitemap = generateSitemap();
-const outputPath = resolve(__dirname, '../public/sitemap.xml');
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(resolve(process.argv[1])).href
+) {
+  const sitemap = generateSitemap();
+  const outputPath = resolve(__dirname, '../public/sitemap.xml');
 
-writeFileSync(outputPath, sitemap);
-console.log(`Sitemap generated at ${outputPath}`);
+  writeFileSync(outputPath, sitemap);
+  console.log(`Sitemap generated at ${outputPath}`);
+}

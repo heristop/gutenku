@@ -1,20 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useRoute, RouterLink } from 'vue-router';
+import { RouterLink } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import BrandMark from '@/core/components/ink/BrandMark.vue';
 import InkPrefs from '@/core/components/ui/InkPrefs.vue';
 import { useSitePages } from '@/core/composables/site-pages';
 
-const route = useRoute();
 const { t } = useI18n();
 const { pages, isActive } = useSitePages();
-
-// Pages that have their own h1: /blog, /blog/:slug, /game
-// Pages without h1 (logo becomes h1): /, /haiku
-const pageHasOwnH1 = computed(
-  () => route.path.startsWith('/blog') || route.path.startsWith('/game'),
-);
 
 function handleClick(event: MouseEvent, to: string, navigate: () => void) {
   // Leave modified clicks to the browser so "open in new tab" keeps working.
@@ -46,10 +38,10 @@ function handleClick(event: MouseEvent, to: string, navigate: () => void) {
   <nav class="ink-nav" :aria-label="t('nav.mainNavigation')">
     <RouterLink to="/" class="ink-nav__logo" aria-label="GutenKu Home">
       <BrandMark :size="32" class="ink-nav__seal" />
-      <component :is="pageHasOwnH1 ? 'span' : 'h1'" class="ink-nav__logo-text">
+      <span class="ink-nav__logo-text">
         <span class="ink-nav__logo-prefix">Guten</span
         ><i class="ink-nav__logo-suffix">Ku</i>
-      </component>
+      </span>
     </RouterLink>
 
     <ul class="ink-nav__container">
