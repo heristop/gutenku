@@ -347,45 +347,6 @@
     "tocLabel": "Table des matières",
     "tocCount": "{count} sections"
   },
-  "film": {
-    "metaTitle": "Comment jouer à GutenGuess : le jeu quotidien de devinettes de livres (vidéo 32 s) | GutenKu",
-    "metaDescription": "Comment jouer à GutenGuess, le jeu quotidien de devinettes de livres : révélez des emojis et un haïku, cherchez sur une étagère de 50 classiques et nommez le livre en six essais. À voir en 32 secondes.",
-    "title": "GutenGuess, en 32 secondes.",
-    "lede": "Voici comment jouer à GutenGuess. Un nouveau classique est caché chaque jour : deux indices, une étagère de cinquante livres, six essais. Regardez une partie entière, du début à la fin.",
-    "alt": "GutenGuess : une rangée d'emojis et un haïku au-dessus d'une étagère de couvertures de livres.",
-    "play": "Lancer le film",
-    "caption": "GutenGuess en 32 secondes · avec le son",
-    "shotsTitle": "Plan par plan",
-    "shots": [
-      {
-        "time": "0:00",
-        "title": "Nommez le livre du jour.",
-        "text": "Chaque jour, un classique de Project Gutenberg est caché. À vous de le nommer."
-      },
-      {
-        "time": "0:04",
-        "title": "Deux indices.",
-        "text": "Une rangée d'emojis et un haïku taillé dans le livre. Chaque emoji révélé coûte 2 points."
-      },
-      {
-        "time": "0:14",
-        "title": "Cherchez sur l'étagère.",
-        "text": "Cherchez parmi 50 livres, ou réduisez l'étagère à 30 pour 10 points. Six essais, une goutte d'encre chacun."
-      },
-      {
-        "time": "0:22",
-        "title": "Tamponné.",
-        "text": "Trouvez le livre et votre résultat est tamponné. Partagez-le et gardez votre série."
-      },
-      {
-        "time": "0:28",
-        "title": "Un nouveau classique chaque jour.",
-        "text": "Et des haïkus, taillés dans les livres eux-mêmes. Jouez sur gutenku.xyz."
-      }
-    ],
-    "cta": "Jouer au puzzle du jour",
-    "haikuLink": "Ou écrire un haïku"
-  },
   "about": {
     "metaTitle": "À propos de GutenKu : des haïkus taillés dans les livres classiques, et un jeu quotidien",
     "metaDescription": "GutenKu taille des haïkus dans les livres classiques de Project Gutenberg avec du NLP, des chaînes de Markov et OpenAI, et propose GutenGuess, un jeu quotidien de devinettes de livres. Créé par heristop.",

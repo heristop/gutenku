@@ -26,8 +26,8 @@ export const routes: RouteRecordRaw[] = [
               name: 'HowToPlay',
               component: () =>
                 import(
-                  /* webpackChunkName: "how-to-play" */ '@/views/HowToPlay.vue'
-                ),
+                  /* webpackChunkName: "how-to-play" */ '@/features/game'
+                ).then((m) => m.HowToPlayView),
               meta: {
                 title: 'How to Play GutenGuess - GutenKu',
                 description:
