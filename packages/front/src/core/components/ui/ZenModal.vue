@@ -22,6 +22,8 @@ interface Props {
   description?: string;
   lockBodyScroll?: boolean;
   fullscreen?: boolean;
+  /** Only the body scrolls: the title, the close button and the footer stay where they are */
+  scrollBody?: boolean;
   /** CSS selector, inside the modal, for the element to focus on open */
   initialFocus?: string;
 }
@@ -36,6 +38,7 @@ const props = withDefaults(defineProps<Props>(), {
   description: '',
   lockBodyScroll: true,
   fullscreen: false,
+  scrollBody: false,
   initialFocus: undefined,
 });
 
@@ -77,6 +80,7 @@ const modalClasses = computed(() => [
   `zen-modal--${props.variant}`,
   { 'zen-modal--with-divider': props.showDivider },
   { 'zen-modal--fullscreen': props.fullscreen },
+  { 'zen-modal--scroll-body': props.scrollBody },
 ]);
 
 const FOCUSABLE_SELECTOR = [
@@ -217,7 +221,8 @@ async function activate(): Promise<void> {
   }
 
   const target = getInitialFocusTarget() ?? getFocusableElements()[0];
-  target?.focus();
+  // A tall sheet opens at its top: focusing a control further down must not scroll it there
+  target?.focus({ preventScroll: true });
 
   // Nothing focusable (or the target refused focus): hold focus on the dialog
   if (!modalRef.value?.contains(document.activeElement)) {
@@ -420,6 +425,34 @@ onBeforeUnmount(() => {
   margin-top: 1.5rem;
   padding-top: 1rem;
   border-top: var(--gk-rule);
+}
+
+// The sheet itself holds still; the body between the header and the footer is what scrolls
+.zen-modal--scroll-body {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  .zen-modal__header,
+  .zen-modal__actions {
+    flex: none;
+  }
+
+  .zen-modal__content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    // Room for the scrollbar, and the focus ring of the last row
+    padding: 0.25rem 0.75rem 0.25rem 0;
+    margin-right: -0.25rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gk-ink-faint) transparent;
+  }
+
+  .zen-modal__actions {
+    margin-top: 0.75rem;
+  }
 }
 
 .zen-modal--help {
