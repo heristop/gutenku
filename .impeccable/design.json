@@ -1,0 +1,467 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-23T22:01:11+00:00",
+  "title": "Design System: GutenKu",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "oklch(0.954 0.017 84.6)",
+        "cssVar": "--gk-paper",
+        "dark": "oklch(0.215 0.01 70)",
+        "tonalRamp": [
+          "oklch(0.15 0.017 84.6)",
+          "oklch(0.27 0.017 84.6)",
+          "oklch(0.39 0.017 84.6)",
+          "oklch(0.51 0.017 84.6)",
+          "oklch(0.63 0.017 84.6)",
+          "oklch(0.75 0.017 84.6)",
+          "oklch(0.86 0.017 84.6)",
+          "oklch(0.95 0.017 84.6)"
+        ]
+      },
+      "paper-raised": {
+        "role": "neutral",
+        "displayName": "Raised Paper",
+        "canonical": "oklch(0.971 0.013 86.8)",
+        "cssVar": "--gk-paper-raised",
+        "dark": "oklch(0.245 0.011 70)",
+        "tonalRamp": [
+          "oklch(0.15 0.013 86.8)",
+          "oklch(0.27 0.013 86.8)",
+          "oklch(0.39 0.013 86.8)",
+          "oklch(0.51 0.013 86.8)",
+          "oklch(0.63 0.013 86.8)",
+          "oklch(0.75 0.013 86.8)",
+          "oklch(0.86 0.013 86.8)",
+          "oklch(0.95 0.013 86.8)"
+        ]
+      },
+      "paper-deep": {
+        "role": "neutral",
+        "displayName": "Deep Paper",
+        "canonical": "oklch(0.921 0.021 81.8)",
+        "cssVar": "--gk-paper-deep",
+        "dark": "oklch(0.175 0.01 70)",
+        "tonalRamp": [
+          "oklch(0.15 0.021 81.8)",
+          "oklch(0.27 0.021 81.8)",
+          "oklch(0.39 0.021 81.8)",
+          "oklch(0.51 0.021 81.8)",
+          "oklch(0.63 0.021 81.8)",
+          "oklch(0.75 0.021 81.8)",
+          "oklch(0.86 0.021 81.8)",
+          "oklch(0.95 0.021 81.8)"
+        ]
+      },
+      "paper-edge": {
+        "role": "neutral",
+        "displayName": "Paper Edge",
+        "canonical": "oklch(0.853 0.030 80.6)",
+        "cssVar": "--gk-paper-edge",
+        "dark": "oklch(0.32 0.012 70)",
+        "tonalRamp": [
+          "oklch(0.15 0.03 80.6)",
+          "oklch(0.27 0.03 80.6)",
+          "oklch(0.39 0.03 80.6)",
+          "oklch(0.51 0.03 80.6)",
+          "oklch(0.63 0.03 80.6)",
+          "oklch(0.75 0.03 80.6)",
+          "oklch(0.86 0.03 80.6)",
+          "oklch(0.95 0.03 80.6)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Sumi Ink",
+        "canonical": "oklch(0.256 0.009 53.1)",
+        "cssVar": "--gk-ink",
+        "dark": "oklch(0.92 0.012 85)",
+        "tonalRamp": [
+          "oklch(0.15 0.009 53.1)",
+          "oklch(0.27 0.009 53.1)",
+          "oklch(0.39 0.009 53.1)",
+          "oklch(0.51 0.009 53.1)",
+          "oklch(0.63 0.009 53.1)",
+          "oklch(0.75 0.009 53.1)",
+          "oklch(0.86 0.009 53.1)",
+          "oklch(0.95 0.009 53.1)"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Soft Ink",
+        "canonical": "oklch(0.452 0.017 64.0)",
+        "cssVar": "--gk-ink-soft",
+        "dark": "oklch(0.76 0.015 80)",
+        "tonalRamp": [
+          "oklch(0.15 0.017 64.0)",
+          "oklch(0.27 0.017 64.0)",
+          "oklch(0.39 0.017 64.0)",
+          "oklch(0.51 0.017 64.0)",
+          "oklch(0.63 0.017 64.0)",
+          "oklch(0.75 0.017 64.0)",
+          "oklch(0.86 0.017 64.0)",
+          "oklch(0.95 0.017 64.0)"
+        ]
+      },
+      "ink-faint": {
+        "role": "neutral",
+        "displayName": "Faint Ink",
+        "canonical": "rgb(39 34 31 / 0.16)",
+        "cssVar": "--gk-ink-faint",
+        "dark": "oklch(0.92 0.012 85 / 0.16)"
+      },
+      "indigo": {
+        "role": "primary",
+        "displayName": "Ai-iro Indigo",
+        "canonical": "oklch(0.362 0.036 209.6)",
+        "cssVar": "--gk-indigo",
+        "dark": "oklch(0.76 0.045 205)",
+        "tonalRamp": [
+          "oklch(0.15 0.036 209.6)",
+          "oklch(0.27 0.036 209.6)",
+          "oklch(0.39 0.036 209.6)",
+          "oklch(0.51 0.036 209.6)",
+          "oklch(0.63 0.036 209.6)",
+          "oklch(0.75 0.036 209.6)",
+          "oklch(0.86 0.036 209.6)",
+          "oklch(0.95 0.036 209.6)"
+        ]
+      },
+      "indigo-edge": {
+        "role": "primary",
+        "displayName": "Indigo Edge",
+        "canonical": "color-mix(in oklch, var(--gk-indigo), black 35%)",
+        "cssVar": "--gk-indigo-edge",
+        "dark": "color-mix(in oklch, var(--gk-indigo), black 45%)"
+      },
+      "on-indigo": {
+        "role": "primary",
+        "displayName": "On-Indigo",
+        "canonical": "oklch(0.968 0.011 84.6)",
+        "cssVar": "--gk-on-indigo",
+        "dark": "oklch(0.2 0.01 70)"
+      },
+      "stamp": {
+        "role": "verdict",
+        "displayName": "Ginshu Vermilion",
+        "canonical": "oklch(0.525 0.180 27.2)",
+        "cssVar": "--gk-stamp",
+        "dark": "oklch(0.66 0.16 28)",
+        "tonalRamp": [
+          "oklch(0.15 0.15 27.2)",
+          "oklch(0.27 0.15 27.2)",
+          "oklch(0.39 0.15 27.2)",
+          "oklch(0.51 0.15 27.2)",
+          "oklch(0.63 0.15 27.2)",
+          "oklch(0.75 0.15 27.2)",
+          "oklch(0.86 0.15 27.2)",
+          "oklch(0.95 0.15 27.2)"
+        ]
+      },
+      "on-stamp": {
+        "role": "verdict",
+        "displayName": "On-Stamp",
+        "canonical": "oklch(0.968 0.011 84.6)",
+        "cssVar": "--gk-on-stamp",
+        "dark": "oklch(0.18 0.01 60)"
+      },
+      "stamp-wash": {
+        "role": "verdict",
+        "displayName": "Stamp Wash",
+        "canonical": "rgb(188 45 41 / 0.09)",
+        "cssVar": "--gk-stamp-wash",
+        "dark": "oklch(0.66 0.16 28 / 0.14)"
+      },
+      "scrim": {
+        "role": "neutral",
+        "displayName": "Sumi Scrim",
+        "canonical": "rgb(39 34 31 / 0.45)",
+        "cssVar": "--gk-scrim",
+        "dark": "oklch(0.1 0.01 70 / 0.65)"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Home headline; one italic word may take vermilion."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Article titles; result and first-run sheet titles at fixed sizes."
+      },
+      "poem": {
+        "displayName": "Poem",
+        "purpose": "Haiku verses."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card and list-item titles."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Running text; 62ch article measure, 0.9375-1rem, line-height 1.6-1.7."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Uppercase field names inside ruled structures (colophon, slip, select group); never above a heading."
+      }
+    },
+    "shadows": [
+      {
+        "name": "lift",
+        "value": "0 1px 0 var(--gk-paper-edge), 0 18px 34px -22px oklch(0.3 0.03 60 / 0.45)",
+        "dark": "0 1px 0 var(--gk-paper-edge), 0 18px 34px -20px oklch(0 0 0 / 0.7)",
+        "purpose": "The only elevation: every sheet resting on the page."
+      },
+      {
+        "name": "pressable-edge",
+        "value": "0 2px 0 var(--gk-indigo-edge)",
+        "purpose": "Ledge under indigo controls; 0 1px 0 while pressed."
+      },
+      {
+        "name": "rule-ring",
+        "value": "inset 0 0 0 1.5px var(--gk-ink)",
+        "purpose": "Ghost buttons, switch tracks, dropdown rings; faint-ink variant for chips and locked slips."
+      }
+    ],
+    "rules": [
+      {
+        "name": "rule",
+        "value": "1.5px solid var(--gk-ink)",
+        "purpose": "Structural rule: nav/spine edge, modal header/actions."
+      },
+      {
+        "name": "rule-faint",
+        "value": "1px dashed var(--gk-ink-faint)",
+        "purpose": "Quiet divider: nav bottom, select groups."
+      },
+      {
+        "name": "rule-double",
+        "value": "3px double var(--gk-ink)",
+        "purpose": "Colophon frame only."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.23, 1, 0.32, 1)",
+        "purpose": "Default easing for every state change and entrance."
+      },
+      {
+        "name": "ease-in-out",
+        "value": "cubic-bezier(0.77, 0, 0.175, 1)",
+        "purpose": "Symmetric moves on-screen (board slide)."
+      },
+      {
+        "name": "dur-press",
+        "value": "120ms",
+        "purpose": "Press feedback."
+      },
+      {
+        "name": "dur-fast",
+        "value": "180ms",
+        "purpose": "Hover/colour changes, exits."
+      },
+      {
+        "name": "dur-base",
+        "value": "240ms",
+        "purpose": "Entrances, slides, nav mark view transition."
+      },
+      {
+        "name": "dur-reward",
+        "value": "400ms",
+        "purpose": "Reward moments."
+      },
+      {
+        "name": "stamp-press",
+        "value": "420ms var(--gk-ease-out); scale 1.6 -> 0.94 @60% -> 1",
+        "purpose": "Stamp landing; sound on the 60% frame; 200ms fade under reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "xs",
+        "value": "480px"
+      },
+      {
+        "name": "sm",
+        "value": "600px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "spine",
+        "value": "1024px"
+      },
+      {
+        "name": "spread",
+        "value": "1100px"
+      }
+    ],
+    "layout": {
+      "spineWidth": "64px",
+      "homeMax": "1120px",
+      "gameMax": "900px",
+      "footerMax": "64rem",
+      "proseMeasure": "62ch",
+      "touchTarget": "44px"
+    },
+    "icons": {
+      "set": "@/core/components/icons/ink",
+      "strokeWidth": 1.75
+    },
+    "legacyAliases": "--gutenku-* tokens in packages/front/src/assets/css/main.scss; the paper/text/zen-primary/focus-ring/shadow-zen/app-bg aliases are remapped to --gk-* in exlibris.scss. Do not extend."
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Indigo fill for the one pressable action that leads; 2px darker edge, short press.",
+      "html": "<button class=\"ds-btn-primary\">Guess this book</button>",
+      "css": ".ds-btn-primary { font-family: var(--gk-font); display:inline-flex; align-items:center; gap:.5rem; min-height:2.75rem; padding:.75rem 1.375rem; border:none; border-radius:var(--gk-radius-control); background:var(--gk-indigo); color:var(--gk-on-indigo); font-weight:700; font-size:.9375rem; box-shadow:0 2px 0 var(--gk-indigo-edge); cursor:pointer; transition: transform var(--gk-dur-press) var(--gk-ease-out), background-color var(--gk-dur-fast) var(--gk-ease-out), box-shadow var(--gk-dur-fast) var(--gk-ease-out); } .ds-btn-primary:hover { background: color-mix(in oklch, var(--gk-indigo), black 8%); } .ds-btn-primary:active { transform: translateY(1px) scale(.98); box-shadow:0 1px 0 var(--gk-indigo-edge); } .ds-btn-primary:focus-visible { outline:2px solid var(--gk-indigo); outline-offset:3px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "1.5px ink ring on bare paper for secondary actions.",
+      "html": "<button class=\"ds-btn-ghost\">Share</button>",
+      "css": ".ds-btn-ghost { font-family: var(--gk-font); min-height:2.75rem; padding:.5rem .875rem; border:none; border-radius:var(--gk-radius-control); background:transparent; color:var(--gk-ink); font-weight:700; font-size:.875rem; box-shadow: inset 0 0 0 1.5px var(--gk-ink); cursor:pointer; transition: background-color var(--gk-dur-fast) var(--gk-ease-out), transform var(--gk-dur-press) var(--gk-ease-out); } .ds-btn-ghost:hover { background:var(--gk-ink-faint); } .ds-btn-ghost:active { transform: scale(.98); } .ds-btn-ghost:focus-visible { outline:2px solid var(--gk-indigo); outline-offset:3px; }"
+    },
+    {
+      "name": "Text Button",
+      "kind": "button",
+      "refersTo": "button-text",
+      "description": "Bare soft ink for tertiary actions.",
+      "html": "<button class=\"ds-btn-text\">Skip</button>",
+      "css": ".ds-btn-text { font-family: var(--gk-font); min-height:2.75rem; padding:.5rem; border:none; border-radius:var(--gk-radius-control); background:transparent; color:var(--gk-ink-soft); font-weight:700; font-size:.875rem; cursor:pointer; transition: color var(--gk-dur-fast) var(--gk-ease-out), background-color var(--gk-dur-fast) var(--gk-ease-out); } .ds-btn-text:hover { color:var(--gk-ink); background:var(--gk-ink-faint); } .ds-btn-text:focus-visible { outline:2px solid var(--gk-indigo); outline-offset:3px; }"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "A small typed label in a ruled box, never a pill.",
+      "html": "<span class=\"ds-chip\">3/6</span> <span class=\"ds-chip ds-chip--accent\">Daily</span>",
+      "css": ".ds-chip { font-family: var(--gk-font); display:inline-flex; align-items:center; min-height:1.75rem; padding:.25rem .625rem; font-size:.8125rem; font-weight:700; letter-spacing:.04em; font-variant-numeric:tabular-nums; border-radius:var(--gk-radius-control); color:var(--gk-ink); box-shadow: inset 0 0 0 1.5px var(--gk-ink-faint); } .ds-chip--accent { box-shadow: inset 0 0 0 1.5px var(--gk-ink); }"
+    },
+    {
+      "name": "Paper Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "A raised paper sheet with the single lift shadow.",
+      "html": "<article class=\"ds-card\"><h3 class=\"ds-card__title\">Moby-Dick</h3><p class=\"ds-card__meta\">Herman Melville, 1851</p></article>",
+      "css": ".ds-card { font-family: var(--gk-font); padding:1.125rem; border-radius:var(--gk-radius-paper); background:var(--gk-paper-raised); color:var(--gk-ink); box-shadow:var(--gk-lift); max-width:20rem; } .ds-card__title { margin:0 0 .25rem; font-size:1.125rem; font-weight:700; } .ds-card__meta { margin:0; font-size:.875rem; color:var(--gk-ink-soft); }"
+    },
+    {
+      "name": "Select Field",
+      "kind": "input",
+      "refersTo": "select-trigger",
+      "description": "Bare field on a faint ink underline that darkens on hover.",
+      "html": "<button class=\"ds-select\"><span class=\"ds-select__label\">Theme</span><span>Night</span></button>",
+      "css": ".ds-select { font-family: var(--gk-font); display:flex; flex-direction:column; align-items:flex-start; min-width:10rem; min-height:2.75rem; padding:.375rem 0; background:transparent; border:none; border-bottom:1.5px solid var(--gk-ink-faint); color:var(--gk-ink); font-size:.875rem; cursor:pointer; transition:border-color var(--gk-dur-fast) var(--gk-ease-out); } .ds-select:hover { border-bottom-color:var(--gk-ink); } .ds-select:focus-visible { outline:2px solid var(--gk-indigo); outline-offset:3px; } .ds-select__label { font-size:.6875rem; letter-spacing:.14em; text-transform:uppercase; color:var(--gk-ink-soft); }"
+    },
+    {
+      "name": "Contents Nav",
+      "kind": "nav",
+      "refersTo": "nav-item",
+      "description": "Table-of-contents nav; active item in ink with a 7px vermilion mark.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav__item ds-nav__item--active\" href=\"#\"><small>01</small> Haiku</a><a class=\"ds-nav__item\" href=\"#\"><small>02</small> GutenGuess</a><a class=\"ds-nav__item\" href=\"#\"><small>03</small> Blog</a></nav>",
+      "css": ".ds-nav { font-family: var(--gk-font); display:flex; gap:1.5rem; padding:1rem 0; border-bottom:1px dashed var(--gk-ink-faint); } .ds-nav__item { position:relative; display:inline-flex; align-items:baseline; gap:.25rem; min-height:2.75rem; padding:.75rem 0; font-size:.875rem; color:var(--gk-ink-soft); text-decoration:none; transition:color var(--gk-dur-fast) var(--gk-ease-out); } .ds-nav__item small { font-size:.625rem; } .ds-nav__item:hover { color:var(--gk-ink); } .ds-nav__item:focus-visible { outline:2px solid var(--gk-indigo); border-radius:var(--gk-radius-control); } .ds-nav__item--active { color:var(--gk-ink); } .ds-nav__item--active::after { content:''; position:absolute; left:0; right:0; bottom:.25rem; height:7px; background:var(--gk-stamp); }"
+    },
+    {
+      "name": "Clue Slip",
+      "kind": "custom",
+      "description": "Torn index card for a game clue; new slips carry a vermilion top bar.",
+      "html": "<div class=\"ds-slip ds-slip--new\"><span class=\"ds-slip__index\">No. 3</span><span class=\"ds-slip__kind\">Opening line</span><p>Call me Ishmael.</p></div>",
+      "css": ".ds-slip { font-family: var(--gk-font); position:relative; display:flex; flex-direction:column; gap:.5rem; max-width:18rem; padding:.875rem .8125rem 1.5rem; color:var(--gk-ink); background:var(--gk-paper-raised); box-shadow:var(--gk-lift); -webkit-mask: radial-gradient(4px 3px at 50% 100%, #0000 98%, #000) 0 0 / 9px 100% repeat-x; mask: radial-gradient(4px 3px at 50% 100%, #0000 98%, #000) 0 0 / 9px 100% repeat-x; } .ds-slip p { margin:0; } .ds-slip__index { position:absolute; top:.75rem; right:.75rem; font-size:.6875rem; color:var(--gk-ink-soft); } .ds-slip__kind { font-size:.6875rem; letter-spacing:.16em; text-transform:uppercase; color:var(--gk-ink-soft); } .ds-slip--new { background: color-mix(in oklch, var(--gk-paper-raised), var(--gk-stamp) 6%); } .ds-slip--new::before { content:''; position:absolute; inset:0 0 auto; height:3px; background:var(--gk-stamp); } .ds-slip--new .ds-slip__kind { color:var(--gk-stamp); }"
+    },
+    {
+      "name": "Colophon with Stamp",
+      "kind": "custom",
+      "description": "Result page: 3px double rule, field/value rows, and a Stamped box with the vermilion seal.",
+      "html": "<div class=\"ds-colophon\"><dl class=\"ds-colophon__rows\"><dt>Title</dt><dd>Moby-Dick</dd><dt>Author</dt><dd>Herman Melville</dd><dt>Tries</dt><dd>3/6</dd></dl><div class=\"ds-colophon__box\"><span class=\"ds-colophon__label\">Stamped</span><span class=\"ds-stamp\">3/6</span></div></div>",
+      "css": ".ds-colophon { font-family: var(--gk-font); display:grid; grid-template-columns:minmax(0,1fr) auto; max-width:26rem; border:3px double var(--gk-ink); color:var(--gk-ink); } .ds-colophon__rows { display:grid; grid-template-columns:auto minmax(0,1fr); margin:0; font-size:.8125rem; } .ds-colophon__rows dt, .ds-colophon__rows dd { padding:.5625rem .75rem; border-bottom:1px solid var(--gk-ink-faint); } .ds-colophon__rows dt { font-size:.6875rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--gk-ink-soft); border-right:1px solid var(--gk-ink-faint); } .ds-colophon__rows dd { margin:0; font-variant-numeric:tabular-nums; } .ds-colophon__box { display:grid; grid-template-rows:auto 1fr; place-items:center; width:6.5rem; border-left:3px double var(--gk-ink); } .ds-colophon__label { width:100%; padding:.375rem 0; font-size:.6875rem; font-weight:700; letter-spacing:.14em; text-align:center; text-transform:uppercase; border-bottom:1px solid var(--gk-ink-faint); } .ds-stamp { display:grid; place-items:center; width:4rem; height:4rem; margin:.75rem; border-radius:17%; background:var(--gk-stamp); color:var(--gk-on-stamp); font-weight:700; font-size:1.25rem; letter-spacing:-.04em; transform:rotate(-7deg); animation: ds-stamp-press 420ms var(--gk-ease-out) both; } @keyframes ds-stamp-press { 0% { opacity:0; transform:rotate(-15deg) scale(1.6); } 60% { opacity:1; transform:rotate(-7deg) scale(.94); } 100% { opacity:1; transform:rotate(-7deg) scale(1); } } @media (prefers-reduced-motion: reduce) { .ds-stamp { animation:none; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Ex Libris",
+    "overview": "Every page is a leaf from a well-kept library book: typewritten, ruled in ink, stamped. The surface is warm paper and never pure white. Text and structure are sumi ink. One indigo marks whatever you can press, and one vermilion stamp ink marks verdicts and the GK monogram. Delight comes from craft (a stamp pressed onto the page, a quill writing a line, a drop of ink struck through) and never from confetti, glow or bounce.\n\nThe density is that of a printed page: one focal point per view (the board, the poem, the article), generous space between sections, and quieter material such as meta, colophons and footers pushed back in ink-soft. Structure comes from ruled lines rather than boxes: 1.5px ink rules, dashed faint rules, brush-rule section dividers, and a 3px double rule around a colophon. Paper sheets sit on the page with a single lift shadow. There is no glass, no blur, no gradient fill.\n\nThe Japanese side lives where it means something: the sumi-e mountains, the haiku, the traditional pigment values (sumi-iro, ai-iro, ginshu). The audience is mostly Western, so kanji and Japanese emblems are never used as decoration. The night theme is dark sumi paper with gofun-white ink and a warmer vermilion, tuned value by value and never inverted.",
+    "keyCharacteristics": [
+      "Paper, ink, indigo, vermilion. No secondary or tertiary accent.",
+      "One typeface, JMH Typewriter, with hierarchy from scale, weight and tracking.",
+      "1.5px ink rules for structure and 3px double rules for colophons.",
+      "Flat paper with one lift shadow. No glass, blur or halos.",
+      "Small square-ish corners: 4px paper, 3px controls. No pills.",
+      "Signature marks: the GK rubber stamp, brush rules, ink-drop tries, torn clue slips, the ruled colophon with a \"Stamped\" box, and the vertical page spine.",
+      "Motion only marks a change of state: ease-out, 600ms or less, with a reduced-motion fallback every time."
+    ],
+    "rules": [
+      {
+        "name": "The Press-Me Rule",
+        "body": "Indigo means \"press me\". If it is indigo, it is interactive. If it is not interactive, it is not indigo. Indigo is never decorative.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Stamp Rule",
+        "body": "Vermilion means \"verdict\" or \"GutenKu\". It covers under 5% of a page and is never used as a decorative accent. A second accent colour is never added.",
+        "section": "colors"
+      },
+      {
+        "name": "The Never-White Rule",
+        "body": "Surfaces are paper. The lightest value in the system is Raised Paper. Pure `#fff` never appears.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Machine Rule",
+        "body": "JMH Typewriter is the only face. Hierarchy comes from scale, weight and tracking, never from a second family. (OpenDyslexic is the only override, and only through the accessibility preference.)",
+        "section": "typography"
+      },
+      {
+        "name": "The Meta-Below Rule",
+        "body": "Meta sits under a title, never above it. No eyebrow or kicker labels go above headings. Uppercase labels are reserved for field names inside a ruled structure (colophon, slip, select group, brush rule).",
+        "section": "typography"
+      },
+      {
+        "name": "The Single Lift Rule",
+        "body": "There is one elevation value. If a surface needs more presence, give it a rule or a stamp, not a bigger shadow.",
+        "section": "elevation"
+      },
+      {
+        "name": "The No-Glass Rule",
+        "body": "There is no `backdrop-filter` and no translucency over content. Overlays use the sumi scrim.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** keep surfaces on paper: `paper` for the page, `paper-raised` for sheets.",
+      "**Do** give structure with 1.5px ink rules, dashed faint rules, brush rules, and 3px double rules for colophons.",
+      "**Do** use JMH Typewriter as the only face, with oversized tabular numerals and negative tracking on display sizes.",
+      "**Do** reserve indigo for pressable things and use a 2px indigo focus ring at a 3px offset on every interactive element.",
+      "**Do** reserve vermilion for stamps, verdicts and the GK monogram, under 5% of a page.",
+      "**Do** use the shared primitives: brush rules, clue slips, ink drops, the ink strike for eliminated items, and the ruled colophon with a \"Stamped\" box.",
+      "**Do** name each page on the spine at desktop width.",
+      "**Do** keep the sumi-e mountains and the haiku as the Japanese voice.",
+      "**Do** draw icons from the in-house ink set at a 1.75 stroke.",
+      "**Do** use `--gk-*` tokens only. Legacy `--gutenku-*` tokens are aliases and should not be extended.",
+      "**Do** keep touch targets at 44px or more and text contrast at 4.5:1 or better in both themes."
+    ],
+    "donts": [
+      "**Don't** use pill badges or uppercase chips.",
+      "**Don't** use gradients, glass, `backdrop-filter` blur, or soft rounded cards with halos.",
+      "**Don't** use bouncy overshoot on entrances, or motion longer than 600ms.",
+      "**Don't** show toasts that cover the board.",
+      "**Don't** use emoji as icons or decoration. Bookmoji clues are game content, not UI.",
+      "**Don't** add a second accent colour, and don't use indigo or vermilion decoratively.",
+      "**Don't** use kanji or Japanese emblems as decoration.",
+      "**Don't** put eyebrow or kicker labels above headings. Meta goes under the title.",
+      "**Don't** add per-card or per-panel loaders. The site-wide quill is the only one.",
+      "**Don't** use pure white surfaces, or invert colours for the night theme."
+    ]
+  }
+}

@@ -24,3 +24,6 @@ packages/front/public/covers
 
 # Local pnpm package stores (never committed)
 .pnpm-store/
+
+# Impeccable hook cache (local paths, per session)
+.impeccable/hook.cache.json

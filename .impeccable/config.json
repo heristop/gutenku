@@ -1,0 +1,28 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font",
+        "value": "typewriter\",monospace",
+        "createdAt": "2026-10-28T12:36:50.411Z",
+        "reason": "Claude: JMH Typewriter is the typeface DESIGN.md documents; the match only sees the tail of the family name"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": ["design-preview/victory-sounds/index.html"],
+        "createdAt": "2026-10-28T12:36:50.515Z",
+        "reason": "Claude: page reuses the project's own exlibris paper tokens (--gk-paper #f5efe3) to preview sounds in context"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": ["design-preview/game-sounds/index.html"],
+        "createdAt": "2026-10-28T12:46:28.440Z",
+        "reason": "Claude: page reuses the project's own exlibris paper tokens (--gk-paper #f5efe3) to preview sounds in context"
+      }
+    ]
+  }
+}
