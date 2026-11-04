@@ -4,10 +4,10 @@ import { useI18n } from 'vue-i18n';
 import InkBook from '@/core/components/decorative/InkBook.vue';
 import { isInkLoading } from '@/core/composables/ink-loading';
 
-// The site's single loading indicator, under the nav: the GutenKu book writing
+// The site's single loading indicator: the GutenKu book writing
 // its haiku. It waits 200ms before showing so quick loads never flicker, stays
 // at least 400ms once shown, and when the wait ends the stamp seals the page
-// before the book lifts away.
+// before the slip fades away.
 const SHOW_DELAY_MS = 200;
 const MIN_VISIBLE_MS = 400;
 // The verses finish (160ms) while the stamp presses (120ms in, 260ms)
@@ -57,19 +57,17 @@ watch(
   <div class="ink-loading" role="status" aria-live="polite">
     <span class="sr-only">{{ visible ? t('common.loading') : '' }}</span>
     <Transition name="ink-loading">
-      <InkBook
-        v-if="visible"
-        :size="56"
-        :sealed="sealed"
-        class="ink-loading__book"
-      />
+      <div v-if="visible" class="ink-loading__slip" aria-hidden="true">
+        <InkBook :size="64" :sealed="sealed" class="ink-loading__book" />
+        <span class="ink-loading__label">{{ t('common.loading') }}</span>
+      </div>
     </Transition>
   </div>
 </template>
 
 <style lang="scss" scoped>
 // Centred on the page's content area (the spine's width is left out on
-// desktop), over a soft paper halo so the book reads above any page. The
+// desktop), on a small library slip that keeps the book legible. The
 // page stays visible and usable underneath: nothing is blocked or dimmed.
 .ink-loading {
   position: fixed;
@@ -83,42 +81,51 @@ watch(
     left: calc(50% + var(--gk-spine-width) / 2);
   }
 
-  &__book {
-    display: block;
-    box-sizing: content-box;
-    padding: 1.25rem;
-    // Plain paper fading to nothing (sRGB interpolation keeps the hue true)
-    background: radial-gradient(
-      closest-side in srgb,
-      var(--gutenku-app-bg) 52%,
-      transparent
-    );
-    border-radius: 50%;
+  &__slip {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    width: 10.5rem;
+    max-width: calc(100vw - 2rem);
+    padding: 0.75rem 1.25rem 1rem;
+    background-color: var(--gk-paper-raised);
+    background-image: var(--gk-paper-texture);
+    border-radius: var(--gk-radius-paper);
+    box-shadow: var(--gk-lift);
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0.375rem;
+      border: 3px double var(--gk-ink-faint);
+    }
+  }
+
+  &__label {
+    width: 100%;
+    min-height: 1.25rem;
+    font-family: var(--gk-font);
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+    color: var(--gk-ink-soft);
+    text-align: center;
   }
 }
 
-// The book settles in (240ms, from slightly small) and lifts away quicker
-// (180ms): the page underneath has arrived, the indicator should not linger.
+// Fade the slip without moving or scaling its text. Only the book animates.
 .ink-loading-enter-active {
-  transition:
-    opacity var(--gk-dur-base) var(--gk-ease-out),
-    transform var(--gk-dur-base) var(--gk-ease-out);
+  transition: opacity var(--gk-dur-base) var(--gk-ease-out);
 }
 
 .ink-loading-leave-active {
-  transition:
-    opacity var(--gk-dur-fast) var(--gk-ease-out),
-    transform var(--gk-dur-fast) var(--gk-ease-out);
+  transition: opacity var(--gk-dur-fast) var(--gk-ease-out);
 }
 
-.ink-loading-enter-from {
-  opacity: 0;
-  transform: scale(0.92);
-}
-
+.ink-loading-enter-from,
 .ink-loading-leave-to {
   opacity: 0;
-  transform: translateY(-6px);
 }
 
 .sr-only {
@@ -135,11 +142,6 @@ watch(
   .ink-loading-enter-active,
   .ink-loading-leave-active {
     transition: opacity 120ms ease;
-  }
-
-  .ink-loading-enter-from,
-  .ink-loading-leave-to {
-    transform: none;
   }
 }
 </style>
