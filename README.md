@@ -87,6 +87,11 @@ Thanks to the creators and maintainers of [Project Gutenberg](https://www.gutenb
 
 This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE) file for details.
 
+## Trademarks
+
+GutenKu™ and GutenGuess™ are trademarks claimed by [heristop](https://github.com/heristop).
+See [TRADEMARK.md](TRADEMARK.md) for branding and attribution guidelines.
+
 <p align="center">🌸 · 🌸 · 🌸</p>
 
 <p align="center">
