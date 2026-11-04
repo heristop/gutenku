@@ -2,9 +2,8 @@
 import { nextTick, onBeforeUnmount, ref, useTemplateRef } from 'vue';
 import InkPlate from '@/core/components/ink/InkPlate.vue';
 
-// A short film tipped in like a plate. Nothing is fetched and nothing plays
-// until the reader asks: the page shows a printed poster and one pressable key.
-// Pressing it swaps the poster for the video, with sound, and plays it.
+// Keep the player and source in the initial HTML so crawlers can discover it.
+// The native poster is visible immediately; media playback starts on request.
 withDefaults(
   defineProps<{
     src: string;
@@ -49,7 +48,6 @@ onBeforeUnmount(() => video.value?.pause());
         :style="{ aspectRatio: `${width} / ${height}` }"
       >
         <video
-          v-if="playing"
           ref="video"
           class="film-plate__video"
           :src="src"
@@ -60,26 +58,16 @@ onBeforeUnmount(() => video.value?.pause());
           controls
           controlslist="nodownload"
           playsinline
-          preload="auto"
+          preload="none"
           @ended="playing = false"
         />
         <!-- The whole poster is the key: anywhere on it plays the film -->
         <button
-          v-else
+          v-if="!playing"
           type="button"
           class="film-plate__poster-key"
           @click="play"
         >
-          <img
-            class="film-plate__poster"
-            :src="poster"
-            :alt="alt"
-            :width="width"
-            :height="height"
-            loading="lazy"
-            decoding="async"
-            draggable="false"
-          />
           <span class="film-plate__play">
             <svg
               class="film-plate__glyph"
@@ -112,7 +100,6 @@ onBeforeUnmount(() => video.value?.pause());
     background: var(--gk-paper);
   }
 
-  &__poster,
   &__video {
     display: block;
     width: 100%;
