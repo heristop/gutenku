@@ -42,6 +42,8 @@ export interface GameGuess {
 }
 
 export interface GameState {
+  /** Language of the completed answer, retained with the saved book text. */
+  resultLocale?: string;
   puzzleNumber: number;
   date: string;
   guesses: GameGuess[];

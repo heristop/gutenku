@@ -47,6 +47,16 @@ export const routes: RouteRecordRaw[] = [
                   'Guess the classic book from emoji hints. A daily literary puzzle similar to Wordle.',
               },
             },
+            {
+              path: 'game/journal',
+              name: 'ReadingJournal',
+              component: () =>
+                import('@/features/game').then((m) => m.ReadingJournalView),
+              meta: {
+                title: 'Reading Journal - GutenGuess',
+                robots: 'noindex, nofollow',
+              },
+            },
           ]
         : []),
       {

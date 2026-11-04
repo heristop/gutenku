@@ -38,7 +38,7 @@ const fontSize = computed(() => {
     return 34;
   }
 
-  return 28;
+  return len > 4 ? 110 / len : 28;
 });
 </script>
 

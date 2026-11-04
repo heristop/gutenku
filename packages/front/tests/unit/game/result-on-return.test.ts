@@ -52,7 +52,7 @@ describe.runIf(gameEnabled)('a finished game, on return', () => {
     ).default;
     const wrapper = mount(ResultColophon, {
       props: { active: true },
-      global: { stubs: { ColophonTable: true } },
+      global: { stubs: { ColophonTable: true, RouterLink: true } },
     });
 
     expect(wrapper.get('.colophon-page__title').text()).toContain(

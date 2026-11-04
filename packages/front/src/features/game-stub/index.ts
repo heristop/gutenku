@@ -3,3 +3,4 @@ export { useGameStore } from './store/game';
 export { gameLocales } from './locales';
 export const GameView = null;
 export const HowToPlayView = null;
+export const ReadingJournalView = null;
