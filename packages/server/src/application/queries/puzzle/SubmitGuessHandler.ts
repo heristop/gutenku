@@ -109,6 +109,7 @@ function bookToValue(
     author: book.author,
     emoticons: book.emoticons,
     summary: book.summary[locale] || book.summary.en,
+    anecdote: book.anecdote?.[locale] || book.anecdote?.en,
   };
 }
 

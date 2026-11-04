@@ -198,7 +198,7 @@ There is no secondary or tertiary accent. Vermilion is a verdict ink, not a seco
 ### Hierarchy
 
 - **Display** (400, `clamp(2.75rem, 7vw, 4.75rem)`, 0.9, -0.05em): the home headline. One italic word may take vermilion.
-- **Headline** (400, `clamp(2rem, 5.5vw, 3rem)`, 1, -0.035em, balanced wrap, max 20ch): article titles. Result and first-run sheet titles use the same register at fixed sizes (2.375–2.875rem and 2–2.125rem).
+- **Headline** (400, `clamp(2rem, 5.5vw, 3rem)`, 1, -0.035em, balanced wrap, max 20ch): article titles. Result and first-run sheet titles use the same register at fixed sizes (2rem on mobile results, 2.875rem on desktop results, and 2–2.125rem for first-run sheets).
 - **Poem** (400, `clamp(1.375rem, 3.4vw, 2.25rem)`, 1.45, -0.025em): haiku verses.
 - **Title** (700, 1.125rem): card and list-item titles.
 - **Body** (400, 0.9375–1rem, 1.6–1.7): running text. Article measure is 62ch, and lead paragraphs are capped at 40ch.
@@ -295,7 +295,7 @@ A rubber stamp in vermilion (or ink), filled or outlined, tilted by `--stamp-til
 - **Brush Rule:** a section divider made of two 8px brush strokes at 50% opacity, with a bold, uppercase, 0.12em label between them. A stamp variant tints the strokes vermilion.
 - **Ink Drops:** one blob per remaining try (12×13, ink-filled). A spent drop empties to a vermilion ring and is struck through with a vermilion stroke (200ms, 160ms delay).
 - **Clue Slip:** a raised-paper index card with lift, a torn foot, an index number at the top right and an uppercase "kind" label. **New** slips get a 6% vermilion tint and a 3px vermilion top bar. **Locked** slips sit on bare paper inside a faint-ink ring.
-- **Colophon Table:** the result page, set inside a 3px double ink rule. It is a two-column field/value list with uppercase soft-ink field names and tabular values, beside a 6.5rem "Stamped" box that holds the stamp, or a dashed, tilted empty seal after a loss. It stacks at 480px.
+- **Colophon Table:** the result page, set inside a 3px double ink rule. It is a two-column field/value list with uppercase soft-ink field names and tabular values, beside a 6.5rem "Stamped" box that holds the stamp, or a dashed, tilted empty seal after a loss. It stacks at 480px by default. Result sheets use a compact variant below 600px: repeated title/author rows are omitted, and a 3rem stamp sits beside the remaining fields in a 5.5rem column.
 - **Pagination Dots:** small ink-blob outlines, filled in ink when active.
 - **Spine:** see Layout.
 

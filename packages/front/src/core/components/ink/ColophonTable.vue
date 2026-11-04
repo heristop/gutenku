@@ -5,7 +5,8 @@ import InkStamp from './InkStamp.vue';
 // With `stampLabel` the box is stamped; without it, it shows `emptyLabel`.
 withDefaults(
   defineProps<{
-    rows: Array<{ label: string; value: string }>;
+    rows: Array<{ label: string; value: string; hideOnMobile?: boolean }>;
+    compactOnMobile?: boolean;
     boxLabel: string;
     stampLabel?: string;
     emptyLabel?: string;
@@ -15,16 +16,22 @@ withDefaults(
     stampLabel: '',
     emptyLabel: '',
     animate: false,
+    compactOnMobile: false,
   },
 );
 </script>
 
 <template>
-  <div class="colophon">
+  <div
+    class="colophon"
+    :class="{ 'colophon--compact-mobile': compactOnMobile }"
+  >
     <dl class="colophon__rows">
       <template v-for="row in rows" :key="row.label">
-        <dt>{{ row.label }}</dt>
-        <dd>
+        <dt :class="{ 'colophon__mobile-hidden': row.hideOnMobile }">
+          {{ row.label }}
+        </dt>
+        <dd :class="{ 'colophon__mobile-hidden': row.hideOnMobile }">
           <slot :name="`value-${row.label}`" :row="row">{{ row.value }}</slot>
         </dd>
       </template>
@@ -142,6 +149,49 @@ withDefaults(
     border: 1.5px dashed var(--gk-ink-faint);
     border-radius: 17%;
     transform: rotate(3deg);
+  }
+
+  &--compact-mobile {
+    @media (max-width: 600px) {
+      grid-template-columns: minmax(0, 1fr) 5.5rem;
+
+      .colophon__mobile-hidden {
+        display: none;
+      }
+
+      .colophon__rows dt,
+      .colophon__rows dd {
+        padding: 0.5rem;
+      }
+
+      .colophon__box {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+        width: auto;
+        min-height: 0;
+        border-top: 0;
+        border-left: 3px double var(--gk-ink);
+      }
+
+      .colophon__box-label {
+        display: block;
+        width: 100%;
+        padding: 0.375rem 0;
+        letter-spacing: 0.08em;
+        border-right: 0;
+        border-bottom: 1px solid var(--gk-ink-faint);
+      }
+
+      .colophon__stamp {
+        --ink-stamp-size: 3rem;
+
+        margin: 0.625rem;
+      }
+
+      .colophon__empty {
+        margin: 0.5rem;
+      }
+    }
   }
 }
 </style>

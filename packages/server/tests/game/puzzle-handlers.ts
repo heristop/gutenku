@@ -63,6 +63,9 @@ describe('Puzzle Handlers', () => {
       expect(firstBook.reference).toBeDefined();
       expect(firstBook.title).toBeDefined();
       expect(firstBook.author).toBeDefined();
+      for (const book of result.availableBooks) {
+        expect(book).not.toHaveProperty('anecdote');
+      }
     });
 
     it('returns deterministic puzzle for same date', async () => {
@@ -570,6 +573,9 @@ describe('ReduceBooksHandler', () => {
     // In test fixtures, there are only 3 books, so the result is min(30, available books)
     expect(result.length).toBeGreaterThan(0);
     expect(result.length).toBeLessThanOrEqual(30);
+    for (const book of result) {
+      expect(book).not.toHaveProperty('anecdote');
+    }
   });
 
   it('includes correct book in reduced list', async () => {

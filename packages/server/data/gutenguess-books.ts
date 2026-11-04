@@ -26,13 +26,23 @@ export interface GutenGuessBook {
   setting: string;
   protagonist: LocalizedString;
   summary: LocalizedString;
+  anecdote?: LocalizedString;
   wordCount: number;
 }
 
 const GUTENGUESS_BOOKS: readonly GutenGuessBook[] = [
   {
     id: 11,
-    title: { en: "Alice's Adventures in Wonderland", fr: 'Les Aventures d\'Alice au pays des merveilles', ja: '不思議の国のアリス' },
+    anecdote: {
+      en: 'Alice began as a story told on a boat trip in 1862.',
+      fr: 'Alice est née d’une histoire racontée en barque en 1862.',
+      ja: 'アリスは1862年のボート遊びで語られたお話から生まれました。',
+    },
+    title: {
+      en: "Alice's Adventures in Wonderland",
+      fr: "Les Aventures d'Alice au pays des merveilles",
+      ja: '不思議の国のアリス',
+    },
     author: 'Lewis Carroll',
     genre: 'Fantasy',
     era: 'Victorian',
@@ -62,7 +72,11 @@ const GUTENGUESS_BOOKS: readonly GutenGuessBook[] = [
   },
   {
     id: 84,
-    title: { en: 'Frankenstein', fr: 'Frankenstein', ja: 'フランケンシュタイン' },
+    title: {
+      en: 'Frankenstein',
+      fr: 'Frankenstein',
+      ja: 'フランケンシュタイン',
+    },
     author: 'Mary Shelley',
     genre: 'Gothic Horror',
     era: 'Romantic',
@@ -85,14 +99,21 @@ const GUTENGUESS_BOOKS: readonly GutenGuessBook[] = [
     protagonist: { en: 'Scientist', fr: 'Scientifique', ja: '科学者' },
     summary: {
       en: 'A young scientist dares to create life, only to abandon his creation in horror.',
-      fr: 'Un jeune scientifique ose créer la vie, pour abandonner sa création dans l\'horreur.',
+      fr: "Un jeune scientifique ose créer la vie, pour abandonner sa création dans l'horreur.",
       ja: '若き科学者が命を創造することに挑むが、恐怖のあまりその創造物を見捨てる。',
+    },
+    anecdote: {
+      en: 'Mary Shelley began Frankenstein during a ghost-story challenge in 1816.',
     },
     wordCount: 78101,
   },
   {
     id: 1342,
-    title: { en: 'Pride and Prejudice', fr: 'Orgueil et Préjugés', ja: '高慢と偏見' },
+    title: {
+      en: 'Pride and Prejudice',
+      fr: 'Orgueil et Préjugés',
+      ja: '高慢と偏見',
+    },
     author: 'Jane Austen',
     genre: 'Romance',
     era: 'Regency',
@@ -106,7 +127,7 @@ const GUTENGUESS_BOOKS: readonly GutenGuessBook[] = [
       },
       {
         en: 'You have bewitched me, body and soul.',
-        fr: 'Vous m\'avez ensorcelé, corps et âme.',
+        fr: "Vous m'avez ensorcelé, corps et âme.",
         ja: 'あなたは私を魅了した、体も心も。',
       },
     ],
