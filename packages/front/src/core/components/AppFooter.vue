@@ -111,6 +111,7 @@ const socialLinks = [
 // the left, the contents on the right, then a ruled line with the elsewhere
 // links and the credits. Phones stack it, left-aligned, like a printed page.
 .app-footer {
+  container-type: inline-size;
   position: relative;
   padding-block: 1.5rem;
   padding-bottom: calc(
@@ -211,6 +212,7 @@ const socialLinks = [
 
   &__link {
     display: inline-flex;
+    max-width: 100%;
     align-items: baseline;
     min-height: 2.75rem;
     padding: 0.75rem 0;
@@ -232,6 +234,8 @@ const socialLinks = [
 
     // Underline drawn in on hover and focus: a list of links without buttons
     .footer-nav__text {
+      min-width: 0;
+      overflow-wrap: anywhere;
       text-decoration: underline;
       text-decoration-thickness: 1px;
       text-underline-offset: 0.25em;
@@ -435,6 +439,28 @@ const socialLinks = [
 
   .footer-top:active {
     translate: none;
+  }
+}
+
+@container (max-width: 700px) {
+  .footer-content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .footer-nav__list {
+    justify-content: flex-start;
+  }
+}
+
+@container (max-width: 300px) {
+  .footer-colophon {
+    flex-wrap: wrap;
+  }
+  .footer-colophon__text {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .footer-nav__list {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 </style>

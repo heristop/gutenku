@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router';
+import { RouterLink, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import BrandMark from '@/core/components/ink/BrandMark.vue';
 import InkPrefs from '@/core/components/ui/InkPrefs.vue';
@@ -7,6 +7,7 @@ import { useSitePages } from '@/core/composables/site-pages';
 
 const { t } = useI18n();
 const { pages, isActive } = useSitePages();
+const route = useRoute();
 
 function handleClick(event: MouseEvent, to: string, navigate: () => void) {
   // Leave modified clicks to the browser so "open in new tab" keeps working.
@@ -23,7 +24,7 @@ function handleClick(event: MouseEvent, to: string, navigate: () => void) {
 
   event.preventDefault();
 
-  if (isActive(to)) {
+  if (route.path === to) {
     return;
   }
 
@@ -254,6 +255,34 @@ function handleClick(event: MouseEvent, to: string, navigate: () => void) {
 
   &__toggles {
     grid-area: prefs;
+  }
+}
+
+@container (max-width: 600px) {
+  .ink-nav {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'logo prefs' 'links links';
+    gap: 0.5rem 1rem;
+    padding-inline: 1rem;
+  }
+
+  .ink-nav__container {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+    min-width: 0;
+  }
+}
+
+@container (max-width: 300px) {
+  .ink-nav {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'logo' 'prefs' 'links';
+  }
+
+  .ink-nav__toggles {
+    flex-wrap: wrap;
   }
 }
 

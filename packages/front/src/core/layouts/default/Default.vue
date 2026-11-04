@@ -51,7 +51,7 @@ useHead({
     ];
 
     if (shouldPreloadHeroImage.value) {
-      // Must mirror the frontispiece <img> in Home.vue (srcset and sizes):
+      // Must mirror the frontispiece image in Home.vue (srcset and sizes):
       // a preload that picks another candidate is fetched for nothing and
       // the image is downloaded twice.
       links.push({
@@ -163,6 +163,7 @@ useHead({
 }
 
 .site-header {
+  container-type: inline-size;
   position: relative;
   z-index: 10;
 }
