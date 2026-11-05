@@ -8,18 +8,18 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - uses: webfactory/ssh-agent@v0.9.0
+      - uses: webfactory/ssh-agent@e83874834305fe9a4a2997156cb26c5de65a8555 # v0.10.0
         with:
           ssh-private-key: ${{ secrets.GUTENGUESS_DEPLOY_KEY }}
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Checkout submodules
         run: |
           git submodule sync --recursive
           git submodule update --init --recursive
 
-      - uses: jdx/mise-action@v4
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
 
       - name: Copy env
         run: cp packages/server/.env.example packages/server/.env
