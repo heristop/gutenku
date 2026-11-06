@@ -269,6 +269,7 @@ Flat pigment with a short press, never lift-and-glow.
 
 ### Inputs / Fields
 
+- **Checkbox (ZenCheckbox):** a 22×22 paper-raised square with a 1.5px ink outline and 3px control corners, beside a JMH Typewriter label. Checked fills use `--gk-indigo-fill` with the shared ink check icon in `--gk-on-indigo-fill`. The whole label has a 44px minimum height. Keyboard focus adds the standard 2px indigo ring at a 3px offset; pointer clicks do not retain a focus box. The native checkbox preserves keyboard, label and form behavior. Disabled controls dim to 0.5. State changes use the press/fast timing tokens and stop under reduced motion; forced-colors uses the system palette.
 - **Select:** a bare field with a 1.5px faint-ink underline that turns full ink on hover or when open. It has a 44px minimum height and an optional uppercase label above the value. Its dropdown is a raised-paper sheet with a 1.5px ink ring plus lift, 44px options, faint-ink highlight, bold selected option and an indigo check.
 - **Switch:** a 48×28 control-radius track with a 1.5px ink ring. The "on" state fills indigo, and the knob is an ink square that turns on-indigo.
 - **Slider:** a 2px faint-ink stroke with an indigo fill. The thumb is an indigo ink blob with a 2px indigo-edge.

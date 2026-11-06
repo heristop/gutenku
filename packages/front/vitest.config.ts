@@ -20,6 +20,15 @@ const gameModulePath = isGameEnabled
 export default defineConfig({
   plugins: [vue()],
   resolve: {
+    // Match the app: the private game can also have its own node_modules.
+    dedupe: [
+      'vue',
+      'pinia',
+      'vue-router',
+      'vue-i18n',
+      '@vueuse/core',
+      '@vueuse/motion',
+    ],
     alias: {
       '@/features/game': gameModulePath,
       '@': fileURLToPath(new URL('./src', import.meta.url)),

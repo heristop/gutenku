@@ -6,22 +6,33 @@ import {
   onMounted,
   onUnmounted,
   useSlots,
+  useId,
   nextTick,
+  type CSSProperties,
 } from 'vue';
 import { ChevronDown, Check, Sparkles } from '@/core/components/icons/ink';
 
-interface OptionGroup {
-  group: string;
-  options: string[];
+interface SelectOption {
+  value: string;
+  label: string;
+  disabled?: boolean;
 }
 
-type OptionsInput = string[] | OptionGroup[];
+interface OptionGroup {
+  group: string;
+  options: (string | SelectOption)[];
+}
+
+type OptionsInput = (string | SelectOption)[] | OptionGroup[];
+
+defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(
   defineProps<{
     modelValue: string;
     options: OptionsInput;
     label?: string;
+    ariaLabel?: string;
     loading?: boolean;
     disabled?: boolean;
     aiThemes?: string[];
@@ -33,108 +44,262 @@ const props = withDefaults(
   },
 );
 
-const isGrouped = computed(() => {
-  return props.options.length > 0 && typeof props.options[0] === 'object';
-});
-
-const flatOptions = computed(() => {
-  if (isGrouped.value) {
-    return (props.options as OptionGroup[]).flatMap((g) => g.options);
-  }
-
-  return props.options as string[];
-});
-
-const groupedOptions = computed(() => {
-  if (isGrouped.value) {
-    return props.options as OptionGroup[];
-  }
-
-  return [{ group: '', options: props.options as string[] }];
-});
-
-const isAITheme = (theme: string) => props.aiThemes.includes(theme);
-
 const emit = defineEmits<{
   'update:modelValue': [value: string];
 }>();
 
+const groupedOptions = computed(() => {
+  const groups = props.options.map((option) =>
+    typeof option === 'object' && 'group' in option
+      ? option
+      : { group: '', options: [option] },
+  );
+  let index = 0;
+
+  return groups.map((group) => ({
+    group: group.group,
+    options: group.options.map((option) => ({
+      ...(typeof option === 'string'
+        ? { value: option, label: option }
+        : option),
+      index: index++,
+    })),
+  }));
+});
+const flatOptions = computed(() =>
+  groupedOptions.value.flatMap((group) => group.options),
+);
+const selectedIndex = computed(() =>
+  flatOptions.value.findIndex((option) => option.value === props.modelValue),
+);
+const selectedLabel = computed(
+  () => flatOptions.value[selectedIndex.value]?.label ?? props.modelValue,
+);
+const accessibleName = computed(
+  () => props.ariaLabel || props.label || selectedLabel.value,
+);
+const unavailable = computed(() => props.disabled || props.loading);
 const slots = useSlots();
 const hasIcon = computed(() => !!slots.icon);
+const isAITheme = (value: string) => props.aiThemes.includes(value);
 
 const isOpen = ref(false);
+const keyboardInteraction = ref(false);
 const highlightedIndex = ref(-1);
 const triggerRef = ref<HTMLButtonElement | null>(null);
 const dropdownRef = ref<HTMLUListElement | null>(null);
-const optionRefs = ref<HTMLLIElement[]>([]);
+const dropdownStyle = ref<CSSProperties>({});
+const dropdownId = `zen-select-dropdown-${useId()}`;
+let positionFrame: number | undefined;
+let typedPrefix = '';
+let lastTypedAt = 0;
 
-// Dropdown position for teleport
-const dropdownStyle = ref<Record<string, string>>({});
-
-const dropdownId = `zen-select-dropdown-${Math.random().toString(36).slice(2, 9)}`;
-
-const selectedIndex = computed(() =>
-  flatOptions.value.findIndex((opt) => opt === props.modelValue),
+const enabledIndices = computed(() =>
+  flatOptions.value
+    .filter((option) => !option.disabled)
+    .map((option) => option.index),
 );
-
-const updateDropdownPosition = () => {
-  if (!triggerRef.value) {
-    return;
-  }
-
-  const rect = triggerRef.value.getBoundingClientRect();
-  dropdownStyle.value = {
-    position: 'fixed',
-    top: `${rect.bottom + 4}px`,
-    left: `${rect.left}px`,
-    width: `${rect.width}px`,
-    zIndex: '9999',
-  };
-};
-
-const toggle = () => {
-  if (props.disabled || props.loading) {
-    return;
-  }
-
-  isOpen.value = !isOpen.value;
-
-  if (isOpen.value) {
-    highlightedIndex.value = selectedIndex.value >= 0 ? selectedIndex.value : 0;
-    nextTick(updateDropdownPosition);
-  }
-};
+const firstEnabled = () => enabledIndices.value[0] ?? -1;
+const lastEnabled = () => enabledIndices.value.at(-1) ?? -1;
+const selectedEnabled = () =>
+  selectedIndex.value >= 0 && !flatOptions.value[selectedIndex.value].disabled
+    ? selectedIndex.value
+    : -1;
 
 const close = () => {
   isOpen.value = false;
   highlightedIndex.value = -1;
+  typedPrefix = '';
+
+  if (positionFrame !== undefined) {
+    cancelAnimationFrame(positionFrame);
+    positionFrame = undefined;
+  }
 };
 
-const select = (option: string) => {
-  emit('update:modelValue', option);
-  close();
-  triggerRef.value?.focus();
+const viewportBounds = () => {
+  const viewport = window.visualViewport;
+  const left = viewport?.offsetLeft ?? 0;
+  const top = viewport?.offsetTop ?? 0;
+
+  return {
+    left,
+    top,
+    right: left + (viewport?.width ?? window.innerWidth),
+    bottom: top + (viewport?.height ?? window.innerHeight),
+  };
 };
 
-const openDropdown = () => {
-  isOpen.value = true;
-  highlightedIndex.value = selectedIndex.value >= 0 ? selectedIndex.value : 0;
-  nextTick(updateDropdownPosition);
+// Fixed coordinates keep the paper card clear of clipped or scrolling docks.
+const updateDropdownPosition = () => {
+  if (!isOpen.value || !triggerRef.value || !dropdownRef.value) {
+    return;
+  }
+
+  const rect = triggerRef.value.getBoundingClientRect();
+  const viewport = viewportBounds();
+  const margin = 8;
+  const gap = 4;
+  const width = Math.min(
+    Math.max(rect.width, 180),
+    Math.max(0, viewport.right - viewport.left - margin * 2),
+  );
+  const left = Math.max(
+    viewport.left + margin,
+    Math.min(rect.left, viewport.right - margin - width),
+  );
+  const above = Math.max(0, rect.top - viewport.top - margin - gap);
+  const below = Math.max(0, viewport.bottom - rect.bottom - margin - gap);
+  dropdownRef.value.style.width = `${width}px`;
+  const contentHeight = dropdownRef.value.scrollHeight;
+  const desiredHeight = Math.min(contentHeight, 288);
+  const opensAbove = below < desiredHeight && above > below;
+  const maxHeight = Math.min(288, opensAbove ? above : below);
+  const height = Math.min(contentHeight, maxHeight);
+  const top = opensAbove
+    ? Math.max(viewport.top + margin, rect.top - gap - height)
+    : Math.max(viewport.top + margin, rect.bottom + gap);
+
+  dropdownStyle.value = {
+    position: 'fixed',
+    top: `${top}px`,
+    left: `${left}px`,
+    width: `${width}px`,
+    maxHeight: `${maxHeight}px`,
+    transformOrigin: opensAbove ? 'bottom left' : 'top left',
+    '--zen-select-enter-y': opensAbove ? '4px' : '-4px',
+    zIndex: 9999,
+  };
 };
 
-const handleEnterSpace = (event: KeyboardEvent) => {
-  event.preventDefault();
+const scheduleDropdownPosition = (event: Event) => {
+  if (
+    !isOpen.value ||
+    positionFrame !== undefined ||
+    (event.target instanceof Node && dropdownRef.value?.contains(event.target))
+  ) {
+    return;
+  }
 
-  if (isOpen.value && highlightedIndex.value >= 0) {
-    select(flatOptions.value[highlightedIndex.value]);
+  positionFrame = requestAnimationFrame(() => {
+    positionFrame = undefined;
+    updateDropdownPosition();
+  });
+};
+
+const scrollHighlightedIntoView = () => {
+  const list = dropdownRef.value;
+  const option = list?.querySelector<HTMLElement>(
+    `[data-index="${highlightedIndex.value}"]`,
+  );
+
+  if (!list || !option) {
+    return;
+  }
+
+  const optionRect = option.getBoundingClientRect();
+  const listRect = list.getBoundingClientRect();
+
+  if (optionRect.top < listRect.top) {
+    list.scrollTop -= listRect.top - optionRect.top;
 
     return;
   }
 
-  toggle();
+  if (optionRect.bottom > listRect.bottom) {
+    list.scrollTop += optionRect.bottom - listRect.bottom;
+  }
 };
 
-const handleArrowDown = (event: KeyboardEvent) => {
+const openDropdown = (direction: 'first' | 'last' = 'first') => {
+  if (unavailable.value || flatOptions.value.length === 0) {
+    return;
+  }
+
+  isOpen.value = true;
+  const fallback = direction === 'last' ? lastEnabled() : firstEnabled();
+  highlightedIndex.value =
+    selectedEnabled() >= 0 ? selectedEnabled() : fallback;
+  triggerRef.value?.focus({ preventScroll: true });
+  nextTick(() => {
+    updateDropdownPosition();
+    nextTick(scrollHighlightedIntoView);
+  });
+};
+
+const toggle = () => (isOpen.value ? close() : openDropdown());
+const select = (option: SelectOption) => {
+  if (unavailable.value || option.disabled) {
+    return;
+  }
+
+  emit('update:modelValue', option.value);
+  close();
+  triggerRef.value?.focus({ preventScroll: true });
+};
+const highlight = (index: number) => {
+  if (!flatOptions.value[index]?.disabled) {
+    highlightedIndex.value = index;
+  }
+};
+const moveHighlight = (direction: 1 | -1) => {
+  const indices = enabledIndices.value;
+  const current = indices.indexOf(highlightedIndex.value);
+  const fallback = direction === 1 ? 0 : indices.length - 1;
+  const next =
+    current < 0
+      ? fallback
+      : Math.max(0, Math.min(indices.length - 1, current + direction));
+  highlightedIndex.value = indices[next] ?? -1;
+};
+
+const typeahead = (character: string) => {
+  const now = Date.now();
+  const previous = now - lastTypedAt < 700 ? typedPrefix : '';
+  const letter = character.toLocaleLowerCase();
+  let prefix = previous + letter;
+
+  if ([...prefix].every((value) => value === letter)) {
+    prefix = letter;
+  }
+  lastTypedAt = now;
+
+  if (!isOpen.value) {
+    openDropdown();
+  }
+
+  const findMatch = (query: string) => {
+    const count = flatOptions.value.length;
+    const start = highlightedIndex.value + (query.length === 1 ? 1 : 0);
+
+    for (let offset = 0; offset < count; offset++) {
+      const index = (Math.max(0, start) + offset) % count;
+      const option = flatOptions.value[index];
+
+      if (
+        !option.disabled &&
+        option.label.trim().toLocaleLowerCase().startsWith(query)
+      ) {
+        return index;
+      }
+    }
+
+    return -1;
+  };
+  let match = findMatch(prefix);
+
+  if (match < 0 && prefix.length > 1) {
+    prefix = letter;
+    match = findMatch(prefix);
+  }
+  typedPrefix = prefix;
+
+  if (match >= 0) {
+    highlightedIndex.value = match;
+  }
+};
+
+const handleEnterSpace = (event: KeyboardEvent) => {
   event.preventDefault();
 
   if (!isOpen.value) {
@@ -143,152 +308,171 @@ const handleArrowDown = (event: KeyboardEvent) => {
     return;
   }
 
-  highlightedIndex.value = Math.min(
-    highlightedIndex.value + 1,
-    flatOptions.value.length - 1,
-  );
-};
+  const option = flatOptions.value[highlightedIndex.value];
 
-const handleArrowUp = (event: KeyboardEvent) => {
-  event.preventDefault();
+  if (option) {
+    select(option);
 
-  if (isOpen.value) {
-    highlightedIndex.value = Math.max(highlightedIndex.value - 1, 0);
-  }
-};
-
-const handleEscape = (event: KeyboardEvent) => {
-  event.preventDefault();
-  close();
-  triggerRef.value?.focus();
-};
-
-const handleHome = (event: KeyboardEvent) => {
-  if (isOpen.value) {
-    event.preventDefault();
-    highlightedIndex.value = 0;
-  }
-};
-
-const handleEnd = (event: KeyboardEvent) => {
-  if (isOpen.value) {
-    event.preventDefault();
-    highlightedIndex.value = flatOptions.value.length - 1;
-  }
-};
-
-const handleKeydown = (event: KeyboardEvent) => {
-  if (props.disabled || props.loading) {
     return;
   }
 
-  const handlers: Record<string, (e: KeyboardEvent) => void> = {
-    Enter: handleEnterSpace,
-    ' ': handleEnterSpace,
-    ArrowDown: handleArrowDown,
-    ArrowUp: handleArrowUp,
-    Escape: handleEscape,
-    Tab: close,
-    Home: handleHome,
-    End: handleEnd,
-  };
+  close();
+};
+const handleArrow = (event: KeyboardEvent, direction: 1 | -1) => {
+  event.preventDefault();
 
-  handlers[event.key]?.(event);
+  if (!isOpen.value) {
+    openDropdown(direction === 1 ? 'first' : 'last');
+
+    return;
+  }
+
+  moveHighlight(direction);
+};
+const handleBoundary = (event: KeyboardEvent) => {
+  event.preventDefault();
+
+  if (!isOpen.value) {
+    openDropdown();
+  }
+
+  highlightedIndex.value =
+    event.key === 'Home' ? firstEnabled() : lastEnabled();
+};
+const handleEscape = (event: KeyboardEvent) => {
+  if (isOpen.value) {
+    event.preventDefault();
+    close();
+  }
+};
+const keyHandlers: Record<string, (event: KeyboardEvent) => void> = {
+  Enter: handleEnterSpace,
+  ' ': handleEnterSpace,
+  ArrowDown: (event) => handleArrow(event, 1),
+  ArrowUp: (event) => handleArrow(event, -1),
+  Home: handleBoundary,
+  End: handleBoundary,
+  Escape: handleEscape,
+  Tab: close,
+};
+const handleKeydown = (event: KeyboardEvent) => {
+  if (unavailable.value) {
+    return;
+  }
+  keyboardInteraction.value = true;
+
+  const handler = keyHandlers[event.key];
+
+  if (handler) {
+    handler(event);
+
+    return;
+  }
+
+  if (
+    event.key.length === 1 &&
+    !event.altKey &&
+    !event.ctrlKey &&
+    !event.metaKey
+  ) {
+    event.preventDefault();
+    typeahead(event.key);
+  }
 };
 
-// Scroll highlighted option into view
-watch(highlightedIndex, (index) => {
-  if (index >= 0 && optionRefs.value[index]) {
-    optionRefs.value[index].scrollIntoView({ block: 'nearest' });
+watch(highlightedIndex, scrollHighlightedIntoView, { flush: 'post' });
+watch(unavailable, (value) => {
+  if (value) {
+    close();
+  }
+});
+watch([flatOptions, () => props.modelValue], () => {
+  if (isOpen.value) {
+    highlightedIndex.value =
+      selectedEnabled() >= 0 ? selectedEnabled() : firstEnabled();
+    nextTick(updateDropdownPosition);
   }
 });
 
-// Click outside handler
-const handleClickOutside = (event: MouseEvent) => {
-  const target = event.target as Node;
-
+const handleClickOutside = (event: Event) => {
   if (
-    triggerRef.value &&
-    !triggerRef.value.contains(target) &&
-    dropdownRef.value &&
-    !dropdownRef.value.contains(target)
+    isOpen.value &&
+    event.target instanceof Node &&
+    !triggerRef.value?.contains(event.target) &&
+    !dropdownRef.value?.contains(event.target)
   ) {
     close();
   }
 };
-
-// Update position on scroll/resize
-const handleScrollResize = () => {
-  if (isOpen.value) {
-    updateDropdownPosition();
-  }
-};
-
+let removeListeners = () => {};
 onMounted(() => {
+  const viewport = window.visualViewport;
+  document.addEventListener('pointerdown', handleClickOutside);
   document.addEventListener('click', handleClickOutside);
-  window.addEventListener('scroll', handleScrollResize, true);
-  window.addEventListener('resize', handleScrollResize);
+  window.addEventListener('scroll', scheduleDropdownPosition, true);
+  window.addEventListener('resize', scheduleDropdownPosition);
+  viewport?.addEventListener('scroll', scheduleDropdownPosition);
+  viewport?.addEventListener('resize', scheduleDropdownPosition);
+  removeListeners = () => {
+    document.removeEventListener('pointerdown', handleClickOutside);
+    document.removeEventListener('click', handleClickOutside);
+    window.removeEventListener('scroll', scheduleDropdownPosition, true);
+    window.removeEventListener('resize', scheduleDropdownPosition);
+    viewport?.removeEventListener('scroll', scheduleDropdownPosition);
+    viewport?.removeEventListener('resize', scheduleDropdownPosition);
+  };
 });
-
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside);
-  window.removeEventListener('scroll', handleScrollResize, true);
-  window.removeEventListener('resize', handleScrollResize);
+  removeListeners();
+
+  if (positionFrame !== undefined) {
+    cancelAnimationFrame(positionFrame);
+  }
 });
-
-const setOptionRef = (el: HTMLLIElement | null, index: number) => {
-  if (el) {
-    optionRefs.value[index] = el;
-  }
-};
-
-const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
-  let flatIdx = 0;
-
-  for (let i = 0; i < groupIndex; i++) {
-    flatIdx += groupedOptions.value[i].options.length;
-  }
-
-  return flatIdx + optionIndex;
-};
 </script>
 
 <template>
   <div
     class="zen-select"
-    :class="{
-      'zen-select--open': isOpen,
-      'zen-select--disabled': disabled,
-      'zen-select--loading': loading,
-    }"
+    :class="[
+      $attrs.class,
+      {
+        'zen-select--open': isOpen,
+        'zen-select--disabled': disabled,
+        'zen-select--loading': loading,
+        'zen-select--keyboard': keyboardInteraction,
+      },
+    ]"
   >
     <button
       ref="triggerRef"
+      v-bind="$attrs"
       type="button"
       class="zen-select__trigger"
       role="combobox"
-      :aria-label="label ? `${label}: ${modelValue}` : modelValue"
+      :aria-label="accessibleName"
       :aria-expanded="isOpen"
-      :aria-haspopup="'listbox'"
+      aria-haspopup="listbox"
       :aria-controls="dropdownId"
       :aria-activedescendant="
         isOpen && highlightedIndex >= 0
           ? `${dropdownId}-option-${highlightedIndex}`
           : undefined
       "
-      :aria-disabled="disabled || loading"
+      :aria-disabled="unavailable"
       :disabled="disabled"
       @click="toggle"
+      @pointerdown="keyboardInteraction = false"
       @keydown="handleKeydown"
+      @blur="close"
     >
       <span v-if="hasIcon" class="zen-select__icon" aria-hidden="true">
         <slot name="icon" />
       </span>
-
       <span class="zen-select__label-value">
         <span v-if="label" class="zen-select__label">{{ label }}</span>
         <span class="zen-select__value">
-          {{ modelValue }}
+          {{ selectedLabel }}
           <Sparkles
             v-if="isAITheme(modelValue)"
             :size="12"
@@ -297,25 +481,24 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
           />
         </span>
       </span>
-
       <ChevronDown :size="16" class="zen-select__chevron" aria-hidden="true" />
     </button>
 
     <Teleport to="body">
-      <Transition name="zen-dropdown">
+      <Transition name="zen-dropdown" :css="!keyboardInteraction">
         <ul
           v-if="isOpen"
           :id="dropdownId"
           ref="dropdownRef"
           class="zen-select__dropdown"
+          :class="{ 'zen-select__dropdown--instant': keyboardInteraction }"
           :style="dropdownStyle"
           role="listbox"
-          :aria-label="label"
-          tabindex="-1"
+          :aria-label="accessibleName"
         >
           <template
             v-for="(group, groupIndex) in groupedOptions"
-            :key="group.group"
+            :key="groupIndex"
           >
             <li
               v-if="group.group"
@@ -325,39 +508,36 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
               {{ group.group }}
             </li>
             <li
-              v-for="(option, optionIndex) in group.options"
-              :id="`${dropdownId}-option-${getFlatIndex(groupIndex, optionIndex)}`"
-              :key="option"
-              :ref="
-                (el) =>
-                  setOptionRef(
-                    el as HTMLLIElement,
-                    getFlatIndex(groupIndex, optionIndex),
-                  )
-              "
+              v-for="option in group.options"
+              :id="`${dropdownId}-option-${option.index}`"
+              :key="option.value"
+              :data-value="option.value"
+              :data-index="option.index"
               role="option"
               class="zen-select__option"
               :class="{
-                'zen-select__option--selected': option === modelValue,
+                'zen-select__option--selected': option.value === modelValue,
                 'zen-select__option--highlighted':
-                  getFlatIndex(groupIndex, optionIndex) === highlightedIndex,
+                  option.index === highlightedIndex,
+                'zen-select__option--disabled': option.disabled,
               }"
-              :aria-selected="option === modelValue"
+              :aria-selected="option.value === modelValue"
+              :aria-disabled="option.disabled || undefined"
+              @pointerdown.prevent
+              @mousedown.prevent
               @click="select(option)"
-              @mouseenter="
-                highlightedIndex = getFlatIndex(groupIndex, optionIndex)
-              "
+              @mouseenter="highlight(option.index)"
             >
               <Check
-                v-if="option === modelValue"
+                v-if="option.value === modelValue"
                 :size="14"
                 class="zen-select__check"
                 aria-hidden="true"
               />
               <span class="zen-select__option-text">
-                {{ option }}
+                {{ option.label }}
                 <Sparkles
-                  v-if="isAITheme(option)"
+                  v-if="isAITheme(option.value)"
                   :size="12"
                   class="zen-select__ai-badge"
                   aria-hidden="true"
@@ -376,7 +556,9 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
 .zen-select {
   position: relative;
   display: inline-flex;
-  min-width: 10rem;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
 }
 
 .zen-select__trigger {
@@ -385,6 +567,8 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
   align-items: center;
   gap: 0.5rem;
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
   min-height: 2.75rem;
   padding: 0.375rem 0;
   background: transparent;
@@ -436,9 +620,9 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
 .zen-select__label {
   font-size: 0.6875rem;
   color: var(--gk-ink-soft);
-  text-transform: uppercase;
   letter-spacing: 0.14em;
   margin-bottom: 0.125rem;
+  text-transform: uppercase;
 }
 
 .zen-select__value {
@@ -447,7 +631,6 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
   gap: 0.375rem;
   font-size: 0.875rem;
   color: var(--gk-ink);
-  text-transform: capitalize;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -477,6 +660,9 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
     opacity: 0.55;
   }
 }
+.zen-select--keyboard .zen-select__chevron {
+  transition: none;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .zen-select__chevron,
@@ -489,6 +675,7 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
 <style lang="scss">
 // Teleported dropdown: an index card of options, ruled between groups
 .zen-select__dropdown {
+  box-sizing: border-box;
   margin: 0;
   padding: 0.25rem;
   list-style: none;
@@ -497,7 +684,8 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
   box-shadow:
     inset 0 0 0 1.5px var(--gk-ink),
     var(--gk-lift);
-  max-height: 12rem;
+  max-height: 18rem;
+  overscroll-behavior: contain;
   overflow-y: auto;
   font-family: var(--gk-font);
   scrollbar-width: thin;
@@ -508,9 +696,9 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
   padding: 0.5rem 0.75rem 0.25rem;
   font-size: 0.6875rem;
   font-weight: 700;
-  text-transform: uppercase;
   letter-spacing: 0.14em;
   color: var(--gk-ink-soft);
+  text-transform: uppercase;
 
   &:not(:first-child) {
     margin-top: 0.25rem;
@@ -519,16 +707,16 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
 }
 
 .zen-select__option {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   min-height: 2.75rem;
-  padding: 0.375rem 0.75rem;
+  padding: 0.375rem 0.75rem 0.375rem 2.125rem;
   border-radius: var(--gk-radius-control);
   cursor: pointer;
   font-size: 0.875rem;
   color: var(--gk-ink);
-  text-transform: capitalize;
   transition: background-color var(--gk-dur-fast) var(--gk-ease-out);
 
   &--highlighted {
@@ -536,7 +724,7 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
   }
 
   @media (hover: hover) {
-    &:hover {
+    &:not(.zen-select__option--disabled):hover {
       background: var(--gk-ink-faint);
     }
   }
@@ -544,18 +732,30 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
   &--selected {
     font-weight: 700;
   }
+
+  &--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 .zen-select__check {
+  position: absolute;
+  left: 0.75rem;
   flex-shrink: 0;
   color: var(--gk-indigo);
 }
 
 .zen-select__option-text {
   flex: 1;
+  min-width: 0;
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
+  overflow-wrap: anywhere;
+}
+.zen-select__dropdown--instant .zen-select__option {
+  transition: none;
 }
 
 .zen-select__option .zen-select__ai-badge {
@@ -573,11 +773,13 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
 .zen-dropdown-enter-from,
 .zen-dropdown-leave-to {
   opacity: 0;
-  transform: translateY(-4px);
+  transform: translateY(var(--zen-select-enter-y, -4px));
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .zen-select__option {
+  .zen-select__option,
+  .zen-dropdown-enter-active,
+  .zen-dropdown-leave-active {
     transition: none;
   }
 
@@ -588,8 +790,33 @@ const getFlatIndex = (groupIndex: number, optionIndex: number): number => {
 }
 
 @media (forced-colors: active) {
+  .zen-select__trigger {
+    border-bottom-color: ButtonText;
+  }
+
+  .zen-select__trigger:focus-visible {
+    outline-color: Highlight;
+  }
+
   .zen-select__dropdown {
+    color: CanvasText;
+    background: Canvas;
     border: 2px solid CanvasText;
+    box-shadow: none;
+  }
+
+  .zen-select__option--highlighted {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+
+  .zen-select__option--disabled {
+    color: GrayText;
+    opacity: 1;
+  }
+
+  .zen-select__check {
+    color: Highlight;
   }
 }
 </style>

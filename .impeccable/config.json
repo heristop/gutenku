@@ -22,6 +22,15 @@
         "files": ["design-preview/game-sounds/index.html"],
         "createdAt": "2026-10-28T12:46:28.440Z",
         "reason": "Claude: page reuses the project's own exlibris paper tokens (--gk-paper #f5efe3) to preview sounds in context"
+      },
+      {
+        "rule": "border-accent-on-rounded",
+        "value": "*",
+        "files": [
+          "private/gutenguess/packages/front/components/LibraryShelves.vue"
+        ],
+        "createdAt": "2026-11-06T12:16:22.129Z",
+        "reason": "Codex: literal L-shaped bookend geometry. The 6px vertical stroke and 3px foot draw the shelf accessory, with a 2px rounded tip; verified in component markup and mobile/desktop captures."
       }
     ]
   }
