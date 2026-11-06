@@ -32,18 +32,20 @@ describe('site-pages', () => {
   });
 
   describe('SITE_PAGES', () => {
-    it('lists home, game, haiku and blog when the game is enabled', async () => {
+    it('makes the library reachable when the game is enabled', async () => {
       const { SITE_PAGES } = await load(true);
 
       expect(SITE_PAGES.map((p) => p.to)).toEqual([
         '/',
         '/game',
+        '/game/journal',
         '/haiku',
         '/blog',
       ]);
       expect(SITE_PAGES.map((p) => p.labelKey)).toEqual([
         'nav.homeLabel',
         'nav.gameLabel',
+        'nav.libraryLabel',
         'nav.haikuLabel',
         'nav.blogLabel',
       ]);
@@ -52,12 +54,14 @@ describe('site-pages', () => {
         'ii',
         'iii',
         'iv',
+        'v',
       ]);
       expect(SITE_PAGES.map((p) => p.pageNumber)).toEqual([
         '01',
         '02',
         '03',
         '04',
+        '05',
       ]);
     });
 
@@ -95,6 +99,14 @@ describe('site-pages', () => {
   });
 
   describe('useSitePages', () => {
+    it('highlights only the library and gives it its own spine on the journal route', async () => {
+      const { useSitePages } = await load(true);
+      const { currentPage, isActive } = useSitePages();
+      route.path = '/game/journal';
+      expect(currentPage.value?.to).toBe('/game/journal');
+      expect(isActive('/game/journal')).toBeTruthy();
+      expect(isActive('/game')).toBeFalsy();
+    });
     it('exposes the pages', async () => {
       const { useSitePages, SITE_PAGES } = await load(true);
 

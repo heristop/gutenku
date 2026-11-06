@@ -19,6 +19,7 @@
     "homeLabel": "ホーム",
     "haikuLabel": "俳句",
     "gameLabel": "GutenGuess",
+    "libraryLabel": "本棚",
     "blogLabel": "ブログ"
   },
   "haiku": {
@@ -87,8 +88,8 @@
   },
   "hero": {
     "ariaLabel": "GutenKuについて",
-    "ledeKu": "{gutenku}は、古典の一節から俳句を切り出します。",
-    "ledeGuess": "{gutenguess}は、古典を毎日の謎解きに変えます。"
+    "ledeKu": "古典の言葉から生まれる、新しい俳句。",
+    "ledeGuess": "毎日ひとつの古典を当てて、自分だけの本棚へ。"
   },
   "haikuChapter": {
     "ariaLabel": "俳句の詩句がハイライトされた書籍の章の抜粋",
@@ -278,8 +279,16 @@
       }
     },
     "gameEntry": {
-      "description": "手がかりから今日の名作を当てましょう。",
+      "description": "毎日の古典を6回以内で当てて、出会った本を自分の本棚へ。",
       "numberLabel": "パズル 第{number}号"
+    },
+    "metaTitle": "GutenKu — 毎日の俳句と古典文学の本当てゲーム",
+    "metaDescription": "GutenKuで古典文学に出会いましょう。毎日の俳句と6回以内で本を当てるゲーム。出会った本を自分だけの本棚に集めて、自由に並べられます。",
+    "metaDescriptionHaiku": "Project Gutenbergのパブリックドメインの古典から、毎日の俳句を楽しみ、自分だけの詩を作りましょう。",
+    "libraryEntry": {
+      "title": "一つのゲームから、一冊の本へ。",
+      "description": "出会った本があなたの本棚に並びます。本を開いて物語を振り返り、コレクションを自由に並べましょう。",
+      "link": "自分の本棚を見る"
     }
   },
   "pwa": {

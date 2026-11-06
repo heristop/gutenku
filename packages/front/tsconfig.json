@@ -30,6 +30,7 @@
     "src/**/*.vue",
     "vite.config.mts",
     "scripts/generate-sitemap.ts",
+    "scripts/ssg-routes.ts",
     "cypress.config.*"
   ]
 }

@@ -28,10 +28,10 @@
     </image:image>
     <video:video>
       <video:thumbnail_loc>https://gutenku.xyz/media/gutenguess-promo.jpg</video:thumbnail_loc>
-      <video:title>How to play GutenGuess in 32 seconds</video:title>
-      <video:description>How to play GutenGuess, the daily book guessing game: a 32-second video from the first clue to the stamped result.</video:description>
-      <video:content_loc>https://gutenku.xyz/media/gutenguess-promo.mp4</video:content_loc>
-      <video:duration>32</video:duration>
+      <video:title>How to play GutenGuess in 40 seconds</video:title>
+      <video:description>How to play GutenGuess, the daily book guessing game: a 40-second video from the first clue to the stamped result and your personal library.</video:description>
+      <video:content_loc>https://gutenku.xyz/media/gutenguess-promo.mp4?v=2026-11-06-library</video:content_loc>
+      <video:duration>40</video:duration>
     </video:video>
   </url>
   <url>

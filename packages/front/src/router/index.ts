@@ -14,9 +14,9 @@ export const routes: RouteRecordRaw[] = [
         component: () =>
           import(/* webpackChunkName: "home" */ '@/views/Home.vue'),
         meta: {
-          title: 'GutenKu - AI Haiku Generator & Literary Games',
+          title: 'GutenKu — Daily Haiku & Classic Book Guessing Game',
           description:
-            'Generate beautiful haikus from classic literature using AI. Play GutenGuess daily!',
+            'Discover classic literature with daily haiku, a book to guess in six tries, and a personal virtual library to collect and arrange your discoveries.',
         },
       },
       ...(GAME_ENABLED
@@ -44,7 +44,7 @@ export const routes: RouteRecordRaw[] = [
               meta: {
                 title: 'GutenGuess - Daily Book Guessing Game',
                 description:
-                  'Guess the classic book from emoji hints. A daily literary puzzle similar to Wordle.',
+                  'Guess today’s classic book in six tries with emoji and literary clues. Collect your discoveries in a personal virtual library and arrange your shelves.',
               },
             },
             {
@@ -53,7 +53,9 @@ export const routes: RouteRecordRaw[] = [
               component: () =>
                 import('@/features/game').then((m) => m.ReadingJournalView),
               meta: {
-                title: 'Reading Journal - GutenGuess',
+                title: 'My Library - GutenGuess',
+                description:
+                  'Revisit your GutenGuess discoveries, summaries and anecdotes in a personal library saved only on this device.',
                 robots: 'noindex, nofollow',
               },
             },

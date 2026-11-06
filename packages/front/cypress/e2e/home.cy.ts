@@ -9,6 +9,9 @@ describe('Home Page', () => {
     it('displays the hero section', () => {
       cy.get('.home__hero').should('be.visible');
       cy.get('.home__title').should('be.visible');
+      cy.get('.home__lede').screenshot('home-introduction-desktop');
+      cy.viewport(390, 844);
+      cy.get('.home__lede').screenshot('home-introduction-mobile');
     });
 
     it('displays the navigation bar', () => {

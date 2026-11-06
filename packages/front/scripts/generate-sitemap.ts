@@ -37,11 +37,11 @@ const staticRoutes: Route[] = [
     image: '/media/gutenguess-promo.jpg',
     video: {
       thumbnail: '/media/gutenguess-promo.jpg',
-      title: 'How to play GutenGuess in 32 seconds',
+      title: 'How to play GutenGuess in 40 seconds',
       description:
-        'How to play GutenGuess, the daily book guessing game: a 32-second video from the first clue to the stamped result.',
-      content: '/media/gutenguess-promo.mp4',
-      duration: 32,
+        'How to play GutenGuess, the daily book guessing game: a 40-second video from the first clue to the stamped result and your personal library.',
+      content: '/media/gutenguess-promo.mp4?v=2026-11-06-library',
+      duration: 40,
     },
   },
   {

@@ -19,6 +19,7 @@
     "homeLabel": "Accueil",
     "haikuLabel": "Haïku",
     "gameLabel": "GutenGuess",
+    "libraryLabel": "Bibliothèque",
     "blogLabel": "Blog"
   },
   "haiku": {
@@ -91,8 +92,8 @@
   },
   "hero": {
     "ariaLabel": "À propos de GutenKu",
-    "ledeKu": "{gutenku} taille un haïku dans un classique.",
-    "ledeGuess": "{gutenguess} fait d'un classique une énigme du jour."
+    "ledeKu": "Des haïkus composés avec les mots des classiques.",
+    "ledeGuess": "Devinez le classique du jour. Enrichissez votre bibliothèque."
   },
   "haikuChapter": {
     "ariaLabel": "Extrait de chapitre avec vers de haïku surlignés",
@@ -282,8 +283,16 @@
       }
     },
     "gameEntry": {
-      "description": "Devinez le classique du jour grâce à ses indices.",
+      "description": "Devinez le classique du jour en six essais, puis retrouvez-le dans votre bibliothèque.",
       "numberLabel": "Énigme nº {number}"
+    },
+    "metaTitle": "GutenKu — Haïkus et jeu quotidien de devinettes littéraires",
+    "metaDescription": "Découvrez les classiques avec GutenKu : un haïku chaque jour, un livre à deviner en six essais et votre bibliothèque virtuelle à collectionner et à organiser.",
+    "metaDescriptionHaiku": "Découvrez un haïku chaque jour et composez les vôtres à partir des livres classiques du domaine public de Project Gutenberg.",
+    "libraryEntry": {
+      "title": "Une partie, un livre à garder.",
+      "description": "Vos découvertes prennent place sur vos rayonnages. Ouvrez un livre, retrouvez son histoire et disposez votre collection à votre façon.",
+      "link": "Explorer ma bibliothèque"
     }
   },
   "pwa": {

@@ -13,7 +13,12 @@ const NUMERALS = ['i', 'ii', 'iii', 'iv', 'v', 'vi'];
 
 const PAGES: Array<Omit<SitePage, 'numeral' | 'pageNumber'>> = [
   { to: '/', labelKey: 'nav.homeLabel' },
-  ...(GAME_ENABLED ? [{ to: '/game', labelKey: 'nav.gameLabel' }] : []),
+  ...(GAME_ENABLED
+    ? [
+        { to: '/game', labelKey: 'nav.gameLabel' },
+        { to: '/game/journal', labelKey: 'nav.libraryLabel' },
+      ]
+    : []),
   { to: '/haiku', labelKey: 'nav.haikuLabel' },
   { to: '/blog', labelKey: 'nav.blogLabel' },
 ];
@@ -38,10 +43,13 @@ export function useSitePages() {
   const route = useRoute();
 
   const currentPage = computed(
-    () => SITE_PAGES.find((page) => isPageActive(page.to, route.path)) ?? null,
+    () =>
+      SITE_PAGES.filter((page) => isPageActive(page.to, route.path)).sort(
+        (a, b) => b.to.length - a.to.length,
+      )[0] ?? null,
   );
 
-  const isActive = (path: string) => isPageActive(path, route.path);
+  const isActive = (path: string) => currentPage.value?.to === path;
 
   return { pages: SITE_PAGES, currentPage, isActive };
 }

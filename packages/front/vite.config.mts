@@ -1,6 +1,7 @@
 // Plugins
 import vue from '@vitejs/plugin-vue';
 import { generateSitemap } from './scripts/generate-sitemap';
+import { normalizeSsgRoutes } from './scripts/ssg-routes';
 import viteCompression from 'vite-plugin-compression';
 import viteImagemin from 'vite-plugin-imagemin';
 import webfontDownload from 'vite-plugin-webfont-dl';
@@ -474,7 +475,7 @@ export default defineConfig(({ isSsrBuild, mode }) => {
           '/haiku',
           '/about',
           '/blog',
-          ...(isGameEnabled ? ['/game', '/how-to-play'] : []),
+          ...(isGameEnabled ? ['/game', '/game/journal', '/how-to-play'] : []),
           ...blogRoutes,
         ];
 
@@ -482,13 +483,7 @@ export default defineConfig(({ isSsrBuild, mode }) => {
         // rendered a second time, to dist/.html. The catch-all 404 route
         // (`:pathMatch(.*)*`) is dynamic: left in, it lands as a stray
         // `dist/:pathMatch(.*)*.html` that nothing serves.
-        return [
-          ...new Set(
-            [...paths, ...ssgRoutes]
-              .filter((path) => !path.includes(':'))
-              .map((path) => path || '/'),
-          ),
-        ];
+        return normalizeSsgRoutes(paths, ssgRoutes);
       },
     },
   };

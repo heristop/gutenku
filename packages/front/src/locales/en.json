@@ -19,6 +19,7 @@
     "homeLabel": "Home",
     "haikuLabel": "Haiku",
     "gameLabel": "GutenGuess",
+    "libraryLabel": "Library",
     "blogLabel": "Blog"
   },
   "haiku": {
@@ -91,8 +92,8 @@
   },
   "hero": {
     "ariaLabel": "About GutenKu",
-    "ledeKu": "{gutenku} cuts a haiku from a classic's own lines.",
-    "ledeGuess": "{gutenguess} turns a classic into a daily riddle."
+    "ledeKu": "Haiku made from the words of classic books.",
+    "ledeGuess": "Guess a classic each day. Build your library."
   },
   "haikuChapter": {
     "ariaLabel": "Book chapter excerpt with highlighted haiku verses",
@@ -282,8 +283,16 @@
       }
     },
     "gameEntry": {
-      "description": "Guess today's classic from its clues.",
+      "description": "Guess today’s classic in six tries, then keep your discovery in your library.",
       "numberLabel": "Puzzle No. {number}"
+    },
+    "metaTitle": "GutenKu — Daily Haiku & Classic Book Guessing Game",
+    "metaDescription": "Discover classic literature with GutenKu: daily haiku, a book to guess in six tries, and a personal virtual library to collect and arrange your discoveries.",
+    "metaDescriptionHaiku": "Discover a daily haiku and create your own poems from public-domain classics in Project Gutenberg.",
+    "libraryEntry": {
+      "title": "Every game leaves a book to keep.",
+      "description": "Your discoveries find a place on your shelves. Open a book, revisit its story and arrange your collection your way.",
+      "link": "Explore my library"
     }
   },
   "pwa": {

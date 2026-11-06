@@ -144,7 +144,7 @@ const socialLinks = [
 
   // Desktop: the colophon and the contents share a row
   @media (min-width: 900px) {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: fit-content(60%) minmax(0, 1fr);
     align-items: start;
     gap: 1.75rem 3rem;
   }
@@ -163,14 +163,22 @@ const socialLinks = [
   &__text {
     display: grid;
     gap: 0.125rem;
-    // One line wherever it fits; where it must break, the two halves are even
-    // (never a lone "since 2023." on its own line)
+    min-width: 0;
     max-width: 52ch;
     margin: 0;
     font-size: 0.8125rem;
     line-height: 1.55;
     color: var(--gk-ink-soft);
     text-wrap: balance;
+
+    @media (min-width: 900px) {
+      display: block;
+      max-width: none;
+
+      strong {
+        margin-inline-end: 0.5rem;
+      }
+    }
 
     strong {
       font-size: 0.9375rem;

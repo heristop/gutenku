@@ -56,9 +56,10 @@ describe('sitemap', () => {
     ).toBe('https://gutenku.xyz/how-to-play');
 
     for (const [name, value] of Object.entries({
-      content_loc: 'https://gutenku.xyz/media/gutenguess-promo.mp4',
+      content_loc:
+        'https://gutenku.xyz/media/gutenguess-promo.mp4?v=2026-11-06-library',
       thumbnail_loc: 'https://gutenku.xyz/media/gutenguess-promo.jpg',
-      duration: '32',
+      duration: '40',
     })) {
       expect(
         video.getElementsByTagNameNS(

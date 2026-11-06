@@ -32,10 +32,17 @@ const { t } = useI18n();
 const { globalStats, fetchGlobalStats, formatNumber } = useGlobalStats();
 
 useSeoMeta({
-  ogTitle: 'GutenKu - AI Haiku Generator & Literary Guessing Game',
-  ogDescription:
-    'Generate beautiful haikus from classic literature. Play GutenGuess - guess the book from emoji hints.',
+  title: () => t('home.metaTitle'),
+  description: () =>
+    t(GAME_ENABLED ? 'home.metaDescription' : 'home.metaDescriptionHaiku'),
+  robots: 'index, follow',
+  ogTitle: () => t('home.metaTitle'),
+  ogDescription: () =>
+    t(GAME_ENABLED ? 'home.metaDescription' : 'home.metaDescriptionHaiku'),
   ogImage: `${SITE_URL}/og-image.png`,
+  twitterTitle: () => t('home.metaTitle'),
+  twitterDescription: () =>
+    t(GAME_ENABLED ? 'home.metaDescription' : 'home.metaDescriptionHaiku'),
   twitterImage: `${SITE_URL}/og-image.png`,
 });
 
@@ -162,25 +169,16 @@ if (!import.meta.env.SSR) {
         </i18n-t>
       </h1>
 
-      <!-- One line for each of the two things GutenKu does -->
-      <p class="home__lede">
-        <i18n-t
-          keypath="hero.ledeKu"
-          tag="span"
-          scope="global"
-          class="home__lede-line"
-        >
-          <template #gutenku><strong>GutenKu</strong></template>
-        </i18n-t>
-        <i18n-t
-          keypath="hero.ledeGuess"
-          tag="span"
-          scope="global"
-          class="home__lede-line"
-        >
-          <template #gutenguess><strong>GutenGuess</strong></template>
-        </i18n-t>
-      </p>
+      <dl class="home__lede">
+        <div class="home__lede-line">
+          <dt>GutenKu</dt>
+          <dd>{{ t('hero.ledeKu') }}</dd>
+        </div>
+        <div v-if="GAME_ENABLED" class="home__lede-line">
+          <dt>GutenGuess</dt>
+          <dd>{{ t('hero.ledeGuess') }}</dd>
+        </div>
+      </dl>
 
       <div class="home__actions">
         <ZenButton to="/haiku" size="lg" data-cy="home-write">
@@ -218,36 +216,45 @@ if (!import.meta.env.SSR) {
     <div class="home__entries">
       <DailyHaikuSlip fold-reading :entrance="playEntrance" />
 
-      <RouterLink
+      <section
         v-if="GAME_ENABLED"
-        to="/game"
-        class="home__entry"
-        data-cy="home-game-entry"
+        class="home__game"
+        aria-labelledby="home-game-title"
       >
-        <span class="home__entry-plate" aria-hidden="true">
-          <InkPlate>
-            <PlateShelf />
-          </InkPlate>
-          <InkStamp
-            v-if="puzzleNumber"
-            :label="String(puzzleNumber)"
-            :size="40"
-            :tilt="-8"
-            stamp
-            class="home__entry-stamp"
-          />
-        </span>
-        <span class="home__entry-text">
-          <h2 class="home__entry-title">GutenGuess</h2>
-          <span class="home__entry-desc">
-            {{ t('home.gameEntry.description') }}
+        <RouterLink to="/game" class="home__entry" data-cy="home-game-entry">
+          <span class="home__entry-plate" aria-hidden="true">
+            <InkPlate>
+              <PlateShelf />
+            </InkPlate>
+            <InkStamp
+              v-if="puzzleNumber"
+              :label="String(puzzleNumber)"
+              :size="40"
+              :tilt="-8"
+              stamp
+              class="home__entry-stamp"
+            />
           </span>
-          <span v-if="puzzleNumber" class="sr-only">
-            {{ t('home.gameEntry.numberLabel', { number: puzzleNumber }) }}
+          <span class="home__entry-text">
+            <h2 id="home-game-title" class="home__entry-title">GutenGuess</h2>
+            <span class="home__entry-desc">
+              {{ t('home.gameEntry.description') }}
+            </span>
+            <span v-if="puzzleNumber" class="sr-only">
+              {{ t('home.gameEntry.numberLabel', { number: puzzleNumber }) }}
+            </span>
           </span>
-        </span>
-        <ArrowRight :size="20" class="home__entry-arrow" aria-hidden="true" />
-      </RouterLink>
+          <ArrowRight :size="20" class="home__entry-arrow" aria-hidden="true" />
+        </RouterLink>
+        <div class="home__library">
+          <h3>{{ t('home.libraryEntry.title') }}</h3>
+          <p>{{ t('home.libraryEntry.description') }}</p>
+          <RouterLink to="/game/journal" data-cy="home-library-entry">
+            {{ t('home.libraryEntry.link') }}
+            <ArrowRight :size="16" aria-hidden="true" />
+          </RouterLink>
+        </div>
+      </section>
     </div>
   </div>
 </template>
@@ -406,35 +413,40 @@ if (!import.meta.env.SSR) {
     color: var(--gk-stamp);
   }
 
-  // Two parallel lines, one per thing GutenKu does, each led by its name
   &__lede {
     display: grid;
-    gap: 0.5rem;
+    gap: 1rem;
     max-width: 52ch;
     margin: 0 0 2rem;
-    // 16px on phones: body text never drops under the legible floor there
     font-size: 1rem;
     line-height: 1.55;
     color: var(--gk-ink-soft);
     text-wrap: pretty;
 
-    @media (min-width: 601px) {
-      font-size: 1.0625rem;
-    }
-
-    strong {
-      font-weight: 700;
+    dt {
       color: var(--gk-ink);
+      font-weight: 700;
+    }
+    dd {
+      margin: 0;
     }
 
     @media (max-width: 600px) {
-      gap: 0.375rem;
-      margin-bottom: 1.25rem;
+      gap: 0.875rem;
+      margin-bottom: 1.5rem;
     }
   }
 
   &__lede-line {
-    display: block;
+    display: grid;
+    grid-template-columns: 7rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: baseline;
+
+    @media (max-width: 600px) {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.25rem;
+    }
   }
 
   &__actions {
@@ -529,6 +541,37 @@ if (!import.meta.env.SSR) {
       &:hover .home__entry-arrow {
         transform: translateX(3px);
       }
+    }
+  }
+
+  &__game {
+    min-width: 0;
+  }
+
+  &__library {
+    margin-top: 1.25rem;
+    padding: 1rem 0 0;
+    border-top: var(--gk-rule-faint);
+    h3 {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.4;
+    }
+    p {
+      margin: 0.5rem 0;
+      max-width: 48ch;
+      color: var(--gk-ink-soft);
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+    a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-height: 44px;
+      color: var(--gk-indigo);
+      font-size: 0.875rem;
+      text-underline-offset: 4px;
     }
   }
 
