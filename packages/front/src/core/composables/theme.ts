@@ -15,6 +15,12 @@ let isInitialized = false;
 // new theme spreads out from there; a change without one (the system
 // switching to night) crossfades instead.
 let pendingOrigin: { x: number; y: number } | null = null;
+let pendingReveal: (() => void) | undefined;
+
+/** One-shot reveal supplied by an opt-in motion experiment. */
+export function setThemeReveal(reveal?: () => void): void {
+  pendingReveal = reveal;
+}
 
 export function setThemeOrigin(x: number, y: number): void {
   pendingOrigin = { x, y };
@@ -94,8 +100,11 @@ function getColorMode() {
           // Otherwise a quiet crossfade. Instant under reduced motion or while
           // a page transition is still running. Under reduced motion the
           // change is a plain fade: no spread.
-          const origin = prefersReducedMotion() ? null : pendingOrigin;
+          const reduced = prefersReducedMotion();
+          const reveal = reduced ? undefined : pendingReveal;
+          const origin = reduced || reveal ? null : pendingOrigin;
           pendingOrigin = null;
+          pendingReveal = undefined;
           const root = document.documentElement;
 
           if (origin) {
@@ -103,7 +112,7 @@ function getColorMode() {
           }
 
           runViewTransition(() => defaultHandler(mode), 'theme', {
-            onReady: origin ? spreadFrom(origin) : undefined,
+            onReady: reveal ?? (origin ? spreadFrom(origin) : undefined),
           }).finally(() => {
             // Cleared after the animation ends (the transition's own cleanup
             // removes data-gk-vt); a stale flag only matters for the next one

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { nextTick, onBeforeUnmount } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, defineAsyncComponent, nextTick, onBeforeUnmount } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { scrollBehavior } from '@/router';
 import {
   isViewTransitionRunning,
@@ -11,6 +11,15 @@ import {
 } from '@/core/composables/view-transition';
 
 const router = useRouter();
+const route = useRoute();
+const showMotionProbe = computed(
+  () => import.meta.env.DEV && route.query.motion === 'typewriter',
+);
+const ThemeTypewriterProbe = import.meta.env.DEV
+  ? defineAsyncComponent(
+      () => import('@/core/components/ui/ThemeTypewriterProbe.vue'),
+    )
+  : null;
 
 // Longest the page may stay frozen on its old snapshot while the new route
 // renders. Past this the transition captures whatever is there.
@@ -109,6 +118,7 @@ if (!import.meta.env.SSR) {
   <main id="main-content" class="gutenku-app-background" tabindex="-1">
     <router-view />
   </main>
+  <ThemeTypewriterProbe v-if="showMotionProbe" />
 </template>
 
 <style lang="scss" scoped>

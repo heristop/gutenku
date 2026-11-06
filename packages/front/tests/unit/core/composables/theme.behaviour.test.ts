@@ -159,6 +159,93 @@ describe('useTheme (color mode behaviour)', () => {
     delete (document as unknown as Record<string, unknown>).startViewTransition;
   });
 
+  it('uses the experiment reveal once and keeps subsequent theme changes ordinary', async () => {
+    const start = vi.fn((cb: () => void) => {
+      cb();
+
+      return {
+        ready: Promise.resolve(),
+        finished: Promise.resolve(),
+        updateCallbackDone: Promise.resolve(),
+        skipTransition: vi.fn(),
+      };
+    });
+    (document as unknown as Record<string, unknown>).startViewTransition =
+      start;
+    vi.spyOn(globalThis, 'matchMedia').mockReturnValue({
+      matches: false,
+    } as MediaQueryList);
+    const { useTheme, setThemeReveal } =
+      await import('@/core/composables/theme');
+    useTheme();
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0);
+    });
+    const reveal = vi.fn();
+    setThemeReveal(reveal);
+    capturedOnChanged?.('dark', vi.fn());
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0);
+    });
+    expect(reveal).toHaveBeenCalledOnce();
+    capturedOnChanged?.('light', vi.fn());
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0);
+    });
+    expect(reveal).toHaveBeenCalledOnce();
+    expect(start).toHaveBeenCalledTimes(2);
+    delete (document as unknown as Record<string, unknown>).startViewTransition;
+  });
+
+  it('does not run an experiment reveal with reduced motion', async () => {
+    (document as unknown as Record<string, unknown>).startViewTransition =
+      vi.fn((cb: () => void) => {
+        cb();
+
+        return {
+          ready: Promise.resolve(),
+          finished: Promise.resolve(),
+          updateCallbackDone: Promise.resolve(),
+          skipTransition: vi.fn(),
+        };
+      });
+    vi.spyOn(globalThis, 'matchMedia').mockReturnValue({
+      matches: true,
+    } as MediaQueryList);
+    const { useTheme, setThemeReveal } =
+      await import('@/core/composables/theme');
+    useTheme();
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0);
+    });
+    const reveal = vi.fn();
+    const apply = vi.fn();
+    setThemeReveal(reveal);
+    capturedOnChanged?.('dark', apply);
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0);
+    });
+    expect(apply).toHaveBeenCalledWith('dark');
+    expect(reveal).not.toHaveBeenCalled();
+    delete (document as unknown as Record<string, unknown>).startViewTransition;
+  });
+
+  it('applies an experimental theme without animating when the API is absent', async () => {
+    const { useTheme, setThemeReveal } =
+      await import('@/core/composables/theme');
+    useTheme();
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0);
+    });
+    const reveal = vi.fn();
+    const apply = vi.fn();
+    setThemeReveal(reveal);
+    capturedOnChanged?.('dark', apply);
+    await Promise.resolve();
+    expect(apply).toHaveBeenCalledWith('dark');
+    expect(reveal).not.toHaveBeenCalled();
+  });
+
   it('returns inert SSR fallbacks when running on the server', async () => {
     vi.stubEnv('SSR', true);
 
