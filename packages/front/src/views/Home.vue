@@ -246,14 +246,6 @@ if (!import.meta.env.SSR) {
           </span>
           <ArrowRight :size="20" class="home__entry-arrow" aria-hidden="true" />
         </RouterLink>
-        <div class="home__library">
-          <h3>{{ t('home.libraryEntry.title') }}</h3>
-          <p>{{ t('home.libraryEntry.description') }}</p>
-          <RouterLink to="/game/journal" data-cy="home-library-entry">
-            {{ t('home.libraryEntry.link') }}
-            <ArrowRight :size="16" aria-hidden="true" />
-          </RouterLink>
-        </div>
       </section>
     </div>
   </div>
@@ -546,33 +538,6 @@ if (!import.meta.env.SSR) {
 
   &__game {
     min-width: 0;
-  }
-
-  &__library {
-    margin-top: 1.25rem;
-    padding: 1rem 0 0;
-    border-top: var(--gk-rule-faint);
-    h3 {
-      margin: 0;
-      font-size: 1rem;
-      line-height: 1.4;
-    }
-    p {
-      margin: 0.5rem 0;
-      max-width: 48ch;
-      color: var(--gk-ink-soft);
-      font-size: 0.875rem;
-      line-height: 1.6;
-    }
-    a {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      min-height: 44px;
-      color: var(--gk-indigo);
-      font-size: 0.875rem;
-      text-underline-offset: 4px;
-    }
   }
 
   &__entry-plate {
