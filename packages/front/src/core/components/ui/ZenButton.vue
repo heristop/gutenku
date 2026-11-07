@@ -168,6 +168,7 @@ if (import.meta.env.DEV) {
   --zen-btn-edge: var(--gk-indigo-edge);
 
   display: inline-flex;
+  box-sizing: border-box;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
@@ -176,6 +177,7 @@ if (import.meta.env.DEV) {
   cursor: pointer;
   font-family: var(--gk-font);
   font-weight: 700;
+  line-height: 1.25;
   text-decoration: none;
   transition:
     transform var(--gk-dur-press) var(--gk-ease-out),
@@ -234,7 +236,7 @@ if (import.meta.env.DEV) {
   }
 }
 
-// Primary: indigo fill with a 2px darker bottom edge
+// Primary: the darker bottom edge stays inside the shared button height.
 .zen-btn--cta {
   --zen-btn-edge: color-mix(in oklch, var(--gk-indigo-fill), black 35%);
 
@@ -243,7 +245,7 @@ if (import.meta.env.DEV) {
   border-radius: var(--gk-radius-control);
   color: var(--gk-on-indigo-fill);
   font-size: 0.9375rem;
-  box-shadow: 0 2px 0 var(--zen-btn-edge);
+  box-shadow: inset 0 -2px 0 var(--zen-btn-edge);
 
   @media (hover: hover) {
     &:hover:not(:disabled):not([aria-disabled='true']) {
@@ -253,7 +255,7 @@ if (import.meta.env.DEV) {
 
   &:active:not(:disabled):not([aria-disabled='true']) {
     transform: translateY(1px) scale(0.98);
-    box-shadow: 0 1px 0 var(--zen-btn-edge);
+    box-shadow: inset 0 -1px 0 var(--zen-btn-edge);
   }
 
   &[aria-busy='true'] {

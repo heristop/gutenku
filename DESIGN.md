@@ -226,7 +226,7 @@ The system is flat paper. Depth comes from one shadow, ruled lines and tonal pap
 ### Shadow Vocabulary
 
 - **Lift** (`box-shadow: 0 1px 0 var(--gk-paper-edge), 0 18px 34px -22px oklch(0.3 0.03 60 / 0.45)`; night: `... 0 18px 34px -20px oklch(0 0 0 / 0.7)`): the only elevation. It is a 1px paper edge plus a soft, tight drop.
-- **Pressable edge** (`box-shadow: 0 2px 0 var(--gk-indigo-edge)`, reduced to `0 1px 0` while pressed): a solid ledge under indigo controls (primary button, slider thumb). It reads as a printed block, not as elevation.
+- **Pressable edge:** a solid indigo-edge ledge, 2px at rest and 1px while pressed. Buttons draw it inside their height (`inset 0 -2px 0`); the slider thumb draws it underneath (`0 2px 0`). It reads as a printed block, not as elevation.
 - **Inset rings** (`inset 0 0 0 1.5px var(--gk-ink)` or `var(--gk-ink-faint)`): the outlines of ghost buttons, chips, switch tracks, locked slips and dropdowns.
 
 ### Named Rules
@@ -248,11 +248,11 @@ Icons come from the in-house hand-drawn ink set (`@/core/components/icons/ink`).
 Flat pigment with a short press, never lift-and-glow.
 
 - **Shape:** control corners (3px), minimum height 44px, minimum width 44px when icon-only.
-- **Primary:** an indigo fill with on-indigo text, bold, 0.9375rem, a 2px indigo-edge underneath. Hover darkens the indigo by 8%. Active moves it 1px down at scale 0.98 and shrinks the edge to 1px, over 120ms ease-out.
+- **Primary:** an indigo fill with on-indigo text, bold, 0.9375rem, a 2px inset indigo-edge at the bottom. Hover darkens the indigo by 8%. Active moves it 1px down at scale 0.98 and shrinks the edge to 1px, over 120ms ease-out.
 - **Ghost:** a 1.5px inset ink ring on bare paper with ink text. Hover adds a faint-ink wash.
 - **Text:** soft-ink text with no ring. Hover switches to ink with a faint-ink wash.
 - **Focus:** 2px indigo outline at a 3px offset, on every interactive element.
-- **Sizes:** sm (0.8125rem), md (default), lg (1rem, 48px tall).
+- **Sizes:** sm (0.8125rem, 44px tall), md (default, 44px tall), lg (1rem, 48px tall). All variants share a 1.25 line-height and include their edge inside the control. Long labels can wrap and grow the button naturally.
 
 ### Chips
 
