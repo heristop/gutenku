@@ -52,8 +52,8 @@ const socialLinks = [
               <span class="footer-nav__text">{{ t(page.labelKey) }}</span>
             </RouterLink>
           </li>
-          <!-- The pages of the book end here; what follows is about the book -->
-          <li class="footer-nav__sep" aria-hidden="true" />
+        </ul>
+        <ul class="footer-nav__list footer-nav__list--about">
           <li v-if="GAME_ENABLED">
             <RouterLink to="/how-to-play" class="footer-nav__link">
               <span class="footer-nav__text">{{ t('footer.howToPlay') }}</span>
@@ -107,9 +107,7 @@ const socialLinks = [
 </template>
 
 <style scoped lang="scss">
-// Ex Libris: the colophon at the foot of the book. The mark and a sentence on
-// the left, the contents on the right, then a ruled line with the elsewhere
-// links and the credits. Phones stack it, left-aligned, like a printed page.
+// Ex Libris: signature, contents, then the ruled credits, like a printed page.
 .app-footer {
   container-type: inline-size;
   position: relative;
@@ -133,21 +131,9 @@ const socialLinks = [
 .footer-content {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 1.25rem;
+  gap: 1rem;
   max-width: 64rem;
   margin: 0 auto;
-
-  // Tablet: the colophon alone on top, the contents under it, one row each
-  @media (min-width: 600px) {
-    gap: 1.5rem;
-  }
-
-  // Desktop: the colophon and the contents share a row
-  @media (min-width: 900px) {
-    grid-template-columns: fit-content(60%) minmax(0, 1fr);
-    align-items: start;
-    gap: 1.75rem 3rem;
-  }
 }
 
 .footer-colophon {
@@ -155,9 +141,17 @@ const socialLinks = [
   align-items: flex-start;
   gap: 0.875rem;
 
+  @media (min-width: 600px) {
+    align-items: center;
+  }
+
   &__mark {
     flex: none;
     margin-top: 0.125rem;
+
+    @media (min-width: 600px) {
+      margin-top: 0;
+    }
   }
 
   &__text {
@@ -171,7 +165,7 @@ const socialLinks = [
     color: var(--gk-ink-soft);
     text-wrap: balance;
 
-    @media (min-width: 900px) {
+    @media (min-width: 600px) {
       display: block;
       max-width: none;
 
@@ -187,8 +181,7 @@ const socialLinks = [
   }
 }
 
-// The contents: a typed list. Two columns on a phone so five lines do not
-// make a tower; one wrapping row from tablet up.
+// Keep numbered pages together; supporting links move as a separate group.
 // Every control answers the press at once (no 300 ms tap delay, a state on
 // pointer-down) and not only the release
 .footer-nav__link,
@@ -199,27 +192,41 @@ const socialLinks = [
 }
 
 .footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem 2rem;
+
   &__list {
     display: grid;
+    flex: 1 1 100%;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 0.75rem;
+    min-width: 0;
+    max-width: 100%;
     margin: 0;
     padding: 0;
     list-style: none;
 
-    @media (min-width: 480px) {
+    @media (min-width: 600px) {
       display: flex;
+      flex: 0 1 auto;
       flex-wrap: wrap;
-      gap: 0 1.75rem;
+      gap: 0 1.5rem;
     }
+  }
 
-    @media (min-width: 900px) {
-      gap: 0 1.25rem;
-      justify-content: flex-end;
-    }
+  &__list--about {
+    display: flex;
+    flex: 0 1 auto;
+    flex-wrap: wrap;
+    gap: 0 1.5rem;
   }
 
   &__link {
     display: inline-flex;
+    min-width: 44px;
     max-width: 100%;
     align-items: baseline;
     min-height: 2.75rem;
@@ -270,23 +277,8 @@ const socialLinks = [
     font-weight: 400;
 
     // Phone grid: the numerals share a column, so the names line up
-    @media (max-width: 479px) {
+    @media (max-width: 599px) {
       min-width: 1.25rem;
-    }
-  }
-
-  // A hairline between the pages and the links about the book. In the phone
-  // grid it would take a cell, so it only exists in a row.
-  &__sep {
-    display: none;
-
-    @media (min-width: 480px) {
-      display: block;
-      align-self: center;
-      width: 1px;
-      height: 1rem;
-      margin-inline: 0.25rem;
-      background: var(--gk-ink-faint);
     }
   }
 }
@@ -305,10 +297,6 @@ const socialLinks = [
     align-items: center;
     justify-content: space-between;
     gap: 0 1.5rem;
-  }
-
-  @media (min-width: 900px) {
-    grid-column: 1 / -1;
   }
 }
 
@@ -450,16 +438,7 @@ const socialLinks = [
   }
 }
 
-@container (max-width: 700px) {
-  .footer-content {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .footer-nav__list {
-    justify-content: flex-start;
-  }
-}
-
-@container (max-width: 300px) {
+@container (max-width: 240px) {
   .footer-colophon {
     flex-wrap: wrap;
   }
