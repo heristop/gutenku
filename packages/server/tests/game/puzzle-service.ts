@@ -1,5 +1,7 @@
 import 'reflect-metadata';
 import { describe, expect, it } from 'vitest';
+import { bookmojiId, bookmojiGlyph } from '@gutenku/shared';
+import { getGutenGuessBooks } from '~~/data';
 import {
   PuzzleService,
   seededRandom,
@@ -11,6 +13,20 @@ import {
 } from '../../src/domain/services/PuzzleService';
 
 describe('PuzzleService standalone helpers', () => {
+  it('can serialize every clue in the active book catalogue', () => {
+    const segmenter = new Intl.Segmenter('en');
+    for (const book of getGutenGuessBooks()) {
+      for (const { segment } of segmenter.segment(book.emoticons)) {
+        if (!segment.trim()) {continue;}
+        const id = bookmojiId(segment);
+        expect(id, book.title.en).toMatch(/^m[0-9a-f]{10}$/);
+        expect(bookmojiGlyph(id!)?.replaceAll(/[\uFE0E\uFE0F]/gu, '')).toBe(
+          segment.replaceAll(/[\uFE0E\uFE0F]/gu, ''),
+        );
+      }
+    }
+  });
+
   it('seededRandom is deterministic for the same seed', () => {
     const a = seededRandom(123);
     const b = seededRandom(123);

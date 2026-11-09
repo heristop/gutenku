@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { bookmojiId } from '@gutenku/shared';
 import { mount } from '@vue/test-utils';
 import { ref } from 'vue';
 import { gameEnabled } from './game-enabled';
@@ -41,6 +42,44 @@ describe.runIf(gameEnabled)('emoji clue helpers', () => {
       },
     });
   }
+
+  it('prints only the visible motifs and adds the scratched motif at its own position', async () => {
+    const clue = await hint();
+    await clue.setProps({
+      hint: { type: 'emoticons', content: '🏴‍☠️⚖', round: 1 },
+      visibleIndices: [1, 4],
+    });
+    const cells = () => clue.findAll('.emoji-row .emoji');
+    expect(cells().map((cell) => cell.find('use').exists())).toEqual([
+      false,
+      true,
+      false,
+      false,
+      true,
+    ]);
+    expect(cells()[1].get('use').attributes('href')).toContain(
+      '#' + bookmojiId('🏴‍☠️'),
+    );
+    expect(cells()[4].get('use').attributes('href')).toContain(
+      '#' + bookmojiId('⚖'),
+    );
+    await cells()[2].trigger('click');
+    expect(clue.emitted('scratch')).toEqual([[2]]);
+    await clue.setProps({
+      hint: {
+        type: 'emoticons',
+        content: ['🏴‍☠️', '⚖', '🦊'].map(bookmojiId).join(' '),
+        round: 1,
+      },
+      scratchedPositions: [2],
+    });
+    await vi.waitFor(() =>
+      expect(cells()[2].get('use').attributes('href')).toContain(
+        '#' + bookmojiId('🦊'),
+      ),
+    );
+    expect(clue.get('[aria-live]').text()).toContain('🏴‍☠️ 🦊 ⚖');
+  });
 
   it('names each hidden tile by its place in the row', async () => {
     const labels = (await hint())

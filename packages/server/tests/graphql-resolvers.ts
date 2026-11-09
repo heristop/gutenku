@@ -1,5 +1,8 @@
 import 'reflect-metadata';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ApolloServer } from '@apollo/server';
+import typeDefs from '../src/presentation/graphql/typeDefs';
+import { bookmojiId } from '@gutenku/shared';
 import { container } from 'tsyringe';
 import resolvers from '../src/presentation/graphql/resolvers';
 import { IQueryBusToken } from '../src/application/cqrs';
@@ -156,6 +159,59 @@ describe('GraphQL Resolvers', () => {
       });
 
       expect(result).toEqual(puzzle);
+    });
+  });
+
+  it('sends the same opaque IDs on the puzzle, scratch and result paths', async ({
+    onTestFinished,
+  }) => {
+    const server = new ApolloServer({ typeDefs, resolvers });
+    onTestFinished(() => server.stop());
+    const execute = async (query: string) => {
+      const { body } = await server.executeOperation({ query });
+      if (body.kind !== 'single') {throw new Error('Expected a single response');}
+      return body.singleResult;
+    };
+    const hint = { type: 'emoticons', content: '🏴‍☠️⚖' };
+    const ids = [bookmojiId('🏴‍☠️'), bookmojiId('⚖️')].join(' ');
+    expect(ids).toMatch(/^m[0-9a-f]{10} m[0-9a-f]{10}$/);
+    const date = '"2026-01-15"';
+    mockQueryBus.execute.mockResolvedValueOnce({
+      puzzle: { hints: [hint, { type: 'genre', content: 'Fables' }] },
+    });
+    const daily = await execute(
+      `{ dailyPuzzle(date: ${date}) { puzzle { hints { content } } } }`,
+    );
+    expect(daily).toEqual({
+      data: {
+        dailyPuzzle: {
+          puzzle: { hints: [{ content: ids }, { content: 'Fables' }] },
+        },
+      },
+    });
+
+    mockQueryBus.execute.mockResolvedValueOnce({ emoticons: '🏴‍☠️⚖🦊' });
+    const scratch = await execute(
+      `mutation { revealEmoticon(date: ${date}, scratchedPositions: [2]) { emoticons } }`,
+    );
+    expect(scratch).toEqual({
+      data: { revealEmoticon: { emoticons: ids + ' ' + bookmojiId('🦊') } },
+    });
+
+    mockQueryBus.execute.mockResolvedValueOnce({
+      correctBook: { title: 'A book', emoticons: hint.content },
+      allHints: [hint],
+    });
+    const guess = await execute(
+      `mutation { submitGuess(date: ${date}, guessedBookId: "1", currentRound: 1) { correctBook { emoticons } allHints { content } } }`,
+    );
+    expect(guess).toEqual({
+      data: {
+        submitGuess: {
+          correctBook: { emoticons: ids },
+          allHints: [{ content: ids }],
+        },
+      },
     });
   });
 

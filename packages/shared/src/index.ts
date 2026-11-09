@@ -6,3 +6,4 @@ export * from './constants';
 export * from './utils/puzzle';
 export * from './utils/social';
 export * from './utils/daily-haiku-schedule';
+export * from './utils/bookmoji';

@@ -19,6 +19,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from '@/core/components/icons/ink';
+import Bookmoji from '@/core/components/ink/Bookmoji.vue';
 import InkStamp from '@/core/components/ink/InkStamp.vue';
 import { useDailyHaiku } from '@/features/haiku/composables/daily-haiku';
 import { longestVerseLength } from '@/features/haiku/composables/verse-fit';
@@ -541,13 +542,12 @@ onUnmounted(() => {
                 <div class="daily-slip__answer-inner">
                   <p class="daily-slip__answer-text">
                     {{ t('home.daily.lifted') }}
-                    <span
+                    <Bookmoji
                       v-if="haiku.book.emoticons"
                       class="daily-slip__bookmoji"
-                      role="img"
-                      :aria-label="t('home.daily.bookmoji')"
-                      >{{ haiku.book.emoticons }}</span
-                    >
+                      :text="haiku.book.emoticons"
+                      :aria-label="`${t('home.daily.bookmoji')} : ${haiku.book.emoticons}`"
+                    />
                   </p>
                   <p class="daily-slip__answer-text">
                     <i18n-t

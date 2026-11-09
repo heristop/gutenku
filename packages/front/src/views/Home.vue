@@ -12,6 +12,7 @@ import { hasPageNavigated } from '@/core/composables/view-transition';
 import { ArrowRight } from '@/core/components/icons/ink';
 import { useGlobalStats } from '@/core/composables/global-stats';
 import ZenButton from '@/core/components/ui/ZenButton.vue';
+import Bookmoji from '@/core/components/ink/Bookmoji.vue';
 import InkStamp from '@/core/components/ink/InkStamp.vue';
 import InkPlate from '@/core/components/ink/InkPlate.vue';
 import PlateShelf from '@/core/components/ink/plates/PlateShelf.vue';
@@ -80,13 +81,6 @@ const teaser = computed(() =>
         FREE_EMOJI,
       )
     : '',
-);
-
-const playLabel = computed(() =>
-  t(playLabelKey(puzzleNumber.value, teaser.value), {
-    number: puzzleNumber.value,
-    teaser: teaser.value,
-  }),
 );
 
 const haikusCrafted = computed(() => globalStats.value.totalHaikusGenerated);
@@ -191,7 +185,10 @@ if (!import.meta.env.SSR) {
           size="lg"
           data-cy="home-play"
         >
-          {{ playLabel }}
+          <i18n-t :keypath="playLabelKey(puzzleNumber, teaser)" tag="span">
+            <template #number>{{ puzzleNumber }}</template>
+            <template #teaser><Bookmoji :text="teaser" /></template>
+          </i18n-t>
         </ZenButton>
       </div>
 

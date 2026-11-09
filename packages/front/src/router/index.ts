@@ -19,6 +19,16 @@ export const routes: RouteRecordRaw[] = [
             'Discover classic literature with daily haiku, a book to guess in six tries, and a personal virtual library to collect and arrange your discoveries.',
         },
       },
+      ...(import.meta.env.DEV
+        ? [
+            {
+              path: 'dev/bookmoji',
+              name: 'BookmojiGallery',
+              component: () => import('@/dev/bookmoji/BookmojiGallery.vue'),
+              meta: { title: 'Planche des Bookmoji · GutenGuess' },
+            },
+          ]
+        : []),
       ...(GAME_ENABLED
         ? [
             {

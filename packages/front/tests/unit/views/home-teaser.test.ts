@@ -1,3 +1,4 @@
+import { bookmojiId } from '@gutenku/shared';
 import { describe, expect, it } from 'vitest';
 import {
   formatTeaser,
@@ -8,6 +9,11 @@ import {
 describe('formatTeaser', () => {
   it('keeps the first visible emoji, spaced', () => {
     expect(formatTeaser('⚖️✝️🏛️', 2)).toBe('⚖️ ✝️');
+  });
+
+  it('limits opaque clues to the free slots, including joined emoji', () => {
+    const clue = ['🏴‍☠️', '🦊', '🐜'].map(bookmojiId).join(' ');
+    expect(formatTeaser(clue, 2)).toBe('🏴‍☠️ 🦊');
   });
 
   it('is empty without emoji', () => {

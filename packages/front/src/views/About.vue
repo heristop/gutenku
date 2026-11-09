@@ -262,6 +262,14 @@ useHead({
             </a>
           </dd>
         </div>
+        <div class="about__row" data-reveal="slide" style="--i: 3">
+          <dt>Bookmoji</dt>
+          <dd>
+            <a href="/licenses/bookmoji.txt" class="about__link"
+              >Twemoji · CC BY 4.0</a
+            >
+          </dd>
+        </div>
       </dl>
 
       <div class="about__contact" data-reveal>

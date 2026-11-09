@@ -1,4 +1,5 @@
 import { container } from 'tsyringe';
+import { serializeBookmoji } from './bookmoji';
 import { loadDailyExcerpt } from '~/presentation/graphql/daily-excerpt';
 import type { VerseExcerpt } from '~/domain/services/verse-excerpt';
 import {
@@ -58,6 +59,8 @@ import {
   DAILY_HAIKU_PAGE_MAX,
   type DailyHaiku,
   type DailyHaikuPage,
+  type PuzzleHint,
+  type GuessResult,
   type PuzzleVersion,
   type HaikuVersion,
 } from '@gutenku/shared';
@@ -114,6 +117,25 @@ function resolveNeighbour(
 }
 
 const resolvers = {
+  PuzzleHint: {
+    content: (hint: PuzzleHint) =>
+      hint.type === 'emoticons'
+        ? serializeBookmoji(hint.content)
+        : hint.content,
+  },
+  EmoticonRevealResult: {
+    emoticons: (result: { emoticons: string }) =>
+      serializeBookmoji(result.emoticons),
+  },
+  GuessResult: {
+    correctBook: ({ correctBook }: GuessResult) =>
+      correctBook?.emoticons
+        ? {
+            ...correctBook,
+            emoticons: serializeBookmoji(correctBook.emoticons),
+          }
+        : correctBook,
+  },
   DailyHaiku: {
     previousDate: (parent: DailyHaiku) =>
       resolveNeighbour(parent, 'previousDate'),

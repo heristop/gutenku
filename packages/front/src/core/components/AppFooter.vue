@@ -11,6 +11,7 @@ const { t } = useI18n();
 const { isConsentRequired } = useCookieConsent();
 const { pages } = useSitePages();
 const currentYear = new Date().getFullYear();
+const bookmojiGalleryPath = import.meta.env.DEV ? '/dev/bookmoji' : undefined;
 
 // Back to the top of the page: instant when motion is reduced, eased otherwise
 function backToTop(): void {
@@ -62,6 +63,11 @@ const socialLinks = [
           <li>
             <RouterLink to="/about" class="footer-nav__link">
               <span class="footer-nav__text">{{ t('footer.about') }}</span>
+            </RouterLink>
+          </li>
+          <li v-if="bookmojiGalleryPath">
+            <RouterLink :to="bookmojiGalleryPath" class="footer-nav__link">
+              <span class="footer-nav__text">Bookmoji</span>
             </RouterLink>
           </li>
         </ul>

@@ -1,4 +1,4 @@
-import { splitGraphemes } from '@/core/composables/graphemes';
+import { readBookmoji } from '@/core/composables/bookmoji';
 
 // Today's GutenGuess clue, teased on the home page: only the emoji every
 // player already sees for free, read from the game's stored puzzle (no
@@ -17,10 +17,7 @@ export function formatTeaser(
     return '';
   }
 
-  return splitGraphemes(emoticons)
-    .filter((part) => part.trim())
-    .slice(0, visible)
-    .join(' ');
+  return readBookmoji(emoticons).slice(0, visible).join(' ');
 }
 
 export function todaysFreeEmoji(

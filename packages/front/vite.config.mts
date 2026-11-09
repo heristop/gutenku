@@ -303,7 +303,12 @@ export default defineConfig(({ isSsrBuild, mode }) => {
       }),
       viteCompression(),
       !isSsrBuild && brotliPrecompress(),
-      viteImagemin(),
+      viteImagemin({
+        // The Bookmoji sheets expose symbol IDs referenced by <use>.
+        filter: (file: string) =>
+          /\.(png|jpe?g|gif|bmp|svg)$/i.test(file) &&
+          !/[/\\]bookmoji-[^/\\]+\.svg$/i.test(file),
+      }),
       webfontDownload(),
       // Client build only: the SSR pass runs second and would overwrite the
       // report with the server bundle, which ships to no browser.
