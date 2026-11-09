@@ -35,13 +35,6 @@ const marks = computed(() =>
 
 <style scoped>
 .bookmoji {
-  --bm-paper: var(--gk-paper-raised);
-  --bm-indigo: var(--gk-indigo);
-  --bm-red: var(--gk-stamp-ink);
-  --bm-mid: color-mix(in srgb, currentColor 60%, var(--bm-paper));
-  --bm-green: #4b694d;
-  --bm-gold: #997120;
-
   display: inline-flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -53,8 +46,6 @@ const marks = computed(() =>
 }
 
 [data-theme='dark'] .bookmoji {
-  --bm-green: #a7c19d;
-  --bm-gold: #e8c476;
   --bm-natural-outline: #d3bfa7;
 }
 

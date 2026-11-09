@@ -1,9 +1,8 @@
 Bookmoji — GutenKu / GutenGuess
 
-The fox, whale, family (man, woman, girl), sailboat and rose are original
-color illustrations. The ant is an original woodcut. The other prints adapt
-Twemoji artwork by Twitter, Inc. and other contributors. Those silhouettes
-use ink and paper, with cut marks and selected spot colors.
+The ant, fox, whale, sailboat, rose and family portraits are original
+illustrations. The other prints adapt Twemoji artwork by Twitter, Inc.
+and other contributors, with new colors, sepia outlines and pen strokes.
 Twemoji graphics: https://github.com/jdecked/twemoji
 Licensed under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/
 

@@ -2,9 +2,8 @@
 import { computed, ref } from 'vue';
 import { bookmojiGlyph } from '@gutenku/shared';
 import catalogue from './catalogue.json';
-import artwork from './naturaliste.svg?no-inline';
+import { bookmojiUrl } from '@/assets/bookmoji';
 import reserve from './reserve.json';
-import reserveArt from '@/assets/bookmoji/bookmoji-reserve.svg?no-inline';
 import creditsUrl from './credits.txt?url';
 
 const query = ref('');
@@ -17,27 +16,30 @@ function searchable(value: string) {
 }
 
 const groups = [
-  ...catalogue.map((group) => ({ ...group, sheet: artwork })),
+  ...catalogue,
   {
     title: 'Réserve pour les prochains livres',
     marks: reserve,
-    sheet: reserveArt,
   },
-].map(({ title, marks, sheet }) => ({
+].map(({ title, marks }) => ({
   title,
-  sheet,
-  marks: Object.entries(marks).map(([id, label]) => ({
-    id,
-    label,
-    search: searchable(label + ' ' + bookmojiGlyph(id)),
-  })),
+  isReserve: marks === reserve,
+  marks: Object.entries(marks).map(([id, label]) => {
+    const glyph = bookmojiGlyph(id) ?? '';
+    return {
+      id,
+      label,
+      url: bookmojiUrl(glyph),
+      search: searchable(label + ' ' + glyph),
+    };
+  }),
 }));
 const filtered = computed(() => {
   const term = searchable(query.value.trim());
   return groups
-    .map(({ title, marks, sheet }) => ({
+    .map(({ title, marks, isReserve }) => ({
       title,
-      sheet,
+      isReserve,
       marks: marks.filter((mark) => mark.search.includes(term)),
     }))
     .filter(({ marks }) => marks.length);
@@ -70,7 +72,7 @@ const count = computed(() =>
       <section
         v-for="group in filtered"
         :key="group.title"
-        :id="group.sheet === reserveArt ? 'reserve' : undefined"
+        :id="group.isReserve ? 'reserve' : undefined"
       >
         <h2>
           {{ group.title }} <small>{{ group.marks.length }}</small>
@@ -78,7 +80,7 @@ const count = computed(() =>
         <ul>
           <li v-for="mark in group.marks" :key="mark.id">
             <svg viewBox="0 0 36 36" aria-hidden="true" focusable="false">
-              <use :href="group.sheet + '#' + mark.id" width="36" height="36" />
+              <use :href="mark.url" width="36" height="36" />
             </svg>
             <span>{{ mark.label }}</span>
           </li>
