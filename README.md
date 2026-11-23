@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1795341631" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1795428041" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku evokes a quiet, reflective moment filled with memory and tenderness. The phrase "bright" suggests light, warmth, or hope, while "lies in a bed to his left" creates a still, intimate scene that may hint at illness, rest, or even death. The final line, "winsome smile of yore," brings in nostalgia, recalling a charming smile from the past. Together, the poem feels gentle yet bittersweet, as if the speaker is looking at someone dear and remembering a happier time. Its emotional power comes from the contrast between present stillness and the lingering beauty of memory."_
+> _"This haiku suggests a quiet, fleeting moment of movement and observation. The phrase "as he went his rounds" evokes someone making a routine journey, perhaps a worker, sailor, or caretaker moving through the day. The line "in women who came aboard" introduces a human presence that feels sudden and delicate, as if people are arriving like part of the morning’s unfolding scene. The final image, "the fresh morning air," brings a sense of renewal, cleanliness, and beginning. Overall, the haiku captures the gentle transition from night to day, blending human activity with the calm freshness of morning."_
 
-— **BotenKu** 📅 _Nov 22, 2026_
+— **BotenKu** 📅 _Nov 23, 2026_
 
 </td>
 </tr>
