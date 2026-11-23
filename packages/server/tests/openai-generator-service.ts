@@ -559,7 +559,7 @@ describe('OpenAIGeneratorService - private methods', () => {
 
     expect(mockOpenAIClient.chatCompletionsCreate).toHaveBeenCalledWith(
       expect.objectContaining({
-        max_completion_tokens: 20,
+        max_completion_tokens: 60,
         messages: expect.arrayContaining([
           expect.objectContaining({
             content: expect.stringContaining('emoji generator'),
@@ -568,6 +568,23 @@ describe('OpenAIGeneratorService - private methods', () => {
       }),
     );
     expect(result).toBe('📚✨🌸');
+  });
+
+  it.each([
+    ['⛓️👩🏾‍🦱📖🏠�', '⛓️👩🏾‍🦱📖🏠'],
+    ['🏚️🌫️⚖️🕯️👩‍�', '🏚️🌫️⚖️🕯️👩'],
+  ])('generateBookmojis drops a cut-off last emoji (%s)', async (raw, kept) => {
+    vi.mocked(mockOpenAIClient.chatCompletionsCreate).mockResolvedValueOnce({
+      choices: [{ message: { content: raw } }],
+    });
+
+    // @ts-expect-error - accessing private method
+    const result = await service.generateBookmojis({
+      title: 'Bleak House',
+      author: 'Charles Dickens',
+    });
+
+    expect(result).toBe(kept);
   });
 
   it('generateSelectionPrompt creates correct prompt format', async () => {

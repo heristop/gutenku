@@ -86,7 +86,9 @@ export async function generateDescription(
 
     return {
       title:
-        typeof parsed.title === 'string' ? parsed.title : DEFAULT_DESCRIPTION.title,
+        typeof parsed.title === 'string'
+          ? parsed.title
+          : DEFAULT_DESCRIPTION.title,
       description:
         typeof parsed.description === 'string'
           ? parsed.description
@@ -170,7 +172,9 @@ export async function generateBookmojis(
   );
 
   const completion = await openai.chatCompletionsCreate({
-    max_completion_tokens: 20,
+    // Room for five joined emojis (skin tones, ZWJ sequences cost several
+    // tokens each): a tighter cap cut the last one mid-character
+    max_completion_tokens: 60,
     messages: [
       {
         role: 'system',
@@ -187,7 +191,13 @@ export async function generateBookmojis(
   });
 
   const rawContent = completion.choices[0]?.message?.content;
-  const emoticons = rawContent?.replaceAll(/[\n\s]+/g, '') || '';
+  // A cut-off answer ends in a replacement character, or a joiner left
+  // waiting for the emoji it should have glued on
+  const emoticons =
+    rawContent
+      ?.replaceAll(/[\n\s]+/g, '')
+      .replaceAll('�', '')
+      .replace(/‍+$/u, '') || '';
 
   log.info(
     {
