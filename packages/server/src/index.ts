@@ -255,7 +255,12 @@ async function listen(port: number) {
   );
 
   return new Promise<void>((resolve, reject) => {
-    httpServer.listen(port).once('listening', resolve).once('error', reject);
+    // HOST=127.0.0.1 behind a reverse proxy keeps the port off the internet;
+    // unset, every interface listens (local development, containers)
+    httpServer
+      .listen(port, process.env.HOST || undefined)
+      .once('listening', resolve)
+      .once('error', reject);
   });
 }
 
