@@ -33,6 +33,13 @@ import {
   toPublicDailyHaiku,
   toPublicDailyHaikuPage,
 } from './daily-haiku-presenter';
+import {
+  IMAGE_THEMES,
+  createDailyHaikuImageCache,
+  defaultRenderDailyHaikuImage,
+  resolveImageTheme,
+  type RenderDailyHaikuImage,
+} from './daily-haiku-image';
 
 const log = createLogger('daily-haiku-api');
 
@@ -65,6 +72,7 @@ export type FetchDailyHaikuPage = (
 export interface DailyHaikuRouterOptions {
   fetchDailyHaiku?: FetchDailyHaiku;
   fetchDailyHaikuPage?: FetchDailyHaikuPage;
+  renderDailyHaikuImage?: RenderDailyHaikuImage;
   limiter?: RequestHandler;
   now?: () => Date;
 }
@@ -228,6 +236,9 @@ export function createDailyHaikuRouter(
   const fetchDailyHaikuPage =
     options.fetchDailyHaikuPage ?? defaultFetchDailyHaikuPage;
   const now = options.now ?? (() => new Date());
+  const drawDailyHaiku = createDailyHaikuImageCache(
+    options.renderDailyHaikuImage ?? defaultRenderDailyHaikuImage,
+  );
   const router = Router();
 
   router.use(dailyHaikuCors);
@@ -298,6 +309,41 @@ export function createDailyHaikuRouter(
       .json(
         toPublicDailyHaiku(loaded.record, resolvePublicBaseUrl(req), current),
       );
+  });
+
+  // The day's details with the haiku drawn in a theme (base64 JPEG)
+  router.get('/image', async (req, res) => {
+    const theme = resolveImageTheme(readQueryParam(req, 'theme'));
+
+    if (!theme) {
+      sendError(
+        res,
+        400,
+        'invalid_theme',
+        `"theme" must be random or one of: ${IMAGE_THEMES.join(', ')}`,
+      );
+
+      return;
+    }
+
+    const loaded = await load(req, res, 'date', false);
+
+    if (!loaded) {
+      return;
+    }
+
+    try {
+      const image = await drawDailyHaiku(loaded.record, theme);
+
+      res.set('Cache-Control', 'private, no-store').json({
+        ...toPublicDailyHaiku(loaded.record, resolvePublicBaseUrl(req), now()),
+        theme,
+        image,
+      });
+    } catch (err) {
+      log.error({ err, theme }, 'Failed to draw daily haiku image');
+      sendError(res, 502, 'render_failed', 'The image could not be drawn');
+    }
   });
 
   router.get('/history', async (req, res) => {

@@ -17,6 +17,7 @@ import bookzen from '~/shared/themes/bookzen';
 import exlibris from '~/shared/themes/exlibris';
 import catalogue from '~/shared/themes/catalogue';
 import frontispiece from '~/shared/themes/frontispiece';
+import { STATIC_THEMES } from '~/shared/themes/names';
 import {
   AI_IMAGE_THEMES,
   type ThemeCreateOptions,
@@ -41,13 +42,7 @@ export default class CanvasService {
     this.theme = theme;
   }
 
-  private static readonly STATIC_THEMES = [
-    'catalogue',
-    'greentea',
-    'watermark',
-    'exlibris',
-    'frontispiece',
-  ] as const;
+  private static readonly STATIC_THEMES = STATIC_THEMES;
 
   private static readonly AI_THEMES = AI_IMAGE_THEMES;
 
