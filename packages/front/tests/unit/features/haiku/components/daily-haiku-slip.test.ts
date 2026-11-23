@@ -155,6 +155,17 @@ describe('DailyHaikuSlip', () => {
     );
   });
 
+  it('writes the date without a stray comma', async () => {
+    await render();
+
+    const date = wrapper.get('[data-cy=daily-date]');
+
+    expect(date.text()).toMatch(/^\p{L}+ \d{1,2} \p{L}+$/u);
+    expect(date.find('.daily-slip__date-sep').attributes('aria-hidden')).toBe(
+      'true',
+    );
+  });
+
   it('steps back through the URL and offers the way back to today', async () => {
     await render();
     await prev().trigger('click');

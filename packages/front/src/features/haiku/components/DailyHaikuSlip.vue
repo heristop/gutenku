@@ -622,8 +622,9 @@ onUnmounted(() => {
               aria-live="polite"
               data-cy="daily-date"
             >
-              {{ day.weekday }}<span aria-hidden="true"> · </span
-              ><span class="sr-only">, </span>{{ day.dayMonth }}
+              {{ day.weekday }}
+              <span class="daily-slip__date-sep" aria-hidden="true"></span
+              >{{ day.dayMonth }}
             </time>
             <button
               ref="nextButton"
@@ -1022,6 +1023,12 @@ onUnmounted(() => {
       white-space: normal;
       text-wrap: balance;
     }
+  }
+
+  // Drawn, not written: copied or translated text reads "lundi 23 novembre"
+  // instead of carrying the dot, and screen readers get the plain space
+  &__date-sep::before {
+    content: '· ';
   }
 
   // Same line height as the countdown it replaces, with a 44px hit area
