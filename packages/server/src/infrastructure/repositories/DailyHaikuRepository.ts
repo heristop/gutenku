@@ -114,12 +114,18 @@ function dateFilter(options: { before?: string; notAfter?: string }) {
   return Object.keys(range).length > 0 ? { date: range } : {};
 }
 
-// A day the site shows: titled and read. An automatic record holds only the
+// A day the site shows: titled and read, or published with its card (a day
+// whose AI text failed still went out). An automatic record holds only the
 // verses until the daily publication completes it, so it is skipped by the
 // archive and by the current-day fallback.
 const COMPLETE = {
-  title: { $type: 'string', $nin: [''] },
-  description: { $type: 'string', $nin: [''] },
+  $or: [
+    {
+      title: { $type: 'string', $nin: [''] },
+      description: { $type: 'string', $nin: [''] },
+    },
+    { 'card.data': { $exists: true } },
+  ],
 };
 
 // Records that a regular (non forced) publication may replace.

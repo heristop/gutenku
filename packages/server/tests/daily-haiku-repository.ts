@@ -450,11 +450,13 @@ describe('DailyHaikuRepository', () => {
 
     it('skips days without a title or reading (automatic records)', async () => {
       await repository.insertIfAbsent(
-        makeEntity('2026-10-25', {
-          title: undefined,
-          description: undefined,
-          source: 'auto',
-        }),
+        withoutCard(
+          makeEntity('2026-10-25', {
+            title: undefined,
+            description: undefined,
+            source: 'auto',
+          }),
+        ),
       );
 
       const page = await repository.findPage({
@@ -468,6 +470,24 @@ describe('DailyHaikuRepository', () => {
 
       expect(page.records.map((r) => r.date)).toEqual(['2026-10-24']);
       expect(neighbours.nextDate).toBeNull();
+    });
+
+    it('keeps published days whose AI text is missing', async () => {
+      await repository.insertIfAbsent(
+        makeEntity('2026-10-25', { title: undefined, description: undefined }),
+      );
+
+      const page = await repository.findPage({
+        notAfter: '2026-10-25',
+        limit: 1,
+      });
+      const neighbours = await repository.findNeighbours(
+        '2026-10-24',
+        '2026-10-25',
+      );
+
+      expect(page.records.map((r) => r.date)).toEqual(['2026-10-25']);
+      expect(neighbours.nextDate).toBe('2026-10-25');
     });
 
     it('returns newest first, capped by notAfter, with hasMore', async () => {
@@ -485,8 +505,13 @@ describe('DailyHaikuRepository', () => {
       expect(collection.find).toHaveBeenCalledWith(
         {
           date: { $lte: '2026-10-23' },
-          title: { $type: 'string', $nin: [''] },
-          description: { $type: 'string', $nin: [''] },
+          $or: [
+            {
+              title: { $type: 'string', $nin: [''] },
+              description: { $type: 'string', $nin: [''] },
+            },
+            { 'card.data': { $exists: true } },
+          ],
         },
         expect.objectContaining({
           limit: 3,
