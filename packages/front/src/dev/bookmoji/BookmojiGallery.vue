@@ -26,6 +26,7 @@ const groups = [
   isReserve: marks === reserve,
   marks: Object.entries(marks).map(([id, label]) => {
     const glyph = bookmojiGlyph(id) ?? '';
+
     return {
       id,
       label,
@@ -36,6 +37,7 @@ const groups = [
 }));
 const filtered = computed(() => {
   const term = searchable(query.value.trim());
+
   return groups
     .map(({ title, marks, isReserve }) => ({
       title,
@@ -74,9 +76,7 @@ const count = computed(() =>
         :key="group.title"
         :id="group.isReserve ? 'reserve' : undefined"
       >
-        <h2>
-          {{ group.title }} <small>{{ group.marks.length }}</small>
-        </h2>
+        <h2>{{ group.title }} <small>{{ group.marks.length }}</small></h2>
         <ul>
           <li v-for="mark in group.marks" :key="mark.id">
             <svg viewBox="0 0 36 36" aria-hidden="true" focusable="false">

@@ -119,7 +119,6 @@ export default {
     'length-zero-no-unit': null,
     'font-family-name-quotes': null,
     'value-keyword-case': null,
-    'declaration-block-single-line-max-declarations': null,
     'keyframe-block-no-duplicate-selectors': null,
 
     // SCSS pattern rules disabled

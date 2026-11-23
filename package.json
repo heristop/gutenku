@@ -25,11 +25,11 @@
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^21.2.4",
-    "dependency-cruiser": "^18.7.2",
+    "dependency-cruiser": "^18.8.0",
     "husky": "^9.1.7",
-    "lint-staged": "^17.6.0",
-    "oxfmt": "^0.76.0",
-    "oxlint": "^1.91.0",
-    "tsdown": "0.23.5"
+    "lint-staged": "^17.6.1",
+    "oxfmt": "^0.79.0",
+    "oxlint": "^1.94.0",
+    "tsdown": "0.23.7"
   }
 }
