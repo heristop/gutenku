@@ -1,4 +1,5 @@
 import cors from 'cors';
+import { timingSafeEqual } from 'node:crypto';
 import {
   Router,
   type Request,
@@ -164,6 +165,62 @@ function sendError(
     .json({ error, message });
 }
 
+// Read lazily: the environment is loaded after this module is imported
+function readApiTokens(): string[] {
+  return (process.env.DAILY_HAIKU_API_TOKENS ?? '')
+    .split(',')
+    .map((token) => token.trim())
+    .filter(Boolean);
+}
+
+function matchesApiToken(provided: string, tokens: string[]): boolean {
+  const given = Buffer.from(provided);
+
+  return tokens.some((token) => {
+    const expected = Buffer.from(token);
+
+    return given.length === expected.length && timingSafeEqual(given, expected);
+  });
+}
+
+// The JSON routes need a bearer token (DAILY_HAIKU_API_TOKENS); production
+// without one refuses them. The card stays open: an <img> sends no header.
+const requireApiToken: RequestHandler = (req, res, next) => {
+  if (req.path === '/card.jpg') {
+    next();
+
+    return;
+  }
+
+  // Public cache headers: a shared cache must not hand one caller's answer
+  // to another
+  res.vary('Authorization');
+  const tokens = readApiTokens();
+
+  if (tokens.length === 0 && process.env.NODE_ENV !== 'production') {
+    next();
+
+    return;
+  }
+
+  const provided = /^Bearer\s+(\S+)$/i.exec(
+    req.get('authorization') ?? '',
+  )?.[1];
+
+  if (!provided || !matchesApiToken(provided, tokens)) {
+    sendError(
+      res,
+      401,
+      'unauthorized',
+      'A valid "Authorization: Bearer <token>" header is required',
+    );
+
+    return;
+  }
+
+  next();
+};
+
 export function createDailyHaikuRouter(
   options: DailyHaikuRouterOptions = {},
 ): Router {
@@ -178,6 +235,8 @@ export function createDailyHaikuRouter(
   if (options.limiter) {
     router.use(options.limiter);
   }
+
+  router.use(requireApiToken);
 
   async function load(
     req: Request,
