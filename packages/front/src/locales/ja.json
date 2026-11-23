@@ -276,6 +276,14 @@
         "previousNone": "これより前の俳句はありません",
         "next": "次の俳句、{date}",
         "nextNone": "これより後の俳句はありません"
+      },
+      "card": {
+        "open": "この俳句のカードを見る",
+        "title": "俳句カード",
+        "alt": "俳句の絵カード：{verses}",
+        "altTitled": "俳句「{title}」の絵カード：{verses}",
+        "download": "カードをダウンロード",
+        "none": "この日のカードはありません。"
       }
     },
     "gameEntry": {

@@ -20,6 +20,7 @@ vi.mock('@/client', () => ({
 vi.mock('vue-router', () => ({
   useRoute: () => route,
   useRouter: () => ({ replace }),
+  RouterLink: { template: '<a><slot /></a>' },
 }));
 
 vi.mock('vue-i18n', () => ({
@@ -62,7 +63,7 @@ function entry(
     reading: null,
     excerpt: null as { text: string; verses: string[] } | null,
     book: { title: 'Book', author: 'Author', emoticons: null },
-    cardUrl: null,
+    cardUrl: null as string | null,
     nextRolloverAt: '2026-10-25T10:00:00.000Z',
     previousDate,
     nextDate,
@@ -204,6 +205,31 @@ describe('DailyHaikuSlip', () => {
     expect(route.query.day).toBeUndefined();
   });
 
+  it('turns pages with the arrow keys when nothing has focus', async () => {
+    await render();
+    (document.activeElement as HTMLElement | null)?.blur();
+    document.body.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }),
+    );
+    await flushPromises();
+
+    expect(route.query.day).toBe('2026-10-23');
+  });
+
+  it('leaves the arrow keys to another control that has focus', async () => {
+    await render();
+    const input = document.createElement('input');
+    document.body.append(input);
+    input.focus();
+    input.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }),
+    );
+    await flushPromises();
+
+    expect(route.query.day).toBeUndefined();
+    input.remove();
+  });
+
   it('closes the source when the day changes', async () => {
     await render();
     await wrapper.get('[data-cy=daily-trace-toggle]').trigger('click');
@@ -221,6 +247,206 @@ describe('DailyHaikuSlip', () => {
     expect(
       wrapper.get('[data-cy=daily-trace-toggle]').attributes('aria-expanded'),
     ).toBe('false');
+  });
+
+  describe("the day's card", () => {
+    const cardOf = (date: string) =>
+      `https://gutenku.xyz/api/daily-haiku/card.jpg?d=${date}&v=1`;
+    const DAYS = [TODAY, '2026-10-23'];
+
+    async function withCards(run: () => Promise<void>) {
+      for (const date of DAYS) {
+        archive[date] = { ...archive[date], cardUrl: cardOf(date) };
+      }
+
+      try {
+        await run();
+      } finally {
+        for (const date of DAYS) {
+          archive[date] = { ...archive[date], cardUrl: null };
+        }
+      }
+    }
+
+    const plate = () => wrapper.find('[data-cy=daily-card]');
+    const image = () =>
+      wrapper.get<HTMLImageElement>('[data-cy=daily-card] img');
+
+    it('tips the card in beside the keys, as an image that keeps its room', async () => {
+      await withCards(async () => {
+        await render();
+
+        expect(wrapper.get('.daily-slip__below').classes()).toContain(
+          'has-card',
+        );
+        expect(image().attributes()).toMatchObject({
+          src: cardOf(TODAY),
+          width: '2000',
+          height: '2500',
+          loading: 'lazy',
+          decoding: 'async',
+        });
+      });
+    });
+
+    it('leaves no frame on a day without a card', async () => {
+      await render();
+
+      expect(plate().exists()).toBeFalsy();
+      expect(wrapper.find('img').exists()).toBeFalsy();
+      expect(wrapper.get('.daily-slip__below').classes()).not.toContain(
+        'has-card',
+      );
+    });
+
+    it('says the title and the verses in its text alternative', async () => {
+      await withCards(async () => {
+        await render();
+
+        expect(image().attributes('alt')).toBe(
+          `home.daily.card.altTitled ${JSON.stringify({
+            title: `Title ${TODAY}`,
+            verses: 'one / two / three',
+          })}`,
+        );
+        // The key names its action; the verses are not read out twice
+        expect(plate().attributes('aria-label')).toBe('home.daily.card.open');
+      });
+    });
+
+    it('says the verses alone for an untitled haiku', async () => {
+      await withCards(async () => {
+        archive[TODAY] = { ...archive[TODAY], title: '' };
+
+        try {
+          await render();
+
+          expect(image().attributes('alt')).toBe(
+            `home.daily.card.alt ${JSON.stringify({
+              verses: 'one / two / three',
+            })}`,
+          );
+        } finally {
+          archive[TODAY] = { ...archive[TODAY], title: `Title ${TODAY}` };
+        }
+      });
+    });
+
+    it('follows the day the reader steps to', async () => {
+      await withCards(async () => {
+        await render();
+        await prev().trigger('click');
+        await flushPromises();
+        await nextTick();
+
+        expect(image().attributes('src')).toBe(cardOf('2026-10-23'));
+        expect(image().attributes('alt')).toContain('Title 2026-10-23');
+
+        // The day before was drawn no card: the plate leaves with the page
+        await prev().trigger('click');
+        await flushPromises();
+        await nextTick();
+
+        expect(wrapper.get('[data-cy=daily-date]').attributes('datetime')).toBe(
+          '2026-10-22',
+        );
+        expect(plate().exists()).toBeFalsy();
+      });
+    });
+
+    it('takes the plate away when the image cannot be drawn', async () => {
+      await withCards(async () => {
+        await render();
+        await image().trigger('error');
+
+        expect(plate().exists()).toBeFalsy();
+        expect(wrapper.get('.daily-slip__below').classes()).not.toContain(
+          'has-card',
+        );
+      });
+    });
+
+    it('opens the card at reading size, with a way to keep it', async () => {
+      await withCards(async () => {
+        await render();
+
+        expect(document.querySelector('[role=dialog]')).toBeNull();
+
+        await plate().trigger('click');
+        await flushPromises();
+
+        const dialog = document.querySelector('[role=dialog]');
+        const full = dialog?.querySelector('[data-cy=daily-card-full]');
+        const download = dialog?.querySelector('[data-cy=daily-card-download]');
+
+        expect(dialog?.querySelector('h3')?.textContent).toBe(`Title ${TODAY}`);
+        expect(full?.getAttribute('src')).toBe(cardOf(TODAY));
+        expect(full?.getAttribute('alt')).toBe(image().attributes('alt'));
+        expect(download?.getAttribute('href')).toBe(cardOf(TODAY));
+        expect(download?.getAttribute('download')).toBe(`gutenku-${TODAY}.jpg`);
+      });
+    });
+
+    const sheetKey = (step: 'prev' | 'next') =>
+      document.querySelector<HTMLButtonElement>(`[data-cy=daily-card-${step}]`);
+
+    it('turns the page from anywhere in the open sheet, which stays open', async () => {
+      await withCards(async () => {
+        await render();
+        await plate().trigger('click');
+        await flushPromises();
+
+        // From the sheet's close key: the arrows work wherever focus sits
+        const close = document.querySelector<HTMLElement>(
+          '[role=dialog] button',
+        );
+        close?.focus();
+        close?.dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }),
+        );
+        await flushPromises();
+        await nextTick();
+
+        const dialog = document.querySelector('[role=dialog]');
+
+        // One step, not two: the slip's own keys stay out of the sheet
+        expect(route.query.day).toBe('2026-10-23');
+        expect(dialog).not.toBeNull();
+        expect(
+          dialog
+            ?.querySelector('[data-cy=daily-card-full]')
+            ?.getAttribute('src'),
+        ).toBe(cardOf('2026-10-23'));
+        expect(sheetKey('prev')?.getAttribute('aria-keyshortcuts')).toBe(
+          'ArrowLeft',
+        );
+      });
+    });
+
+    it('says when a day has no card and keeps focus at the end of the archive', async () => {
+      await withCards(async () => {
+        await render('2026-10-23');
+        await plate().trigger('click');
+        await flushPromises();
+
+        sheetKey('prev')?.focus();
+        sheetKey('prev')?.click();
+        await flushPromises();
+        await nextTick();
+
+        expect(route.query.day).toBe('2026-10-22');
+        expect(
+          document.querySelector('[data-cy=daily-card-none]'),
+        ).not.toBeNull();
+        expect(sheetKey('prev')?.getAttribute('aria-disabled')).toBe('true');
+        expect(document.activeElement).toBe(sheetKey('prev'));
+
+        // At the end, the key holds focus but turns nothing
+        sheetKey('prev')?.click();
+        await flushPromises();
+        expect(route.query.day).toBe('2026-10-22');
+      });
+    });
   });
 
   it.each(['not-a-date', '2026-02-30', '2026-10-30', TODAY])(

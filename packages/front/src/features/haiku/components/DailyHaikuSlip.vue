@@ -3,6 +3,7 @@ import {
   computed,
   defineAsyncComponent,
   nextTick,
+  onMounted,
   onUnmounted,
   ref,
   useId,
@@ -21,6 +22,8 @@ import {
 } from '@/core/components/icons/ink';
 import Bookmoji from '@/core/components/ink/Bookmoji.vue';
 import InkStamp from '@/core/components/ink/InkStamp.vue';
+import DailyHaikuCard from '@/features/haiku/components/DailyHaikuCard.vue';
+import DailyHaikuCardDialog from '@/features/haiku/components/DailyHaikuCardDialog.vue';
 import { useDailyHaiku } from '@/features/haiku/composables/daily-haiku';
 import { longestVerseLength } from '@/features/haiku/composables/verse-fit';
 import { prefersReducedMotion } from '@/core/composables/view-transition';
@@ -214,6 +217,39 @@ const visibleLabel = computed(() =>
   isPast.value ? t('home.daily.labelDay') : t('home.daily.label'),
 );
 
+// The day's card follows the page; one that will not load leaves no frame
+const failedCard = ref<string | null>(null);
+const cardUrl = computed(() => {
+  const url = haiku.value?.cardUrl ?? null;
+
+  return url && url !== failedCard.value ? url : null;
+});
+
+// The card shows the same three verses: its text alternative says them
+const cardAlt = computed(() => {
+  const value = haiku.value;
+
+  if (!value) {
+    return '';
+  }
+
+  const verses = value.verses.join(' / ');
+
+  return value.title
+    ? t('home.daily.card.altTitled', { title: value.title, verses })
+    : t('home.daily.card.alt', { verses });
+});
+
+const cardDate = computed(() =>
+  haiku.value
+    ? formatDay(haiku.value.date, {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      })
+    : '',
+);
+
 const previousDate = computed(() =>
   loading.value ? null : (haiku.value?.previousDate ?? null),
 );
@@ -329,6 +365,55 @@ function onKeydown(event: KeyboardEvent): void {
   (step === 'prev' ? goPrevious : goNext)();
 }
 
+// The card sheet outlasts the leaf it was opened from: its keys turn the page
+const cardOpen = ref(false);
+const slipEl = ref<HTMLElement | null>(null);
+
+// The plate that opened the sheet may have left with its page: give focus to
+// the current day's plate, else to the date in the pager
+watch(cardOpen, async (isOpen) => {
+  if (isOpen) {
+    return;
+  }
+
+  await nextTick();
+  const active = document.activeElement;
+
+  if (active && active !== document.body) {
+    return;
+  }
+
+  const plate = slipEl.value?.querySelector<HTMLElement>(
+    '[data-cy=daily-card]',
+  );
+  (plate ?? dateEl.value)?.focus();
+});
+
+// With nothing focused, the arrows still turn the page; never while the card
+// sheet or another control holds the keys
+function onDocumentKeydown(event: KeyboardEvent): void {
+  const step = ARROW_STEPS[event.key];
+
+  if (!step || cardOpen.value || event.target !== document.body) {
+    return;
+  }
+
+  if (!isPlainKey(event)) {
+    return;
+  }
+
+  event.preventDefault();
+  (step === 'prev' ? goPrevious : goNext)();
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', onDocumentKeydown);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', onDocumentKeydown);
+});
+
 // A step button that just reached the end of the archive cannot keep focus:
 // hand it to the other step, else to the date between them
 const dateEl = ref<HTMLElement | null>(null);
@@ -417,6 +502,7 @@ onUnmounted(() => {
 
 <template>
   <article
+    ref="slipEl"
     class="daily-slip"
     :class="{ 'is-dim': loading && (haiku || missing) }"
     :data-dir="direction"
@@ -466,109 +552,122 @@ onUnmounted(() => {
               </Transition>
             </div>
 
-            <div v-if="haiku.reading" class="daily-slip__reading">
-              <div
-                :id="readingId"
-                class="daily-slip__clamp"
-                :class="{
-                  'is-open': readingOpen,
-                  'is-clamped':
-                    !props.foldReading &&
-                    readingOverflows !== false &&
-                    !readingOpen,
-                  'is-folded': props.foldReading && !readingOpen,
-                  'is-animated': readingToggled,
-                }"
-                :style="
-                  readingFull
-                    ? { '--reading-full': `${readingFull}px` }
-                    : undefined
-                "
-              >
-                <p
-                  v-if="!props.foldReading || readingOpen"
-                  ref="readingInner"
-                  class="daily-slip__reading-text gk-drop-cap"
+            <!-- Under the poem: its two keys, and the day's card tipped in
+                 beside them -->
+            <div class="daily-slip__below" :class="{ 'has-card': cardUrl }">
+              <div v-if="haiku.reading" class="daily-slip__reading">
+                <div
+                  :id="readingId"
+                  class="daily-slip__clamp"
+                  :class="{
+                    'is-open': readingOpen,
+                    'is-clamped':
+                      !props.foldReading &&
+                      readingOverflows !== false &&
+                      !readingOpen,
+                    'is-folded': props.foldReading && !readingOpen,
+                    'is-animated': readingToggled,
+                  }"
+                  :style="
+                    readingFull
+                      ? { '--reading-full': `${readingFull}px` }
+                      : undefined
+                  "
                 >
-                  {{ haiku.reading }}
-                </p>
-              </div>
-              <button
-                v-if="readingOverflows || props.foldReading"
-                type="button"
-                class="daily-slip__toggle"
-                :aria-expanded="readingOpen"
-                :aria-controls="readingId"
-                data-cy="daily-reading-toggle"
-                @click="toggleReading"
-              >
-                {{
-                  readingOpen
-                    ? t('home.daily.readLess')
-                    : t('home.daily.readMore')
-                }}
-                <ChevronDown
-                  :size="16"
-                  class="daily-slip__chevron"
-                  :class="{ 'is-open': readingOpen }"
-                  aria-hidden="true"
-                />
-              </button>
-            </div>
-
-            <div class="daily-slip__trace">
-              <button
-                type="button"
-                class="daily-slip__toggle"
-                :aria-expanded="sourceOpen"
-                :aria-controls="sourceId"
-                data-cy="daily-trace-toggle"
-                @click="sourceOpen = !sourceOpen"
-              >
-                {{ t('home.daily.trace') }}
-                <ChevronDown
-                  :size="16"
-                  class="daily-slip__chevron"
-                  :class="{ 'is-open': sourceOpen }"
-                  aria-hidden="true"
-                />
-              </button>
-              <div
-                :id="sourceId"
-                class="daily-slip__answer"
-                :class="{ 'is-open': sourceOpen }"
-                :inert="!sourceOpen || undefined"
-              >
-                <div class="daily-slip__answer-inner">
-                  <p class="daily-slip__answer-text">
-                    {{ t('home.daily.lifted') }}
-                    <Bookmoji
-                      v-if="haiku.book.emoticons"
-                      class="daily-slip__bookmoji"
-                      :text="haiku.book.emoticons"
-                      :aria-label="`${t('home.daily.bookmoji')} : ${haiku.book.emoticons}`"
-                    />
-                  </p>
-                  <p class="daily-slip__answer-text">
-                    <i18n-t
-                      :keypath="
-                        haiku.isToday
-                          ? 'home.daily.source'
-                          : 'home.daily.sourcePast'
-                      "
-                      tag="span"
-                      scope="global"
-                    >
-                      <template #book>
-                        <cite class="daily-slip__book">{{
-                          haiku.book.title
-                        }}</cite>
-                      </template>
-                      <template #author>{{ haiku.book.author }}</template>
-                    </i18n-t>
+                  <p
+                    v-if="!props.foldReading || readingOpen"
+                    ref="readingInner"
+                    class="daily-slip__reading-text gk-drop-cap"
+                  >
+                    {{ haiku.reading }}
                   </p>
                 </div>
+                <button
+                  v-if="readingOverflows || props.foldReading"
+                  type="button"
+                  class="daily-slip__toggle"
+                  :aria-expanded="readingOpen"
+                  :aria-controls="readingId"
+                  data-cy="daily-reading-toggle"
+                  @click="toggleReading"
+                >
+                  {{
+                    readingOpen
+                      ? t('home.daily.readLess')
+                      : t('home.daily.readMore')
+                  }}
+                  <ChevronDown
+                    :size="16"
+                    class="daily-slip__chevron"
+                    :class="{ 'is-open': readingOpen }"
+                    aria-hidden="true"
+                  />
+                </button>
               </div>
+
+              <div class="daily-slip__trace">
+                <button
+                  type="button"
+                  class="daily-slip__toggle"
+                  :aria-expanded="sourceOpen"
+                  :aria-controls="sourceId"
+                  data-cy="daily-trace-toggle"
+                  @click="sourceOpen = !sourceOpen"
+                >
+                  {{ t('home.daily.trace') }}
+                  <ChevronDown
+                    :size="16"
+                    class="daily-slip__chevron"
+                    :class="{ 'is-open': sourceOpen }"
+                    aria-hidden="true"
+                  />
+                </button>
+                <div
+                  :id="sourceId"
+                  class="daily-slip__answer"
+                  :class="{ 'is-open': sourceOpen }"
+                  :inert="!sourceOpen || undefined"
+                >
+                  <div class="daily-slip__answer-inner">
+                    <p class="daily-slip__answer-text">
+                      {{ t('home.daily.lifted') }}
+                      <Bookmoji
+                        v-if="haiku.book.emoticons"
+                        class="daily-slip__bookmoji"
+                        :text="haiku.book.emoticons"
+                        :aria-label="`${t('home.daily.bookmoji')} : ${haiku.book.emoticons}`"
+                      />
+                    </p>
+                    <p class="daily-slip__answer-text">
+                      <i18n-t
+                        :keypath="
+                          haiku.isToday
+                            ? 'home.daily.source'
+                            : 'home.daily.sourcePast'
+                        "
+                        tag="span"
+                        scope="global"
+                      >
+                        <template #book>
+                          <cite class="daily-slip__book">{{
+                            haiku.book.title
+                          }}</cite>
+                        </template>
+                        <template #author>{{ haiku.book.author }}</template>
+                      </i18n-t>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <DailyHaikuCard
+                v-if="cardUrl"
+                class="daily-slip__card"
+                :src="cardUrl"
+                :alt="cardAlt"
+                @open="cardOpen = true"
+                @failed="failedCard = cardUrl"
+              />
             </div>
           </div>
 
@@ -609,6 +708,7 @@ onUnmounted(() => {
               class="daily-slip__step"
               :disabled="!previousDate"
               :aria-label="previousLabel"
+              aria-keyshortcuts="ArrowLeft"
               data-cy="daily-prev"
               @click="goPrevious"
             >
@@ -632,6 +732,7 @@ onUnmounted(() => {
               class="daily-slip__step"
               :disabled="!nextDate"
               :aria-label="nextLabel"
+              aria-keyshortcuts="ArrowRight"
               data-cy="daily-next"
               @click="goNext"
             >
@@ -680,6 +781,22 @@ onUnmounted(() => {
     </p>
 
     <p v-else class="daily-slip__empty">{{ t('home.daily.empty') }}</p>
+
+    <DailyHaikuCardDialog
+      v-if="haiku"
+      v-model="cardOpen"
+      :src="cardUrl"
+      :alt="cardAlt"
+      :heading="haiku.title ?? slipLabel"
+      :meta="cardDate"
+      :filename="`gutenku-${haiku.date}.jpg`"
+      :previous-label="previousLabel"
+      :next-label="nextLabel"
+      :has-previous="!!previousDate"
+      :has-next="!!nextDate"
+      @previous="goPrevious"
+      @next="goNext"
+    />
   </article>
 </template>
 
@@ -779,6 +896,55 @@ onUnmounted(() => {
         --indent: 0.45em;
       }
     }
+  }
+
+  // With a card, the two keys keep the left and the card is tipped in on the
+  // right, level with them: the slip grows by a line at most. The commentary
+  // above and the source below still run the full measure.
+  &__below.has-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    // Commentary, its key, the source key, what the card stands taller by,
+    // the source
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+    column-gap: 1rem;
+    margin-bottom: 0.75rem;
+
+    .daily-slip__reading,
+    .daily-slip__trace {
+      display: contents;
+    }
+
+    .daily-slip__clamp {
+      grid-area: 1 / 1 / 2 / -1;
+      margin-bottom: 0.25rem;
+    }
+
+    .daily-slip__toggle {
+      grid-column: 1;
+      justify-self: start;
+    }
+
+    .daily-slip__reading > .daily-slip__toggle {
+      grid-row: 2;
+    }
+
+    .daily-slip__trace > .daily-slip__toggle {
+      grid-row: 3;
+    }
+
+    .daily-slip__answer {
+      grid-area: 5 / 1 / 6 / -1;
+    }
+  }
+
+  // A plate the size of the two keys beside it: it supports the poem, it
+  // never competes with it. Its corner key overhangs into its own margin.
+  &__card {
+    grid-area: 2 / 2 / 5 / 3;
+    align-self: start;
+    width: clamp(4.5rem, 22cqi, 7rem);
+    margin-top: 0.375rem;
   }
 
   // Reading: five ruled lines at rest, the full text when opened

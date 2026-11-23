@@ -280,6 +280,14 @@
         "previousNone": "Pas de haïku plus ancien",
         "next": "Haïku suivant, {date}",
         "nextNone": "Pas de haïku plus récent"
+      },
+      "card": {
+        "open": "Voir la carte de ce haïku",
+        "title": "Carte du haïku",
+        "alt": "Carte illustrée du haïku : {verses}",
+        "altTitled": "Carte illustrée du haïku « {title} » : {verses}",
+        "download": "Télécharger la carte",
+        "none": "Aucune carte n’a été dessinée pour ce jour."
       }
     },
     "gameEntry": {

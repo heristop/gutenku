@@ -280,6 +280,14 @@
         "previousNone": "No earlier haiku",
         "next": "Next haiku, {date}",
         "nextNone": "No later haiku"
+      },
+      "card": {
+        "open": "View the card of this haiku",
+        "title": "Haiku card",
+        "alt": "Illustrated card of the haiku: {verses}",
+        "altTitled": "Illustrated card of the haiku “{title}”: {verses}",
+        "download": "Download the card",
+        "none": "No card was drawn for this day."
       }
     },
     "gameEntry": {
