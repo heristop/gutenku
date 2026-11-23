@@ -81,6 +81,32 @@ describe.runIf(gameEnabled)('emoji clue helpers', () => {
     expect(clue.get('[aria-live]').text()).toContain('🏴‍☠️ 🦊 ⚖');
   });
 
+  it('turns every motif over once the game is over, scratched or not', async () => {
+    const clue = await hint();
+    const cells = () => clue.findAll('.emoji-row .emoji');
+    const full = ['⚖', '✝', '🏛', '📜', '🕯'];
+
+    // In play, the full clue alone does not open the unscratched tiles
+    await clue.setProps({
+      hint: {
+        type: 'emoticons',
+        content: full.map(bookmojiId).join(' '),
+        round: 1,
+      },
+      visibleIndices: [1, 4],
+      canScratch: false,
+    });
+    expect(cells().filter((cell) => cell.find('use').exists())).toHaveLength(2);
+    expect(clue.findAll('button.emoji--hidden')).toHaveLength(3);
+
+    await clue.setProps({ revealAll: true });
+    expect(cells().map((cell) => cell.get('use').attributes('href'))).toEqual(
+      full.map((emoji) => expect.stringContaining('#' + bookmojiId(emoji))),
+    );
+    expect(clue.find('button.emoji--hidden').exists()).toBeFalsy();
+    expect(clue.get('[aria-live]').text()).toContain('{"count":5}');
+  });
+
   it('names each hidden tile by its place in the row', async () => {
     const labels = (await hint())
       .findAll('button.emoji--hidden')
