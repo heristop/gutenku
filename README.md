@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1795428041" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1795514451" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku suggests a quiet, fleeting moment of movement and observation. The phrase "as he went his rounds" evokes someone making a routine journey, perhaps a worker, sailor, or caretaker moving through the day. The line "in women who came aboard" introduces a human presence that feels sudden and delicate, as if people are arriving like part of the morning’s unfolding scene. The final image, "the fresh morning air," brings a sense of renewal, cleanliness, and beginning. Overall, the haiku captures the gentle transition from night to day, blending human activity with the calm freshness of morning."_
+> _"This haiku captures the tense, almost absurd experience of dealing with debt and persistent reminders through the phrase "dunning letters." The opening line, "which took five minutes," suggests something brief or small, but the next line reveals a heavier reality: the speaker is being harassed by collection notices. The final line, "what a way to talk," adds irony and dry humor, as if the letters themselves are speaking in a cold, impersonal voice. Overall, the poem highlights the clash between ordinary time and emotional pressure, using concise language to show frustration, embarrassment, and wit."_
 
-— **BotenKu** 📅 _Nov 23, 2026_
+— **BotenKu** 📅 _Nov 24, 2026_
 
 </td>
 </tr>
