@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1795514451" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1795600849" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures the tense, almost absurd experience of dealing with debt and persistent reminders through the phrase "dunning letters." The opening line, "which took five minutes," suggests something brief or small, but the next line reveals a heavier reality: the speaker is being harassed by collection notices. The final line, "what a way to talk," adds irony and dry humor, as if the letters themselves are speaking in a cold, impersonal voice. Overall, the poem highlights the clash between ordinary time and emotional pressure, using concise language to show frustration, embarrassment, and wit."_
+> _"This haiku captures a tense, abrupt moment of confrontation. The opening line, "There came the same day," suggests an event arriving unexpectedly and immediately, as if emotions or consequences have caught up at once. The second line, "with a certain defiance," gives the moment a strong attitude: there is resistance, pride, or refusal to submit. The final line, "what are you saying," sounds like a sharp challenge, showing confusion, disbelief, or direct opposition. Together, the haiku creates a feeling of emotional friction, where the speaker seems to meet something unsettling with bold resistance."_
 
-— **BotenKu** 📅 _Nov 24, 2026_
+— **BotenKu** 📅 _Nov 25, 2026_
 
 </td>
 </tr>
