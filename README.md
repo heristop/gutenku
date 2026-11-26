@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1795600849" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1795687254" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a tense, abrupt moment of confrontation. The opening line, "There came the same day," suggests an event arriving unexpectedly and immediately, as if emotions or consequences have caught up at once. The second line, "with a certain defiance," gives the moment a strong attitude: there is resistance, pride, or refusal to submit. The final line, "what are you saying," sounds like a sharp challenge, showing confusion, disbelief, or direct opposition. Together, the haiku creates a feeling of emotional friction, where the speaker seems to meet something unsettling with bold resistance."_
+> _"This haiku captures a quiet moment on the water just before nature turns restless. The phrase "set by a current" suggests something being carried gently along, while "fast sleeping on the water" creates a calm, still image that feels almost dreamlike. However, the final line, "with a rising gale," introduces tension and change, hinting that the peaceful scene will soon be disturbed by stronger winds. The poem contrasts stillness with movement, calm with danger, and serenity with the power of nature."_
 
-— **BotenKu** 📅 _Nov 25, 2026_
+— **BotenKu** 📅 _Nov 26, 2026_
 
 </td>
 </tr>
