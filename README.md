@@ -25,13 +25,13 @@
 <table>
 <tr>
 <td width="300" valign="top">
-<img src="/assets/img/daily_haiku_card.jpg?t=1795687254" width="280" alt="Daily Haiku Card">
+<img src="/assets/img/daily_haiku_card.jpg?t=1795773645" width="280" alt="Daily Haiku Card">
 </td>
 <td valign="top">
 
-> _"This haiku captures a quiet moment on the water just before nature turns restless. The phrase "set by a current" suggests something being carried gently along, while "fast sleeping on the water" creates a calm, still image that feels almost dreamlike. However, the final line, "with a rising gale," introduces tension and change, hinting that the peaceful scene will soon be disturbed by stronger winds. The poem contrasts stillness with movement, calm with danger, and serenity with the power of nature."_
+> _"This haiku suggests a moment of quiet grief and finality. The speaker says that someone "made no answer," creating a sense of silence, distance, or emotional withdrawal. The line about "The doctor picked it up" implies a medical setting, perhaps after an illness or death, and the object being picked up may symbolize something left behind or taken away. The final line, "my last one had done," hints that this was not the first such loss, but another in a series of painful experiences. The poem is brief, but it carries a deep feeling of sorrow, resignation, and the heaviness of repeated endings."_
 
-— **BotenKu** 📅 _Nov 26, 2026_
+— **BotenKu** 📅 _Nov 27, 2026_
 
 </td>
 </tr>
